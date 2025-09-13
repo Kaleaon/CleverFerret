@@ -178,34 +178,10 @@ data class SettingsMenuItem(
 
 private fun getApiSettingsItems(): List<SettingsMenuItem> = listOf(
     SettingsMenuItem(
-        title = "Books APIs",
-        subtitle = "Configure Open Library, Google Books, Hardcover",
-        icon = Icons.Default.Book,
-        route = "settings/apis/books"
-    ),
-    SettingsMenuItem(
-        title = "Comics APIs",
-        subtitle = "Configure ComicVine API",
-        icon = Icons.Default.Collections,
-        route = "settings/apis/comics"
-    ),
-    SettingsMenuItem(
-        title = "Audiobooks APIs", 
-        subtitle = "Configure OverDrive API",
-        icon = Icons.Default.Headphones,
-        route = "settings/apis/audiobooks"
-    ),
-    SettingsMenuItem(
-        title = "Movies & TV APIs",
-        subtitle = "Configure TMDB, OMDb APIs",
-        icon = Icons.Default.Movie,
-        route = "settings/apis/movies"
-    ),
-    SettingsMenuItem(
-        title = "Music APIs",
-        subtitle = "Configure MusicBrainz, Spotify APIs",
-        icon = Icons.Default.MusicNote,
-        route = "settings/apis/music"
+        title = "API Keys Manager",
+        subtitle = "Configure all metadata APIs (16+ providers)",
+        icon = Icons.Default.Key,
+        route = "settings/api_keys"
     )
 )
 
