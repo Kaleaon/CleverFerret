@@ -333,7 +333,9 @@ data class TVDBSeries(
 )
 
 @Singleton
-class ComprehensiveMetadataService @Inject constructor() {
+class ComprehensiveMetadataService @Inject constructor(
+    private val apiKeyRepository: APIKeyRepository
+) {
     
     // Initialize all API clients
     private val amazonApi: AmazonProductApi by lazy {
