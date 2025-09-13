@@ -224,8 +224,18 @@ fun APIKeysManagerScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { viewModel.saveAllKeys() }) {
-                            Icon(Icons.Default.Save, contentDescription = "Save All")
+                        IconButton(
+                            onClick = { viewModel.saveAllKeys() },
+                            enabled = uiState.hasUnsavedChanges && !uiState.isSaving
+                        ) {
+                            if (uiState.isSaving) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Icon(Icons.Default.Save, contentDescription = "Save All")
+                            }
                         }
                     }
                 )
