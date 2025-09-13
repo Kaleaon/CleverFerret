@@ -308,8 +308,12 @@ fun APIKeysManagerScreen(
                                     APIKeyCard(
                                         config = apiConfig,
                                         currentValue = uiState.apiKeys[apiConfig.key] ?: "",
+                                        testResult = uiState.testResults[apiConfig.key],
                                         onValueChange = { newValue ->
                                             viewModel.updateApiKey(apiConfig.key, newValue)
+                                        },
+                                        onTestKey = { 
+                                            viewModel.testApiKey(apiConfig.key, uiState.apiKeys[apiConfig.key] ?: "")
                                         },
                                         onShowInstructions = { showInstructions = apiConfig }
                                     )
