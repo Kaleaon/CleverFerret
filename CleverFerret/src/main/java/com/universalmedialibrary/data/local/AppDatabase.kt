@@ -39,6 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun libraryDao(): LibraryDao
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun metadataDao(): MetadataDao
+    abstract fun apiKeyDao(): APIKeyDao
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
