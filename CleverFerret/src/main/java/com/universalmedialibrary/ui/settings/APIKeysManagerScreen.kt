@@ -495,12 +495,26 @@ fun APIKeyCard(
                     )
                 }
                 
-                IconButton(onClick = onShowInstructions) {
-                    Icon(
-                        Icons.Default.Help,
-                        contentDescription = "Setup Instructions",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconButton(onClick = onShowInstructions) {
+                        Icon(
+                            Icons.Default.Help,
+                            contentDescription = "Setup Instructions",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    
+                    if (currentValue.isNotEmpty()) {
+                        IconButton(onClick = onTestKey) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Test API Key",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
             }
             
@@ -526,22 +540,39 @@ fun APIKeyCard(
                         )
                     }
                 },
-                supportingText = if (currentValue.isNotEmpty()) {
-                    { 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.CheckCircle,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.primary
+                supportingText = {
+                    Column {
+                        if (currentValue.isNotEmpty()) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Configured")
+                            }
+                        }
+                        
+                        // Show test result if available
+                        testResult?.let { result ->
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = result,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = when {
+                                    result.startsWith("✅") -> MaterialTheme.colorScheme.primary
+                                    result.startsWith("❌") -> MaterialTheme.colorScheme.error
+                                    result.startsWith("🔄") -> MaterialTheme.colorScheme.secondary
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                }
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Configured")
                         }
                     }
-                } else null
+                }
             )
         }
 
