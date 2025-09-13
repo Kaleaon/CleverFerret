@@ -226,8 +226,32 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     
-    // ISBN and metadata utilities
-    implementation("org.apache.commons:commons-validator:1.7")
+    // Cloud storage integrations
+    implementation("com.dropbox.core:dropbox-core-sdk:5.4.5")
+    implementation("com.google.api-client:google-api-client-android:2.2.0")
+    implementation("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
+    
+    // Plex API integration
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:converter-simplexml:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    
+    // Calibre integration
+    implementation("org.apache.commons:commons-net:3.9.0")
+    implementation("com.jcraft:jsch:0.1.55")
+    
+    // Amazon/Google Books APIs
+    implementation("com.amazonaws:aws-android-sdk-core:2.73.0")
+    implementation("com.amazonaws:aws-android-sdk-s3:2.73.0")
+    
+    // WebDAV for various cloud services
+    implementation("com.github.thegrizzlylabs:sardine-android:0.8")
+    
+    // Background sync and work manager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.work:work-gcm:2.9.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test.ext:junit:1.1.5")
