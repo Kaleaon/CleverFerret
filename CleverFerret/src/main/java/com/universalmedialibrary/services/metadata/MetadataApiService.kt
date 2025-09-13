@@ -277,8 +277,11 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
-    suspend fun searchMovies(query: String, tmdbApiKey: String?): List<MetadataSearchResult> {
+    suspend fun searchMovies(query: String): List<MetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
+        
+        // Get TMDB API key from repository
+        val tmdbApiKey = apiKeyRepository.getAPIKeyValue("tmdb")
         
         if (tmdbApiKey.isNullOrEmpty()) {
             // Return demo data if no API key
