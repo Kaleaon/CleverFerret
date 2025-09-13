@@ -392,10 +392,12 @@ class ComprehensiveMetadataService @Inject constructor(
      */
     suspend fun searchAllBookSources(
         query: String,
-        isbn: String? = null,
-        apiKeys: Map<String, String> = emptyMap()
+        isbn: String? = null
     ): List<MetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
+        
+        // Get API keys from repository
+        val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
         
         // Google Books (free, no key required)
         try {
