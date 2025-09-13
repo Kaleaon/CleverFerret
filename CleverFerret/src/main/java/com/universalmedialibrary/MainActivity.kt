@@ -45,6 +45,7 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import androidx.compose.material.icons.filled.Settings
 import com.universalmedialibrary.ui.settings.SettingsScreen
 import com.universalmedialibrary.ui.settings.ApiSettingsScreen
+import com.universalmedialibrary.ui.settings.APIKeysManagerScreen
 import com.universalmedialibrary.ui.settings.ReaderSettingsScreen
 import com.universalmedialibrary.ui.settings.SecuritySettingsScreen
 import com.universalmedialibrary.ui.settings.AboutScreen
