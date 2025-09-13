@@ -28,9 +28,10 @@ import com.universalmedialibrary.data.local.model.*
         ItemGenre::class,
         People::class,
         ItemPersonRole::class,
-        Series::class
+        Series::class,
+        APIKey::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false // For now, we can disable schema exporting
 )
 abstract class AppDatabase : RoomDatabase() {
