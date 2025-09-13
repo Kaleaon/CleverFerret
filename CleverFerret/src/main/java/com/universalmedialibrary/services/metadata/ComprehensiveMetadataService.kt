@@ -495,8 +495,7 @@ class ComprehensiveMetadataService @Inject constructor(
      * Search audiobook sources
      */
     suspend fun searchAudiobookSources(
-        query: String,
-        apiKeys: Map<String, String> = emptyMap()
+        query: String
     ): List<MetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
         
