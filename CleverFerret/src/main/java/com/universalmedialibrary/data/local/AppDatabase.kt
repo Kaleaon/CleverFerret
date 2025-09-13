@@ -145,5 +145,28 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE metadata_movie ADD COLUMN tmdbId TEXT")
             }
         }
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create API keys table
+                database.execSQL("""
+                    CREATE TABLE api_keys (
+                        id TEXT PRIMARY KEY NOT NULL,
+                        keyName TEXT NOT NULL,
+                        keyValue TEXT NOT NULL,
+                        isActive INTEGER NOT NULL DEFAULT 1,
+                        lastValidated INTEGER,
+                        validationStatus TEXT,
+                        provider TEXT NOT NULL,
+                        category TEXT NOT NULL,
+                        isRequired INTEGER NOT NULL DEFAULT 0,
+                        createdAt INTEGER NOT NULL,
+                        updatedAt INTEGER NOT NULL
+                    )
+                """)
+                
+                // Create unique index on provider
+                database.execSQL("CREATE UNIQUE INDEX index_api_keys_provider ON api_keys(provider)")
+            }
+        }
     }
 }
