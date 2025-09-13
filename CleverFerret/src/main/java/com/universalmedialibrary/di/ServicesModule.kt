@@ -76,4 +76,52 @@ object ServicesModule {
     fun providePodcastService(@ApplicationContext context: Context): com.universalmedialibrary.services.podcast.PodcastService {
         return com.universalmedialibrary.services.podcast.PodcastService(context)
     }
+
+    // Smart Content Analysis Services
+    @Provides
+    @Singleton
+    fun provideOCRService(): com.universalmedialibrary.services.analysis.ocr.OCRService {
+        return com.universalmedialibrary.services.analysis.ocr.OCRService()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMetadataExtractor(): com.universalmedialibrary.services.analysis.nlp.MetadataExtractor {
+        return com.universalmedialibrary.services.analysis.nlp.MetadataExtractor()
+    }
+
+    @Provides
+    @Singleton
+    fun provideContentFingerprinter(): com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter {
+        return com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter()
+    }
+
+    @Provides
+    @Singleton
+    fun provideContentClassifier(): com.universalmedialibrary.services.analysis.classification.ContentClassifier {
+        return com.universalmedialibrary.services.analysis.classification.ContentClassifier()
+    }
+
+    @Provides
+    @Singleton
+    fun provideArchiveComparator(comprehensiveMetadataService: ComprehensiveMetadataService): com.universalmedialibrary.services.analysis.comparison.ArchiveComparator {
+        return com.universalmedialibrary.services.analysis.comparison.ArchiveComparator(comprehensiveMetadataService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSmartContentAnalyzer(
+        @ApplicationContext context: Context,
+        mediaViewerManager: MediaViewerManager,
+        ocrService: com.universalmedialibrary.services.analysis.ocr.OCRService,
+        metadataExtractor: com.universalmedialibrary.services.analysis.nlp.MetadataExtractor,
+        contentFingerprinter: com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter,
+        contentClassifier: com.universalmedialibrary.services.analysis.classification.ContentClassifier,
+        archiveComparator: com.universalmedialibrary.services.analysis.comparison.ArchiveComparator
+    ): com.universalmedialibrary.services.analysis.SmartContentAnalyzer {
+        return com.universalmedialibrary.services.analysis.SmartContentAnalyzer(
+            context, mediaViewerManager, ocrService, metadataExtractor, 
+            contentFingerprinter, contentClassifier, archiveComparator
+        )
+    }
 }
