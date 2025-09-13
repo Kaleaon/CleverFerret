@@ -425,7 +425,9 @@ fun CategoryHeader(
 fun APIKeyCard(
     config: APIKeyConfig,
     currentValue: String,
+    testResult: String? = null,
     onValueChange: (String) -> Unit,
+    onTestKey: () -> Unit,
     onShowInstructions: () -> Unit
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
