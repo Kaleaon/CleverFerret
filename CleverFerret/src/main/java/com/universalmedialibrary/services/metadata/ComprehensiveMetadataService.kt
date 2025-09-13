@@ -463,10 +463,12 @@ class ComprehensiveMetadataService @Inject constructor(
      * Search comic/manga sources
      */
     suspend fun searchComicSources(
-        query: String,
-        apiKeys: Map<String, String> = emptyMap()
+        query: String
     ): List<MetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
+        
+        // Get API keys from repository
+        val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
         
         // ComicVine (requires API key)
         try {
