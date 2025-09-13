@@ -170,14 +170,44 @@ dependencies {
     // File handling and document access
     implementation("androidx.documentfile:documentfile:1.0.1")
     
-    // PDF rendering for documents
+    // Advanced document and media support
     implementation("com.github.barteksc:android-pdf-viewer:3.2.0-beta.1")
+    implementation("com.artifex.mupdf:mini:1.23.8") // Enhanced PDF rendering
     
-    // HTML/XML parsing for web scraping
+    // Archive support for comics (CBZ, CBR)
+    implementation("org.apache.commons:commons-compress:1.24.0")
+    implementation("com.github.junrar:junrar:7.5.4")
+    
+    // Image processing and manipulation
+    implementation("androidx.graphics:graphics-core:1.0.0-beta01")
+    
+    // Advanced media support
+    implementation("androidx.media3:media3-exoplayer-hls:1.3.0")
+    implementation("androidx.media3:media3-exoplayer-dash:1.3.0")
+    implementation("androidx.media3:media3-exoplayer-rtsp:1.3.0")
+    implementation("androidx.media3:media3-decoder-ffmpeg:1.3.0")
+    
+    // Subtitle support
+    implementation("androidx.media3:media3-extractor:1.3.0")
+    
+    // Gesture detection and advanced UI
+    implementation("androidx.compose.foundation:foundation:1.7.0-beta01")
+    
+    // HTML/XML parsing for web scraping and EPUB
     implementation("org.jsoup:jsoup:1.17.2")
+    
+    // WebView for EPUB rendering
+    implementation("androidx.webkit:webkit:1.11.0")
     
     // Date parsing
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+    
+    // File format detection
+    implementation("org.apache.tika:tika-core:2.9.1")
+    
+    // Machine learning for panel detection
+    implementation("org.tensorflow:tensorflow-lite:2.13.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test.ext:junit:1.1.5")
