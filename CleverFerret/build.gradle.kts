@@ -205,9 +205,29 @@ dependencies {
     // File format detection
     implementation("org.apache.tika:tika-core:2.9.1")
     
-    // Machine learning for panel detection
+    // Machine learning for content analysis
     implementation("org.tensorflow:tensorflow-lite:2.13.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+    
+    // OCR and text extraction
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:language-id:17.0.4")
+    
+    // Advanced NLP and text processing
+    implementation("org.apache.lucene:lucene-core:9.7.0")
+    implementation("org.apache.lucene:lucene-analyzers-common:9.7.0")
+    implementation("edu.stanford.nlp:stanford-corenlp:4.5.0")
+    implementation("edu.stanford.nlp:stanford-corenlp:4.5.0:models")
+    
+    // Content fingerprinting
+    implementation("com.github.kilianB:JImageHash:3.0.0")
+    
+    // Additional text processing
+    implementation("org.apache.commons:commons-text:1.10.0")
+    implementation("org.apache.commons:commons-lang3:3.12.0")
+    
+    // ISBN and metadata utilities
+    implementation("org.apache.commons:commons-validator:1.7")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test.ext:junit:1.1.5")
