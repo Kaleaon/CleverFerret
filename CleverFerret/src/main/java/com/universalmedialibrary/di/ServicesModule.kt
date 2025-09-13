@@ -55,14 +55,14 @@ object ServicesModule {
 
     @Provides
     @Singleton
-    fun provideMetadataApiService(): MetadataApiService {
-        return MetadataApiService()
+    fun provideMetadataApiService(apiKeyRepository: APIKeyRepository): MetadataApiService {
+        return MetadataApiService(apiKeyRepository)
     }
 
     @Provides
     @Singleton
-    fun provideComprehensiveMetadataService(): ComprehensiveMetadataService {
-        return ComprehensiveMetadataService()
+    fun provideComprehensiveMetadataService(apiKeyRepository: APIKeyRepository): ComprehensiveMetadataService {
+        return ComprehensiveMetadataService(apiKeyRepository)
     }
 
     @Provides
