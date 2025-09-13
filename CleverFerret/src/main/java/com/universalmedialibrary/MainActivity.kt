@@ -96,6 +96,9 @@ fun AppNavigation() {
         composable("settings") {
             SettingsScreen(navController = navController)
         }
+        composable("settings/api_keys") {
+            APIKeysManagerScreen(navController = navController)
+        }
         composable("settings/apis/{mediaType}") { backStackEntry ->
             val mediaType = backStackEntry.arguments?.getString("mediaType") ?: "books"
             ApiSettingsScreen(navController = navController, mediaType = mediaType)
