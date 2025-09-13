@@ -191,7 +191,9 @@ interface MusicBrainzApi {
 }
 
 @Singleton
-class MetadataApiService @Inject constructor() {
+class MetadataApiService @Inject constructor(
+    private val apiKeyRepository: APIKeyRepository
+) {
     
     private val googleBooksApi: GoogleBooksApi by lazy {
         Retrofit.Builder()
