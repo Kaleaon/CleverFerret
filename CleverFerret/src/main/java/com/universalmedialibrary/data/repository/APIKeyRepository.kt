@@ -57,8 +57,10 @@ class APIKeyRepository @Inject constructor(
     suspend fun getAPIKeyValue(provider: String): String? = 
         apiKeyDao.getAPIKeyValue(provider)
 
-    suspend fun getActiveAPIKeysMap(): Map<String, String> = 
-        apiKeyDao.getActiveAPIKeysMap()
+    suspend fun getActiveAPIKeysMap(): Map<String, String> {
+        val pairs = apiKeyDao.getActiveProviderKeys()
+        return pairs.associate { it.provider to it.keyValue }
+    }
 
     suspend fun getValidAPIKeysCountByCategory(category: String): Int = 
         apiKeyDao.getValidAPIKeysCountByCategory(category)
