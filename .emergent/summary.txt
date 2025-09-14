@@ -1,82 +1,63 @@
 <analysis>
-The AI engineer successfully operationalized the PWA demo of the CleverFerret Universal Media Library. Initially, the project was identified as an Android app with a PWA demo. The focus shifted to the PWA due to environmental constraints, installing dependencies and resolving a preview host issue in . Subsequently, the user requested a full Android version with Plex-inspired design, metadata APIs, and media viewers. The AI implemented these by enhancing existing Android components (Kotlin/Jetpack Compose/Room), adding new services for metadata (Google Books, TMDB, MusicBrainz) and media playback. Further, Calibre-like plugin functionality for web fiction and podcast management was integrated, including content scraping and download capabilities. The current work involves expanding comprehensive API support and setting up an API keys management screen for the Android application.
+The AI engineer successfully transformed the CleverFerret Universal Media Library from a PWA demo into a comprehensive Android application. Initial work involved PWA operationalization, then transitioning to Android with a Plex-inspired UI, robust metadata APIs (Google Books, TMDB, MusicBrainz), and media viewers. Key feature additions included Calibre-like web fiction and podcast management. A significant phase focused on implementing an API Keys Manager, which required extensive database, repository, ViewModel, and UI development, and critically, fixing a navigation bug to make it accessible. Subsequently, advanced media viewers (VLC-like video, Moon+ Reader beating e-reader, comic panel zoom) were built. The project then escalated to integrating AI-powered content analysis and auto-labeling, culminating in the current focus on Plex server integration and cloud sync capabilities.
 </analysis>
 
 <product_requirements>
-The user's primary goal is to have a fully working app, not just a demo for the CleverFerret - Universal Media Library. This application aims to be a comprehensive, complete, and organized library manager for various media types (books, movies, music, podcasts, web fiction).
-
-Initially, the request was to get the application operational, focusing first on the PWA demo due to environment limitations.
-Key requirements evolved to include:
-1.  **Plex-inspired Design**: A dark, modern UI aesthetic for both the PWA demo and the Android application, mimicking Plex's visual style.
-2.  **Metadata Retrieval APIs**: Full integration of various APIs to fetch rich metadata for books (Google Books, Open Library), movies/TV shows (TMDB, OMDb), and music (MusicBrainz, Spotify Web API) for the Android app. Podcast APIs (Podcast Index, Apple Podcasts) are also crucial.
-3.  **Media Viewing and Editing**: Operational media viewers (E-book reader, Video player, Audio player) and comprehensive data editing capabilities for all media types within the Android app.
-4.  **Calibre Plugin Functionality**:
-    *   **FanFicFare-like Web Fiction Manager**: Ability to retrieve, update, and manage web fiction from fan sites, including new chapter updates.
-    *   **Podcast Management**: Ability to manage, download, and save podcasts.
-5.  **Full Android Version**: Transition from PWA demo to building out the full Android application with complete filesystem access and all aforementioned features.
+The user aims for a fully working app, not just a demo for CleverFerret - Universal Media Library, a comprehensive manager for books, movies, music, podcasts, and web fiction. Initial requirements focused on a Plex-inspired dark UI, extensive metadata retrieval APIs (Google Books, TMDB, MusicBrainz, Podcast Index), and functional media viewers (e-book, video, audio) with robust editing. Calibre-like features for web fiction (scraping, downloading) and podcast management (subscription, download) were also crucial. Subsequent requirements included advanced media viewers: a VLC-like video player, an e-reader surpassing Moon+ Reader (supporting diverse formats, reading settings), and a comic reader with panel-by-panel zoom. The latest major request is an AI-powered content analysis and auto-labeling system to automatically extract metadata and compare against archives, followed by Plex server integration, remote Calibre connection, and cloud storage (Dropbox, Google Drive, Amazon/Google Books) to target both power and casual users.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack Architecture**: React/Vite/TypeScript frontend (PWA) with a Kotlin/Jetpack Compose Android app.
--   **Frontend (PWA)**: React 18, TypeScript, Vite, Material-UI, IndexedDB (Dexie.js), Zustand.
--   **Backend (Android)**: Kotlin, Jetpack Compose, Room database, Hilt DI, Retrofit, Coil.
--   **Plex-inspired Design**: Custom theming for a dark UI with gold accents.
--   **Metadata APIs**: Integration with Google Books, Open Library, TMDB, OMDb, MusicBrainz, Spotify Web API, Podcast Index.
--   **Content Scraping**: JSoup for web fiction data extraction.
+-   **Android Development**: Kotlin, Jetpack Compose, Room database, Hilt DI, Retrofit, Coil.
+-   **UI/UX**: Plex-inspired dark theme, Material 3.
+-   **Data Management**: IndexedDB (PWA), Local Room DB (Android).
+-   **API Integrations**: Google Books, TMDB, OMDb, MusicBrainz, Spotify Web API, Podcast Index.
+-   **Content Processing**: JSoup (web scraping), Tesseract/ML Kit (OCR), NLP, Perceptual Hashing.
 </key_technical_concepts>
 
 <code_architecture>
 The project is structured with a root  directory containing both an Android application () and a PWA demo ().
 
 
-
 **Key File Summaries and Changes:**
-
--   : Configures Vite for the PWA. Modified to allow  and  to fix preview access issues.
--   , , : These files were extensively modified and rewritten to implement the Plex-inspired dark theme and layout for the PWA demo. This included components like , , , , , and .
--   : Android build configuration. Updated to include new dependencies for metadata APIs (Retrofit, Coil), file handling, and other services.
--   : Android application manifest. Updated to add necessary permissions for file access and network operations.
--   : **CREATED**. Defines the Plex-inspired dark theme for the Android app using Jetpack Compose theming.
--   : **CREATED & ENHANCED**. Initial service for metadata fetching. Later enhanced to include a comprehensive range of Calibre-supported APIs like Google Books, TMDB, MusicBrainz, etc.
--   : **CREATED**. Likely an extension or more refined version of the MetadataApiService to handle the broader array of APIs.
--   : **CREATED**. Implements the UI for an e-book reader with navigation and reading settings.
--   : **MODIFIED**. An existing file, enhanced with Plex-styled controls and UI elements.
--   : **MODIFIED**. An existing file, enhanced with Plex styling, album art display, and professional music controls.
--   : **CREATED**. Provides a UI for searching and applying metadata from multiple API sources, including cover art preview and rating.
+-   : **MODIFIED** to include dependencies for new features like media viewers, analysis tools, and integrations.
+-   : **MODIFIED** for new permissions.
+-   : **MODIFIED** to update navigation routes, particularly for .
+-   : **CREATED & ENHANCED**. UI for managing API keys for 16 providers.
 -   : **CREATED**. ViewModel for the .
--   : **MODIFIED**. Updated to include new Hilt dependency injection bindings for the newly created services (e.g., , , ).
--   : **CREATED**. Implements the logic for web fiction management, including scraping, downloading, and chapter updates.
--   : **CREATED & ENHANCED**. Manages podcast subscriptions, downloads, and playback. Later enhanced to use a comprehensive list of podcast APIs.
--   : **CREATED**. UI for managing web fiction stories.
--   : **CREATED**. ViewModel for the .
--   : **CREATED**. UI for managing podcast subscriptions and episodes.
--   : **CREATED**. ViewModel for the .
--   : **CREATED**. UI for managing API keys used by the various metadata services.
-
-The codebase now supports a full Android media library experience with a web-based PWA demo, emphasizing a consistent design language and extensive media management capabilities.
+-   : **CREATED**. Room entity for API key storage.
+-   : **CREATED**. Room DAO for API key database operations.
+-   : **CREATED**. Repository for API key business logic.
+-   : **MODIFIED** to include .
+-   : **MODIFIED** to replace multiple old API settings with a single API Keys Manager entry.
+-   : **MODIFIED** to add Hilt bindings for new services (metadata, web fiction, podcast, analysis, integration).
+-   : **ENHANCED** to use stored API keys and support more APIs.
+-   , , : **CREATED** for VLC-like video playback.
+-   , , : **CREATED** for an advanced e-book reader.
+-   , , : **CREATED** for a comic reader with panel detection.
+-   : **CREATED** a suite of files (, , , , ) for AI-powered content analysis.
+-   : **CREATED** as a foundational service for external integrations.
+-   : **CREATED** to handle Plex server interactions.
 </code_architecture>
 
 <pending_tasks>
--   Complete the implementation of the ViewModel for the  in the Android application.
--   Further integrate the comprehensive metadata services and podcast APIs into the respective UI components and business logic.
--   Implement the actual saving and loading of API keys in the .
+-   Complete the creation of the Plex API interface and data models in .
+-   Implement remote Calibre connection.
+-   Integrate cloud storage services like Dropbox, Google Drive.
+-   Explore integration with Amazon Books or Google Books APIs if not fully covered.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was working on enhancing the Android application to include comprehensive API integration for various media types (books, movies, music, podcasts) and the ability to manage these API keys.
+Immediately before this summary request, the AI engineer was implementing the foundational architecture for external integrations and specifically starting with **Plex Integration**. The user had requested prioritizing Plex integration, along with remote Calibre connection and cloud services.
 
 The most recent actions include:
--   **Editing**  and  to include new dependencies and permissions for expanded API usage.
--   **Enhancing**  to support more APIs.
--   **Creating**  for a centralized, comprehensive metadata service.
--   **Enhancing**  to utilize a broader range of podcast APIs.
--   **Creating** , which is the UI component for managing all the various API keys required for the integrated services.
--   The last action was starting to **create the ViewModel** for this .
+-   **Editing**  to add necessary dependencies for new integration services.
+-   **Creating** , which serves as a central manager for all external third-party integrations.
+-   **Creating** , the dedicated service for handling all interactions with Plex servers.
+-   The last action was starting to **create the Plex API interface and data models** within the  to define how the application will communicate with a Plex server.
 
-The Android app currently boasts a Plex-inspired UI, functional media viewers (e-book, video, audio), enhanced metadata editing with API search, and Calibre-like web fiction and podcast management capabilities. The current focus is on solidifying the extensive API integrations and providing a user interface for managing the necessary API keys, which is critical for a comprehensive, complete, organized library.
+The application now has a robust internal structure for advanced media handling and AI analysis, and the current work is establishing its capability to connect and manage external media platforms, starting with Plex.
 </current_work>
 
 <optional_next_step>
-Complete the creation and implementation of the ViewModel for the .
+Complete the Plex API interface and data models within .
 </optional_next_step>
-
