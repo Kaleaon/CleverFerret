@@ -335,7 +335,7 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
-    private fun createDemoMovieResults(query: String): List<MetadataSearchResult> {
+    private fun createDemoMovieResults(query: String): List<UnifiedMetadataSearchResult> {
         return listOf(
             MetadataSearchResult(
                 id = "demo1",
