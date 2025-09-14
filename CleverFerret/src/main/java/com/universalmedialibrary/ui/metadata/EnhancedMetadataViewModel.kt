@@ -122,6 +122,6 @@ data class EnhancedMetadataUiState(
     val coverUrl: String = "",
     val genre: String = "",
     val isbn: String = "",
-    val searchResults: List<MetadataSearchResult> = emptyList(),
+    val searchResults: List<UnifiedMetadataSearchResult> = emptyList(),
     val error: String? = null
 )
