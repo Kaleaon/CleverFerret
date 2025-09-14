@@ -105,7 +105,7 @@ private fun BookCard(
             // Book info
             Column {
                 Text(
-                    text = book.title,
+                    text = book.metadata.title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2
