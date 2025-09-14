@@ -228,7 +228,7 @@ class WebFictionViewModel @Inject constructor(
                 author = "FantasyMaster",
                 description = "A comprehensive LitRPG adventure following a player's journey through a virtual world that becomes all too real.",
                 url = "https://www.royalroad.com/fiction/demo2",
-                site = com.universalmedialibrary.services.webfiction.WebFictionSite.ROYAL_ROAD,
+                site = com.universalmedialibrary.services.webfiction.WebFictionSite(id = "rr", name = "Royal Road", baseUrl = "https://www.royalroad.com", supportedTypes = listOf("original")),
                 totalChapters = 156,
                 lastUpdated = "2024-01-20",
                 status = "Complete",
