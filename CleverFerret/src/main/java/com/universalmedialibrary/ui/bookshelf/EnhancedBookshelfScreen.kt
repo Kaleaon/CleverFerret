@@ -21,6 +21,7 @@ import com.universalmedialibrary.ui.theme.PlexTheme
 @Composable
 fun EnhancedBookshelfScreen(
     navController: NavController,
+    libraryId: Long,
     viewModel: BookshelfViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
