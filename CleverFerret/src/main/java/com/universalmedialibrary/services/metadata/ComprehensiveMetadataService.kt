@@ -544,7 +544,7 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchISBNDb(isbn: String, apiKey: String): List<MetadataSearchResult> {
+    private suspend fun searchISBNDb(isbn: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = isbnDbApi.getBookByISBN(isbn, "Bearer $apiKey")
             return listOf(
