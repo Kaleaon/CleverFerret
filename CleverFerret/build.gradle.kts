@@ -264,14 +264,14 @@ dependencies {
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("com.google.mlkit:language-id:17.0.4")
     
-    // Advanced NLP and text processing
-    implementation("org.apache.lucene:lucene-core:9.7.0")
-    implementation("org.apache.lucene:lucene-analyzers-common:9.7.0")
-    implementation("edu.stanford.nlp:stanford-corenlp:4.5.0")
-    implementation("edu.stanford.nlp:stanford-corenlp:4.5.0:models")
+    // Advanced NLP and text processing - Android compatible versions
+    implementation("org.apache.lucene:lucene-core:8.11.2") // Downgraded for Android compatibility
+    implementation("org.apache.lucene:lucene-analyzers-common:8.11.2") // Downgraded for Android compatibility
+    // implementation("edu.stanford.nlp:stanford-corenlp:4.5.0") // Removed - too heavy for Android
+    // implementation("edu.stanford.nlp:stanford-corenlp:4.5.0:models") // Removed - too heavy for Android
     
-    // Content fingerprinting
-    implementation("com.github.kilianB:JImageHash:3.0.0")
+    // Content fingerprinting - Android compatible
+    implementation("com.github.kilianB:JImageHash:3.0.0") // This should work with JitPack
     
     // Additional text processing
     implementation("org.apache.commons:commons-text:1.10.0")
