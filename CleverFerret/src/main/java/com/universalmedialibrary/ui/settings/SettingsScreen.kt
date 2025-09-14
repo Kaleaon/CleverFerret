@@ -199,6 +199,15 @@ private fun getApiSettingsItems(): List<SettingsMenuItem> = listOf(
     )
 )
 
+private fun getIntegrationsSettingsItems(): List<SettingsMenuItem> = listOf(
+    SettingsMenuItem(
+        title = "Plex Integration",
+        subtitle = "Connect to Plex servers for enhanced media management",
+        icon = Icons.Default.Cloud,
+        route = "settings/integrations/plex"
+    )
+)
+
 private fun getReaderSettingsItems(): List<SettingsMenuItem> = listOf(
     SettingsMenuItem(
         title = "Visual Controls",
