@@ -236,7 +236,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-hls:1.3.0")
     implementation("androidx.media3:media3-exoplayer-dash:1.3.0")
     implementation("androidx.media3:media3-exoplayer-rtsp:1.3.0")
-    // implementation("androidx.media3:media3-decoder-ffmpeg:1.3.0") // Removed - doesn't exist in this version
+    // FFmpeg decoder removed - standard ExoPlayer decoders are sufficient
     
     // Subtitle support
     implementation("androidx.media3:media3-extractor:1.3.0")
