@@ -598,7 +598,7 @@ class ComprehensiveMetadataService @Inject constructor(
         try {
             val response = mangaUpdatesApi.searchManga(query)
             return response.results.map { result ->
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = result.record.series_id.toString(),
                     title = result.record.title,
                     author = result.record.authors.joinToString(", ") { it.name },
