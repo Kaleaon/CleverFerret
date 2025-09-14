@@ -45,7 +45,7 @@ data class MetadataProvider(
 )
 
 sealed class MetadataLookupResult {
-    data class Success(val results: List<MetadataSearchResult>) : MetadataLookupResult()
+    data class Success(val results: List<UnifiedMetadataSearchResult>) : MetadataLookupResult()
     data class Error(val message: String, val exception: Throwable? = null) : MetadataLookupResult()
     object NoResults : MetadataLookupResult()
 }
