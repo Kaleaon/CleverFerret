@@ -548,7 +548,7 @@ class ComprehensiveMetadataService @Inject constructor(
         try {
             val response = isbnDbApi.getBookByISBN(isbn, "Bearer $apiKey")
             return listOf(
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = isbn,
                     title = response.book.title,
                     author = response.book.authors.joinToString(", "),
