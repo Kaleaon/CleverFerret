@@ -289,8 +289,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-simplexml:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     
-    // Calibre integration
-    implementation("org.apache.commons:commons-net:3.9.0")
+    // Calibre integration - Fixed version
+    implementation("commons-net:commons-net:3.9.0") // Fixed groupId
     implementation("com.jcraft:jsch:0.1.55")
     
     // Amazon/Google Books APIs
