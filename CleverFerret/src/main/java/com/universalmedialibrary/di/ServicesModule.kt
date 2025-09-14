@@ -93,8 +93,8 @@ object ServicesModule {
 
     @Provides
     @Singleton
-    fun provideMetadataExtractor(): com.universalmedialibrary.services.analysis.nlp.MetadataExtractor {
-        return com.universalmedialibrary.services.analysis.nlp.MetadataExtractor()
+    fun provideMetadataExtractor(@ApplicationContext context: Context): com.universalmedialibrary.services.analysis.nlp.MetadataExtractor {
+        return com.universalmedialibrary.services.analysis.nlp.MetadataExtractor(context)
     }
 
     @Provides
