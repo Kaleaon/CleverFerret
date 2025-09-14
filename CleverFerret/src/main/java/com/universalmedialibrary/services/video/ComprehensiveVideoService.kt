@@ -298,6 +298,12 @@ data class VideoMetadata(
     val frameRate: Float
 )
 
+enum class VideoPlayerType {
+    EXOPLAYER,
+    VLC,
+    SYSTEM_PLAYER
+}
+
 data class PlaybackSettings(
     val useHardwareAcceleration: Boolean,
     val maxBufferSize: Int,
