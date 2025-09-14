@@ -514,7 +514,7 @@ class ComprehensiveMetadataService @Inject constructor(
     }
 
     // Implementation methods for each service
-    private suspend fun searchGoogleBooks(query: String): List<MetadataSearchResult> {
+    private suspend fun searchGoogleBooks(query: String): List<UnifiedMetadataSearchResult> {
         // Implementation similar to existing GoogleBooksAPI
         return emptyList() // Placeholder
     }
