@@ -394,7 +394,7 @@ class ComprehensiveMetadataService @Inject constructor(
         query: String,
         isbn: String? = null
     ): List<UnifiedMetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         // Get API keys from repository
         val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
