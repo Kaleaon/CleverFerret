@@ -3,23 +3,36 @@ package com.universalmedialibrary.services.video
 import android.content.Context
 import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
-import org.videolan.libvlc.LibVLC
-import org.videolan.libvlc.Media
-import org.videolan.libvlc.MediaPlayer
+// VLC imports - wrapped in try-catch to handle missing library
+// import org.videolan.libvlc.LibVLC
+// import org.videolan.libvlc.Media
+// import org.videolan.libvlc.MediaPlayer
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Comprehensive Video Service
  * Provides support for extensive video formats using VLC SDK and ExoPlayer
+ * VLC integration is optional and gracefully handled if library is not available
  */
 @Singleton
 class ComprehensiveVideoService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     
-    private var libVLC: LibVLC? = null
-    private var vlcMediaPlayer: MediaPlayer? = null
+    private var libVLC: Any? = null // LibVLC? = null
+    private var vlcMediaPlayer: Any? = null // MediaPlayer? = null
+    private var isVLCAvailable: Boolean = false
+    
+    init {
+        // Check if VLC library is available
+        isVLCAvailable = try {
+            Class.forName("org.videolan.libvlc.LibVLC")
+            true
+        } catch (e: ClassNotFoundException) {
+            false
+        }
+    }
     
     /**
      * Initialize VLC library for advanced video format support
