@@ -524,7 +524,7 @@ class ComprehensiveMetadataService @Inject constructor(
         return emptyList() // Placeholder
     }
     
-    private suspend fun searchHardcover(query: String): List<MetadataSearchResult> {
+    private suspend fun searchHardcover(query: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = hardcoverApi.searchBooks(query)
             return response.data.map { book ->
