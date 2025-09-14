@@ -118,16 +118,63 @@ object ServicesModule {
     @Singleton
     fun provideSmartContentAnalyzer(
         @ApplicationContext context: Context,
-        mediaViewerManager: MediaViewerManager,
         ocrService: com.universalmedialibrary.services.analysis.ocr.OCRService,
         metadataExtractor: com.universalmedialibrary.services.analysis.nlp.MetadataExtractor,
         contentFingerprinter: com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter,
-        contentClassifier: com.universalmedialibrary.services.analysis.classification.ContentClassifier,
         archiveComparator: com.universalmedialibrary.services.analysis.comparison.ArchiveComparator
-    ): com.universalmedialibrary.services.analysis.SmartContentAnalyzer {
-        return com.universalmedialibrary.services.analysis.SmartContentAnalyzer(
-            context, mediaViewerManager, ocrService, metadataExtractor, 
-            contentFingerprinter, contentClassifier, archiveComparator
+    ): SmartContentAnalyzer {
+        return SmartContentAnalyzer(
+            context, ocrService, metadataExtractor, 
+            contentFingerprinter, archiveComparator
         )
+    }
+
+    // Integration Services
+    @Provides
+    @Singleton
+    fun providePlexIntegrationService(
+        @ApplicationContext context: Context,
+        contentAnalyzer: SmartContentAnalyzer
+    ): PlexIntegrationService {
+        return PlexIntegrationService(context, contentAnalyzer)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCalibreIntegrationService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): CalibreIntegrationService {
+        return CalibreIntegrationService(context, apiKeyRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCloudStorageService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): CloudStorageService {
+        return CloudStorageService(context, apiKeyRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBookServicesIntegration(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): BookServicesIntegration {
+        return BookServicesIntegration(context, apiKeyRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideIntegrationManager(
+        @ApplicationContext context: Context,
+        plexService: PlexIntegrationService,
+        calibreService: CalibreIntegrationService,
+        cloudService: CloudStorageService,
+        bookServices: BookServicesIntegration
+    ): IntegrationManager {
+        return IntegrationManager(context, plexService, calibreService, cloudService, bookServices)
     }
 }
