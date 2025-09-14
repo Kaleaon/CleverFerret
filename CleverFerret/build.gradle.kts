@@ -115,6 +115,10 @@ android {
     }
 }
 
+// Apply additional build scripts
+apply(from = "publish.gradle")
+apply(from = "version.gradle")
+
 kapt {
     correctErrorTypes = true
 }
