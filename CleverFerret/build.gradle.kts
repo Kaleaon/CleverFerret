@@ -269,8 +269,8 @@ dependencies {
     implementation("org.apache.lucene:lucene-analyzers-common:8.11.2") // Android compatible version
     // Stanford CoreNLP removed - too heavy for Android (200MB+), use ML Kit instead
     
-    // Content fingerprinting - Android compatible
-    implementation("com.github.kilianB:JImageHash:3.0.0") // Works with JitPack
+    // Content fingerprinting - Using working JitPack version
+    implementation("com.github.KilianB:JImageHash:3.0.0") // Note: capital K in KilianB
     
     // Additional text processing
     implementation("org.apache.commons:commons-text:1.10.0")
