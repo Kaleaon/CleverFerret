@@ -353,7 +353,7 @@ class MetadataApiService @Inject constructor(
 
     private fun createDemoMusicResults(query: String): List<UnifiedMetadataSearchResult> {
         return listOf(
-            MetadataSearchResult(
+            UnifiedMetadataSearchResult(
                 id = "demo1",
                 title = "Demo Album: $query",
                 artist = "Demo Artist",
