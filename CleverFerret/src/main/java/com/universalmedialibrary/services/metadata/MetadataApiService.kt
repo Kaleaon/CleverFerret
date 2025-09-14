@@ -292,7 +292,7 @@ class MetadataApiService @Inject constructor(
             val movies = tmdbApi.searchMovies(tmdbApiKey, query)
             movies.results?.forEach { movie ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = movie.id.toString(),
                         title = movie.title ?: movie.name ?: "Unknown Title",
                         year = movie.release_date?.take(4)?.toIntOrNull() 
