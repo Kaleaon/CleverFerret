@@ -312,7 +312,7 @@ class MetadataApiService @Inject constructor(
     }
 
     suspend fun searchMusic(query: String): List<UnifiedMetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         try {
             val music = musicBrainzApi.searchMusic(query)
