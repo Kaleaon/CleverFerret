@@ -239,8 +239,8 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-rtsp:1.3.0")
     implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.3.0")
     
-    // VLC Android SDK for comprehensive video format support
-    implementation("org.videolan.android:libvlc-all:4.0.0-eap13")
+    // VLC Android SDK kept optional via reflection (do not fail build if absent)
+    // implementation("org.videolan.android:libvlc-all:4.0.0-eap13")
     
     // Additional ExoPlayer extensions for more formats
     implementation("androidx.media3:media3-extractor:1.3.0")
