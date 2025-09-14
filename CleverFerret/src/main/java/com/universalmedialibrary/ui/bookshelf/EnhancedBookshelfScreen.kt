@@ -24,6 +24,7 @@ fun EnhancedBookshelfScreen(
     libraryId: Long,
     viewModel: BookshelfViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(libraryId) { viewModel.loadBooks(libraryId) }
     val uiState by viewModel.uiState.collectAsState()
     
     PlexTheme {
