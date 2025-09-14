@@ -222,7 +222,7 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
     
     // Advanced document and media support
-    implementation("com.github.barteksc:android-pdf-viewer:2.8.2") // Updated to stable version
+    implementation("com.github.barteksc:android-pdf-viewer:3.2.0-beta.1") // Using JitPack - this version should work
     // MuPDF removed - android-pdf-viewer provides sufficient PDF support
     
     // Archive support for comics (CBZ, CBR)
