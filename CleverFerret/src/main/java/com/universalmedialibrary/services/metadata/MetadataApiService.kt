@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 // Data classes for API responses
-data class MetadataSearchResult(
+data class UnifiedMetadataSearchResult(
     val id: String,
     val title: String,
     val author: String? = null,
