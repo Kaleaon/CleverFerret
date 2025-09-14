@@ -569,7 +569,7 @@ class ComprehensiveMetadataService @Inject constructor(
         return emptyList() // Placeholder - would need XML parsing
     }
     
-    private suspend fun searchAmazon(query: String, apiKeys: Map<String, String>): List<MetadataSearchResult> {
+    private suspend fun searchAmazon(query: String, apiKeys: Map<String, String>): List<UnifiedMetadataSearchResult> {
         // Amazon Product Advertising API implementation
         // Requires complex authentication with AWS signatures
         return emptyList() // Placeholder
