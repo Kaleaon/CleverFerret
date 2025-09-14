@@ -67,6 +67,20 @@ fun SettingsScreen(
                 )
             }
 
+            // External Integrations Section
+            item {
+                SettingsCategoryHeader("External Integrations")
+            }
+
+            items(getIntegrationsSettingsItems()) { item ->
+                SettingsItem(
+                    title = item.title,
+                    subtitle = item.subtitle,
+                    icon = item.icon,
+                    onClick = { navController.navigate(item.route) }
+                )
+            }
+
             // Reader Settings Section
             item {
                 SettingsCategoryHeader("Reader Settings")
