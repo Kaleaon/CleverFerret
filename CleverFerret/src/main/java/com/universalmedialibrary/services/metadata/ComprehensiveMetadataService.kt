@@ -594,7 +594,7 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchMangaUpdates(query: String): List<MetadataSearchResult> {
+    private suspend fun searchMangaUpdates(query: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = mangaUpdatesApi.searchManga(query)
             return response.results.map { result ->
