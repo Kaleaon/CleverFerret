@@ -61,7 +61,7 @@ fun EnhancedBookshelfScreen(
                     BookCard(
                         book = book,
                         onClick = { 
-                            navController.navigate("book_details/${book.id}")
+                            navController.navigate("book_details/${book.mediaItem.itemId}")
                         }
                     )
                 }
