@@ -269,9 +269,7 @@ dependencies {
     implementation("org.apache.lucene:lucene-analyzers-common:8.11.2") // Android compatible version
     // Stanford CoreNLP removed - too heavy for Android (200MB+), use ML Kit instead
     
-    // Content fingerprinting - Using stable alternative instead of JImageHash
-    // implementation("com.github.KilianB:JImageHash:3.0.0") // Temporarily removed to fix build
-    // Will use Android's built-in image processing for basic fingerprinting
+    // Content fingerprinting removed - will use Android's built-in image processing if needed
     
     // Additional text processing
     implementation("org.apache.commons:commons-text:1.10.0")
