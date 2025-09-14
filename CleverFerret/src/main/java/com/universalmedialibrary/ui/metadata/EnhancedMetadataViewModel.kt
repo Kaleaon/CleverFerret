@@ -26,7 +26,7 @@ class EnhancedMetadataViewModel @Inject constructor(
             try {
                 val results = when (mediaType.uppercase()) {
                     "BOOK" -> metadataApiService.searchBooks(query)
-                    "MOVIE" -> metadataApiService.searchMovies(query, null) // API key would come from settings
+                    "MOVIE" -> metadataApiService.searchMovies(query) // API key would come from settings
                     "MUSIC" -> metadataApiService.searchMusic(query)
                     else -> metadataApiService.searchBooks(query)
                 }
