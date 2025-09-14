@@ -47,7 +47,7 @@ fun EnhancedMetadataEditorScreen(
         var isbn by remember { mutableStateOf("") }
         
         var searchQuery by remember { mutableStateOf("") }
-        var searchResults by remember { mutableStateOf<List<MetadataSearchResult>>(emptyList()) }
+        var searchResults by remember { mutableStateOf<List<UnifiedMetadataSearchResult>>(emptyList()) }
         var isSearching by remember { mutableStateOf(false) }
         var showSearchDialog by remember { mutableStateOf(false) }
         var mediaType by remember { mutableStateOf("BOOK") }
