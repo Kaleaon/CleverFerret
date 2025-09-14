@@ -277,7 +277,7 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
-    suspend fun searchMovies(query: String): List<MetadataSearchResult> {
+    suspend fun searchMovies(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
         
         // Get TMDB API key from repository
