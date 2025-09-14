@@ -318,7 +318,7 @@ class MetadataApiService @Inject constructor(
             val music = musicBrainzApi.searchMusic(query)
             music.releases?.forEach { release ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = release.id,
                         title = release.title ?: "Unknown Title",
                         artist = release.artist_credit?.firstOrNull()?.name,
