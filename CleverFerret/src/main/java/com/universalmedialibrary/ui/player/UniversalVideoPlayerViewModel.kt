@@ -375,5 +375,5 @@ data class UniversalPlayerState(
     val videoMetadata: VideoMetadata? = null,
     val error: String? = null,
     val exoPlayerView: PlayerView? = null,
-    val vlcVideoLayout: VLCVideoLayout? = null
+    val vlcVideoLayout: Any? = null // VLCVideoLayout? = null
 )
