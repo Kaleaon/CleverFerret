@@ -253,7 +253,7 @@ dependencies {
     
     // Advanced audio codec support
     // Removed: media3-decoder-opus (no such artifact in 1.3.0)
-    implementation("androidx.media3:media3-decoder-flac:1.3.0")
+    // Removed: media3-decoder-flac (no such artifact in 1.3.0)
     
     // Network and streaming protocols
     implementation("androidx.media3:media3-datasource-okhttp:1.3.0")
