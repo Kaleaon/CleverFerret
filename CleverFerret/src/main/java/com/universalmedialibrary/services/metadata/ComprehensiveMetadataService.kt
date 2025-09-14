@@ -497,7 +497,7 @@ class ComprehensiveMetadataService @Inject constructor(
     suspend fun searchAudiobookSources(
         query: String
     ): List<UnifiedMetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         // LibriVox (free audiobooks)
         try {
