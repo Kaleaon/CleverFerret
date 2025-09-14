@@ -228,7 +228,7 @@ class MetadataApiService @Inject constructor(
     }
 
     suspend fun searchBooks(query: String): List<UnifiedMetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         try {
             // Google Books API
