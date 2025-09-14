@@ -20,7 +20,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.ui.PlayerView
 import com.universalmedialibrary.services.video.VideoPlayerType
 import com.universalmedialibrary.ui.theme.PlexTheme
-import org.videolan.libvlc.util.VLCVideoLayout
+// VLC import handled via reflection to avoid compilation errors
+// import org.videolan.libvlc.util.VLCVideoLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
