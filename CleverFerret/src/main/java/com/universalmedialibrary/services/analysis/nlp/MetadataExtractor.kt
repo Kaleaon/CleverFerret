@@ -52,7 +52,7 @@ class MetadataExtractor @Inject constructor(
             "txt" -> file.readText()
             "pdf" -> extractTextFromPDF(file)
             "epub" -> extractTextFromEPUB(file)
-            else -&gt; file.name
+            else -> file.name
         }
         
         extractFromText(text)
@@ -73,7 +73,7 @@ class MetadataExtractor @Inject constructor(
         // Pattern 2: First non-empty line that's not too long
         for (line in lines) {
             val trimmed = line.trim()
-            if (trimmed.isNotEmpty() &amp;&amp; trimmed.length in 5..100) {
+            if (trimmed.isNotEmpty() && trimmed.length in 5..100) {
                 return trimmed
             }
         }
@@ -104,20 +104,20 @@ class MetadataExtractor @Inject constructor(
         // Look for description in the first paragraph after title/author
         val lines = text.lines()
         var foundTitleAuthor = false
-        val descriptionLines = mutableListOf&lt;String&gt;()
+        val descriptionLines = mutableListOf<String>()
         
         for (line in lines) {
             val trimmed = line.trim()
             if (trimmed.isEmpty()) continue
             
-            if (!foundTitleAuthor &amp;&amp; (trimmed.contains("title", true) || trimmed.contains("author", true))) {
+            if (!foundTitleAuthor && (trimmed.contains("title", true) || trimmed.contains("author", true))) {
                 foundTitleAuthor = true
                 continue
             }
             
-            if (foundTitleAuthor &amp;&amp; trimmed.length &gt; 50) {
+            if (foundTitleAuthor && trimmed.length > 50) {
                 descriptionLines.add(trimmed)
-                if (descriptionLines.size &gt;= 3) break
+                if (descriptionLines.size >= 3) break
             }
         }
         
@@ -152,7 +152,7 @@ class MetadataExtractor @Inject constructor(
         
         val englishCount = words.count { it in englishWords }
         
-        return if (englishCount &gt; words.size * 0.1) "en" else null
+        return if (englishCount > words.size * 0.1) "en" else null
     }
     
     private fun extractISBN(text: String): String? {

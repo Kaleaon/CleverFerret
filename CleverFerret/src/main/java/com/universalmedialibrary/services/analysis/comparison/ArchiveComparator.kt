@@ -76,7 +76,7 @@ class ArchiveComparator @Inject constructor(
             factors++
         }
         
-        return if (factors&gt; 0) score / factors else 0f
+        return if (factors > 0) score / factors else 0f
     }
     
     private fun calculateStringSimilarity(str1: String, str2: String): Float {

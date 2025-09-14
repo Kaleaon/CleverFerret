@@ -45,15 +45,15 @@ class ContentClassifier @Inject constructor() {
 
     suspend fun classifyDocument(text: String): ContentClassification = withContext(Dispatchers.IO) {
         val normalizedText = text.lowercase()
-        val words = normalizedText.split("\\s+".toRegex()).filter { it.length &gt; 2 }
+        val words = normalizedText.split("\\s+".toRegex()).filter { it.length > 2 }
         
         // Genre classification
-        val genreScores = mutableMapOf&lt;String, Int&gt;()
+        val genreScores = mutableMapOf<String, Int>()
         for ((genre, keywords) in genreClassifiers) {
-            val score = keywords.sumOf { keyword -&gt;
+            val score = keywords.sumOf { keyword ->
                 words.count { it.contains(keyword) }
             }
-            if (score &gt; 0) {
+            if (score > 0) {
                 genreScores[genre] = score
             }
         }
@@ -107,12 +107,12 @@ class ContentClassifier @Inject constructor() {
             "thriller" to listOf("thriller", "suspense", "mystery", "crime")
         )
         
-        val genreScores = mutableMapOf&lt;String, Int&gt;()
+        val genreScores = mutableMapOf<String, Int>()
         for ((genre, keywords) in videoGenres) {
-            val score = keywords.sumOf { keyword -&gt;
+            val score = keywords.sumOf { keyword ->
                 combinedText.split(" ").count { it.contains(keyword) }
             }
-            if (score &gt; 0) {
+            if (score > 0) {
                 genreScores[genre] = score
             }
         }
@@ -165,10 +165,10 @@ class ContentClassifier @Inject constructor() {
 
     private fun classifyContentRating(text: String): String {
         for ((rating, keywords) in contentRatingKeywords) {
-            val matches = keywords.count { keyword -&gt;
+            val matches = keywords.count { keyword ->
                 text.contains(keyword)
             }
-            if (matches &gt; 0) {
+            if (matches > 0) {
                 return rating
             }
         }
@@ -192,15 +192,15 @@ class ContentClassifier @Inject constructor() {
 
     private fun determineReadingLevel(complexity: Float): String {
         return when {
-            complexity &lt; 0.3f -&gt; "Elementary"
-            complexity &lt; 0.5f -&gt; "Middle School"
-            complexity &lt; 0.7f -&gt; "High School"
-            complexity &lt; 0.85f -&gt; "College"
-            else -&gt; "Advanced"
+            complexity < 0.3f -> "Elementary"
+            complexity < 0.5f -> "Middle School"
+            complexity < 0.7f -> "High School"
+            complexity < 0.85f -> "College"
+            else -> "Advanced"
         }
     }
 
-    private fun extractTopics(words: List&lt;String&gt;): List&lt;String&gt; {
+    private fun extractTopics(words: List<String>): List<String> {
         val topicKeywords = mapOf(
             "technology" to listOf("computer", "internet", "software", "digital", "tech"),
             "politics" to listOf("government", "election", "policy", "political", "democracy"),
@@ -212,12 +212,12 @@ class ContentClassifier @Inject constructor() {
             "entertainment" to listOf("movie", "music", "celebrity", "entertainment", "show")
         )
         
-        val topicScores = mutableMapOf&lt;String, Int&gt;()
+        val topicScores = mutableMapOf<String, Int>()
         for ((topic, keywords) in topicKeywords) {
-            val score = keywords.sumOf { keyword -&gt;
+            val score = keywords.sumOf { keyword ->
                 words.count { it.contains(keyword) }
             }
-            if (score &gt; 0) {
+            if (score > 0) {
                 topicScores[topic] = score
             }
         }
@@ -233,26 +233,26 @@ class ContentClassifier @Inject constructor() {
         val negativeWords = listOf("bad", "terrible", "awful", "hate", "sad", "angry", "disappointed", "horrible")
         
         val words = text.split("\\s+".toRegex())
-        val positiveCount = words.count { word -&gt; positiveWords.any { pos -&gt; word.contains(pos) } }
-        val negativeCount = words.count { word -&gt; negativeWords.any { neg -&gt; word.contains(neg) } }
+        val positiveCount = words.count { word -> positiveWords.any { pos -> word.contains(pos) } }
+        val negativeCount = words.count { word -> negativeWords.any { neg -> word.contains(neg) } }
         
         return when {
-            positiveCount &gt; negativeCount * 1.5 -&gt; "positive"
-            negativeCount &gt; positiveCount * 1.5 -&gt; "negative"
-            else -&gt; "neutral"
+            positiveCount > negativeCount * 1.5 -> "positive"
+            negativeCount > positiveCount * 1.5 -> "negative"
+            else -> "neutral"
         }
     }
 
-    private fun calculateClassificationConfidence(genreScores: Map&lt;String, Int&gt;, genreCount: Int): Float {
+    private fun calculateClassificationConfidence(genreScores: Map<String, Int>, genreCount: Int): Float {
         val totalScore = genreScores.values.sum()
         val maxScore = genreScores.values.maxOrNull() ?: 0
         
         return when {
-            genreCount == 0 -&gt; 0.1f
-            genreCount == 1 &amp;&amp; maxScore &gt; 5 -&gt; 0.9f
-            genreCount &gt; 1 &amp;&amp; totalScore &gt; 10 -&gt; 0.8f
-            maxScore &gt; 3 -&gt; 0.7f
-            else -&gt; 0.5f
+            genreCount == 0 -> 0.1f
+            genreCount == 1 && maxScore > 5 -> 0.9f
+            genreCount > 1 && totalScore > 10 -> 0.8f
+            maxScore > 3 -> 0.7f
+            else -> 0.5f
         }
     }
 }

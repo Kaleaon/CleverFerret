@@ -17,6 +17,7 @@ import com.universalmedialibrary.data.settings.AutoScrollMode
 import com.universalmedialibrary.data.settings.PageAnimation
 import com.universalmedialibrary.data.settings.ReaderTheme
 import java.util.Locale
+import androidx.compose.foundation.layout.ColumnScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +125,7 @@ fun VisualControlsSection(
                 value = settings.lineSpacing,
                 range = 1.0f..3.0f,
                 onValueChange = { onSettingsChange(settings.copy(lineSpacing = it)) },
-                valueDisplay = "${'$'}{String.format(Locale.getDefault(), "%.1f", settings.lineSpacing)}x"
+                valueDisplay = "${'$'}{String.format(Locale.getDefault(), \"%.1f\", settings.lineSpacing)}x"
             )
         }
         

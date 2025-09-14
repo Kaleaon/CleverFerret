@@ -22,10 +22,10 @@ import com.universalmedialibrary.ui.viewer.common.VideoSettings
 fun TopControlsBar(
     title: String,
     currentChapter: String?,
-    onBack: () -&gt; Unit,
-    onCast: () -&gt; Unit,
-    onPip: () -&gt; Unit,
-    onSettings: () -&gt; Unit
+    onBack: () -> Unit,
+    onCast: () -> Unit,
+    onPip: () -> Unit,
+    onSettings: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -117,16 +117,16 @@ fun BottomControlsBar(
     duration: Long,
     playbackSpeed: Float,
     volume: Float,
-    onPlayPause: () -&gt; Unit,
-    onSeek: (Long) -&gt; Unit,
-    onRewind: () -&gt; Unit,
-    onForward: () -&gt; Unit,
-    onVolumeChange: (Float) -&gt; Unit,
-    onFullscreen: () -&gt; Unit,
-    onSpeedChange: (Float) -&gt; Unit,
-    onSubtitles: () -&gt; Unit,
-    onAudioTracks: () -&gt; Unit,
-    onChapters: (() -&gt; Unit)? = null
+    onPlayPause: () -> Unit,
+    onSeek: (Long) -> Unit,
+    onRewind: () -> Unit,
+    onForward: () -> Unit,
+    onVolumeChange: (Float) -> Unit,
+    onFullscreen: () -> Unit,
+    onSpeedChange: (Float) -> Unit,
+    onSubtitles: () -> Unit,
+    onAudioTracks: () -> Unit,
+    onChapters: (() -> Unit)? = null
 ) {
     Box(
         modifier = Modifier
@@ -253,14 +253,14 @@ fun BottomControlsBar(
 @Composable
 fun EnhancedVideoControls(
     playerState: com.universalmedialibrary.ui.player.UniversalPlayerState,
-    onPlayPause: () -&gt; Unit,
-    onSeek: (Long) -&gt; Unit,
-    onVolumeChange: (Float) -&gt; Unit,
-    onSpeedChange: (Float) -&gt; Unit,
-    onSubtitleToggle: () -&gt; Unit,
-    onAudioTrackChange: (Int) -&gt; Unit,
-    onFullscreenToggle: () -&gt; Unit,
-    onPlayerSwitch: (com.universalmedialibrary.services.video.VideoPlayerType) -&gt; Unit,
+    onPlayPause: () -> Unit,
+    onSeek: (Long) -> Unit,
+    onVolumeChange: (Float) -> Unit,
+    onSpeedChange: (Float) -> Unit,
+    onSubtitleToggle: () -> Unit,
+    onAudioTrackChange: (Int) -> Unit,
+    onFullscreenToggle: () -> Unit,
+    onPlayerSwitch: (com.universalmedialibrary.services.video.VideoPlayerType) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -298,6 +298,6 @@ private fun formatTime(ms: Long): String {
     val seconds = totalSeconds % 60
     val minutes = (totalSeconds / 60) % 60
     val hours = totalSeconds / 3600
-    return if (hours &gt; 0) String.format("%d:%02d:%02d", hours, minutes, seconds)
+    return if (hours > 0) String.format("%d:%02d:%02d", hours, minutes, seconds)
     else String.format("%02d:%02d", minutes, seconds)
 }
