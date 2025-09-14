@@ -14,6 +14,7 @@ import com.universalmedialibrary.services.integration.calibre.CalibreIntegration
 import com.universalmedialibrary.services.integration.cloud.CloudStorageService
 import com.universalmedialibrary.services.integration.books.BookServicesIntegration
 import com.universalmedialibrary.services.analysis.SmartContentAnalyzer
+import com.universalmedialibrary.services.video.ComprehensiveVideoService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
