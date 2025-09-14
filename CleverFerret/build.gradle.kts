@@ -278,7 +278,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.10.0")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     
-    // Cloud storage integrations
+    // Cloud storage integrations - Using stable versions
     implementation("com.dropbox.core:dropbox-core-sdk:5.4.5")
     implementation("com.google.api-client:google-api-client-android:2.2.0")
     implementation("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
