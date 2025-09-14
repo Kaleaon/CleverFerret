@@ -39,6 +39,10 @@
         </activity>
         <service 
             android:name=".services.CalibreImportForegroundService"
+        <service 
+            android:name=".services.audio.MusicPlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
             android:foregroundServiceType="dataSync" />
     </application>
 
