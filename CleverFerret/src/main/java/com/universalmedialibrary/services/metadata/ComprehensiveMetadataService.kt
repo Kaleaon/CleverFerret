@@ -563,7 +563,7 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchGoodreads(query: String, apiKey: String): List<MetadataSearchResult> {
+    private suspend fun searchGoodreads(query: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         // Goodreads API implementation
         // Note: Goodreads has limited their API access
         return emptyList() // Placeholder - would need XML parsing
