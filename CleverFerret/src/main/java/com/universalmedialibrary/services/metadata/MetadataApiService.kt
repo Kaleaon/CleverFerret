@@ -259,7 +259,7 @@ class MetadataApiService @Inject constructor(
             val openLibrary = openLibraryApi.searchBooks(query)
             openLibrary.docs?.forEach { doc ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = doc.key,
                         title = doc.title ?: "Unknown Title",
                         author = doc.author_name?.joinToString(", "),
