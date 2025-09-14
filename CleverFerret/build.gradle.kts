@@ -222,8 +222,8 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
     
     // Advanced document and media support
-    implementation("com.github.barteksc:android-pdf-viewer:3.2.0-beta.1")
-    implementation("com.artifex.mupdf:mini:1.23.8") // Enhanced PDF rendering
+    implementation("com.github.barteksc:android-pdf-viewer:2.8.2") // Updated to stable version
+    // implementation("com.artifex.mupdf:mini:1.23.8") // Removed - not compatible with Android, replaced with alternatives
     
     // Archive support for comics (CBZ, CBR)
     implementation("org.apache.commons:commons-compress:1.24.0")
