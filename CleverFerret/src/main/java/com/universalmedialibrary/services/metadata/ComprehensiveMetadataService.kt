@@ -393,7 +393,7 @@ class ComprehensiveMetadataService @Inject constructor(
     suspend fun searchAllBookSources(
         query: String,
         isbn: String? = null
-    ): List<MetadataSearchResult> {
+    ): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
         
         // Get API keys from repository
