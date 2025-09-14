@@ -579,7 +579,7 @@ class ComprehensiveMetadataService @Inject constructor(
         try {
             val response = comicVineApi.searchComics(apiKey, query)
             return response.results.map { volume ->
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = volume.id.toString(),
                     title = volume.name,
                     author = volume.publisher?.name,
