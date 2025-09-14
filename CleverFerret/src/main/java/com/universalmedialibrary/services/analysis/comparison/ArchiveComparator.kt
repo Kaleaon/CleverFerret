@@ -1,7 +1,5 @@
 package com.universalmedialibrary.services.analysis.comparison
 
-import com.universalmedialibrary.services.analysis.ArchiveMatch
-import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import com.universalmedialibrary.services.analysis.AnalysisModels.ArchiveMatch
 import com.universalmedialibrary.services.analysis.AnalysisModels.ExtractedMetadata
 import com.universalmedialibrary.services.analysis.AnalysisModels.ArchiveItem
