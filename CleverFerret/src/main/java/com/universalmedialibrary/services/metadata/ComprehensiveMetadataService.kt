@@ -519,7 +519,7 @@ class ComprehensiveMetadataService @Inject constructor(
         return emptyList() // Placeholder
     }
     
-    private suspend fun searchOpenLibrary(query: String): List<MetadataSearchResult> {
+    private suspend fun searchOpenLibrary(query: String): List<UnifiedMetadataSearchResult> {
         // Implementation similar to existing OpenLibraryAPI
         return emptyList() // Placeholder
     }
