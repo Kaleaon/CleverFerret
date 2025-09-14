@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import com.universalmedialibrary.services.analysis.AnalysisModels.ExtractedMetadata
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
