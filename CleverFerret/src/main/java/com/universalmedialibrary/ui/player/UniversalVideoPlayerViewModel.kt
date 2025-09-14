@@ -80,7 +80,9 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     private fun initializeExoPlayer(context: Context, uri: Uri) {
         try {
             exoPlayer?.release()
-            exoPlayer = ExoPlayer.Builder(context).build().apply {
+            val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(context)
+                .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+            exoPlayer = ExoPlayer.Builder(context, renderersFactory).build().apply {
                 val mediaItem = MediaItem.fromUri(uri)
                 setMediaItem(mediaItem)
                 prepare()
