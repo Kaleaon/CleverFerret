@@ -134,7 +134,7 @@ class BookshelfViewModel @Inject constructor(
                 val updatedMetadata = book.metadata.copy(
                     isFavorite = !book.metadata.isFavorite
                 )
-                metadataDao.updateMetadata(updatedMetadata)
+                metadataDao.updateMetadata(metadataCommon = updatedMetadata)
                 
                 // Update local state immediately for better UX
                 val updatedBooks = _allBooks.value.map { existingBook ->
