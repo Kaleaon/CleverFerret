@@ -1,0 +1,117 @@
+// Version management for CleverFerret
+// This file helps extract version information for CI/CD pipelines
+
+ext {
+    // Read version from build.gradle.kts
+    def buildFile = file('build.gradle.kts')
+    def buildContent = buildFile.text
+    
+    // Extract version name
+    def versionNameMatcher = buildContent =~ /versionName\s*=?\s*"([^"]+)"/
+    if (versionNameMatcher.find()) {
+        appVersionName = versionNameMatcher.group(1)
+    } else {
+        appVersionName = "1.0.0"
+    }
+    
+    // Extract version code
+    def versionCodeMatcher = buildContent =~ /versionCode\s*=?\s*(\d+)/
+    if (versionCodeMatcher.find()) {
+        appVersionCode = versionCodeMatcher.group(1).toInteger()
+    } else {
+        appVersionCode = 1
+    }
+}
+
+// Task to print version name (for CI/CD)
+task printVersionName {
+    doLast {
+        println appVersionName
+    }
+}
+
+// Task to print version code (for CI/CD)
+task printVersionCode {
+    doLast {
+        println appVersionCode
+    }
+}
+
+// Task to print all version info
+task printVersionInfo {
+    doLast {
+        println "CleverFerret Version Information:"
+        println "  Version Name: ${appVersionName}"
+        println "  Version Code: ${appVersionCode}"
+        println "  Build Type: ${project.hasProperty('buildType') ? project.buildType : 'debug'}"
+        println "  Git Commit: ${getGitCommitHash()}"
+        println "  Build Date: ${new Date().format('yyyy-MM-dd HH:mm:ss')}"
+    }
+}
+
+// Helper function to get Git commit hash
+def getGitCommitHash() {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception e) {
+        return "unknown"
+    }
+}
+
+// Helper function to get Git branch name
+def getGitBranchName() {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--abbrev-ref', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } catch (Exception e) {
+        return "unknown"
+    }
+}
+
+// Task to increment version code
+task incrementVersionCode {
+    doLast {
+        def buildFile = file('build.gradle.kts')
+        def buildContent = buildFile.text
+        def currentVersionCode = appVersionCode
+        def newVersionCode = currentVersionCode + 1
+        
+        def newContent = buildContent.replaceAll(
+            /(versionCode\s*=?\s*)\d+/,
+            "\$1${newVersionCode}"
+        )
+        
+        buildFile.text = newContent
+        println "Version code incremented from ${currentVersionCode} to ${newVersionCode}"
+    }
+}
+
+// Task to update version name
+task updateVersionName {
+    doLast {
+        if (!project.hasProperty('newVersionName')) {
+            throw new GradleException('Please specify -PnewVersionName=x.y.z')
+        }
+        
+        def buildFile = file('build.gradle.kts')
+        def buildContent = buildFile.text
+        def newVersionName = project.newVersionName
+        
+        def newContent = buildContent.replaceAll(
+            /(versionName\s*=?\s*)"[^"]+"/,
+            "\$1\"${newVersionName}\""
+        )
+        
+        buildFile.text = newContent
+        println "Version name updated to ${newVersionName}"
+    }
+}

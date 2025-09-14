@@ -1,0 +1,74 @@
+// GitHub Packages publishing configuration
+apply plugin: 'maven-publish'
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/${project.findProperty('githubUser') ?: 'your-username'}/CleverFerret")
+            credentials {
+                username = project.findProperty("githubUser") ?: System.getenv("GITHUB_USER")
+                password = project.findProperty("githubToken") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.universalmedialibrary'
+            artifactId = 'cleverferret'
+            version = project.findProperty('versionName') ?: android.defaultConfig.versionName
+            
+            artifact("$buildDir/outputs/apk/release/CleverFerret-release-unsigned.apk") {
+                classifier = 'release'
+                extension = 'apk'
+            }
+            
+            artifact("$buildDir/outputs/apk/debug/CleverFerret-debug.apk") {
+                classifier = 'debug'  
+                extension = 'apk'
+            }
+            
+            pom {
+                name = 'CleverFerret Universal Media Library'
+                description = 'A comprehensive Android application for managing books, movies, music, podcasts, and web fiction with Plex integration and AI-powered features.'
+                url = 'https://github.com/your-username/CleverFerret'
+                
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id = 'cleverferret-dev'
+                        name = 'CleverFerret Development Team'
+                        email = 'dev@cleverferret.com'
+                    }
+                }
+                
+                scm {
+                    connection = 'scm:git:git://github.com/your-username/CleverFerret.git'
+                    developerConnection = 'scm:git:ssh://github.com:your-username/CleverFerret.git'
+                    url = 'https://github.com/your-username/CleverFerret/tree/main'
+                }
+            }
+        }
+    }
+}
+
+// Task to publish to GitHub Packages
+task publishToGitHub {
+    dependsOn 'assembleRelease'
+    dependsOn 'assembleDebug'
+    dependsOn 'publishMavenPublicationToGitHubPackagesRepository'
+    
+    doLast {
+        println "Published CleverFerret to GitHub Packages"
+        println "Version: ${project.findProperty('versionName') ?: android.defaultConfig.versionName}"
+        println "Group: com.universalmedialibrary" 
+        println "Artifact: cleverferret"
+    }
+}
