@@ -257,7 +257,7 @@ dependencies {
     
     // Network and streaming protocols
     implementation("androidx.media3:media3-datasource-okhttp:1.3.0")
-    implementation("androidx.media3:media3-datasource-rtmp:1.2.1")
+    implementation("androidx.media3:media3-datasource-rtmp:1.3.0")
     
     // Additional video format support libraries
     // Removed: mobile-ffmpeg-full 4.4.LTS (migrated upstream, not resolvable via Maven Central). Consider alternative or omit.
