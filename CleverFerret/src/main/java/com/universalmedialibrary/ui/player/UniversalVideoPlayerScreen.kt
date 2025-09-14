@@ -151,13 +151,34 @@ private fun ExoPlayerView(
 
 @Composable
 private fun VLCPlayerView(
-    vlcVideoLayout: VLCVideoLayout?,
+    vlcVideoLayout: Any?, // VLCVideoLayout?,
     modifier: Modifier = Modifier  
 ) {
-    AndroidView(
-        factory = { vlcVideoLayout ?: VLCVideoLayout(it) },
-        modifier = modifier
-    )
+    if (vlcVideoLayout != null) {
+        AndroidView(
+            factory = { 
+                try {
+                    vlcVideoLayout as android.view.View
+                } catch (e: Exception) {
+                    // Fallback to empty view if VLC not available
+                    android.view.View(it)
+                }
+            },
+            modifier = modifier
+        )
+    } else {
+        // Fallback UI when VLC is not available
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "VLC Player Not Available",
+                color = Color.White,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
 }
 
 @Composable
