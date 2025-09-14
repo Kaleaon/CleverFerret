@@ -613,7 +613,7 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchLibriVox(query: String): List<MetadataSearchResult> {
+    private suspend fun searchLibriVox(query: String): List<UnifiedMetadataSearchResult> {
         // LibriVox API implementation for free audiobooks
         return emptyList() // Placeholder
     }
