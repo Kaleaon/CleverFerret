@@ -16,8 +16,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.videolan.libvlc.MediaPlayer
-import org.videolan.libvlc.util.VLCVideoLayout
+// VLC imports handled via reflection
+// import org.videolan.libvlc.MediaPlayer
+// import org.videolan.libvlc.util.VLCVideoLayout
 import javax.inject.Inject
 
 @HiltViewModel
