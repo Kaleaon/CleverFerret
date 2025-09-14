@@ -50,7 +50,7 @@ class MetadataExtractor @Inject constructor(
     suspend fun extractFromFile(file: File): ExtractedMetadata = withContext(Dispatchers.IO) {
         val text = when (file.extension.lowercase()) {
             "txt" -> file.readText()
-            "pdf" -&gt; extractTextFromPDF(file)
+            "pdf" -> extractTextFromPDF(file)
             "epub" -&gt; extractTextFromEPUB(file)
             else -&gt; file.name
         }
