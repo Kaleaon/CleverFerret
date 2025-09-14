@@ -298,8 +298,9 @@ dependencies {
     implementation("com.amazonaws:aws-android-sdk-core:2.73.0")
     implementation("com.amazonaws:aws-android-sdk-s3:2.73.0")
     
-    // WebDAV for various cloud services - Fixed version
-    implementation("com.github.thegrizzlylabs:sardine-android:0.8") // Should work with JitPack
+    // WebDAV for various cloud services - Removed problematic GitHub dependency
+    // implementation("com.github.thegrizzlylabs:sardine-android:0.8") // Temporarily removed
+    // Will implement WebDAV using OkHttp directly if needed
     
     // Background sync and work manager
     implementation("androidx.work:work-runtime-ktx:2.9.0")
