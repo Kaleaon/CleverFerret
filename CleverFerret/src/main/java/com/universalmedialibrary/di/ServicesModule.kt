@@ -118,14 +118,16 @@ object ServicesModule {
     @Singleton
     fun provideSmartContentAnalyzer(
         @ApplicationContext context: Context,
+        mediaViewerManager: com.universalmedialibrary.ui.viewer.MediaViewerManager,
         ocrService: com.universalmedialibrary.services.analysis.ocr.OCRService,
         metadataExtractor: com.universalmedialibrary.services.analysis.nlp.MetadataExtractor,
         contentFingerprinter: com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter,
+        contentClassifier: com.universalmedialibrary.services.analysis.classification.ContentClassifier,
         archiveComparator: com.universalmedialibrary.services.analysis.comparison.ArchiveComparator
     ): SmartContentAnalyzer {
         return SmartContentAnalyzer(
-            context, ocrService, metadataExtractor, 
-            contentFingerprinter, archiveComparator
+            context, mediaViewerManager, ocrService, metadataExtractor, 
+            contentFingerprinter, contentClassifier, archiveComparator
         )
     }
 
