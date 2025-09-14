@@ -260,7 +260,7 @@ dependencies {
     implementation("androidx.media3:media3-datasource-rtmp:1.3.0")
     
     // Additional video format support libraries
-    implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS") // FFmpeg for Android
+    // Removed: mobile-ffmpeg-full 4.4.LTS (migrated upstream, not resolvable via Maven Central). Consider alternative or omit.
     
     // Container format support
     implementation("org.apache.commons:commons-compress:1.24.0") // Already included but needed for video containers
