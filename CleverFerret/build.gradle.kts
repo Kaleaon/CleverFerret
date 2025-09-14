@@ -243,7 +243,7 @@ dependencies {
     
     // Additional ExoPlayer extensions for more formats
     implementation("androidx.media3:media3-extractor:1.3.0")
-    implementation("androidx.media3:media3-decoder:1.3.0")
+    // Removed: media3-decoder (module not published separately)
     implementation("androidx.media3:media3-datasource:1.3.0")
     implementation("androidx.media3:media3-common:1.3.0")
     
