@@ -337,7 +337,7 @@ class MetadataApiService @Inject constructor(
 
     private fun createDemoMovieResults(query: String): List<UnifiedMetadataSearchResult> {
         return listOf(
-            MetadataSearchResult(
+            UnifiedMetadataSearchResult(
                 id = "demo1",
                 title = "Demo Movie: $query",
                 director = "Demo Director",
