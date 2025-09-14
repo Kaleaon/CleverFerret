@@ -381,49 +381,20 @@ private fun formatTime(milliseconds: Long): String {
     val remainingSeconds = seconds % 60
     return String.format(Locale.getDefault(), "%d:%02d", minutes, remainingSeconds)
 }
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator()
-                }
-                
-                uiState.error != null -> {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Error loading audio",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = uiState.error ?: "Unknown error",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-                
-                else -> {
-                    AudioPlayerContent(
-                        uiState = uiState,
-                        onPlayPause = viewModel::togglePlayPause,
-                        onSeek = viewModel::seekTo,
-                        onSkipPrevious = viewModel::skipToPrevious,
-                        onSkipNext = viewModel::skipToNext
-                    )
-                }
-            }
-        }
+
+/**
+ * Format duration in milliseconds to MM:SS or HH:MM:SS format
+ */
+private fun formatDuration(durationMs: Long): String {
+    val totalSeconds = durationMs / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    
+    return if (hours > 0) {
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
 }
 
