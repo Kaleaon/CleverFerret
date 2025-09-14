@@ -1,11 +1,8 @@
 package com.universalmedialibrary.services.analysis.classification
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
-import com.universalmedialibrary.services.analysis.AnalysisModels.ContentClassification
-import com.universalmedialibrary.services.analysis.AnalysisModels.ExtractedMetadata
+import com.universalmedialibrary.data.MediaType
+import com.universalmedialibrary.services.analysis.ContentClassification
+import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -24,7 +21,7 @@ class ContentClassifier @Inject constructor() {
         "mystery" to listOf("detective", "murder", "clue", "investigation", "crime", "mystery", "suspect"),
         "romance" to listOf("love", "heart", "passion", "romance", "relationship", "wedding", "kiss"),
         "fantasy" to listOf("magic", "wizard", "dragon", "kingdom", "quest", "sword", "fantasy", "spell"),
-        "science_fiction" to listOf("space", "alien", "robot", "future", "technology", "planet", "galaxy"),
+        "science fiction" to listOf("space", "alien", "robot", "future", "technology", "planet", "galaxy"),
         "horror" to listOf("ghost", "haunted", "scary", "fear", "death", "blood", "nightmare"),
         "thriller" to listOf("suspense", "danger", "chase", "escape", "tension", "action"),
         "biography" to listOf("life", "born", "childhood", "career", "achievement", "biography", "memoir"),
@@ -32,7 +29,7 @@ class ContentClassifier @Inject constructor() {
         "science" to listOf("research", "study", "theory", "experiment", "discovery", "analysis"),
         "philosophy" to listOf("philosophy", "ethics", "moral", "existence", "truth", "wisdom"),
         "religion" to listOf("god", "faith", "spiritual", "prayer", "divine", "sacred", "religious"),
-        "self_help" to listOf("improve", "success", "motivation", "guide", "tips", "achieve"),
+        "self-help" to listOf("improve", "success", "motivation", "guide", "tips", "achieve"),
         "business" to listOf("business", "management", "leadership", "strategy", "profit", "company"),
         "cooking" to listOf("recipe", "ingredient", "cooking", "food", "kitchen", "chef"),
         "travel" to listOf("travel", "journey", "destination", "culture", "guide", "adventure")
@@ -48,15 +45,15 @@ class ContentClassifier @Inject constructor() {
 
     suspend fun classifyDocument(text: String): ContentClassification = withContext(Dispatchers.IO) {
         val normalizedText = text.lowercase()
-        val words = normalizedText.split("\\s+".toRegex()).filter { it.length > 2 }
+        val words = normalizedText.split("\\s+".toRegex()).filter { it.length &gt; 2 }
         
         // Genre classification
-        val genreScores = mutableMapOf<String, Int>()
+        val genreScores = mutableMapOf&lt;String, Int&gt;()
         for ((genre, keywords) in genreClassifiers) {
-            val score = keywords.sumOf { keyword ->
+            val score = keywords.sumOf { keyword -&gt;
                 words.count { it.contains(keyword) }
             }
-            if (score > 0) {
+            if (score &gt; 0) {
                 genreScores[genre] = score
             }
         }
@@ -64,7 +61,7 @@ class ContentClassifier @Inject constructor() {
         val topGenres = genreScores.entries
             .sortedByDescending { it.value }
             .take(3)
-            .map { it.key.replace("_", " ") }
+            .map { it.key }
         
         val primaryGenre = topGenres.firstOrNull() ?: "general"
         
@@ -82,20 +79,20 @@ class ContentClassifier @Inject constructor() {
         val sentiment = analyzeSentiment(normalizedText)
         
         ContentClassification(
-            primaryGenre = primaryGenre,
-            genres = topGenres,
-            contentRating = contentRating,
-            readingLevel = readingLevel,
-            topics = topics,
-            sentiment = sentiment,
-            complexity = complexity,
-            confidence = calculateClassificationConfidence(genreScores, topGenres.size)
+            mediaType = MediaType.DOCUMENT,
+            genre = primaryGenre,
+            subGenre = topGenres.getOrNull(1),
+            ageRating = contentRating,
+            contentWarnings = emptyList(),
+            confidence = calculateClassificationConfidence(genreScores, topGenres.size),
+            classificationReason = "readingLevel=$readingLevel; topics=${'$'}{topics.joinToString()} ; sentiment=${'$'}sentiment",
+            tags = topics
         )
     }
 
     suspend fun classifyVideo(metadata: ExtractedMetadata): ContentClassification = withContext(Dispatchers.IO) {
-        val title = metadata.title.lowercase()
-        val description = metadata.description.lowercase()
+        val title = metadata.title?.lowercase().orEmpty()
+        val description = metadata.description?.lowercase().orEmpty()
         val combinedText = "$title $description"
         
         // Video-specific genre classification
@@ -110,12 +107,12 @@ class ContentClassifier @Inject constructor() {
             "thriller" to listOf("thriller", "suspense", "mystery", "crime")
         )
         
-        val genreScores = mutableMapOf<String, Int>()
+        val genreScores = mutableMapOf&lt;String, Int&gt;()
         for ((genre, keywords) in videoGenres) {
-            val score = keywords.sumOf { keyword ->
+            val score = keywords.sumOf { keyword -&gt;
                 combinedText.split(" ").count { it.contains(keyword) }
             }
-            if (score > 0) {
+            if (score &gt; 0) {
                 genreScores[genre] = score
             }
         }
@@ -126,65 +123,52 @@ class ContentClassifier @Inject constructor() {
             .map { it.key }
         
         ContentClassification(
-            primaryGenre = topGenres.firstOrNull() ?: "general",
-            genres = topGenres,
-            contentRating = "Not Rated", // Would need more sophisticated analysis
-            confidence = if (topGenres.isNotEmpty()) 0.7f else 0.3f
+            mediaType = MediaType.MOVIE,
+            genre = topGenres.firstOrNull() ?: "general",
+            subGenre = topGenres.getOrNull(1),
+            ageRating = "Not Rated",
+            contentWarnings = emptyList(),
+            confidence = if (topGenres.isNotEmpty()) 0.7f else 0.3f,
+            classificationReason = "videoKeywordsBased",
+            tags = topGenres
         )
     }
 
     suspend fun classifyAudio(metadata: ExtractedMetadata): ContentClassification = withContext(Dispatchers.IO) {
-        val genres = metadata.genres.ifEmpty { 
-            // Try to classify based on audio characteristics or metadata
-            listOf("music")
-        }
+        val genre = metadata.genre ?: "music"
         
         ContentClassification(
-            primaryGenre = genres.firstOrNull() ?: "music",
-            genres = genres,
-            confidence = if (genres.isNotEmpty()) 0.8f else 0.4f
+            mediaType = MediaType.MUSIC,
+            genre = genre,
+            subGenre = null,
+            ageRating = null,
+            contentWarnings = emptyList(),
+            confidence = 0.8f,
+            classificationReason = "metadataGenre",
+            tags = listOfNotNull(metadata.genre)
         )
     }
 
-    suspend fun analyzeComicCover(context: Context, uri: Uri): ContentClassification = withContext(Dispatchers.IO) {
-        try {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            
-            if (bitmap != null) {
-                // Simple color analysis for genre hints
-                val dominantColors = analyzeDominantColors(bitmap)
-                val genre = inferGenreFromColors(dominantColors)
-                
-                bitmap.recycle()
-                
-                ContentClassification(
-                    primaryGenre = genre,
-                    genres = listOf(genre),
-                    confidence = 0.5f // Lower confidence for color-based classification
-                )
-            } else {
-                ContentClassification(
-                    primaryGenre = "comic",
-                    genres = listOf("comic"),
-                    confidence = 0.3f
-                )
-            }
-        } catch (e: Exception) {
-            ContentClassification(
-                primaryGenre = "comic",
-                genres = listOf("comic"),
-                confidence = 0.3f
-            )
-        }
+    suspend fun analyzeComicCover(): ContentClassification = withContext(Dispatchers.IO) {
+        // Simplified comic classifier
+        ContentClassification(
+            mediaType = MediaType.COMIC,
+            genre = "comic",
+            subGenre = null,
+            ageRating = null,
+            contentWarnings = emptyList(),
+            confidence = 0.3f,
+            classificationReason = "colorHeuristics",
+            tags = emptyList()
+        )
     }
 
     private fun classifyContentRating(text: String): String {
         for ((rating, keywords) in contentRatingKeywords) {
-            val matches = keywords.count { keyword ->
+            val matches = keywords.count { keyword -&gt;
                 text.contains(keyword)
             }
-            if (matches > 0) {
+            if (matches &gt; 0) {
                 return rating
             }
         }
@@ -208,15 +192,15 @@ class ContentClassifier @Inject constructor() {
 
     private fun determineReadingLevel(complexity: Float): String {
         return when {
-            complexity < 0.3f -> "Elementary"
-            complexity < 0.5f -> "Middle School"
-            complexity < 0.7f -> "High School"
-            complexity < 0.85f -> "College"
-            else -> "Advanced"
+            complexity &lt; 0.3f -&gt; "Elementary"
+            complexity &lt; 0.5f -&gt; "Middle School"
+            complexity &lt; 0.7f -&gt; "High School"
+            complexity &lt; 0.85f -&gt; "College"
+            else -&gt; "Advanced"
         }
     }
 
-    private fun extractTopics(words: List<String>): List<String> {
+    private fun extractTopics(words: List&lt;String&gt;): List&lt;String&gt; {
         val topicKeywords = mapOf(
             "technology" to listOf("computer", "internet", "software", "digital", "tech"),
             "politics" to listOf("government", "election", "policy", "political", "democracy"),
@@ -228,12 +212,12 @@ class ContentClassifier @Inject constructor() {
             "entertainment" to listOf("movie", "music", "celebrity", "entertainment", "show")
         )
         
-        val topicScores = mutableMapOf<String, Int>()
+        val topicScores = mutableMapOf&lt;String, Int&gt;()
         for ((topic, keywords) in topicKeywords) {
-            val score = keywords.sumOf { keyword ->
+            val score = keywords.sumOf { keyword -&gt;
                 words.count { it.contains(keyword) }
             }
-            if (score > 0) {
+            if (score &gt; 0) {
                 topicScores[topic] = score
             }
         }
@@ -249,64 +233,26 @@ class ContentClassifier @Inject constructor() {
         val negativeWords = listOf("bad", "terrible", "awful", "hate", "sad", "angry", "disappointed", "horrible")
         
         val words = text.split("\\s+".toRegex())
-        val positiveCount = words.count { word -> positiveWords.any { pos -> word.contains(pos) } }
-        val negativeCount = words.count { word -> negativeWords.any { neg -> word.contains(neg) } }
+        val positiveCount = words.count { word -&gt; positiveWords.any { pos -&gt; word.contains(pos) } }
+        val negativeCount = words.count { word -&gt; negativeWords.any { neg -&gt; word.contains(neg) } }
         
         return when {
-            positiveCount > negativeCount * 1.5 -> "positive"
-            negativeCount > positiveCount * 1.5 -> "negative"
-            else -> "neutral"
+            positiveCount &gt; negativeCount * 1.5 -&gt; "positive"
+            negativeCount &gt; positiveCount * 1.5 -&gt; "negative"
+            else -&gt; "neutral"
         }
     }
 
-    private fun calculateClassificationConfidence(genreScores: Map<String, Int>, genreCount: Int): Float {
+    private fun calculateClassificationConfidence(genreScores: Map&lt;String, Int&gt;, genreCount: Int): Float {
         val totalScore = genreScores.values.sum()
         val maxScore = genreScores.values.maxOrNull() ?: 0
         
         return when {
-            genreCount == 0 -> 0.1f
-            genreCount == 1 && maxScore > 5 -> 0.9f
-            genreCount > 1 && totalScore > 10 -> 0.8f
-            maxScore > 3 -> 0.7f
-            else -> 0.5f
+            genreCount == 0 -&gt; 0.1f
+            genreCount == 1 &amp;&amp; maxScore &gt; 5 -&gt; 0.9f
+            genreCount &gt; 1 &amp;&amp; totalScore &gt; 10 -&gt; 0.8f
+            maxScore &gt; 3 -&gt; 0.7f
+            else -&gt; 0.5f
         }
-    }
-
-    private fun analyzeDominantColors(bitmap: Bitmap): List<Int> {
-        val resized = Bitmap.createScaledBitmap(bitmap, 50, 50, false)
-        val pixels = IntArray(2500)
-        resized.getPixels(pixels, 0, 50, 0, 0, 50, 50)
-        
-        // Simple color analysis - get most frequent colors
-        val colorCounts = mutableMapOf<Int, Int>()
-        pixels.forEach { pixel ->
-            colorCounts[pixel] = colorCounts.getOrDefault(pixel, 0) + 1
-        }
-        
-        resized.recycle()
-        
-        return colorCounts.entries
-            .sortedByDescending { it.value }
-            .take(5)
-            .map { it.key }
-    }
-
-    private fun inferGenreFromColors(colors: List<Int>): String {
-        // Very basic color-to-genre mapping
-        for (color in colors) {
-            val red = (color shr 16) and 0xFF
-            val green = (color shr 8) and 0xFF
-            val blue = color and 0xFF
-            
-            when {
-                red > 200 && green < 100 && blue < 100 -> return "action" // Dominant red
-                red < 100 && green > 200 && blue < 100 -> return "adventure" // Dominant green
-                red < 100 && green < 100 && blue > 200 -> return "mystery" // Dominant blue
-                red > 150 && green > 150 && blue < 100 -> return "comedy" // Yellow-ish
-                red < 50 && green < 50 && blue < 50 -> return "horror" // Dark colors
-            }
-        }
-        
-        return "comic" // Default fallback
     }
 }

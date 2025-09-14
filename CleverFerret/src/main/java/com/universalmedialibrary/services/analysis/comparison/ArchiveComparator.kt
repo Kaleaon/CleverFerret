@@ -1,9 +1,9 @@
 package com.universalmedialibrary.services.analysis.comparison
 
-import com.universalmedialibrary.services.analysis.AnalysisModels.ArchiveMatch
-import com.universalmedialibrary.services.analysis.AnalysisModels.ExtractedMetadata
-import com.universalmedialibrary.services.analysis.AnalysisModels.ArchiveItem
-import com.universalmedialibrary.services.analysis.AnalysisModels.ArchiveMatchType
+import com.universalmedialibrary.services.analysis.ArchiveItem
+import com.universalmedialibrary.services.analysis.ArchiveMatch
+import com.universalmedialibrary.services.analysis.ArchiveMatchType
+import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import com.universalmedialibrary.services.metadata.ComprehensiveMetadataService
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -76,7 +76,7 @@ class ArchiveComparator @Inject constructor(
             factors++
         }
         
-        return if (factors > 0) score / factors else 0f
+        return if (factors&gt; 0) score / factors else 0f
     }
     
     private fun calculateStringSimilarity(str1: String, str2: String): Float {

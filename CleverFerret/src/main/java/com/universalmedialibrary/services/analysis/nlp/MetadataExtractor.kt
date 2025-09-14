@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.universalmedialibrary.services.analysis.AnalysisModels.ExtractedMetadata
+import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -49,10 +49,10 @@ class MetadataExtractor @Inject constructor(
      */
     suspend fun extractFromFile(file: File): ExtractedMetadata = withContext(Dispatchers.IO) {
         val text = when (file.extension.lowercase()) {
-            "txt" -> file.readText()
-            "pdf" -> extractTextFromPDF(file)
-            "epub" -> extractTextFromEPUB(file)
-            else -> file.name
+            "txt" -&gt; file.readText()
+            "pdf" -&gt; extractTextFromPDF(file)
+            "epub" -&gt; extractTextFromEPUB(file)
+            else -&gt; file.name
         }
         
         extractFromText(text)
@@ -73,7 +73,7 @@ class MetadataExtractor @Inject constructor(
         // Pattern 2: First non-empty line that's not too long
         for (line in lines) {
             val trimmed = line.trim()
-            if (trimmed.isNotEmpty() && trimmed.length in 5..100) {
+            if (trimmed.isNotEmpty() &amp;&amp; trimmed.length in 5..100) {
                 return trimmed
             }
         }
@@ -104,20 +104,20 @@ class MetadataExtractor @Inject constructor(
         // Look for description in the first paragraph after title/author
         val lines = text.lines()
         var foundTitleAuthor = false
-        val descriptionLines = mutableListOf<String>()
+        val descriptionLines = mutableListOf&lt;String&gt;()
         
         for (line in lines) {
             val trimmed = line.trim()
             if (trimmed.isEmpty()) continue
             
-            if (!foundTitleAuthor && (trimmed.contains("title", true) || trimmed.contains("author", true))) {
+            if (!foundTitleAuthor &amp;&amp; (trimmed.contains("title", true) || trimmed.contains("author", true))) {
                 foundTitleAuthor = true
                 continue
             }
             
-            if (foundTitleAuthor && trimmed.length > 50) {
+            if (foundTitleAuthor &amp;&amp; trimmed.length &gt; 50) {
                 descriptionLines.add(trimmed)
-                if (descriptionLines.size >= 3) break
+                if (descriptionLines.size &gt;= 3) break
             }
         }
         
@@ -152,7 +152,7 @@ class MetadataExtractor @Inject constructor(
         
         val englishCount = words.count { it in englishWords }
         
-        return if (englishCount > words.size * 0.1) "en" else null
+        return if (englishCount &gt; words.size * 0.1) "en" else null
     }
     
     private fun extractISBN(text: String): String? {
