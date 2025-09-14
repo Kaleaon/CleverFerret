@@ -227,7 +227,7 @@ class MetadataApiService @Inject constructor(
             .create(MusicBrainzApi::class.java)
     }
 
-    suspend fun searchBooks(query: String): List<MetadataSearchResult> {
+    suspend fun searchBooks(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
         
         try {
