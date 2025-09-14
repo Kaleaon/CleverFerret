@@ -38,13 +38,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service 
+        <service
             android:name=".services.CalibreImportForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
         <service 
             android:name=".services.audio.MusicPlaybackService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
-            android:foregroundServiceType="dataSync" />
     </application>
 
 </manifest>
