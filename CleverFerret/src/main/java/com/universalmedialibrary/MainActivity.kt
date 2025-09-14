@@ -209,6 +209,20 @@ fun LibraryListScreen(navController: NavController, viewModel: MainViewModel = h
                             }
                         )
                         DropdownMenuItem(
+                            text = { Text("Open Music Library") },
+                            onClick = {
+                                showMenu = false
+                                navController.navigate("music_library")
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Now Playing Queue") },
+                            onClick = {
+                                showMenu = false
+                                navController.navigate("audio_queue")
+                            }
+                        )
+                        DropdownMenuItem(
                             text = { Text("Refresh Libraries") },
                             onClick = {
                                 showMenu = false
