@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import com.universalmedialibrary.services.analysis.ContentClassification
-import com.universalmedialibrary.services.analysis.ExtractedMetadata
+import com.universalmedialibrary.services.analysis.AnalysisModels.ContentClassification
+import com.universalmedialibrary.services.analysis.AnalysisModels.ExtractedMetadata
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
