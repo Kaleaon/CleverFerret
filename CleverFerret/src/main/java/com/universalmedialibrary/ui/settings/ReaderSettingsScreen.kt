@@ -29,11 +29,10 @@ fun ReaderSettingsScreen(
     val readerSettings by viewModel.readerSettings.collectAsState()
     
     val (title, description) = when (settingsType) {
-        "visual" -> "Visual Controls" to "Customize fonts, colors, and layout"
-        "theme" -> "Theming" to "Day/Night mode and color themes"
-        "paging" -> "Paging & Navigation" to "Touch controls and gestures"
-        "autoscroll" -> "Auto-Scroll" to "Hands-free reading settings"
-        "tts" -> "Text-to-Speech" to "Voice settings and controls"
+        "visual" -> "Visual Controls" to "Customize fonts, margins, and layout"
+        "theme" -> "Theming" to "Light/Dark mode"
+        "paging" -> "Paging & Navigation" to "Touch and hardware controls"
+        "autoscroll" -> "Auto-Scroll" to "Hands-free reading speed and mode"
         else -> "Reader Settings" to "Configure reading experience"
     }
 
