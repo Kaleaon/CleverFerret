@@ -11,6 +11,7 @@
         android:minSdkVersion="30" />
     
     <!-- Audio/video permissions -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:targetApi="33"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     
