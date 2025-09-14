@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import java.util.Locale
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
