@@ -1,8 +1,20 @@
 package com.universalmedialibrary.ui.viewer.common
 
+import androidx.compose.ui.graphics.Color
+
 /**
  * Common viewer settings and models
  */
+
+data class ViewerSettings(
+    val brightness: Float = 0.5f,
+    val nightMode: Boolean = false,
+    val backgroundColor: Color = Color.White,
+    val textColor: Color = Color.Black,
+    val fontSize: Float = 16f,
+    val lineSpacing: Float = 1.5f,
+    val autoScrollSpeed: Float = 1.0f
+)
 
 data class VideoSettings(
     val playbackSpeed: Float = 1.0f,
@@ -59,6 +71,9 @@ enum class TextAlignment {
     JUSTIFY
 }
 
+/**
+ * Settings for plain-text/PDF document rendering controls
+ */
 data class DocumentSettings(
     val fontSize: Float = 16f,
     val lineSpacing: Float = 1.5f,
