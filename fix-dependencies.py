@@ -28,14 +28,14 @@ class DependencyFixer:
         
         # Check for problematic dependencies
         problematic_deps = {
-            'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1': {
-                'issue': 'Beta version not found',
-                'fix': 'com.github.barteksc:android-pdf-viewer:2.8.2',
-                'status': 'FIXED' if '2.8.2' in content else 'NEEDS_FIX'
+            'com.github.barteksc:android-pdf-viewer': {
+                'issue': 'JitPack GitHub dependency causing build issues',
+                'fix': 'Removed - using Android PdfRenderer + WebView approach',
+                'status': 'FIXED' if 'android-pdf-viewer' not in content else 'NEEDS_FIX'
             },
             'com.artifex.mupdf:mini:1.23.8': {
                 'issue': 'Not compatible with Android',
-                'fix': 'Remove - use android-pdf-viewer instead',
+                'fix': 'Remove - use android-pdf-renderer instead',
                 'status': 'FIXED' if 'com.artifex.mupdf:mini:1.23.8' not in content else 'NEEDS_FIX'
             },
             'androidx.media3:media3-decoder-ffmpeg:1.3.0': {
@@ -48,20 +48,20 @@ class DependencyFixer:
                 'fix': 'Downgrade to 8.11.2 or remove',
                 'status': 'FIXED' if '8.11.2' in content else 'NEEDS_FIX'
             },
-            'com.github.kilianB:JImageHash:3.0.0': {
-                'issue': 'Needs JitPack repository',
-                'fix': 'Add JitPack repository',
-                'status': 'NEEDS_REPO_CHECK'
+            'com.github.kilianB:JImageHash': {
+                'issue': 'JitPack GitHub dependency causing build issues',
+                'fix': 'Removed - using Android built-in image processing',
+                'status': 'FIXED' if 'JImageHash' not in content else 'NEEDS_FIX'
             },
             'org.apache.commons:commons-net:3.9.0': {
                 'issue': 'Wrong groupId',
                 'fix': 'commons-net:commons-net:3.9.0',
                 'status': 'FIXED' if 'commons-net:commons-net' in content else 'NEEDS_FIX'
             },
-            'com.github.thegrizzlylabs:sardine-android:0.8': {
-                'issue': 'Needs JitPack repository',
-                'fix': 'Add JitPack repository',
-                'status': 'NEEDS_REPO_CHECK'
+            'com.github.thegrizzlylabs:sardine-android': {
+                'issue': 'JitPack GitHub dependency causing build issues',
+                'fix': 'Removed - implement WebDAV with OkHttp if needed',
+                'status': 'FIXED' if 'sardine-android' not in content else 'NEEDS_FIX'
             },
             'edu.stanford.nlp:stanford-corenlp:4.5.0': {
                 'issue': 'Too heavy for Android (200MB+)',
