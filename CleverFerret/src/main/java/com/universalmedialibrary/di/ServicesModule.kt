@@ -116,6 +116,12 @@ object ServicesModule {
 
     @Provides
     @Singleton
+    fun provideMediaViewerManager(): com.universalmedialibrary.ui.viewer.MediaViewerManager {
+        return com.universalmedialibrary.ui.viewer.MediaViewerManager()
+    }
+
+    @Provides
+    @Singleton
     fun provideSmartContentAnalyzer(
         @ApplicationContext context: Context,
         mediaViewerManager: com.universalmedialibrary.ui.viewer.MediaViewerManager,
