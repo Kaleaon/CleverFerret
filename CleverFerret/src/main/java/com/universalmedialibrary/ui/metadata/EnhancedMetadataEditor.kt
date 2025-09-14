@@ -146,7 +146,7 @@ fun EnhancedMetadataEditorScreen(
                                                     try {
                                                         searchResults = when (mediaType) {
                                                             "BOOK" -> metadataApiService.searchBooks(searchQuery)
-                                                            "MOVIE" -> metadataApiService.searchMovies(searchQuery, null)
+                                                            "MOVIE" -> metadataApiService.searchMovies(searchQuery)
                                                             "MUSIC" -> metadataApiService.searchMusic(searchQuery)
                                                             else -> metadataApiService.searchBooks(searchQuery)
                                                         }
