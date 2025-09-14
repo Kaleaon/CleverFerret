@@ -264,8 +264,18 @@ class ComprehensiveVideoService @Inject constructor(
      * Release resources
      */
     fun release() {
-        vlcMediaPlayer?.release()
-        libVLC?.release()
+        try {
+            vlcMediaPlayer?.let { player ->
+                val releaseMethod = player.javaClass.getMethod("release")
+                releaseMethod.invoke(player)
+            }
+            libVLC?.let { vlc ->
+                val releaseMethod = vlc.javaClass.getMethod("release")
+                releaseMethod.invoke(vlc)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         vlcMediaPlayer = null
         libVLC = null
     }
