@@ -8,6 +8,12 @@ import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.tts.CoquiTTSService
 import com.universalmedialibrary.services.metadata.MetadataApiService
 import com.universalmedialibrary.services.metadata.ComprehensiveMetadataService
+import com.universalmedialibrary.services.integration.IntegrationManager
+import com.universalmedialibrary.services.integration.plex.PlexIntegrationService
+import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
+import com.universalmedialibrary.services.integration.cloud.CloudStorageService
+import com.universalmedialibrary.services.integration.books.BookServicesIntegration
+import com.universalmedialibrary.services.analysis.SmartContentAnalyzer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
