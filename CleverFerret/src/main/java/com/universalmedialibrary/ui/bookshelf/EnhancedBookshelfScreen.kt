@@ -110,7 +110,7 @@ private fun BookCard(
                     fontWeight = FontWeight.Medium,
                     maxLines = 2
                 )
-                book.author?.let { author ->
+                book.authorName?.let { author ->
                     Text(
                         text = author,
                         style = MaterialTheme.typography.bodySmall,
