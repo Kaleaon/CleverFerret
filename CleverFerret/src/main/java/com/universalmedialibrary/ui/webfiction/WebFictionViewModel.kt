@@ -214,7 +214,7 @@ class WebFictionViewModel @Inject constructor(
                 author = "TechWizard42",
                 description = "In a world where AI has become sentient, a young programmer must navigate the complex relationship between humans and artificial intelligence.",
                 url = "https://archiveofourown.org/works/demo1",
-                site = com.universalmedialibrary.services.webfiction.WebFictionSite.ARCHIVE_OF_OUR_OWN,
+                site = com.universalmedialibrary.services.webfiction.WebFictionSite(id = "ao3", name = "Archive of Our Own", baseUrl = "https://archiveofourown.org", supportedTypes = listOf("fanfiction")),
                 totalChapters = 25,
                 lastUpdated = "2024-01-15",
                 status = "In-Progress",
