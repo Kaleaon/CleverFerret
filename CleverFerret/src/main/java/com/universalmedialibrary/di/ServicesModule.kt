@@ -186,4 +186,12 @@ object ServicesModule {
     ): IntegrationManager {
         return IntegrationManager(context, plexService, calibreService, cloudService, bookServices)
     }
+
+    @Provides
+    @Singleton
+    fun provideComprehensiveVideoService(
+        @ApplicationContext context: Context
+    ): ComprehensiveVideoService {
+        return ComprehensiveVideoService(context)
+    }
 }
