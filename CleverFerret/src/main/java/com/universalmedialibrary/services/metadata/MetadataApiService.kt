@@ -311,7 +311,7 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
-    suspend fun searchMusic(query: String): List<MetadataSearchResult> {
+    suspend fun searchMusic(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
         
         try {
