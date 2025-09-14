@@ -25,7 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.metadata.MetadataApiService
-import com.universalmedialibrary.services.metadata.MetadataSearchResult
+import com.universalmedialibrary.services.metadata.UnifiedMetadataSearchResult
 import com.universalmedialibrary.ui.theme.PlexTheme
 import kotlinx.coroutines.launch
 
