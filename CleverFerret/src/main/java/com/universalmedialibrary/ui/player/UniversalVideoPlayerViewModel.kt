@@ -30,7 +30,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     val playerState: StateFlow<UniversalPlayerState> = _playerState.asStateFlow()
 
     private var exoPlayer: ExoPlayer? = null
-    private var vlcPlayer: MediaPlayer? = null
+    private var vlcPlayer: Any? = null // MediaPlayer? = null
     private var currentUri: Uri? = null
 
     fun initializePlayer(context: Context, uri: Uri) {
