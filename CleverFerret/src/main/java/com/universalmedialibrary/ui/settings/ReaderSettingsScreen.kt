@@ -9,14 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.settings.ReaderSettings
 import com.universalmedialibrary.data.settings.AutoScrollMode
+import com.universalmedialibrary.data.settings.PageAnimation
+import com.universalmedialibrary.data.settings.ReaderTheme
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +29,7 @@ fun ReaderSettingsScreen(
     
     val (title, description) = when (settingsType) {
         "visual" -> "Visual Controls" to "Customize fonts, margins, and layout"
-        "theme" -> "Theming" to "Light/Dark mode"
+        "theme" -> "Theming" to "Light/Dark/Other modes"
         "paging" -> "Paging & Navigation" to "Touch and hardware controls"
         "autoscroll" -> "Auto-Scroll" to "Hands-free reading speed and mode"
         else -> "Reader Settings" to "Configure reading experience"
@@ -96,14 +95,6 @@ fun ReaderSettingsScreen(
                         )
                     }
                 }
-                "tts" -> {
-                    item {
-                        TTSSection(
-                            settings = readerSettings,
-                            onSettingsChange = viewModel::updateReaderSettings
-                        )
-                    }
-                }
             }
         }
     }
@@ -124,7 +115,7 @@ fun VisualControlsSection(
                 value = settings.fontSize,
                 range = 8f..32f,
                 onValueChange = { onSettingsChange(settings.copy(fontSize = it)) },
-                valueDisplay = "${settings.fontSize.toInt()}sp"
+                valueDisplay = "${'$'}{settings.fontSize.toInt()}sp"
             )
             
             // Line Spacing
@@ -133,56 +124,51 @@ fun VisualControlsSection(
                 value = settings.lineSpacing,
                 range = 1.0f..3.0f,
                 onValueChange = { onSettingsChange(settings.copy(lineSpacing = it)) },
-                valueDisplay = "${String.format(Locale.getDefault(), "%.1f", settings.lineSpacing)}x"
-            )
-            
-            // Margins
-            SliderSetting(
-                title = "Margins",
-                value = settings.margins,
-                range = 0f..32f,
-                onValueChange = { onSettingsChange(settings.copy(margins = it)) },
-                valueDisplay = "${settings.margins.toInt()}dp"
+                valueDisplay = "${'$'}{String.format(Locale.getDefault(), "%.1f", settings.lineSpacing)}x"
             )
         }
         
-        SettingsGroupCard("Text Style") {
-            SwitchSetting(
-                title = "Bold Text",
-                subtitle = "Make all text bold",
-                checked = settings.isBold,
-                onCheckedChange = { onSettingsChange(settings.copy(isBold = it)) }
+        SettingsGroupCard("Margins") {
+            SliderSetting(
+                title = "Horizontal Margin",
+                value = settings.marginHorizontal,
+                range = 0f..48f,
+                onValueChange = { onSettingsChange(settings.copy(marginHorizontal = it)) },
+                valueDisplay = "${'$'}{settings.marginHorizontal.toInt()}dp"
             )
-            
-            SwitchSetting(
-                title = "Italic Text", 
-                subtitle = "Make all text italic",
-                checked = settings.isItalic,
-                onCheckedChange = { onSettingsChange(settings.copy(isItalic = it)) }
-            )
-            
-            SwitchSetting(
-                title = "Justified Text",
-                subtitle = "Align text to both margins",
-                checked = settings.isJustified,
-                onCheckedChange = { onSettingsChange(settings.copy(isJustified = it)) }
+            SliderSetting(
+                title = "Vertical Margin",
+                value = settings.marginVertical,
+                range = 0f..48f,
+                onValueChange = { onSettingsChange(settings.copy(marginVertical = it)) },
+                valueDisplay = "${'$'}{settings.marginVertical.toInt()}dp"
             )
         }
         
-        SettingsGroupCard("Layout") {
+        SettingsGroupCard("Display") {
             SwitchSetting(
-                title = "Fade Edge Effect",
-                subtitle = "Smooth edge transitions",
-                checked = settings.fadeEdgeEnabled,
-                onCheckedChange = { onSettingsChange(settings.copy(fadeEdgeEnabled = it)) }
+                title = "Keep Screen On",
+                subtitle = "Prevent screen from turning off while reading",
+                checked = settings.keepScreenOn,
+                onCheckedChange = { onSettingsChange(settings.copy(keepScreenOn = it)) }
             )
-            
-            SliderSetting(
-                title = "Columns",
-                value = settings.columnsCount.toFloat(),
-                range = 1f..3f,
-                onValueChange = { onSettingsChange(settings.copy(columnsCount = it.toInt())) },
-                valueDisplay = "${settings.columnsCount} column${if (settings.columnsCount > 1) "s" else ""}"
+            SwitchSetting(
+                title = "Fullscreen Mode",
+                subtitle = "Hide system bars while reading",
+                checked = settings.fullScreenMode,
+                onCheckedChange = { onSettingsChange(settings.copy(fullScreenMode = it)) }
+            )
+            SwitchSetting(
+                title = "Show Page Numbers",
+                subtitle = "Display current page indicator",
+                checked = settings.showPageNumbers,
+                onCheckedChange = { onSettingsChange(settings.copy(showPageNumbers = it)) }
+            )
+            SwitchSetting(
+                title = "Show Progress Bar",
+                subtitle = "Display reading progress",
+                checked = settings.showProgressBar,
+                onCheckedChange = { onSettingsChange(settings.copy(showProgressBar = it)) }
             )
         }
     }
@@ -197,47 +183,23 @@ fun ThemeSection(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SettingsGroupCard("Theme Mode") {
-            val themes = listOf("Light", "Dark", "System")
-            themes.forEach { theme ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = settings.theme == theme,
-                        onClick = { onSettingsChange(settings.copy(theme = theme)) }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = theme)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ReaderTheme.values().forEach { theme ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = settings.theme == theme,
+                            onClick = { onSettingsChange(settings.copy(theme = theme)) }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = theme.name)
+                    }
                 }
             }
-        }
-        
-        SettingsGroupCard("Custom Colors") {
-            SwitchSetting(
-                title = "Dark Mode",
-                subtitle = "Use dark theme colors",
-                checked = settings.isDarkMode,
-                onCheckedChange = { onSettingsChange(settings.copy(isDarkMode = it)) }
-            )
-        }
-        
-        SettingsGroupCard("Accessibility") {
-            SwitchSetting(
-                title = "High Contrast",
-                subtitle = "Increase text contrast",
-                checked = settings.highContrast,
-                onCheckedChange = { onSettingsChange(settings.copy(highContrast = it)) }
-            )
-            
-            SwitchSetting(
-                title = "Dyslexia-Friendly Font",
-                subtitle = "Use OpenDyslexic font",
-                checked = settings.dyslexiaFont,
-                onCheckedChange = { onSettingsChange(settings.copy(dyslexiaFont = it)) }
-            )
         }
     }
 }
@@ -252,38 +214,35 @@ fun PagingSection(
     ) {
         SettingsGroupCard("Touch Controls") {
             SwitchSetting(
-                title = "Tap to Page",
+                title = "Tap to Turn",
                 subtitle = "Tap screen edges to turn pages",
-                checked = settings.tapToPagingEnabled,
-                onCheckedChange = { onSettingsChange(settings.copy(tapToPagingEnabled = it)) }
+                checked = settings.tapToTurn,
+                onCheckedChange = { onSettingsChange(settings.copy(tapToTurn = it)) }
             )
-            
             SwitchSetting(
-                title = "Swipe to Page",
+                title = "Swipe to Turn",
                 subtitle = "Swipe horizontally to turn pages",
-                checked = settings.swipeToPageEnabled,
-                onCheckedChange = { onSettingsChange(settings.copy(swipeToPageEnabled = it)) }
+                checked = settings.swipeToTurn,
+                onCheckedChange = { onSettingsChange(settings.copy(swipeToTurn = it)) }
             )
-        }
-        
-        SettingsGroupCard("Hardware Controls") {
             SwitchSetting(
-                title = "Volume Key Paging",
+                title = "Volume Key Navigation",
                 subtitle = "Use volume keys to turn pages",
-                checked = settings.volumeKeyPaging,
-                onCheckedChange = { onSettingsChange(settings.copy(volumeKeyPaging = it)) }
+                checked = settings.volumeKeyNavigation,
+                onCheckedChange = { onSettingsChange(settings.copy(volumeKeyNavigation = it)) }
+            )
+            SwitchSetting(
+                title = "Enable Gestures",
+                subtitle = "Use gesture-based navigation",
+                checked = settings.enableGestures,
+                onCheckedChange = { onSettingsChange(settings.copy(enableGestures = it)) }
             )
         }
         
-        SettingsGroupCard("Animation") {
-            val animations = listOf("Slide", "Fade", "None")
+        SettingsGroupCard("Page Turn Animation") {
+            val animations = PageAnimation.values()
             Column {
-                Text(
-                    text = "Page Turn Animation",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium
-                )
-                animations.forEach { animation ->
+                animations.forEach { anim ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -291,11 +250,11 @@ fun PagingSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = settings.pageAnimation == animation,
-                            onClick = { onSettingsChange(settings.copy(pageAnimation = animation)) }
+                            selected = settings.pageAnimation == anim,
+                            onClick = { onSettingsChange(settings.copy(pageAnimation = anim)) }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = animation)
+                        Text(text = anim.name)
                     }
                 }
             }
@@ -312,102 +271,36 @@ fun AutoScrollSection(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SettingsGroupCard("Auto-Scroll") {
-            SwitchSetting(
-                title = "Enable Auto-Scroll",
-                subtitle = "Hands-free reading mode",
-                checked = settings.autoScrollEnabled,
-                onCheckedChange = { onSettingsChange(settings.copy(autoScrollEnabled = it)) }
+            SliderSetting(
+                title = "Scroll Speed",
+                value = settings.autoScrollSpeed,
+                range = 10f..100f,
+                onValueChange = { onSettingsChange(settings.copy(autoScrollSpeed = it)) },
+                valueDisplay = "${'$'}{settings.autoScrollSpeed.toInt()} px/s"
             )
             
-            if (settings.autoScrollEnabled) {
-                SliderSetting(
-                    title = "Scroll Speed",
-                    value = settings.autoScrollSpeed,
-                    range = 10f..100f,
-                    onValueChange = { onSettingsChange(settings.copy(autoScrollSpeed = it)) },
-                    valueDisplay = "${settings.autoScrollSpeed.toInt()} px/s"
+            // Scroll Mode
+            Column {
+                Text(
+                    text = "Scroll Mode",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
-                
-                // Scroll Mode
-                Column {
-                    Text(
-                        text = "Scroll Mode",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    AutoScrollMode.values().forEach { mode ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = settings.autoScrollMode == mode,
-                                onClick = { onSettingsChange(settings.copy(autoScrollMode = mode)) }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(text = mode.name.replace("_", " ").lowercase().split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } })
-                                when (mode) {
-                                    AutoScrollMode.ROLLING_BLIND -> Text(
-                                        text = "Smooth continuous scrolling",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    AutoScrollMode.BY_PIXEL -> Text(
-                                        text = "Small discrete steps",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    AutoScrollMode.BY_LINE -> Text(
-                                        text = "Line by line scrolling",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
+                AutoScrollMode.values().forEach { mode ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = settings.autoScrollMode == mode,
+                            onClick = { onSettingsChange(settings.copy(autoScrollMode = mode)) }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = mode.name)
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun TTSSection(
-    settings: ReaderSettings,
-    onSettingsChange: (ReaderSettings) -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        SettingsGroupCard("Text-to-Speech") {
-            SwitchSetting(
-                title = "Enable TTS",
-                subtitle = "Text-to-speech reading",
-                checked = settings.ttsEnabled,
-                onCheckedChange = { onSettingsChange(settings.copy(ttsEnabled = it)) }
-            )
-            
-            if (settings.ttsEnabled) {
-                SliderSetting(
-                    title = "Speech Speed",
-                    value = settings.ttsSpeed,
-                    range = 0.5f..2.0f,
-                    onValueChange = { onSettingsChange(settings.copy(ttsSpeed = it)) },
-                    valueDisplay = "${String.format(Locale.getDefault(), "%.1f", settings.ttsSpeed)}x"
-                )
-                
-                SliderSetting(
-                    title = "Speech Pitch",
-                    value = settings.ttsPitch,
-                    range = 0.5f..2.0f,
-                    onValueChange = { onSettingsChange(settings.copy(ttsPitch = it)) },
-                    valueDisplay = "${String.format(Locale.getDefault(), "%.1f", settings.ttsPitch)}x"
-                )
             }
         }
     }
@@ -428,7 +321,6 @@ fun SettingsGroupCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 12.dp)
             )

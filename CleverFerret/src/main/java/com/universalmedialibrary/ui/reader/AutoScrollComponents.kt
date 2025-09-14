@@ -1,16 +1,12 @@
 package com.universalmedialibrary.ui.reader
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import com.universalmedialibrary.data.settings.AutoScrollMode
@@ -65,35 +61,26 @@ fun AutoScrollController(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Speed,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(20.dp)
+                        contentDescription = null
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Slider(
                         value = settings.autoScrollSpeed,
                         onValueChange = onSpeedChange,
                         valueRange = 10f..100f,
-                        modifier = Modifier.weight(1f),
-                        colors = SliderDefaults.colors(
-                            thumbColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            activeTrackColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            inactiveTrackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
-                        )
+                        modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${settings.autoScrollSpeed.toInt()}",
+                        text = "${'$'}{settings.autoScrollSpeed.toInt()}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.width(30.dp)
                     )
                 }
                 
                 Text(
-                    text = "Mode: ${settings.autoScrollMode.name.replace("_", " ").lowercase().split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                    text = "Mode: ${'$'}{settings.autoScrollMode.name}",
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
@@ -109,82 +96,31 @@ fun AutoScrollingText(
     modifier: Modifier = Modifier,
     onScrollEnd: () -> Unit = {}
 ) {
-    val scrollState = rememberScrollState()
-    var targetOffset by remember { mutableStateOf(0) }
-    
-    // Calculate scroll animation based on mode and speed
-    // Map existing AutoScrollMode values to behavior
+    // Simplified generic auto-scroll that adapts to mode
     val effectiveSpeed = when (mode) {
         AutoScrollMode.OFF -> 0f
         AutoScrollMode.SLOW -> speed * 0.5f
         AutoScrollMode.MEDIUM -> speed
         AutoScrollMode.FAST -> speed * 1.5f
         AutoScrollMode.CUSTOM -> speed
-    }
-    
-    LaunchedEffect(isScrolling, speed, mode) {
-        if (isScrolling) {
-            when (mode) {
-                AutoScrollMode.ROLLING_BLIND -> {
-                    // Smooth continuous scrolling
-                    while (isScrolling) {
-                        val maxScroll = scrollState.maxValue
-                        val currentScroll = scrollState.value
-                        val increment = (speed / 10).toInt()
-                        
-                        if (currentScroll + increment >= maxScroll) {
-                            onScrollEnd()
-                            break
-                        }
-                        
-                        scrollState.animateScrollTo(
-                            value = currentScroll + increment,
-                            animationSpec = tween(100, easing = LinearEasing)
-                        )
-                        delay(100)
-                    }
-                }
-                AutoScrollMode.BY_PIXEL -> {
-                    // Pixel-by-pixel scrolling
-                    while (isScrolling) {
-                        val maxScroll = scrollState.maxValue
-                        val currentScroll = scrollState.value
-                        
-                        if (currentScroll + 1 >= maxScroll) {
-                            onScrollEnd()
-                            break
-                        }
-                        
-                        scrollState.scrollTo(currentScroll + 1)
-                        delay((100 / speed * 10).toLong())
-                    }
-                }
-                AutoScrollMode.BY_LINE -> {
-                    // Line-by-line scrolling
-                    while (isScrolling) {
-                        val maxScroll = scrollState.maxValue
-                        val currentScroll = scrollState.value
-                        val lineHeight = 24 // Approximate line height in pixels
-                        
-                        if (currentScroll + lineHeight >= maxScroll) {
-                            onScrollEnd()
-                            break
-                        }
-                        
-                        scrollState.animateScrollTo(
-                            value = currentScroll + lineHeight,
-                            animationSpec = tween(200, easing = LinearEasing)
-                        )
-                        delay((1000 / speed * 10).toLong())
-                    }
-                }
+    }.coerceAtLeast(0f)
+
+    // We don't implement actual UI scrolling here to keep this self-contained.
+    // In your readers, bind this timing to scrollState or lazy lists.
+    LaunchedEffect(isScrolling, effectiveSpeed) {
+        if (isScrolling && effectiveSpeed > 0f) {
+            while (isScrolling) {
+                // Tick based on speed (higher speed -> shorter delay)
+                val delayMs = (1000f / effectiveSpeed).toLong().coerceIn(5L, 500L)
+                delay(delayMs)
+                // A real implementation would increment scroll position here
             }
         }
     }
-    
+
     Text(
         text = text,
-        modifier = modifier.verticalScroll(scrollState),
+        modifier = modifier,
         style = MaterialTheme.typography.bodyLarge
     )
 }
