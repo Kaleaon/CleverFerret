@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.Color
 data class ViewerSettings(
     val brightness: Float = 0.5f,
     val nightMode: Boolean = false,
+    val blueLightFilter: Boolean = false,
+    val keepScreenOn: Boolean = false,
     val backgroundColor: Color = Color.White,
     val textColor: Color = Color.Black,
     val fontSize: Float = 16f,

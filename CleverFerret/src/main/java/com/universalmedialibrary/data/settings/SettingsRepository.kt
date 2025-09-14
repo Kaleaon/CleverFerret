@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -16,7 +17,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "ap
 
 @Singleton
 class SettingsRepository @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -109,21 +110,6 @@ class SettingsRepository @Inject constructor(
             }
             val updatedSettings = currentSettings.copy(bookApis = bookApis)
             preferences[API_SETTINGS_KEY] = json.encodeToString(ApiSettings.serializer(), updatedSettings)
-        }
-    }
-
-    // Helper method to get current settings synchronously (use with caution)
-    suspend fun getCurrentApiSettings(): ApiSettings {
-        val preferences = context.dataStore.data.map { it[API_SETTINGS_KEY] }
-        return try {
-            val jsonString = preferences.toString()
-            if (jsonString.isNotEmpty()) {
-                json.decodeFromString<ApiSettings>(jsonString)
-            } else {
-                ApiSettings()
-            }
-        } catch (e: Exception) {
-            ApiSettings()
         }
     }
 }

@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.APIKeyDao
+import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.tts.CoquiTTSService
 import com.universalmedialibrary.services.metadata.MetadataApiService
@@ -44,82 +47,68 @@ object ServicesModule {
 
     @Provides
     @Singleton
-    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
-        return database.apiKeyDao()
-    }
+    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao = database.apiKeyDao()
 
     @Provides
     @Singleton
-    fun provideAPIKeyRepository(apiKeyDao: APIKeyDao): APIKeyRepository {
-        return APIKeyRepository(apiKeyDao)
-    }
+    fun provideLibraryDao(database: AppDatabase): LibraryDao = database.libraryDao()
 
     @Provides
     @Singleton
-    fun provideCoquiTTSService(@ApplicationContext context: Context): CoquiTTSService {
-        return CoquiTTSService(context)
-    }
+    fun provideMediaItemDao(database: AppDatabase): MediaItemDao = database.mediaItemDao()
 
     @Provides
     @Singleton
-    fun provideMetadataApiService(apiKeyRepository: APIKeyRepository): MetadataApiService {
-        return MetadataApiService(apiKeyRepository)
-    }
+    fun provideMetadataDao(database: AppDatabase): MetadataDao = database.metadataDao()
 
     @Provides
     @Singleton
-    fun provideComprehensiveMetadataService(apiKeyRepository: APIKeyRepository): ComprehensiveMetadataService {
-        return ComprehensiveMetadataService(apiKeyRepository)
-    }
+    fun provideAPIKeyRepository(apiKeyDao: APIKeyDao): APIKeyRepository = APIKeyRepository(apiKeyDao)
 
     @Provides
     @Singleton
-    fun provideWebFictionService(): com.universalmedialibrary.services.webfiction.WebFictionService {
-        return com.universalmedialibrary.services.webfiction.WebFictionService()
-    }
+    fun provideCoquiTTSService(@ApplicationContext context: Context): CoquiTTSService = CoquiTTSService(context)
 
     @Provides
     @Singleton
-    fun providePodcastService(@ApplicationContext context: Context): com.universalmedialibrary.services.podcast.PodcastService {
-        return com.universalmedialibrary.services.podcast.PodcastService(context)
-    }
+    fun provideMetadataApiService(apiKeyRepository: APIKeyRepository): MetadataApiService = MetadataApiService(apiKeyRepository)
+
+    @Provides
+    @Singleton
+    fun provideComprehensiveMetadataService(apiKeyRepository: APIKeyRepository): ComprehensiveMetadataService = ComprehensiveMetadataService(apiKeyRepository)
+
+    @Provides
+    @Singleton
+    fun provideWebFictionService(): com.universalmedialibrary.services.webfiction.WebFictionService = com.universalmedialibrary.services.webfiction.WebFictionService()
+
+    @Provides
+    @Singleton
+    fun providePodcastService(@ApplicationContext context: Context): com.universalmedialibrary.services.podcast.PodcastService = com.universalmedialibrary.services.podcast.PodcastService(context)
 
     // Smart Content Analysis Services
     @Provides
     @Singleton
-    fun provideOCRService(): com.universalmedialibrary.services.analysis.ocr.OCRService {
-        return com.universalmedialibrary.services.analysis.ocr.OCRService()
-    }
+    fun provideOCRService(): com.universalmedialibrary.services.analysis.ocr.OCRService = com.universalmedialibrary.services.analysis.ocr.OCRService()
 
     @Provides
     @Singleton
-    fun provideMetadataExtractor(@ApplicationContext context: Context): com.universalmedialibrary.services.analysis.nlp.MetadataExtractor {
-        return com.universalmedialibrary.services.analysis.nlp.MetadataExtractor(context)
-    }
+    fun provideMetadataExtractor(@ApplicationContext context: Context): com.universalmedialibrary.services.analysis.nlp.MetadataExtractor = com.universalmedialibrary.services.analysis.nlp.MetadataExtractor(context)
 
     @Provides
     @Singleton
-    fun provideContentFingerprinter(): com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter {
-        return com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter()
-    }
+    fun provideContentFingerprinter(): com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter = com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter()
 
     @Provides
     @Singleton
-    fun provideContentClassifier(): com.universalmedialibrary.services.analysis.classification.ContentClassifier {
-        return com.universalmedialibrary.services.analysis.classification.ContentClassifier()
-    }
+    fun provideContentClassifier(): com.universalmedialibrary.services.analysis.classification.ContentClassifier = com.universalmedialibrary.services.analysis.classification.ContentClassifier()
 
     @Provides
     @Singleton
-    fun provideArchiveComparator(comprehensiveMetadataService: ComprehensiveMetadataService): com.universalmedialibrary.services.analysis.comparison.ArchiveComparator {
-        return com.universalmedialibrary.services.analysis.comparison.ArchiveComparator(comprehensiveMetadataService)
-    }
+    fun provideArchiveComparator(comprehensiveMetadataService: ComprehensiveMetadataService): com.universalmedialibrary.services.analysis.comparison.ArchiveComparator = com.universalmedialibrary.services.analysis.comparison.ArchiveComparator(comprehensiveMetadataService)
 
     @Provides
     @Singleton
-    fun provideMediaViewerManager(): com.universalmedialibrary.ui.viewer.MediaViewerManager {
-        return com.universalmedialibrary.ui.viewer.MediaViewerManager()
-    }
+    fun provideMediaViewerManager(): com.universalmedialibrary.ui.viewer.MediaViewerManager = com.universalmedialibrary.ui.viewer.MediaViewerManager()
 
     @Provides
     @Singleton
@@ -131,12 +120,9 @@ object ServicesModule {
         contentFingerprinter: com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter,
         contentClassifier: com.universalmedialibrary.services.analysis.classification.ContentClassifier,
         archiveComparator: com.universalmedialibrary.services.analysis.comparison.ArchiveComparator
-    ): SmartContentAnalyzer {
-        return SmartContentAnalyzer(
-            context, mediaViewerManager, ocrService, metadataExtractor, 
-            contentFingerprinter, contentClassifier, archiveComparator
-        )
-    }
+    ): SmartContentAnalyzer = SmartContentAnalyzer(
+        context, mediaViewerManager, ocrService, metadataExtractor, contentFingerprinter, contentClassifier, archiveComparator
+    )
 
     // Integration Services
     @Provides
@@ -144,36 +130,28 @@ object ServicesModule {
     fun providePlexIntegrationService(
         @ApplicationContext context: Context,
         contentAnalyzer: SmartContentAnalyzer
-    ): PlexIntegrationService {
-        return PlexIntegrationService(context, contentAnalyzer)
-    }
+    ): PlexIntegrationService = PlexIntegrationService(context, contentAnalyzer)
 
     @Provides
     @Singleton
     fun provideCalibreIntegrationService(
         @ApplicationContext context: Context,
         apiKeyRepository: APIKeyRepository
-    ): CalibreIntegrationService {
-        return CalibreIntegrationService(context, apiKeyRepository)
-    }
+    ): CalibreIntegrationService = CalibreIntegrationService(context, apiKeyRepository)
 
     @Provides
     @Singleton
     fun provideCloudStorageService(
         @ApplicationContext context: Context,
         apiKeyRepository: APIKeyRepository
-    ): CloudStorageService {
-        return CloudStorageService(context, apiKeyRepository)
-    }
+    ): CloudStorageService = CloudStorageService(context, apiKeyRepository)
 
     @Provides
     @Singleton
     fun provideBookServicesIntegration(
         @ApplicationContext context: Context,
         apiKeyRepository: APIKeyRepository
-    ): BookServicesIntegration {
-        return BookServicesIntegration(context, apiKeyRepository)
-    }
+    ): BookServicesIntegration = BookServicesIntegration(context, apiKeyRepository)
 
     @Provides
     @Singleton
@@ -183,15 +161,11 @@ object ServicesModule {
         calibreService: CalibreIntegrationService,
         cloudService: CloudStorageService,
         bookServices: BookServicesIntegration
-    ): IntegrationManager {
-        return IntegrationManager(context, plexService, calibreService, cloudService, bookServices)
-    }
+    ): IntegrationManager = IntegrationManager(context, plexService, calibreService, cloudService, bookServices)
 
     @Provides
     @Singleton
     fun provideComprehensiveVideoService(
         @ApplicationContext context: Context
-    ): ComprehensiveVideoService {
-        return ComprehensiveVideoService(context)
-    }
+    ): ComprehensiveVideoService = ComprehensiveVideoService(context)
 }
