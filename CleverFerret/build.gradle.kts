@@ -252,7 +252,7 @@ dependencies {
     implementation("androidx.media3:media3-transformer:1.3.0")
     
     // Advanced audio codec support
-    implementation("androidx.media3:media3-decoder-opus:1.3.0")
+    // Removed: media3-decoder-opus (no such artifact in 1.3.0)
     implementation("androidx.media3:media3-decoder-flac:1.3.0")
     
     // Network and streaming protocols
