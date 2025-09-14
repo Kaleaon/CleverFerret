@@ -223,7 +223,7 @@ dependencies {
     
     // Advanced document and media support
     implementation("com.github.barteksc:android-pdf-viewer:2.8.2") // Updated to stable version
-    // implementation("com.artifex.mupdf:mini:1.23.8") // Removed - not compatible with Android, replaced with alternatives
+    // MuPDF removed - android-pdf-viewer provides sufficient PDF support
     
     // Archive support for comics (CBZ, CBR)
     implementation("org.apache.commons:commons-compress:1.24.0")
