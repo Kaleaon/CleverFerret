@@ -232,14 +232,38 @@ dependencies {
     // Image processing and manipulation
     implementation("androidx.graphics:graphics-core:1.0.0-beta01")
     
-    // Advanced media support
+    // Advanced media support with comprehensive codec support
     implementation("androidx.media3:media3-exoplayer-hls:1.3.0")
     implementation("androidx.media3:media3-exoplayer-dash:1.3.0")
     implementation("androidx.media3:media3-exoplayer-rtsp:1.3.0")
-    // FFmpeg decoder removed - standard ExoPlayer decoders are sufficient
+    implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.3.0")
     
-    // Subtitle support
+    // VLC Android SDK for comprehensive video format support
+    implementation("org.videolan.android:libvlc-all:4.0.0-eap13")
+    
+    // Additional ExoPlayer extensions for more formats
     implementation("androidx.media3:media3-extractor:1.3.0")
+    implementation("androidx.media3:media3-decoder:1.3.0")
+    implementation("androidx.media3:media3-datasource:1.3.0")
+    implementation("androidx.media3:media3-common:1.3.0")
+    
+    // Subtitle and closed caption support
+    implementation("androidx.media3:media3-extractor:1.3.0")
+    implementation("androidx.media3:media3-transformer:1.3.0")
+    
+    // Advanced audio codec support
+    implementation("androidx.media3:media3-decoder-opus:1.3.0")
+    implementation("androidx.media3:media3-decoder-flac:1.3.0")
+    
+    // Network and streaming protocols
+    implementation("androidx.media3:media3-datasource-okhttp:1.3.0")
+    implementation("androidx.media3:media3-datasource-rtmp:1.3.0")
+    
+    // Additional video format support libraries
+    implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS") // FFmpeg for Android
+    
+    // Container format support
+    implementation("org.apache.commons:commons-compress:1.24.0") // Already included but needed for video containers
     
     // Gesture detection and advanced UI
     implementation("androidx.compose.foundation:foundation:1.7.0-beta01")
