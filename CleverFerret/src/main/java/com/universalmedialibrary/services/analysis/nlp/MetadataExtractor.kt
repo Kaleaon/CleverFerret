@@ -51,7 +51,7 @@ class MetadataExtractor @Inject constructor(
         val text = when (file.extension.lowercase()) {
             "txt" -> file.readText()
             "pdf" -> extractTextFromPDF(file)
-            "epub" -&gt; extractTextFromEPUB(file)
+            "epub" -> extractTextFromEPUB(file)
             else -&gt; file.name
         }
         
