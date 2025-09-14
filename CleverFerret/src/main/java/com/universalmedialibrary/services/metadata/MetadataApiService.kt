@@ -235,7 +235,7 @@ class MetadataApiService @Inject constructor(
             val googleBooks = googleBooksApi.searchBooks(query)
             googleBooks.items?.forEach { item ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = item.id,
                         title = item.volumeInfo.title ?: "Unknown Title",
                         author = item.volumeInfo.authors?.joinToString(", "),
