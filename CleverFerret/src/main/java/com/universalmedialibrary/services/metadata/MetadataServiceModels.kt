@@ -6,7 +6,7 @@ import com.universalmedialibrary.data.MediaType
  * Data models for metadata services
  */
 
-data class MetadataSearchResult(
+data class UnifiedMetadataSearchResult(
     val id: String,
     val title: String,
     val author: String?,
