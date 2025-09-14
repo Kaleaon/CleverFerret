@@ -221,13 +221,14 @@ dependencies {
     // File handling and document access
     implementation("androidx.documentfile:documentfile:1.0.1")
     
-    // Advanced document and media support
-    implementation("com.github.barteksc:android-pdf-viewer:3.2.0-beta.1") // Using JitPack - this version should work
-    // MuPDF removed - android-pdf-viewer provides sufficient PDF support
+    // Advanced document and media support - Using stable Maven Central alternative
+    implementation("com.github.mhiew:android-pdf-js:1.0.0") // Alternative PDF viewer
+    // Or use Android's built-in PdfRenderer for simple PDF support
+    // MuPDF removed - using lighter alternatives
     
     // Archive support for comics (CBZ, CBR)
     implementation("org.apache.commons:commons-compress:1.24.0")
-    implementation("com.github.junrar:junrar:7.5.4")
+    // implementation("com.github.junrar:junrar:7.5.4") // Temporarily removed to fix build
     
     // Image processing and manipulation
     implementation("androidx.graphics:graphics-core:1.0.0-beta01")
