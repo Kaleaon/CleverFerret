@@ -242,7 +242,7 @@ class WebFictionViewModel @Inject constructor(
                 author = "StoryLover123",
                 description = "A collection of interconnected stories exploring different universes and characters in creative ways.",
                 url = "https://www.fanfiction.net/s/demo3",
-                site = com.universalmedialibrary.services.webfiction.WebFictionSite.FANFICTION_NET,
+                site = com.universalmedialibrary.services.webfiction.WebFictionSite(id = "ff", name = "FanFiction.net", baseUrl = "https://www.fanfiction.net", supportedTypes = listOf("fanfiction")),
                 totalChapters = 42,
                 lastUpdated = "2024-01-18",
                 status = "Hiatus",
