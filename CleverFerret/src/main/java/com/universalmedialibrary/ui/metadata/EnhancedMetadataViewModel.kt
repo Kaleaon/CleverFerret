@@ -3,7 +3,7 @@ package com.universalmedialibrary.ui.metadata
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.metadata.MetadataApiService
-import com.universalmedialibrary.services.metadata.MetadataSearchResult
+import com.universalmedialibrary.services.metadata.UnifiedMetadataSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
