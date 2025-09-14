@@ -38,7 +38,15 @@ class ComprehensiveVideoService @Inject constructor(
      * Initialize VLC library for advanced video format support
      */
     fun initializeVLC(): Boolean {
+        if (!isVLCAvailable) {
+            return false
+        }
+        
         return try {
+            // Use reflection to initialize VLC if available
+            val libVLCClass = Class.forName("org.videolan.libvlc.LibVLC")
+            val mediaPlayerClass = Class.forName("org.videolan.libvlc.MediaPlayer")
+            
             val options = arrayListOf<String>().apply {
                 add("--aout=opensles")
                 add("--audio-time-stretch") // Enable audio time-stretching
@@ -51,8 +59,12 @@ class ComprehensiveVideoService @Inject constructor(
                 add("--prefetch-buffer-size=64") // Prefetch buffer
             }
             
-            libVLC = LibVLC(context, options)
-            vlcMediaPlayer = MediaPlayer(libVLC)
+            val constructor = libVLCClass.getConstructor(Context::class.java, List::class.java)
+            libVLC = constructor.newInstance(context, options)
+            
+            val mediaPlayerConstructor = mediaPlayerClass.getConstructor(libVLCClass)
+            vlcMediaPlayer = mediaPlayerConstructor.newInstance(libVLC)
+            
             true
         } catch (e: Exception) {
             e.printStackTrace()
