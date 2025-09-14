@@ -113,25 +113,13 @@ fun AutoScrollingText(
     var targetOffset by remember { mutableStateOf(0) }
     
     // Calculate scroll animation based on mode and speed
-    val animationSpec = when (mode) {
-        AutoScrollMode.ROLLING_BLIND -> infiniteRepeatable(
-            animation = tween<Float>(
-                durationMillis = (60000 / speed).toInt(), // Convert speed to duration
-                easing = LinearEasing
-            )
-        )
-        AutoScrollMode.BY_PIXEL -> infiniteRepeatable(
-            animation = tween<Float>(
-                durationMillis = (1000 / speed * 10).toInt(), // Adjust for pixel-based scrolling
-                easing = LinearEasing
-            )
-        )
-        AutoScrollMode.BY_LINE -> infiniteRepeatable(
-            animation = tween<Float>(
-                durationMillis = (2000 / speed * 10).toInt(), // Line-based scrolling
-                easing = LinearEasing
-            )
-        )
+    // Map existing AutoScrollMode values to behavior
+    val effectiveSpeed = when (mode) {
+        AutoScrollMode.OFF -> 0f
+        AutoScrollMode.SLOW -> speed * 0.5f
+        AutoScrollMode.MEDIUM -> speed
+        AutoScrollMode.FAST -> speed * 1.5f
+        AutoScrollMode.CUSTOM -> speed
     }
     
     LaunchedEffect(isScrolling, speed, mode) {
