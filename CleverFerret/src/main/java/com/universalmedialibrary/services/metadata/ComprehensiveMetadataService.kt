@@ -464,7 +464,7 @@ class ComprehensiveMetadataService @Inject constructor(
      */
     suspend fun searchComicSources(
         query: String
-    ): List<MetadataSearchResult> {
+    ): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<MetadataSearchResult>()
         
         // Get API keys from repository
