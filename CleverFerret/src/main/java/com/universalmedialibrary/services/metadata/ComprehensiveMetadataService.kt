@@ -528,7 +528,7 @@ class ComprehensiveMetadataService @Inject constructor(
         try {
             val response = hardcoverApi.searchBooks(query)
             return response.data.map { book ->
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = book.id,
                     title = book.title,
                     author = book.author,
