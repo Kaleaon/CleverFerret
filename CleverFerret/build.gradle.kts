@@ -252,15 +252,19 @@ dependencies {
     implementation("androidx.media3:media3-transformer:1.3.0")
     
     // Advanced audio codec support
-    implementation("androidx.media3:media3-decoder-opus:1.3.0")
-    implementation("androidx.media3:media3-decoder-flac:1.3.0")
+    // Note: These dependencies are currently unavailable, commenting out for now
+    // TODO: Re-enable when dependencies become available or find alternatives
+    // implementation("androidx.media3:media3-decoder-opus:1.3.0")
+    // implementation("androidx.media3:media3-decoder-flac:1.3.0")
     
     // Network and streaming protocols
     implementation("androidx.media3:media3-datasource-okhttp:1.3.0")
     implementation("androidx.media3:media3-datasource-rtmp:1.3.0")
     
     // Additional video format support libraries
-    implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS") // FFmpeg for Android
+    // Note: This dependency is currently unavailable, commenting out for now
+    // TODO: Re-enable when dependency becomes available or find alternative
+    // implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS") // FFmpeg for Android
     
     // Container format support
     implementation("org.apache.commons:commons-compress:1.24.0") // Already included but needed for video containers

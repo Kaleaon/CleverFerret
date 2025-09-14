@@ -180,3 +180,19 @@ The following features, inspired by the best-in-class Moon+ Reader Pro, should b
 - **Advanced PDF:** High-performance PDF rendering with annotation support.
 - **Security:** Option for password protection at startup.
 - **Shortcuts:** "Book to home screen" shortcut creation.
+
+---
+
+## 📋 Project Documentation & Planning
+
+### 🗺️ Development Roadmap
+See **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)** for complete development status, organized issue tracking, and project timeline.
+
+### 📚 Documentation
+- **[docs/README.md](docs/README.md)** - Complete documentation index
+- **[issues/](issues/)** - Structured development issues (32 total)
+- **Core Documentation:** [INSTALL.md](INSTALL.md), [RELEASE.md](RELEASE.md), [RESOURCES.md](RESOURCES.md)
+
+### ⚠️ Current Status
+**BUILD STATUS**: 🚨 **Failing** - Critical dependency and compilation issues need resolution before development can continue.  
+See [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md#-known-issues) for details.
