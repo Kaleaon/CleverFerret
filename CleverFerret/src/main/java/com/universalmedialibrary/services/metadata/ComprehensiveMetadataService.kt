@@ -575,7 +575,7 @@ class ComprehensiveMetadataService @Inject constructor(
         return emptyList() // Placeholder
     }
     
-    private suspend fun searchComicVine(query: String, apiKey: String): List<MetadataSearchResult> {
+    private suspend fun searchComicVine(query: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = comicVineApi.searchComics(apiKey, query)
             return response.results.map { volume ->
