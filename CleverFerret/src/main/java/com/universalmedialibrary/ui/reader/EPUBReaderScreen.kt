@@ -166,13 +166,24 @@ fun EPUBReaderScreen(
                             WebView(context).apply {
                                 webViewClient = EPUBWebViewClient()
                                 settings.apply {
-                                    javaScriptEnabled = true
-                                    domStorageEnabled = true
+                                    // Security hardening - disable JS and file access
+                                    javaScriptEnabled = false
+                                    allowFileAccess = false
+                                    allowFileAccessFromFileURLs = false
+                                    allowUniversalAccessFromFileURLs = false
+                                    allowContentAccess = false
+                                    
+                                    // Display settings
+                                    domStorageEnabled = false
                                     setSupportZoom(true)
                                     builtInZoomControls = true
                                     displayZoomControls = false
                                     loadWithOverviewMode = true
                                     useWideViewPort = true
+                                    
+                                    // Additional security
+                                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                                    safeBrowsingEnabled = true
                                 }
                                 webView = this
                             }
