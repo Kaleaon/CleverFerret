@@ -286,6 +286,10 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite:2.13.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
     
+    // MediaPipe for Gemma LLM integration
+    implementation("com.google.mediapipe:tasks-genai:0.10.14")
+    implementation("com.google.mediapipe:tasks-core:0.10.14")
+    
     // OCR and text extraction
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("com.google.mlkit:language-id:17.0.4")
