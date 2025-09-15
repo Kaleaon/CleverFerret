@@ -235,4 +235,3 @@ private fun formatTime(ms: Long): String {
     return if (hours > 0) String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     else String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 }
-}

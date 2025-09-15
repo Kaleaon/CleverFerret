@@ -851,9 +851,9 @@ class PodcastService @Inject constructor(
     }
 
     private fun escapeXml(text: String): String {
-        return text.replace("&", "&amp;")
-                  .replace("<", "&lt;")
-                  .replace(">", "&gt;")
+        return text.replace("&", "&")
+                  .replace("<", "<")
+                  .replace(">", ">")
                   .replace("\"", "&quot;")
                   .replace("'", "&apos;")
     }

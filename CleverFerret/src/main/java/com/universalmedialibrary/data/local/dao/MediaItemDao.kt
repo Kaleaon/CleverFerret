@@ -32,6 +32,8 @@ interface MediaItemDao {
             mi.dateAdded as media_dateAdded,
             mi.lastScanned as media_lastScanned,
             mi.fileHash as media_fileHash,
+            mi.lastAccessed as media_lastAccessed,
+            mi.playCount as media_playCount,
             mc.itemId as meta_itemId,
             mc.title as meta_title,
             mc.sortTitle as meta_sortTitle,
@@ -61,6 +63,8 @@ interface MediaItemDao {
             mi.dateAdded as media_dateAdded,
             mi.lastScanned as media_lastScanned,
             mi.fileHash as media_fileHash,
+            mi.lastAccessed as media_lastAccessed,
+            mi.playCount as media_playCount,
             mc.itemId as meta_itemId,
             mc.title as meta_title,
             mc.sortTitle as meta_sortTitle,
@@ -86,7 +90,7 @@ interface MediaItemDao {
     suspend fun getItemByPath(path: String): MediaItem?
     
     @Query("UPDATE media_items SET lastAccessed = :date, playCount = playCount + 1 WHERE itemId = :itemId")
-    suspend fun updateLastAccessed(itemId: Long, date: java.util.Date)
+    suspend fun updateLastAccessed(itemId: Long, date: Long)
     
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountForLibrary(libraryId: Long): Int

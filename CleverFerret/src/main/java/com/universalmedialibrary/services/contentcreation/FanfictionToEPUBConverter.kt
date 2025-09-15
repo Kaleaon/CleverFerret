@@ -596,9 +596,9 @@ hr {
     
     private fun escapeXml(text: String): String {
         return text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
+            .replace("&", "&")
+            .replace("<", "<")
+            .replace(">", ">")
             .replace("\"", "&quot;")
             .replace("'", "&apos;")
     }
