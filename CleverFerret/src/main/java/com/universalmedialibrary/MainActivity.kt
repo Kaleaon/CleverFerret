@@ -517,7 +517,7 @@ fun LibraryCard(library: Library, onClick: () -> Unit) {
     val backgroundColor = when (library.type.uppercase()) {
         "BOOK" -> listOf(Color(0xFF2C5F2D), Color(0xFF97BC62))
         "MOVIE" -> listOf(Color(0xFF1565C0), Color(0xFF42A5F5))
-        "MUSIC" -> listOf(Color(0xFF7B1FA2), Color(0xFF BA68C8))
+        "MUSIC" -> listOf(Color(0xFF7B1FA2), Color(0xFFBA68C8))
         else -> listOf(Color(0xFF455A64), Color(0xFF90A4AE))
     }
 

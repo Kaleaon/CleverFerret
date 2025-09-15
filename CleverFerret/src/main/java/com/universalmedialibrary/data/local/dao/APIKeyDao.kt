@@ -49,5 +49,11 @@ interface APIKeyDao {
 
     // Get all API keys as a map for easy access
     @Query("SELECT provider, keyValue FROM api_keys WHERE isActive = 1 AND keyValue != ''")
-    suspend fun getActiveAPIKeysMap(): Map<String, String>
+    suspend fun getActiveAPIKeysMap(): List<APIKeyPair>
 }
+
+// Helper data class for the map query
+data class APIKeyPair(
+    val provider: String,
+    val keyValue: String
+)

@@ -1,6 +1,7 @@
 package com.universalmedialibrary.data.repository
 
 import com.universalmedialibrary.data.local.dao.APIKeyDao
+import com.universalmedialibrary.data.local.dao.APIKeyPair
 import com.universalmedialibrary.data.local.model.APIKey
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -58,7 +59,7 @@ class APIKeyRepository @Inject constructor(
         apiKeyDao.getAPIKeyValue(provider)
 
     suspend fun getActiveAPIKeysMap(): Map<String, String> = 
-        apiKeyDao.getActiveAPIKeysMap()
+        apiKeyDao.getActiveAPIKeysMap().associate { it.provider to it.keyValue }
 
     suspend fun getValidAPIKeysCountByCategory(category: String): Int = 
         apiKeyDao.getValidAPIKeysCountByCategory(category)
