@@ -194,6 +194,7 @@ data class AudioPlayerUiState(
     val isPlaying: Boolean = false,
     val title: String = "Unknown Track",
     val artist: String = "",
+    val album: String = "",
     val duration: Long = 0L,
     val currentPosition: Long = 0L,
     val error: String? = null
