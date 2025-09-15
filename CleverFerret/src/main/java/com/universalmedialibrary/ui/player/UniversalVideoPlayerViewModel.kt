@@ -25,7 +25,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _playerState = MutableStateFlow(UniversalPlayerState())
-    val playerState: StateFlow&lt;UniversalPlayerState&gt; = _playerState.asStateFlow()
+    val playerState: StateFlow<UniversalPlayerState> = _playerState.asStateFlow()
 
     private var exoPlayer: ExoPlayer? = null
     private var vlcPlayer: Any? = null
@@ -44,15 +44,15 @@ class UniversalVideoPlayerViewModel @Inject constructor(
                 val useVLC = if (recommended == VideoPlayerType.VLC) videoService.initializeVLC() else false
 
                 val chosenPlayer = when {
-                    recommended == VideoPlayerType.EXOPLAYER -&gt; {
+                    recommended == VideoPlayerType.EXOPLAYER -> {
                         initializeExoPlayer(context, uri)
                         VideoPlayerType.EXOPLAYER
                     }
-                    recommended == VideoPlayerType.VLC &amp;&amp; useVLC -&gt; {
+                    recommended == VideoPlayerType.VLC && useVLC -> {
                         initializeVLCPlayer(context, uri)
                         VideoPlayerType.VLC
                     }
-                    else -&gt; {
+                    else -> {
                         // Fallback to ExoPlayer
                         initializeExoPlayer(context, uri)
                         VideoPlayerType.EXOPLAYER
@@ -152,16 +152,16 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
     fun togglePlayPause() {
         when (_playerState.value.playerType) {
-            VideoPlayerType.EXOPLAYER -&gt; {
-                exoPlayer?.let { player -&gt;
+            VideoPlayerType.EXOPLAYER -> {
+                exoPlayer?.let { player ->
                     if (player.isPlaying) player.pause() else player.play()
                 }
             }
-            VideoPlayerType.VLC -&gt; {
+            VideoPlayerType.VLC -> {
                 val isPlaying = safeInvoke(vlcPlayer, "isPlaying") as? Boolean ?: false
                 if (isPlaying) safeInvoke(vlcPlayer, "pause") else safeInvoke(vlcPlayer, "play")
             }
-            VideoPlayerType.SYSTEM_PLAYER -&gt; {
+            VideoPlayerType.SYSTEM_PLAYER -> {
                 // System player toggle
             }
         }
@@ -169,26 +169,26 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
     fun seekTo(positionMs: Long) {
         when (_playerState.value.playerType) {
-            VideoPlayerType.EXOPLAYER -&gt; exoPlayer?.seekTo(positionMs)
-            VideoPlayerType.VLC -&gt; safeInvoke(vlcPlayer, "setTime", arrayOf(Long::class.javaPrimitiveType), positionMs)
-            VideoPlayerType.SYSTEM_PLAYER -&gt; { }
+            VideoPlayerType.EXOPLAYER -> exoPlayer?.seekTo(positionMs)
+            VideoPlayerType.VLC -> safeInvoke(vlcPlayer, "setTime", arrayOf(Long::class.javaPrimitiveType), positionMs)
+            VideoPlayerType.SYSTEM_PLAYER -> { }
         }
     }
 
     fun setVolume(volume: Float) {
         when (_playerState.value.playerType) {
-            VideoPlayerType.EXOPLAYER -&gt; exoPlayer?.volume = volume
-            VideoPlayerType.VLC -&gt; safeInvoke(vlcPlayer, "setVolume", arrayOf(Int::class.javaPrimitiveType), (volume * 100).toInt())
-            VideoPlayerType.SYSTEM_PLAYER -&gt; { }
+            VideoPlayerType.EXOPLAYER -> exoPlayer?.volume = volume
+            VideoPlayerType.VLC -> safeInvoke(vlcPlayer, "setVolume", arrayOf(Int::class.javaPrimitiveType), (volume * 100).toInt())
+            VideoPlayerType.SYSTEM_PLAYER -> { }
         }
         _playerState.value = _playerState.value.copy(volume = volume)
     }
 
     fun setPlaybackSpeed(speed: Float) {
         when (_playerState.value.playerType) {
-            VideoPlayerType.EXOPLAYER -&gt; exoPlayer?.setPlaybackSpeed(speed)
-            VideoPlayerType.VLC -&gt; safeInvoke(vlcPlayer, "setRate", arrayOf(Float::class.javaPrimitiveType), speed)
-            VideoPlayerType.SYSTEM_PLAYER -&gt; { }
+            VideoPlayerType.EXOPLAYER -> exoPlayer?.setPlaybackSpeed(speed)
+            VideoPlayerType.VLC -> safeInvoke(vlcPlayer, "setRate", arrayOf(Float::class.javaPrimitiveType), speed)
+            VideoPlayerType.SYSTEM_PLAYER -> { }
         }
         _playerState.value = _playerState.value.copy(playbackSpeed = speed)
     }
@@ -201,11 +201,11 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
     fun changeAudioTrack(trackIndex: Int) {
         when (_playerState.value.playerType) {
-            VideoPlayerType.EXOPLAYER -&gt; {
+            VideoPlayerType.EXOPLAYER -> {
                 // ExoPlayer audio track selection (not implemented here)
             }
-            VideoPlayerType.VLC -&gt; safeInvoke(vlcPlayer, "setAudioTrack", arrayOf(Int::class.javaPrimitiveType), trackIndex)
-            VideoPlayerType.SYSTEM_PLAYER -&gt; { }
+            VideoPlayerType.VLC -> safeInvoke(vlcPlayer, "setAudioTrack", arrayOf(Int::class.javaPrimitiveType), trackIndex)
+            VideoPlayerType.SYSTEM_PLAYER -> { }
         }
     }
 
@@ -215,19 +215,19 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     }
 
     fun switchPlayer(newPlayerType: VideoPlayerType) {
-        currentUri?.let { uri -&gt;
+        currentUri?.let { uri ->
             viewModelScope.launch {
                 val currentPosition = getCurrentPosition()
                 releaseCurrentPlayer()
                 when (newPlayerType) {
-                    VideoPlayerType.EXOPLAYER -&gt; initializeExoPlayer(
+                    VideoPlayerType.EXOPLAYER -> initializeExoPlayer(
                         _playerState.value.exoPlayerView?.context ?: return@launch, uri
                     )
-                    VideoPlayerType.VLC -&gt; initializeVLCPlayer(
+                    VideoPlayerType.VLC -> initializeVLCPlayer(
                         (_playerState.value.vlcVideoLayout as? View)?.context ?: _playerState.value.exoPlayerView?.context ?: return@launch,
                         uri
                     )
-                    VideoPlayerType.SYSTEM_PLAYER -&gt; initializeSystemPlayer(uri)
+                    VideoPlayerType.SYSTEM_PLAYER -> initializeSystemPlayer(uri)
                 }
                 _playerState.value = _playerState.value.copy(playerType = newPlayerType)
                 seekTo(currentPosition)
@@ -236,7 +236,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     }
 
     fun retryPlayback() {
-        currentUri?.let { uri -&gt;
+        currentUri?.let { uri ->
             val context = _playerState.value.exoPlayerView?.context
                 ?: (_playerState.value.vlcVideoLayout as? View)?.context
                 ?: return
@@ -246,18 +246,18 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
     private fun getCurrentPosition(): Long {
         return when (_playerState.value.playerType) {
-            VideoPlayerType.EXOPLAYER -&gt; exoPlayer?.currentPosition ?: 0L
-            VideoPlayerType.VLC -&gt; (safeInvoke(vlcPlayer, "getTime") as? Long) ?: 0L
-            VideoPlayerType.SYSTEM_PLAYER -&gt; 0L
+            VideoPlayerType.EXOPLAYER -> exoPlayer?.currentPosition ?: 0L
+            VideoPlayerType.VLC -> (safeInvoke(vlcPlayer, "getTime") as? Long) ?: 0L
+            VideoPlayerType.SYSTEM_PLAYER -> 0L
         }
     }
 
     private fun updatePlayerState() {
         when (_playerState.value.playerType) {
-            VideoPlayerType.EXOPLAYER -&gt; {
-                exoPlayer?.let { player -&gt;
+            VideoPlayerType.EXOPLAYER -> {
+                exoPlayer?.let { player ->
                     val currentPosition = player.currentPosition
-                    val duration = player.duration.takeIf { it &gt; 0 } ?: 1L
+                    val duration = player.duration.takeIf { it > 0 } ?: 1L
                     val progress = (currentPosition.toFloat() / duration).coerceIn(0f, 1f)
                     
                     _playerState.value = _playerState.value.copy(
@@ -268,7 +268,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
                     )
                 }
             }
-            VideoPlayerType.VLC -&gt; {
+            VideoPlayerType.VLC -> {
                 val currentPosition = (safeInvoke(vlcPlayer, "getTime") as? Long) ?: 0L
                 val duration = (safeInvoke(vlcPlayer, "getLength") as? Long) ?: 1L
                 val isPlaying = (safeInvoke(vlcPlayer, "isPlaying") as? Boolean) ?: false
@@ -280,7 +280,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
                     isPlaying = isPlaying
                 )
             }
-            VideoPlayerType.SYSTEM_PLAYER -&gt; { }
+            VideoPlayerType.SYSTEM_PLAYER -> { }
         }
     }
 
@@ -302,7 +302,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         videoService.release()
     }
 
-    private fun safeInvoke(target: Any?, method: String, paramTypes: Array&lt;Class&lt;*&gt;&gt; = emptyArray(), vararg args: Any?): Any? {
+    private fun safeInvoke(target: Any?, method: String, paramTypes: Array<Class<*>> = emptyArray(), vararg args: Any?): Any? {
         return try {
             if (target == null) return null
             val m = target.javaClass.getMethod(method, *paramTypes)

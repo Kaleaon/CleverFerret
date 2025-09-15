@@ -26,5 +26,5 @@ interface LibraryDao {
     suspend fun deleteLibrary(libraryId: Long)
     
     @Query("UPDATE libraries SET dateModified = :date WHERE libraryId = :libraryId")
-    suspend fun updateLibraryModifiedDate(libraryId: Long, date: java.util.Date)
+    suspend fun updateLibraryModifiedDate(libraryId: Long, date: Long)
 }

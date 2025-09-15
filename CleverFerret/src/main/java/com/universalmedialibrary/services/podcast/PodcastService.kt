@@ -12,6 +12,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
+import retrofit2.http.Path
+import retrofit2.http.Header
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -485,7 +487,7 @@ class PodcastService @Inject constructor(
     }
     
     private suspend fun searchSpotifyPodcasts(query: String, token: String): List<PodcastSearchResult> {
-        val response = spotifyApi.searchPodcasts(query, authToken = "Bearer $token")
+        val response = spotifyApi.searchPodcasts(query, authorization = "Bearer $token")
         return response.shows.items.map { show ->
             PodcastSearchResult(
                 id = "spotify_${show.id}",
@@ -849,9 +851,9 @@ class PodcastService @Inject constructor(
     }
 
     private fun escapeXml(text: String): String {
-        return text.replace("&", "&amp;")
-                  .replace("<", "&lt;")
-                  .replace(">", "&gt;")
+        return text.replace("&", "&")
+                  .replace("<", "<")
+                  .replace(">", ">")
                   .replace("\"", "&quot;")
                   .replace("'", "&apos;")
     }

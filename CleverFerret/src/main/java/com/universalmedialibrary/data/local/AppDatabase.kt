@@ -35,7 +35,7 @@ import com.universalmedialibrary.data.local.model.*
         ReadingProgress::class,
         ReadingSession::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false // For now, we can disable schema exporting
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -220,6 +220,17 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """)
                 database.execSQL("CREATE INDEX index_reading_sessions_mediaItemId ON reading_sessions(mediaItemId)")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add dateModified column to libraries table
+                database.execSQL("ALTER TABLE libraries ADD COLUMN dateModified INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}")
+                
+                // Add lastAccessed and playCount columns to media_items table  
+                database.execSQL("ALTER TABLE media_items ADD COLUMN lastAccessed INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}")
+                database.execSQL("ALTER TABLE media_items ADD COLUMN playCount INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

@@ -23,5 +23,7 @@ data class MediaItem(
     val filePath: String,
     val dateAdded: Long,
     val lastScanned: Long,
-    val fileHash: String
+    val fileHash: String,
+    val lastAccessed: Long = System.currentTimeMillis(),
+    val playCount: Int = 0
 )

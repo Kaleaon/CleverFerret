@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -252,16 +252,19 @@ dependencies {
     implementation("androidx.media3:media3-extractor:1.3.0")
     implementation("androidx.media3:media3-transformer:1.3.0")
     
-    // Advanced audio codec support
-    // Removed: media3-decoder-opus (no such artifact in 1.3.0)
+    // Advanced audio codec support - using standard ExoPlayer decoders
+    // Note: Specialized OPUS and FLAC decoders (media3-decoder-opus, media3-decoder-flac) 
+    // don't exist in the media3 repository. Standard ExoPlayer handles these formats.
     // FFmpeg extension for expanded codec support (FLAC, etc.)
     // implementation("androidx.media3:media3-exoplayer-ffmpeg:1.3.0")
-    // Removed: media3-decoder-flac (no such artifact in 1.3.0)
     
     // Network and streaming protocols
     implementation("androidx.media3:media3-datasource-okhttp:1.3.0")
+    implementation("androidx.media3:media3-datasource-rtmp:1.3.0")
     
-    // Additional video format support libraries
+    // Additional video format support 
+    // Note: mobile-ffmpeg-full:4.4.LTS is not available in standard repositories.
+    // ExoPlayer with VLC Android SDK provides comprehensive format support.
     // Removed: mobile-ffmpeg-full 4.4.LTS (migrated upstream, not resolvable via Maven Central). Consider alternative or omit.
     
     // Container format support

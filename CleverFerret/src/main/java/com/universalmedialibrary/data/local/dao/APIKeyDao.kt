@@ -8,6 +8,11 @@ import androidx.room.Update
 import com.universalmedialibrary.data.local.model.APIKey
 import kotlinx.coroutines.flow.Flow
 
+data class ProviderKeyPair(
+    val provider: String,
+    val keyValue: String
+)
+
 @Dao
 interface APIKeyDao {
 
@@ -47,7 +52,7 @@ interface APIKeyDao {
     @Query("SELECT keyValue FROM api_keys WHERE provider = :provider AND isActive = 1 LIMIT 1")
     suspend fun getAPIKeyValue(provider: String): String?
 
-    // Get all API keys as a map for easy access
+    // Get active provider-key pairs for easy map conversion
     @Query("SELECT provider, keyValue FROM api_keys WHERE isActive = 1 AND keyValue != ''")
-    suspend fun getActiveAPIKeysMap(): Map<String, String>
+    suspend fun getActiveProviderKeys(): List<ProviderKeyPair>
 }
