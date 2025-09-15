@@ -70,9 +70,14 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
 import com.universalmedialibrary.ui.details.BookDetailsScreen
+import com.universalmedialibrary.services.StorageAccessService
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    
+    @Inject
+    lateinit var storageAccessService: StorageAccessService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,11 +112,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                // Android 11+
-                if (!Environment.isExternalStorageManager()) {
-                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    intent.data = Uri.parse("package:$packageName")
-                    startActivity(intent)
+                // Android 11+ - Use SAF instead of All Files Access
+                // Request media permissions but rely on SAF for document access
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_AUDIO)
                 }
             }
             else -> {
