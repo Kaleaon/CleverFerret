@@ -487,7 +487,7 @@ class PodcastService @Inject constructor(
     }
     
     private suspend fun searchSpotifyPodcasts(query: String, token: String): List<PodcastSearchResult> {
-        val response = spotifyApi.searchPodcasts(query, authorization = "Bearer $token")
+        val response = spotifyApi.searchPodcasts(query, authToken = "Bearer $token")
         return response.shows.items.map { show ->
             PodcastSearchResult(
                 id = "spotify_${show.id}",
