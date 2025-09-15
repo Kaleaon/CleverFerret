@@ -31,7 +31,7 @@ import {
   Movie as MovieIcon,
   MusicNote as MusicIcon,
   Description as DocumentIcon,
-  Podcast as PodcastIcon,
+  Podcasts as PodcastIcon,
   Article as MagazineIcon,
   VideoLibrary as VideoIcon,
   LibraryMusic as LibraryMusicIcon,

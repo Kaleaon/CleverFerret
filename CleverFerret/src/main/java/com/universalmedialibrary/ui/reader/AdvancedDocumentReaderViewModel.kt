@@ -166,9 +166,9 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 // Strip HTML tags for reading
                 val plainText = content.replace(Regex("<[^>]*>"), "")
                     .replace("&nbsp;", " ")
-                    .replace("&amp;", "&")
-                    .replace("&lt;", "<")
-                    .replace("&gt;", ">")
+                    .replace("&", "&")
+                    .replace("<", "<")
+                    .replace(">", ">")
                     .trim()
                 
                 documentContent = plainText

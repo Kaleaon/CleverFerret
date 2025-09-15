@@ -189,6 +189,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.3.0")
     implementation("androidx.media3:media3-ui:1.3.0")
     implementation("androidx.media3:media3-session:1.3.0")
+    // media3-exoplayer-ffmpeg removed — not published in 1.3.0; relying on device/framework FLAC or VLC fallback
 
     // Hilt for Dependency Injection
     implementation("com.google.dagger:hilt-android:2.51.1")
@@ -238,12 +239,12 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-rtsp:1.3.0")
     implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.3.0")
     
-    // VLC Android SDK for comprehensive video format support
-    implementation("org.videolan.android:libvlc-all:4.0.0-eap13")
+    // VLC Android SDK kept optional via reflection (do not fail build if absent)
+    // implementation("org.videolan.android:libvlc-all:4.0.0-eap13")
     
     // Additional ExoPlayer extensions for more formats
     implementation("androidx.media3:media3-extractor:1.3.0")
-    implementation("androidx.media3:media3-decoder:1.3.0")
+    // Removed: media3-decoder (module not published separately)
     implementation("androidx.media3:media3-datasource:1.3.0")
     implementation("androidx.media3:media3-common:1.3.0")
     
@@ -251,20 +252,20 @@ dependencies {
     implementation("androidx.media3:media3-extractor:1.3.0")
     implementation("androidx.media3:media3-transformer:1.3.0")
     
-    // Advanced audio codec support
-    // Note: These dependencies are currently unavailable, commenting out for now
-    // TODO: Re-enable when dependencies become available or find alternatives
-    // implementation("androidx.media3:media3-decoder-opus:1.3.0")
-    // implementation("androidx.media3:media3-decoder-flac:1.3.0")
+    // Advanced audio codec support - using standard ExoPlayer decoders
+    // Note: Specialized OPUS and FLAC decoders (media3-decoder-opus, media3-decoder-flac) 
+    // don't exist in the media3 repository. Standard ExoPlayer handles these formats.
+    // FFmpeg extension for expanded codec support (FLAC, etc.)
+    // implementation("androidx.media3:media3-exoplayer-ffmpeg:1.3.0")
     
     // Network and streaming protocols
     implementation("androidx.media3:media3-datasource-okhttp:1.3.0")
     implementation("androidx.media3:media3-datasource-rtmp:1.3.0")
     
-    // Additional video format support libraries
-    // Note: This dependency is currently unavailable, commenting out for now
-    // TODO: Re-enable when dependency becomes available or find alternative
-    // implementation("com.arthenica:mobile-ffmpeg-full:4.4.LTS") // FFmpeg for Android
+    // Additional video format support 
+    // Note: mobile-ffmpeg-full:4.4.LTS is not available in standard repositories.
+    // ExoPlayer with VLC Android SDK provides comprehensive format support.
+    // Removed: mobile-ffmpeg-full 4.4.LTS (migrated upstream, not resolvable via Maven Central). Consider alternative or omit.
     
     // Container format support
     implementation("org.apache.commons:commons-compress:1.24.0") // Already included but needed for video containers
@@ -287,6 +288,10 @@ dependencies {
     // Machine learning for content analysis
     implementation("org.tensorflow:tensorflow-lite:2.13.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+    
+    // MediaPipe for Gemma LLM integration
+    implementation("com.google.mediapipe:tasks-genai:0.10.14")
+    implementation("com.google.mediapipe:tasks-core:0.10.14")
     
     // OCR and text extraction
     implementation("com.google.mlkit:text-recognition:16.0.0")

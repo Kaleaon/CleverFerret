@@ -3,6 +3,7 @@ package com.universalmedialibrary.di
 import android.content.Context
 import androidx.room.Room
 import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
@@ -26,7 +27,10 @@ object DatabaseModule {
             AppDatabase.DATABASE_NAME
         ).addMigrations(
             AppDatabase.MIGRATION_1_2,
-            AppDatabase.MIGRATION_2_3
+            AppDatabase.MIGRATION_2_3,
+            AppDatabase.MIGRATION_3_4,
+            AppDatabase.MIGRATION_4_5,
+            AppDatabase.MIGRATION_5_6
         )
          .build()
     }
@@ -44,5 +48,10 @@ object DatabaseModule {
     @Provides
     fun provideMetadataDao(appDatabase: AppDatabase): MetadataDao {
         return appDatabase.metadataDao()
+    }
+    
+    @Provides
+    fun provideBookmarkDao(appDatabase: AppDatabase): BookmarkDao {
+        return appDatabase.bookmarkDao()
     }
 }

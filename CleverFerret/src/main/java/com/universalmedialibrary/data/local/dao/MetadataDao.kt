@@ -93,4 +93,13 @@ interface MetadataDao {
 
     @Query("DELETE FROM item_genre WHERE itemId = :itemId")
     suspend fun deleteGenresByItemId(itemId: Long)
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCommonMetadata(metadata: MetadataCommon)
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMusicTrackMetadata(metadata: MetadataMusicTrack)
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMovieMetadata(metadata: MetadataMovie)
 }

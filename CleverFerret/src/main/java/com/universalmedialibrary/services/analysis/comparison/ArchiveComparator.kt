@@ -1,222 +1,109 @@
 package com.universalmedialibrary.services.analysis.comparison
 
+import com.universalmedialibrary.services.analysis.ArchiveItem
 import com.universalmedialibrary.services.analysis.ArchiveMatch
+import com.universalmedialibrary.services.analysis.ArchiveMatchType
 import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import com.universalmedialibrary.services.metadata.ComprehensiveMetadataService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Archive Comparator Service
- * Compares content against known archives and databases
+ * Compares content against known archives to find matches
  */
 @Singleton
 class ArchiveComparator @Inject constructor(
     private val metadataService: ComprehensiveMetadataService
 ) {
-
+    
     /**
-     * Find matches by ISBN
+     * Compare extracted metadata against archive databases
      */
-    suspend fun findByISBN(isbn: String): List<ArchiveMatch> = withContext(Dispatchers.IO) {
+    suspend fun compareAgainstArchives(metadata: ExtractedMetadata): List<ArchiveMatch> {
         val matches = mutableListOf<ArchiveMatch>()
         
-        try {
-            // Search multiple sources for ISBN
-            val results = metadataService.searchAllBookSources("", isbn)
-            
-            results.forEach { result ->
-                matches.add(
-                    ArchiveMatch(
-                        source = result.source.name,
-                        id = result.id,
-                        title = result.title,
-                        author = result.author,
-                        isbn = isbn,
-                        coverImageUrl = result.coverUrl ?: "",
-                        description = result.description ?: "",
-                        genres = listOf(result.genre).filter { it.isNotEmpty() },
-                        publishedDate = result.year?.toString(),
-                        confidence = 0.95f // High confidence for ISBN matches
-                    )
-                )
-            }
-        } catch (e: Exception) {
-            // Return mock data for demonstration
-            matches.add(createMockArchiveMatch(isbn, null, null))
+        // Compare against various archives
+        matches.addAll(compareAgainstLibraryOfCongress(metadata))
+        matches.addAll(compareAgainstWorldCat(metadata))
+        matches.addAll(compareAgainstInternetArchive(metadata))
+        matches.addAll(compareAgainstGoodreads(metadata))
+        
+        return matches.sortedByDescending { it.confidence }
+    }
+    
+    private suspend fun compareAgainstLibraryOfCongress(metadata: ExtractedMetadata): List<ArchiveMatch> {
+        // Placeholder for Library of Congress API integration
+        return emptyList()
+    }
+    
+    private suspend fun compareAgainstWorldCat(metadata: ExtractedMetadata): List<ArchiveMatch> {
+        // Placeholder for WorldCat API integration
+        return emptyList()
+    }
+    
+    private suspend fun compareAgainstInternetArchive(metadata: ExtractedMetadata): List<ArchiveMatch> {
+        // Placeholder for Internet Archive API integration
+        return emptyList()
+    }
+    
+    private suspend fun compareAgainstGoodreads(metadata: ExtractedMetadata): List<ArchiveMatch> {
+        // Placeholder for Goodreads API integration
+        return emptyList()
+    }
+    
+    /**
+     * Calculate similarity score between two metadata objects
+     */
+    private fun calculateSimilarity(metadata1: ExtractedMetadata, metadata2: ExtractedMetadata): Float {
+        var score = 0f
+        var factors = 0
+        
+        // Title similarity
+        if (metadata1.title != null && metadata2.title != null) {
+            score += calculateStringSimilarity(metadata1.title!!, metadata2.title!!)
+            factors++
         }
         
-        matches
+        // Author similarity
+        if (metadata1.author != null && metadata2.author != null) {
+            score += calculateStringSimilarity(metadata1.author!!, metadata2.author!!)
+            factors++
+        }
+        
+        // ISBN exact match
+        if (metadata1.isbn != null && metadata2.isbn != null) {
+            score += if (metadata1.isbn == metadata2.isbn) 1.0f else 0.0f
+            factors++
+        }
+        
+        return if (factors > 0) score / factors else 0f
     }
-
-    /**
-     * Find matches by title and author
-     */
-    suspend fun findByTitleAuthor(title: String, author: String): List<ArchiveMatch> = withContext(Dispatchers.IO) {
-        val matches = mutableListOf<ArchiveMatch>()
+    
+    private fun calculateStringSimilarity(str1: String, str2: String): Float {
+        // Simple Levenshtein distance-based similarity
+        val maxLength = maxOf(str1.length, str2.length)
+        if (maxLength == 0) return 1.0f
         
-        if (title.isBlank()) return@withContext matches
+        val distance = levenshteinDistance(str1.lowercase(), str2.lowercase())
+        return 1.0f - (distance.toFloat() / maxLength)
+    }
+    
+    private fun levenshteinDistance(str1: String, str2: String): Int {
+        val dp = Array(str1.length + 1) { IntArray(str2.length + 1) }
         
-        try {
-            val query = if (author.isNotBlank()) "$title $author" else title
-            val results = metadataService.searchAllBookSources(query)
-            
-            results.forEach { result ->
-                val titleSimilarity = calculateStringSimilarity(title, result.title)
-                val authorSimilarity = if (author.isNotBlank()) {
-                    calculateStringSimilarity(author, result.author)
-                } else 0.5f
-                
-                val confidence = (titleSimilarity * 0.7f + authorSimilarity * 0.3f)
-                
-                if (confidence > 0.6f) { // Only include reasonably good matches
-                    matches.add(
-                        ArchiveMatch(
-                            source = result.source.name,
-                            id = result.id,
-                            title = result.title,
-                            author = result.author,
-                            coverImageUrl = result.coverUrl ?: "",
-                            description = result.description ?: "",
-                            genres = listOf(result.genre).filter { it.isNotEmpty() },
-                            publishedDate = result.year?.toString(),
-                            confidence = confidence
-                        )
-                    )
+        for (i in 0..str1.length) dp[i][0] = i
+        for (j in 0..str2.length) dp[0][j] = j
+        
+        for (i in 1..str1.length) {
+            for (j in 1..str2.length) {
+                dp[i][j] = if (str1[i - 1] == str2[j - 1]) {
+                    dp[i - 1][j - 1]
+                } else {
+                    1 + minOf(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
                 }
             }
-        } catch (e: Exception) {
-            // Return mock data for demonstration
-            if (title.isNotBlank()) {
-                matches.add(createMockArchiveMatch(null, title, author))
-            }
         }
         
-        matches.sortedByDescending { it.confidence }
-    }
-
-    /**
-     * Find video matches in databases
-     */
-    suspend fun findVideoMatches(metadata: ExtractedMetadata): List<ArchiveMatch> = withContext(Dispatchers.IO) {
-        val matches = mutableListOf<ArchiveMatch>()
-        
-        if (metadata.title.isBlank()) return@withContext matches
-        
-        // In a real implementation, this would query TMDB, OMDb, etc.
-        // For now, return mock data
-        matches.add(
-            ArchiveMatch(
-                source = "TMDB",
-                id = "mock_video_${metadata.title.hashCode()}",
-                title = metadata.title,
-                description = "Mock video description for ${metadata.title}",
-                genres = listOf("Action", "Drama"),
-                publishedDate = metadata.releaseYear?.toString(),
-                confidence = 0.7f,
-                metadata = mapOf(
-                    "type" to "video",
-                    "runtime" to (metadata.runtime?.toString() ?: "unknown")
-                )
-            )
-        )
-        
-        matches
-    }
-
-    /**
-     * Find audio matches in music databases
-     */
-    suspend fun findAudioMatches(metadata: ExtractedMetadata): List<ArchiveMatch> = withContext(Dispatchers.IO) {
-        val matches = mutableListOf<ArchiveMatch>()
-        
-        if (metadata.title.isBlank()) return@withContext matches
-        
-        // In a real implementation, this would query MusicBrainz, Spotify, etc.
-        matches.add(
-            ArchiveMatch(
-                source = "MusicBrainz",
-                id = "mock_audio_${metadata.title.hashCode()}",
-                title = metadata.title,
-                author = metadata.artist,
-                description = "Album: ${metadata.album}",
-                genres = metadata.genres,
-                confidence = 0.6f,
-                metadata = mapOf(
-                    "type" to "audio",
-                    "album" to metadata.album,
-                    "duration" to (metadata.duration?.toString() ?: "unknown")
-                )
-            )
-        )
-        
-        matches
-    }
-
-    /**
-     * Find comic matches in comic databases
-     */
-    suspend fun findComicMatches(metadata: ExtractedMetadata): List<ArchiveMatch> = withContext(Dispatchers.IO) {
-        val matches = mutableListOf<ArchiveMatch>()
-        
-        if (metadata.title.isBlank()) return@withContext matches
-        
-        // In a real implementation, this would query ComicVine, etc.
-        matches.add(
-            ArchiveMatch(
-                source = "ComicVine",
-                id = "mock_comic_${metadata.title.hashCode()}",
-                title = metadata.title,
-                description = "Comic series: ${metadata.series}",
-                seriesName = metadata.series,
-                seriesNumber = metadata.seriesNumber,
-                genres = listOf("Superhero", "Action"),
-                confidence = 0.65f,
-                metadata = mapOf(
-                    "type" to "comic",
-                    "issue" to metadata.issue,
-                    "volume" to metadata.volume
-                )
-            )
-        )
-        
-        matches
-    }
-
-    private fun createMockArchiveMatch(isbn: String?, title: String?, author: String?): ArchiveMatch {
-        return ArchiveMatch(
-            source = "Mock Database",
-            id = "mock_${(isbn ?: title ?: "unknown").hashCode()}",
-            title = title ?: "Unknown Title",
-            author = author ?: "Unknown Author",
-            isbn = isbn,
-            description = "This is a mock result for demonstration purposes.",
-            genres = listOf("Fiction", "General"),
-            publishedDate = "2023",
-            confidence = 0.5f,
-            metadata = mapOf(
-                "mock" to "true",
-                "source" to "demonstration"
-            )
-        )
-    }
-
-    private fun calculateStringSimilarity(str1: String, str2: String): Float {
-        val s1 = str1.lowercase().trim()
-        val s2 = str2.lowercase().trim()
-        
-        if (s1 == s2) return 1.0f
-        if (s1.isEmpty() || s2.isEmpty()) return 0.0f
-        
-        // Simple Jaccard similarity
-        val words1 = s1.split("\\s+".toRegex()).toSet()
-        val words2 = s2.split("\\s+".toRegex()).toSet()
-        
-        val intersection = words1.intersect(words2).size
-        val union = words1.union(words2).size
-        
-        return if (union > 0) intersection.toFloat() / union else 0.0f
+        return dp[str1.length][str2.length]
     }
 }

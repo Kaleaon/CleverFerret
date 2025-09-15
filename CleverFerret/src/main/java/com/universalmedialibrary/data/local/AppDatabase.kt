@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.universalmedialibrary.data.local.dao.APIKeyDao
+import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
@@ -29,9 +30,12 @@ import com.universalmedialibrary.data.local.model.*
         People::class,
         ItemPersonRole::class,
         Series::class,
-        APIKey::class
+        APIKey::class,
+        Bookmark::class,
+        ReadingProgress::class,
+        ReadingSession::class
     ],
-    version = 4,
+    version = 6,
     exportSchema = false // For now, we can disable schema exporting
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -40,6 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun metadataDao(): MetadataDao
     abstract fun apiKeyDao(): APIKeyDao
+    abstract fun bookmarkDao(): BookmarkDao
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
@@ -166,6 +171,66 @@ abstract class AppDatabase : RoomDatabase() {
                 
                 // Create unique index on provider
                 database.execSQL("CREATE UNIQUE INDEX index_api_keys_provider ON api_keys(provider)")
+            }
+        }
+        
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create bookmarks table
+                database.execSQL("""
+                    CREATE TABLE bookmarks (
+                        bookmarkId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        mediaItemId INTEGER NOT NULL,
+                        position TEXT NOT NULL,
+                        timestamp INTEGER NOT NULL,
+                        note TEXT,
+                        type TEXT NOT NULL,
+                        FOREIGN KEY (mediaItemId) REFERENCES media_items(itemId) ON DELETE CASCADE
+                    )
+                """)
+                database.execSQL("CREATE INDEX index_bookmarks_mediaItemId ON bookmarks(mediaItemId)")
+                
+                // Create reading progress table
+                database.execSQL("""
+                    CREATE TABLE reading_progress (
+                        mediaItemId INTEGER PRIMARY KEY NOT NULL,
+                        currentPosition TEXT NOT NULL,
+                        totalPages INTEGER NOT NULL DEFAULT 0,
+                        pagesRead INTEGER NOT NULL DEFAULT 0,
+                        percentComplete REAL NOT NULL DEFAULT 0,
+                        lastReadTimestamp INTEGER NOT NULL,
+                        totalReadingTime INTEGER NOT NULL DEFAULT 0,
+                        readingSessions INTEGER NOT NULL DEFAULT 0,
+                        FOREIGN KEY (mediaItemId) REFERENCES media_items(itemId) ON DELETE CASCADE
+                    )
+                """)
+                database.execSQL("CREATE UNIQUE INDEX index_reading_progress_mediaItemId ON reading_progress(mediaItemId)")
+                
+                // Create reading sessions table
+                database.execSQL("""
+                    CREATE TABLE reading_sessions (
+                        sessionId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        mediaItemId INTEGER NOT NULL,
+                        startTime INTEGER NOT NULL,
+                        endTime INTEGER,
+                        pagesRead INTEGER NOT NULL DEFAULT 0,
+                        startPosition TEXT NOT NULL,
+                        endPosition TEXT,
+                        FOREIGN KEY (mediaItemId) REFERENCES media_items(itemId) ON DELETE CASCADE
+                    )
+                """)
+                database.execSQL("CREATE INDEX index_reading_sessions_mediaItemId ON reading_sessions(mediaItemId)")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add dateModified column to libraries table
+                database.execSQL("ALTER TABLE libraries ADD COLUMN dateModified INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}")
+                
+                // Add lastAccessed and playCount columns to media_items table  
+                database.execSQL("ALTER TABLE media_items ADD COLUMN lastAccessed INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}")
+                database.execSQL("ALTER TABLE media_items ADD COLUMN playCount INTEGER NOT NULL DEFAULT 0")
             }
         }
     }
