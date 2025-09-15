@@ -18,9 +18,6 @@ export default defineConfig({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              },
-              cacheKeyWillBeUsed: async ({ request }) => {
-                return `${request.url}?${Date.now()}`;
               }
             }
           },
@@ -61,9 +58,11 @@ export default defineConfig({
     })
   ],
   server: {
-    port: 3000,
+    port: 5000,
     host: '0.0.0.0',
-    allowedHosts: 'all'
+    hmr: {
+      port: 5000
+    }
   },
   build: {
     outDir: 'dist',
