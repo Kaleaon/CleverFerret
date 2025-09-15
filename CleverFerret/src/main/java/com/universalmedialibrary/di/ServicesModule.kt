@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.tts.CoquiTTSService
 import com.universalmedialibrary.services.metadata.MetadataApiService
@@ -66,6 +67,14 @@ object ServicesModule {
     @Provides
     @Singleton
     fun provideBookmarkDao(database: AppDatabase): BookmarkDao = database.bookmarkDao()
+    
+    @Provides
+    @Singleton
+    fun provideStorageAccessService(
+        libraryDao: LibraryDao,
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao
+    ): StorageAccessService = StorageAccessService(libraryDao, mediaItemDao, metadataDao)
 
     @Provides
     @Singleton
