@@ -12,6 +12,7 @@ object R {
         const val ic_video_placeholder = 0x7f020004
         const val ic_podcast_placeholder = 0x7f020005
         const val ic_import_export = 0x7f020006
+        const val placeholder_book_cover = 0x7f020007
     }
     
     object string {

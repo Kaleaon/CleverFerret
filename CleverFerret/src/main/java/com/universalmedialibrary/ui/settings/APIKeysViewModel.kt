@@ -173,9 +173,24 @@ class APIKeysViewModel @Inject constructor(
 
     private suspend fun testTMDbKey(apiKey: String): String {
         return try {
-            // Test with a simple movie search
-            metadataApiService.searchMovies("test", apiKey)
-            "✅ Valid API key"
+            // Test with a simple movie search - save key temporarily for testing
+            val originalKey = apiKeyRepository.getAPIKeyValue("tmdb")
+            
+            // Temporarily save the test key
+            apiKeyRepository.saveAPIKey("tmdb", apiKey, "MOVIES_TV")
+            
+            try {
+                // Test the API
+                metadataApiService.searchMovies("test")
+                "✅ Valid API key"
+            } finally {
+                // Restore original key if it existed, otherwise clear test key
+                if (originalKey != null) {
+                    apiKeyRepository.saveAPIKey("tmdb", originalKey, "MOVIES_TV")
+                } else {
+                    apiKeyRepository.saveAPIKey("tmdb", "", "MOVIES_TV")
+                }
+            }
         } catch (e: HttpException) {
             when (e.code()) {
                 401 -> "❌ Invalid API key"

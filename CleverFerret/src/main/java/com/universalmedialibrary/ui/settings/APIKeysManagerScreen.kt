@@ -575,20 +575,5 @@ fun APIKeyCard(
                 }
             )
         }
-
-        // Error Snackbar
-        uiState.error?.let { error ->
-            LaunchedEffect(error) {
-                // Show error snackbar (would need SnackbarHost in real implementation)
-                viewModel.clearError()
-            }
-        }
-
-        // Success message when saved
-        if (uiState.lastSaved > 0 && !uiState.hasUnsavedChanges) {
-            LaunchedEffect(uiState.lastSaved) {
-                // Show success message
-            }
-        }
     }
 }

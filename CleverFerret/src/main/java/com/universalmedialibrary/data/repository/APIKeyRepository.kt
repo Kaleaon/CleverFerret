@@ -1,6 +1,7 @@
 package com.universalmedialibrary.data.repository
 
 import com.universalmedialibrary.data.local.dao.APIKeyDao
+import com.universalmedialibrary.data.local.dao.ProviderKeyPair
 import com.universalmedialibrary.data.local.model.APIKey
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
