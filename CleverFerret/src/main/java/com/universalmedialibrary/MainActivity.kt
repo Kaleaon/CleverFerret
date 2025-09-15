@@ -8,9 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -27,13 +30,18 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.music.MusicLibraryScreen
 import com.universalmedialibrary.ui.player.QueueScreen
 import androidx.navigation.NavController
@@ -44,7 +52,7 @@ import com.universalmedialibrary.data.local.model.BookDetails
 import com.universalmedialibrary.data.local.model.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.services.MediaScannerService
-import com.universalmedialibrary.ui.bookshelf.EnhancedBookshelfScreen
+import com.universalmedialibrary.ui.bookshelf.EnhancedBookshelfScreen as EnhancedBookshelfScreenMain
 import com.universalmedialibrary.ui.details.LibraryDetailsViewModel
 import com.universalmedialibrary.ui.main.MainViewModel
 import androidx.compose.material.icons.filled.Settings
@@ -52,7 +60,7 @@ import com.universalmedialibrary.ui.settings.SettingsScreen
 import com.universalmedialibrary.ui.settings.ApiSettingsScreen
 import com.universalmedialibrary.ui.settings.APIKeysManagerScreen
 import com.universalmedialibrary.ui.settings.ReaderSettingsScreen
-import com.universalmedialibrary.ui.settings.SecuritySettingsScreen
+import com.universalmedialibrary.ui.settings.SecuritySettingsScreen as SecuritySettingsScreenMain
 import com.universalmedialibrary.ui.integration.PlexIntegrationScreen
 import com.universalmedialibrary.ui.settings.AboutScreen
 import com.universalmedialibrary.ui.metadata.MetadataEditorScreen
@@ -145,7 +153,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1001) {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
@@ -171,7 +179,7 @@ fun AppNavigation() {
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toLong() ?: 1L
-            EnhancedBookshelfScreen(navController = navController, libraryId = libraryId)
+            EnhancedBookshelfScreenMain(navController = navController, libraryId = libraryId)
         }
         composable("book_details/{bookId}") { backStackEntry ->
             val bookId = backStackEntry.arguments?.getString("bookId")?.toLong() ?: 0L
@@ -199,7 +207,7 @@ fun AppNavigation() {
             ReaderSettingsScreen(navController = navController, settingsType = settingsType)
         }
         composable("settings/security") {
-            SecuritySettingsScreen(navController = navController)
+            SecuritySettingsScreenMain(navController = navController)
         }
         composable("settings/about") {
             AboutScreen(navController = navController)
@@ -476,7 +484,7 @@ fun LibraryDetailsScreen(viewModel: LibraryDetailsViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun BookCard(book: BookDetail, onClick: () -> Unit) {
+fun BookCard(book: BookDetails, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -488,7 +496,7 @@ fun BookCard(book: BookDetail, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = book.coverUrl,
+                model = book.metadata.coverImagePath,
                 contentDescription = "Book cover",
                 modifier = Modifier
                     .size(60.dp)
@@ -502,7 +510,7 @@ fun BookCard(book: BookDetail, onClick: () -> Unit) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = book.title,
+                    text = book.metadata.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
@@ -510,7 +518,7 @@ fun BookCard(book: BookDetail, onClick: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = book.author,
+                    text = book.authorName ?: "Unknown Author",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -536,6 +544,7 @@ fun BookCard(book: BookDetail, onClick: () -> Unit) {
     }
 }
 
+@Composable
 fun MetadataEditorScreenWrapper(bookId: Long, navController: NavController) {
     MetadataEditorScreen(
         itemId = bookId,
@@ -547,4 +556,174 @@ fun MetadataEditorScreenWrapper(bookId: Long, navController: NavController) {
             navController.navigateUp()
         }
     )
+}
+
+@Composable
+fun AddLibraryDialog(onDismiss: () -> Unit, onAdd: (String) -> Unit) {
+    var name by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add New Library") },
+        text = {
+            TextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Library Name") }
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onAdd(name) },
+                enabled = name.isNotBlank()
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun LibraryCard(library: Library, onClick: () -> Unit) {
+    val backgroundColor = when (library.type.uppercase()) {
+        "BOOK" -> listOf(Color(0xFF2C5F2D), Color(0xFF97BC62))
+        "MOVIE" -> listOf(Color(0xFF1565C0), Color(0xFF42A5F5))
+        "MUSIC" -> listOf(Color(0xFF7B1FA2), Color(0xFFBA68C8))
+        else -> listOf(Color(0xFF455A64), Color(0xFF90A4AE))
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(280.dp)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column {
+            // Gradient header section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.linearGradient(backgroundColor)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = getIconForLibraryType(library.type),
+                    contentDescription = library.type,
+                    modifier = Modifier.size(64.dp),
+                    tint = Color.White
+                )
+                
+                // Mock item count chip
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                ) {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Black.copy(alpha = 0.6f)
+                        )
+                    ) {
+                        Text(
+                            text = "${(50..500).random()} items",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+            
+            // Content section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = library.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${library.type.lowercase().replaceFirstChar { it.uppercase() }} Library",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Updated ${(1..7).random()} days ago",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+        }
+    }
+}
+
+private fun getIconForLibraryType(type: String): ImageVector {
+    return when (type.uppercase()) {
+        "BOOK" -> Icons.Default.Book
+        "MOVIE" -> Icons.Default.Movie
+        "MUSIC" -> Icons.Default.MusicNote
+        else -> Icons.Default.QuestionMark
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookDetailsScreen(bookId: Long, navController: NavController) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Book Details") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { 
+                            navController.navigate("metadata_editor/$bookId")
+                        }
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit Metadata")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Book Details for ID: $bookId",
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "This is a placeholder for the book details screen. In a complete implementation, this would show full book metadata, cover image, and reading options.",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
 }
