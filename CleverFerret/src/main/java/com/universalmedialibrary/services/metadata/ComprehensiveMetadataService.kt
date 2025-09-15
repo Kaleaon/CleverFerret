@@ -393,8 +393,8 @@ class ComprehensiveMetadataService @Inject constructor(
     suspend fun searchAllBookSources(
         query: String,
         isbn: String? = null
-    ): List<MetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+    ): List<UnifiedMetadataSearchResult> {
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         // Get API keys from repository
         val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
@@ -464,8 +464,8 @@ class ComprehensiveMetadataService @Inject constructor(
      */
     suspend fun searchComicSources(
         query: String
-    ): List<MetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+    ): List<UnifiedMetadataSearchResult> {
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         // Get API keys from repository
         val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
@@ -496,8 +496,8 @@ class ComprehensiveMetadataService @Inject constructor(
      */
     suspend fun searchAudiobookSources(
         query: String
-    ): List<MetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+    ): List<UnifiedMetadataSearchResult> {
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         // LibriVox (free audiobooks)
         try {
@@ -514,21 +514,21 @@ class ComprehensiveMetadataService @Inject constructor(
     }
 
     // Implementation methods for each service
-    private suspend fun searchGoogleBooks(query: String): List<MetadataSearchResult> {
+    private suspend fun searchGoogleBooks(query: String): List<UnifiedMetadataSearchResult> {
         // Implementation similar to existing GoogleBooksAPI
         return emptyList() // Placeholder
     }
     
-    private suspend fun searchOpenLibrary(query: String): List<MetadataSearchResult> {
+    private suspend fun searchOpenLibrary(query: String): List<UnifiedMetadataSearchResult> {
         // Implementation similar to existing OpenLibraryAPI
         return emptyList() // Placeholder
     }
     
-    private suspend fun searchHardcover(query: String): List<MetadataSearchResult> {
+    private suspend fun searchHardcover(query: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = hardcoverApi.searchBooks(query)
             return response.data.map { book ->
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = book.id,
                     title = book.title,
                     author = book.author,
@@ -544,11 +544,11 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchISBNDb(isbn: String, apiKey: String): List<MetadataSearchResult> {
+    private suspend fun searchISBNDb(isbn: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = isbnDbApi.getBookByISBN(isbn, "Bearer $apiKey")
             return listOf(
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = isbn,
                     title = response.book.title,
                     author = response.book.authors.joinToString(", "),
@@ -563,23 +563,23 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchGoodreads(query: String, apiKey: String): List<MetadataSearchResult> {
+    private suspend fun searchGoodreads(query: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         // Goodreads API implementation
         // Note: Goodreads has limited their API access
         return emptyList() // Placeholder - would need XML parsing
     }
     
-    private suspend fun searchAmazon(query: String, apiKeys: Map<String, String>): List<MetadataSearchResult> {
+    private suspend fun searchAmazon(query: String, apiKeys: Map<String, String>): List<UnifiedMetadataSearchResult> {
         // Amazon Product Advertising API implementation
         // Requires complex authentication with AWS signatures
         return emptyList() // Placeholder
     }
     
-    private suspend fun searchComicVine(query: String, apiKey: String): List<MetadataSearchResult> {
+    private suspend fun searchComicVine(query: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = comicVineApi.searchComics(apiKey, query)
             return response.results.map { volume ->
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = volume.id.toString(),
                     title = volume.name,
                     author = volume.publisher?.name,
@@ -594,11 +594,11 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchMangaUpdates(query: String): List<MetadataSearchResult> {
+    private suspend fun searchMangaUpdates(query: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = mangaUpdatesApi.searchManga(query)
             return response.results.map { result ->
-                MetadataSearchResult(
+                UnifiedMetadataSearchResult(
                     id = result.record.series_id.toString(),
                     title = result.record.title,
                     author = result.record.authors.joinToString(", ") { it.name },
@@ -613,7 +613,7 @@ class ComprehensiveMetadataService @Inject constructor(
         }
     }
     
-    private suspend fun searchLibriVox(query: String): List<MetadataSearchResult> {
+    private suspend fun searchLibriVox(query: String): List<UnifiedMetadataSearchResult> {
         // LibriVox API implementation for free audiobooks
         return emptyList() // Placeholder
     }

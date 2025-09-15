@@ -25,7 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.metadata.MetadataApiService
-import com.universalmedialibrary.services.metadata.MetadataSearchResult
+import com.universalmedialibrary.services.metadata.UnifiedMetadataSearchResult
 import com.universalmedialibrary.ui.theme.PlexTheme
 import kotlinx.coroutines.launch
 
@@ -47,7 +47,7 @@ fun EnhancedMetadataEditorScreen(
         var isbn by remember { mutableStateOf("") }
         
         var searchQuery by remember { mutableStateOf("") }
-        var searchResults by remember { mutableStateOf<List<MetadataSearchResult>>(emptyList()) }
+        var searchResults by remember { mutableStateOf<List<UnifiedMetadataSearchResult>>(emptyList()) }
         var isSearching by remember { mutableStateOf(false) }
         var showSearchDialog by remember { mutableStateOf(false) }
         var mediaType by remember { mutableStateOf("BOOK") }
@@ -146,7 +146,7 @@ fun EnhancedMetadataEditorScreen(
                                                     try {
                                                         searchResults = when (mediaType) {
                                                             "BOOK" -> metadataApiService.searchBooks(searchQuery)
-                                                            "MOVIE" -> metadataApiService.searchMovies(searchQuery, null)
+                                                            "MOVIE" -> metadataApiService.searchMovies(searchQuery)
                                                             "MUSIC" -> metadataApiService.searchMusic(searchQuery)
                                                             else -> metadataApiService.searchBooks(searchQuery)
                                                         }

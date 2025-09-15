@@ -3,7 +3,7 @@ package com.universalmedialibrary.ui.metadata
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.metadata.MetadataApiService
-import com.universalmedialibrary.services.metadata.MetadataSearchResult
+import com.universalmedialibrary.services.metadata.UnifiedMetadataSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +26,7 @@ class EnhancedMetadataViewModel @Inject constructor(
             try {
                 val results = when (mediaType.uppercase()) {
                     "BOOK" -> metadataApiService.searchBooks(query)
-                    "MOVIE" -> metadataApiService.searchMovies(query, null) // API key would come from settings
+                    "MOVIE" -> metadataApiService.searchMovies(query) // API key would come from settings
                     "MUSIC" -> metadataApiService.searchMusic(query)
                     else -> metadataApiService.searchBooks(query)
                 }
@@ -122,6 +122,6 @@ data class EnhancedMetadataUiState(
     val coverUrl: String = "",
     val genre: String = "",
     val isbn: String = "",
-    val searchResults: List<MetadataSearchResult> = emptyList(),
+    val searchResults: List<UnifiedMetadataSearchResult> = emptyList(),
     val error: String? = null
 )

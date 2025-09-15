@@ -1,0 +1,39 @@
+modules = ["nodejs-20", "python-3.12", "bash"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "CleverFerret PWA"
+
+[[workflows.workflow]]
+name = "CleverFerret PWA"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd pwa-demo && npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "cd pwa-demo && npx serve -s dist -l 5000"]
+build = ["bash", "-c", "cd pwa-demo && npm run build"]

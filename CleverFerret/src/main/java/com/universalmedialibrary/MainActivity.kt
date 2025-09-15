@@ -1,5 +1,7 @@
 package com.universalmedialibrary
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,6 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.music.MusicLibraryScreen
+import com.universalmedialibrary.ui.player.QueueScreen
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.data.local.model.BookDetails
 import com.universalmedialibrary.data.local.model.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
+import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.bookshelf.EnhancedBookshelfScreen
 import com.universalmedialibrary.ui.details.LibraryDetailsViewModel
 import com.universalmedialibrary.ui.main.MainViewModel
@@ -56,22 +61,104 @@ import kotlin.math.absoluteValue
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
+import com.universalmedialibrary.ui.details.BookDetailsScreen
+import com.universalmedialibrary.services.StorageAccessService
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    
+    @Inject
+    lateinit var storageAccessService: StorageAccessService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Request permissions on first launch
+        requestMediaPermissions()
+        
         setContent {
             PlexTheme {
                 AppNavigation()
             }
         }
+    }
+    
+    private fun requestMediaPermissions() {
+        val permissions = mutableListOf<String>()
+        
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                // Android 13+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_AUDIO)
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                // Android 11+ - Use SAF instead of All Files Access
+                // Request media permissions but rely on SAF for document access
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
+                }
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_MEDIA_AUDIO)
+                }
+            }
+            else -> {
+                // Android 10 and below
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    }
+                }
+            }
+        }
+        
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 1001)
+        } else {
+            // Permissions granted, start media scan
+            startMediaScan()
+        }
+    }
+    
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001) {
+            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                startMediaScan()
+            }
+        }
+    }
+    
+    private fun startMediaScan() {
+        val intent = Intent(this, MediaScannerService::class.java).apply {
+            action = MediaScannerService.ACTION_SCAN_ALL
+        }
+        startService(intent)
     }
 }
 
@@ -116,6 +203,12 @@ fun AppNavigation() {
         }
         composable("settings/about") {
             AboutScreen(navController = navController)
+        }
+        composable("music_library") {
+            MusicLibraryScreen(navController = navController)
+        }
+        composable("audio_queue") {
+            QueueScreen()
         }
     }
 }
@@ -199,6 +292,20 @@ fun LibraryListScreen(navController: NavController, viewModel: MainViewModel = h
                             }
                         )
                         DropdownMenuItem(
+                            text = { Text("Open Music Library") },
+                            onClick = {
+                                showMenu = false
+                                navController.navigate("music_library")
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Now Playing Queue") },
+                            onClick = {
+                                showMenu = false
+                                navController.navigate("audio_queue")
+                            }
+                        )
+                        DropdownMenuItem(
                             text = { Text("Refresh Libraries") },
                             onClick = {
                                 showMenu = false
@@ -227,7 +334,7 @@ fun LibraryListScreen(navController: NavController, viewModel: MainViewModel = h
                     LibraryCard(
                         library = library,
                         onClick = {
-                            navController.navigate("library_details/${library.libraryId}")
+                            navController.navigate("library_details/${'$'}{library.libraryId}")
                         }
                     )
                 }
@@ -340,31 +447,28 @@ fun LibraryDetailsScreen(viewModel: LibraryDetailsViewModel = hiltViewModel()) {
                     Text(
                         text = "No books found",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Import a Calibre library to get started",
+                        text = "Import some books to get started",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
                     )
                 }
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 160.dp),
-                modifier = Modifier.padding(paddingValues),
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(bookDetails) { book ->
-                    BookCard(
-                        book = book,
-                        onClick = {
-                            // Navigate to book details - for now just a placeholder
-                            // navController.navigate("book_details/${book.mediaItem.itemId}")
-                        }
-                    )
+                    BookCard(book) {
+                        // Handle book click
+                    }
                 }
             }
         }
@@ -372,38 +476,51 @@ fun LibraryDetailsScreen(viewModel: LibraryDetailsViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun BookCard(book: BookDetails, onClick: () -> Unit = {}) {
+fun BookCard(book: BookDetail, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column {
-            PlaceholderCover(
-                title = book.metadata.title,
-                author = book.authorName
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = book.coverUrl,
+                contentDescription = "Book cover",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.placeholder_book_cover),
+                error = painterResource(R.drawable.placeholder_book_cover)
             )
-            Column(modifier = Modifier.padding(12.dp)) {
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
-                    text = book.metadata.title,
-                    style = MaterialTheme.typography.titleSmall,
+                    text = book.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (book.authorName != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = book.authorName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = book.author,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 if (book.metadata.rating != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         repeat(5) { index ->
                             Icon(
                                 imageVector = if (index < (book.metadata.rating?.toInt() ?: 0)) Icons.Default.Star else Icons.Default.StarBorder,
@@ -415,239 +532,6 @@ fun BookCard(book: BookDetails, onClick: () -> Unit = {}) {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun PlaceholderCover(title: String, author: String?) {
-    val colors = listOf(
-        MaterialTheme.colorScheme.primaryContainer,
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.tertiaryContainer,
-        MaterialTheme.colorScheme.errorContainer,
-        MaterialTheme.colorScheme.surfaceVariant
-    )
-    val color = colors[title.hashCode().absoluteValue % colors.size]
-    val contentColor = if (color == MaterialTheme.colorScheme.primaryContainer) {
-        MaterialTheme.colorScheme.onPrimaryContainer
-    } else if (color == MaterialTheme.colorScheme.secondaryContainer) {
-        MaterialTheme.colorScheme.onSecondaryContainer
-    } else if (color == MaterialTheme.colorScheme.tertiaryContainer) {
-        MaterialTheme.colorScheme.onTertiaryContainer
-    } else if (color == MaterialTheme.colorScheme.errorContainer) {
-        MaterialTheme.colorScheme.onErrorContainer
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp)
-            .background(color),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Book,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = contentColor.copy(alpha = 0.7f)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                textAlign = TextAlign.Center,
-                color = contentColor,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (author != null) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = author,
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    color = contentColor.copy(alpha = 0.8f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun AddLibraryDialog(onDismiss: () -> Unit, onAdd: (String) -> Unit) {
-    var name by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Add New Library") },
-        text = {
-            TextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Library Name") }
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = { onAdd(name) },
-                enabled = name.isNotBlank()
-            ) {
-                Text("Add")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
-fun LibraryCard(library: Library, onClick: () -> Unit) {
-    val backgroundColor = when (library.type.uppercase()) {
-        "BOOK" -> listOf(Color(0xFF2C5F2D), Color(0xFF97BC62))
-        "MOVIE" -> listOf(Color(0xFF1565C0), Color(0xFF42A5F5))
-        "MUSIC" -> listOf(Color(0xFF7B1FA2), Color(0xFFBA68C8))
-        else -> listOf(Color(0xFF455A64), Color(0xFF90A4AE))
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(280.dp)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column {
-            // Gradient header section
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .background(
-                        brush = androidx.compose.ui.graphics.Brush.linearGradient(backgroundColor)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = getIconForLibraryType(library.type),
-                    contentDescription = library.type,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.White
-                )
-                
-                // Mock item count chip
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(12.dp)
-                ) {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.Black.copy(alpha = 0.6f)
-                        )
-                    ) {
-                        Text(
-                            text = "${(50..500).random()} items",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-            
-            // Content section
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = library.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "${library.type.lowercase().replaceFirstChar { it.uppercase() }} Library",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Updated ${(1..7).random()} days ago",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-            }
-        }
-    }
-}
-
-private fun getIconForLibraryType(type: String): ImageVector {
-    return when (type.uppercase()) {
-        "BOOK" -> Icons.Default.Book
-        "MOVIE" -> Icons.Default.Movie
-        "MUSIC" -> Icons.Default.MusicNote
-        else -> Icons.Default.QuestionMark
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BookDetailsScreen(bookId: Long, navController: NavController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Book Details") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { 
-                            navController.navigate("metadata_editor/$bookId")
-                        }
-                    ) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit Metadata")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Book Details for ID: $bookId",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "This is a placeholder for the book details screen. In a complete implementation, this would show full book metadata, cover image, and reading options.",
-                style = MaterialTheme.typography.bodyLarge
-            )
         }
     }
 }

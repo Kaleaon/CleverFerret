@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 // Data classes for API responses
-data class MetadataSearchResult(
+data class UnifiedMetadataSearchResult(
     val id: String,
     val title: String,
     val author: String? = null,
@@ -227,15 +227,15 @@ class MetadataApiService @Inject constructor(
             .create(MusicBrainzApi::class.java)
     }
 
-    suspend fun searchBooks(query: String): List<MetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+    suspend fun searchBooks(query: String): List<UnifiedMetadataSearchResult> {
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         try {
             // Google Books API
             val googleBooks = googleBooksApi.searchBooks(query)
             googleBooks.items?.forEach { item ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = item.id,
                         title = item.volumeInfo.title ?: "Unknown Title",
                         author = item.volumeInfo.authors?.joinToString(", "),
@@ -259,7 +259,7 @@ class MetadataApiService @Inject constructor(
             val openLibrary = openLibraryApi.searchBooks(query)
             openLibrary.docs?.forEach { doc ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = doc.key,
                         title = doc.title ?: "Unknown Title",
                         author = doc.author_name?.joinToString(", "),
@@ -277,8 +277,8 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
-    suspend fun searchMovies(query: String): List<MetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+    suspend fun searchMovies(query: String): List<UnifiedMetadataSearchResult> {
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         // Get TMDB API key from repository
         val tmdbApiKey = apiKeyRepository.getAPIKeyValue("tmdb")
@@ -292,7 +292,7 @@ class MetadataApiService @Inject constructor(
             val movies = tmdbApi.searchMovies(tmdbApiKey, query)
             movies.results?.forEach { movie ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = movie.id.toString(),
                         title = movie.title ?: movie.name ?: "Unknown Title",
                         year = movie.release_date?.take(4)?.toIntOrNull() 
@@ -311,14 +311,14 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
-    suspend fun searchMusic(query: String): List<MetadataSearchResult> {
-        val results = mutableListOf<MetadataSearchResult>()
+    suspend fun searchMusic(query: String): List<UnifiedMetadataSearchResult> {
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
         
         try {
             val music = musicBrainzApi.searchMusic(query)
             music.releases?.forEach { release ->
                 results.add(
-                    MetadataSearchResult(
+                    UnifiedMetadataSearchResult(
                         id = release.id,
                         title = release.title ?: "Unknown Title",
                         artist = release.artist_credit?.firstOrNull()?.name,
@@ -335,9 +335,9 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
-    private fun createDemoMovieResults(query: String): List<MetadataSearchResult> {
+    private fun createDemoMovieResults(query: String): List<UnifiedMetadataSearchResult> {
         return listOf(
-            MetadataSearchResult(
+            UnifiedMetadataSearchResult(
                 id = "demo1",
                 title = "Demo Movie: $query",
                 director = "Demo Director",
@@ -351,9 +351,9 @@ class MetadataApiService @Inject constructor(
         )
     }
 
-    private fun createDemoMusicResults(query: String): List<MetadataSearchResult> {
+    private fun createDemoMusicResults(query: String): List<UnifiedMetadataSearchResult> {
         return listOf(
-            MetadataSearchResult(
+            UnifiedMetadataSearchResult(
                 id = "demo1",
                 title = "Demo Album: $query",
                 artist = "Demo Artist",
