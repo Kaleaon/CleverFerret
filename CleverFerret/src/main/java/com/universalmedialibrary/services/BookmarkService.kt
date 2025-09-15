@@ -1,8 +1,13 @@
 package com.universalmedialibrary.services
 
+import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.model.Bookmark as BookmarkEntity
+import com.universalmedialibrary.data.local.model.ReadingProgress as ProgressEntity
+import com.universalmedialibrary.data.local.model.ReadingSession as SessionEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,6 +16,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class BookmarkService @Inject constructor(
+    private val bookmarkDao: BookmarkDao,
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) {
@@ -75,48 +81,95 @@ class BookmarkService @Inject constructor(
      * Save a bookmark
      */
     suspend fun saveBookmark(bookmark: Bookmark): Long {
-        // In production, save to database
-        // For now, return mock ID
-        return System.currentTimeMillis()
+        val entity = BookmarkEntity(
+            mediaItemId = bookmark.mediaItemId,
+            position = bookmark.position,
+            timestamp = bookmark.timestamp,
+            note = bookmark.note,
+            type = bookmark.type.name
+        )
+        return bookmarkDao.insertBookmark(entity)
     }
     
     /**
      * Get all bookmarks for a media item
      */
     suspend fun getBookmarks(mediaItemId: Long): List<Bookmark> {
-        // In production, fetch from database
-        return emptyList()
+        return bookmarkDao.getBookmarksByMediaItem(mediaItemId).map { entity ->
+            Bookmark(
+                id = entity.bookmarkId,
+                mediaItemId = entity.mediaItemId,
+                position = entity.position,
+                timestamp = entity.timestamp,
+                note = entity.note,
+                type = BookmarkType.valueOf(entity.type)
+            )
+        }
     }
     
     /**
      * Delete a bookmark
      */
     suspend fun deleteBookmark(bookmarkId: Long) {
-        // In production, delete from database
+        bookmarkDao.deleteBookmark(bookmarkId)
     }
     
     /**
      * Update reading progress
      */
     suspend fun updateReadingProgress(progress: ReadingProgress) {
-        // In production, save to database
-        // Update metadata with last read timestamp
+        val entity = ProgressEntity(
+            mediaItemId = progress.mediaItemId,
+            currentPosition = progress.currentPosition,
+            totalPages = progress.totalPages,
+            pagesRead = progress.pagesRead,
+            percentComplete = progress.percentComplete,
+            lastReadTimestamp = progress.lastReadTimestamp,
+            totalReadingTime = progress.totalReadingTime,
+            readingSessions = progress.readingSessions
+        )
+        bookmarkDao.insertOrUpdateReadingProgress(entity)
+        
+        // Update last accessed time in media item
+        mediaItemDao.updateLastAccessed(progress.mediaItemId, java.util.Date())
     }
     
     /**
      * Get reading progress for a media item
      */
     suspend fun getReadingProgress(mediaItemId: Long): ReadingProgress? {
-        // In production, fetch from database
-        return null
+        return bookmarkDao.getReadingProgress(mediaItemId)?.let { entity ->
+            ReadingProgress(
+                mediaItemId = entity.mediaItemId,
+                currentPosition = entity.currentPosition,
+                totalPages = entity.totalPages,
+                pagesRead = entity.pagesRead,
+                percentComplete = entity.percentComplete,
+                lastReadTimestamp = entity.lastReadTimestamp,
+                totalReadingTime = entity.totalReadingTime,
+                readingSessions = entity.readingSessions
+            )
+        }
     }
     
     /**
      * Get reading progress for all media items
      */
     fun getAllReadingProgress(): Flow<List<ReadingProgress>> {
-        // In production, return Flow from database
-        return kotlinx.coroutines.flow.flowOf(emptyList())
+        return bookmarkDao.getAllReadingProgress().map { entities ->
+            entities.map { entity ->
+                ReadingProgress(
+                    mediaItemId = entity.mediaItemId,
+                    currentPosition = entity.currentPosition,
+                    totalPages = entity.totalPages,
+                    pagesRead = entity.pagesRead,
+                    percentComplete = entity.percentComplete,
+                    lastReadTimestamp = entity.lastReadTimestamp,
+                    totalReadingTime = entity.totalReadingTime,
+                    readingSessions = entity.readingSessions
+                )
+            }
+        }
     }
     
     /**
@@ -126,13 +179,12 @@ class BookmarkService @Inject constructor(
         mediaItemId: Long,
         startPosition: String
     ): Long {
-        val session = ReadingSession(
+        val session = SessionEntity(
             mediaItemId = mediaItemId,
             startTime = System.currentTimeMillis(),
             startPosition = startPosition
         )
-        // In production, save to database
-        return session.startTime
+        return bookmarkDao.insertReadingSession(session)
     }
     
     /**
@@ -143,15 +195,47 @@ class BookmarkService @Inject constructor(
         endPosition: String,
         pagesRead: Int
     ) {
-        // In production, update session in database
+        val session = bookmarkDao.getReadingSession(sessionId)
+        session?.let {
+            val updatedSession = it.copy(
+                endTime = System.currentTimeMillis(),
+                endPosition = endPosition,
+                pagesRead = pagesRead
+            )
+            bookmarkDao.updateReadingSession(updatedSession)
+            
+            // Update reading progress
+            val progress = bookmarkDao.getReadingProgress(it.mediaItemId)
+            if (progress != null) {
+                val updatedProgress = progress.copy(
+                    totalReadingTime = progress.totalReadingTime + 
+                        (updatedSession.endTime!! - it.startTime),
+                    readingSessions = progress.readingSessions + 1,
+                    pagesRead = progress.pagesRead + pagesRead
+                )
+                bookmarkDao.insertOrUpdateReadingProgress(updatedProgress)
+            }
+        }
     }
     
     /**
      * Get reading statistics
      */
     suspend fun getReadingStats(): ReadingStats {
-        // In production, calculate from database
-        return ReadingStats()
+        val totalBooksRead = bookmarkDao.getTotalBooksRead()
+        val totalPagesRead = bookmarkDao.getTotalPagesRead() ?: 0
+        val totalReadingTime = bookmarkDao.getTotalReadingTime() ?: 0L
+        
+        val averageReadingSpeed = if (totalReadingTime > 0) {
+            (totalPagesRead.toFloat() / (totalReadingTime / 3600000f)) // pages per hour
+        } else 0f
+        
+        return ReadingStats(
+            totalBooksRead = totalBooksRead,
+            totalPagesRead = totalPagesRead,
+            totalReadingTime = totalReadingTime,
+            averageReadingSpeed = averageReadingSpeed
+        )
     }
     
     /**
@@ -161,52 +245,91 @@ class BookmarkService @Inject constructor(
         startDate: Long,
         endDate: Long
     ): ReadingStats {
-        // In production, calculate from database for period
-        return ReadingStats()
+        // Filter reading sessions within the date range
+        val finishedBooks = bookmarkDao.getFinishedReadings().filter { 
+            it.lastReadTimestamp in startDate..endDate 
+        }
+        
+        return ReadingStats(
+            totalBooksRead = finishedBooks.size,
+            totalPagesRead = finishedBooks.sumOf { it.pagesRead },
+            totalReadingTime = finishedBooks.sumOf { it.totalReadingTime }
+        )
     }
     
     /**
      * Export reading history
      */
     suspend fun exportReadingHistory(): String {
-        // In production, export as CSV or JSON
-        return ""
+        val allProgress = bookmarkDao.getFinishedReadings()
+        val csv = StringBuilder()
+        csv.append("Media ID,Position,Pages Read,Percent Complete,Last Read,Total Time (min)\n")
+        
+        allProgress.forEach { progress ->
+            csv.append("${progress.mediaItemId},")
+            csv.append("${progress.currentPosition},")
+            csv.append("${progress.pagesRead},")
+            csv.append("${progress.percentComplete},")
+            csv.append("${progress.lastReadTimestamp},")
+            csv.append("${progress.totalReadingTime / 60000}\n")
+        }
+        
+        return csv.toString()
     }
     
     /**
      * Import reading history
      */
     suspend fun importReadingHistory(data: String): Boolean {
-        // In production, parse and import data
-        return true
+        return try {
+            val lines = data.lines()
+            if (lines.isEmpty()) return false
+            
+            // Skip header
+            lines.drop(1).forEach { line ->
+                val parts = line.split(",")
+                if (parts.size >= 6) {
+                    val progress = ProgressEntity(
+                        mediaItemId = parts[0].toLong(),
+                        currentPosition = parts[1],
+                        pagesRead = parts[2].toInt(),
+                        percentComplete = parts[3].toFloat(),
+                        lastReadTimestamp = parts[4].toLong(),
+                        totalReadingTime = parts[5].toLong() * 60000
+                    )
+                    bookmarkDao.insertOrUpdateReadingProgress(progress)
+                }
+            }
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
     
     /**
      * Get recently read items
      */
     suspend fun getRecentlyRead(limit: Int = 10): List<Long> {
-        // In production, fetch from database ordered by last read
-        return emptyList()
+        return bookmarkDao.getRecentlyReadItemIds(limit)
     }
     
     /**
      * Mark item as finished
      */
     suspend fun markAsFinished(mediaItemId: Long) {
-        val progress = ReadingProgress(
-            mediaItemId = mediaItemId,
-            currentPosition = "finished",
-            percentComplete = 100f,
-            lastReadTimestamp = System.currentTimeMillis()
-        )
-        updateReadingProgress(progress)
+        bookmarkDao.markAsFinished(mediaItemId, System.currentTimeMillis())
     }
     
     /**
      * Get reading recommendations based on history
      */
     suspend fun getRecommendations(): List<Long> {
-        // In production, analyze reading history and suggest similar items
+        // Get recently read items
+        val recentlyRead = bookmarkDao.getRecentlyReadItemIds(20)
+        
+        // In a real implementation, analyze genres, authors, and reading patterns
+        // For now, return empty list
         return emptyList()
     }
 }

@@ -81,4 +81,13 @@ interface MediaItemDao {
     """
     )
     suspend fun getBookDetailsById(itemId: Long): BookDetails?
+    
+    @Query("SELECT * FROM media_items WHERE filePath = :path LIMIT 1")
+    suspend fun getItemByPath(path: String): MediaItem?
+    
+    @Query("UPDATE media_items SET lastAccessed = :date, playCount = playCount + 1 WHERE itemId = :itemId")
+    suspend fun updateLastAccessed(itemId: Long, date: java.util.Date)
+    
+    @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
+    suspend fun getItemCountForLibrary(libraryId: Long): Int
 }
