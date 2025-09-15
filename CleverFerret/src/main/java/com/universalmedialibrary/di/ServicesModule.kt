@@ -13,6 +13,7 @@ import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.tts.CoquiTTSService
 import com.universalmedialibrary.services.metadata.MetadataApiService
 import com.universalmedialibrary.services.metadata.ComprehensiveMetadataService
+import com.universalmedialibrary.services.metadata.RealMetadataService
 import com.universalmedialibrary.services.integration.IntegrationManager
 import com.universalmedialibrary.services.integration.plex.PlexIntegrationService
 import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
@@ -91,6 +92,10 @@ object ServicesModule {
     @Provides
     @Singleton
     fun provideComprehensiveMetadataService(apiKeyRepository: APIKeyRepository): ComprehensiveMetadataService = ComprehensiveMetadataService(apiKeyRepository)
+    
+    @Provides
+    @Singleton
+    fun provideRealMetadataService(apiKeyRepository: APIKeyRepository): RealMetadataService = RealMetadataService(apiKeyRepository)
 
     @Provides
     @Singleton
