@@ -201,7 +201,6 @@ const HomeScreen: React.FC = () => {
 
 // Media item component with realistic data
 const MediaItem: React.FC<{ item: any; onClick: () => void }> = ({ item, onClick }) => {
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
   return (
     <Card 
