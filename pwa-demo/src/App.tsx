@@ -25,6 +25,13 @@ import {
   Collections as CollectionsIcon,
 } from '@mui/icons-material';
 
+// Import existing components
+import { LibraryListScreen } from './components/LibraryListScreen';
+import { LibraryDetailsScreen } from './components/LibraryDetailsScreen';
+import { MetadataEditorScreen } from './components/MetadataEditorScreen';
+import { MediaViewerScreen } from './components/MediaViewerScreen';
+import { SettingsScreen } from './components/SettingsScreen';
+
 // Plex-inspired dark theme
 const plexTheme = createTheme({
   palette: {
@@ -400,13 +407,22 @@ const LibraryScreen: React.FC = () => {
 
 // Main App component
 const App: React.FC = () => {
+  const [useCustomComponents] = useState(true);
+
   return (
     <ThemeProvider theme={plexTheme}>
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<HomeScreen />} />
-          <Route path="/library/:id" element={<LibraryScreen />} />
+          {/* Main Routes */}
+          <Route path="/" element={useCustomComponents ? <LibraryListScreen /> : <HomeScreen />} />
+          <Route path="/library/:id" element={useCustomComponents ? <LibraryDetailsScreen /> : <LibraryScreen />} />
+          
+          {/* Additional Routes matching Android app */}
+          <Route path="/metadata-editor/:mediaId" element={<MetadataEditorScreen />} />
+          <Route path="/media-viewer/:mediaId" element={<MediaViewerScreen />} />
+          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/settings/*" element={<SettingsScreen />} />
         </Routes>
       </Router>
     </ThemeProvider>
