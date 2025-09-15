@@ -185,12 +185,14 @@ class MetadataExtractor @Inject constructor(
     }
     
     private fun extractTextFromPDF(file: File): String {
-        // Placeholder for PDF text extraction
-        return file.name
+        // For actual PDF extraction, use OCRService
+        // This is a simplified version for compilation
+        return file.nameWithoutExtension
     }
     
     private fun extractTextFromEPUB(file: File): String {
-        // Placeholder for EPUB text extraction
-        return file.name
+        // For actual EPUB extraction, use EPUBReaderService
+        // This is a simplified version for compilation
+        return file.nameWithoutExtension
     }
 }
