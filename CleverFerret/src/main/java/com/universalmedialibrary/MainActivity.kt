@@ -119,13 +119,12 @@ fun AppNavigation() {
         }
         composable("settings/about") {
             AboutScreen(navController = navController)
+        }
         composable("music_library") {
             MusicLibraryScreen(navController = navController)
         }
         composable("audio_queue") {
             QueueScreen()
-        }
-
         }
     }
 }
