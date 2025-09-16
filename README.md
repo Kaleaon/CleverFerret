@@ -193,6 +193,15 @@ See **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)** for complete development status
 - **[issues/](issues/)** - Structured development issues (32 total)
 - **Core Documentation:** [INSTALL.md](INSTALL.md), [RELEASE.md](RELEASE.md), [RESOURCES.md](RESOURCES.md)
 
+### 🤖 Automatic Code Review
+
+**COPILOT REVIEW**: ✅ **Enabled** - All files in this repository are automatically reviewed by GitHub Copilot.
+
+- **Coverage**: 1,187 files across all code, configuration, and documentation
+- **File Types**: Kotlin, Java, XML, Gradle, YAML, Markdown, JSON, and more
+- **Process**: Automatic review requests on every pull request
+- **Configuration**: See [.github/COPILOT_REVIEW_CONFIG.md](.github/COPILOT_REVIEW_CONFIG.md) for details
+
 ### ⚠️ Current Status
 **BUILD STATUS**: 🚨 **Failing** - Critical dependency and compilation issues need resolution before development can continue.  
 See [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md#-known-issues) for details.

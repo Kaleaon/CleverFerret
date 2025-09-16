@@ -1,0 +1,37 @@
+# Global ownership - all files require review
+# This ensures GitHub Copilot and designated reviewers are automatically requested for all changes
+
+# All files in the repository
+* @github/copilot
+
+# Android source code
+*.kt @github/copilot
+*.java @github/copilot
+
+# Android resources and configurations
+*.xml @github/copilot
+*.gradle @github/copilot
+*.gradle.kts @github/copilot
+
+# CI/CD and workflow files
+.github/ @github/copilot
+*.yml @github/copilot
+*.yaml @github/copilot
+
+# Documentation
+*.md @github/copilot
+*.txt @github/copilot
+
+# Configuration files
+*.json @github/copilot
+*.toml @github/copilot
+*.properties @github/copilot
+
+# Build and packaging files
+Dockerfile* @github/copilot
+*.sh @github/copilot
+
+# Project structure files
+settings.gradle.kts @github/copilot
+build.gradle.kts @github/copilot
+gradle.properties @github/copilot

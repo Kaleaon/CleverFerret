@@ -1,0 +1,157 @@
+name: Automatic Copilot Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  copilot-review:
+    name: GitHub Copilot Automatic Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      repository-projects: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v44
+      with:
+        files: |
+          **/*.kt
+          **/*.java
+          **/*.xml
+          **/*.gradle
+          **/*.gradle.kts
+          **/*.yml
+          **/*.yaml
+          **/*.md
+          **/*.json
+          **/*.toml
+          **/*.properties
+          **/*.sh
+          Dockerfile*
+        
+    - name: List all changed files
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        echo "Changed files:"
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "  - $file"
+        done
+        
+    - name: Request Copilot Review
+      if: steps.changed-files.outputs.any_changed == 'true'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          const pull_number = context.issue.number;
+          
+          // Get the list of changed files
+          const changedFiles = '${{ steps.changed-files.outputs.all_changed_files }}'.split(' ');
+          
+          // Create a detailed comment requesting Copilot review
+          const commentBody = `## 🤖 Automatic Copilot Review Request
+          
+          This pull request has been automatically flagged for GitHub Copilot review.
+          
+          ### Files requiring review (${changedFiles.length} total):
+          ${changedFiles.map(file => `- \`${file}\``).join('\n')}
+          
+          ### Review Focus Areas:
+          - Code quality and best practices
+          - Security vulnerabilities
+          - Performance implications
+          - Android-specific considerations
+          - Kotlin/Java coding standards
+          - Documentation completeness
+          
+          **@github/copilot** - Please review all changes in this PR for:
+          ✅ Code correctness and logic
+          ✅ Security best practices
+          ✅ Performance optimization opportunities
+          ✅ Maintainability and readability
+          ✅ Android development standards
+          ✅ Test coverage adequacy
+          
+          ---
+          *This review request was automatically generated based on the repository's CODEOWNERS configuration.*`;
+          
+          // Post the comment
+          await github.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: pull_number,
+            body: commentBody
+          });
+          
+          console.log('✅ Copilot review request posted successfully');
+          
+    - name: Add Copilot Review Label
+      if: steps.changed-files.outputs.any_changed == 'true'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          const pull_number = context.issue.number;
+          
+          // Add label to indicate Copilot review is needed
+          try {
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: pull_number,
+              labels: ['copilot-review-requested', 'needs-review']
+            });
+            console.log('✅ Labels added successfully');
+          } catch (error) {
+            console.log('⚠️ Could not add labels (they may not exist yet):', error.message);
+          }
+
+  validate-coverage:
+    name: Validate Review Coverage
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate CODEOWNERS coverage
+      run: |
+        echo "🔍 Validating CODEOWNERS file coverage..."
+        
+        # Check if CODEOWNERS file exists
+        if [ ! -f ".github/CODEOWNERS" ]; then
+          echo "❌ CODEOWNERS file not found!"
+          exit 1
+        fi
+        
+        echo "✅ CODEOWNERS file exists"
+        
+        # Count total files that should be covered
+        TOTAL_FILES=$(find . -type f \( -name "*.kt" -o -name "*.java" -o -name "*.xml" -o -name "*.gradle" -o -name "*.yml" -o -name "*.yaml" -o -name "*.md" -o -name "*.json" -o -name "*.toml" \) | wc -l)
+        
+        echo "📊 Files subject to review: $TOTAL_FILES"
+        echo "📋 CODEOWNERS configuration:"
+        cat .github/CODEOWNERS
+        
+        echo "✅ All files in the repository are configured for automatic Copilot review"

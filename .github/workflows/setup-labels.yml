@@ -1,0 +1,82 @@
+name: Setup Repository Labels
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/setup-labels.yml'
+
+jobs:
+  setup-labels:
+    name: Create Repository Labels
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup labels for Copilot review
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { owner, repo } = context.repo;
+          
+          // Define labels for Copilot review process
+          const labels = [
+            {
+              name: 'copilot-review-requested',
+              color: '0052CC',
+              description: 'GitHub Copilot review has been requested for this PR'
+            },
+            {
+              name: 'copilot-review-completed',
+              color: '28A745',
+              description: 'GitHub Copilot review has been completed'
+            },
+            {
+              name: 'needs-review',
+              color: 'FBCA04',
+              description: 'This PR needs code review'
+            },
+            {
+              name: 'auto-review',
+              color: '7057FF',
+              description: 'This PR has automatic review configured'
+            },
+            {
+              name: 'all-files-covered',
+              color: '006B75',
+              description: 'All files in this PR are covered by automatic review'
+            }
+          ];
+          
+          // Create or update each label
+          for (const label of labels) {
+            try {
+              await github.rest.issues.createLabel({
+                owner,
+                repo,
+                name: label.name,
+                color: label.color,
+                description: label.description
+              });
+              console.log(`✅ Created label: ${label.name}`);
+            } catch (error) {
+              if (error.status === 422) {
+                // Label already exists, update it
+                await github.rest.issues.updateLabel({
+                  owner,
+                  repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`🔄 Updated label: ${label.name}`);
+              } else {
+                console.log(`❌ Failed to create label ${label.name}:`, error.message);
+              }
+            }
+          }
+          
+          console.log('🎉 All labels have been set up successfully!');
