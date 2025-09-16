@@ -196,3 +196,4 @@ See **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)** for complete development status
 ### ⚠️ Current Status
 **BUILD STATUS**: 🚨 **Failing** - Critical dependency and compilation issues need resolution before development can continue.  
 See [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md#-known-issues) for details.
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Kaleaon/CleverFerret?utm_source=oss&utm_medium=github&utm_campaign=Kaleaon%2FCleverFerret&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
