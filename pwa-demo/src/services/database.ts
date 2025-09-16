@@ -37,7 +37,7 @@ export class LibraryService {
   }
 
   static async deleteLibrary(libraryId: number): Promise<void> {
-    await db.transaction('rw', [db.libraries, db.mediaItems, db.metadataCommon], async () => {
+    await db.transaction('rw', [db.libraries, db.mediaItems, db.metadataCommon, db.metadataBooks], async () => {
       // Delete all related media items first
       const mediaItems = await db.mediaItems.where('libraryId').equals(libraryId).toArray();
       const itemIds = mediaItems.map(item => item.itemId!);
