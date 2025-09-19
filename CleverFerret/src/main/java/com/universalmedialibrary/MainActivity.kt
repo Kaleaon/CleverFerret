@@ -228,11 +228,19 @@ fun LibraryListScreen(navController: NavController, viewModel: MainViewModel = h
     var showDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var showImportDialog by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(0) }
     val context = LocalContext.current
     var dbFileUri by remember { mutableStateOf<Uri?>(null) }
     var importStatus by remember { mutableStateOf("") }
     var isImporting by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    
+    // Media type tabs
+    val mediaTabs = listOf(
+        "Books" to Icons.Default.Book,
+        "Music" to Icons.Default.MusicNote,
+        "Movies" to Icons.Default.Movie
+    )
 
     val rootFolderPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
