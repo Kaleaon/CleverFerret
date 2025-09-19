@@ -4,9 +4,9 @@ echo "🚀 CleverFerret Enhanced Build - PERMANENT FIX VERSION"
 echo "==============================================="
 
 # Set environment variables
-export ANDROID_HOME=/opt/android-sdk
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+export ANDROID_HOME=/app/android_sdk
+export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2:$PATH
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
 cd /app
 
