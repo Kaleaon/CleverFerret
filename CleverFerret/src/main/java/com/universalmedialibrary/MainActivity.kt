@@ -287,53 +287,79 @@ fun LibraryListScreen(navController: NavController, viewModel: MainViewModel = h
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Libraries") },
-                actions = {
-                    IconButton(onClick = { navController.navigate("settings") }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Import Calibre Library") },
-                            onClick = {
-                                showMenu = false
-                                showImportDialog = true
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Open Music Library") },
-                            onClick = {
-                                showMenu = false
-                                navController.navigate("music_library")
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Now Playing Queue") },
-                            onClick = {
-                                showMenu = false
-                                navController.navigate("audio_queue")
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Refresh Libraries") },
-                            onClick = {
-                                showMenu = false
-                                // Refresh functionality would go here
-                            }
+            Column {
+                TopAppBar(
+                    title = { 
+                        Text(
+                            "CleverFerret",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        ) 
+                    },
+                    actions = {
+                        IconButton(onClick = { navController.navigate("settings") }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        }
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Import Calibre Library") },
+                                onClick = {
+                                    showMenu = false
+                                    showImportDialog = true
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Refresh Libraries") },
+                                onClick = {
+                                    showMenu = false
+                                    // Refresh functionality would go here
+                                }
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+                
+                // Enhanced Tab Row
+                TabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ) {
+                    mediaTabs.forEachIndexed { index, (title, icon) ->
+                        Tab(
+                            selected = selectedTab == index,
+                            onClick = { 
+                                selectedTab = index
+                                when (index) {
+                                    1 -> navController.navigate("music_library")
+                                    2 -> { /* Movies - add when implemented */ }
+                                    else -> { /* Books - current screen */ }
+                                }
+                            },
+                            text = { Text(title) },
+                            icon = { Icon(icon, contentDescription = title) }
                         )
                     }
                 }
-            )
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showDialog = true }) {
+            FloatingActionButton(
+                onClick = { showDialog = true },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Library")
             }
         }
