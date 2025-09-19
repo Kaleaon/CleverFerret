@@ -487,18 +487,52 @@ fun LibraryListScreen(navController: NavController, viewModel: MainViewModel = h
             }
         }
 
-        // Import Dialog
+        // Enhanced Import Dialog
         if (showImportDialog) {
             AlertDialog(
                 onDismissRequest = { showImportDialog = false },
-                title = { Text("Import Calibre Library") },
+                title = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Book, 
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "Import Calibre Library",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                },
                 text = {
                     Column {
-                        Text("To import your Calibre library, you'll need to:")
-                        Text("1. Select your Calibre metadata.db file")
-                        Text("2. Select your Calibre library folder")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("This process may take several minutes depending on the size of your library.")
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    "Import Steps:",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text("📁 Select your Calibre metadata.db file")
+                                Text("📚 Select your Calibre library folder")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            "⚡ This process may take several minutes depending on your library size.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 },
                 confirmButton = {
@@ -507,11 +541,13 @@ fun LibraryListScreen(navController: NavController, viewModel: MainViewModel = h
                             dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream", "*/*"))
                         }
                     ) {
-                        Text("Choose Database File")
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Start Import")
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { showImportDialog = false }) {
+                    OutlinedButton(onClick = { showImportDialog = false }) {
                         Text("Cancel")
                     }
                 }
