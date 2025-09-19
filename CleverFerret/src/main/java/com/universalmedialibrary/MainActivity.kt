@@ -44,6 +44,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.music.MusicLibraryScreen
 import com.universalmedialibrary.ui.player.QueueScreen
+import com.universalmedialibrary.ui.player.AudioPlayerScreen
+import com.universalmedialibrary.ui.player.VideoPlayerScreen
+import com.universalmedialibrary.ui.reader.EPUBReaderScreen
+import com.universalmedialibrary.ui.reader.EnhancedPDFReaderScreen
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
