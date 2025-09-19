@@ -298,8 +298,8 @@ dependencies {
     implementation("com.google.mlkit:language-id:17.0.4")
     
     // Lightweight text processing for Android
-    implementation("org.apache.lucene:lucene-core:8.11.2") // Android compatible version
-    implementation("org.apache.lucene:lucene-analyzers-common:8.11.2") // Android compatible version
+    implementation("org.apache.lucene:lucene-core:8.2.0") // Android compatible version  
+    implementation("org.apache.lucene:lucene-analyzers-common:8.2.0") // Android compatible version
     // Stanford CoreNLP removed - too heavy for Android (200MB+), use ML Kit instead
     
     // Content fingerprinting removed - will use Android's built-in image processing if needed
