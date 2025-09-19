@@ -9,13 +9,14 @@ plugins {
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 34
+    buildToolsVersion = "33.0.2"
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Increased from 24 to support newer media libraries
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1-enhanced"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
