@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.local.model.BookDetails
 import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.components.MediaItemHandler
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
