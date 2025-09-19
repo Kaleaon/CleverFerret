@@ -709,36 +709,95 @@ fun MetadataEditorScreenWrapper(bookId: Long, navController: NavController) {
 fun AddLibraryDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
     var name by remember { mutableStateOf("") }
     var path by remember { mutableStateOf("") }
+    var selectedType by remember { mutableStateOf("BOOK") }
+    
+    val libraryTypes = listOf(
+        "BOOK" to "📚",
+        "MUSIC" to "🎵", 
+        "MOVIE" to "🎬"
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add New Library") },
+        title = { 
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Add, 
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Create New Library",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+        },
         text = {
             Column {
-                TextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Library Name") }
+                // Library Type Selection
+                Text(
+                    "Library Type",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
+                
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    libraryTypes.forEach { (type, emoji) ->
+                        FilterChip(
+                            selected = selectedType == type,
+                            onClick = { selectedType = type },
+                            label = { 
+                                Text("$emoji ${type.lowercase().replaceFirstChar { it.uppercase() }}") 
+                            }
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Library Name") },
+                    placeholder = { Text("My ${selectedType.lowercase().replaceFirstChar { it.uppercase() }} Library") },
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(getIconForLibraryType(selectedType), contentDescription = null)
+                    }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
                     value = path,
                     onValueChange = { path = it },
                     label = { Text("Library Path") },
-                    placeholder = { Text("/storage/emulated/0/Books") }
+                    placeholder = { Text("/storage/emulated/0/${selectedType.lowercase().replaceFirstChar { it.uppercase() }}s") },
+                    modifier = Modifier.fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(Icons.Default.Book, contentDescription = null)
+                    }
                 )
             }
         },
         confirmButton = {
             Button(
-                onClick = { onAdd(name, path) },
-                enabled = name.isNotBlank() && path.isNotBlank()
+                onClick = { onAdd(name.ifBlank { "My ${selectedType.lowercase().replaceFirstChar { it.uppercase() }} Library" }, path) },
+                enabled = name.isNotBlank() || path.isNotBlank()
             ) {
-                Text("Add")
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Create Library")
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            OutlinedButton(onClick = onDismiss) {
                 Text("Cancel")
             }
         }
