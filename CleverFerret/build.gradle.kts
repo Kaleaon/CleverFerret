@@ -283,7 +283,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     
     // File format detection
-    implementation("org.apache.tika:tika-core:2.9.1")
+    implementation("org.apache.tika:tika-core:2.4.1")
     
     // Machine learning for content analysis
     implementation("org.tensorflow:tensorflow-lite:2.13.0")
