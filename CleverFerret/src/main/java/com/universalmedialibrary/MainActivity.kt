@@ -710,6 +710,96 @@ fun AddLibraryDialog(onDismiss: () -> Unit, onAdd: (String, String) -> Unit) {
 }
 
 @Composable
+fun EnhancedLibraryCard(library: Library, onClick: () -> Unit) {
+    val backgroundColor = when (library.type.uppercase()) {
+        "BOOK" -> listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))
+        "MOVIE" -> listOf(Color(0xFF0D47A1), Color(0xFF2196F3))
+        "MUSIC" -> listOf(Color(0xFF4A148C), Color(0xFF9C27B0))
+        else -> listOf(Color(0xFF37474F), Color(0xFF78909C))
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column {
+            // Enhanced gradient header section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                            colors = backgroundColor,
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(1f, 1f)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = getIconForLibraryType(library.type),
+                    contentDescription = library.type,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.White
+                )
+                
+                // Enhanced item count chip
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    Surface(
+                        color = Color.White.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "${(50..500).random()}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+            
+            // Enhanced content section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = library.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${library.type.lowercase().replaceFirstChar { it.uppercase() }} Library",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun LibraryCard(library: Library, onClick: () -> Unit) {
     val backgroundColor = when (library.type.uppercase()) {
         "BOOK" -> listOf(Color(0xFF2C5F2D), Color(0xFF97BC62))
