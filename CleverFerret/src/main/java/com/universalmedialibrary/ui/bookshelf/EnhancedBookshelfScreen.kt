@@ -64,7 +64,8 @@ fun EnhancedBookshelfScreen(
                     BookCard(
                         book = book,
                         onClick = { 
-                            navController.navigate("book_details/${book.mediaItem.itemId}")
+                            // CRITICAL FIX: Open appropriate media player instead of details
+                            MediaItemHandler.openMediaItem(navController, book.mediaItem)
                         }
                     )
                 }
