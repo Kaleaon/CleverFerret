@@ -218,6 +218,39 @@ fun AppNavigation() {
         composable("audio_queue") {
             QueueScreen()
         }
+        
+        // CRITICAL: Media Player Routes
+        composable("audio_player/{filePath}") { backStackEntry ->
+            val filePath = backStackEntry.arguments?.getString("filePath") ?: ""
+            AudioPlayerScreen(
+                audioFilePath = filePath,
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        composable("video_player/{filePath}") { backStackEntry ->
+            val filePath = backStackEntry.arguments?.getString("filePath") ?: ""
+            VideoPlayerScreen(
+                videoFilePath = filePath,
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        composable("epub_reader/{filePath}") { backStackEntry ->
+            val filePath = backStackEntry.arguments?.getString("filePath") ?: ""
+            EPUBReaderScreen(
+                epubFilePath = filePath,
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        composable("pdf_reader/{filePath}") { backStackEntry ->
+            val filePath = backStackEntry.arguments?.getString("filePath") ?: ""
+            EnhancedPDFReaderScreen(
+                pdfFilePath = filePath,
+                onBack = { navController.navigateUp() }
+            )
+        }
     }
 }
 
