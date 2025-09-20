@@ -34,15 +34,52 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Multi-architecture support for android-tools
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+        }
+    }
+
+    // Android Tools Configuration
+    androidComponents {
+        onVariants { variant ->
+            // Configure AAPT2 path if custom android-tools are available
+            val customAapt2Path = getAndroidToolsProperty("android.tools.custom.aapt2.path")
+            if (customAapt2Path.isNotEmpty()) {
+                println("Using custom AAPT2: $customAapt2Path")
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            isMinifyEnabled = false
+            isDebuggable = true
+            
+            // Android Tools optimization for debug builds
+            // Disable resource optimization to speed up builds with custom tools
+            buildConfigField("String", "ANDROID_TOOLS_ARCH", "\"${getAndroidToolsProperty("android.tools.host.arch", "unknown")}\"")
+        }
+        
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            
+            buildConfigField("String", "ANDROID_TOOLS_ARCH", "\"${getAndroidToolsProperty("android.tools.host.arch", "unknown")}\"")
+        }
+    }
+
+    // Enhanced splits configuration for multi-architecture support
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+            isUniversalApk = true // Also generate a universal APK
         }
     }
     
