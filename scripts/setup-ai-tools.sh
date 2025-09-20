@@ -35,7 +35,7 @@ log_header "Configuring CleverFerret for AI Development Tools..."
 
 # 1. Verify Universal Build System
 log_info "Verifying Universal Build System..."
-if [ -d "android-tools" ] && [ -f "build-scripts/universal-build.sh" ]; then
+if [ -d "modern-android-tools" ] && [ -f "build-scripts/universal-build.sh" ]; then
     log_success "Universal Build System detected and ready"
     chmod +x build-scripts/*.sh
     chmod +x gradlew
