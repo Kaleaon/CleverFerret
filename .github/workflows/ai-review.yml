@@ -230,32 +230,119 @@ jobs:
             try {
               reviewResults = JSON.parse(fs.readFileSync('ai_review_results.json', 'utf8'));
             } catch (e) {
-              reviewResults = { passed: false, score: 0, issues: [], summary: 'AI review failed to generate results' };
+              reviewResults = { 
+                passed: false, 
+                score: 0, 
+                failure_reason: 'AI review system failed to generate results',
+                detailed_analysis: 'The AI review system encountered an error and could not analyze the code changes.',
+                issues: [], 
+                summary: 'AI review failed to generate results' 
+              };
             }
             
             const passed = reviewResults.passed;
             const score = reviewResults.score;
             const issues = reviewResults.issues || [];
+            const failureReason = reviewResults.failure_reason;
+            const detailedAnalysis = reviewResults.detailed_analysis;
+            const buildRisk = reviewResults.build_risk_assessment;
+            const runtimeRisk = reviewResults.runtime_risk_assessment;
+            const recommendedActions = reviewResults.recommended_actions || [];
             
             let comment = `## 🤖 AI Code Review Results\n\n`;
             comment += `**Status:** ${passed ? '✅ PASSED' : '❌ FAILED'}\n`;
-            comment += `**Score:** ${score}/100\n\n`;
+            comment += `**Score:** ${score}/100\n`;
+            
+            if (buildRisk) {
+              comment += `**Build Risk:** ${buildRisk.toUpperCase()}\n`;
+            }
+            if (runtimeRisk) {
+              comment += `**Runtime Risk:** ${runtimeRisk.toUpperCase()}\n`;
+            }
+            comment += `\n`;
+            
+            // If review failed, show detailed failure analysis
+            if (!passed && failureReason) {
+              comment += `## ❌ REVIEW FAILURE ANALYSIS\n\n`;
+              comment += `### Why This Review Failed:\n`;
+              comment += `${failureReason}\n\n`;
+              
+              if (detailedAnalysis) {
+                comment += `### Detailed Code Analysis:\n`;
+                comment += `${detailedAnalysis}\n\n`;
+              }
+            }
             
             if (issues.length > 0) {
-              comment += `### Issues Found:\n\n`;
+              comment += `## 📋 Issues Found (${issues.length})\n\n`;
               issues.forEach((issue, index) => {
-                const icon = issue.severity === 'error' ? '🔴' : issue.severity === 'warning' ? '🟡' : '🔵';
-                comment += `${icon} **${issue.category}** in \`${issue.file || 'multiple files'}\`\n`;
-                comment += `   ${issue.description}\n`;
-                if (issue.suggestion) {
-                  comment += `   💡 **Suggestion:** ${issue.suggestion}\n`;
+                let icon = '🔵';
+                if (issue.severity === 'critical') icon = '🔴⚠️';
+                else if (issue.severity === 'error') icon = '🔴';
+                else if (issue.severity === 'warning') icon = '🟡';
+                
+                comment += `### ${icon} ${issue.severity?.toUpperCase() || 'ISSUE'} ${index + 1}: ${issue.category?.toUpperCase() || 'GENERAL'}\n`;
+                
+                if (issue.file) {
+                  comment += `**📁 File:** \`${issue.file}\`\n`;
                 }
-                comment += `\n`;
+                
+                if (issue.line_numbers) {
+                  comment += `**📍 Lines:** ${issue.line_numbers}\n`;
+                }
+                
+                if (issue.code_snippet) {
+                  comment += `**📝 Problematic Code:**\n\`\`\`\n${issue.code_snippet}\n\`\`\`\n`;
+                }
+                
+                comment += `**❓ What's Wrong:** ${issue.description}\n\n`;
+                
+                if (issue.why_problematic) {
+                  comment += `**⚠️ Why This Is Problematic:** ${issue.why_problematic}\n\n`;
+                }
+                
+                if (issue.impact) {
+                  comment += `**💥 Potential Impact:** ${issue.impact}\n\n`;
+                }
+                
+                if (issue.suggestion) {
+                  comment += `**💡 How To Fix:** ${issue.suggestion}\n\n`;
+                }
+                
+                if (issue.example_fix) {
+                  comment += `**✅ Corrected Code Example:**\n\`\`\`\n${issue.example_fix}\n\`\`\`\n`;
+                }
+                
+                comment += `---\n\n`;
               });
             }
             
-            comment += `\n**Summary:** ${reviewResults.summary}\n\n`;
-            comment += `---\n*AI Review powered by CleverFerret Universal Build System*`;
+            if (recommendedActions.length > 0) {
+              comment += `## 🎯 Recommended Actions\n\n`;
+              recommendedActions.forEach((action, index) => {
+                comment += `${index + 1}. ${action}\n`;
+              });
+              comment += `\n`;
+            }
+            
+            comment += `## 📊 Summary\n`;
+            comment += `${reviewResults.summary}\n\n`;
+            
+            if (!passed) {
+              comment += `## 🚫 Next Steps\n`;
+              comment += `This pull request has been **BLOCKED** due to the issues identified above.\n\n`;
+              comment += `**To proceed:**\n`;
+              comment += `1. Review each issue listed above carefully\n`;
+              comment += `2. Make the necessary code changes\n`;
+              comment += `3. Test your changes locally\n`;
+              comment += `4. Push your fixes to trigger a new AI review\n\n`;
+              comment += `**Need help?** The AI review has provided detailed explanations and examples above.\n\n`;
+            } else {
+              comment += `## ✅ Approved\n`;
+              comment += `Great work! Your code changes look good and will proceed to the build stage.\n\n`;
+            }
+            
+            comment += `---\n*🤖 AI Review powered by Gemini Pro 1.5 | CleverFerret Universal Build System*`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
