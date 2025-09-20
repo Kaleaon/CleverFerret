@@ -99,7 +99,20 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // Exclude conflicting architecture libraries if needed
+            excludes += "/lib/*/libandroid_tools_*.so"
         }
+        
+        // JNI libraries configuration for multi-architecture
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    // Build optimization
+    buildFeatures {
+        compose = true
+        buildConfig = true // Enable BuildConfig for android-tools arch info
     }
 }
 
