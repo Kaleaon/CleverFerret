@@ -19,12 +19,21 @@ class AndroidToolsPlugin : Plugin<Project> {
     }
     
     override fun apply(project: Project) {
-        project.tasks.register("configureAndroidTools", ConfigureAndroidToolsTask::class.java)
+        // Only apply to root project
+        if (project != project.rootProject) return
+        
+        val configureTask = project.tasks.register("configureAndroidTools", ConfigureAndroidToolsTask::class.java)
         
         // Auto-run before any Android tasks
-        project.afterEvaluate {
-            project.tasks.matching { it.name.startsWith("process") || it.name.startsWith("compile") }.configureEach {
-                dependsOn("configureAndroidTools")
+        project.allprojects { 
+            afterEvaluate {
+                tasks.matching { 
+                    it.name.startsWith("process") || 
+                    it.name.startsWith("compile") || 
+                    it.name.startsWith("assemble") 
+                }.configureEach {
+                    dependsOn(configureTask)
+                }
             }
         }
     }
@@ -35,6 +44,7 @@ abstract class ConfigureAndroidToolsTask : DefaultTask() {
     init {
         description = "Configure Android Tools for current architecture"
         group = "android tools"
+        outputs.upToDateWhen { false } // Always run to ensure tools are configured
     }
     
     @TaskAction
@@ -116,33 +126,37 @@ abstract class ConfigureAndroidToolsTask : DefaultTask() {
             
         } catch (e: Exception) {
             logger.error("❌ Failed to configure AAPT2: ${e.message}")
-            throw e
+            // Don't throw - allow build to continue with default tools
         }
     }
     
     private fun replaceAapt2InDirectory(directory: File, sourceAapt2: File): Int {
         var count = 0
         
-        directory.walkTopDown()
-            .filter { it.name == "aapt2" && it.isFile }
-            .forEach { cachedAapt2 ->
-                try {
-                    // Backup original
-                    val backup = File(cachedAapt2.parent, "aapt2.original")
-                    if (!backup.exists()) {
-                        Files.copy(cachedAapt2.toPath(), backup.toPath())
+        try {
+            directory.walkTopDown()
+                .filter { it.name == "aapt2" && it.isFile }
+                .forEach { cachedAapt2 ->
+                    try {
+                        // Backup original if not already backed up
+                        val backup = File(cachedAapt2.parent, "aapt2.original")
+                        if (!backup.exists()) {
+                            Files.copy(cachedAapt2.toPath(), backup.toPath())
+                        }
+                        
+                        // Replace with our compatible version
+                        Files.copy(sourceAapt2.toPath(), cachedAapt2.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                        cachedAapt2.setExecutable(true)
+                        
+                        count++
+                        logger.debug("🔄 Replaced AAPT2: ${cachedAapt2.absolutePath}")
+                    } catch (e: Exception) {
+                        logger.warn("⚠️ Failed to replace ${cachedAapt2.absolutePath}: ${e.message}")
                     }
-                    
-                    // Replace with our compatible version
-                    Files.copy(sourceAapt2.toPath(), cachedAapt2.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                    cachedAapt2.setExecutable(true)
-                    
-                    count++
-                    logger.debug("🔄 Replaced AAPT2: ${cachedAapt2.absolutePath}")
-                } catch (e: Exception) {
-                    logger.warn("⚠️ Failed to replace ${cachedAapt2.absolutePath}: ${e.message}")
                 }
-            }
+        } catch (e: Exception) {
+            logger.warn("⚠️ Failed to walk directory ${directory.absolutePath}: ${e.message}")
+        }
         
         return count
     }
@@ -154,12 +168,12 @@ abstract class ConfigureAndroidToolsTask : DefaultTask() {
                 .start()
             
             val output = process.inputStream.bufferedReader().readText()
-            process.waitFor()
+            val exitCode = process.waitFor()
             
-            if (process.exitValue() == 0 || output.contains("Android Asset Packaging Tool")) {
+            if (exitCode == 0 || output.contains("Android Asset Packaging Tool")) {
                 logger.lifecycle("✅ AAPT2 verification successful")
             } else {
-                logger.warn("⚠️ AAPT2 verification returned non-zero exit code")
+                logger.warn("⚠️ AAPT2 verification returned non-zero exit code: $exitCode")
             }
         } catch (e: Exception) {
             logger.warn("⚠️ AAPT2 verification failed: ${e.message}")
@@ -167,28 +181,32 @@ abstract class ConfigureAndroidToolsTask : DefaultTask() {
     }
     
     private fun createGradleProperties(aapt2Binary: File, arch: String) {
-        val propsFile = File(project.rootDir, "gradle-android-tools-runtime.properties")
-        
-        val properties = """
-            # Auto-generated Android Tools Runtime Configuration
-            # Generated: ${java.time.LocalDateTime.now()}
-            # Host Architecture: $arch
+        try {
+            val propsFile = File(project.rootDir, "gradle-android-tools-runtime.properties")
             
-            # Runtime AAPT2 Configuration
-            android.tools.runtime.aapt2.path=${aapt2Binary.absolutePath}
-            android.tools.runtime.aapt2.arch=$arch
-            android.tools.runtime.configured=true
+            val properties = """
+                # Auto-generated Android Tools Runtime Configuration
+                # Generated: ${java.time.LocalDateTime.now()}
+                # Host Architecture: $arch
+                
+                # Runtime AAPT2 Configuration
+                android.tools.runtime.aapt2.path=${aapt2Binary.absolutePath}
+                android.tools.runtime.aapt2.arch=$arch
+                android.tools.runtime.configured=true
+                
+                # Build Optimizations
+                android.aapt2FromMavenOverride=false
+                android.builder.sdkDownload=false
+                android.enableResourceOptimizations=false
+                
+                # Multi-architecture support
+                android.defaultConfig.ndk.abiFilters=$arch
+            """.trimIndent()
             
-            # Build Optimizations
-            android.aapt2FromMavenOverride=false
-            android.builder.sdkDownload=false
-            android.enableResourceOptimizations=false
-            
-            # Multi-architecture support
-            android.defaultConfig.ndk.abiFilters=$arch
-        """.trimIndent()
-        
-        propsFile.writeText(properties)
-        logger.lifecycle("📝 Created runtime configuration: ${propsFile.name}")
+            propsFile.writeText(properties)
+            logger.lifecycle("📝 Created runtime configuration: ${propsFile.name}")
+        } catch (e: Exception) {
+            logger.warn("⚠️ Failed to create gradle properties: ${e.message}")
+        }
     }
 }
