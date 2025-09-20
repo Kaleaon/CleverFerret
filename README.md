@@ -25,6 +25,34 @@ CleverFerret is a comprehensive Universal Media Library Android application with
 | ARM32 (armv7l) | armeabi-v7a | ✅ | Supported |
 | x86 (i386/i686) | x86 | ✅ | Supported |
 
+## 🤖 AI Review System
+
+CleverFerret features an advanced AI-powered development workflow that automatically reviews every code change:
+
+### Review Process
+
+1. **Push Detection** - System detects new commits
+2. **AI Analysis** - Gemini Pro analyzes changes for:
+   - Build safety and compatibility
+   - Architecture support maintenance
+   - Code quality and best practices
+   - Integration safety (AI tools, dependencies)
+3. **Quality Gate** - Changes must pass AI review to proceed
+4. **Auto-Build** - Approved changes trigger automatic APK builds
+5. **Auto-Publish** - Successful builds are committed to `builds/` directory
+
+### Benefits
+
+- ✅ **Prevents Breaking Changes** - Blocks builds that could break functionality
+- ✅ **Maintains Quality** - Ensures code meets project standards
+- ✅ **Faster Feedback** - Immediate review results on pull requests
+- ✅ **Zero Configuration** - Works automatically on every push
+- ✅ **Always Current** - Latest approved builds always available
+
+### Build Downloads
+
+🎯 **Ready-to-install APKs** are available in the [`builds/`](./builds/) directory after each successful AI review.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
