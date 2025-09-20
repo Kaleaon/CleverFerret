@@ -108,15 +108,14 @@ show_system_info() {
     echo "Android SDK: ${ANDROID_HOME:-"Not set"}"
     
     # Android Tools status
-    if [ -d "$PROJECT_ROOT/android-tools" ]; then
-        log_success "Android Tools: Available"
+    if [ -d "$PROJECT_ROOT/modern-android-tools" ]; then
+        echo "  [INFO] Searching for modern ARM64-compatible AAPT2..."
         
-        echo -e "\n🔧 Available AAPT2 Binaries:"
-        for version in "android-11.0.0_r33" "android-9.0.0_r33"; do
-            if [ -d "$PROJECT_ROOT/android-tools/build/$version" ]; then
-                echo "  📦 $version:"
-                for arch in "arm64-v8a" "armeabi-v7a" "x86_64" "x86"; do
-                    local aapt2_path="$PROJECT_ROOT/android-tools/build/$version/aapt2/$arch/bin/aapt2"
+        # Check rendiix/termux-aapt first (most compatible)
+        if [ -d "$PROJECT_ROOT/modern-android-tools/termux-aapt" ]; then
+            echo "  [INFO] Found rendiix/termux-aapt (ARM64 optimized)"
+            for arch in arm64 armeabi-v7a x86_64 x86; do
+                local aapt2_path="$PROJECT_ROOT/modern-android-tools/termux-aapt/prebuilt-binary/$arch/aapt2"
                     if [ -f "$aapt2_path" ]; then
                         local status="✅"
                         local current=""
