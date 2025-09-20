@@ -162,26 +162,26 @@ def analyze_code_changes():
         # Fail safe - if AI review fails, allow the build
         return {"passed": True, "score": 75, "issues": [{"severity": "warning", "description": f"AI review system error: {str(e)}"}], "summary": "AI review system encountered an error, allowing build to proceed"}
 
-          if __name__ == "__main__":
-              result = analyze_code_changes()
-              print(f"Review Result: {json.dumps(result, indent=2)}")
-              
-              # Set GitHub Actions outputs
-              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-                  f.write(f"passed={str(result['passed']).lower()}\n")
-                  f.write(f"score={result['score']}\n")
-                  f.write(f"summary={result.get('summary', 'AI review completed')}\n")
-              
-              # Write detailed results to file
-              with open('ai_review_results.json', 'w') as f:
-                  json.dump(result, f, indent=2)
-              
-              # Exit with error code if review failed
-              if not result['passed']:
-                  print("❌ AI Review FAILED - Build will be blocked")
-                  sys.exit(1)
-              else:
-                  print("✅ AI Review PASSED - Proceeding with build")
+if __name__ == "__main__":
+    result = analyze_code_changes()
+    print(f"Review Result: {json.dumps(result, indent=2)}")
+    
+    # Set GitHub Actions outputs
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+        f.write(f"passed={str(result['passed']).lower()}\n")
+        f.write(f"score={result['score']}\n")
+        f.write(f"summary={result.get('summary', 'AI review completed')}\n")
+    
+    # Write detailed results to file
+    with open('ai_review_results.json', 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    # Exit with error code if review failed
+    if not result['passed']:
+        print("❌ AI Review FAILED - Build will be blocked")
+        sys.exit(1)
+    else:
+        print("✅ AI Review PASSED - Proceeding with build")
           EOF
           
           python ai_review.py
