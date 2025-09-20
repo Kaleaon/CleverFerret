@@ -1,10 +1,6 @@
-name: Universal Build System CI
+name: Manual Universal Build System
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       build_type:
