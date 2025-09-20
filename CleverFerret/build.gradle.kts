@@ -6,6 +6,19 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
+// Android Tools Integration
+// Load android-tools configuration if available
+val androidToolsPropsFile = rootProject.file("gradle-android-tools.properties")
+val androidToolsProps = java.util.Properties()
+if (androidToolsPropsFile.exists()) {
+    androidToolsProps.load(androidToolsPropsFile.inputStream())
+}
+
+// Helper function to get android-tools property
+fun getAndroidToolsProperty(key: String, defaultValue: String = ""): String {
+    return androidToolsProps.getProperty(key) ?: defaultValue
+}
+
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 34
