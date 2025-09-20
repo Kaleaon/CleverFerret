@@ -27,7 +27,7 @@ CleverFerret is a comprehensive Universal Media Library Android application with
 
 ## 🤖 AI Review System
 
-CleverFerret features an advanced AI-powered development workflow that automatically reviews every code change:
+CleverFerret features an advanced AI-powered development workflow that automatically reviews every code change with **comprehensive failure analysis**:
 
 ### Review Process
 
@@ -38,8 +38,14 @@ CleverFerret features an advanced AI-powered development workflow that automatic
    - Code quality and best practices
    - Integration safety (AI tools, dependencies)
 3. **Quality Gate** - Changes must pass AI review to proceed
-4. **Auto-Build** - Approved changes trigger automatic APK builds
-5. **Auto-Publish** - Successful builds are committed to `builds/` directory
+4. **Detailed Failure Analysis** - Failed reviews include:
+   - **Why it failed** - Comprehensive explanations
+   - **What's problematic** - Specific issue identification  
+   - **Impact assessment** - What could break
+   - **Step-by-step fixes** - How to resolve issues
+   - **Code examples** - Corrected code snippets
+5. **Auto-Build** - Approved changes trigger automatic APK builds
+6. **Auto-Publish** - Successful builds are committed to `builds/` directory
 
 ### Benefits
 
