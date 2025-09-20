@@ -4,14 +4,16 @@
 
 CleverFerret is a comprehensive Universal Media Library Android application with **revolutionary multi-architecture build support** and **AI-powered development workflow**. This system automatically detects your development machine's architecture, configures the appropriate Android build tools, and uses AI to review every code change, ensuring seamless compilation and high-quality builds across **ARM64, x86_64, ARM32, and x86** architectures.
 
-## 🏗️ Universal Build System
+## 🏗️ Universal Build System + AI Review
 
 ### Key Features
 
+- **🤖 AI-Powered Code Review**: Every push is automatically reviewed by Gemini AI for quality and safety
 - **🎯 Automatic Architecture Detection**: Detects host system architecture automatically
 - **🔧 Smart AAPT2 Configuration**: Uses architecture-specific AAPT2 binaries for optimal compatibility
 - **📱 Multi-Architecture APK Generation**: Builds APKs for all major Android architectures
-- **🚀 One-Click Building**: Single command builds across any machine architecture
+- **🚀 Auto-Build & Publish**: Successful reviews trigger automatic builds and publishing
+- **🛡️ Quality Gates**: Blocks builds that don't meet safety and quality standards
 - **🛠️ Comprehensive Tooling**: Integrated diagnostics, testing, and build verification
 
 ### Supported Architectures
