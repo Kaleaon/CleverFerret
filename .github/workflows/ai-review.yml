@@ -129,38 +129,38 @@ def analyze_code_changes():
         
         CRITICAL: Return "passed": false for any issues that could break the build or runtime functionality.
         """
-                  
-                  response = llm.chat.completions.create(
-                      model="gemini-1.5-pro",
-                      messages=[{"role": "user", "content": review_prompt}],
-                      temperature=0.1
-                  )
-                  
-                  # Parse AI response
-                  ai_response = response.choices[0].message.content
-                  print(f"AI Response: {ai_response}")
-                  
-                  # Try to extract JSON from response
-                  try:
-                      # Look for JSON in the response
-                      json_start = ai_response.find('{')
-                      json_end = ai_response.rfind('}') + 1
-                      if json_start != -1 and json_end > json_start:
-                          json_content = ai_response[json_start:json_end]
-                          review_result = json.loads(json_content)
-                      else:
-                          # Fallback parsing
-                          review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed"}
-                  except json.JSONDecodeError:
-                      print("Failed to parse AI response, assuming safe")
-                      review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed with parsing issues"}
-                  
-                  return review_result
-                  
-              except Exception as e:
-                  print(f"AI Review failed: {str(e)}")
-                  # Fail safe - if AI review fails, allow the build
-                  return {"passed": True, "score": 75, "issues": [{"severity": "warning", "description": f"AI review system error: {str(e)}"}], "summary": "AI review system encountered an error, allowing build to proceed"}
+        
+        response = llm.chat.completions.create(
+            model="gemini-1.5-pro",
+            messages=[{"role": "user", "content": review_prompt}],
+            temperature=0.1
+        )
+        
+        # Parse AI response
+        ai_response = response.choices[0].message.content
+        print(f"AI Response: {ai_response}")
+        
+        # Try to extract JSON from response
+        try:
+            # Look for JSON in the response
+            json_start = ai_response.find('{')
+            json_end = ai_response.rfind('}') + 1
+            if json_start != -1 and json_end > json_start:
+                json_content = ai_response[json_start:json_end]
+                review_result = json.loads(json_content)
+            else:
+                # Fallback parsing
+                review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed"}
+        except json.JSONDecodeError:
+            print("Failed to parse AI response, assuming safe")
+            review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed with parsing issues"}
+        
+        return review_result
+        
+    except Exception as e:
+        print(f"AI Review failed: {str(e)}")
+        # Fail safe - if AI review fails, allow the build
+        return {"passed": True, "score": 75, "issues": [{"severity": "warning", "description": f"AI review system error: {str(e)}"}], "summary": "AI review system encountered an error, allowing build to proceed"}
 
           if __name__ == "__main__":
               result = analyze_code_changes()
