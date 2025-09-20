@@ -1,0 +1,108 @@
+{
+  "name": "CleverFerret Universal Media Library",
+  "description": "Universal media library Android app with revolutionary multi-architecture build system",
+  "version": "1.0.0",
+  "type": "android-kotlin",
+  "language": "kotlin",
+  "framework": "jetpack-compose",
+  
+  "project_info": {
+    "tech_stack": [
+      "Kotlin",
+      "Jetpack Compose",
+      "Room Database",
+      "Hilt Dependency Injection",
+      "Media3 ExoPlayer",
+      "Material 3 Design",
+      "Universal Build System"
+    ],
+    "architecture": "MVVM",
+    "min_sdk": 26,
+    "target_sdk": 34,
+    "supported_architectures": ["arm64-v8a", "x86_64", "armeabi-v7a", "x86"]
+  },
+  
+  "environment": {
+    "java_version": "17",
+    "gradle_version": "8.8",
+    "android_gradle_plugin": "8.4.1",
+    "kotlin_version": "1.9.23"
+  },
+  
+  "build_system": {
+    "type": "universal",
+    "description": "Revolutionary Universal Build System with automatic architecture detection",
+    "features": [
+      "Automatic architecture detection",
+      "AAPT2 compatibility fixes",
+      "Multi-architecture APK generation",
+      "Self-healing build process",
+      "Zero-configuration setup"
+    ],
+    "build_commands": {
+      "setup": "./build-scripts/universal-build.sh info",
+      "test_environment": "./build-scripts/universal-build.sh test-env",
+      "build_debug": "./build-scripts/simple-build.sh build debug",
+      "build_release": "./build-scripts/simple-build.sh build release",
+      "full_build": "./build-scripts/universal-build.sh full-build",
+      "diagnostics": "./gradlew diagnose"
+    }
+  },
+  
+  "dependencies": {
+    "management": "gradle-kotlin-dsl",
+    "key_libraries": [
+      "androidx.compose:compose-bom:2024.05.00",
+      "androidx.room:room-runtime:2.6.1",
+      "com.google.dagger:hilt-android:2.50",
+      "androidx.media3:media3-exoplayer:1.3.0"
+    ]
+  },
+  
+  "development": {
+    "ide_configs": [
+      ".idea/",
+      ".vscode/",
+      "android-studio-settings/"
+    ],
+    "code_style": "kotlin-official",
+    "testing": {
+      "unit_tests": "src/test/",
+      "instrumentation_tests": "src/androidTest/",
+      "test_command": "./gradlew testDebugUnitTest"
+    }
+  },
+  
+  "ai_assistance": {
+    "context_files": [
+      "README.md",
+      "docs/BUILD_SYSTEM.md",
+      "docs/TROUBLESHOOTING.md",
+      "UNIVERSAL_BUILD_STATUS.md",
+      "CleverFerret/src/main/java/"
+    ],
+    "important_patterns": [
+      "Universal Build System commands in build-scripts/",
+      "Architecture detection in build.gradle.kts",
+      "Android-tools integration in android-tools/",
+      "Multi-architecture APK generation"
+    ]
+  },
+  
+  "troubleshooting": {
+    "common_issues": {
+      "aapt2_failure": {
+        "description": "AAPT2 process failed due to architecture mismatch",
+        "solution": "./build-scripts/simple-build.sh fix && ./build-scripts/simple-build.sh build"
+      },
+      "build_timeout": {
+        "description": "Build process times out or runs out of memory",
+        "solution": "export GRADLE_OPTS='-Xmx6g -XX:MaxMetaspaceSize=2g' && ./build-scripts/universal-build.sh build"
+      },
+      "architecture_detection": {
+        "description": "Architecture not properly detected",
+        "solution": "./build-scripts/universal-build.sh info && ./gradlew architectureInfo"
+      }
+    }
+  }
+}

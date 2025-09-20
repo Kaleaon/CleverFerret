@@ -1,0 +1,120 @@
+{
+  "project": "CleverFerret Universal Media Library",
+  "gemini_integration": {
+    "model_preference": "gemini-1.5-pro",
+    "use_cases": [
+      "code_generation",
+      "architecture_guidance", 
+      "debugging_assistance",
+      "build_system_optimization",
+      "documentation_generation"
+    ]
+  },
+  
+  "project_context": {
+    "domain": "Universal Media Library for Android",
+    "key_features": [
+      "Multi-media support (books, music, movies, podcasts)",
+      "Calibre library integration",
+      "Universal Build System with multi-architecture support",
+      "Modern Material 3 UI with Jetpack Compose",
+      "Local data storage with Room database"
+    ],
+    "innovation": "Revolutionary Universal Build System that automatically detects architecture and fixes AAPT2 compatibility issues"
+  },
+  
+  "technical_stack": {
+    "language": "Kotlin",
+    "ui_framework": "Jetpack Compose + Material 3",
+    "architecture": "MVVM",
+    "dependency_injection": "Hilt",
+    "database": "Room + SQLite",
+    "media_playback": "Media3 ExoPlayer",
+    "build_system": "Universal Build System (custom)",
+    "testing": "JUnit + Espresso"
+  },
+  
+  "gemini_assistance_areas": {
+    "code_architecture": {
+      "description": "Help with MVVM architecture, dependency injection patterns, and clean code structure",
+      "context": "CleverFerret uses MVVM with Hilt DI, Room database, and Jetpack Compose"
+    },
+    "ui_development": {
+      "description": "Assistance with Jetpack Compose UI development and Material 3 design implementation",
+      "context": "Modern Android UI with Material You theming and responsive design"
+    },
+    "media_integration": {
+      "description": "Help with Media3 ExoPlayer integration for audio, video, and document playback",
+      "context": "Universal media player supporting multiple formats and types"
+    },
+    "build_system": {
+      "description": "Guidance on Universal Build System usage and multi-architecture building",
+      "context": "Custom build system with automatic architecture detection and AAPT2 fixes"
+    },
+    "database_design": {
+      "description": "Room database schema design and migration assistance",
+      "context": "Media library metadata storage with complex relationships"
+    }
+  },
+  
+  "code_generation_preferences": {
+    "style": "kotlin-idiomatic",
+    "patterns": [
+      "sealed-classes-for-states",
+      "coroutines-for-async",
+      "flow-for-reactive-streams",
+      "compose-state-hoisting",
+      "hilt-dependency-injection"
+    ],
+    "documentation": "kdoc-with-examples"
+  },
+  
+  "build_commands_context": {
+    "primary_build": "./build-scripts/simple-build.sh build debug",
+    "system_info": "./build-scripts/universal-build.sh info",
+    "diagnostics": "./gradlew diagnose",
+    "architecture_info": "./gradlew architectureInfo",
+    "test_environment": "./build-scripts/universal-build.sh test-env",
+    "full_build": "./build-scripts/universal-build.sh full-build"
+  },
+  
+  "debugging_context": {
+    "common_issues": [
+      {
+        "issue": "AAPT2 Process Failed",
+        "solution": "Use Universal Build System: ./build-scripts/simple-build.sh fix",
+        "context": "Architecture-specific AAPT2 compatibility issue"
+      },
+      {
+        "issue": "Build Memory Issues", 
+        "solution": "export GRADLE_OPTS='-Xmx6g' && ./build-scripts/universal-build.sh build",
+        "context": "Large project with 80+ dependencies"
+      },
+      {
+        "issue": "Architecture Detection",
+        "solution": "./build-scripts/universal-build.sh info",
+        "context": "Universal Build System automatic detection"
+      }
+    ]
+  },
+  
+  "project_structure_awareness": {
+    "source_code": "CleverFerret/src/main/java/com/universalmedialibrary/",
+    "ui_components": "ui/ package with Jetpack Compose screens",
+    "data_layer": "data/ package with Room entities and repositories",
+    "domain_layer": "domain/ package with use cases and business logic",
+    "di_modules": "di/ package with Hilt dependency injection",
+    "build_system": "build-scripts/ with Universal Build System",
+    "documentation": "docs/ with comprehensive guides"
+  },
+  
+  "ai_development_guidelines": [
+    "Always consider multi-architecture compatibility when suggesting build changes",
+    "Use Universal Build System commands instead of direct gradle commands",
+    "Prioritize Jetpack Compose patterns for UI development",
+    "Follow MVVM architecture with proper separation of concerns",
+    "Use Hilt for dependency injection consistently",
+    "Consider media playback scenarios when working on player features",
+    "Reference existing documentation in docs/ directory for context"
+  ]
+}
