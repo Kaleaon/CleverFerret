@@ -519,23 +519,132 @@ jobs:
     if: needs.ai-review.outputs.review-passed == 'false'
     
     steps:
-      - name: Review Failed Notification
+      - name: Checkout code (to access review results)
+        uses: actions/checkout@v4
+
+      - name: Download AI Review Results
+        uses: actions/download-artifact@v4
+        with:
+          name: ai-review-results-${{ github.sha }}
+          path: ./review-results/
+
+      - name: Display Detailed Failure Analysis
         run: |
-          echo "❌ AI Code Review Failed!"
-          echo "This push has been blocked due to potential issues identified by the AI reviewer."
-          echo "Review Score: ${{ needs.ai-review.outputs.review-score }}/100"
+          echo "❌ AI CODE REVIEW FAILED - BUILD BLOCKED"
+          echo "======================================"
           echo ""
-          echo "Please check the AI review results and fix the identified issues before retrying."
+          echo "Review Score: ${{ needs.ai-review.outputs.review-score }}/100"
+          echo "Summary: ${{ needs.ai-review.outputs.summary }}"
+          echo ""
           
+          # Try to display detailed review results if available
+          if [ -f "./review-results/ai_review_results.json" ]; then
+            echo "📋 DETAILED FAILURE ANALYSIS:"
+            echo "=============================="
+            
+            # Extract and display failure details using Python
+            python3 -c "
+import json
+import sys
+
+try:
+    with open('./review-results/ai_review_results.json', 'r') as f:
+        results = json.load(f)
+    
+    if 'failure_reason' in results and results['failure_reason']:
+        print('🚨 FAILURE REASON:')
+        print(results['failure_reason'])
+        print()
+    
+    if 'detailed_analysis' in results and results['detailed_analysis']:
+        print('🔍 DETAILED ANALYSIS:')
+        print(results['detailed_analysis'])
+        print()
+    
+    if 'issues' in results and results['issues']:
+        print(f'📝 FOUND {len(results[\"issues\"])} ISSUE(S):')
+        print('=' * 40)
+        for i, issue in enumerate(results['issues'], 1):
+            severity = issue.get('severity', 'unknown').upper()
+            category = issue.get('category', 'general').upper()
+            print(f'ISSUE {i}: {severity} - {category}')
+            
+            if issue.get('file'):
+                print(f'  📁 File: {issue[\"file\"]}')
+            if issue.get('line_numbers'):
+                print(f'  📍 Lines: {issue[\"line_numbers\"]}')
+            if issue.get('description'):
+                print(f'  ❓ Problem: {issue[\"description\"]}')
+            if issue.get('why_problematic'):
+                print(f'  ⚠️  Why Problematic: {issue[\"why_problematic\"]}')
+            if issue.get('impact'):
+                print(f'  💥 Impact: {issue[\"impact\"]}')
+            if issue.get('suggestion'):
+                print(f'  💡 Fix: {issue[\"suggestion\"]}')
+            print()
+    
+    if 'build_risk_assessment' in results:
+        print(f'🏗️  BUILD RISK: {results[\"build_risk_assessment\"].upper()}')
+    
+    if 'runtime_risk_assessment' in results:
+        print(f'⚡ RUNTIME RISK: {results[\"runtime_risk_assessment\"].upper()}')
+    
+    if 'recommended_actions' in results and results['recommended_actions']:
+        print()
+        print('🎯 RECOMMENDED ACTIONS:')
+        for i, action in enumerate(results['recommended_actions'], 1):
+            print(f'  {i}. {action}')
+    
+except Exception as e:
+    print(f'Could not parse detailed results: {e}')
+    print('Check the AI review artifacts for full details.')
+            " || echo "Could not display detailed analysis"
+          else
+            echo "⚠️  Detailed review results not available"
+          fi
+          
+          echo ""
+          echo "🚫 THIS BUILD HAS BEEN BLOCKED"
+          echo "=============================="
+          echo "The issues identified above must be resolved before this code can be merged."
+          echo ""
+          echo "Next steps:"
+          echo "1. Carefully review each issue listed above"
+          echo "2. Make the necessary code changes"
+          echo "3. Test your changes locally to ensure they work"
+          echo "4. Push your fixes to trigger a new AI review"
+          echo ""
+          echo "For more details, check the PR comments or the AI review artifacts."
+
+      - name: Create Detailed Failure Summary
+        run: |
           echo "# ❌ AI Review Failed - Build Blocked" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Review Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚨 Critical Issues Detected" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The AI reviewer has identified issues that could potentially:" >> $GITHUB_STEP_SUMMARY
+          echo "- Break the build process" >> $GITHUB_STEP_SUMMARY
+          echo "- Cause runtime failures" >> $GITHUB_STEP_SUMMARY
+          echo "- Compromise system stability" >> $GITHUB_STEP_SUMMARY
+          echo "- Break existing integrations" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Review Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Score:** ${{ needs.ai-review.outputs.review-score }}/100" >> $GITHUB_STEP_SUMMARY
           echo "- **Status:** 🚫 BLOCKED" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📋 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
-          echo "1. Check the AI review results in the artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "2. Fix the identified issues" >> $GITHUB_STEP_SUMMARY
-          echo "3. Push again to re-trigger the review" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 What You Need To Do" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Review the detailed analysis** in the logs above" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Check PR comments** for comprehensive issue breakdown" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Download AI review artifacts** for full JSON results" >> $GITHUB_STEP_SUMMARY
+          echo "4. **Fix identified issues** following the provided suggestions" >> $GITHUB_STEP_SUMMARY
+          echo "5. **Test locally** to ensure fixes work properly" >> $GITHUB_STEP_SUMMARY
+          echo "6. **Push again** to re-trigger AI review" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Remember" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The AI reviewer is designed to catch issues before they reach production." >> $GITHUB_STEP_SUMMARY
+          echo "Each blocked review includes detailed explanations and fix suggestions." >> $GITHUB_STEP_SUMMARY
+          echo "This helps maintain high code quality and system stability." >> $GITHUB_STEP_SUMMARY
           
           exit 1
