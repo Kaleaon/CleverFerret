@@ -53,7 +53,7 @@ object MediaItemHandler {
             MediaType.AUDIO -> androidx.compose.material.icons.Icons.Default.MusicNote
             MediaType.VIDEO -> androidx.compose.material.icons.Icons.Default.Movie
             MediaType.COMIC -> androidx.compose.material.icons.Icons.Default.Book
-            else -> androidx.compose.material.icons.Icons.Default.QuestionMark
+            else -> androidx.compose.material.icons.Icons.Default.Help
         }
     }
     
