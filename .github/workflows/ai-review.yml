@@ -83,9 +83,9 @@ def analyze_code_changes():
         # Read changed files
         try:
             with open('changed_files.txt', 'r') as f:
-                changed_files = f.read().strip()
+      changed_files = f.read().strip()
             with open('diff.txt', 'r') as f:
-                diff_content = f.read()
+      diff_content = f.read()
         except FileNotFoundError:
             print("No changes detected")
             return {"passed": True, "score": 100, "issues": []}
@@ -121,16 +121,16 @@ def analyze_code_changes():
           "detailed_analysis": "Step-by-step analysis of the code changes, highlighting both good practices and problems found",
           "issues": [
             {{
-              "severity": "critical/error/warning/info",
-              "category": "build/architecture/code/integration/security",
-              "file": "exact filename with path",
-              "line_numbers": "specific lines if applicable",
-              "code_snippet": "the problematic code if relevant",
-              "description": "DETAILED explanation of what is wrong",
-              "why_problematic": "Explain WHY this is a problem - what could break, what could fail",
-              "impact": "What would happen if this code went to production",
-              "suggestion": "Step-by-step instructions on how to fix this",
-              "example_fix": "Show corrected code example if applicable"
+    "severity": "critical/error/warning/info",
+    "category": "build/architecture/code/integration/security",
+    "file": "exact filename with path",
+    "line_numbers": "specific lines if applicable",
+    "code_snippet": "the problematic code if relevant",
+    "description": "DETAILED explanation of what is wrong",
+    "why_problematic": "Explain WHY this is a problem - what could break, what could fail",
+    "impact": "What would happen if this code went to production",
+    "suggestion": "Step-by-step instructions on how to fix this",
+    "example_fix": "Show corrected code example if applicable"
             }}
           ],
           "build_risk_assessment": "Assess the likelihood this change could break the build (none/low/medium/high/critical)",
@@ -169,42 +169,42 @@ def analyze_code_changes():
             json_start = ai_response.find('{')
             json_end = ai_response.rfind('}') + 1
             if json_start != -1 and json_end > json_start:
-                json_content = ai_response[json_start:json_end]
-                review_result = json.loads(json_content)
+      json_content = ai_response[json_start:json_end]
+      review_result = json.loads(json_content)
             else:
-                # Fallback parsing
-                review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed"}
+      # Fallback parsing
+      review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed"}
         except json.JSONDecodeError:
             print("Failed to parse AI response, treating as potential issue")
             # If we can't parse the response, be cautious and provide detailed feedback
             review_result = {
-                "passed": False, 
-                "score": 50, 
-                "failure_reason": "AI response could not be parsed properly. The AI may have identified issues but the response format was incorrect.",
-                "detailed_analysis": f"Raw AI Response (first 1000 chars): {ai_response[:1000]}...\n\nThis suggests the AI found complex issues that couldn't be formatted properly. Manual review recommended.",
-                "issues": [{
-                    "severity": "warning",
-                    "category": "system",
-                    "file": "multiple files",
-                    "description": "AI review system could not parse the response properly",
-                    "why_problematic": "When AI responses can't be parsed, it often indicates the AI found complex or severe issues that broke the expected response format",
-                    "impact": "Potential unidentified code quality or safety issues",
-                    "suggestion": "Manually review your changes for build safety, syntax errors, and integration issues. Consider making smaller, incremental changes."
-                }], 
-                "build_risk_assessment": "medium",
-                "runtime_risk_assessment": "medium",
-                "recommended_actions": [
-                    "Manually review all changed files for syntax errors",
-                    "Check that all imports and dependencies are correct",
-                    "Verify Gradle configurations haven't been broken",
-                    "Test build locally before pushing again"
-                ],
-                "summary": "AI review parsing failed - manual review required for safety"
+      "passed": False, 
+      "score": 50, 
+      "failure_reason": "AI response could not be parsed properly. The AI may have identified issues but the response format was incorrect.",
+      "detailed_analysis": f"Raw AI Response (first 1000 chars): {ai_response[:1000]}...\n\nThis suggests the AI found complex issues that couldn't be formatted properly. Manual review recommended.",
+      "issues": [{
+          "severity": "warning",
+          "category": "system",
+          "file": "multiple files",
+          "description": "AI review system could not parse the response properly",
+          "why_problematic": "When AI responses can't be parsed, it often indicates the AI found complex or severe issues that broke the expected response format",
+          "impact": "Potential unidentified code quality or safety issues",
+          "suggestion": "Manually review your changes for build safety, syntax errors, and integration issues. Consider making smaller, incremental changes."
+      }], 
+      "build_risk_assessment": "medium",
+      "runtime_risk_assessment": "medium",
+      "recommended_actions": [
+          "Manually review all changed files for syntax errors",
+          "Check that all imports and dependencies are correct",
+          "Verify Gradle configurations haven't been broken",
+          "Test build locally before pushing again"
+      ],
+      "summary": "AI review parsing failed - manual review required for safety"
             }
         
         return review_result
         
-              except Exception as e:
+    except Exception as e:
         print(f"AI Review failed: {str(e)}")
         # Be more cautious when AI system fails - require manual review
         return {
@@ -213,45 +213,45 @@ def analyze_code_changes():
             "failure_reason": f"AI review system encountered a critical error: {str(e)}. For safety, this change is blocked pending manual review.",
             "detailed_analysis": f"The AI review system failed with error: {str(e)}. This could indicate:\n1. Network/API issues preventing proper analysis\n2. Code changes that are too complex for automated review\n3. Issues with the review system itself\n\nTo ensure code quality and safety, manual review is required.",
             "issues": [{
-                "severity": "critical",
-                "category": "system",
-                "file": "AI Review System",
-                "description": f"AI review system failure: {str(e)}",
-                "why_problematic": "When the AI review system fails, it cannot verify code safety, build compatibility, or quality standards",
-                "impact": "Unreviewed code could introduce bugs, break builds, or compromise system stability",
-                "suggestion": "1. Check if this is a temporary issue by pushing again\n2. If error persists, manually review all changes\n3. Test build locally\n4. Consider breaking large changes into smaller commits"
+      "severity": "critical",
+      "category": "system",
+      "file": "AI Review System",
+      "description": f"AI review system failure: {str(e)}",
+      "why_problematic": "When the AI review system fails, it cannot verify code safety, build compatibility, or quality standards",
+      "impact": "Unreviewed code could introduce bugs, break builds, or compromise system stability",
+      "suggestion": "1. Check if this is a temporary issue by pushing again\n2. If error persists, manually review all changes\n3. Test build locally\n4. Consider breaking large changes into smaller commits"
             }], 
             "build_risk_assessment": "high",
             "runtime_risk_assessment": "unknown",
             "recommended_actions": [
-                "Try pushing again to see if this was a temporary issue",
-                "If error persists, perform thorough manual code review",
-                "Test build process locally to ensure it works",
-                "Check all modified files for syntax and logic errors",
-                "Verify no critical dependencies or configurations were broken"
+      "Try pushing again to see if this was a temporary issue",
+      "If error persists, perform thorough manual code review",
+      "Test build process locally to ensure it works",
+      "Check all modified files for syntax and logic errors",
+      "Verify no critical dependencies or configurations were broken"
             ],
             "summary": f"AI review system failure ({str(e)}) - manual review required for safety"
         }
 
           if __name__ == "__main__":
-              result = analyze_code_changes()
-              print(f"Review Result: {json.dumps(result, indent=2)}")
-              
-              # Set GitHub Actions outputs
-              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+    result = analyze_code_changes()
+    print(f"Review Result: {json.dumps(result, indent=2)}")
+    
+    # Set GitHub Actions outputs
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
         f.write(f"passed={str(result['passed']).lower()}\n")
         f.write(f"score={result['score']}\n")
         f.write(f"summary={result.get('summary', 'AI review completed')}\n")
-              
-              # Write detailed results to file
-              with open('ai_review_results.json', 'w') as f:
+    
+    # Write detailed results to file
+    with open('ai_review_results.json', 'w') as f:
         json.dump(result, f, indent=2)
-              
-              # Exit with error code if review failed
-              if not result['passed']:
+    
+    # Exit with error code if review failed
+    if not result['passed']:
         print("❌ AI Review FAILED - Build will be blocked")
         sys.exit(1)
-              else:
+    else:
         print("✅ AI Review PASSED - Proceeding with build")
           EOF
           
@@ -276,16 +276,16 @@ def analyze_code_changes():
             const fs = require('fs');
             let reviewResults;
             try {
-              reviewResults = JSON.parse(fs.readFileSync('ai_review_results.json', 'utf8'));
+    reviewResults = JSON.parse(fs.readFileSync('ai_review_results.json', 'utf8'));
             } catch (e) {
-              reviewResults = { 
-                passed: false, 
-                score: 0, 
-                failure_reason: 'AI review system failed to generate results',
-                detailed_analysis: 'The AI review system encountered an error and could not analyze the code changes.',
-                issues: [], 
-                summary: 'AI review failed to generate results' 
-              };
+    reviewResults = { 
+      passed: false, 
+      score: 0, 
+      failure_reason: 'AI review system failed to generate results',
+      detailed_analysis: 'The AI review system encountered an error and could not analyze the code changes.',
+      issues: [], 
+      summary: 'AI review failed to generate results' 
+    };
             }
             
             const passed = reviewResults.passed;
@@ -302,101 +302,101 @@ def analyze_code_changes():
             comment += `**Score:** ${score}/100\n`;
             
             if (buildRisk) {
-              comment += `**Build Risk:** ${buildRisk.toUpperCase()}\n`;
+    comment += `**Build Risk:** ${buildRisk.toUpperCase()}\n`;
             }
             if (runtimeRisk) {
-              comment += `**Runtime Risk:** ${runtimeRisk.toUpperCase()}\n`;
+    comment += `**Runtime Risk:** ${runtimeRisk.toUpperCase()}\n`;
             }
             comment += `\n`;
             
             // If review failed, show detailed failure analysis
             if (!passed && failureReason) {
-              comment += `## ❌ REVIEW FAILURE ANALYSIS\n\n`;
-              comment += `### Why This Review Failed:\n`;
-              comment += `${failureReason}\n\n`;
-              
-              if (detailedAnalysis) {
-                comment += `### Detailed Code Analysis:\n`;
-                comment += `${detailedAnalysis}\n\n`;
-              }
+    comment += `## ❌ REVIEW FAILURE ANALYSIS\n\n`;
+    comment += `### Why This Review Failed:\n`;
+    comment += `${failureReason}\n\n`;
+    
+    if (detailedAnalysis) {
+      comment += `### Detailed Code Analysis:\n`;
+      comment += `${detailedAnalysis}\n\n`;
+    }
             }
             
             if (issues.length > 0) {
-              comment += `## 📋 Issues Found (${issues.length})\n\n`;
-              issues.forEach((issue, index) => {
-                let icon = '🔵';
-                if (issue.severity === 'critical') icon = '🔴⚠️';
-                else if (issue.severity === 'error') icon = '🔴';
-                else if (issue.severity === 'warning') icon = '🟡';
-                
-                comment += `### ${icon} ${issue.severity?.toUpperCase() || 'ISSUE'} ${index + 1}: ${issue.category?.toUpperCase() || 'GENERAL'}\n`;
-                
-                if (issue.file) {
+    comment += `## 📋 Issues Found (${issues.length})\n\n`;
+    issues.forEach((issue, index) => {
+      let icon = '🔵';
+      if (issue.severity === 'critical') icon = '🔴⚠️';
+      else if (issue.severity === 'error') icon = '🔴';
+      else if (issue.severity === 'warning') icon = '🟡';
+      
+      comment += `### ${icon} ${issue.severity?.toUpperCase() || 'ISSUE'} ${index + 1}: ${issue.category?.toUpperCase() || 'GENERAL'}\n`;
+      
+      if (issue.file) {
         comment += `**📁 File:** \`${issue.file}\`\n`;
-                }
-                
-                if (issue.line_numbers) {
+      }
+      
+      if (issue.line_numbers) {
         comment += `**📍 Lines:** ${issue.line_numbers}\n`;
-                }
-                
-                if (issue.code_snippet) {
+      }
+      
+      if (issue.code_snippet) {
         comment += `**📝 Problematic Code:**\n\`\`\`\n${issue.code_snippet}\n\`\`\`\n`;
-                }
-                
-                comment += `**❓ What's Wrong:** ${issue.description}\n\n`;
-                
-                if (issue.why_problematic) {
+      }
+      
+      comment += `**❓ What's Wrong:** ${issue.description}\n\n`;
+      
+      if (issue.why_problematic) {
         comment += `**⚠️ Why This Is Problematic:** ${issue.why_problematic}\n\n`;
-                }
-                
-                if (issue.impact) {
+      }
+      
+      if (issue.impact) {
         comment += `**💥 Potential Impact:** ${issue.impact}\n\n`;
-                }
-                
-                if (issue.suggestion) {
+      }
+      
+      if (issue.suggestion) {
         comment += `**💡 How To Fix:** ${issue.suggestion}\n\n`;
-                }
-                
-                if (issue.example_fix) {
+      }
+      
+      if (issue.example_fix) {
         comment += `**✅ Corrected Code Example:**\n\`\`\`\n${issue.example_fix}\n\`\`\`\n`;
-                }
-                
-                comment += `---\n\n`;
-              });
+      }
+      
+      comment += `---\n\n`;
+    });
             }
             
             if (recommendedActions.length > 0) {
-              comment += `## 🎯 Recommended Actions\n\n`;
-              recommendedActions.forEach((action, index) => {
-                comment += `${index + 1}. ${action}\n`;
-              });
-              comment += `\n`;
+    comment += `## 🎯 Recommended Actions\n\n`;
+    recommendedActions.forEach((action, index) => {
+      comment += `${index + 1}. ${action}\n`;
+    });
+    comment += `\n`;
             }
             
             comment += `## 📊 Summary\n`;
             comment += `${reviewResults.summary}\n\n`;
             
             if (!passed) {
-              comment += `## 🚫 Next Steps\n`;
-              comment += `This pull request has been **BLOCKED** due to the issues identified above.\n\n`;
-              comment += `**To proceed:**\n`;
-              comment += `1. Review each issue listed above carefully\n`;
-              comment += `2. Make the necessary code changes\n`;
-              comment += `3. Test your changes locally\n`;
-              comment += `4. Push your fixes to trigger a new AI review\n\n`;
-              comment += `**Need help?** The AI review has provided detailed explanations and examples above.\n\n`;
+    comment += `## 🚫 Next Steps\n`;
+    comment += `This pull request has been **BLOCKED** due to the issues identified above.\n\n`;
+    comment += `**To proceed:**\n`;
+    comment += `1. Review each issue listed above carefully\n`;
+    comment += `2. Make the necessary code changes\n`;
+    comment += `3. Test your changes locally\n`;
+    comment += `4. Push your fixes to trigger a new AI review\n\n`;
+    comment += `**Need help?** The AI review has provided detailed explanations and examples above.\n\n`;
             } else {
-              comment += `## ✅ Approved\n`;
-              comment += `Great work! Your code changes look good and will proceed to the build stage.\n\n`;
+    comment += `## ✅ Approved\n`;
+    comment += `Great work! Your code changes look good and will proceed to the build stage.\n\n`;
             }
             
             comment += `---\n*🤖 AI Review powered by Gemini Pro 1.5 | CleverFerret Universal Build System*`;
             
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
+    issue_number: context.issue.number,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    body: comment
             });
 
   build-and-publish:
@@ -618,17 +618,17 @@ try:
             print(f'ISSUE {i}: {severity} - {category}')
             
             if issue.get('file'):
-                print(f'  📁 File: {issue[\"file\"]}')
+      print(f'  📁 File: {issue[\"file\"]}')
             if issue.get('line_numbers'):
-                print(f'  📍 Lines: {issue[\"line_numbers\"]}')
+      print(f'  📍 Lines: {issue[\"line_numbers\"]}')
             if issue.get('description'):
-                print(f'  ❓ Problem: {issue[\"description\"]}')
+      print(f'  ❓ Problem: {issue[\"description\"]}')
             if issue.get('why_problematic'):
-                print(f'  ⚠️  Why Problematic: {issue[\"why_problematic\"]}')
+      print(f'  ⚠️  Why Problematic: {issue[\"why_problematic\"]}')
             if issue.get('impact'):
-                print(f'  💥 Impact: {issue[\"impact\"]}')
+      print(f'  💥 Impact: {issue[\"impact\"]}')
             if issue.get('suggestion'):
-                print(f'  💡 Fix: {issue[\"suggestion\"]}')
+      print(f'  💡 Fix: {issue[\"suggestion\"]}')
             print()
     
     if 'build_risk_assessment' in results:
