@@ -159,6 +159,16 @@ graph TD
 
 ## 🛠️ Development Guide
 
+### Automated Build Workflows
+
+The project includes multiple CI/CD workflows for different purposes:
+
+*   **Comprehensive CI** (`android_ci.yml`): Full build, test, lint, and coverage analysis
+*   **Release Builds** (`release.yml`): Automated release builds when tags are pushed
+*   **Automated Build** (`automated-build.yml`): Quick builds using third-party automation
+
+For more details on the automated build workflow, see [AUTOMATED_BUILD.md](./AUTOMATED_BUILD.md).
+
 ### Project Structure
 
 ```
