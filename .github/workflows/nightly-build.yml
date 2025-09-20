@@ -1,4 +1,7 @@
-name: Nightly Build
+# Nightly Build - FIXED
+# Automated nightly builds with Universal Build System integration
+
+name: Nightly Build (Fixed)
 
 on:
   schedule:
@@ -9,6 +12,8 @@ on:
 env:
   JAVA_VERSION: '17'
   JAVA_DISTRIBUTION: 'temurin'
+  ANDROID_API_LEVEL: '34'
+  ANDROID_BUILD_TOOLS: '33.0.2'
 
 jobs:
   nightly-build:
@@ -29,9 +34,15 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
-        api-level: 34
-        build-tools: '34.0.0'
-        cmake-version: '3.22.1'
+        api-level: ${{ env.ANDROID_API_LEVEL }}
+        build-tools: ${{ env.ANDROID_BUILD_TOOLS }}
+        
+    - name: Accept Android SDK Licenses
+      run: |
+        SDKMANAGER_PATH="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+        if [[ -f "$SDKMANAGER_PATH" ]]; then
+          yes | "$SDKMANAGER_PATH" --licenses || true
+        fi
         
     - name: Cache Gradle packages
       uses: actions/cache@v4
@@ -57,30 +68,44 @@ jobs:
         
     - name: Build nightly APK
       run: |
-        # Modify version for nightly build
-        sed -i "s/versionName .*/versionName \"${{ steps.version.outputs.nightly-version }}\"/" CleverFerret/build.gradle.kts
-        ./gradlew assembleDebug
+        # Modify version for nightly build if build.gradle.kts exists
+        if [ -f "CleverFerret/build.gradle.kts" ]; then
+          sed -i "s/versionName .*/versionName \"${{ steps.version.outputs.nightly-version }}\"/" CleverFerret/build.gradle.kts || true
+        fi
+        
+        # Use Universal Build System if available
+        if [ -f "build-scripts/simple-build.sh" ]; then
+          chmod +x build-scripts/*.sh
+          ./build-scripts/simple-build.sh build debug
+        else
+          ./gradlew assembleDebug
+        fi
         
     - name: Rename nightly APK
       run: |
-        mv CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
-           CleverFerret/build/outputs/apk/debug/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk
+        # Find the debug APK
+        apk_file=$(find . -name "*debug*.apk" -type f | head -1)
+        if [ -n "$apk_file" ]; then
+          apk_dir=$(dirname "$apk_file")
+          mv "$apk_file" "$apk_dir/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk"
+          echo "APK renamed successfully"
+        else
+          echo "No debug APK found"
+          exit 1
+        fi
            
     - name: Upload nightly APK
       uses: actions/upload-artifact@v4
       with:
         name: nightly-apk-${{ steps.version.outputs.nightly-version }}
-        path: CleverFerret/build/outputs/apk/debug/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk
+        path: "**/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk"
         retention-days: 7
         
     - name: Create nightly release
-      uses: actions/create-release@v1
-      id: create_nightly_release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.version.outputs.nightly-version }}
-        release_name: CleverFerret Nightly ${{ steps.version.outputs.nightly-version }}
+        name: CleverFerret Nightly ${{ steps.version.outputs.nightly-version }}
         body: |
           # CleverFerret Nightly Build
           
@@ -102,16 +127,9 @@ jobs:
           For stable releases, use the main releases page.
         draft: false
         prerelease: true
-        
-    - name: Upload nightly APK to release
-      uses: actions/upload-release-asset@v1
+        files: "**/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_nightly_release.outputs.upload_url }}
-        asset_path: CleverFerret/build/outputs/apk/debug/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk
-        asset_name: CleverFerret-${{ steps.version.outputs.nightly-version }}.apk
-        asset_content_type: application/vnd.android.package-archive
         
     - name: Clean old nightly releases
       env:
