@@ -11,7 +11,7 @@ plugins {
 val androidToolsPropsFile = rootProject.file("gradle-android-tools.properties")
 val androidToolsProps = java.util.Properties()
 if (androidToolsPropsFile.exists()) {
-    androidToolsProps.load(androidToolsPropsFile.inputStream())
+    androidToolsPropsFile.inputStream().use { androidToolsProps.load(it) }
 }
 
 // Helper function to get android-tools property
