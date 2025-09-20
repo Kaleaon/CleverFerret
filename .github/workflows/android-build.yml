@@ -47,7 +47,7 @@ jobs:
         distribution: 'temurin'
         
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+      uses: android-actions/setup-android@v2
       with:
         api-level: 34
         build-tools: ${{ env.BUILD_TOOLS_VERSION }}
