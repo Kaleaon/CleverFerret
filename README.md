@@ -1,199 +1,395 @@
-<p align="center">
-  <img src="./logo.png" alt="CleverFerret logo" width="160">
-</p>
+# 🦫 CleverFerret Universal Media Library
 
-<h1 align="center">CleverFerret</h1>
+## 📖 Overview
 
-<p align="center">A comprehensive Universal Media Library for Android</p>
+CleverFerret is a comprehensive Universal Media Library Android application with **revolutionary multi-architecture build support**. This system automatically detects your development machine's architecture and configures the appropriate Android build tools, ensuring seamless compilation across **ARM64, x86_64, ARM32, and x86** architectures.
 
-## 1. High-Level Vision
+## 🏗️ Universal Build System
 
-CleverFerret is a fully self-contained, native Android application for managing a user's complete media library directly on their device. This includes books, comics, music, movies, podcasts, and more. The application features a modern, extensible, and user-friendly interface for organizing, viewing, and consuming all types of media, with powerful tools for metadata management.
+### Key Features
 
----
+- **🎯 Automatic Architecture Detection**: Detects host system architecture automatically
+- **🔧 Smart AAPT2 Configuration**: Uses architecture-specific AAPT2 binaries for optimal compatibility
+- **📱 Multi-Architecture APK Generation**: Builds APKs for all major Android architectures
+- **🚀 One-Click Building**: Single command builds across any machine architecture
+- **🛠️ Comprehensive Tooling**: Integrated diagnostics, testing, and build verification
 
-## 2. Core Principles
+### Supported Architectures
 
-*   **On-Device First:** The entire library and its database are managed on the user's device. No external server or desktop application is required.
-*   **Extensible by Design:** The database schema and application architecture are designed from the ground up to support a wide variety of media types.
-*   **User-Centric Metadata:** The user has full control over their metadata, with powerful tools for manual editing and automatic fetching from multiple online sources.
-*   **Modern Native UI:** The application is built with the latest Android technologies (Kotlin, Jetpack Compose, Material You).
-*   **Open Source:** The project is developed as a Free and Open Source Software (FOSS) project.
+| Host Architecture | Android ABI | AAPT2 Support | Status |
+|------------------|-------------|---------------|---------|
+| ARM64 (aarch64) | arm64-v8a | ✅ | Primary |
+| x86_64 (amd64) | x86_64 | ✅ | Primary |
+| ARM32 (armv7l) | armeabi-v7a | ✅ | Supported |
+| x86 (i386/i686) | x86 | ✅ | Supported |
 
----
-
-## 2.1. Current Status
-
-The project is currently in the early stages of development. The following features are implemented:
-
-*   **Core Database Layer:** A robust database layer built with **Room** to manage libraries, media items, and metadata.
-*   **Calibre Import:** A service to import book libraries from an existing Calibre `metadata.db` file.
-*   **Basic UI:** A simple user interface built with **Jetpack Compose** that allows users to view their libraries and the books within them.
-*   **Dependency Injection:** Using **Hilt** for dependency management.
-
----
-
-## 2.2. Getting Started (Developers)
+## 🚀 Quick Start
 
 ### Prerequisites
 
-*   Android Studio (latest version recommended)
-*   Java Development Kit (JDK) 17 or higher
+1. **Java 17+** (OpenJDK recommended)
+2. **Android SDK** with Platform 34 and Build Tools 33.0.2+
+3. **Git** (for cloning the repository)
 
-### Building the Project
+### Installation
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/Kaleaon/CleverFerret.git
-    ```
-2.  **Open the project in Android Studio.**
-3.  **Build the project:**
-    *   Use the "Build" menu in Android Studio (Build > Make Project).
-    *   Or run the following command in the terminal:
-        ```bash
-        ./gradlew clean assembleDebug
-        ```
-4.  **Run the application on an emulator or a physical device.**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd CleverFerret
+
+# Make build scripts executable
+chmod +x build-scripts/*.sh
+
+# Run system diagnostics
+./build-scripts/universal-build.sh info
+```
+
+### Building
+
+```bash
+# Quick build (detects architecture automatically)
+./build-scripts/universal-build.sh build
+
+# Full clean build
+./build-scripts/universal-build.sh full-build
+
+# Release build
+./build-scripts/universal-build.sh build release
+
+# Test environment
+./build-scripts/universal-build.sh test-env
+```
+
+## 🔧 Architecture System
+
+### How It Works
+
+1. **Architecture Detection**: The build system automatically detects your host machine's architecture
+2. **Tool Selection**: Selects the appropriate AAPT2 binary from the integrated android-tools repository
+3. **Cache Management**: Intelligently manages Gradle caches to use compatible binaries
+4. **APK Generation**: Builds APKs for all supported Android architectures
+
+### Android Tools Integration
+
+The project includes pre-compiled Android build tools from [JonForShort/android-tools](https://github.com/JonForShort/android-tools):
+
+```
+android-tools/
+├── build/
+│   ├── android-11.0.0_r33/    # Latest tools
+│   │   ├── aapt2/
+│   │   │   ├── arm64-v8a/bin/aapt2     # ARM64 binary
+│   │   │   ├── armeabi-v7a/bin/aapt2   # ARM32 binary
+│   │   │   ├── x86_64/bin/aapt2        # x86_64 binary
+│   │   │   └── x86/bin/aapt2           # x86 binary
+│   │   └── [other tools...]
+│   └── android-9.0.0_r33/     # Fallback tools
+└── README.md
+```
+
+### Build Process Flow
+
+```mermaid
+graph TD
+    A[Start Build] --> B[Detect Host Architecture]
+    B --> C[Select Compatible AAPT2]
+    C --> D[Configure Gradle Cache]
+    D --> E[Run Build Tasks]
+    E --> F[Generate Multi-Arch APKs]
+    F --> G[Verify & Report Results]
+```
+
+## 📱 Application Features
+
+### Core Functionality
+
+- **📚 eBook Library**: Support for EPUB, PDF, and text formats
+- **🎵 Music Player**: Advanced audio playback with metadata support
+- **🎬 Video Library**: Video file management and playback
+- **🎧 Podcast Manager**: Podcast subscription and playback
+- **📖 Calibre Integration**: Import and sync with Calibre libraries
+- **🔍 Universal Search**: Search across all media types
+- **🏷️ Smart Metadata**: Automatic metadata extraction and management
+
+### Technical Stack
+
+- **UI Framework**: Jetpack Compose with Material 3
+- **Architecture**: MVVM with Hilt dependency injection
+- **Database**: Room with SQLite
+- **Media Playback**: Media3 ExoPlayer
+- **Networking**: OkHttp3 with Kotlin Serialization
+- **File Processing**: Apache Commons, iText7, JSoup
+
+## 🛠️ Development Guide
 
 ### Project Structure
 
-The project is organized into the following main packages:
+```
+CleverFerret/
+├── android-tools/              # Multi-architecture build tools
+├── build-scripts/              # Universal build scripts
+├── buildSrc/                   # Gradle plugins and build logic
+├── CleverFerret/              # Main Android application
+│   ├── src/main/java/         # Kotlin source code
+│   ├── src/main/res/          # Android resources
+│   └── build.gradle.kts       # App build configuration
+├── docs/                      # Comprehensive documentation
+├── builds/                    # Generated APK files
+└── README.md                  # This file
+```
 
-*   `com.universalmedialibrary.data`: Contains all data-related classes, including Room entities, DAOs (Data Access Objects), and the database definition.
-*   `com.universalmedialibrary.di`: Contains the Hilt dependency injection modules.
-*   `com.universalmedialibrary.services`: Contains services for background tasks, such as the Calibre import service.
-*   `com.universalmedialibrary.ui`: Contains the Jetpack Compose UI code and ViewModels.
+### Build Commands
+
+#### Universal Build Script
+
+```bash
+# Show system information
+./build-scripts/universal-build.sh info
+
+# Test build environment
+./build-scripts/universal-build.sh test-env
+
+# Debug build
+./build-scripts/universal-build.sh build debug
+
+# Release build
+./build-scripts/universal-build.sh build release
+
+# Clean and build
+./build-scripts/universal-build.sh full-build
+
+# Clean only
+./build-scripts/universal-build.sh clean
+
+# Help
+./build-scripts/universal-build.sh help
+```
+
+#### Gradle Tasks
+
+```bash
+# Architecture information
+./gradlew architectureInfo
+
+# System diagnostics
+./gradlew diagnose
+
+# Configure android tools
+./gradlew configureAndroidTools
+
+# Build configuration info
+./gradlew logBuildConfig
+
+# Clean all
+./gradlew cleanAll
+```
+
+### Environment Setup
+
+#### Linux/macOS
+
+```bash
+# Install Java 17
+sudo apt install openjdk-17-jdk  # Ubuntu/Debian
+brew install openjdk@17          # macOS
+
+# Set JAVA_HOME
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Install Android SDK
+export ANDROID_HOME=/opt/android-sdk
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+```
+
+#### Windows
+
+```powershell
+# Install Java 17 (use installer from Oracle/OpenJDK)
+# Set environment variables
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+$env:ANDROID_HOME = "C:\Android\Sdk"
+$env:PATH += ";$env:ANDROID_HOME\cmdline-tools\latest\bin"
+```
+
+## 🧪 Testing
+
+### Automated Testing
+
+```bash
+# Run all tests
+./gradlew test
+
+# Run instrumented tests
+./gradlew connectedAndroidTest
+
+# Run specific test suite
+./gradlew testDebugUnitTest
+```
+
+### Manual Testing
+
+```bash
+# Install debug APK
+adb install -r builds/app-debug.apk
+
+# Install specific architecture
+adb install -r builds/app-arm64-v8a-debug.apk
+```
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Build Fails with "AAPT2 Process Failed"
+
+**Cause**: Incompatible AAPT2 binary for your architecture
+
+**Solution**:
+```bash
+# Clean and reconfigure
+./build-scripts/universal-build.sh clean
+./gradlew configureAndroidTools
+./build-scripts/universal-build.sh build
+```
+
+#### "Android Tools Not Found"
+
+**Cause**: android-tools directory missing
+
+**Solution**:
+```bash
+# Verify android-tools existence
+ls -la android-tools/
+./gradlew architectureInfo
+```
+
+#### "Java Version Not Supported"
+
+**Cause**: Java version < 17
+
+**Solution**:
+```bash
+# Check Java version
+java -version
+# Install Java 17+ and set JAVA_HOME
+```
+
+#### Memory Issues During Build
+
+**Cause**: Insufficient heap memory
+
+**Solution**:
+```bash
+# Set Gradle options
+export GRADLE_OPTS="-Xmx4g -XX:MaxMetaspaceSize=1g"
+```
+
+### Diagnostic Commands
+
+```bash
+# Comprehensive system check
+./gradlew diagnose
+
+# Architecture detection test
+./build-scripts/universal-build.sh info
+
+# Build environment test
+./build-scripts/universal-build.sh test-env
+
+# Gradle configuration check
+./gradlew architectureInfo
+```
+
+## 📚 Documentation
+
+### Comprehensive Guides
+
+- [**Build System Architecture**](docs/BUILD_SYSTEM.md) - Deep dive into the universal build system
+- [**Android Tools Integration**](docs/ANDROID_TOOLS.md) - How android-tools are integrated
+- [**Multi-Architecture Support**](docs/MULTI_ARCH.md) - Architecture compatibility details
+- [**Troubleshooting Guide**](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [**Development Setup**](docs/DEVELOPMENT.md) - Setting up development environment
+- [**API Documentation**](docs/API.md) - Application architecture and APIs
+
+### Architecture Documentation
+
+- [**Application Architecture**](docs/architecture/APPLICATION.md)
+- [**Build System Design**](docs/architecture/BUILD_SYSTEM.md)
+- [**Database Schema**](docs/architecture/DATABASE.md)
+- [**Media Processing Pipeline**](docs/architecture/MEDIA_PIPELINE.md)
+
+## 🤝 Contributing
+
+### Development Workflow
+
+1. **Fork and Clone**
+   ```bash
+   git clone <your-fork-url>
+   cd CleverFerret
+   ```
+
+2. **Setup Environment**
+   ```bash
+   ./build-scripts/universal-build.sh test-env
+   ```
+
+3. **Make Changes**
+   - Follow existing code patterns
+   - Add tests for new features
+   - Update documentation
+
+4. **Test Thoroughly**
+   ```bash
+   ./build-scripts/universal-build.sh full-build
+   ./gradlew test
+   ```
+
+5. **Submit Pull Request**
+   - Clear description of changes
+   - Include test results
+   - Update documentation if needed
+
+### Code Style
+
+- **Kotlin**: Follow official Kotlin coding conventions
+- **Comments**: Document complex logic and architecture decisions
+- **Testing**: Unit tests for business logic, integration tests for components
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+The integrated android-tools are licensed under Apache 2.0 from the original [android-tools repository](https://github.com/JonForShort/android-tools).
+
+## 🙏 Acknowledgments
+
+- **JonForShort/android-tools** - Pre-compiled Android build tools for multiple architectures
+- **Android Open Source Project** - Core Android development tools
+- **Gradle Team** - Build automation system
+- **Jetpack Compose Team** - Modern Android UI toolkit
+
+## 📞 Support
+
+### Getting Help
+
+1. **Check Documentation**: Start with this README and the docs/ directory
+2. **Run Diagnostics**: Use `./gradlew diagnose` for system analysis
+3. **Search Issues**: Check existing GitHub issues
+4. **Create Issue**: Provide system info and error logs
+
+### System Information Template
+
+When reporting issues, include:
+
+```bash
+# Run this command and include output
+./gradlew diagnose
+./build-scripts/universal-build.sh info
+```
 
 ---
 
-## 3. Research Summary & Final Architecture (REVISED)
+**🦫 CleverFerret - Universal Media Library with Universal Build Support**
 
-An extensive research and planning phase was conducted to determine the best architecture and components for this project. This section reflects the **revised architecture** based on our detailed investigation.
-
-### Final Proposed Architecture (On-Device)
-
-The project direction has been finalized. A **fully self-contained, on-device application is feasible**. This architecture does not require a separate computer or server.
-
-1.  **Core Concept:** The application will be a native Android app that directly reads and manages a user's media library, which will be stored on the device's local storage.
-
-2.  **Database Layer:** A new data layer will be built in **Kotlin** using standard Android SQLite libraries. It will be responsible for all database operations based on a custom, extensible schema designed for multiple media types. This layer will also handle the **advanced import and data cleaning of Calibre `metadata.db` files**.
-
-3.  **Reader Component (epub4j):**
-    *   The app will use the **`epub4j`** library as its core engine for parsing and handling e-book files.
-    *   **License:** This library is licensed under the permissive **Apache 2.0 license**, which aligns with our project's FOSS goals without the restrictions of AGPL.
-    *   **Feature Benchmark:** The feature set of **Moon+ Reader** will still be used as a benchmark for the quality and customization options to be built for the reading experience.
-
-4.  **Audio Component (AntennaPod Model):**
-    *   A dedicated audio player for music and audiobooks will be built, using the architecture of the **AntennaPod** project as a blueprint.
-
-5.  **Video Component (ExoPlayer or libvlc):**
-    *   The app will use a robust video playback engine. The default choice is **AndroidX Media3 (ExoPlayer)**.
-
-6.  **UI/UX (Jetpack Compose & Material You):**
-    *   The UI will be a modern, native Android interface built with **Kotlin** and **Jetpack Compose**.
-    *   The design will be inspired by **`book-story`** (for its Material You aesthetic) and **`Plexoid`** (for its multi-library organizational concepts).
-
-### Advanced Metadata Strategy
-
-The application will feature a powerful, multi-layered strategy for metadata.
-
-1.  **Automated Metadata Correction:**
-    *   **OCR on Covers:** The app will use **Google's ML Kit Text Recognition** (Apache 2.0 license) to perform OCR on book covers to identify and correct titles and authors.
-    *   **Text Analysis:** The app will use the **Apache OpenNLP** library (Apache 2.0 license) to perform Named Entity Recognition (NER) on the first few pages of e-books to programmatically identify and correct metadata.
-
-2.  **Manual Metadata Editing:**
-    *   A dedicated UI will be built to allow users to manually edit all metadata fields. This screen will show a "before and after" comparison when automated corrections are applied, giving the user full control.
-
-3.  **External Metadata Sources:**
-    *   The app will enrich its library by fetching data from a wide range of sources:
-        *   **Books:** Open Library API, **Google Books API**, **Hardcover API**.
-        *   **Comics:** ComicVine API.
-        *   **Audiobooks:** OverDrive API.
-        *   **Movies/TV:** The Movie Database (TMDB) API, **OMDb API**.
-        *   **Music:** MusicBrainz API, **Spotify Web API**.
-
-4.  **Embedded Metadata Tooling:**
-    *   **Reading:** The app will prioritize using standard Android libraries like `MediaMetadataRetriever` (for audio/video) and `ExifInterface` (for images) for reading embedded tags.
-    *   **Writing:** For writing metadata, the app will use `ExifInterface` for images. For audio and video, specialized libraries will be chosen during implementation to ensure robust tag writing capabilities.
-
-### Content Creation Features
-
-The application will include features to create new content from external sources.
-
-*   **News-to-Epub:** A feature to download news from various sources and format it into a `.epub` file.
-*   **Fanfic-to-Epub:** A feature to download fanfiction from popular archives and format it into a `.epub` file.
-
----
-
-## 4. Development Plan (REVISED)
-
-### Phase 1: Foundational Research & Component Selection (COMPLETE)
-*   E-Reader Component Investigation (Completed: `epub4j`)
-*   Data Correction Technology Research (Completed: ML Kit & OpenNLP)
-*   Expanded Metadata Source Research (Completed: New APIs identified)
-
-### Phase 2: Architecture & Core Data Model (COMPLETE)
-1.  **System Architecture Design:** Update `README.md` and `RESOURCES.md` to reflect the new architecture.
-2.  **Advanced Database Schema and Import Logic:** Design the detailed SQLite schema and the logic for the Calibre import and data cleaning.
-3.  **Design Manual Metadata Editing UI:** Create mockups and specifications for the metadata editing screen.
-
-### Phase 3: Implementation (IN PROGRESS)
-1.  **Implement Core Data Layer:** Build the database and the Calibre importer.
-2.  **Implement "Content-to-Epub" Features:** Build the news and fanfiction downloaders.
-3.  **Integrate Media Viewers & Players:** Integrate `epub4j` and build the audio/video players.
-4.  **Build the User Interface:** Build the main library screens and the manual metadata editor.
-
-### Phase 4: Testing and Polish
-*   Perform end-to-end testing, paying special attention to the performance of `epub4j` and the accuracy of the data correction engine.
-*   Refine the UI and user experience.
-
----
-
-## 5. Feature Roadmap (Inspired by Moon+ Reader)
-
-The following features, inspired by the best-in-class Moon+ Reader Pro, should be considered as a long-term guide for implementation to ensure a competitive and full-featured application.
-
-### Reading & Customization
-- **Deep Visual Controls:** Line space, font scale, bold, italic, shadow, alpha colors, fading edge.
-- **Theming:** Multiple embedded themes, including a Day/Night mode switcher.
-- **Advanced Paging:** Support for touch screen, volume keys, and other hardware keys. Highly customizable gestures and key mappings.
-- **Auto-Scroll:** Multiple modes (rolling blind, by pixel, by line, by page) with real-time speed control.
-- **Ergonomics:** Brightness control via screen edge gestures; "Keep your eyes health" options for long reading sessions.
-- **Page Effects:** Realistic page-turning animations.
-- **Layout:** Justified text alignment, hyphenation mode, and dual-page mode for landscape.
-- **EPUB3 Support:** Handle multimedia content (video and audio) embedded in ePub files.
-
-### Library & Data Management
-- **Bookshelf Design:** Advanced library organization with Favorites, Downloads, Authors, and Tags. Support for custom book covers.
-- **Cloud Sync:** Backup and restore settings, reading positions, highlights, and notes to cloud services (e.g., Dropbox, WebDav).
-- **Widgets:** Home screen widgets for displaying a "shelf" of favorite books.
-
-### In-Reader Tools
-- **Annotations:** Support for highlighting and annotating text.
-- **Dictionary:** Offline and online dictionary integration.
-- **Translation:** Integration with translation services.
-- **Sharing:** Ability to share snippets, highlights, and notes.
-- **Reading Ruler:** A tool to help focus reading on a specific line.
-
-### Pro-Tier Features
-- **Text-to-Speech (TTS):** "Shake to speak" or other easy-access TTS controls.
-- **Advanced PDF:** High-performance PDF rendering with annotation support.
-- **Security:** Option for password protection at startup.
-- **Shortcuts:** "Book to home screen" shortcut creation.
-
----
-
-## 📋 Project Documentation & Planning
-
-### 🗺️ Development Roadmap
-See **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)** for complete development status, organized issue tracking, and project timeline.
-
-### 📚 Documentation
-- **[docs/README.md](docs/README.md)** - Complete documentation index
-- **[issues/](issues/)** - Structured development issues (32 total)
-- **Core Documentation:** [INSTALL.md](INSTALL.md), [RELEASE.md](RELEASE.md), [RESOURCES.md](RESOURCES.md)
-
-### ⚠️ Current Status
-**BUILD STATUS**: 🚨 **Failing** - Critical dependency and compilation issues need resolution before development can continue.  
-See [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md#-known-issues) for details.
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Kaleaon/CleverFerret?utm_source=oss&utm_medium=github&utm_campaign=Kaleaon%2FCleverFerret&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+*Build once, run everywhere. Develop anywhere, deploy everywhere.*

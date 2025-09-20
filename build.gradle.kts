@@ -8,15 +8,6 @@ plugins {
 // Apply Android Tools Plugin
 apply<AndroidToolsPlugin>()
 
-// Configure all projects
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
 // Architecture Detection and Configuration
 val hostArchitecture by lazy {
     val osArch = System.getProperty("os.arch").lowercase()
@@ -35,7 +26,7 @@ extra.apply {
     set("androidToolsConfigured", true)
 }
 
-println("🏗️ CleverFerret Build System")
+println("🏗️ CleverFerret Universal Build System")
 println("📱 Host Architecture: $hostArchitecture")
 println("🔧 Android Tools: ${if (file("android-tools").exists()) "Available" else "Not Available"}")
 
@@ -91,5 +82,50 @@ tasks.register("architectureInfo") {
             println("Android Tools: ❌ Not Available")
         }
         println()
+    }
+}
+
+// Diagnostic task
+tasks.register("diagnose") {
+    description = "Run comprehensive system diagnostics"
+    group = "help"
+    
+    doLast {
+        println("\n🔍 CLEVERFERRET SYSTEM DIAGNOSTICS")
+        println("==================================")
+        
+        // Java diagnostics
+        println("\n☕ JAVA ENVIRONMENT")
+        println("Java Home: ${System.getProperty("java.home")}")
+        println("Java Version: ${System.getProperty("java.version")}")
+        println("Java Vendor: ${System.getProperty("java.vendor")}")
+        
+        // System diagnostics
+        println("\n💻 SYSTEM ENVIRONMENT")
+        println("OS: ${System.getProperty("os.name")} ${System.getProperty("os.version")}")
+        println("Architecture: ${System.getProperty("os.arch")}")
+        println("Available Processors: ${Runtime.getRuntime().availableProcessors()}")
+        println("Max Memory: ${Runtime.getRuntime().maxMemory() / 1024 / 1024} MB")
+        
+        // Android SDK diagnostics
+        val androidHome = System.getenv("ANDROID_HOME")
+        println("\n📱 ANDROID SDK")
+        if (androidHome != null) {
+            println("ANDROID_HOME: $androidHome")
+            val platformTools = file("$androidHome/platform-tools")
+            val buildTools = file("$androidHome/build-tools")
+            println("Platform Tools: ${if (platformTools.exists()) "✅" else "❌"}")
+            println("Build Tools: ${if (buildTools.exists()) "✅" else "❌"}")
+        } else {
+            println("ANDROID_HOME: ❌ Not Set")
+        }
+        
+        // Gradle diagnostics
+        println("\n⚙️ GRADLE ENVIRONMENT")
+        println("Gradle Version: ${gradle.gradleVersion}")
+        println("Gradle Home: ${gradle.gradleHomeDir}")
+        println("Project Directory: ${project.rootDir}")
+        
+        println("\n✅ Diagnostics complete")
     }
 }
