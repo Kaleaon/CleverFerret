@@ -83,9 +83,9 @@ def analyze_code_changes():
         # Read changed files
         try:
             with open('changed_files.txt', 'r') as f:
-      changed_files = f.read().strip()
+                changed_files = f.read().strip()
             with open('diff.txt', 'r') as f:
-      diff_content = f.read()
+                diff_content = f.read()
         except FileNotFoundError:
             print("No changes detected")
             return {"passed": True, "score": 100, "issues": []}
