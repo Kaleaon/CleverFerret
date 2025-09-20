@@ -99,7 +99,7 @@ main() {
     case "$action" in
         "info")
             echo "Architecture: $(detect_arch)"
-            echo "Android Tools: $([ -d android-tools ] && echo "Available" || echo "Missing")"
+            echo "Modern Android Tools: $([ -d modern-android-tools ] && echo "Available" || echo "Missing")"
             ;;
         "fix")
             setup_env
