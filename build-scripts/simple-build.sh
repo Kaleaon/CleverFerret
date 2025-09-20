@@ -34,7 +34,16 @@ fix_aapt2() {
     log_info "Fixing AAPT2 for architecture: $arch"
     
     # Find compatible AAPT2
-    local aapt2_source="$PROJECT_ROOT/modern-android-tools/termux-aapt/prebuilt-binary/$arch/aapt2"
+    # Map architecture names for modern tools
+    local modern_arch="$arch"
+    case "$arch" in
+        "arm64-v8a") modern_arch="arm64" ;;
+        "armeabi-v7a") modern_arch="armeabi-v7a" ;;
+        "x86_64") modern_arch="x86_64" ;;
+        "x86") modern_arch="x86" ;;
+    esac
+    
+    local aapt2_source="$PROJECT_ROOT/modern-android-tools/termux-aapt/prebuilt-binary/$modern_arch/aapt2"
     
     if [[ ! -f "$aapt2_source" ]]; then
         log_error "AAPT2 not found for $arch"
