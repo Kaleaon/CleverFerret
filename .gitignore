@@ -155,3 +155,11 @@ pwa-demo/yarn-error.log*
 .jules/temp/
 .jules/cache/
 .jules/logs/
+-e 
+# Environment files
+*.env
+*.env.*
+-e 
+# Environment files
+*.env
+*.env.*
