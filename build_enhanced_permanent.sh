@@ -24,7 +24,33 @@
 echo "🚀 CleverFerret Enhanced Build - AI-Friendly Version"
 echo "===================================================="
 
-# Set environment variables
+# AI-FRIENDLY: Color codes for clear output interpretation
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m' # No Color
+
+# AI-FRIENDLY: Logging functions with consistent format
+log_info() {
+    echo -e "${BLUE}[BUILD]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} ✅ $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} ⚠️  $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} ❌ $1"
+}
+
+# AI-FRIENDLY: Set environment variables with validation
+log_info "Setting up build environment..."
+
 export ANDROID_HOME=/opt/android-sdk
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2
 export JAVA_HOME=${JAVA_HOME:-$(readlink -f /usr/bin/java | sed "s:bin/java::")}
