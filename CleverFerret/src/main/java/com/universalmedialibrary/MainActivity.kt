@@ -124,16 +124,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                // Android 11+ - Use SAF instead of All Files Access
-                // Request media permissions but rely on SAF for document access
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                    permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
-                }
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
-                    permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
-                }
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    permissions.add(Manifest.permission.READ_MEDIA_AUDIO)
+                // Android 11-12 - Use legacy storage permissions
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
                 }
             }
             else -> {
