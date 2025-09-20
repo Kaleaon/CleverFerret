@@ -126,7 +126,6 @@ show_system_info() {
                     fi
                 done
             fi
-        done
     else
         log_warning "Android Tools: Not Available"
     fi
