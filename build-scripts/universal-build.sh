@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Universal CleverFerret Build Script
-# Automatically detects architecture and builds with appropriate android-tools
+# Automatically detects architecture and builds with modern ARM64-compatible tools
 
 set -e
 
