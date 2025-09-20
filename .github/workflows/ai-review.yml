@@ -79,20 +79,20 @@ def analyze_code_changes():
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             provider='gemini'
         )
-                  
-                  # Read changed files
-                  try:
-                      with open('changed_files.txt', 'r') as f:
-                          changed_files = f.read().strip()
-                      with open('diff.txt', 'r') as f:
-                          diff_content = f.read()
-                  except FileNotFoundError:
-                      print("No changes detected")
-                      return {"passed": True, "score": 100, "issues": []}
-                  
-                  if not changed_files.strip():
-                      print("No files changed")
-                      return {"passed": True, "score": 100, "issues": []}
+        
+        # Read changed files
+        try:
+            with open('changed_files.txt', 'r') as f:
+                changed_files = f.read().strip()
+            with open('diff.txt', 'r') as f:
+                diff_content = f.read()
+        except FileNotFoundError:
+            print("No changes detected")
+            return {"passed": True, "score": 100, "issues": []}
+        
+        if not changed_files.strip():
+            print("No files changed")
+            return {"passed": True, "score": 100, "issues": []}
                   
                   # Prepare AI review prompt
                   review_prompt = f"""
