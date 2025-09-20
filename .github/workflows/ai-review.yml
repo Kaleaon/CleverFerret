@@ -1,5 +1,12 @@
 name: AI Code Review & Auto-Build
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: write
+  statuses: write
+
 on:
   push:
     branches: [main, develop]
