@@ -6,17 +6,22 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
-// Android Tools Integration
-// Load android-tools configuration if available
-val androidToolsPropsFile = rootProject.file("gradle-android-tools.properties")
-val androidToolsProps = java.util.Properties()
-if (androidToolsPropsFile.exists()) {
-    androidToolsPropsFile.inputStream().use { androidToolsProps.load(it) }
-}
-
-// Helper function to get android-tools property
+// Helper function to get android-tools property from file
 fun getAndroidToolsProperty(key: String, defaultValue: String = ""): String {
-    return androidToolsProps.getProperty(key) ?: defaultValue
+    val propsFile = rootProject.file("gradle-android-tools.properties")
+    if (propsFile.exists()) {
+        try {
+            val content = propsFile.readText()
+            content.lines().forEach { line ->
+                if (line.startsWith("$key=")) {
+                    return line.substringAfter("=")
+                }
+            }
+        } catch (e: Exception) {
+            // Ignore errors and return default
+        }
+    }
+    return defaultValue
 }
 
 android {
