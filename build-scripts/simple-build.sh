@@ -34,7 +34,7 @@ fix_aapt2() {
     log_info "Fixing AAPT2 for architecture: $arch"
     
     # Find compatible AAPT2
-    local aapt2_source="$PROJECT_ROOT/android-tools/build/android-11.0.0_r33/aapt2/$arch/bin/aapt2"
+    local aapt2_source="$PROJECT_ROOT/modern-android-tools/termux-aapt/prebuilt-binary/$arch/aapt2"
     
     if [[ ! -f "$aapt2_source" ]]; then
         log_error "AAPT2 not found for $arch"
