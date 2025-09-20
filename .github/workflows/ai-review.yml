@@ -93,42 +93,42 @@ def analyze_code_changes():
         if not changed_files.strip():
             print("No files changed")
             return {"passed": True, "score": 100, "issues": []}
-                  
-                  # Prepare AI review prompt
-                  review_prompt = f"""
-                  You are an expert Android developer and code reviewer for the CleverFerret Universal Media Library project.
-                  
-                  Please analyze the following code changes and provide a comprehensive review focusing on:
-                  
-                  1. **Build Safety**: Will these changes break the Universal Build System or Gradle configuration?
-                  2. **Architecture Compatibility**: Do changes maintain multi-architecture support (x86, ARM64, etc.)?
-                  3. **Code Quality**: Are there syntax errors, missing imports, or Android best practices violations?
-                  4. **Integration Safety**: Will AI tools, android-tools integration, or dependency injection remain intact?
-                  
-                  **Changed Files:**
-                  {changed_files}
-                  
-                  **Code Diff:**
-                  {diff_content[:8000]}  # Limit to prevent token overflow
-                  
-                  Respond in JSON format:
-                  {{
-                    "passed": true/false,
-                    "score": 0-100,
-                    "issues": [
-                      {{
-                        "severity": "error/warning/info",
-                        "category": "build/architecture/code/integration",
-                        "file": "filename",
-                        "description": "Issue description",
-                        "suggestion": "How to fix"
-                      }}
-                    ],
-                    "summary": "Overall assessment"
-                  }}
-                  
-                  CRITICAL: Return "passed": false for any issues that could break the build or runtime functionality.
-                  """
+        
+        # Prepare AI review prompt
+        review_prompt = f"""
+        You are an expert Android developer and code reviewer for the CleverFerret Universal Media Library project.
+        
+        Please analyze the following code changes and provide a comprehensive review focusing on:
+        
+        1. **Build Safety**: Will these changes break the Universal Build System or Gradle configuration?
+        2. **Architecture Compatibility**: Do changes maintain multi-architecture support (x86, ARM64, etc.)?
+        3. **Code Quality**: Are there syntax errors, missing imports, or Android best practices violations?
+        4. **Integration Safety**: Will AI tools, android-tools integration, or dependency injection remain intact?
+        
+        **Changed Files:**
+        {changed_files}
+        
+        **Code Diff:**
+        {diff_content[:8000]}  # Limit to prevent token overflow
+        
+        Respond in JSON format:
+        {{
+          "passed": true/false,
+          "score": 0-100,
+          "issues": [
+            {{
+              "severity": "error/warning/info",
+              "category": "build/architecture/code/integration",
+              "file": "filename",
+              "description": "Issue description",
+              "suggestion": "How to fix"
+            }}
+          ],
+          "summary": "Overall assessment"
+        }}
+        
+        CRITICAL: Return "passed": false for any issues that could break the build or runtime functionality.
+        """
                   
                   response = llm.chat.completions.create(
                       model="gemini-1.5-pro",
