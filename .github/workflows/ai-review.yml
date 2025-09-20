@@ -438,7 +438,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            android-tools/
+            modern-android-tools/
           key: ai-build-${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}
 
       - name: Make scripts executable
