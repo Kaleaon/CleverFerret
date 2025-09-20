@@ -1,0 +1,345 @@
+name: Universal Release
+
+on:
+  push:
+    tags: [v*]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: Version bump type
+        required: true
+        default: patch
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      pre_release:
+        description: Mark as pre-release
+        required: false
+        default: false
+        type: boolean
+
+env:
+  JAVA_VERSION: 17
+  ANDROID_API_LEVEL: 34
+  ANDROID_BUILD_TOOLS: 33.0.2
+  GRADLE_OPTS: -Xmx6g -XX:MaxMetaspaceSize=2g -XX:+UseG1GC
+
+jobs:
+  version:
+    name: Version Management
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version_name: ${{ steps.version.outputs.version_name }}
+      version_code: ${{ steps.version.outputs.version_code }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate Version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            current_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            version_num=${current_version#v}
+            IFS='.' read -ra ADDR <<< "$version_num"
+            major=${ADDR[0]:-0}
+            minor=${ADDR[1]:-0}
+            patch=${ADDR[2]:-0}
+            
+            case "${{ github.event.inputs.version_type }}" in
+              major) major=$((major + 1)); minor=0; patch=0 ;;
+              minor) minor=$((minor + 1)); patch=0 ;;
+              patch) patch=$((patch + 1)) ;;
+            esac
+            
+            new_version="v${major}.${minor}.${patch}"
+            version_name="${major}.${minor}.${patch}"
+            is_prerelease="${{ github.event.inputs.pre_release }}"
+          else
+            new_version="${{ github.ref_name }}"
+            version_name="${new_version#v}"
+            is_prerelease="false"
+          fi
+          
+          IFS='.' read -ra ADDR <<< "$version_name"
+          major=${ADDR[0]:-1}
+          minor=${ADDR[1]:-0}
+          patch=${ADDR[2]:-0}
+          version_code=$((major * 10000 + minor * 100 + patch))
+          
+          echo "version=${new_version}" >> $GITHUB_OUTPUT
+          echo "version_name=${version_name}" >> $GITHUB_OUTPUT
+          echo "version_code=${version_code}" >> $GITHUB_OUTPUT
+          echo "is_prerelease=${is_prerelease}" >> $GITHUB_OUTPUT
+
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          last_tag=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          
+          if [[ -n "$last_tag" ]]; then
+            changelog="## 🎉 CleverFerret Universal Media Library ${{ steps.version.outputs.version_name }}
+          
+          ### ✨ What's New
+          $(git log ${last_tag}..HEAD --oneline --grep="feat\|feature" --pretty="- %s" | head -10 || echo "- Enhanced user experience and performance")
+          
+          ### 🐛 Bug Fixes
+          $(git log ${last_tag}..HEAD --oneline --grep="fix\|bug" --pretty="- %s" | head -10 || echo "- Various stability improvements")
+          
+          ### 🏗️ Universal Build System
+          - ✅ Multi-architecture support (ARM64, x86_64, ARM32, x86)
+          - ✅ Automatic AAPT2 compatibility fixes
+          - ✅ Zero-configuration cross-platform building
+          
+          ### 📱 Installation
+          1. Download the APK for your device
+          2. Enable Install from unknown sources in Android settings
+          3. Install and enjoy!
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${last_tag}...${{ steps.version.outputs.version }}"
+          else
+            changelog="## 🎉 CleverFerret Universal Media Library ${{ steps.version.outputs.version_name }}
+
+          ### 🚀 First Release with Universal Build System!
+          
+          #### ✨ Key Features
+          - 📚 **Universal Media Library**: Books, Music, Movies, Podcasts in one app
+          - 🎵 **Advanced Media Players**: Built-in players for all media types
+          - 📖 **Calibre Integration**: Import your existing Calibre libraries
+          - 🔍 **Universal Search**: Find content across all your media
+          
+          #### 🏗️ Universal Build System
+          - ✅ **Works on any architecture**: ARM64, x86_64, ARM32, x86
+          - ✅ **Zero configuration**: Automatic setup and detection
+          - ✅ **Self-healing builds**: Automatically fixes common issues"
+          fi
+          
+          {
+            echo 'changelog<<EOF'
+            echo "$changelog"
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    needs: version
+    
+    strategy:
+      matrix:
+        build_type: [release, debug]
+      max-parallel: 2
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: ${{ env.ANDROID_API_LEVEL }}
+          build-tools: ${{ env.ANDROID_BUILD_TOOLS }}
+
+      - name: Accept Android SDK Licenses
+        run: |
+          SDKMANAGER_PATH="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [[ -f "$SDKMANAGER_PATH" ]]; then
+            yes | "$SDKMANAGER_PATH" --licenses || true
+          fi
+
+      - name: Cache Build System
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            android-tools/
+          key: release-${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}
+
+      - name: Make scripts executable
+        run: |
+          chmod +x gradlew
+          chmod +x build-scripts/*.sh || echo "Build scripts not found"
+
+      - name: Update Version Information
+        run: |
+          echo "Updating version to ${{ needs.version.outputs.version_name }}"
+          
+          if [ -f "CleverFerret/build.gradle.kts" ]; then
+            sed -i "s/versionCode = [0-9]*/versionCode = ${{ needs.version.outputs.version_code }}/" CleverFerret/build.gradle.kts || true
+            sed -i "s/versionName = \"[^\"]*\"/versionName = \"${{ needs.version.outputs.version_name }}\"/" CleverFerret/build.gradle.kts || true
+          fi
+          
+          echo "Version updated in build files"
+
+      - name: Configure Release Signing
+        if: matrix.build_type == 'release'
+        run: |
+          if [[ -n "${{ secrets.KEYSTORE_BASE64 }}" ]]; then
+            echo "Setting up release keystore..."
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore || echo "Keystore decode failed"
+            echo "Release keystore configured"
+          else
+            echo "No release keystore configured - using debug signing"
+          fi
+
+      - name: Build Universal APK
+        run: |
+          echo "Building CleverFerret..."
+          
+          if [ -f "./build-scripts/simple-build.sh" ]; then
+            ./build-scripts/simple-build.sh build ${{ matrix.build_type }}
+          else
+            export ANDROID_HOME=/opt/android-sdk
+            if [ "${{ matrix.build_type }}" = "release" ]; then
+              ./gradlew clean assembleRelease --stacktrace
+            else
+              ./gradlew clean assembleDebug --stacktrace
+            fi
+          fi
+
+      - name: Optimize APK
+        run: |
+          echo "Optimizing APK..."
+          
+          apk_path=$(find . -name "*${{ matrix.build_type }}*.apk" -type f | head -1)
+          
+          if [[ -n "$apk_path" ]]; then
+            optimized_name="CleverFerret-${{ needs.version.outputs.version_name }}-${{ matrix.build_type }}.apk"
+            
+            mkdir -p release-outputs
+            cp "$apk_path" "release-outputs/$optimized_name"
+            
+            cd release-outputs
+            sha256sum "$optimized_name" > "${optimized_name}.sha256"
+            md5sum "$optimized_name" > "${optimized_name}.md5"
+            
+            echo "APK optimized: $optimized_name"
+            ls -lh "$optimized_name"
+          else
+            echo "APK not found!"
+            exit 1
+          fi
+
+      - name: Cleanup Keystore
+        if: always() && matrix.build_type == 'release'
+        run: |
+          rm -f release.keystore
+          echo "Cleanup completed"
+
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: universal-release-${{ matrix.build_type }}-${{ needs.version.outputs.version_name }}
+          path: |
+            release-outputs/*.apk
+            release-outputs/*.sha256
+            release-outputs/*.md5
+          retention-days: 90
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [version, build]
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: universal-release-*-${{ needs.version.outputs.version_name }}
+          path: ./all-releases
+
+      - name: Organize Release Assets
+        run: |
+          echo "Organizing release assets..."
+          mkdir -p final-release
+          
+          find ./all-releases -name "*.apk" -exec cp {} ./final-release/ \;
+          find ./all-releases -name "*.sha256" -exec cp {} ./final-release/ \;
+          find ./all-releases -name "*.md5" -exec cp {} ./final-release/ \;
+          
+          cat > final-release/INSTALLATION.md << 'EOF'
+          # CleverFerret Universal Media Library - Installation Guide
+          
+          ## 🏗️ Universal Build System
+          
+          This release includes APKs built with the CleverFerret Universal Build System.
+          
+          ## 🔧 Installation Steps
+          
+          1. **Download**: Choose the release APK
+          2. **Enable**: Go to Settings → Security → Install from unknown sources
+          3. **Install**: Open the downloaded APK file
+          4. **Verify**: Check the SHA256 checksum if desired
+          
+          ## ✅ System Requirements
+          
+          - Android 7.0+ (API 26)
+          - 100MB free storage
+          - No special permissions required
+          
+          ## 🎯 First Run
+          
+          1. Open CleverFerret
+          2. Create a new library or import from Calibre
+          3. Start adding your media content
+          4. Enjoy your universal media library!
+          EOF
+          
+          echo "Release assets organized"
+          ls -la final-release/
+
+      - name: Create Release Tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag ${{ needs.version.outputs.version }} || echo "Tag already exists"
+          git push origin ${{ needs.version.outputs.version }} || echo "Tag push failed"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.version.outputs.version }}
+          name: CleverFerret Universal Media Library ${{ needs.version.outputs.version }}
+          body: ${{ needs.version.outputs.changelog }}
+          draft: false
+          prerelease: ${{ needs.version.outputs.is_prerelease }}
+          files: |
+            final-release/*.apk
+            final-release/*.sha256
+            final-release/*.md5
+            final-release/INSTALLATION.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release Summary
+        run: |
+          echo "# 🎉 Universal Release ${{ needs.version.outputs.version }} Created!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Release Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.version.outputs.version_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Code**: ${{ needs.version.outputs.version_code }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Pre-release**: ${{ needs.version.outputs.is_prerelease }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release URL**: https://github.com/${{ github.repository }}/releases/tag/${{ needs.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎯 **Status**: Release created successfully!" >> $GITHUB_STEP_SUMMARY

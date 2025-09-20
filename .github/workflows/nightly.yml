@@ -1,0 +1,134 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: 17
+  ANDROID_API_LEVEL: 34
+  ANDROID_BUILD_TOOLS: 33.0.2
+
+jobs:
+  nightly:
+    name: Nightly Build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: temurin
+        
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: ${{ env.ANDROID_API_LEVEL }}
+        build-tools: ${{ env.ANDROID_BUILD_TOOLS }}
+        
+    - name: Accept Android SDK Licenses
+      run: |
+        SDKMANAGER_PATH="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+        if [[ -f "$SDKMANAGER_PATH" ]]; then
+          yes | "$SDKMANAGER_PATH" --licenses || true
+        fi
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Generate nightly version
+      id: version
+      run: |
+        DATE=$(date +'%Y%m%d')
+        COMMIT_SHORT=$(git rev-parse --short HEAD)
+        NIGHTLY_VERSION="nightly-${DATE}-${COMMIT_SHORT}"
+        echo "nightly-version=$NIGHTLY_VERSION" >> $GITHUB_OUTPUT
+        echo "Nightly version: $NIGHTLY_VERSION"
+        
+    - name: Build nightly APK
+      run: |
+        if [ -f "CleverFerret/build.gradle.kts" ]; then
+          sed -i "s/versionName .*/versionName \"${{ steps.version.outputs.nightly-version }}\"/" CleverFerret/build.gradle.kts || true
+        fi
+        
+        if [ -f "build-scripts/simple-build.sh" ]; then
+          chmod +x build-scripts/*.sh
+          ./build-scripts/simple-build.sh build debug
+        else
+          ./gradlew assembleDebug
+        fi
+        
+    - name: Rename nightly APK
+      run: |
+        apk_file=$(find . -name "*debug*.apk" -type f | head -1)
+        if [ -n "$apk_file" ]; then
+          apk_dir=$(dirname "$apk_file")
+          mv "$apk_file" "$apk_dir/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk"
+          echo "APK renamed successfully"
+        else
+          echo "No debug APK found"
+          exit 1
+        fi
+           
+    - name: Upload nightly APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: nightly-apk-${{ steps.version.outputs.nightly-version }}
+        path: "**/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk"
+        retention-days: 7
+        
+    - name: Create nightly release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.nightly-version }}
+        name: CleverFerret Nightly ${{ steps.version.outputs.nightly-version }}
+        body: |
+          # CleverFerret Nightly Build
+          
+          **⚠️ This is a nightly development build and may be unstable.**
+          
+          - Build Date: $(date +'%Y-%m-%d %H:%M:%S UTC')
+          - Commit: ${{ github.sha }}
+          - Branch: main
+          
+          ## Installation
+          
+          1. Download the APK below
+          2. Enable Install from Unknown Sources in Android settings
+          3. Install the APK on your Android device
+          
+          ## Note
+          
+          Nightly builds are automatically deleted after 7 days.
+          For stable releases, use the main releases page.
+        draft: false
+        prerelease: true
+        files: "**/CleverFerret-${{ steps.version.outputs.nightly-version }}.apk"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Clean old nightly releases
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release list --limit 100 | grep "nightly-" | tail -n +8 | while read line; do
+          TAG=$(echo $line | awk '{print $1}')
+          echo "Deleting old nightly release: $TAG"
+          gh release delete $TAG --yes || true
+        done
