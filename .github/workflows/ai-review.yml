@@ -73,12 +73,12 @@ import json
 from emergentintegrations import EmergentLLM
 
 def analyze_code_changes():
-              try:
-                  # Initialize Emergent LLM with Gemini
-                  llm = EmergentLLM(
-                      api_key=os.environ.get('EMERGENT_LLM_KEY'),
-                      provider='gemini'
-                  )
+    try:
+        # Initialize Emergent LLM with Gemini
+        llm = EmergentLLM(
+            api_key=os.environ.get('EMERGENT_LLM_KEY'),
+            provider='gemini'
+        )
                   
                   # Read changed files
                   try:
