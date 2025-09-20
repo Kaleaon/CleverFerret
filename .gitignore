@@ -150,3 +150,8 @@ pwa-demo/yarn-error.log*
 # Environment files
 *.env
 *.env.*
+
+# Jules AI Development Environment
+.jules/temp/
+.jules/cache/
+.jules/logs/
