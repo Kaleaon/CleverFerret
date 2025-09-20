@@ -81,35 +81,32 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.4"
     }
-    packaging {
+    packagingOptions {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            excludes += "/META-INF/versions/**"
-            excludes += "**/kotlin/**"
-            excludes += "**/*.kotlin_metadata"
-            excludes += "**/*.version"
-            excludes += "**/DEPENDENCIES"
-            excludes += "**/LICENSE"
-            excludes += "**/LICENSE.txt"
-            excludes += "**/license.txt"
-            excludes += "**/NOTICE"
-            excludes += "**/NOTICE.txt"
-            excludes += "**/notice.txt"
-            excludes += "**/ASL2.0"
-            excludes += "**/*.pro"
-        }
-        
-        // JNI libraries configuration for multi-architecture
-        jniLibs {
-            useLegacyPackaging = true
+            excludes += listOf(
+                "/META-INF/{AL2.0,LGPL2.1}",
+                "/META-INF/versions/**",
+                "**/kotlin/**",
+                "**/*.kotlin_metadata",
+                "**/*.version",
+                "**/DEPENDENCIES",
+                "**/LICENSE",
+                "**/LICENSE.txt",
+                "**/license.txt",
+                "**/NOTICE",
+                "**/NOTICE.txt",
+                "**/notice.txt",
+                "**/ASL2.0",
+                "**/*.pro"
+            )
         }
     }
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.activity:activity-compose:1.8.2")
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -117,10 +114,10 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.7.6")
     
     // ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
@@ -130,12 +127,12 @@ dependencies {
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-compiler:2.50")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     
     // Media3 for media playback
-    implementation("androidx.media3:media3-exoplayer:1.3.0")
-    implementation("androidx.media3:media3-ui:1.3.0")
-    implementation("androidx.media3:media3-common:1.3.0")
+    implementation("androidx.media3:media3-exoplayer:1.2.1")
+    implementation("androidx.media3:media3-ui:1.2.1")
+    implementation("androidx.media3:media3-common:1.2.1")
     
     // HTTP client
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
@@ -147,10 +144,7 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     
     // Image loading
-    implementation("io.coil-kt:coil-compose:2.6.0")
-    
-    // PDF processing (lightweight alternative)
-    implementation("com.github.mhiew:android-pdf-viewer:3.2.0-beta.1")
+    implementation("io.coil-kt:coil-compose:2.5.0")
     
     // EPUB processing  
     implementation("org.jsoup:jsoup:1.17.2")
@@ -168,24 +162,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-}
-
-// Log build configuration
-tasks.register("logBuildConfig") {
-    description = "Log build configuration information"
-    group = "help"
-    
-    doLast {
-        println("\n📱 CLEVERFERRET BUILD CONFIGURATION")
-        println("===================================")
-        println("Target SDK: ${android.compileSdk}")
-        println("Min SDK: ${android.defaultConfig.minSdk}")
-        println("Supported ABIs: ${android.defaultConfig.ndk.abiFilters.joinToString(", ")}")
-        println("Build timestamp: ${System.currentTimeMillis()}")
-        println()
-    }
 }
