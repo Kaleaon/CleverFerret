@@ -1,0 +1,61 @@
+{
+  "java.home": "/usr/lib/jvm/java-17-openjdk-amd64",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic",
+  
+  "kotlin.languageServer.enabled": true,
+  "kotlin.debugAdapter.enabled": true,
+  
+  "android.home": "${env:ANDROID_HOME}",
+  "android.gradle.wrapper": true,
+  
+  "files.associations": {
+    "*.gradle.kts": "kotlin",
+    "*.kts": "kotlin"
+  },
+  
+  "search.exclude": {
+    "**/build": true,
+    "**/.gradle": true,
+    "**/android-tools/build": true,
+    "**/*.apk": true,
+    "**/*.aab": true
+  },
+  
+  "files.exclude": {
+    "**/.gradle": true,
+    "**/build": true,
+    "**/*.apk": true,
+    "**/*.aab": true
+  },
+  
+  "cleverferret.buildSystem": {
+    "type": "universal",
+    "commands": {
+      "build": "./build-scripts/simple-build.sh build debug",
+      "release": "./build-scripts/simple-build.sh build release",
+      "info": "./build-scripts/universal-build.sh info",
+      "test": "./gradlew testDebugUnitTest",
+      "diagnose": "./gradlew diagnose"
+    }
+  },
+  
+  "tasks.version": "2.0.0",
+  "terminal.integrated.env.linux": {
+    "GRADLE_OPTS": "-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+UseG1GC"
+  },
+  
+  "github.copilot.enable": {
+    "*": true,
+    "kotlin": true,
+    "gradle": true,
+    "xml": true,
+    "json": true
+  },
+  
+  "github.copilot.advanced": {
+    "debug.overrideEngine": "copilot-codex",
+    "debug.testOverrideProxyUrl": "",
+    "debug.overrideProxyUrl": ""
+  }
+}
