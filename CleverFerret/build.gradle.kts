@@ -81,7 +81,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.11"
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += listOf(
                 "/META-INF/{AL2.0,LGPL2.1}",
@@ -99,6 +99,11 @@ android {
                 "**/ASL2.0",
                 "**/*.pro"
             )
+        }
+        
+        // JNI libraries configuration for multi-architecture
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 }
