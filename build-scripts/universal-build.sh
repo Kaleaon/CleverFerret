@@ -141,7 +141,7 @@ clean_build() {
     
     # Clean gradle caches
     rm -rf .gradle/ build/ */build/
-    rm -f *.log gradle-android-tools-runtime.properties
+    rm -f *.log gradle-modern-tools-runtime.properties
     
     # Clean gradle user cache selectively (keep downloads)
     if [ -d "$HOME/.gradle/caches" ]; then
