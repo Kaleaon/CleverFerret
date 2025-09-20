@@ -71,10 +71,25 @@ setup_android_tools() {
     # Source gradle properties if created
     if [ -f "$PROJECT_ROOT/gradle-android-tools.properties" ]; then
         log_info "Loading Android tools configuration..."
-        # Export gradle properties as environment variables
+        # Export gradle properties as environment variables (with valid shell variable names)
         while IFS='=' read -r key value; do
             if [[ ! "$key" =~ ^[[:space:]]*# ]] && [ -n "$key" ]; then
-                export "$key"="$value"
+                # Convert gradle property names to valid shell variable names
+                local shell_var=$(echo "$key" | sed 's/\./_/g')
+                export "$shell_var"="$value"
+                
+                # Also set specific variables for known android-tools properties
+                case "$key" in
+                    "android.tools.custom.aapt2.path")
+                        export CUSTOM_AAPT2_PATH="$value"
+                        ;;
+                    "android.tools.custom.aapt2.arch")
+                        export CUSTOM_AAPT2_ARCH="$value"
+                        ;;
+                    "android.tools.host.arch")
+                        export ANDROID_TOOLS_HOST_ARCH="$value"
+                        ;;
+                esac
             fi
         done < "$PROJECT_ROOT/gradle-android-tools.properties"
     fi
