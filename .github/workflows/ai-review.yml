@@ -98,6 +98,8 @@ jobs:
                   review_prompt = f"""
                   You are an expert Android developer and code reviewer for the CleverFerret Universal Media Library project.
                   
+                  CRITICAL INSTRUCTION: If you find ANY issues that could break the build, cause runtime errors, or compromise system integrity, you MUST provide extremely detailed explanations of WHY the code fails review and HOW to fix it.
+                  
                   Please analyze the following code changes and provide a comprehensive review focusing on:
                   
                   1. **Build Safety**: Will these changes break the Universal Build System or Gradle configuration?
@@ -115,19 +117,40 @@ jobs:
                   {{
                     "passed": true/false,
                     "score": 0-100,
+                    "failure_reason": "If passed=false, provide a comprehensive explanation of WHY the review failed, what specific problems were found, and the potential impact",
+                    "detailed_analysis": "Step-by-step analysis of the code changes, highlighting both good practices and problems found",
                     "issues": [
                       {{
-                        "severity": "error/warning/info",
-                        "category": "build/architecture/code/integration",
-                        "file": "filename",
-                        "description": "Issue description",
-                        "suggestion": "How to fix"
+                        "severity": "critical/error/warning/info",
+                        "category": "build/architecture/code/integration/security",
+                        "file": "exact filename with path",
+                        "line_numbers": "specific lines if applicable",
+                        "code_snippet": "the problematic code if relevant",
+                        "description": "DETAILED explanation of what is wrong",
+                        "why_problematic": "Explain WHY this is a problem - what could break, what could fail",
+                        "impact": "What would happen if this code went to production",
+                        "suggestion": "Step-by-step instructions on how to fix this",
+                        "example_fix": "Show corrected code example if applicable"
                       }}
                     ],
-                    "summary": "Overall assessment"
+                    "build_risk_assessment": "Assess the likelihood this change could break the build (none/low/medium/high/critical)",
+                    "runtime_risk_assessment": "Assess the likelihood this could cause runtime failures (none/low/medium/high/critical)", 
+                    "recommended_actions": [
+                      "List specific actions the developer should take before resubmitting"
+                    ],
+                    "summary": "Overall assessment with specific focus on WHY the review passed or failed"
                   }}
                   
-                  CRITICAL: Return "passed": false for any issues that could break the build or runtime functionality.
+                  CRITICAL FAILURE CRITERIA (must return passed=false):
+                  - Any syntax errors that would prevent compilation
+                  - Missing required imports or dependencies
+                  - Gradle configuration changes that could break builds
+                  - Architecture-specific code that breaks multi-platform support
+                  - Changes that would break existing AI tool integrations
+                  - Security vulnerabilities or unsafe practices
+                  - Code that violates Android development best practices in ways that cause crashes
+                  
+                  REMEMBER: If passed=false, the "failure_reason" and "detailed_analysis" fields are MANDATORY and must be comprehensive.
                   """
                   
                   response = llm.chat.completions.create(
