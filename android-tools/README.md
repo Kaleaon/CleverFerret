@@ -1,30 +1,56 @@
-# android-tools
+# CleverFerret Android Tools Integration
 
-## What is this?
+This directory contains Android build tools compiled for multiple architectures, sourced from [JonForShort/android-tools](https://github.com/JonForShort/android-tools).
 
-This project is aimed at providing popular Android tools (e.g. aapt, aapt2, etc.) that can be run directly on Android devices.  Although these tools are already packaged in the [Android SDK](https://developer.android.com/studio), the SDK only provides them for ABIs targetting the PC (e.g. x86 or x86_64).
+## Purpose
 
-For a complete list of the Android tools provided by this project, please see the [build folder](https://github.com/jonforshort/android-tools/tree/master/build/android-9.0.0_r33).
+These pre-compiled Android tools solve architecture-specific build issues by providing:
+- **aapt/aapt2**: Android Asset Packaging Tool for resource compilation
+- **dex2oat**: DEX to native code compiler  
+- **dexdump/dexdiag/dexlist**: DEX analysis tools
+- **Multi-architecture support**: ARM64, ARM32, x86, x86_64
 
-## Why is this useful?
+## Architecture Support
 
-I created this project because I needed to analyze APKs on the device as part of my Android app.  Although there are already projects out there that allow you to do this off-device -- most notably [apk tool](https://ibotpeaches.github.io/Apktool/), there isn't a project (as far as I know) that allows you to do this directly on-device.
+### Available Architectures
+```
+android-9.0.0_r33/
+├── aapt/
+│   ├── arm64-v8a/bin/aapt
+│   ├── armeabi-v7a/bin/aapt  
+│   ├── x86/bin/aapt
+│   └── x86_64/bin/aapt
+├── aapt2/
+│   ├── arm64-v8a/bin/aapt2
+│   ├── armeabi-v7a/bin/aapt2
+│   ├── x86/bin/aapt2
+│   └── x86_64/bin/aapt2
+└── [other tools...]
 
-## How was this done?
+android-11.0.0_r33/
+└── [same structure]
+```
 
-The work for this project is straightforward.  A lot of these tools are already being built as part of the Android Open Source Project (AOSP) source code.  The work is to simply modify the build scripts for each of the desired tools to build for the desired architectures.
+## Integration
 
-For more information on how to build the AOSP project, please see the official [Android Build Documentation.](https://source.android.com/setup/build/requirements)
+The build system automatically detects the host architecture and uses the appropriate tools:
 
-## Will you be providing patches for the modified build scripts?
+1. **Gradle Integration**: `build.gradle.kts` configured to use architecture-specific AAPT2
+2. **Build Scripts**: `build-scripts/` contain setup and selection logic
+3. **Environment Setup**: Automatic path configuration for correct tool versions
 
-Yes, please see the top-level directory "patch".  The structure of this directory (as well as the build directory) is as follows.
+## Usage
 
-patch/<branch_name>/<path_to_patched_file>
+Tools are automatically selected during build process:
 
-## How can I help?
+```bash
+# Build uses correct architecture tools automatically
+./gradlew assembleDebug
 
-The best way to help is to find an Android tool you think is valuable to include in this project, and then submit a build script patch for it.  Here is a list of tools that is currently on my to-do list.
+# Manual tool usage
+./android-tools/build/android-9.0.0_r33/aapt2/arm64-v8a/bin/aapt2 version
+```
 
-* apkanalyzer (https://developer.android.com/studio/command-line/apkanalyzer)
-* apksigner (https://developer.android.com/studio/command-line/apksigner)
+## License
+
+These tools are licensed under Apache 2.0 from the original android-tools repository.
