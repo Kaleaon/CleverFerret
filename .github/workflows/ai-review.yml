@@ -206,8 +206,32 @@ jobs:
                   
               except Exception as e:
                   print(f"AI Review failed: {str(e)}")
-                  # Fail safe - if AI review fails, allow the build
-                  return {"passed": True, "score": 75, "issues": [{"severity": "warning", "description": f"AI review system error: {str(e)}"}], "summary": "AI review system encountered an error, allowing build to proceed"}
+                  # Be more cautious when AI system fails - require manual review
+                  return {
+                      "passed": False, 
+                      "score": 30, 
+                      "failure_reason": f"AI review system encountered a critical error: {str(e)}. For safety, this change is blocked pending manual review.",
+                      "detailed_analysis": f"The AI review system failed with error: {str(e)}. This could indicate:\n1. Network/API issues preventing proper analysis\n2. Code changes that are too complex for automated review\n3. Issues with the review system itself\n\nTo ensure code quality and safety, manual review is required.",
+                      "issues": [{
+                          "severity": "critical",
+                          "category": "system",
+                          "file": "AI Review System",
+                          "description": f"AI review system failure: {str(e)}",
+                          "why_problematic": "When the AI review system fails, it cannot verify code safety, build compatibility, or quality standards",
+                          "impact": "Unreviewed code could introduce bugs, break builds, or compromise system stability",
+                          "suggestion": "1. Check if this is a temporary issue by pushing again\n2. If error persists, manually review all changes\n3. Test build locally\n4. Consider breaking large changes into smaller commits"
+                      }], 
+                      "build_risk_assessment": "high",
+                      "runtime_risk_assessment": "unknown",
+                      "recommended_actions": [
+                          "Try pushing again to see if this was a temporary issue",
+                          "If error persists, perform thorough manual code review",
+                          "Test build process locally to ensure it works",
+                          "Check all modified files for syntax and logic errors",
+                          "Verify no critical dependencies or configurations were broken"
+                      ],
+                      "summary": f"AI review system failure ({str(e)}) - manual review required for safety"
+                  }
 
           if __name__ == "__main__":
               result = analyze_code_changes()
