@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +31,7 @@ import androidx.core.content.ContextCompat
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.CleverFerretProfessionalColors
 import com.universalmedialibrary.ui.settings.EnhancedSettingsScreen
 import dagger.hilt.android.AndroidEntryPoint
 
