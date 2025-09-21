@@ -56,12 +56,21 @@ class WorkflowValidator:
             with open(self.workflow_path, 'r') as f:
                 workflow_content = yaml.safe_load(f)
             
-            # Check required top-level keys
-            required_keys = ['name', 'on', 'jobs', 'permissions']
+            if workflow_content is None:
+                self.log_error("YAML file is empty or invalid")
+                return False
+            
+            # Check required top-level keys (note: 'on' is a reserved word in YAML)
+            required_keys = ['name', 'jobs', 'permissions']
             for key in required_keys:
                 if key not in workflow_content:
                     self.log_error(f"Missing required top-level key: {key}")
                     return False
+            
+            # Check for 'on' key (which might be parsed differently)
+            if 'on' not in workflow_content and True not in workflow_content:
+                self.log_error("Missing workflow trigger configuration ('on' key)")
+                return False
                     
             self.log_success("YAML syntax is valid")
             
