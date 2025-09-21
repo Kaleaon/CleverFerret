@@ -40,9 +40,14 @@ class GitHubActionsValidator:
             with open(self.workflow_path, 'r') as f:
                 workflow_data = yaml.safe_load(f)
             
-            # Check basic structure
-            required_keys = ['name', 'on', 'jobs', 'permissions']
+            # Check basic structure - handle the 'on' key which might be parsed as True
+            required_keys = ['name', 'jobs', 'permissions']
             missing_keys = [key for key in required_keys if key not in workflow_data]
+            
+            # Check for 'on' key (might be parsed as True in YAML)
+            has_triggers = 'on' in workflow_data or True in workflow_data
+            if not has_triggers:
+                missing_keys.append('on')
             
             if missing_keys:
                 self.log_test("YAML Structure", False, f"Missing keys: {missing_keys}")
