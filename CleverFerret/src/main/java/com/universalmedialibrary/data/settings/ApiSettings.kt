@@ -1,6 +1,7 @@
 package com.universalmedialibrary.data.settings
 
 import kotlinx.serialization.Serializable
+import com.universalmedialibrary.data.MediaType as CoreMediaType
 
 /**
  * Data classes for API configuration settings
@@ -56,7 +57,8 @@ data class MusicApiSettings(
     val priority: List<String> = listOf("MusicBrainz", "Spotify")
 )
 
-enum class MediaType {
+// Settings-specific media type enum to avoid conflict with core MediaType
+enum class SettingsMediaType {
     BOOKS,
     COMICS,
     AUDIOBOOKS,
@@ -71,5 +73,5 @@ data class ApiProvider(
     val isEnabled: Boolean,
     val apiKey: String = "",
     val website: String = "",
-    val mediaType: MediaType
+    val mediaType: SettingsMediaType
 )
