@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.screens.*
 import com.universalmedialibrary.ui.settings.*
+import com.universalmedialibrary.ui.organization.*
 
 /**
  * Sealed class representing all navigation destinations in the app
@@ -21,6 +22,7 @@ sealed class CleverFerretDestination(val route: String) {
     object IntegrationSettings : CleverFerretDestination("integration_settings")
     object APIKeysManager : CleverFerretDestination("api_keys_manager")
     object GeminiApiSettings : CleverFerretDestination("gemini_api_settings")
+    object FileOrganization : CleverFerretDestination("file_organization")
     object PlexCalibreIntegration : CleverFerretDestination("plex_calibre_integration")
     object NotificationSettings : CleverFerretDestination("notification_settings")
     object AboutSettings : CleverFerretDestination("about_settings")
@@ -59,6 +61,9 @@ fun CleverFerretNavigation(
                 },
                 onNavigateToPlexCalibre = {
                     navController.navigate(CleverFerretDestination.PlexCalibreIntegration.route)
+                },
+                onNavigateToFileOrganization = {
+                    navController.navigate(CleverFerretDestination.FileOrganization.route)
                 }
             )
         }
@@ -123,6 +128,13 @@ fun CleverFerretNavigation(
         // Gemini AI Settings Screen
         composable(CleverFerretDestination.GeminiApiSettings.route) {
             GeminiApiSettingsScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // File Organization Screen
+        composable(CleverFerretDestination.FileOrganization.route) {
+            FileOrganizationScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
         }

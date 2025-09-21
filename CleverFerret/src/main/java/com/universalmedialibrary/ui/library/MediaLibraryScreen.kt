@@ -38,7 +38,8 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaLibraryScreen(
-    viewModel: MediaLibraryViewModel = hiltViewModel()
+    viewModel: MediaLibraryViewModel = hiltViewModel(),
+    onNavigateToOrganization: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val mediaFiles by viewModel.mediaFiles.collectAsState()
@@ -53,6 +54,7 @@ fun MediaLibraryScreen(
             stats = uiState.libraryStats,
             onScanClicked = viewModel::scanLibrary,
             onQuickScanClicked = viewModel::quickScan,
+            onOrganizeClicked = onNavigateToOrganization,
             isScanning = uiState.isScanning,
             scanResult = uiState.lastScanResult
         )
@@ -138,6 +140,7 @@ private fun LibraryStatsCard(
     stats: LibraryStats?,
     onScanClicked: () -> Unit,
     onQuickScanClicked: () -> Unit,
+    onOrganizeClicked: () -> Unit,
     isScanning: Boolean,
     scanResult: ScanResult?
 ) {
@@ -212,6 +215,18 @@ private fun LibraryStatsCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Full Scan")
                 }
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Organization Button
+            OutlinedButton(
+                onClick = onOrganizeClicked,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.FolderOpen, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Organize Files & Fix Metadata")
             }
             
             // Scan Result

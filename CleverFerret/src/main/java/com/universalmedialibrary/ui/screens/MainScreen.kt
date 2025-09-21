@@ -47,6 +47,7 @@ fun MainScreen(
     onNavigateToGeneralSettings: () -> Unit = {},
     onNavigateToIntegrationSettings: () -> Unit = {},
     onNavigateToPlexCalibre: () -> Unit = {},
+    onNavigateToFileOrganization: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
