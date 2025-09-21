@@ -727,6 +727,8 @@ jobs:
     steps:
       - name: Checkout code (to access review results)
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download AI Review Results
         uses: actions/download-artifact@v4
