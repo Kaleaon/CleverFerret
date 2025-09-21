@@ -132,36 +132,11 @@ class MainActivity : ComponentActivity() {
             // Top App Bar
             TopAppBar(
                 title = { 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Ferret with glasses icon representation
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(
-                                    brush = Brush.radialGradient(
-                                        listOf(
-                                            CleverFerretProfessionalColors.DeepGold,
-                                            CleverFerretProfessionalColors.Navy
-                                        )
-                                    )
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "🦦", // Using otter emoji as closest to ferret
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            "Clever Ferret", 
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    } 
+                    CleverFerretLogo(
+                        size = 32.dp,
+                        showText = true,
+                        textStyle = MaterialTheme.typography.headlineSmall
+                    )
                 },
                 actions = {
                     IconButton(onClick = { requestPermissionsAndScan() }) {
