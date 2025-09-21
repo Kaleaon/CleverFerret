@@ -93,32 +93,12 @@ fun AboutSettingsScreen(
                             modifier = Modifier.padding(24.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .background(
-                                        brush = Brush.radialGradient(
-                                            listOf(
-                                                CleverFerretProfessionalColors.DeepGold,
-                                                CleverFerretProfessionalColors.Navy
-                                            )
-                                        )
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.LibraryBooks,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
-                                    tint = Color.White
-                                )
-                            }
+                            CleverFerretAboutLogo()
                             
                             Spacer(modifier = Modifier.height(16.dp))
                             
                             Text(
-                                text = "CleverFerret",
+                                text = "Clever Ferret",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = CleverFerretProfessionalColors.DeepNavy
