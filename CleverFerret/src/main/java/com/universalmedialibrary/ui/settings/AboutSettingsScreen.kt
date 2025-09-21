@@ -137,7 +137,7 @@ fun AboutSettingsScreen(
             item {
                 AboutInfoCard(
                     title = "Build Information",
-                    description = "Build 2025.01.20 • Professional Metadata Edition",
+                    description = "Build 2025.01.20 • Professional Metadata Enhanced Edition",
                     icon = Icons.Default.Build
                 )
             }
@@ -145,7 +145,7 @@ fun AboutSettingsScreen(
             item {
                 AboutInfoCard(
                     title = "Features",
-                    description = "16+ Metadata APIs • Plex Integration • Advanced Reader",
+                    description = "16+ Metadata APIs • Plex Integration • Advanced Reader • Ferret Smart™",
                     icon = Icons.Default.Star
                 )
             }
