@@ -14,8 +14,8 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Updated for better Material3 support
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.3-bulletproof"
+        versionCode = 10
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
