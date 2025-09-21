@@ -17,6 +17,7 @@ import com.universalmedialibrary.data.settings.AutoScrollMode
 import com.universalmedialibrary.data.settings.PageAnimation
 import com.universalmedialibrary.data.settings.ReaderTheme
 import java.util.Locale
+import androidx.compose.foundation.layout.ColumnScope
 import com.universalmedialibrary.ui.theme.CleverFerretProfessionalColors
 
 @OptIn(ExperimentalMaterial3Api::class)
