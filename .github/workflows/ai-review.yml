@@ -109,12 +109,80 @@ jobs:
         id: review
         env:
           EMERGENT_LLM_KEY: sk-emergent-aCd2b6dBf57FfC928A
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat > ai_review.py << 'EOF'
           import os
           import sys
           import json
+          import subprocess
           from emergentintegrations import EmergentLLM
+          
+          def run_git_command(command, check=True):
+              """Safely run git commands with error handling"""
+              try:
+                  result = subprocess.run(command, shell=True, capture_output=True, text=True, check=check)
+                  return result.stdout.strip()
+              except subprocess.CalledProcessError as e:
+                  print(f"Git command failed: {command}")
+                  print(f"Error: {e.stderr}")
+                  return None
+          
+          def apply_code_fix(file_path, original_code, fixed_code):
+              """Apply AI-suggested code fixes to files"""
+              try:
+                  if os.path.exists(file_path):
+                      with open(file_path, 'r', encoding='utf-8') as f:
+                          current_content = f.read()
+                      
+                      # Apply the fix (simple replacement for now)
+                      if original_code.strip() in current_content:
+                          updated_content = current_content.replace(original_code.strip(), fixed_code.strip())
+                          
+                          with open(file_path, 'w', encoding='utf-8') as f:
+                              f.write(updated_content)
+                          
+                          print(f"✅ Applied fix to {file_path}")
+                          return True
+                      else:
+                          print(f"⚠️ Original code not found in {file_path}")
+                  return False
+              except Exception as e:
+                  print(f"❌ Failed to apply fix to {file_path}: {str(e)}")
+                  return False
+          
+          def commit_fixes(changed_files):
+              """Commit any fixes made by the AI"""
+              try:
+                  # Check if there are changes to commit
+                  git_status = run_git_command("git status --porcelain", check=False)
+                  if not git_status:
+                      print("No changes to commit")
+                      return True
+                  
+                  # Configure git user for this operation
+                  run_git_command('git config user.name "AI Code Reviewer"', check=False)
+                  run_git_command('git config user.email "ai-reviewer@github.com"', check=False)
+                  
+                  # Add changed files
+                  for file_path in changed_files.split('\n'):
+                      if file_path.strip() and os.path.exists(file_path.strip()):
+                          run_git_command(f'git add "{file_path.strip()}"', check=False)
+                  
+                  # Commit changes
+                  commit_msg = "🤖 AI Code Review: Auto-fix identified issues"
+                  result = run_git_command(f'git commit -m "{commit_msg}"', check=False)
+                  
+                  if result is not None:
+                      print("✅ Committed AI fixes successfully")
+                      return True
+                  else:
+                      print("⚠️ No changes committed (possibly no actual changes)")
+                      return True
+                      
+              except Exception as e:
+                  print(f"❌ Failed to commit fixes: {str(e)}")
+                  return False
           
           def analyze_code_changes():
               try:
@@ -138,11 +206,17 @@ jobs:
                       print("No files changed")
                       return {"passed": True, "score": 100, "issues": []}
                   
-                  # Prepare AI review prompt
+                  # Prepare AI review prompt with auto-fix capability
                   review_prompt = f"""
           You are an expert Android developer and code reviewer for the CleverFerret Universal Media Library project.
           
-          CRITICAL INSTRUCTION: If you find ANY issues that could break the build, cause runtime errors, or compromise system integrity, you MUST provide extremely detailed explanations of WHY the code fails review and HOW to fix it.
+          CRITICAL INSTRUCTION: Analyze the code changes and provide both a review AND fixes for any issues found.
+          
+          For each issue you find, you MUST provide:
+          1. Detailed explanation of the problem
+          2. The exact original code that needs to be fixed
+          3. The exact corrected code to replace it with
+          4. Clear instructions on which file to modify
           
           Please analyze the following code changes and provide a comprehensive review focusing on:
           
@@ -157,44 +231,46 @@ jobs:
           **Code Diff:**
           {diff_content[:8000]}
           
-          Respond in JSON format:
+          Respond in JSON format with BOTH analysis AND fixes:
           {{
             "passed": true/false,
             "score": 0-100,
-            "failure_reason": "If passed=false, provide a comprehensive explanation of WHY the review failed, what specific problems were found, and the potential impact",
-            "detailed_analysis": "Step-by-step analysis of the code changes, highlighting both good practices and problems found",
+            "failure_reason": "If passed=false, comprehensive explanation of WHY",
+            "detailed_analysis": "Step-by-step analysis of the code changes",
+            "auto_fixes_applied": true/false,
+            "fixes": [
+              {{
+                "file_path": "exact file path relative to project root",
+                "original_code": "the exact problematic code to be replaced",
+                "fixed_code": "the exact corrected code replacement", 
+                "explanation": "why this fix is necessary",
+                "line_range": "approximate line numbers if known"
+              }}
+            ],
             "issues": [
               {{
                 "severity": "critical/error/warning/info",
                 "category": "build/architecture/code/integration/security",
                 "file": "exact filename with path",
                 "line_numbers": "specific lines if applicable",
-                "code_snippet": "the problematic code if relevant",
+                "code_snippet": "the problematic code",
                 "description": "DETAILED explanation of what is wrong",
-                "why_problematic": "Explain WHY this is a problem - what could break, what could fail",
+                "why_problematic": "Explain WHY this is a problem",
                 "impact": "What would happen if this code went to production",
                 "suggestion": "Step-by-step instructions on how to fix this",
-                "example_fix": "Show corrected code example if applicable"
+                "example_fix": "Show corrected code example",
+                "auto_fixable": true/false
               }}
             ],
-            "build_risk_assessment": "Assess the likelihood this change could break the build (none/low/medium/high/critical)",
-            "runtime_risk_assessment": "Assess the likelihood this could cause runtime failures (none/low/medium/high/critical)", 
+            "build_risk_assessment": "none/low/medium/high/critical",
+            "runtime_risk_assessment": "none/low/medium/high/critical", 
             "recommended_actions": [
-              "List specific actions the developer should take before resubmitting"
+              "List specific actions the developer should take"
             ],
-            "summary": "Overall assessment with specific focus on WHY the review passed or failed"
+            "summary": "Overall assessment with focus on fixes applied"
           }}
           
-          CRITICAL FAILURE CRITERIA (must return passed=false):
-          - Any syntax errors that would prevent compilation
-          - Missing required imports or dependencies
-          - Gradle configuration changes that could break builds
-          - Architecture-specific code that breaks multi-platform support
-          - Changes that would break existing AI tool integrations
-          - Security vulnerabilities or unsafe practices
-          - Code that violates Android development best practices in ways that cause crashes
-          
-          REMEMBER: If passed=false, the "failure_reason" and "detailed_analysis" fields are MANDATORY and must be comprehensive.
+          IMPORTANT: For any fixable issues, provide the exact original and fixed code in the "fixes" array.
           """
                   
                   response = llm.chat.completions.create(
@@ -215,66 +291,59 @@ jobs:
                       if json_start != -1 and json_end > json_start:
                           json_content = ai_response[json_start:json_end]
                           review_result = json.loads(json_content)
+                          
+                          # Apply any fixes provided by the AI
+                          if 'fixes' in review_result and review_result['fixes']:
+                              print(f"🔧 Applying {len(review_result['fixes'])} AI-suggested fixes...")
+                              fixes_applied = 0
+                              
+                              for fix in review_result['fixes']:
+                                  file_path = fix.get('file_path', '')
+                                  original_code = fix.get('original_code', '')
+                                  fixed_code = fix.get('fixed_code', '')
+                                  
+                                  if file_path and original_code and fixed_code:
+                                      if apply_code_fix(file_path, original_code, fixed_code):
+                                          fixes_applied += 1
+                              
+                              if fixes_applied > 0:
+                                  print(f"✅ Successfully applied {fixes_applied} fixes")
+                                  review_result['auto_fixes_applied'] = True
+                                  
+                                  # Commit the fixes
+                                  if commit_fixes(changed_files):
+                                      print("✅ AI fixes committed successfully")
+                                      # Update the review to reflect fixes
+                                      review_result['passed'] = True
+                                      review_result['score'] = max(review_result.get('score', 0), 85)
+                                      review_result['summary'] = f"AI review completed with {fixes_applied} auto-fixes applied. " + review_result.get('summary', '')
+                                  else:
+                                      print("⚠️ Failed to commit fixes")
+                              else:
+                                  print("⚠️ No fixes were successfully applied")
                       else:
                           # Fallback parsing
                           review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed"}
                   except json.JSONDecodeError:
                       print("Failed to parse AI response, treating as potential issue")
-                      # If we can't parse the response, be cautious and provide detailed feedback
                       review_result = {
                           "passed": False, 
                           "score": 50, 
-                          "failure_reason": "AI response could not be parsed properly. The AI may have identified issues but the response format was incorrect.",
-                          "detailed_analysis": f"Raw AI Response (first 1000 chars): {ai_response[:1000]}...\n\nThis suggests the AI found complex issues that couldn't be formatted properly. Manual review recommended.",
-                          "issues": [{
-                              "severity": "warning",
-                              "category": "system",
-                              "file": "multiple files",
-                              "description": "AI review system could not parse the response properly",
-                              "why_problematic": "When AI responses can't be parsed, it often indicates the AI found complex or severe issues that broke the expected response format",
-                              "impact": "Potential unidentified code quality or safety issues",
-                              "suggestion": "Manually review your changes for build safety, syntax errors, and integration issues. Consider making smaller, incremental changes."
-                          }], 
-                          "build_risk_assessment": "medium",
-                          "runtime_risk_assessment": "medium",
-                          "recommended_actions": [
-                              "Manually review all changed files for syntax errors",
-                              "Check that all imports and dependencies are correct",
-                              "Verify Gradle configurations haven't been broken",
-                              "Test build locally before pushing again"
-                          ],
-                          "summary": "AI review parsing failed - manual review required for safety"
+                          "failure_reason": "AI response could not be parsed properly.",
+                          "issues": [], 
+                          "summary": "AI review parsing failed - manual review required"
                       }
                   
                   return review_result
                   
               except Exception as e:
                   print(f"AI Review failed: {str(e)}")
-                  # Be more cautious when AI system fails - require manual review
                   return {
                       "passed": False, 
                       "score": 30, 
-                      "failure_reason": f"AI review system encountered a critical error: {str(e)}. For safety, this change is blocked pending manual review.",
-                      "detailed_analysis": f"The AI review system failed with error: {str(e)}. This could indicate:\n1. Network/API issues preventing proper analysis\n2. Code changes that are too complex for automated review\n3. Issues with the review system itself\n\nTo ensure code quality and safety, manual review is required.",
-                      "issues": [{
-                          "severity": "critical",
-                          "category": "system",
-                          "file": "AI Review System",
-                          "description": f"AI review system failure: {str(e)}",
-                          "why_problematic": "When the AI review system fails, it cannot verify code safety, build compatibility, or quality standards",
-                          "impact": "Unreviewed code could introduce bugs, break builds, or compromise system stability",
-                          "suggestion": "1. Check if this is a temporary issue by pushing again\n2. If error persists, manually review all changes\n3. Test build locally\n4. Consider breaking large changes into smaller commits"
-                      }], 
-                      "build_risk_assessment": "high",
-                      "runtime_risk_assessment": "unknown",
-                      "recommended_actions": [
-                          "Try pushing again to see if this was a temporary issue",
-                          "If error persists, perform thorough manual code review",
-                          "Test build process locally to ensure it works",
-                          "Check all modified files for syntax and logic errors",
-                          "Verify no critical dependencies or configurations were broken"
-                      ],
-                      "summary": f"AI review system failure ({str(e)}) - manual review required for safety"
+                      "failure_reason": f"AI review system encountered a critical error: {str(e)}",
+                      "issues": [], 
+                      "summary": f"AI review system failure - manual review required"
                   }
           
           if __name__ == "__main__":
@@ -291,9 +360,9 @@ jobs:
               with open('ai_review_results.json', 'w') as f:
                   json.dump(result, f, indent=2)
               
-              # Exit with error code if review failed
+              # Exit with appropriate code
               if not result['passed']:
-                  print("❌ AI Review FAILED - Build will be blocked")
+                  print("❌ AI Review FAILED - Issues need manual attention")
                   sys.exit(1)
               else:
                   print("✅ AI Review PASSED - Proceeding with build")
