@@ -611,6 +611,9 @@ jobs:
             ~/.gradle/wrapper
             modern-android-tools/
           key: ai-build-${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ai-build-${{ runner.os }}-gradle-
+            ai-build-${{ runner.os }}-
 
       - name: Make scripts executable
         run: |
