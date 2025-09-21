@@ -6,6 +6,7 @@ permissions:
   issues: write
   checks: write
   statuses: write
+  actions: read
 
 on:
   push:
