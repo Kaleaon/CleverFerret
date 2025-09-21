@@ -1,0 +1,2 @@
+.emergent/emergent.yml
+.gitignore
