@@ -1,20 +1,32 @@
-name: AI Code Review & Auto-Build CleverFerret
+name: CleverFerret Bulletproof Build & AI Review
 
 on:
   push:
-    branches: [ main, develop, master ]
+    branches: [ main, master, develop ]
     paths-ignore:
       - 'README.md'
       - 'docs/**'
       - '*.md'
+      - '.gitignore'
   pull_request:
-    branches: [ main, develop, master ]
+    branches: [ main, master, develop ]
   workflow_dispatch:
     inputs:
       force_build:
-        description: 'Force build even without changes'
+        description: 'Force complete rebuild'
         required: false
         default: 'false'
+        type: boolean
+      debug_mode:
+        description: 'Enable debug logging'
+        required: false
+        default: 'false'
+        type: boolean
+      skip_tests:
+        description: 'Skip testing phases'
+        required: false
+        default: 'false'
+        type: boolean
 
 permissions:
   contents: write
@@ -23,16 +35,27 @@ permissions:
   checks: write
   statuses: write
   actions: read
+  packages: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: bulletproof-build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
+  # Build Environment
   JAVA_VERSION: 17
   ANDROID_API_LEVEL: 34
   ANDROID_BUILD_TOOLS: 33.0.2
-  GRADLE_OPTS: -Xmx4g -XX:MaxMetaspaceSize=1g -XX:+UseG1GC
+  GRADLE_OPTS: -Xmx6g -XX:MaxMetaspaceSize=2g -XX:+UseG1GC -XX:+UseStringDeduplication -Dorg.gradle.daemon=false
+  
+  # Reliability Settings
+  MAX_RETRY_ATTEMPTS: 3
+  NETWORK_TIMEOUT: 300
+  BUILD_TIMEOUT: 3600
+  
+  # Debug Settings
+  DEBUG_MODE: ${{ github.event.inputs.debug_mode || 'false' }}
+  SKIP_TESTS: ${{ github.event.inputs.skip_tests || 'false' }}
 
 jobs:
   ai-review:
