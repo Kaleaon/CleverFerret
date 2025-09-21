@@ -703,6 +703,28 @@ jobs:
               echo "Push attempt $attempt..."
               if git push origin HEAD:${{ github.ref_name }}; then
                 echo "✅ APK committed to builds directory successfully"
+                
+                # Add build summary to GitHub
+                echo "## 🎉 CleverFerret Build Successful!" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "### 📱 APK Details:" >> $GITHUB_STEP_SUMMARY
+                echo "- **File**: ${{ steps.build-info.outputs.apk-filename }}" >> $GITHUB_STEP_SUMMARY  
+                echo "- **Branch**: ${{ steps.build-info.outputs.branch-name }}" >> $GITHUB_STEP_SUMMARY
+                echo "- **Commit**: ${{ steps.build-info.outputs.commit-short }}" >> $GITHUB_STEP_SUMMARY
+                echo "- **AI Review Score**: ${{ needs.ai-review.outputs.review-score }}/100" >> $GITHUB_STEP_SUMMARY
+                echo "- **Build Date**: ${{ steps.build-info.outputs.build-date }}" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "### 🛠️ Build Features:" >> $GITHUB_STEP_SUMMARY
+                echo "- ✅ ARM64 compatible via x86_64 GitHub runners" >> $GITHUB_STEP_SUMMARY
+                echo "- ✅ Latest source code compiled (v1.2-enhanced)" >> $GITHUB_STEP_SUMMARY
+                echo "- ✅ Multi-architecture support (ARM64, ARMv7, x86, x86_64)" >> $GITHUB_STEP_SUMMARY
+                echo "- ✅ AI code review passed with auto-fixes applied" >> $GITHUB_STEP_SUMMARY
+                echo "- ✅ Modern Android API compliance (SDK 34)" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "### 📥 Download:" >> $GITHUB_STEP_SUMMARY
+                echo "- Check **Artifacts** section of this workflow run" >> $GITHUB_STEP_SUMMARY
+                echo "- APK also committed to \`builds/\` directory in repository" >> $GITHUB_STEP_SUMMARY
+                
                 break
               else
                 if [ $attempt -eq 3 ]; then
