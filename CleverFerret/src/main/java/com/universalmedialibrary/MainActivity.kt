@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CleverFerretMainScreen() {
-        val tabTitles = listOf("Library", "Scanning", "Settings")
+        val tabTitles = listOf("Library", "Plex & Calibre", "Scanning", "Settings")
         
         Column(
             modifier = Modifier
@@ -165,8 +165,9 @@ class MainActivity : ComponentActivity() {
             // Tab Content
             when (selectedTab) {
                 0 -> LibraryTabContent()
-                1 -> ScanningTabContent()
-                2 -> SettingsTabContent()
+                1 -> PlexCalibreMetadataTab()
+                2 -> ScanningTabContent()
+                3 -> SettingsTabContent()
             }
         }
     }
