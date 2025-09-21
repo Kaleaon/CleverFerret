@@ -46,6 +46,16 @@ jobs:
           git config --global credential.helper store
           echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
 
+      - name: Verify Git Configuration
+        run: |
+          echo "🔧 Verifying Git configuration..."
+          git config --list | grep -E "(user\.|credential\.)"
+          echo "📡 Testing Git access..."
+          git ls-remote --heads origin | head -5 || echo "⚠️ Git remote access test failed"
+          echo "🌿 Current branch: $(git branch --show-current)"
+          echo "📊 Repository status:"
+          git status --porcelain
+
       - name: Get changed files
         id: changes
         run: |
