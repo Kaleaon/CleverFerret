@@ -82,7 +82,7 @@ fun EnhancedSettingsScreen(
             item {
                 // Header description
                 Text(
-                    text = "Customize your CleverFerret experience with professional-grade settings",
+                    text = "Customize your Clever Ferret experience with professional-grade settings",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
