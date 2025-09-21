@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.settings.*
+import com.universalmedialibrary.ui.theme.CleverFerretProfessionalColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
