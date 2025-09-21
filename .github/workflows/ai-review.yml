@@ -574,14 +574,32 @@ jobs:
           distribution: temurin
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 11076708
-          accept-android-sdk-licenses: true
-          packages: |
-            platform-tools
-            platforms;android-${{ env.ANDROID_API_LEVEL }}
-            build-tools;${{ env.ANDROID_BUILD_TOOLS }}
+        run: |
+          # Install Android SDK components manually for better control
+          echo "Installing Android SDK components..."
+          
+          # Set up Android environment
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          
+          # Accept licenses first
+          yes | sdkmanager --licenses || true
+          
+          # Install required packages individually  
+          echo "Installing platform-tools..."
+          sdkmanager "platform-tools"
+          
+          echo "Installing Android API ${{ env.ANDROID_API_LEVEL }}..."
+          sdkmanager "platforms;android-${{ env.ANDROID_API_LEVEL }}"
+          
+          echo "Installing build-tools ${{ env.ANDROID_BUILD_TOOLS }}..."
+          sdkmanager "build-tools;${{ env.ANDROID_BUILD_TOOLS }}"
+          
+          echo "✅ Android SDK setup complete"
+          
+          # Verify installation
+          echo "Installed packages:"
+          sdkmanager --list_installed | head -10
 
       - name: Cache Build System
         uses: actions/cache@v4
