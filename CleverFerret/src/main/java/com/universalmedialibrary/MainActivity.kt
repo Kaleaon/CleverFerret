@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.services.MediaScannerService
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
