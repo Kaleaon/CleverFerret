@@ -2,7 +2,9 @@ package com.universalmedialibrary.data.settings
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "reader_settings")
 data class ReaderSettings(
     @PrimaryKey
@@ -40,12 +42,4 @@ enum class PageAnimation {
     SLIDE,
     FADE,
     FLIP
-}
-
-enum class AutoScrollMode {
-    OFF,
-    SLOW,
-    MEDIUM,
-    FAST,
-    CUSTOM
 }

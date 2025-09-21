@@ -25,8 +25,14 @@ import androidx.room.PrimaryKey
 data class MetadataMusicTrack(
     @PrimaryKey
     val itemId: Long,
+    val artist: String?,
+    val albumTitle: String?,
     val albumId: Long?,
     val trackNumber: Int?,
     val discNumber: Int?,
-    val duration: Int? // in seconds
+    val duration: Int?, // in seconds
+    val genre: String?,
+    val releaseYear: Int?,
+    val bitrate: Int?,
+    val sampleRate: Int?
 )

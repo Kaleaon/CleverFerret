@@ -1,8 +1,10 @@
 package com.universalmedialibrary.services.metadata
 
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -337,11 +339,17 @@ class ComprehensiveMetadataService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
     
+    private val contentType = "application/json".toMediaType()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+
     // Initialize all API clients
     private val amazonApi: AmazonProductApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://webservices.amazon.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(AmazonProductApi::class.java)
     }
@@ -349,7 +357,7 @@ class ComprehensiveMetadataService @Inject constructor(
     private val goodreadsApi: GoodreadsApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.goodreads.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(GoodreadsApi::class.java)
     }
@@ -357,7 +365,7 @@ class ComprehensiveMetadataService @Inject constructor(
     private val hardcoverApi: HardcoverApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://hardcover.app/api/v1/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(HardcoverApi::class.java)
     }
@@ -365,7 +373,7 @@ class ComprehensiveMetadataService @Inject constructor(
     private val comicVineApi: ComicVineApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://comicvine.gamespot.com/api/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(ComicVineApi::class.java)
     }
@@ -373,7 +381,7 @@ class ComprehensiveMetadataService @Inject constructor(
     private val isbnDbApi: ISBNDbApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.isbn.dk/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(ISBNDbApi::class.java)
     }
@@ -381,7 +389,7 @@ class ComprehensiveMetadataService @Inject constructor(
     private val mangaUpdatesApi: MangaUpdatesApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.mangaupdates.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(MangaUpdatesApi::class.java)
     }

@@ -1,11 +1,13 @@
 package com.universalmedialibrary.services.webfiction
 
 import kotlinx.coroutines.Dispatchers
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -100,10 +102,16 @@ data class RoyalRoadChapter(
 @Singleton
 class WebFictionService @Inject constructor() {
     
+    private val contentType = "application/json".toMediaType()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+
     private val royalRoadApi: RoyalRoadApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.royalroad.com/api/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(RoyalRoadApi::class.java)
     }

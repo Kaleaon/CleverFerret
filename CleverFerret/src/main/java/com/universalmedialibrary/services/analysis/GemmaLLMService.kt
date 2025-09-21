@@ -2,7 +2,6 @@ package com.universalmedialibrary.services.analysis
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -36,10 +35,10 @@ class GemmaLLMService @Inject constructor(
     data class OCRResult(
         val text: String,
         val confidence: Float,
-        val metadata: ExtractedMetadata? = null
+        val metadata: GemmaExtractedMetadata? = null
     )
 
-    data class ExtractedMetadata(
+    data class GemmaExtractedMetadata(
         val title: String? = null,
         val author: String? = null,
         val isbn: String? = null,
@@ -70,15 +69,9 @@ class GemmaLLMService @Inject constructor(
                     return@withContext false
                 }
 
-                val baseOptionsBuilder = BaseOptions.builder()
-                    .setModelAssetPath(modelFile.absolutePath)
-
                 val options = LlmInference.LlmInferenceOptions.builder()
-                    .setBaseOptions(baseOptionsBuilder.build())
+                    .setModelPath(modelFile.absolutePath)
                     .setMaxTokens(2048)
-                    .setTemperature(0.3f) // Lower temperature for more deterministic output
-                    .setTopK(40)
-                    .setRandomSeed(42)
                     .build()
 
                 llmInference = LlmInference.createFromOptions(context, options)
@@ -139,7 +132,7 @@ class GemmaLLMService @Inject constructor(
      */
     suspend fun extractMetadataFromCover(
         ocrText: String
-    ): ExtractedMetadata? = withContext(Dispatchers.IO) {
+    ): GemmaExtractedMetadata? = withContext(Dispatchers.IO) {
         if (llmInference == null || ocrText.isBlank()) {
             return@withContext null
         }
@@ -171,7 +164,7 @@ class GemmaLLMService @Inject constructor(
      */
     suspend fun analyzeFirstPages(
         pageTexts: List<String>
-    ): ExtractedMetadata? = withContext(Dispatchers.IO) {
+    ): GemmaExtractedMetadata? = withContext(Dispatchers.IO) {
         if (llmInference == null || pageTexts.isEmpty()) {
             return@withContext null
         }
@@ -280,7 +273,7 @@ class GemmaLLMService @Inject constructor(
         """.trimIndent()
     }
 
-    private fun parseMetadataResponse(response: String): ExtractedMetadata? {
+    private fun parseMetadataResponse(response: String): GemmaExtractedMetadata? {
         return try {
             // Simple JSON parsing - in production use Gson or kotlinx.serialization
             val cleanResponse = response
@@ -298,7 +291,7 @@ class GemmaLLMService @Inject constructor(
             val language = extractJsonValue(cleanResponse, "language")
             val summary = extractJsonValue(cleanResponse, "summary")
 
-            ExtractedMetadata(
+            GemmaExtractedMetadata(
                 title = title,
                 author = author,
                 isbn = isbn,

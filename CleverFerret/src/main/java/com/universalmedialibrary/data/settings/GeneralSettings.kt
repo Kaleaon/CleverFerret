@@ -2,7 +2,9 @@ package com.universalmedialibrary.data.settings
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "general_settings")
 data class GeneralSettings(
     @PrimaryKey
@@ -35,9 +37,3 @@ enum class BackupFrequency {
     WEEKLY,
     MONTHLY
 }
-
-data class AppSettings(
-    val general: GeneralSettings,
-    val reader: ReaderSettings,
-    val security: SecuritySettings
-)

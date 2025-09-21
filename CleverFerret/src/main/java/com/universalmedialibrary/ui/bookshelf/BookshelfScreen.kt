@@ -31,7 +31,7 @@ import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnhancedBookshelfScreen(
+fun BookshelfScreen(
     navController: NavController,
     libraryId: Long = 1L,
     viewModel: BookshelfViewModel = hiltViewModel()

@@ -136,7 +136,7 @@ class IntegrationManager @Inject constructor(
 data class IntegrationManagerState(
     val isInitializing: Boolean = false,
     val isSyncing: Boolean = false,
-    val plexStatus: PlexConnectionStatus = PlexConnectionStatus(),
+    val plexStatus: com.universalmedialibrary.services.integration.PlexConnectionStatus = com.universalmedialibrary.services.integration.PlexConnectionStatus(),
     val calibreStatus: CalibreConnectionStatus = CalibreConnectionStatus(),
     val cloudStatus: CloudConnectionStatus = CloudConnectionStatus(),
     val bookServicesStatus: BookServicesStatus = BookServicesStatus(),
@@ -163,12 +163,6 @@ data class UnifiedLibraryStats(
 )
 
 // Status data classes for each service
-data class PlexConnectionStatus(
-    val connectedServers: List<String> = emptyList(),
-    val hasActiveConnections: Boolean = false,
-    val totalLibraries: Int = 0
-)
-
 data class CalibreConnectionStatus(
     val isConnected: Boolean = false,
     val serverUrl: String = "",

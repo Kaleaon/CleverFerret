@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
-data class ReaderSettings(
+data class ReaderSettingsSerializable(
     // Visual controls
     val fontSize: Float = 16f,
     val lineSpacing: Float = 1.5f,
@@ -55,6 +55,7 @@ data class ReaderSettings(
 )
 
 enum class AutoScrollMode {
+    OFF,
     ROLLING_BLIND,
     BY_PIXEL,
     BY_LINE
@@ -63,13 +64,13 @@ enum class AutoScrollMode {
 @Serializable
 data class AppSettings(
     val apiSettings: ApiSettings = ApiSettings(),
-    val readerSettings: ReaderSettings = ReaderSettings(),
-    val securitySettings: SecuritySettings = SecuritySettings(),
-    val generalSettings: GeneralSettings = GeneralSettings()
+    val readerSettings: ReaderSettingsSerializable = ReaderSettingsSerializable(),
+    val securitySettings: SecuritySettingsSerializable = SecuritySettingsSerializable(),
+    val generalSettings: GeneralSettingsSerializable = GeneralSettingsSerializable()
 )
 
 @Serializable
-data class SecuritySettings(
+data class SecuritySettingsSerializable(
     val passwordProtectionEnabled: Boolean = false,
     val passwordHash: String = "",
     val biometricEnabled: Boolean = false,
@@ -77,7 +78,7 @@ data class SecuritySettings(
 )
 
 @Serializable
-data class GeneralSettings(
+data class GeneralSettingsSerializable(
     val language: String = "System",
     val defaultLibrary: Long? = null,
     val importOnStartup: Boolean = false,

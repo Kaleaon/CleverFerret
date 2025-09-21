@@ -11,7 +11,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.model.Library
 import com.universalmedialibrary.data.local.model.MediaItem
-import com.universalmedialibrary.data.local.model.MediaType
+import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.model.MetadataCommon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -150,15 +150,12 @@ class StorageAccessService @Inject constructor(
             // Create media item
             val mediaItem = MediaItem(
                 libraryId = library.libraryId,
-                fileName = name,
                 filePath = uri.toString(),
-                fileSize = documentFile.length(),
-                mediaType = mediaType,
-                dateAdded = Date(),
-                lastModified = Date(documentFile.lastModified()),
-                lastAccessed = null,
-                playCount = 0,
-                isLocal = true
+                dateAdded = System.currentTimeMillis(),
+                lastScanned = System.currentTimeMillis(),
+                fileHash = documentFile.length().toString(), // Placeholder for hash
+                lastAccessed = documentFile.lastModified(),
+                playCount = 0
             )
             
             val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -167,9 +164,11 @@ class StorageAccessService @Inject constructor(
             val metadata = MetadataCommon(
                 itemId = itemId,
                 title = name.substringBeforeLast('.'),
-                description = null,
-                tags = null,
-                userRating = null,
+                sortTitle = null,
+                year = null,
+                releaseDate = null,
+                rating = null,
+                summary = null,
                 coverImagePath = null,
                 isFavorite = false,
                 isDownloaded = true
@@ -188,8 +187,7 @@ class StorageAccessService @Inject constructor(
                 name = name,
                 type = "SAF",
                 path = path,
-                dateCreated = Date(),
-                dateModified = Date()
+                dateModified = System.currentTimeMillis()
             )
             val id = libraryDao.insertLibrary(library)
             library = library.copy(libraryId = id)

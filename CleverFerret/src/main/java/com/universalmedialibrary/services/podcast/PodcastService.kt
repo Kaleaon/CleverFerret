@@ -5,10 +5,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import org.jsoup.Jsoup
 import org.jsoup.parser.Parser
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
@@ -313,12 +315,18 @@ class PodcastService @Inject constructor(
     private val context: Context
 ) {
     
+    private val contentType = "application/json".toMediaType()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+
     private val httpClient = OkHttpClient.Builder().build()
     
     private val podcastIndexApi: PodcastIndexApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.podcastindex.org/api/1.0/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .client(httpClient)
             .build()
             .create(PodcastIndexApi::class.java)
@@ -327,7 +335,7 @@ class PodcastService @Inject constructor(
     private val listenNotesApi: ListenNotesApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://listen-api.listennotes.com/api/v2/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .client(httpClient)
             .build()
             .create(ListenNotesApi::class.java)
@@ -336,7 +344,7 @@ class PodcastService @Inject constructor(
     private val iTunesSearchApi: iTunesSearchApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://itunes.apple.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .client(httpClient)
             .build()
             .create(iTunesSearchApi::class.java)
@@ -345,7 +353,7 @@ class PodcastService @Inject constructor(
     private val spotifyApi: SpotifyPodcastApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.spotify.com/v1/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .client(httpClient)
             .build()
             .create(SpotifyPodcastApi::class.java)
@@ -354,7 +362,7 @@ class PodcastService @Inject constructor(
     private val taddyApi: TaddyPodcastApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.taddy.org/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .client(httpClient)
             .build()
             .create(TaddyPodcastApi::class.java)

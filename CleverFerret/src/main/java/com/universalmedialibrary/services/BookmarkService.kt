@@ -131,7 +131,7 @@ class BookmarkService @Inject constructor(
         bookmarkDao.insertOrUpdateReadingProgress(entity)
         
         // Update last accessed time in media item
-        mediaItemDao.updateLastAccessed(progress.mediaItemId, java.util.Date())
+        mediaItemDao.updateLastAccessed(progress.mediaItemId, java.util.Date().time)
     }
     
     /**

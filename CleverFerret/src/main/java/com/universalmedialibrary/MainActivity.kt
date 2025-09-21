@@ -56,7 +56,7 @@ import com.universalmedialibrary.data.local.model.BookDetails
 import com.universalmedialibrary.data.local.model.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.services.MediaScannerService
-import com.universalmedialibrary.ui.bookshelf.EnhancedBookshelfScreen as EnhancedBookshelfScreenMain
+import com.universalmedialibrary.ui.bookshelf.EnhancedBookshelfScreen
 import com.universalmedialibrary.ui.details.LibraryDetailsViewModel
 import com.universalmedialibrary.ui.main.MainViewModel
 import androidx.compose.material.icons.filled.Settings
@@ -64,7 +64,7 @@ import com.universalmedialibrary.ui.settings.SettingsScreen
 import com.universalmedialibrary.ui.settings.ApiSettingsScreen
 import com.universalmedialibrary.ui.settings.APIKeysManagerScreen
 import com.universalmedialibrary.ui.settings.ReaderSettingsScreen
-import com.universalmedialibrary.ui.settings.SecuritySettingsScreen as SecuritySettingsScreenMain
+import com.universalmedialibrary.ui.settings.SecuritySettingsScreen
 import com.universalmedialibrary.ui.integration.PlexIntegrationScreen
 import com.universalmedialibrary.ui.settings.AboutScreen
 import com.universalmedialibrary.ui.metadata.MetadataEditorScreen
@@ -176,7 +176,7 @@ fun AppNavigation() {
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toLong() ?: 1L
-            EnhancedBookshelfScreenMain(navController = navController, libraryId = libraryId)
+            EnhancedBookshelfScreen(navController = navController, libraryId = libraryId)
         }
         composable("book_details/{bookId}") { backStackEntry ->
             val bookId = backStackEntry.arguments?.getString("bookId")?.toLong() ?: 0L
@@ -204,7 +204,7 @@ fun AppNavigation() {
             ReaderSettingsScreen(navController = navController, settingsType = settingsType)
         }
         composable("settings/security") {
-            SecuritySettingsScreenMain(navController = navController)
+            SecuritySettingsScreen(navController = navController)
         }
         composable("settings/about") {
             AboutScreen(navController = navController)
@@ -236,8 +236,8 @@ fun AppNavigation() {
         composable("epub_reader/{filePath}") { backStackEntry ->
             val filePath = backStackEntry.arguments?.getString("filePath") ?: ""
             EPUBReaderScreen(
-                epubFilePath = filePath,
-                onBack = { navController.navigateUp() }
+                navController = navController,
+                bookUri = filePath
             )
         }
         

@@ -4,12 +4,14 @@ import com.universalmedialibrary.data.repository.APIKeyRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -23,6 +25,12 @@ class RealMetadataService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
     
+    private val contentType = "application/json".toMediaType()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
@@ -35,7 +43,7 @@ class RealMetadataService @Inject constructor(
     private val googleBooksApi = Retrofit.Builder()
         .baseUrl("https://www.googleapis.com/books/v1/")
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(json.asConverterFactory(contentType))
         .build()
         .create(GoogleBooksApi::class.java)
     
@@ -43,7 +51,7 @@ class RealMetadataService @Inject constructor(
     private val openLibraryApi = Retrofit.Builder()
         .baseUrl("https://openlibrary.org/")
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(json.asConverterFactory(contentType))
         .build()
         .create(OpenLibraryApi::class.java)
     
@@ -51,7 +59,7 @@ class RealMetadataService @Inject constructor(
     private val tmdbApi = Retrofit.Builder()
         .baseUrl("https://api.themoviedb.org/3/")
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(json.asConverterFactory(contentType))
         .build()
         .create(TMDBApi::class.java)
     
@@ -59,7 +67,7 @@ class RealMetadataService @Inject constructor(
     private val omdbApi = Retrofit.Builder()
         .baseUrl("https://www.omdbapi.com/")
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(json.asConverterFactory(contentType))
         .build()
         .create(OMDbApi::class.java)
     
@@ -67,7 +75,7 @@ class RealMetadataService @Inject constructor(
     private val musicBrainzApi = Retrofit.Builder()
         .baseUrl("https://musicbrainz.org/ws/2/")
         .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(json.asConverterFactory(contentType))
         .build()
         .create(MusicBrainzApi::class.java)
     

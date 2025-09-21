@@ -18,6 +18,7 @@ import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.model.*
+import com.universalmedialibrary.data.MediaType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.File
@@ -176,7 +177,8 @@ class MediaScannerService : Service() {
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.DURATION
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.TRACK
             )
             
             val cursor = contentResolver.query(
@@ -194,6 +196,7 @@ class MediaScannerService : Service() {
                     val artist = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
                     val album = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM))
                     val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+                    val track = it.getInt(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK))
                     
                     val file = File(path)
                     if (file.exists()) {
@@ -205,8 +208,10 @@ class MediaScannerService : Service() {
                                 itemId = item.itemId,
                                 artist = artist,
                                 albumTitle = album,
-                                trackNumber = 0,
-                                duration = duration.toInt(),
+                                albumId = null,
+                                trackNumber = track,
+                                discNumber = null,
+                                duration = (duration / 1000).toInt(),
                                 genre = null,
                                 releaseYear = null,
                                 bitrate = null,
@@ -258,7 +263,7 @@ class MediaScannerService : Service() {
                                 itemId = item.itemId,
                                 director = null,
                                 cast = null,
-                                runtime = (duration / 1000).toInt(), // Convert to seconds
+                                runtime = (duration / 1000 / 60).toInt(), // Convert to minutes
                                 imdbId = null,
                                 tmdbId = null,
                                 rating = null,
@@ -371,11 +376,9 @@ class MediaScannerService : Service() {
                 var library = libraryDao.getLibrariesByType(mediaType.name).firstOrNull()
                 if (library == null) {
                     library = Library(
-                        name = "${mediaType.name.lowercase().capitalize()} Library",
+                        name = "${mediaType.name.lowercase().replaceFirstChar { it.uppercase() }} Library",
                         type = mediaType.name,
-                        path = file.parent ?: "",
-                        dateCreated = java.util.Date(),
-                        dateModified = java.util.Date()
+                        path = file.parent ?: ""
                     )
                     val libraryId = libraryDao.insertLibrary(library)
                     library = library.copy(libraryId = libraryId)
@@ -384,15 +387,12 @@ class MediaScannerService : Service() {
                 // Create media item
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
-                    fileName = file.name,
                     filePath = file.absolutePath,
-                    fileSize = file.length(),
-                    mediaType = mediaType,
-                    dateAdded = java.util.Date(),
-                    lastModified = java.util.Date(file.lastModified()),
-                    lastAccessed = null,
-                    playCount = 0,
-                    isLocal = true
+                    dateAdded = System.currentTimeMillis(),
+                    lastScanned = System.currentTimeMillis(),
+                    fileHash = file.length().toString(), // Placeholder for hash
+                    lastAccessed = System.currentTimeMillis(),
+                    playCount = 0
                 )
                 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -402,9 +402,11 @@ class MediaScannerService : Service() {
                 val metadata = MetadataCommon(
                     itemId = itemId,
                     title = file.nameWithoutExtension,
-                    description = null,
-                    tags = null,
-                    userRating = null,
+                    sortTitle = null,
+                    year = null,
+                    releaseDate = null,
+                    rating = null,
+                    summary = null,
                     coverImagePath = null,
                     isFavorite = false,
                     isDownloaded = true

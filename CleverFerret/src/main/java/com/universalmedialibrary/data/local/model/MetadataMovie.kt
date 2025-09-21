@@ -21,11 +21,16 @@ data class MetadataMovie(
     val tagline: String? = null,
     val runtime: Int? = null, // in minutes
     val director: String? = null,
+    val cast: String? = null,
     val rating: String? = null,
     val releaseYear: Int? = null,
     val productionCompany: String? = null,
     val budget: Long? = null,
     val boxOffice: Long? = null,
     val imdbId: String? = null,
-    val tmdbId: String? = null
+    val tmdbId: String? = null,
+    val resolution: String? = null,
+    val videoCodec: String? = null,
+    val audioCodec: String? = null,
+    val subtitles: String? = null
 )

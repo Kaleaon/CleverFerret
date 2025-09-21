@@ -9,10 +9,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import retrofit2.http.*
 import javax.inject.Inject
@@ -42,6 +44,12 @@ class PlexIntegrationService @Inject constructor(
     private val connectedServers = mutableMapOf<String, PlexServerConnection>()
     private val plexApis = mutableMapOf<String, PlexApi>()
 
+    private val contentType = "application/json".toMediaType()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+
     /**
      * Connect to a Plex server
      */
@@ -56,7 +64,7 @@ class PlexIntegrationService @Inject constructor(
             val retrofit = Retrofit.Builder()
                 .baseUrl(serverUrl.ensureTrailingSlash())
                 .addConverterFactory(SimpleXmlConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(json.asConverterFactory(contentType))
                 .client(createOkHttpClient(token))
                 .build()
             
@@ -464,47 +472,6 @@ data class PlexLibraryStats(
     val photos: Int
 )
 
-// Result classes
-sealed class PlexConnectionResult {
-    data class Success(val connection: PlexServerConnection) : PlexConnectionResult()
-    data class Error(val message: String) : PlexConnectionResult()
-}
-
-sealed class MetadataEnhancementResult {
-    data class Success(val enhanced: Int, val failed: Int, val details: List<ItemEnhancementResult>) : MetadataEnhancementResult()
-    data class Error(val message: String) : MetadataEnhancementResult()
-}
-
-sealed class DuplicateAnalysisResult {
-    data class Success(val duplicateGroups: List<DuplicateGroup>) : DuplicateAnalysisResult()
-    data class Error(val message: String) : DuplicateAnalysisResult()
-}
-
-sealed class SmartCollectionResult {
-    data class Success(val collections: List<SmartCollection>) : SmartCollectionResult()
-    data class Error(val message: String) : SmartCollectionResult()
-}
-
-data class ItemEnhancementResult(
-    val ratingKey: String,
-    val successful: Boolean,
-    val details: String
-)
-
-data class DuplicateGroup(
-    val id: String,
-    val title: String,
-    val items: List<PlexMediaItem>,
-    val similarity: Float,
-    val reason: String
-)
-
-data class SmartCollection(
-    val name: String,
-    val type: String,
-    val items: List<String>,
-    val description: String
-)
 
 data class PlexLibraryAnalytics(
     val serverName: String,

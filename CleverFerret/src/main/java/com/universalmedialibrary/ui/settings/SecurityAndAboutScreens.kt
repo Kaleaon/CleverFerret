@@ -19,7 +19,7 @@ import com.universalmedialibrary.data.settings.GeneralSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SecuritySettingsScreen(
+fun LegacySecuritySettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {

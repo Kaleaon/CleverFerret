@@ -117,6 +117,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended:1.6.7")
     
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.6")
@@ -141,6 +142,8 @@ dependencies {
     
     // HTTP client
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     
     // JSON serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
@@ -162,6 +165,20 @@ dependencies {
     
     // Document file access
     implementation("androidx.documentfile:documentfile:1.0.1")
+    implementation("androidx.media:media:1.7.0")
+
+    // DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // AI/ML
+    implementation("com.google.mediapipe:tasks-genai:0.10.27")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+
+    // Tika for content type detection
+    implementation("org.apache.tika:tika-core:2.9.1")
+
+    // XML parsing
+    implementation("com.squareup.retrofit2:converter-simplexml:2.9.0")
     
     // Testing
     testImplementation("junit:junit:4.13.2")

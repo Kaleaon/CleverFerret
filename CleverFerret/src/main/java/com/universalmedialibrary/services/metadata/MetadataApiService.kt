@@ -1,8 +1,10 @@
 package com.universalmedialibrary.services.metadata
 
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -195,10 +197,16 @@ class MetadataApiService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
     
+    private val contentType = "application/json".toMediaType()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+
     private val googleBooksApi: GoogleBooksApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.googleapis.com/books/v1/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(GoogleBooksApi::class.java)
     }
@@ -206,7 +214,7 @@ class MetadataApiService @Inject constructor(
     private val openLibraryApi: OpenLibraryApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://openlibrary.org/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(OpenLibraryApi::class.java)
     }
@@ -214,7 +222,7 @@ class MetadataApiService @Inject constructor(
     private val tmdbApi: TMDBApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.themoviedb.org/3/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(TMDBApi::class.java)
     }
@@ -222,7 +230,7 @@ class MetadataApiService @Inject constructor(
     private val musicBrainzApi: MusicBrainzApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://musicbrainz.org/ws/2/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType))
             .build()
             .create(MusicBrainzApi::class.java)
     }
