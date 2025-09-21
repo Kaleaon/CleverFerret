@@ -254,7 +254,7 @@ class MainActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                "Welcome to CleverFerret!",
+                "Welcome to Clever Ferret!",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
