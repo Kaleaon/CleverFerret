@@ -288,7 +288,7 @@ private fun getBooksProviders(settings: BookApiSettings): List<ApiProvider> = li
         requiresApiKey = false,
         isEnabled = settings.openLibraryEnabled,
         website = "https://openlibrary.org/developers/api",
-        mediaType = MediaType.BOOKS
+        mediaType = SettingsMediaType.BOOKS
     ),
     ApiProvider(
         name = "Google Books",
