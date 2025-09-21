@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme with AndroidX compatibility -->
+    <!-- Android API 29+ specific theme using Material Components -->
     <style name="Theme.UniversalMediaLibrary" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand colors -->
         <item name="colorPrimary">@color/primary</item>
@@ -31,26 +32,12 @@
         <item name="colorOutline">@color/outline</item>
         <item name="colorOutlineVariant">@color/outline_variant</item>
         
-        <!-- System UI customization -->
+        <!-- Android 10+ specific features -->
         <item name="android:statusBarColor">@color/deep_navy_blue</item>
         <item name="android:navigationBarColor">@color/surface</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">true</item>
-    </style>
-    
-    <!-- Fallback theme for older Android versions (API < 29) -->
-    <style name="Theme.UniversalMediaLibrary.Compat" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <!-- Primary brand colors -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/deep_navy_blue</item>
-        <item name="colorAccent">@color/secondary</item>
-        
-        <!-- Background colors -->
-        <item name="android:colorBackground">@color/background</item>
-        <item name="colorSurface">@color/surface</item>
-        
-        <!-- System UI customization -->
-        <item name="android:statusBarColor">@color/deep_navy_blue</item>
-        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
     </style>
 </resources>

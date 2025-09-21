@@ -14,16 +14,16 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApiSettingsScreen(
+fun IntegrationSettingsScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToAPIKeysManager: () -> Unit = {}
+    onNavigateToPlexCalibre: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { 
                     Text(
-                        "API Settings",
+                        "Integration Settings",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     ) 
@@ -52,54 +52,45 @@ fun ApiSettingsScreen(
         ) {
             item {
                 Text(
-                    text = "Configure API keys and metadata settings for enhanced content discovery",
+                    text = "Connect with external services and platforms",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             item {
-                ApiSettingsCard(
-                    title = "API Keys Manager",
-                    subtitle = "Configure 16+ metadata providers (TMDB, Google Books, MusicBrainz, etc.)",
-                    icon = Icons.Default.Key,
-                    onClick = onNavigateToAPIKeysManager
+                IntegrationCard(
+                    title = "Plex Integration",
+                    subtitle = "Connect to Plex servers for enhanced media management",
+                    icon = Icons.Default.Cloud,
+                    onClick = onNavigateToPlexCalibre
                 )
             }
 
             item {
-                ApiSettingsCard(
-                    title = "Metadata Quality",
-                    subtitle = "Set quality preferences and confidence thresholds",
-                    icon = Icons.Default.HighQuality,
-                    onClick = { /* Navigate to metadata quality settings */ }
+                IntegrationCard(
+                    title = "Calibre Integration",
+                    subtitle = "OPDS feeds, Content Server, and library synchronization",
+                    icon = Icons.Default.Sync,
+                    onClick = onNavigateToPlexCalibre
                 )
             }
 
             item {
-                ApiSettingsCard(
-                    title = "Source Priority",
-                    subtitle = "Customize metadata source priority and fallback options",
-                    icon = Icons.Default.Sort,
-                    onClick = { /* Navigate to source priority settings */ }
+                IntegrationCard(
+                    title = "Cloud Sync",
+                    subtitle = "Backup settings, reading progress, and cross-device sync",
+                    icon = Icons.Default.CloudSync,
+                    onClick = { /* Navigate to cloud sync settings */ }
                 )
             }
 
             item {
-                ApiSettingsCard(
-                    title = "Rate Limiting",
-                    subtitle = "Configure API request limits and caching settings",
-                    icon = Icons.Default.Speed,
-                    onClick = { /* Navigate to rate limiting settings */ }
-                )
-            }
-
-            item {
-                ApiSettingsCard(
-                    title = "Batch Processing",
-                    subtitle = "Settings for bulk metadata enhancement operations",
-                    icon = Icons.Default.BatchPrediction,
-                    onClick = { /* Navigate to batch processing settings */ }
+                IntegrationCard(
+                    title = "Import & Export",
+                    subtitle = "Library backup, restore, and migration tools",
+                    icon = Icons.Default.ImportExport,
+                    onClick = { /* Navigate to import/export settings */ }
                 )
             }
         }
@@ -107,7 +98,7 @@ fun ApiSettingsScreen(
 }
 
 @Composable
-fun ApiSettingsCard(
+fun IntegrationCard(
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,

@@ -14,16 +14,17 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApiSettingsScreen(
+fun GeneralSettingsScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToAPIKeysManager: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToAbout: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { 
                     Text(
-                        "API Settings",
+                        "General Settings",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     ) 
@@ -52,54 +53,45 @@ fun ApiSettingsScreen(
         ) {
             item {
                 Text(
-                    text = "Configure API keys and metadata settings for enhanced content discovery",
+                    text = "Configure general app settings and preferences",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             item {
-                ApiSettingsCard(
-                    title = "API Keys Manager",
-                    subtitle = "Configure 16+ metadata providers (TMDB, Google Books, MusicBrainz, etc.)",
-                    icon = Icons.Default.Key,
-                    onClick = onNavigateToAPIKeysManager
+                GeneralSettingsCard(
+                    title = "Notifications",
+                    subtitle = "Reading reminders, sync alerts, system notifications",
+                    icon = Icons.Default.Notifications,
+                    onClick = onNavigateToNotifications
                 )
             }
 
             item {
-                ApiSettingsCard(
-                    title = "Metadata Quality",
-                    subtitle = "Set quality preferences and confidence thresholds",
-                    icon = Icons.Default.HighQuality,
-                    onClick = { /* Navigate to metadata quality settings */ }
-                )
-            }
-
-            item {
-                ApiSettingsCard(
-                    title = "Source Priority",
-                    subtitle = "Customize metadata source priority and fallback options",
-                    icon = Icons.Default.Sort,
-                    onClick = { /* Navigate to source priority settings */ }
-                )
-            }
-
-            item {
-                ApiSettingsCard(
-                    title = "Rate Limiting",
-                    subtitle = "Configure API request limits and caching settings",
+                GeneralSettingsCard(
+                    title = "Performance",
+                    subtitle = "Cache management, optimization, storage settings",
                     icon = Icons.Default.Speed,
-                    onClick = { /* Navigate to rate limiting settings */ }
+                    onClick = { /* Navigate to performance settings */ }
                 )
             }
 
             item {
-                ApiSettingsCard(
-                    title = "Batch Processing",
-                    subtitle = "Settings for bulk metadata enhancement operations",
-                    icon = Icons.Default.BatchPrediction,
-                    onClick = { /* Navigate to batch processing settings */ }
+                GeneralSettingsCard(
+                    title = "Advanced",
+                    subtitle = "Debug options, experimental features, developer tools",
+                    icon = Icons.Default.DeveloperMode,
+                    onClick = { /* Navigate to advanced settings */ }
+                )
+            }
+
+            item {
+                GeneralSettingsCard(
+                    title = "About",
+                    subtitle = "Version info, licenses, support, acknowledgments",
+                    icon = Icons.Default.Info,
+                    onClick = onNavigateToAbout
                 )
             }
         }
@@ -107,7 +99,7 @@ fun ApiSettingsScreen(
 }
 
 @Composable
-fun ApiSettingsCard(
+fun GeneralSettingsCard(
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
