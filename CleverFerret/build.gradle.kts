@@ -79,6 +79,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     
+    // Security for encrypted preferences - WORKING API Key Storage
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    
+    // Audio metadata editing - WORKING File Organization
+    implementation("org.jaudiotagger:jaudiotagger:3.0.1")
+    
     // Hilt for Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-compiler:2.48")
