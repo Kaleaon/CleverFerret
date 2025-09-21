@@ -127,7 +127,7 @@ jobs:
       - name: AI Code Review Analysis
         id: review
         env:
-          EMERGENT_LLM_KEY: sk-emergent-aCd2b6dBf57FfC928A
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cat > ai_review.py << 'EOF'
@@ -135,7 +135,7 @@ jobs:
           import sys
           import json
           import subprocess
-          from emergentintegrations import EmergentLLM
+          import google.generativeai as genai
           
           def run_git_command(command, check=True):
               """Safely run git commands with error handling"""
@@ -205,11 +205,13 @@ jobs:
           
           def analyze_code_changes():
               try:
-                  # Initialize Emergent LLM with Gemini
-                  llm = EmergentLLM(
-                      api_key=os.environ.get('EMERGENT_LLM_KEY'),
-                      provider='gemini'
-                  )
+                  # Initialize Google Gemini API
+                  api_key = os.environ.get('GEMINI_API_KEY')
+                  if not api_key:
+                      raise Exception("GEMINI_API_KEY environment variable not set")
+                  
+                  genai.configure(api_key=api_key)
+                  model = genai.GenerativeModel('gemini-2.0-flash-exp')
                   
                   # Read changed files
                   try:
@@ -292,14 +294,10 @@ jobs:
           IMPORTANT: For any fixable issues, provide the exact original and fixed code in the "fixes" array.
           """
                   
-                  response = llm.chat.completions.create(
-                      model="gemini-1.5-pro",
-                      messages=[{"role": "user", "content": review_prompt}],
-                      temperature=0.1
-                  )
+                  response = model.generate_content(review_prompt)
                   
                   # Parse AI response
-                  ai_response = response.choices[0].message.content
+                  ai_response = response.text
                   print(f"AI Response: {ai_response}")
                   
                   # Try to extract JSON from response
@@ -343,8 +341,8 @@ jobs:
                       else:
                           # Fallback parsing
                           review_result = {"passed": True, "score": 85, "issues": [], "summary": "AI review completed"}
-                  except json.JSONDecodeError:
-                      print("Failed to parse AI response, treating as potential issue")
+                  except json.JSONDecodeError as e:
+                      print(f"Failed to parse AI response: {e}")
                       review_result = {
                           "passed": False, 
                           "score": 50, 
