@@ -635,18 +635,24 @@ jobs:
 
       - name: Commit to Builds Directory
         if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Configure git
+          # Configure git with token authentication
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git config --local credential.helper ""
+          git config --local --add credential.helper store
+          echo "https://x-access-token:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
           
           # Add builds directory changes
           git add builds/
           
           # Check if there are changes to commit
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No new build artifacts to commit"
           else
+            echo "Committing new build artifacts..."
             git commit -m "🤖 Auto-build: Add ${{ steps.build-info.outputs.apk-filename }}
 
             - Branch: ${{ steps.build-info.outputs.branch-name }}
@@ -654,8 +660,21 @@ jobs:
             - AI Review Score: ${{ needs.ai-review.outputs.review-score }}/100
             - Build Date: ${{ steps.build-info.outputs.build-date }}"
             
-            git push
-            echo "✅ APK committed to builds directory"
+            # Push with retry mechanism
+            for attempt in 1 2 3; do
+              echo "Push attempt $attempt..."
+              if git push origin HEAD:${{ github.ref_name }}; then
+                echo "✅ APK committed to builds directory successfully"
+                break
+              else
+                if [ $attempt -eq 3 ]; then
+                  echo "❌ Failed to push after 3 attempts"
+                  exit 1
+                fi
+                echo "Retrying push in 5 seconds..."
+                sleep 5
+              fi
+            done
           fi
 
       - name: Upload Build Artifacts
