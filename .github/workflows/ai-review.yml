@@ -578,7 +578,10 @@ jobs:
         with:
           cmdline-tools-version: 11076708
           accept-android-sdk-licenses: true
-          packages: platform-tools platforms;android-${{ env.ANDROID_API_LEVEL }} build-tools;${{ env.ANDROID_BUILD_TOOLS }}
+          packages: |
+            platform-tools
+            platforms;android-${{ env.ANDROID_API_LEVEL }}
+            build-tools;${{ env.ANDROID_BUILD_TOOLS }}
 
       - name: Cache Build System
         uses: actions/cache@v4
