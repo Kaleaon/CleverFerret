@@ -569,13 +569,6 @@ jobs:
             platforms;android-${{ env.ANDROID_API_LEVEL }}
             build-tools;${{ env.ANDROID_BUILD_TOOLS }}
 
-      - name: Accept Android SDK Licenses
-        run: |
-          SDKMANAGER_PATH="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          if [[ -f "$SDKMANAGER_PATH" ]]; then
-            yes | "$SDKMANAGER_PATH" --licenses || true
-          fi
-
       - name: Cache Build System
         uses: actions/cache@v4
         with:
