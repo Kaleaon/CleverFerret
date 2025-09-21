@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 2
         versionName = "1.2-enhanced"
 
