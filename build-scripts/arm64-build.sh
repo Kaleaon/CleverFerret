@@ -30,7 +30,7 @@ export ANDROID_AAPT2_PATH="$ARM64_BUILD_TOOLS/aapt2"
 export PATH="$ARM64_BUILD_TOOLS:$ARM64_PLATFORM_TOOLS:$PATH"
 
 # Gradle configuration for ARM64
-export GRADLE_OPTS="-Xmx6g -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+export GRADLE_OPTS="-Xmx6g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 echo "✅ ARM64 build environment configured"
 echo "📊 Tools verification:"
