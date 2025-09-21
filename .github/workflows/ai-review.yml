@@ -546,6 +546,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: ai-review
     if: needs.ai-review.outputs.review-passed == 'true'
+    timeout-minutes: 60
+    env:
+      JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.12/x64
     permissions:
       contents: write
       
