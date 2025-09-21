@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
         loadSampleData()
         
         setContent {
-            PlexTheme {
+            CleverFerretTheme {
                 CleverFerretMainScreen()
             }
         }
