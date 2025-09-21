@@ -305,11 +305,8 @@ private fun getBooksProviders(settings: BookApiSettings): List<ApiProvider> = li
         requiresApiKey = false,
         isEnabled = settings.hardcoverEnabled,
         website = "https://hardcover.app/graphql",
-        mediaType = MediaType.BOOKS
-    )
-)
-
-private fun getComicsProviders(settings: ComicApiSettings): List<ApiProvider> = listOf(
+        mediaType = SettingsMediaType.BOOKS
+    ),
     ApiProvider(
         name = "ComicVine",
         description = "Comprehensive comic book database",
@@ -317,7 +314,7 @@ private fun getComicsProviders(settings: ComicApiSettings): List<ApiProvider> = 
         isEnabled = settings.comicVineEnabled,
         apiKey = settings.comicVineApiKey,
         website = "https://comicvine.gamespot.com/api/",
-        mediaType = MediaType.COMICS
+        mediaType = SettingsMediaType.COMICS
     )
 )
 
@@ -329,7 +326,7 @@ private fun getAudiobooksProviders(settings: AudiobookApiSettings): List<ApiProv
         isEnabled = settings.overDriveEnabled,
         apiKey = settings.overDriveApiKey,
         website = "https://developer.overdrive.com/",
-        mediaType = MediaType.AUDIOBOOKS
+        mediaType = SettingsMediaType.AUDIOBOOKS
     )
 )
 
@@ -341,7 +338,7 @@ private fun getMoviesProviders(settings: MovieTvApiSettings): List<ApiProvider> 
         isEnabled = settings.tmdbEnabled,
         apiKey = settings.tmdbApiKey,
         website = "https://www.themoviedb.org/documentation/api",
-        mediaType = MediaType.MOVIES_TV
+        mediaType = SettingsMediaType.MOVIES_TV
     ),
     ApiProvider(
         name = "OMDb",
@@ -350,7 +347,7 @@ private fun getMoviesProviders(settings: MovieTvApiSettings): List<ApiProvider> 
         isEnabled = settings.omdbEnabled,
         apiKey = settings.omdbApiKey,
         website = "https://www.omdbapi.com/",
-        mediaType = MediaType.MOVIES_TV
+        mediaType = SettingsMediaType.MOVIES_TV
     )
 )
 
@@ -361,7 +358,7 @@ private fun getMusicProviders(settings: MusicApiSettings): List<ApiProvider> = l
         requiresApiKey = false,
         isEnabled = settings.musicBrainzEnabled,
         website = "https://musicbrainz.org/doc/Development",
-        mediaType = MediaType.MUSIC
+        mediaType = SettingsMediaType.MUSIC
     ),
     ApiProvider(
         name = "Spotify",
@@ -370,6 +367,6 @@ private fun getMusicProviders(settings: MusicApiSettings): List<ApiProvider> = l
         isEnabled = settings.spotifyEnabled,
         apiKey = settings.spotifyClientId,
         website = "https://developer.spotify.com/documentation/web-api",
-        mediaType = MediaType.MUSIC
+        mediaType = SettingsMediaType.MUSIC
     )
 )
