@@ -297,7 +297,7 @@ private fun getBooksProviders(settings: BookApiSettings): List<ApiProvider> = li
         isEnabled = settings.googleBooksEnabled,
         apiKey = settings.googleBooksApiKey,
         website = "https://developers.google.com/books",
-        mediaType = MediaType.BOOKS
+        mediaType = SettingsMediaType.BOOKS
     ),
     ApiProvider(
         name = "Hardcover", 
