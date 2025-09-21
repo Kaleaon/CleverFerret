@@ -10,11 +10,6 @@ android {
     namespace = "com.universalmedialibrary"
     compileSdk = 34
     buildToolsVersion = "33.0.2"  // LOCKED VERSION - ARM64 compatible
-    
-    // Configure ARM64-compatible AAPT2
-    aaptOptions {
-        additionalParameters += listOf("--debug-mode")
-    }
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
