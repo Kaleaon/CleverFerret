@@ -28,12 +28,23 @@ fun SecuritySettingsScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Security Settings") },
+                    title = { 
+                        Text(
+                            "Security Settings",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        ) 
+                    },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
                             Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = CleverFerretProfessionalColors.Navy,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
+                    )
                 )
             }
         ) { paddingValues ->
