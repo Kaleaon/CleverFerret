@@ -40,7 +40,7 @@ fun AboutSettingsScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        "About CleverFerret",
+                        "About Clever Ferret",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     ) 
