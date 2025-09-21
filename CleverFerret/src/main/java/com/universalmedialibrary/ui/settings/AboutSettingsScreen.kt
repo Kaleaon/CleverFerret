@@ -117,7 +117,7 @@ fun AboutSettingsScreen(
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text(
-                                    text = "Version 1.3 Professional",
+                                    text = "Version 1.3 Professional • Enhanced Edition",
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = CleverFerretProfessionalColors.DeepNavy,
