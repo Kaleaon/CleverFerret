@@ -48,3 +48,7 @@ modern-android-tools/
 
 # Zip files
 *.zip
+-e 
+# Environment files
+*.env
+*.env.*
