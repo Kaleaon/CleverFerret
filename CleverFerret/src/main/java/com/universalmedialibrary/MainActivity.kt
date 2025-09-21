@@ -33,6 +33,7 @@ import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.CleverFerretProfessionalColors
 import com.universalmedialibrary.ui.settings.EnhancedSettingsScreen
+import com.universalmedialibrary.ui.components.CleverFerretLogo
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
