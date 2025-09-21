@@ -284,7 +284,7 @@ class GitHubActionsValidator:
             with open(self.workflow_path, 'r') as f:
                 workflow_data = yaml.safe_load(f)
             
-            triggers = workflow_data.get('on', {})
+            triggers = workflow_data.get('on', workflow_data.get(True, {}))
             
             # Check push triggers
             if 'push' in triggers:
