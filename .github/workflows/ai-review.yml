@@ -40,23 +40,60 @@ jobs:
       - name: Get changed files
         id: changes
         run: |
+          echo "Analyzing repository state..."
+          git status
+          
+          # Ensure we have the latest refs
+          git fetch origin --prune
+          
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+            echo "Processing pull request..."
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+            
+            # Verify SHAs exist
+            if ! git rev-parse --verify "$BASE_SHA" >/dev/null 2>&1; then
+              echo "Warning: Base SHA not found, using main branch"
+              BASE_SHA="origin/main"
+            fi
+            
+            if ! git rev-parse --verify "$HEAD_SHA" >/dev/null 2>&1; then
+              echo "Warning: Head SHA not found, using HEAD"
+              HEAD_SHA="HEAD"
+            fi
+            
+            CHANGED_FILES=$(git diff --name-only "$BASE_SHA..$HEAD_SHA" 2>/dev/null || git diff --name-only HEAD~1)
+            
+            # Get file content changes for review
+            git diff "$BASE_SHA..$HEAD_SHA" > diff.txt 2>/dev/null || git diff HEAD~1 > diff.txt
           else
-            CHANGED_FILES=$(git diff --name-only HEAD~1)
+            echo "Processing push event..."
+            # For push events, compare with previous commit
+            if [ "$(git rev-list --count HEAD)" -gt 1 ]; then
+              CHANGED_FILES=$(git diff --name-only HEAD~1)
+              git diff HEAD~1 > diff.txt
+            else
+              # First commit case
+              CHANGED_FILES=$(git ls-tree --name-only -r HEAD)
+              git show HEAD --format="" > diff.txt
+            fi
           fi
           
-          echo "Changed files:"
+          echo "Changed files detected:"
           echo "$CHANGED_FILES"
           
           # Save changed files to temp file
           echo "$CHANGED_FILES" > changed_files.txt
           
-          # Get file content changes for review
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} > diff.txt
-          else
-            git diff HEAD~1 > diff.txt
+          # Verify we have content to review
+          if [ ! -s changed_files.txt ]; then
+            echo "No changes detected"
+            echo "" > changed_files.txt
+          fi
+          
+          if [ ! -s diff.txt ]; then
+            echo "No diff content available"
+            echo "" > diff.txt
           fi
 
       - name: Set up Python for AI Review
