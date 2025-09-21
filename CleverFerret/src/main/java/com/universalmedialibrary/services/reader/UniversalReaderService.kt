@@ -18,7 +18,9 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.zip.ZipFile
 import javax.inject.Inject
-import javax.inject.Singleton
+import com.universalmedialibrary.services.ai.GeminiTTSService
+import com.universalmedialibrary.services.ai.GeminiTTSOptions
+import com.universalmedialibrary.services.ai.GeminiTTSResult
 
 /**
  * Universal Reader Service
@@ -44,7 +46,8 @@ import javax.inject.Singleton
 @Singleton
 class UniversalReaderService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val epubReaderService: EPUBReaderService
+    private val epubReaderService: EPUBReaderService,
+    private val geminiTTSService: GeminiTTSService
 ) {
     
     private val _readerState = MutableStateFlow(UniversalReaderState())
@@ -579,6 +582,194 @@ class UniversalReaderService @Inject constructor(
         
         _readerState.value = UniversalReaderState()
     }
+}
+
+/**
+ * Gemini AI Text-to-Speech Integration
+ */
+
+/**
+ * Generate speech for current page/chapter using Gemini TTS
+ */
+suspend fun generateSpeechForCurrentPage(
+    apiKey: String,
+    options: GeminiTTSOptions = GeminiTTSOptions()
+): GeminiTTSResult = withContext(Dispatchers.IO) {
+    val state = _readerState.value
+    
+    return@withContext when {
+        state.content.isBlank() -> {
+            GeminiTTSResult(success = false, error = "No content to read")
+        }
+        
+        state.documentType == DocumentType.EPUB -> {
+            val currentChapter = state.chapters.getOrNull(state.currentPage)
+            if (currentChapter != null) {
+                geminiTTSService.generateBookChapterSpeech(
+                    chapterText = currentChapter.content,
+                    chapterTitle = currentChapter.title,
+                    bookTitle = state.title,
+                    apiKey = apiKey,
+                    options = options
+                )
+            } else {
+                GeminiTTSResult(success = false, error = "Chapter not found")
+            }
+        }
+        
+        else -> {
+            // For PDF, text, HTML, etc.
+            val content = if (state.content.length > 8000) {
+                // Limit to first 8000 characters for reasonable TTS length
+                state.content.take(8000) + "..."
+            } else {
+                state.content
+            }
+            
+            geminiTTSService.generateSpeech(
+                text = content,
+                apiKey = apiKey,
+                options = options.copy(
+                    style = when (state.documentType) {
+                        DocumentType.PDF -> com.universalmedialibrary.services.ai.GeminiTTSStyle.EDUCATIONAL
+                        DocumentType.HTML -> com.universalmedialibrary.services.ai.GeminiTTSStyle.CONVERSATIONAL
+                        else -> com.universalmedialibrary.services.ai.GeminiTTSStyle.NARRATIVE
+                    }
+                )
+            )
+        }
+    }
+}
+
+/**
+ * Generate speech for entire book/document (for audiobook creation)
+ */
+suspend fun generateSpeechForEntireDocument(
+    apiKey: String,
+    options: GeminiTTSOptions = GeminiTTSOptions(),
+    onProgress: (Int, Int) -> Unit = { _, _ -> }
+): List<GeminiTTSResult> = withContext(Dispatchers.IO) {
+    val state = _readerState.value
+    val results = mutableListOf<GeminiTTSResult>()
+    
+    when (state.documentType) {
+        DocumentType.EPUB -> {
+            state.chapters.forEachIndexed { index, chapter ->
+                onProgress(index + 1, state.chapters.size)
+                
+                val result = geminiTTSService.generateBookChapterSpeech(
+                    chapterText = chapter.content,
+                    chapterTitle = chapter.title,
+                    bookTitle = state.title,
+                    apiKey = apiKey,
+                    options = options
+                )
+                results.add(result)
+            }
+        }
+        
+        else -> {
+            // Split content into chunks for very long documents
+            val content = state.content
+            val chunks = splitContentForTTS(content, 8000)
+            
+            chunks.forEachIndexed { index, chunk ->
+                onProgress(index + 1, chunks.size)
+                
+                val result = geminiTTSService.generateSpeech(
+                    text = chunk,
+                    apiKey = apiKey,
+                    options = options
+                )
+                results.add(result)
+            }
+        }
+    }
+    
+    results
+}
+
+/**
+ * Play generated audio using the TTS service
+ */
+suspend fun playCurrentPageAudio(audioFile: java.io.File): Boolean {
+    return geminiTTSService.playAudio(audioFile)
+}
+
+/**
+ * Stop any currently playing TTS audio
+ */
+fun stopTTSPlayback() {
+    geminiTTSService.stopCurrentPlayback()
+}
+
+/**
+ * Get current TTS state
+ */
+fun getTTSState() = geminiTTSService.ttsState
+
+/**
+ * Read current page aloud with optimized settings
+ */
+suspend fun readCurrentPageAloud(
+    apiKey: String,
+    autoPlay: Boolean = true
+): GeminiTTSResult = withContext(Dispatchers.IO) {
+    val state = _readerState.value
+    
+    // Optimize TTS options for reading
+    val readingOptions = GeminiTTSOptions(
+        style = when (state.documentType) {
+            DocumentType.EPUB -> com.universalmedialibrary.services.ai.GeminiTTSStyle.NARRATIVE
+            DocumentType.PDF -> com.universalmedialibrary.services.ai.GeminiTTSStyle.EDUCATIONAL
+            DocumentType.HTML -> com.universalmedialibrary.services.ai.GeminiTTSStyle.CONVERSATIONAL
+            else -> com.universalmedialibrary.services.ai.GeminiTTSStyle.CALM
+        },
+        pace = com.universalmedialibrary.services.ai.GeminiTTSPace.NORMAL,
+        enhanceAccessibility = true,
+        enableMultiSpeaker = state.content.contains("\"") // Enable if dialogue detected
+    )
+    
+    val result = generateSpeechForCurrentPage(apiKey, readingOptions)
+    
+    // Auto-play if requested and generation was successful
+    if (autoPlay && result.success && result.audioFile != null) {
+        playCurrentPageAudio(result.audioFile)
+    }
+    
+    result
+}
+
+/**
+ * Utility method to split content for TTS
+ */
+private fun splitContentForTTS(content: String, maxChunkSize: Int): List<String> {
+    if (content.length <= maxChunkSize) return listOf(content)
+    
+    val chunks = mutableListOf<String>()
+    var currentIndex = 0
+    
+    while (currentIndex < content.length) {
+        val endIndex = minOf(currentIndex + maxChunkSize, content.length)
+        
+        // Try to split at sentence boundary
+        var splitIndex = endIndex
+        if (endIndex < content.length) {
+            val lastPeriod = content.lastIndexOf('.', endIndex)
+            val lastExclamation = content.lastIndexOf('!', endIndex)
+            val lastQuestion = content.lastIndexOf('?', endIndex)
+            
+            val sentenceEnd = maxOf(lastPeriod, lastExclamation, lastQuestion)
+            if (sentenceEnd > currentIndex + maxChunkSize / 2) {
+                splitIndex = sentenceEnd + 1
+            }
+        }
+        
+        chunks.add(content.substring(currentIndex, splitIndex).trim())
+        currentIndex = splitIndex
+    }
+    
+    return chunks
 }
 
 /**

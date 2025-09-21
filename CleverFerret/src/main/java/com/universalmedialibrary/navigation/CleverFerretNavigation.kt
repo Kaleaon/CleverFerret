@@ -20,6 +20,7 @@ sealed class CleverFerretDestination(val route: String) {
     object GeneralSettings : CleverFerretDestination("general_settings")
     object IntegrationSettings : CleverFerretDestination("integration_settings")
     object APIKeysManager : CleverFerretDestination("api_keys_manager")
+    object GeminiApiSettings : CleverFerretDestination("gemini_api_settings")
     object PlexCalibreIntegration : CleverFerretDestination("plex_calibre_integration")
     object NotificationSettings : CleverFerretDestination("notification_settings")
     object AboutSettings : CleverFerretDestination("about_settings")
@@ -68,6 +69,9 @@ fun CleverFerretNavigation(
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToAPIKeysManager = {
                     navController.navigate(CleverFerretDestination.APIKeysManager.route)
+                },
+                onNavigateToGeminiSettings = {
+                    navController.navigate(CleverFerretDestination.GeminiApiSettings.route)
                 }
             )
         }
@@ -113,6 +117,13 @@ fun CleverFerretNavigation(
         composable(CleverFerretDestination.APIKeysManager.route) {
             APIKeysManagerScreen(
                 navController = navController
+            )
+        }
+
+        // Gemini AI Settings Screen
+        composable(CleverFerretDestination.GeminiApiSettings.route) {
+            GeminiApiSettingsScreen(
+                onNavigateBack = { navController.navigateUp() }
             )
         }
 

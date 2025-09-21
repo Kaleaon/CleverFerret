@@ -16,7 +16,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ApiSettingsScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToAPIKeysManager: () -> Unit = {}
+    onNavigateToAPIKeysManager: () -> Unit = {},
+    onNavigateToGeminiSettings: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -61,9 +62,18 @@ fun ApiSettingsScreen(
             item {
                 ApiSettingsCard(
                     title = "API Keys Manager",
-                    subtitle = "Configure 16+ metadata providers (TMDB, Google Books, MusicBrainz, etc.)",
+                    subtitle = "Configure 65+ metadata providers (TMDB, Google Books, MusicBrainz, etc.)",
                     icon = Icons.Default.Key,
                     onClick = onNavigateToAPIKeysManager
+                )
+            }
+
+            item {
+                ApiSettingsCard(
+                    title = "Gemini AI Integration",
+                    subtitle = "Configure Google Gemini API for OCR and Text-to-Speech",
+                    icon = Icons.Default.Psychology,
+                    onClick = onNavigateToGeminiSettings
                 )
             }
 
