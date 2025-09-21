@@ -168,7 +168,49 @@ class MainActivity : ComponentActivity() {
                 0 -> LibraryTabContent()
                 1 -> PlexCalibreMetadataTab()
                 2 -> ScanningTabContent()
-                3 -> SettingsTabContent()
+                3 -> EnhancedSettingsScreen(
+                    onNavigateBack = { /* Handle back navigation if needed */ },
+                    onNavigateToApiSettings = { 
+                        // Navigate to API settings
+                        android.widget.Toast.makeText(
+                            this@MainActivity,
+                            "Opening API Settings...",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onNavigateToReaderSettings = {
+                        // Navigate to reader settings
+                        android.widget.Toast.makeText(
+                            this@MainActivity,
+                            "Opening Reader Settings...",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onNavigateToSecuritySettings = {
+                        // Navigate to security settings
+                        android.widget.Toast.makeText(
+                            this@MainActivity,
+                            "Opening Security Settings...",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onNavigateToGeneralSettings = {
+                        // Navigate to general settings
+                        android.widget.Toast.makeText(
+                            this@MainActivity,
+                            "Opening General Settings...",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onNavigateToIntegrationSettings = {
+                        // Navigate to integration settings
+                        android.widget.Toast.makeText(
+                            this@MainActivity,
+                            "Opening Integration Settings...",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                )
             }
         }
     }
