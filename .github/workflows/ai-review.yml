@@ -580,7 +580,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
             modern-android-tools/
-          key: ai-build-${{ runner.os }}-${{ hashFiles('**/*.gradle*') }}
+          key: ai-build-${{ runner.os }}-${{ hashFiles('**/*.gradle.kts', '**/gradle.properties', 'gradlew*') }}
 
       - name: Make scripts executable
         run: |
