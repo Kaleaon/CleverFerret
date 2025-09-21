@@ -30,7 +30,7 @@ import androidx.core.content.ContextCompat
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.settings.EnhancedSettingsScreen
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * CleverFerret Universal Media Library - Main Activity
