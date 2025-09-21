@@ -122,7 +122,7 @@ jobs:
 
       - name: Install AI Review Dependencies
         run: |
-          pip install requests python-dotenv emergentintegrations --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/
+          pip install requests python-dotenv google-generativeai
 
       - name: AI Code Review Analysis
         id: review
