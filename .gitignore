@@ -46,48 +46,67 @@ android_sdk/
 # Modern Android Tools
 modern-android-tools/
 
-# Zip files
+# Large binary files that shouldn't be in Git
+*.apk
+*.aab
+*.ipa
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm
+
+# Large database files
+*.db
+*.sqlite
+*.sqlite3
+metadata.db
+
+# Large media files
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mp3
+*.flac
+*.wav
+*.ogg
+*.m4a
+*.aac
+
+# Zip and archive files
 *.zip
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tar.bz2
+
+# Build artifacts and temporary files
+builds/*.apk
+builds/*.aab
+builds/*.db
+builds/CleverFerret-*
+builds/universal-media-library-*
+builds/temp/
+builds/cache/
+
+# Log files
+*.log
+logs/
+
+# Cache directories
+cache/
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
