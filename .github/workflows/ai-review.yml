@@ -574,32 +574,32 @@ jobs:
           distribution: temurin
 
       - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        
+      - name: Install Android SDK Components
         run: |
-          # Install Android SDK components manually for better control
+          # Install required Android SDK components
           echo "Installing Android SDK components..."
           
-          # Set up Android environment
-          export ANDROID_HOME=/usr/local/lib/android/sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          # Accept all licenses first
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           
-          # Accept licenses first
-          yes | sdkmanager --licenses || true
-          
-          # Install required packages individually  
+          # Install components individually for better error handling
           echo "Installing platform-tools..."
-          sdkmanager "platform-tools"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools"
           
           echo "Installing Android API ${{ env.ANDROID_API_LEVEL }}..."
-          sdkmanager "platforms;android-${{ env.ANDROID_API_LEVEL }}"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-${{ env.ANDROID_API_LEVEL }}"
           
           echo "Installing build-tools ${{ env.ANDROID_BUILD_TOOLS }}..."
-          sdkmanager "build-tools;${{ env.ANDROID_BUILD_TOOLS }}"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;${{ env.ANDROID_BUILD_TOOLS }}"
           
-          echo "✅ Android SDK setup complete"
+          echo "✅ Android SDK components installed successfully"
           
           # Verify installation
-          echo "Installed packages:"
-          sdkmanager --list_installed | head -10
+          echo "Verifying installation:"
+          ls -la $ANDROID_HOME/platforms/ || echo "Platforms directory not found"
+          ls -la $ANDROID_HOME/build-tools/ || echo "Build-tools directory not found"
 
       - name: Cache Build System
         uses: actions/cache@v4
