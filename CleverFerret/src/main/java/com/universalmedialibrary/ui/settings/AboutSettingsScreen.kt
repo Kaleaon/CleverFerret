@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.universalmedialibrary.ui.theme.CleverFerretProfessionalColors
+import com.universalmedialibrary.ui.components.CleverFerretAboutLogo
 
 /**
  * Professional About Settings Screen
