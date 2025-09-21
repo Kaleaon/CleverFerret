@@ -660,6 +660,17 @@ jobs:
             exit 1
           fi
 
+      - name: Upload CleverFerret APK as Artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: CleverFerret-APK-${{ steps.build-info.outputs.build-date }}
+          path: |
+            CleverFerret/build/outputs/apk/debug/*.apk
+            CleverFerret/build/outputs/apk/release/*.apk
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Commit to Builds Directory
         if: github.event_name == 'push'
         env:
