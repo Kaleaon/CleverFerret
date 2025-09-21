@@ -550,6 +550,8 @@ jobs:
           git config --global user.name "AI Code Reviewer"
           git config --global user.email "ai-reviewer@github.com"
           git config --global init.defaultBranch main
+          git config --global credential.helper store
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
