@@ -13,22 +13,35 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Podcast screen.
+ *
+ * @param podcastService The service to handle podcast data.
+ */
 @HiltViewModel
 class PodcastViewModel @Inject constructor(
     private val podcastService: PodcastService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PodcastUiState())
+    /**
+     * The UI state for the Podcast screen.
+     */
     val uiState: StateFlow<PodcastUiState> = _uiState.asStateFlow()
 
     init {
         loadPodcasts()
     }
 
+    /**
+     * Searches for podcasts based on a query.
+     *
+     * @param query The search query.
+     */
     fun searchPodcasts(query: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSearching = true, searchResults = emptyList())
-            
+
             try {
                 val results = podcastService.searchPodcasts(query)
                 _uiState.value = _uiState.value.copy(
@@ -44,16 +57,21 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Subscribes to a podcast from a search result.
+     *
+     * @param searchResult The search result to subscribe to.
+     */
     fun subscribeFromSearchResult(searchResult: PodcastSearchResult) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 val podcast = podcastService.subscribeToPodcast(searchResult.feedUrl)
                 if (podcast != null) {
                     val updatedPodcasts = _uiState.value.podcasts + podcast
                     val allEpisodes = updatedPodcasts.flatMap { it.episodes }
-                    
+
                     _uiState.value = _uiState.value.copy(
                         podcasts = updatedPodcasts,
                         allEpisodes = allEpisodes,
@@ -74,16 +92,21 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Adds a podcast by its RSS feed URL.
+     *
+     * @param feedUrl The RSS feed URL of the podcast.
+     */
     fun addPodcastByFeedUrl(feedUrl: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 val podcast = podcastService.subscribeToPodcast(feedUrl)
                 if (podcast != null) {
                     val updatedPodcasts = _uiState.value.podcasts + podcast
                     val allEpisodes = updatedPodcasts.flatMap { it.episodes }
-                    
+
                     _uiState.value = _uiState.value.copy(
                         podcasts = updatedPodcasts,
                         allEpisodes = allEpisodes,
@@ -104,13 +127,18 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Unsubscribes from a podcast.
+     *
+     * @param podcast The podcast to unsubscribe from.
+     */
     fun unsubscribeFromPodcast(podcast: Podcast) {
         val updatedPodcasts = _uiState.value.podcasts.filter { it.id != podcast.id }
         val allEpisodes = updatedPodcasts.flatMap { it.episodes }
         val downloadedEpisodes = _uiState.value.downloadedEpisodes.filter { episode ->
             updatedPodcasts.any { it.episodes.contains(episode) }
         }
-        
+
         _uiState.value = _uiState.value.copy(
             podcasts = updatedPodcasts,
             allEpisodes = allEpisodes,
@@ -118,13 +146,16 @@ class PodcastViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Refreshes all subscribed podcasts to check for new episodes.
+     */
     fun refreshAllPodcasts() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 val updatedPodcasts = mutableListOf<Podcast>()
-                
+
                 _uiState.value.podcasts.forEach { podcast ->
                     val newEpisodes = podcastService.checkForNewEpisodes(podcast)
                     val updatedPodcast = if (newEpisodes.isNotEmpty()) {
@@ -138,9 +169,9 @@ class PodcastViewModel @Inject constructor(
                     }
                     updatedPodcasts.add(updatedPodcast)
                 }
-                
+
                 val allEpisodes = updatedPodcasts.flatMap { it.episodes }
-                
+
                 _uiState.value = _uiState.value.copy(
                     podcasts = updatedPodcasts,
                     allEpisodes = allEpisodes,
@@ -155,6 +186,11 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Downloads a podcast episode.
+     *
+     * @param episode The episode to download.
+     */
     fun downloadEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
             try {
@@ -167,21 +203,21 @@ class PodcastViewModel @Inject constructor(
                             isDownloaded = true,
                             localFilePath = localPath
                         )
-                        
+
                         // Update the episode in the podcast
                         val updatedPodcast = podcast.copy(
-                            episodes = podcast.episodes.map { 
-                                if (it.id == episode.id) updatedEpisode else it 
+                            episodes = podcast.episodes.map {
+                                if (it.id == episode.id) updatedEpisode else it
                             }
                         )
-                        
+
                         val updatedPodcasts = _uiState.value.podcasts.map {
                             if (it.id == podcast.id) updatedPodcast else it
                         }
-                        
+
                         val allEpisodes = updatedPodcasts.flatMap { it.episodes }
                         val updatedDownloads = _uiState.value.downloadedEpisodes + updatedEpisode
-                        
+
                         _uiState.value = _uiState.value.copy(
                             podcasts = updatedPodcasts,
                             allEpisodes = allEpisodes,
@@ -201,6 +237,11 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Deletes a downloaded podcast episode.
+     *
+     * @param episode The episode to delete.
+     */
     fun deleteDownloadedEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
             try {
@@ -211,25 +252,25 @@ class PodcastViewModel @Inject constructor(
                         file.delete()
                     }
                 }
-                
+
                 // Update episode status
                 val updatedEpisode = episode.copy(
                     isDownloaded = false,
                     localFilePath = null
                 )
-                
+
                 // Update the episode in the podcast
                 val updatedPodcasts = _uiState.value.podcasts.map { podcast ->
                     podcast.copy(
-                        episodes = podcast.episodes.map { 
-                            if (it.id == episode.id) updatedEpisode else it 
+                        episodes = podcast.episodes.map {
+                            if (it.id == episode.id) updatedEpisode else it
                         }
                     )
                 }
-                
+
                 val allEpisodes = updatedPodcasts.flatMap { it.episodes }
                 val updatedDownloads = _uiState.value.downloadedEpisodes.filter { it.id != episode.id }
-                
+
                 _uiState.value = _uiState.value.copy(
                     podcasts = updatedPodcasts,
                     allEpisodes = allEpisodes,
@@ -243,21 +284,27 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Clears the current error message.
+     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
 
+    /**
+     * Loads the initial list of podcasts.
+     */
     private fun loadPodcasts() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 // In a real app, load from database
                 // For now, create some demo data
                 val demoPodcasts = createDemoPodcasts()
                 val allEpisodes = demoPodcasts.flatMap { it.episodes }
                 val downloadedEpisodes = allEpisodes.filter { it.isDownloaded }
-                
+
                 _uiState.value = _uiState.value.copy(
                     podcasts = demoPodcasts,
                     allEpisodes = allEpisodes,
@@ -273,11 +320,16 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Creates a list of demo podcasts for demonstration purposes.
+     *
+     * @return A list of demo podcasts.
+     */
     private fun createDemoPodcasts(): List<Podcast> {
         val now = java.util.Date()
         val yesterday = java.util.Date(now.time - 24 * 60 * 60 * 1000)
         val weekAgo = java.util.Date(now.time - 7 * 24 * 60 * 60 * 1000)
-        
+
         return listOf(
             Podcast(
                 id = "demo_1",
@@ -302,7 +354,7 @@ class PodcastViewModel @Inject constructor(
                         episodeNumber = 245
                     ),
                     PodcastEpisode(
-                        id = "demo_ep_2", 
+                        id = "demo_ep_2",
                         title = "Quantum Computing Breakthrough",
                         description = "Scientists achieve new milestone in quantum computing research.",
                         audioUrl = "https://example.com/audio/episode2.mp3",
@@ -368,6 +420,17 @@ class PodcastViewModel @Inject constructor(
     }
 }
 
+/**
+ * Represents the state of the Podcast UI.
+ *
+ * @param podcasts The list of subscribed podcasts.
+ * @param allEpisodes The list of all episodes from all subscribed podcasts.
+ * @param downloadedEpisodes The list of downloaded episodes.
+ * @param searchResults The results of a podcast search.
+ * @param isLoading Whether the app is currently loading data.
+ * @param isSearching Whether a search is in progress.
+ * @param error An error message, if any.
+ */
 data class PodcastUiState(
     val podcasts: List<Podcast> = emptyList(),
     val allEpisodes: List<PodcastEpisode> = emptyList(),

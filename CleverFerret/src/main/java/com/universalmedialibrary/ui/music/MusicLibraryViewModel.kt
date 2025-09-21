@@ -16,6 +16,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * The view model for the music library screen.
+ *
+ * @param context The application context.
+ * @param playback The audio playback manager.
+ */
 @HiltViewModel
 class MusicLibraryViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -23,8 +29,12 @@ class MusicLibraryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MusicLibraryUiState())
+    /** The UI state for the music library screen. */
     val uiState: StateFlow<MusicLibraryUiState> = _uiState.asStateFlow()
 
+    /**
+     * Scans the device for music files.
+     */
     fun scan() {
         viewModelScope.launch(Dispatchers.IO) {
             val songs = mutableListOf<Track>()
@@ -65,16 +75,31 @@ class MusicLibraryViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Plays all the tracks in the library.
+     */
     fun playAll() {
         val uris = _uiState.value.tracks.map { it.uri }
         playback.setQueue(uris, 0, true)
     }
 
+    /**
+     * Plays a single track.
+     * @param track The track to play.
+     */
     fun playTrack(track: Track) {
         playback.loadSingle(track.uri)
     }
 }
 
+/**
+ * Represents the UI state for the music library screen.
+ *
+ * @property isLoading Whether the screen is currently loading.
+ * @property tracks The list of tracks in the library.
+ * @property artists The list of artists in the library.
+ * @property albums The list of albums in the library.
+ */
 data class MusicLibraryUiState(
     val isLoading: Boolean = true,
     val tracks: List<Track> = emptyList(),
@@ -82,6 +107,14 @@ data class MusicLibraryUiState(
     val albums: List<String> = emptyList()
 )
 
+/**
+ * Represents a single music track.
+ *
+ * @property title The title of the track.
+ * @property artist The artist of the track.
+ * @property album The album the track belongs to.
+ * @property uri The URI of the track's audio file.
+ */
 data class Track(
     val title: String?,
     val artist: String?,

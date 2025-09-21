@@ -7,17 +7,22 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 /**
- * Handles navigation to appropriate media players based on file type
+ * A utility object for handling media item interactions, such as opening files
+ * and determining appropriate icons or properties based on media type.
  */
 object MediaItemHandler {
-    
+
     /**
-     * Navigate to appropriate player/reader based on media type and file extension
+     * Navigates to the appropriate player or reader screen based on the media item's type.
+     * The file path is URL-encoded to be safely passed as a navigation argument.
+     *
+     * @param navController The NavController used for navigation.
+     * @param mediaItem The media item to open.
      */
     fun openMediaItem(navController: NavController, mediaItem: MediaItem) {
         val filePath = mediaItem.filePath
         val encodedPath = URLEncoder.encode(filePath, StandardCharsets.UTF_8.toString())
-        
+
         when (mediaItem.type) {
             MediaType.BOOK -> {
                 val extension = filePath.substringAfterLast('.', "").lowercase()
@@ -43,9 +48,12 @@ object MediaItemHandler {
             }
         }
     }
-    
+
     /**
-     * Get appropriate icon for media type
+     * Returns the appropriate Material Design icon for a given media type.
+     *
+     * @param mediaType The type of the media.
+     * @return An [ImageVector] representing the icon.
      */
     fun getMediaIcon(mediaType: MediaType): androidx.compose.ui.graphics.vector.ImageVector {
         return when (mediaType) {
@@ -56,16 +64,22 @@ object MediaItemHandler {
             else -> androidx.compose.material.icons.Icons.Default.Help
         }
     }
-    
+
     /**
-     * Get file extension from path
+     * Extracts the file extension from a file path.
+     *
+     * @param filePath The full path to the file.
+     * @return The lowercase file extension without the dot.
      */
     fun getFileExtension(filePath: String): String {
         return filePath.substringAfterLast('.', "").lowercase()
     }
-    
+
     /**
-     * Check if file is supported
+     * Checks if a file is of a supported media type based on its extension.
+     *
+     * @param filePath The full path to the file.
+     * @return `true` if the file extension is supported, `false` otherwise.
      */
     fun isSupportedFile(filePath: String): Boolean {
         val extension = getFileExtension(filePath)

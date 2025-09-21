@@ -32,7 +32,12 @@ import { MetadataEditorScreen } from './components/MetadataEditorScreen';
 import { MediaViewerScreen } from './components/MediaViewerScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 
-// Plex-inspired dark theme
+/**
+ * @constant plexTheme
+ * A Material-UI theme inspired by Plex's dark mode.
+ * It features a dark background, Plex's signature gold as the primary color,
+ * and custom styles for components like Cards to create a modern, sleek look.
+ */
 const plexTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -97,7 +102,13 @@ const demoLibraries = [
   },
 ];
 
-// Library card component
+/**
+ * A component that displays a single library as a card.
+ * @param {object} props - The component props.
+ * @param {any} props.library - The library data to display.
+ * @param {() => void} props.onClick - Function to call when the card is clicked.
+ * @returns {React.ReactElement} The rendered library card.
+ */
 const LibraryCard: React.FC<{ library: any; onClick: () => void }> = ({ library, onClick }) => {
   return (
     <Card
@@ -144,7 +155,10 @@ const LibraryCard: React.FC<{ library: any; onClick: () => void }> = ({ library,
   );
 };
 
-// Home screen component
+/**
+ * The main home screen component that displays a list of libraries.
+ * @returns {React.ReactElement} The rendered home screen.
+ */
 const HomeScreen: React.FC = () => {
   const navigate = useNavigate();
 
@@ -206,12 +220,18 @@ const HomeScreen: React.FC = () => {
   );
 };
 
-// Media item component with realistic data
+/**
+ * A component that displays a single media item with its poster, title, and other details.
+ * @param {object} props - The component props.
+ * @param {any} props.item - The media item data.
+ * @param {() => void} props.onClick - Function to call when the item is clicked.
+ * @returns {React.ReactElement} The rendered media item card.
+ */
 const MediaItem: React.FC<{ item: any; onClick: () => void }> = ({ item, onClick }) => {
 
   return (
-    <Card 
-      sx={{ 
+    <Card
+      sx={{
         height: 350,
         cursor: 'pointer',
         position: 'relative',
@@ -235,7 +255,7 @@ const MediaItem: React.FC<{ item: any; onClick: () => void }> = ({ item, onClick
         }}
       >
         {!item.poster && <CollectionsIcon sx={{ fontSize: 50, color: 'primary.main' }} />}
-        
+
         {/* Rating badge */}
         <Box
           sx={{
@@ -287,21 +307,24 @@ const MediaItem: React.FC<{ item: any; onClick: () => void }> = ({ item, onClick
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           {item.author} • {item.year}
         </Typography>
-        <Chip 
-          label={item.genre} 
-          size="small" 
-          sx={{ 
+        <Chip
+          label={item.genre}
+          size="small"
+          sx={{
             fontSize: '0.7rem',
             bgcolor: 'rgba(229, 160, 13, 0.2)',
             color: 'primary.main',
-          }} 
+          }}
         />
       </CardContent>
     </Card>
   );
 };
 
-// Library details component with realistic media
+/**
+ * A component that displays the contents of a single library.
+ * @returns {React.ReactElement} The rendered library details screen.
+ */
 const LibraryScreen: React.FC = () => {
   const navigate = useNavigate();
 
@@ -389,7 +412,7 @@ const LibraryScreen: React.FC = () => {
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
           {demoItems.length} items • Mixed media
         </Typography>
-        
+
         <Grid container spacing={3}>
           {demoItems.map((item) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
@@ -405,7 +428,10 @@ const LibraryScreen: React.FC = () => {
   );
 };
 
-// Main App component
+/**
+ * The main application component. It sets up the theme, routing, and renders the appropriate screen.
+ * @returns {React.ReactElement} The root component of the application.
+ */
 const App: React.FC = () => {
   const [useCustomComponents] = useState(true);
 
@@ -417,7 +443,7 @@ const App: React.FC = () => {
           {/* Main Routes */}
           <Route path="/" element={useCustomComponents ? <LibraryListScreen /> : <HomeScreen />} />
           <Route path="/library/:id" element={useCustomComponents ? <LibraryDetailsScreen /> : <LibraryScreen />} />
-          
+
           {/* Additional Routes matching Android app */}
           <Route path="/metadata-editor/:mediaId" element={<MetadataEditorScreen />} />
           <Route path="/media-viewer/:mediaId" element={<MediaViewerScreen />} />

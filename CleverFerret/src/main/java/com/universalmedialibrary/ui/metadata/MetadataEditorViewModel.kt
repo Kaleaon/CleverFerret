@@ -17,7 +17,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for the metadata editor screen
+ * The view model for the metadata editor screen.
+ *
+ * @param mediaItemDao The DAO for media items.
+ * @param metadataDao The DAO for metadata.
  */
 @HiltViewModel
 class MetadataEditorViewModel @Inject constructor(
@@ -26,30 +29,32 @@ class MetadataEditorViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MetadataEditorUiState())
+    /** The UI state for the metadata editor screen. */
     val uiState: StateFlow<MetadataEditorUiState> = _uiState.asStateFlow()
 
     private var currentItemId: Long? = null
 
     /**
-     * Load metadata for the specified item
+     * Loads the metadata for the specified item.
+     * @param itemId The ID of the item to load.
      */
     fun loadMetadata(itemId: Long) {
         currentItemId = itemId
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             try {
                 // Load the media item and its metadata
                 val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 val metadataCommon = metadataDao.getMetadataCommonByItemId(itemId)
                 val metadataBook = metadataDao.getMetadataBookByItemId(itemId)
-                
+
                 if (mediaItem != null && metadataCommon != null) {
                     // Load relationship data
                     val authors = metadataDao.getAuthorsByItemId(itemId)
                     val series = metadataDao.getSeriesByItemId(itemId) ?: ""
                     val genres = metadataDao.getGenresByItemId(itemId)
-                    
+
                     // Convert to editable format
                     val metadata = EditableMetadata(
                         title = metadataCommon.title,
@@ -65,7 +70,7 @@ class MetadataEditorViewModel @Inject constructor(
                         genres = genres,
                         releaseDate = metadataCommon.releaseDate?.toString() ?: ""
                     )
-                    
+
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         metadata = metadata,
@@ -88,7 +93,8 @@ class MetadataEditorViewModel @Inject constructor(
     }
 
     /**
-     * Update a metadata field
+     * Updates a metadata field.
+     * @param field The field to update.
      */
     fun updateMetadata(field: MetadataField) {
         val currentMetadata = _uiState.value.metadata
@@ -106,9 +112,9 @@ class MetadataEditorViewModel @Inject constructor(
             is MetadataField.Genres -> currentMetadata.copy(genres = field.value)
             is MetadataField.ReleaseDate -> currentMetadata.copy(releaseDate = field.value)
         }
-        
+
         val hasChanges = newMetadata != _uiState.value.originalMetadata
-        
+
         _uiState.value = _uiState.value.copy(
             metadata = newMetadata,
             hasChanges = hasChanges
@@ -116,12 +122,12 @@ class MetadataEditorViewModel @Inject constructor(
     }
 
     /**
-     * Save the current metadata changes
+     * Saves the current metadata changes to the database.
      */
     fun saveMetadata() {
         val itemId = currentItemId ?: return
         val metadata = _uiState.value.metadata
-        
+
         viewModelScope.launch {
             try {
                 // Update metadata_common table
@@ -132,7 +138,7 @@ class MetadataEditorViewModel @Inject constructor(
                     summary = metadata.summary.ifBlank { null },
                     rating = metadata.rating?.toFloat()
                 )
-                
+
                 // Update metadata_book table if it exists
                 metadataDao.updateMetadataBook(
                     itemId = itemId,
@@ -140,7 +146,7 @@ class MetadataEditorViewModel @Inject constructor(
                     publisher = metadata.publisher.ifBlank { null },
                     isbn = metadata.isbn.ifBlank { null }
                 )
-                
+
                 // Update authors
                 metadataDao.deleteAuthorsByItemId(itemId)
                 for (authorName in metadata.authors) {
@@ -154,7 +160,7 @@ class MetadataEditorViewModel @Inject constructor(
                         ItemPersonRole(itemId = itemId, personId = personId, role = "AUTHOR")
                     )
                 }
-                
+
                 // Update series
                 if (metadata.series.isNotBlank()) {
                     var seriesId = metadataDao.findSeriesByName(metadata.series)
@@ -163,7 +169,7 @@ class MetadataEditorViewModel @Inject constructor(
                     }
                     metadataDao.updateBookWithSeries(itemId, seriesId)
                 }
-                
+
                 // Update genres
                 metadataDao.deleteGenresByItemId(itemId)
                 for (genreName in metadata.genres) {
@@ -175,7 +181,7 @@ class MetadataEditorViewModel @Inject constructor(
                         ItemGenre(itemId = itemId, genreId = genreId)
                     )
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     originalMetadata = metadata,
                     hasChanges = false
@@ -189,7 +195,7 @@ class MetadataEditorViewModel @Inject constructor(
     }
 
     /**
-     * Reset metadata to original values
+     * Resets the metadata to its original values.
      */
     fun resetMetadata() {
         val original = _uiState.value.originalMetadata

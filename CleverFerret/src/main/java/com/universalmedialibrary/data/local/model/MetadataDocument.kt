@@ -4,6 +4,20 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
+/**
+ * Represents metadata specific to a generic document.
+ *
+ * @property itemId The ID of the media item this metadata belongs to.
+ * @property documentType The type of the document (e.g., "PDF", "DOCX").
+ * @property author The author of the document.
+ * @property creationDate The creation date of the document.
+ * @property modificationDate The last modification date of the document.
+ * @property pageCount The number of pages in the document.
+ * @property wordCount The number of words in the document.
+ * @property language The language of the document.
+ * @property format The file format of the document.
+ * @property fileSize The size of the document file in bytes.
+ */
 @Entity(
     tableName = "metadata_document",
     foreignKeys = [

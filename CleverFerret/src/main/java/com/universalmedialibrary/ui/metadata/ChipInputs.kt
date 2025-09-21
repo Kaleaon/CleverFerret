@@ -15,7 +15,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
 /**
- * Chip-based input for authors
+ * A chip-based input field for editing a list of authors.
+ *
+ * @param authors The current list of authors.
+ * @param originalAuthors The original list of authors, for showing diffs.
+ * @param onAuthorsChange A callback for when the list of authors changes.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,7 +145,11 @@ fun AuthorsChipInput(
 }
 
 /**
- * Chip-based input for genres/tags
+ * A chip-based input field for editing a list of genres or tags.
+ *
+ * @param genres The current list of genres.
+ * @param originalGenres The original list of genres, for showing diffs.
+ * @param onGenresChange A callback for when the list of genres changes.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

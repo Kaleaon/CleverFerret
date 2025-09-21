@@ -5,14 +5,31 @@ import com.universalmedialibrary.services.RawCalibreBook
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * A utility class for reading data directly from a Calibre `metadata.db` SQLite file.
+ * This class handles the complex queries required to de-normalize the Calibre database schema.
+ */
 @Singleton
 class CalibreDatabaseReader @Inject constructor() {
 
+    /**
+     * Reads book information from the specified Calibre database file.
+     *
+     * This function performs a complex SQL query with multiple JOINs to aggregate
+     * all relevant book data, including authors, series, tags, and comments,
+     * into a map of [RawCalibreBook] objects.
+     *
+     * @param calibreDbPath The absolute path to the Calibre `metadata.db` file.
+     * @return A map where the key is the book ID and the value is the [RawCalibreBook] object.
+     *         Returns an empty map if the database cannot be opened or read.
+     */
     fun readBooks(calibreDbPath: String): Map<Long, RawCalibreBook> {
         val calibreDb: SQLiteDatabase
         try {
             calibreDb = SQLiteDatabase.openDatabase(calibreDbPath, null, SQLiteDatabase.OPEN_READONLY)
         } catch (e: Exception) {
+            // Log the exception in a real application
+            e.printStackTrace()
             return emptyMap()
         }
 
@@ -46,43 +63,44 @@ class CalibreDatabaseReader @Inject constructor() {
         val tagsMap = mutableMapOf<Long, MutableList<String>>()
         val authorsMap = mutableMapOf<Long, MutableList<String>>()
 
-        while (cursor.moveToNext()) {
-            val bookId = cursor.getLong(cursor.getColumnIndexOrThrow("id"))
+        cursor.use {
+            while (it.moveToNext()) {
+                val bookId = it.getLong(it.getColumnIndexOrThrow("id"))
 
-            // Initialize the book if we haven't seen it before
-            if (!booksMap.containsKey(bookId)) {
-                booksMap[bookId] = RawCalibreBook(
-                    id = bookId,
-                    title = cursor.getString(cursor.getColumnIndexOrThrow("title")),
-                    path = cursor.getString(cursor.getColumnIndexOrThrow("path")),
-                    authorNames = emptyList(), // Will be aggregated
-                    seriesName = cursor.getString(cursor.getColumnIndexOrThrow("series_name")),
-                    seriesIndex = cursor.getDouble(cursor.getColumnIndexOrThrow("series_index")),
-                    publisher = cursor.getString(cursor.getColumnIndexOrThrow("publisher_name")),
-                    isbn = cursor.getString(cursor.getColumnIndexOrThrow("isbn")),
-                    tags = emptyList(), // Will be aggregated
-                    comments = cursor.getString(cursor.getColumnIndexOrThrow("comments"))
-                )
-            }
+                // Initialize the book if we haven't seen it before
+                if (!booksMap.containsKey(bookId)) {
+                    booksMap[bookId] = RawCalibreBook(
+                        id = bookId,
+                        title = it.getString(it.getColumnIndexOrThrow("title")),
+                        path = it.getString(it.getColumnIndexOrThrow("path")),
+                        authorNames = emptyList(), // Will be aggregated
+                        seriesName = it.getString(it.getColumnIndexOrThrow("series_name")),
+                        seriesIndex = it.getDouble(it.getColumnIndexOrThrow("series_index")),
+                        publisher = it.getString(it.getColumnIndexOrThrow("publisher_name")),
+                        isbn = it.getString(it.getColumnIndexOrThrow("isbn")),
+                        tags = emptyList(), // Will be aggregated
+                        comments = it.getString(it.getColumnIndexOrThrow("comments"))
+                    )
+                }
 
-            // Aggregate authors
-            cursor.getString(cursor.getColumnIndexOrThrow("author_name"))?.let {
-                authorsMap.getOrPut(bookId) { mutableListOf() }.add(it)
-            }
+                // Aggregate authors
+                it.getString(it.getColumnIndexOrThrow("author_name"))?.let { author ->
+                    authorsMap.getOrPut(bookId) { mutableListOf() }.add(author)
+                }
 
-            // Aggregate tags
-            cursor.getString(cursor.getColumnIndexOrThrow("tag_name"))?.let {
-                tagsMap.getOrPut(bookId) { mutableListOf() }.add(it)
+                // Aggregate tags
+                it.getString(it.getColumnIndexOrThrow("tag_name"))?.let { tag ->
+                    tagsMap.getOrPut(bookId) { mutableListOf() }.add(tag)
+                }
             }
         }
-        cursor.close()
         calibreDb.close()
 
         // Combine the aggregated data into the final map
         return booksMap.mapValues { (id, book) ->
             book.copy(
-                authorNames = authorsMap[id] ?: emptyList(),
-                tags = tagsMap[id] ?: emptyList()
+                authorNames = (authorsMap[id] ?: emptyList()).distinct(),
+                tags = (tagsMap[id] ?: emptyList()).distinct()
             )
         }
     }

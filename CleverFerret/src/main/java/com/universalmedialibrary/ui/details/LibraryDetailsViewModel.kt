@@ -11,6 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+/**
+ * The view model for the library details screen.
+ *
+ * @param mediaItemDao The DAO for media items.
+ * @param savedStateHandle A handle to the saved state of the view model.
+ */
 @HiltViewModel
 class LibraryDetailsViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
@@ -19,6 +25,7 @@ class LibraryDetailsViewModel @Inject constructor(
 
     private val libraryId: Long = savedStateHandle.get<String>("libraryId")?.toLong() ?: 0
 
+    /** A [StateFlow] that emits the list of book details for the current library. */
     val bookDetails: StateFlow<List<BookDetails>> = mediaItemDao.getBookDetailsForLibrary(libraryId)
         .stateIn(
             scope = viewModelScope,

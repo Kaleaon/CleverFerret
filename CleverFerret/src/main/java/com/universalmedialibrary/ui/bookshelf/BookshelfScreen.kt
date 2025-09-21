@@ -29,6 +29,14 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.data.local.model.BookDetails
 import kotlin.math.absoluteValue
 
+/**
+ * The main screen for displaying a bookshelf of books.
+ * This screen provides options for searching, sorting, filtering, and changing the view mode.
+ *
+ * @param navController The NavController for navigating to other screens.
+ * @param libraryId The ID of the library to display.
+ * @param viewModel The view model for this screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnhancedBookshelfScreen(
@@ -207,6 +215,14 @@ fun EnhancedBookshelfScreen(
     }
 }
 
+/**
+ * A text field for searching the bookshelf.
+ *
+ * @param query The current search query.
+ * @param onQueryChange A callback for when the query changes.
+ * @param onClearSearch A callback for when the search is cleared.
+ * @param modifier The modifier to be applied to the text field.
+ */
 @Composable
 fun SearchTextField(
     query: String,
@@ -233,6 +249,13 @@ fun SearchTextField(
     )
 }
 
+/**
+ * A row of filter chips for filtering the bookshelf by genre.
+ *
+ * @param selectedGenre The currently selected genre.
+ * @param onGenreSelected A callback for when a genre is selected.
+ * @param modifier The modifier to be applied to the row.
+ */
 @Composable
 fun FiltersRow(
     selectedGenre: String?,
@@ -262,6 +285,13 @@ fun FiltersRow(
     }
 }
 
+/**
+ * A section for displaying a user's favorite books.
+ *
+ * @param favorites The list of favorite books.
+ * @param onClick A callback for when a book is clicked.
+ * @param modifier The modifier to be applied to the section.
+ */
 @Composable
 fun FavoritesSection(
     favorites: List<BookDetails>,
@@ -308,6 +338,14 @@ fun FavoritesSection(
     }
 }
 
+/**
+ * A view that displays books in a grid.
+ *
+ * @param books The list of books to display.
+ * @param onClick A callback for when a book is clicked.
+ * @param onFavoriteToggle A callback for when a book's favorite status is toggled.
+ * @param modifier The modifier to be applied to the grid.
+ */
 @Composable
 fun GridBookView(
     books: List<BookDetails>,
@@ -332,6 +370,14 @@ fun GridBookView(
     }
 }
 
+/**
+ * A view that displays books in a list.
+ *
+ * @param books The list of books to display.
+ * @param onClick A callback for when a book is clicked.
+ * @param onFavoriteToggle A callback for when a book's favorite status is toggled.
+ * @param modifier The modifier to be applied to the list.
+ */
 @Composable
 fun ListBookView(
     books: List<BookDetails>,
@@ -354,6 +400,14 @@ fun ListBookView(
     }
 }
 
+/**
+ * A view that displays books in a cover flow style.
+ *
+ * @param books The list of books to display.
+ * @param onClick A callback for when a book is clicked.
+ * @param onFavoriteToggle A callback for when a book's favorite status is toggled.
+ * @param modifier The modifier to be applied to the cover flow.
+ */
 @Composable
 fun CoverFlowView(
     books: List<BookDetails>,
@@ -376,12 +430,18 @@ fun CoverFlowView(
     }
 }
 
+/**
+ * The available view modes for the bookshelf.
+ */
 enum class ViewMode(val displayName: String, val icon: ImageVector) {
     GRID("Grid", Icons.Default.GridView),
     LIST("List", Icons.Default.List),
     COVER_FLOW("Cover Flow", Icons.Default.ViewCarousel)
 }
 
+/**
+ * The available sort options for the bookshelf.
+ */
 enum class SortOption(val displayName: String, val icon: ImageVector) {
     TITLE("Title", Icons.Default.SortByAlpha),
     AUTHOR("Author", Icons.Default.Person),

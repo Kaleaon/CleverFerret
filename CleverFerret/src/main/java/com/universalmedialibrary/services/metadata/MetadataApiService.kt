@@ -9,7 +9,23 @@ import retrofit2.http.Query
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Data classes for API responses
+/**
+ * A unified data class for search results from various metadata sources.
+ *
+ * @property id The unique identifier from the source.
+ * @property title The title of the media.
+ * @property author The author of the media.
+ * @property director The director of the media.
+ * @property artist The artist of the media.
+ * @property year The release year of the media.
+ * @property coverUrl The URL for the cover art.
+ * @property description A summary or description of the media.
+ * @property genres A list of genres.
+ * @property rating The rating of the media.
+ * @property isbn The ISBN of the media.
+ * @property imdbId The IMDb ID of the media.
+ * @property source The source of the metadata.
+ */
 data class UnifiedMetadataSearchResult(
     val id: String,
     val title: String,
@@ -26,8 +42,11 @@ data class UnifiedMetadataSearchResult(
     val source: MetadataSource
 )
 
+/**
+ * An enumeration of the various metadata sources supported by the application.
+ */
 enum class MetadataSource {
-    // Book sources (matching Calibre plugins)
+    // Book sources
     GOOGLE_BOOKS,
     OPEN_LIBRARY,
     AMAZON_PRODUCT_ADVERTISING,
@@ -38,47 +57,40 @@ enum class MetadataSource {
     FICTION_DB,
     LIBRARY_THING,
     WORLDCAT_OCLC,
-    
+
     // Comic/Manga sources
     COMICVINE,
     MANGA_UPDATES,
-    
+
     // Movie/TV sources
     TMDB,
     OMDB,
     IMDB,
     TVDB,
-    
+
     // Music sources
     MUSICBRAINZ,
     SPOTIFY,
     DISCOGS,
     LAST_FM,
-    
+
     // Audiobook sources
     AUDIBLE,
     LIBRIVOX,
-    
+
     // General ISBN databases
     ISBN_DB,
     WORLD_CAT,
-    
-    // Fanfiction sources (covered in WebFictionService)
+
+    // Fanfiction sources
     ARCHIVE_OF_OUR_OWN,
     FANFICTION_NET,
     WATTPAD
 }
 
 // Google Books API models
-data class GoogleBooksResponse(
-    val items: List<GoogleBookItem>? = null
-)
-
-data class GoogleBookItem(
-    val id: String,
-    val volumeInfo: GoogleBookVolumeInfo
-)
-
+data class GoogleBooksResponse(val items: List<GoogleBookItem>? = null)
+data class GoogleBookItem(val id: String, val volumeInfo: GoogleBookVolumeInfo)
 data class GoogleBookVolumeInfo(
     val title: String? = null,
     val authors: List<String>? = null,
@@ -89,22 +101,11 @@ data class GoogleBookVolumeInfo(
     val imageLinks: GoogleBookImageLinks? = null,
     val industryIdentifiers: List<GoogleBookIdentifier>? = null
 )
-
-data class GoogleBookImageLinks(
-    val thumbnail: String? = null,
-    val smallThumbnail: String? = null
-)
-
-data class GoogleBookIdentifier(
-    val type: String,
-    val identifier: String
-)
+data class GoogleBookImageLinks(val thumbnail: String? = null, val smallThumbnail: String? = null)
+data class GoogleBookIdentifier(val type: String, val identifier: String)
 
 // Open Library API models
-data class OpenLibraryResponse(
-    val docs: List<OpenLibraryDoc>? = null
-)
-
+data class OpenLibraryResponse(val docs: List<OpenLibraryDoc>? = null)
 data class OpenLibraryDoc(
     val key: String,
     val title: String? = null,
@@ -115,10 +116,7 @@ data class OpenLibraryDoc(
 )
 
 // TMDB API models
-data class TMDBResponse(
-    val results: List<TMDBResult>? = null
-)
-
+data class TMDBResponse(val results: List<TMDBResult>? = null)
 data class TMDBResult(
     val id: Int,
     val title: String? = null,
@@ -132,69 +130,48 @@ data class TMDBResult(
 )
 
 // MusicBrainz API models
-data class MusicBrainzResponse(
-    val releases: List<MusicBrainzRelease>? = null
-)
-
+data class MusicBrainzResponse(val releases: List<MusicBrainzRelease>? = null)
 data class MusicBrainzRelease(
     val id: String,
     val title: String? = null,
     val date: String? = null,
     val artist_credit: List<MusicBrainzArtistCredit>? = null
 )
-
-data class MusicBrainzArtistCredit(
-    val name: String? = null
-)
+data class MusicBrainzArtistCredit(val name: String? = null)
 
 // API Interfaces
 interface GoogleBooksApi {
     @GET("volumes")
-    suspend fun searchBooks(
-        @Query("q") query: String,
-        @Query("maxResults") maxResults: Int = 10
-    ): GoogleBooksResponse
-
+    suspend fun searchBooks(@Query("q") query: String, @Query("maxResults") maxResults: Int = 10): GoogleBooksResponse
     @GET("volumes/{id}")
     suspend fun getBookDetails(@Path("id") id: String): GoogleBookItem
 }
-
 interface OpenLibraryApi {
     @GET("search.json")
-    suspend fun searchBooks(
-        @Query("q") query: String,
-        @Query("limit") limit: Int = 10
-    ): OpenLibraryResponse
+    suspend fun searchBooks(@Query("q") query: String, @Query("limit") limit: Int = 10): OpenLibraryResponse
 }
-
 interface TMDBApi {
     @GET("search/movie")
-    suspend fun searchMovies(
-        @Query("api_key") apiKey: String,
-        @Query("query") query: String
-    ): TMDBResponse
-
+    suspend fun searchMovies(@Query("api_key") apiKey: String, @Query("query") query: String): TMDBResponse
     @GET("search/tv")
-    suspend fun searchTV(
-        @Query("api_key") apiKey: String,
-        @Query("query") query: String
-    ): TMDBResponse
+    suspend fun searchTV(@Query("api_key") apiKey: String, @Query("query") query: String): TMDBResponse
 }
-
 interface MusicBrainzApi {
     @GET("release-group")
-    suspend fun searchMusic(
-        @Query("query") query: String,
-        @Query("fmt") format: String = "json",
-        @Query("limit") limit: Int = 10
-    ): MusicBrainzResponse
+    suspend fun searchMusic(@Query("query") query: String, @Query("fmt") format: String = "json", @Query("limit") limit: Int = 10): MusicBrainzResponse
 }
 
+/**
+ * A service that provides access to various metadata APIs.
+ * This class is responsible for fetching metadata from external sources like Google Books, Open Library, TMDB, and MusicBrainz.
+ *
+ * @param apiKeyRepository The repository for retrieving API keys.
+ */
 @Singleton
 class MetadataApiService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val googleBooksApi: GoogleBooksApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.googleapis.com/books/v1/")
@@ -227,9 +204,14 @@ class MetadataApiService @Inject constructor(
             .create(MusicBrainzApi::class.java)
     }
 
+    /**
+     * Searches for books across multiple sources.
+     * @param query The search query.
+     * @return A list of [UnifiedMetadataSearchResult]s.
+     */
     suspend fun searchBooks(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         try {
             // Google Books API
             val googleBooks = googleBooksApi.searchBooks(query)
@@ -277,12 +259,17 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
+    /**
+     * Searches for movies across multiple sources.
+     * @param query The search query.
+     * @return A list of [UnifiedMetadataSearchResult]s.
+     */
     suspend fun searchMovies(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         // Get TMDB API key from repository
         val tmdbApiKey = apiKeyRepository.getAPIKeyValue("tmdb")
-        
+
         if (tmdbApiKey.isNullOrEmpty()) {
             // Return demo data if no API key
             return createDemoMovieResults(query)
@@ -295,7 +282,7 @@ class MetadataApiService @Inject constructor(
                     UnifiedMetadataSearchResult(
                         id = movie.id.toString(),
                         title = movie.title ?: movie.name ?: "Unknown Title",
-                        year = movie.release_date?.take(4)?.toIntOrNull() 
+                        year = movie.release_date?.take(4)?.toIntOrNull()
                             ?: movie.first_air_date?.take(4)?.toIntOrNull(),
                         coverUrl = movie.poster_path?.let { "https://image.tmdb.org/t/p/w500$it" },
                         description = movie.overview,
@@ -311,9 +298,14 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
+    /**
+     * Searches for music across multiple sources.
+     * @param query The search query.
+     * @return A list of [UnifiedMetadataSearchResult]s.
+     */
     suspend fun searchMusic(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         try {
             val music = musicBrainzApi.searchMusic(query)
             music.releases?.forEach { release ->

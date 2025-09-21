@@ -20,6 +20,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlin.math.absoluteValue
 
+/**
+ * A screen that displays the details of a book.
+ *
+ * @param bookId The ID of the book to display.
+ * @param navController The NavController for navigating to other screens.
+ * @param viewModel The view model for this screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetailsScreen(bookId: Long, navController: NavController, viewModel: BookDetailsViewModel = hiltViewModel()) {

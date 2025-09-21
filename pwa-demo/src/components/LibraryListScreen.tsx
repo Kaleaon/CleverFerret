@@ -42,7 +42,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/app-store';
 import { Library } from '../types';
 
-// Plex-inspired library card component
+/**
+ * A visually rich card component for displaying a single media library.
+ * It shows the library's name, type, and mock statistics like item count and sync status.
+ *
+ * @param {object} props The component props.
+ * @param {Library} props.library The library object to display.
+ * @param {() => void} props.onClick The function to execute when the card is clicked.
+ * @returns {React.ReactElement} The rendered LibraryCard component.
+ */
 const LibraryCard: React.FC<{
   library: Library;
   onClick: () => void;
@@ -81,7 +89,7 @@ const LibraryCard: React.FC<{
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return 'Updated today';
     if (diffDays <= 7) return `Updated ${diffDays} days ago`;
     return `Updated ${date.toLocaleDateString()}`;
@@ -129,7 +137,7 @@ const LibraryCard: React.FC<{
         }}
       >
         {getIcon()}
-        
+
         {/* Status indicator */}
         {mockStats.isActive && (
           <Box
@@ -192,9 +200,9 @@ const LibraryCard: React.FC<{
 
       {/* Content */}
       <CardContent sx={{ p: 2, height: 120, display: 'flex', flexDirection: 'column' }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
+        <Typography
+          variant="h6"
+          sx={{
             fontWeight: 600,
             fontSize: '1.1rem',
             mb: 0.5,
@@ -205,12 +213,12 @@ const LibraryCard: React.FC<{
         >
           {library.name}
         </Typography>
-        
-        <Typography 
-          variant="body2" 
+
+        <Typography
+          variant="body2"
           color="text.secondary"
-          sx={{ 
-            mb: 1.5, 
+          sx={{
+            mb: 1.5,
             textTransform: 'capitalize',
             fontSize: '0.875rem'
           }}
@@ -221,9 +229,9 @@ const LibraryCard: React.FC<{
         {/* Stats */}
         <Box sx={{ mt: 'auto' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography 
-              variant="body2" 
-              sx={{ 
+            <Typography
+              variant="body2"
+              sx={{
                 fontWeight: 600,
                 color: 'primary.main',
                 fontSize: '0.875rem'
@@ -231,17 +239,17 @@ const LibraryCard: React.FC<{
             >
               {mockStats.itemCount.toLocaleString()} items
             </Typography>
-            <Typography 
-              variant="caption" 
+            <Typography
+              variant="caption"
               color="text.secondary"
               sx={{ fontSize: '0.75rem' }}
             >
               {mockStats.recentlyAdded} new
             </Typography>
           </Box>
-          
-          <Typography 
-            variant="caption" 
+
+          <Typography
+            variant="caption"
             color="text.secondary"
             sx={{ fontSize: '0.7rem', opacity: 0.8 }}
           >
@@ -253,6 +261,16 @@ const LibraryCard: React.FC<{
   );
 };
 
+/**
+ * A dialog component for adding a new library.
+ * It provides fields for the library name, type, and an optional path.
+ *
+ * @param {object} props The component props.
+ * @param {boolean} props.open Whether the dialog is open.
+ * @param {() => void} props.onClose Function to call when the dialog should close.
+ * @param {(name: string, type: Library['type'], path: string) => void} props.onAdd Function to call when a new library is added.
+ * @returns {React.ReactElement} The rendered AddLibraryDialog component.
+ */
 const AddLibraryDialog: React.FC<{
   open: boolean;
   onClose: () => void;
@@ -281,10 +299,10 @@ const AddLibraryDialog: React.FC<{
   ] as const;
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: {
@@ -295,7 +313,7 @@ const AddLibraryDialog: React.FC<{
         }
       }}
     >
-      <DialogTitle 
+      <DialogTitle
         sx={{
           pb: 2,
           fontSize: '1.5rem',
@@ -316,7 +334,7 @@ const AddLibraryDialog: React.FC<{
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., My Books, Action Movies, Jazz Collection"
-          sx={{ 
+          sx={{
             mb: 3,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
@@ -331,7 +349,7 @@ const AddLibraryDialog: React.FC<{
           variant="outlined"
           value={type}
           onChange={(e) => setType(e.target.value as Library['type'])}
-          sx={{ 
+          sx={{
             mb: 3,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
@@ -356,7 +374,7 @@ const AddLibraryDialog: React.FC<{
           onChange={(e) => setPath(e.target.value)}
           placeholder="/path/to/library"
           helperText="Optional path to your media files on disk"
-          sx={{ 
+          sx={{
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
             },
@@ -364,7 +382,7 @@ const AddLibraryDialog: React.FC<{
         />
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 2, gap: 2 }}>
-        <Button 
+        <Button
           onClick={onClose}
           variant="outlined"
           sx={{
@@ -380,9 +398,9 @@ const AddLibraryDialog: React.FC<{
         >
           Cancel
         </Button>
-        <Button 
-          onClick={handleSubmit} 
-          variant="contained" 
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
           disabled={!name.trim()}
           sx={{
             borderRadius: 2,
@@ -406,16 +424,22 @@ const AddLibraryDialog: React.FC<{
   );
 };
 
+/**
+ * The main screen for displaying a list of all media libraries.
+ * It handles loading states, empty states, and provides actions for adding new libraries
+ * and navigating to settings or import functions.
+ * @returns {React.ReactElement} The rendered LibraryListScreen component.
+ */
 export const LibraryListScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { 
-    libraries, 
-    isLoading, 
-    importStatus, 
-    loadLibraries, 
-    addLibrary 
+  const {
+    libraries,
+    isLoading,
+    importStatus,
+    loadLibraries,
+    addLibrary
   } = useAppStore();
-  
+
   const [showDialog, setShowDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -446,8 +470,8 @@ export const LibraryListScreen: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
       {/* Plex-style header */}
-      <AppBar 
-        position="static" 
+      <AppBar
+        position="static"
         elevation={0}
         sx={{
           bgcolor: 'background.default',
@@ -468,10 +492,10 @@ export const LibraryListScreen: React.FC = () => {
             >
               CF
             </Avatar>
-            <Typography 
-              variant="h5" 
-              component="div" 
-              sx={{ 
+            <Typography
+              variant="h5"
+              component="div"
+              sx={{
                 fontWeight: 300,
                 fontSize: '1.5rem',
                 color: 'text.primary'
@@ -480,9 +504,9 @@ export const LibraryListScreen: React.FC = () => {
               CleverFerret
             </Typography>
           </Box>
-          
+
           <Box sx={{ flexGrow: 1 }} />
-          
+
           <IconButton
             color="inherit"
             onClick={handleMenuOpen}
@@ -510,9 +534,9 @@ export const LibraryListScreen: React.FC = () => {
               }
             }}
           >
-            <MenuItem 
+            <MenuItem
               onClick={handleImportCalibre}
-              sx={{ 
+              sx={{
                 py: 1.5,
                 px: 2,
                 '&:hover': {
@@ -522,12 +546,12 @@ export const LibraryListScreen: React.FC = () => {
             >
               📚 Import Calibre Library
             </MenuItem>
-            <MenuItem 
+            <MenuItem
               onClick={() => {
                 handleMenuClose();
                 navigate('/settings');
               }}
-              sx={{ 
+              sx={{
                 py: 1.5,
                 px: 2,
                 '&:hover': {
@@ -548,7 +572,7 @@ export const LibraryListScreen: React.FC = () => {
             <CircularProgress sx={{ color: 'primary.main' }} />
           </Box>
         ) : libraries.length === 0 ? (
-          <Box 
+          <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -576,11 +600,11 @@ export const LibraryListScreen: React.FC = () => {
             >
               <CollectionsIcon sx={{ fontSize: 60, color: 'primary.main' }} />
             </Paper>
-            
-            <Typography 
-              variant="h3" 
+
+            <Typography
+              variant="h3"
               gutterBottom
-              sx={{ 
+              sx={{
                 fontWeight: 300,
                 color: 'text.primary',
                 mb: 2,
@@ -589,12 +613,12 @@ export const LibraryListScreen: React.FC = () => {
             >
               Welcome to CleverFerret
             </Typography>
-            
-            <Typography 
-              variant="h6" 
-              color="text.secondary" 
+
+            <Typography
+              variant="h6"
+              color="text.secondary"
               mb={4}
-              sx={{ 
+              sx={{
                 fontWeight: 300,
                 lineHeight: 1.6,
                 opacity: 0.8
@@ -602,7 +626,7 @@ export const LibraryListScreen: React.FC = () => {
             >
               Create your first media library to start organizing your books, movies, music, and more.
             </Typography>
-            
+
             <Button
               variant="contained"
               size="large"
@@ -624,10 +648,10 @@ export const LibraryListScreen: React.FC = () => {
             >
               Create Your First Library
             </Button>
-            
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
               mt={3}
               sx={{ opacity: 0.6 }}
             >
@@ -638,18 +662,18 @@ export const LibraryListScreen: React.FC = () => {
           <>
             {/* Libraries header */}
             <Box sx={{ mb: 4 }}>
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  fontWeight: 300, 
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 300,
                   mb: 1,
                   color: 'text.primary'
                 }}
               >
                 Your Libraries
               </Typography>
-              <Typography 
-                variant="body1" 
+              <Typography
+                variant="body1"
                 color="text.secondary"
                 sx={{ opacity: 0.8 }}
               >
@@ -660,12 +684,12 @@ export const LibraryListScreen: React.FC = () => {
             {/* Libraries grid */}
             <Grid container spacing={3} sx={{ pb: { xs: 8, md: 4 } }}>
               {libraries.map((library) => (
-                <Grid 
-                  item 
-                  xs={12} 
-                  sm={6} 
-                  md={4} 
-                  lg={3} 
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
                   xl={2.4}
                   key={library.libraryId}
                 >

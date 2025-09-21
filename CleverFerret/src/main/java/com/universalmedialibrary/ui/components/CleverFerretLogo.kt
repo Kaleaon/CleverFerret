@@ -21,12 +21,14 @@ import androidx.compose.ui.unit.sp
 import com.universalmedialibrary.ui.theme.CleverFerretProfessionalColors
 
 /**
- * Clever Ferret Logo Component
- * 
- * Creates a professional ferret face with glasses logo using Canvas drawing.
- * Features a sophisticated ferret mascot that conveys intelligence and trustworthiness.
+ * A composable that displays the Clever Ferret logo.
+ * This can include the ferret icon and the brand name text, or just the icon.
+ * The logo is drawn programmatically using Canvas for scalability and performance.
+ *
+ * @param size The overall size of the logo icon.
+ * @param showText Whether to display the "Clever Ferret" text next to the icon.
+ * @param textStyle The text style to apply to the brand name.
  */
-
 @Composable
 fun CleverFerretLogo(
     size: Dp = 40.dp,
@@ -58,7 +60,7 @@ fun CleverFerretLogo(
                 drawFerretWithGlasses(this, size.toPx() * 0.9f)
             }
         }
-        
+
         if (showText) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -71,13 +73,19 @@ fun CleverFerretLogo(
     }
 }
 
+/**
+ * A composable that displays only the Clever Ferret icon, without any text.
+ * @param size The size of the icon.
+ */
 @Composable
 fun CleverFerretIconOnly(size: Dp = 32.dp) {
     CleverFerretLogo(size = size, showText = false)
 }
 
 /**
- * Simplified Logo for Small Spaces
+ * A simplified, compact version of the logo, showing the initials "CF".
+ * This is suitable for very small spaces where the full icon would be illegible.
+ * @param size The size of the mini logo.
  */
 @Composable
 fun CleverFerretMini(size: Dp = 24.dp) {
@@ -98,7 +106,8 @@ fun CleverFerretMini(size: Dp = 24.dp) {
 }
 
 /**
- * Large Logo for App Header
+ * A large, prominent logo designed for use in application headers.
+ * It includes the icon, brand name, and a tagline.
  */
 @Composable
 fun CleverFerretHeaderLogo() {
@@ -126,9 +135,9 @@ fun CleverFerretHeaderLogo() {
                 drawFerretWithGlasses(this, 36.dp.toPx(), isLarge = true)
             }
         }
-        
+
         Spacer(modifier = Modifier.width(12.dp))
-        
+
         Column {
             Text(
                 text = "Clever Ferret",
@@ -146,7 +155,11 @@ fun CleverFerretHeaderLogo() {
 }
 
 /**
- * Draw ferret face with glasses using Canvas
+ * A private drawing function that renders the ferret face with glasses onto a Canvas.
+ *
+ * @param drawScope The [DrawScope] to draw on.
+ * @param canvasSize The size of the canvas.
+ * @param isLarge Whether to render the large version with more detail.
  */
 private fun drawFerretWithGlasses(
     drawScope: DrawScope,
@@ -156,37 +169,37 @@ private fun drawFerretWithGlasses(
     with(drawScope) {
         val center = Offset(canvasSize / 2f, canvasSize / 2f)
         val headRadius = canvasSize * 0.35f
-        
+
         // Ferret colors
         val ferretBrown = Color(0xFF8B4513)
         val ferretLightBrown = Color(0xFFA0522D)
         val ferretDarkBrown = Color(0xFF654321)
-        
+
         // Draw ferret head (main circle)
         drawCircle(
             color = ferretLightBrown,
             radius = headRadius,
             center = center
         )
-        
+
         // Draw ears
         val earOffset = headRadius * 0.7f
         val earRadius = headRadius * 0.25f
-        
+
         // Left ear
         drawCircle(
             color = ferretBrown,
             radius = earRadius,
             center = Offset(center.x - earOffset, center.y - earOffset)
         )
-        
+
         // Right ear
         drawCircle(
             color = ferretBrown,
             radius = earRadius,
             center = Offset(center.x + earOffset, center.y - earOffset)
         )
-        
+
         // Draw snout
         val snoutRadius = headRadius * 0.4f
         drawOval(
@@ -194,7 +207,7 @@ private fun drawFerretWithGlasses(
             topLeft = Offset(center.x - snoutRadius * 0.6f, center.y + headRadius * 0.1f),
             size = Size(snoutRadius * 1.2f, snoutRadius * 0.8f)
         )
-        
+
         // Draw nose
         val noseRadius = headRadius * 0.08f
         drawCircle(
@@ -202,30 +215,30 @@ private fun drawFerretWithGlasses(
             radius = noseRadius,
             center = Offset(center.x, center.y + headRadius * 0.35f)
         )
-        
+
         // Draw eyes
         val eyeRadius = headRadius * 0.12f
         val eyeOffsetX = headRadius * 0.35f
         val eyeOffsetY = headRadius * 0.1f
-        
+
         // Left eye
         drawCircle(
             color = Color.Black,
             radius = eyeRadius,
             center = Offset(center.x - eyeOffsetX, center.y - eyeOffsetY)
         )
-        
+
         // Right eye
         drawCircle(
             color = Color.Black,
             radius = eyeRadius,
             center = Offset(center.x + eyeOffsetX, center.y - eyeOffsetY)
         )
-        
+
         // Draw glasses
         val glassesColor = CleverFerretProfessionalColors.DeepNavy
         val strokeWidth = if (isLarge) 3.dp.toPx() else 2.dp.toPx()
-        
+
         // Left lens
         drawCircle(
             color = Color.Transparent,
@@ -233,15 +246,15 @@ private fun drawFerretWithGlasses(
             center = Offset(center.x - eyeOffsetX, center.y - eyeOffsetY),
             style = Stroke(width = strokeWidth)
         )
-        
-        // Right lens  
+
+        // Right lens
         drawCircle(
             color = Color.Transparent,
             radius = eyeRadius * 2f,
             center = Offset(center.x + eyeOffsetX, center.y - eyeOffsetY),
             style = Stroke(width = strokeWidth)
         )
-        
+
         // Bridge of glasses
         drawLine(
             color = glassesColor,
@@ -249,7 +262,7 @@ private fun drawFerretWithGlasses(
             end = Offset(center.x + eyeRadius * 0.3f, center.y - eyeOffsetY),
             strokeWidth = strokeWidth
         )
-        
+
         // Glasses arms (temples)
         drawLine(
             color = glassesColor,
@@ -257,14 +270,14 @@ private fun drawFerretWithGlasses(
             end = Offset(center.x - eyeOffsetX - eyeRadius * 3f, center.y - eyeOffsetY + headRadius * 0.2f),
             strokeWidth = strokeWidth
         )
-        
+
         drawLine(
             color = glassesColor,
             start = Offset(center.x + eyeOffsetX + eyeRadius * 2f, center.y - eyeOffsetY),
             end = Offset(center.x + eyeOffsetX + eyeRadius * 3f, center.y - eyeOffsetY + headRadius * 0.2f),
             strokeWidth = strokeWidth
         )
-        
+
         // Add lens glint for professional look
         if (isLarge) {
             val glintRadius = eyeRadius * 0.5f
@@ -273,7 +286,7 @@ private fun drawFerretWithGlasses(
                 radius = glintRadius,
                 center = Offset(center.x - eyeOffsetX - eyeRadius * 0.5f, center.y - eyeOffsetY - eyeRadius * 0.5f)
             )
-            
+
             drawCircle(
                 color = Color.White.copy(alpha = 0.3f),
                 radius = glintRadius,
@@ -284,7 +297,7 @@ private fun drawFerretWithGlasses(
 }
 
 /**
- * Logo for Settings About Screen
+ * A large, stylized logo component specifically for the "About" screen.
  */
 @Composable
 fun CleverFerretAboutLogo() {

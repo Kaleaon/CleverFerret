@@ -1,21 +1,40 @@
 package com.universalmedialibrary.data
 
+/**
+ * Represents the type of a media item in the library.
+ */
 enum class MediaType {
+    /** A standard book. */
     BOOK,
+    /** An audiobook. */
     AUDIOBOOK,
+    /** A movie. */
     MOVIE,
+    /** A television show. */
     TV_SHOW,
+    /** A music track or album. */
     MUSIC,
+    /** A podcast episode. */
     PODCAST,
+    /** A comic book or graphic novel. */
     COMIC,
+    /** A magazine issue. */
     MAGAZINE,
+    /** A generic document. */
     DOCUMENT,
+    /** An academic paper or journal article. */
     ACADEMIC_PAPER,
+    /** A piece of web fiction, like a web novel or fanfiction. */
     WEB_FICTION,
+    /** An unknown or uncategorized media type. */
     UNKNOWN
 }
 
-// Extension functions for MediaType
+/**
+ * Returns a user-friendly display name for the media type.
+ *
+ * @return A string representing the display name.
+ */
 fun MediaType.getDisplayName(): String {
     return when (this) {
         MediaType.BOOK -> "Book"
@@ -33,6 +52,11 @@ fun MediaType.getDisplayName(): String {
     }
 }
 
+/**
+ * Returns an emoji icon representing the media type.
+ *
+ * @return A string containing a single emoji character.
+ */
 fun MediaType.getIcon(): String {
     return when (this) {
         MediaType.BOOK -> "📚"

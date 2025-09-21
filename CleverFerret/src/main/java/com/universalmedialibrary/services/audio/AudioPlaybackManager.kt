@@ -23,6 +23,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Manages audio playback using ExoPlayer and provides a media session for background playback.
+ * This class handles the player lifecycle, queue management, and playback notifications.
+ *
+ * @param context The application context.
+ */
 @Singleton
 class AudioPlaybackManager @Inject constructor(
     @ApplicationContext private val context: Context
@@ -33,10 +39,16 @@ class AudioPlaybackManager @Inject constructor(
     }
 
     private val _state = MutableStateFlow(AudioState())
+    /**
+     * A [StateFlow] that emits the current [AudioState].
+     */
     val state: StateFlow<AudioState> = _state.asStateFlow()
 
     private val queue: MutableList<MediaItem> = mutableListOf()
 
+    /**
+     * The ExoPlayer instance used for playback.
+     */
     val exoPlayer: ExoPlayer by lazy {
         val renderersFactory = DefaultRenderersFactory(context)
             .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -84,6 +96,9 @@ class AudioPlaybackManager @Inject constructor(
             }
     }
 
+    /**
+     * The media session that connects the player to other components.
+     */
     val mediaSession: MediaSession by lazy {
         MediaSession.Builder(context, exoPlayer).build()
     }
@@ -135,6 +150,12 @@ class AudioPlaybackManager @Inject constructor(
         }
     }
 
+    /**
+     * Loads a single audio file for playback.
+     * @param uri The URI of the audio file.
+     * @param metadata Optional metadata for the media item.
+     * @param playWhenReady Whether to start playback immediately.
+     */
     fun loadSingle(uri: Uri, metadata: MediaMetadata? = null, playWhenReady: Boolean = true) {
         val item = (metadata?.let { MediaItem.Builder().setUri(uri).setMediaMetadata(it).build() }
             ?: MediaItem.fromUri(uri))
@@ -146,6 +167,12 @@ class AudioPlaybackManager @Inject constructor(
         publishQueue()
     }
 
+    /**
+     * Sets the playback queue.
+     * @param uris The list of audio file URIs.
+     * @param startIndex The index to start playback from.
+     * @param playWhenReady Whether to start playback immediately.
+     */
     fun setQueue(uris: List<Uri>, startIndex: Int = 0, playWhenReady: Boolean = true) {
         val items = uris.map { MediaItem.fromUri(it) }
         queue.clear(); queue.addAll(items)
@@ -154,21 +181,53 @@ class AudioPlaybackManager @Inject constructor(
         publishQueue()
     }
 
+    /**
+     * Adds a new item to the end of the queue.
+     * @param uri The URI of the audio file.
+     */
     fun addToQueue(uri: Uri) { val item = MediaItem.fromUri(uri); queue.add(item); exoPlayer.addMediaItem(item); publishQueue() }
+    /**
+     * Removes an item from the queue by its index.
+     * @param index The index of the item to remove.
+     */
     fun removeFromQueue(index: Int) { if (index in queue.indices) { queue.removeAt(index); exoPlayer.removeMediaItem(index); publishQueue() } }
+    /**
+     * Moves an item within the queue.
+     * @param from The original index of the item.
+     * @param to The new index of the item.
+     */
     fun moveQueueItem(from: Int, to: Int) { if (from in queue.indices && to in queue.indices) { val item = queue.removeAt(from); queue.add(to, item); exoPlayer.moveMediaItem(from, to); publishQueue() } }
 
+    /**
+     * Toggles between play and pause.
+     */
     fun togglePlayPause() { if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play() }
+    /**
+     * Seeks to a specific position in the current media item.
+     * @param positionMs The position in milliseconds.
+     */
     fun seekTo(positionMs: Long) { exoPlayer.seekTo(positionMs) }
+    /**
+     * Skips to the next item in the queue.
+     */
     fun skipToNext() { exoPlayer.seekToNext() }
+    /**
+     * Skips to the previous item in the queue.
+     */
     fun skipToPrevious() { exoPlayer.seekToPrevious() }
 
+    /**
+     * Toggles shuffle mode.
+     */
     fun toggleShuffle() {
         val enabled = !exoPlayer.shuffleModeEnabled
         exoPlayer.shuffleModeEnabled = enabled
         updateState(isShuffleEnabled = enabled)
     }
 
+    /**
+     * Toggles repeat mode between OFF, ALL, and ONE.
+     */
     fun toggleRepeat() {
         val next = when (_state.value.repeatMode) {
             RepeatMode.OFF -> RepeatMode.ALL
@@ -183,6 +242,10 @@ class AudioPlaybackManager @Inject constructor(
         updateState(repeatMode = next)
     }
 
+    /**
+     * Sets the player volume.
+     * @param volume The volume level, from 0.0 to 1.0.
+     */
     fun setVolume(volume: Float) { exoPlayer.volume = volume.coerceIn(0f, 1f); updateState(volume = exoPlayer.volume) }
 
     private fun publishQueue() { _state.value = _state.value.copy(queue = queue.map { it.mediaMetadata.title?.toString() ?: it.localConfiguration?.uri?.lastPathSegment ?: "Track" }) }
@@ -213,8 +276,33 @@ class AudioPlaybackManager @Inject constructor(
     }
 }
 
-enum class RepeatMode { OFF, ONE, ALL }
+/**
+ * The available repeat modes for the player.
+ */
+enum class RepeatMode {
+    /** Playback will stop at the end of the queue. */
+    OFF,
+    /** The current item will be repeated. */
+    ONE,
+    /** The entire queue will be repeated. */
+    ALL
+}
 
+/**
+ * Represents the current state of the audio player.
+ *
+ * @property isLoading Whether the player is currently loading/buffering.
+ * @property isPlaying Whether the player is currently playing.
+ * @property title The title of the current track.
+ * @property artist The artist of the current track.
+ * @property album The album of the current track.
+ * @property duration The total duration of the current track in milliseconds.
+ * @property currentPosition The current playback position in milliseconds.
+ * @property isShuffleEnabled Whether shuffle mode is enabled.
+ * @property repeatMode The current repeat mode.
+ * @property volume The current player volume.
+ * @property queue The current playback queue.
+ */
 data class AudioState(
     val isLoading: Boolean = false,
     val isPlaying: Boolean = false,

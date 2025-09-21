@@ -3,6 +3,14 @@ package com.universalmedialibrary.data.local.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 
+/**
+ * Represents the many-to-many relationship between a media item and a person,
+ * including the role that person played for the item.
+ *
+ * @property itemId The ID of the media item.
+ * @property personId The ID of the person.
+ * @property role The role of the person in relation to the item (e.g., 'AUTHOR', 'ACTOR', 'DIRECTOR').
+ */
 @Entity(
     tableName = "item_person_role",
     primaryKeys = ["itemId", "personId", "role"],

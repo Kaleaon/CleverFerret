@@ -25,7 +25,11 @@ import com.universalmedialibrary.ui.theme.PlexTheme
 import kotlinx.coroutines.delay
 
 /**
- * Enhanced Video player screen using ExoPlayer with Plex-inspired UI
+ * An enhanced video player screen with a Plex-inspired UI.
+ *
+ * @param videoFilePath The path to the video file to play.
+ * @param onBack A callback for when the user navigates back.
+ * @param viewModel The view model for this screen.
  */
 @OptIn(ExperimentalMaterial3Api::class, UnstableApi::class)
 @Composable

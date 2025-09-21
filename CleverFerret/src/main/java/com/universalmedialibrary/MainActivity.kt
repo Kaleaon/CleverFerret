@@ -66,9 +66,14 @@ import dagger.hilt.android.AndroidEntryPoint
  * @version 1.2-enhanced (Critical Issues Resolved)
  * @since Android API 24 (Android 7.0)
  */
-@AndroidEntryPoint 
+/**
+ * The main entry point of the CleverFerret application.
+ * This activity handles permission requests, orchestrates media scanning,
+ * and hosts the main UI of the application using Jetpack Compose.
+ */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    
+
     // Permission state management
     private var hasStoragePermission by mutableStateOf(false)
     private var hasNotificationPermission by mutableStateOf(false)
@@ -76,7 +81,7 @@ class MainActivity : ComponentActivity() {
     private var scanProgress by mutableStateOf("")
     private var mediaItems by mutableStateOf<List<MediaItemInfo>>(emptyList())
     private var selectedTab by mutableStateOf(0)
-    
+
     // Permission launcher for multiple permissions
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -85,21 +90,21 @@ class MainActivity : ComponentActivity() {
                 permissions[Manifest.permission.READ_MEDIA_VIDEO] == true ||
                 permissions[Manifest.permission.READ_MEDIA_AUDIO] == true ||
                 permissions[Manifest.permission.READ_EXTERNAL_STORAGE] == true
-                
+
         hasNotificationPermission = permissions[Manifest.permission.POST_NOTIFICATIONS] == true
-        
+
         if (hasStoragePermission) {
             startMediaScan()
         }
     }
-    
+
     // Storage Access Framework launcher
     private val storageAccessLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
         uri?.let {
             contentResolver.takePersistableUriPermission(
-                it, 
+                it,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
             startSAFScan(it)
@@ -108,10 +113,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         checkPermissions()
         loadSampleData()
-        
+
         setContent {
             CleverFerretTheme {
                 CleverFerretMainScreen()
@@ -119,11 +124,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * The main composable that defines the structure of the application's UI,
+     * including the top app bar, tab navigation, and the content for each tab.
+     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CleverFerretMainScreen() {
         val tabTitles = listOf("Library", "Plex & Calibre", "Scanning", "Settings")
-        
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -131,7 +140,7 @@ class MainActivity : ComponentActivity() {
         ) {
             // Top App Bar
             TopAppBar(
-                title = { 
+                title = {
                     CleverFerretLogo(
                         size = 32.dp,
                         showText = true,
@@ -173,7 +182,7 @@ class MainActivity : ComponentActivity() {
                 2 -> ScanningTabContent()
                 3 -> EnhancedSettingsScreen(
                     onNavigateBack = { /* Handle back navigation if needed */ },
-                    onNavigateToApiSettings = { 
+                    onNavigateToApiSettings = {
                         // Navigate to API settings
                         android.widget.Toast.makeText(
                             this@MainActivity,
@@ -218,6 +227,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function that displays the content of the Library tab.
+     * It shows either the list of media items or an empty state message.
+     */
     @Composable
     fun LibraryTabContent() {
         if (mediaItems.isEmpty() && !isScanning) {
@@ -235,6 +248,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function that displays a welcoming message and prompts the user
+     * to scan for media when the library is empty.
+     */
     @Composable
     fun EmptyStateContent() {
         Column(
@@ -250,27 +267,27 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.size(120.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text(
                 "Welcome to Clever Ferret!",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 "Your Universal Media Library is empty.\nLet's discover your media files!",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -282,9 +299,9 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Scan Device for Media")
                 }
-                
+
                 OutlinedButton(
-                    onClick = { 
+                    onClick = {
                         storageAccessLauncher.launch(null)
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -293,7 +310,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Choose Specific Folder")
                 }
-                
+
                 OutlinedButton(
                     onClick = { loadSampleData() },
                     modifier = Modifier.fillMaxWidth()
@@ -306,6 +323,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function for the Scanning tab, which shows the current scanning status
+     * and an overview of discovered media types.
+     */
     @Composable
     fun ScanningTabContent() {
         Column(
@@ -335,16 +356,16 @@ class MainActivity : ComponentActivity() {
                             fontWeight = FontWeight.Medium
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     if (isScanning) {
                         LinearProgressIndicator(
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
-                    
+
                     Text(
                         scanProgress.ifEmpty { "Ready to scan your media files" },
                         style = MaterialTheme.typography.bodyMedium,
@@ -352,13 +373,16 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             MediaTypesOverview()
         }
     }
 
+    /**
+     * Displays a summary of media items grouped by their type.
+     */
     @Composable
     fun MediaTypesOverview() {
         LazyColumn(
@@ -397,6 +421,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function for the Plex & Calibre tab, showcasing the
+     * advanced metadata integration features of the application.
+     */
     @Composable
     fun PlexCalibreMetadataTab() {
         LazyColumn(
@@ -435,7 +463,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            
+
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -447,7 +475,7 @@ class MainActivity : ComponentActivity() {
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        
+
                         PlexFeatureItem("Connect to Multiple Plex Servers", "Manage remote Plex libraries")
                         PlexFeatureItem("AI-Enhanced Metadata", "Improve existing metadata with AI analysis")
                         PlexFeatureItem("Duplicate Detection", "Find and manage duplicate content")
@@ -457,19 +485,19 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            
+
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            "📚 Calibre Integration Features", 
+                            "📚 Calibre Integration Features",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        
+
                         CalibreFeatureItem("Calibre Content Server", "Connect to your Calibre library")
                         CalibreFeatureItem("OPDS Integration", "Support for OPDS feeds and catalogs")
                         CalibreFeatureItem("Series Detection", "Automatic series recognition and ordering")
@@ -479,7 +507,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            
+
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -491,20 +519,20 @@ class MainActivity : ComponentActivity() {
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        
+
                         Text(
                             "CleverFerret integrates with 15+ professional metadata sources:",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         MetadataSourceGrid()
                     }
                 }
             }
-            
+
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -516,7 +544,7 @@ class MainActivity : ComponentActivity() {
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        
+
                         PerformanceFeatureItem("Batch Processing", "High-performance batch metadata enhancement", "Up to 100 items/minute")
                         PerformanceFeatureItem("Quality Scoring", "Metadata confidence scoring and source ranking", "AI-powered accuracy")
                         PerformanceFeatureItem("Intelligent Caching", "Smart caching to minimize API calls", "24-hour cache duration")
@@ -524,10 +552,10 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            
+
             item {
                 Button(
-                    onClick = { 
+                    onClick = {
                         // This would open the full Plex/Calibre integration screen
                         // For demo, show a message
                         android.widget.Toast.makeText(
@@ -546,6 +574,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * A composable that displays a single feature item for Plex integration.
+     * @param title The title of the feature.
+     * @param description A brief description of the feature.
+     */
     @Composable
     fun PlexFeatureItem(title: String, description: String) {
         Row(
@@ -575,7 +608,12 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    
+
+    /**
+     * A composable that displays a single feature item for Calibre integration.
+     * @param title The title of the feature.
+     * @param description A brief description of the feature.
+     */
     @Composable
     fun CalibreFeatureItem(title: String, description: String) {
         Row(
@@ -605,12 +643,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    
+
+    /**
+     * A grid layout to display the various metadata sources integrated into the app.
+     */
     @Composable
     fun MetadataSourceGrid() {
         val sources = listOf(
             "TMDB" to "Movies & TV",
-            "TVDB" to "TV Series", 
+            "TVDB" to "TV Series",
             "IMDB" to "Ratings",
             "Fanart.tv" to "Artwork",
             "Google Books" to "Books",
@@ -622,7 +663,7 @@ class MainActivity : ComponentActivity() {
             "Goodreads" to "Reviews",
             "WorldCat" to "Academic"
         )
-        
+
         sources.chunked(2).forEach { rowSources ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -652,7 +693,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                
+
                 // Fill empty space if odd number of sources in row
                 if (rowSources.size == 1) {
                     Spacer(modifier = Modifier.weight(1f))
@@ -661,7 +702,13 @@ class MainActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
-    
+
+    /**
+     * A composable that displays a single performance-related feature.
+     * @param title The title of the feature.
+     * @param description A brief description of the feature.
+     * @param performance A string indicating the performance metric.
+     */
     @Composable
     fun PerformanceFeatureItem(title: String, description: String, performance: String) {
         Row(
@@ -699,6 +746,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Composable function for the Settings tab, which provides an overview of permissions
+     * and library statistics.
+     */
     @Composable
     fun SettingsTabContent() {
         LazyColumn(
@@ -716,7 +767,7 @@ class MainActivity : ComponentActivity() {
                     )
                 )
             }
-            
+
             item {
                 SettingsSection(
                     title = "Library Information",
@@ -728,7 +779,7 @@ class MainActivity : ComponentActivity() {
                     )
                 )
             }
-            
+
             item {
                 SettingsSection(
                     title = "Professional Features",
@@ -740,7 +791,7 @@ class MainActivity : ComponentActivity() {
                     )
                 )
             }
-            
+
             item {
                 Button(
                     onClick = { openAppSettings() },
@@ -752,6 +803,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * A composable that displays a section within the settings screen.
+     * @param title The title of the section.
+     * @param items A list of key-value pairs to display in the section.
+     */
     @Composable
     fun SettingsSection(title: String, items: List<SettingsItem>) {
         Card(
@@ -766,7 +822,7 @@ class MainActivity : ComponentActivity() {
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 items.forEach { item ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -787,6 +843,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * A card composable to display a single media item in a list.
+     * @param item The information about the media item to display.
+     */
     @Composable
     fun MediaItemCard(item: MediaItemInfo) {
         Card(
@@ -803,9 +863,9 @@ class MainActivity : ComponentActivity() {
                     item.mediaType.getIcon(),
                     style = MaterialTheme.typography.headlineMedium
                 )
-                
+
                 Spacer(modifier = Modifier.width(16.dp))
-                
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         item.title,
@@ -818,7 +878,7 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 if (item.isFavorite) {
                     Icon(
                         Icons.Default.Favorite,
@@ -830,7 +890,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Data classes
+    /**
+     * Data class to hold information about a single media item.
+     * @param id The unique identifier for the media item.
+     * @param title The title of the media item.
+     * @param mediaType The type of media (e.g., Book, Movie).
+     * @param author The author or creator of the media item.
+     * @param isFavorite Whether the item is marked as a favorite.
+     */
     data class MediaItemInfo(
         val id: Long,
         val title: String,
@@ -839,12 +906,19 @@ class MainActivity : ComponentActivity() {
         val isFavorite: Boolean = false
     )
 
+    /**
+     * Data class to represent a key-value pair in the settings screen.
+     * @param key The key or label for the setting.
+     * @param value The value of the setting.
+     */
     data class SettingsItem(
         val key: String,
         val value: String
     )
 
-    // Helper functions
+    /**
+     * Checks the current state of required permissions.
+     */
     private fun checkPermissions() {
         hasStoragePermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED ||
@@ -853,7 +927,7 @@ class MainActivity : ComponentActivity() {
         } else {
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         }
-        
+
         hasNotificationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         } else {
@@ -861,9 +935,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Requests necessary permissions from the user and initiates a media scan if granted.
+     */
     private fun requestPermissionsAndScan() {
         val permissions = mutableListOf<String>()
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
                 permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
@@ -882,7 +959,7 @@ class MainActivity : ComponentActivity() {
                 permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
-        
+
         if (permissions.isNotEmpty()) {
             permissionLauncher.launch(permissions.toTypedArray())
         } else {
@@ -890,37 +967,48 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Starts the media scanning process using a foreground service.
+     */
     private fun startMediaScan() {
         if (isScanning) return
-        
+
         isScanning = true
         scanProgress = "Starting media scan..."
-        
+
         val intent = Intent(this, MediaScannerService::class.java).apply {
             action = MediaScannerService.ACTION_SCAN_ALL
         }
-        
+
         startForegroundService(intent)
-        
+
         // Simulate scanning progress (in real implementation, this would come from the service)
         simulateScanProgress()
     }
 
+    /**
+     * Initiates a media scan for a specific directory chosen by the user via the Storage Access Framework.
+     * @param uri The URI of the directory to scan.
+     */
     private fun startSAFScan(uri: Uri) {
         isScanning = true
         scanProgress = "Scanning selected folder..."
-        
+
         // In real implementation, use StorageAccessService to scan the selected directory
         simulateScanProgress()
     }
 
+    /**
+     * Simulates the progress of a media scan for demonstration purposes.
+     * In a real implementation, this would be driven by updates from a background service.
+     */
     private fun simulateScanProgress() {
         // This simulates the scanning process
         // In a real implementation, you would listen to the MediaScannerService
         val progressMessages = listOf(
             "Scanning Documents folder...",
             "Found 15 PDF files",
-            "Scanning Downloads folder...", 
+            "Scanning Downloads folder...",
             "Found 8 EPUB files",
             "Scanning Music folder...",
             "Found 127 MP3 files",
@@ -930,10 +1018,10 @@ class MainActivity : ComponentActivity() {
             "Creating thumbnails...",
             "Scan complete!"
         )
-        
+
         var currentStep = 0
         val handler = android.os.Handler(mainLooper)
-        
+
         fun updateProgress() {
             if (currentStep < progressMessages.size) {
                 scanProgress = progressMessages[currentStep]
@@ -945,10 +1033,13 @@ class MainActivity : ComponentActivity() {
                 loadDiscoveredMedia()
             }
         }
-        
+
         updateProgress()
     }
 
+    /**
+     * Loads a predefined set of sample media items for demonstration purposes.
+     */
     private fun loadSampleData() {
         mediaItems = listOf(
             MediaItemInfo(1, "The Great Gatsby", MediaType.BOOK, "F. Scott Fitzgerald", true),
@@ -968,6 +1059,9 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Simulates loading media items that were discovered during a scan.
+     */
     private fun loadDiscoveredMedia() {
         // This would typically load the actual discovered media from the database
         // For now, we'll add some simulated "discovered" items
@@ -976,10 +1070,13 @@ class MainActivity : ComponentActivity() {
             MediaItemInfo(101, "Audio Book.m4b", MediaType.AUDIOBOOK, "Found in Documents", false),
             MediaItemInfo(102, "Research Paper.pdf", MediaType.DOCUMENT, "Found in Downloads", false)
         )
-        
+
         mediaItems = mediaItems + discoveredItems
     }
 
+    /**
+     * Opens the application's settings screen in the Android system settings.
+     */
     private fun openAppSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", packageName, null)

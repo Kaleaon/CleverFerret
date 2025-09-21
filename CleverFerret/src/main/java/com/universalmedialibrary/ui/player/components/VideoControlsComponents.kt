@@ -18,6 +18,36 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.viewer.common.VideoSettings
 
+/**
+ * A composable that displays the top controls for the video player.
+ *
+ * @param title The title of the video.
+ * @param currentChapter The title of the current chapter, if any.
+ * @param onBack A callback for when the user navigates back.
+ * @param onCast A callback for when the user taps the cast button.
+ * @param onPip A callback for when the user taps the picture-in-picture button.
+ * @param onSettings A callback for when the user taps the settings button.
+ */
+/**
+ * A composable that displays the top controls for the video player.
+ *
+ * @param title The title of the video.
+ * @param currentChapter The title of the current chapter, if any.
+ * @param onBack A callback for when the user navigates back.
+ * @param onCast A callback for when the user taps the cast button.
+ * @param onPip A callback for when the user taps the picture-in-picture button.
+ * @param onSettings A callback for when the user taps the settings button.
+ */
+/**
+ * A composable that displays the top controls for the video player.
+ *
+ * @param title The title of the video.
+ * @param currentChapter The title of the current chapter, if any.
+ * @param onBack A callback for when the user navigates back.
+ * @param onCast A callback for when the user taps the cast button.
+ * @param onPip A callback for when the user taps the picture-in-picture button.
+ * @param onSettings A callback for when the user taps the settings button.
+ */
 @Composable
 fun TopControlsBar(
     title: String,
@@ -110,6 +140,25 @@ fun TopControlsBar(
     }
 }
 
+/**
+ * A composable that displays the bottom controls for the video player.
+ *
+ * @param isPlaying Whether the player is currently playing.
+ * @param currentPosition The current playback position in milliseconds.
+ * @param duration The total duration of the video in milliseconds.
+ * @param playbackSpeed The current playback speed.
+ * @param volume The current volume.
+ * @param onPlayPause A callback for when the play/pause button is clicked.
+ * @param onSeek A callback for when the user seeks to a new position.
+ * @param onRewind A callback for when the user rewinds.
+ * @param onForward A callback for when the user forwards.
+ * @param onVolumeChange A callback for when the volume changes.
+ * @param onFullscreen A callback for when the fullscreen button is clicked.
+ * @param onSpeedChange A callback for when the playback speed changes.
+ * @param onSubtitles A callback for when the subtitles button is clicked.
+ * @param onAudioTracks A callback for when the audio tracks button is clicked.
+ * @param onChapters A callback for when the chapters button is clicked.
+ */
 @Composable
 fun BottomControlsBar(
     isPlaying: Boolean,
@@ -250,6 +299,48 @@ fun BottomControlsBar(
     }
 }
 
+/**
+ * A composable that displays enhanced video controls.
+ *
+ * @param playerState The current state of the player.
+ * @param onPlayPause A callback for when the play/pause button is clicked.
+ * @param onSeek A callback for when the user seeks to a new position.
+ * @param onVolumeChange A callback for when the volume changes.
+ * @param onSpeedChange A callback for when the playback speed changes.
+ * @param onSubtitleToggle A callback for when the subtitle toggle is clicked.
+ * @param onAudioTrackChange A callback for when the audio track changes.
+ * @param onFullscreenToggle A callback for when the fullscreen toggle is clicked.
+ * @param onPlayerSwitch A callback for when the user switches the player.
+ * @param modifier The modifier to be applied to the controls.
+ */
+/**
+ * A composable that displays enhanced video controls.
+ *
+ * @param playerState The current state of the player.
+ * @param onPlayPause A callback for when the play/pause button is clicked.
+ * @param onSeek A callback for when the user seeks to a new position.
+ * @param onVolumeChange A callback for when the volume changes.
+ * @param onSpeedChange A callback for when the playback speed changes.
+ * @param onSubtitleToggle A callback for when the subtitle toggle is clicked.
+ * @param onAudioTrackChange A callback for when the audio track changes.
+ * @param onFullscreenToggle A callback for when the fullscreen toggle is clicked.
+ * @param onPlayerSwitch A callback for when the user switches the player.
+ * @param modifier The modifier to be applied to the controls.
+ */
+/**
+ * A composable that displays enhanced video controls.
+ *
+ * @param playerState The current state of the player.
+ * @param onPlayPause A callback for when the play/pause button is clicked.
+ * @param onSeek A callback for when the user seeks to a new position.
+ * @param onVolumeChange A callback for when the volume changes.
+ * @param onSpeedChange A callback for when the playback speed changes.
+ * @param onSubtitleToggle A callback for when the subtitle toggle is clicked.
+ * @param onAudioTrackChange A callback for when the audio track changes.
+ * @param onFullscreenToggle A callback for when the fullscreen toggle is clicked.
+ * @param onPlayerSwitch A callback for when the user switches the player.
+ * @param modifier The modifier to be applied to the controls.
+ */
 @Composable
 fun EnhancedVideoControls(
     playerState: com.universalmedialibrary.ui.player.UniversalPlayerState,
