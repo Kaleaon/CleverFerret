@@ -9,6 +9,7 @@ plugins {
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 34
+    buildToolsVersion = "33.0.2"  // LOCKED VERSION - ARM64 compatible
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
