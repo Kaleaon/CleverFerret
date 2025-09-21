@@ -24,7 +24,7 @@ fun SecuritySettingsScreen(
 ) {
     val securitySettings by viewModel.securitySettings.collectAsState()
     
-    PlexTheme {
+    CleverFerretTheme {
         Scaffold(
             topBar = {
                 TopAppBar(
