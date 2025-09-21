@@ -47,6 +47,13 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 
+/**
+ * A comprehensive settings screen for the CleverFerret application.
+ * It provides users with options to configure appearance, library settings,
+ * data management, API keys, and view information about the app.
+ *
+ * @returns {React.ReactElement} The rendered SettingsScreen component.
+ */
 export const SettingsScreen: React.FC = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState(true);
@@ -54,7 +61,7 @@ export const SettingsScreen: React.FC = () => {
   const [offlineMode, setOfflineMode] = useState(true);
   const [showApiDialog, setShowApiDialog] = useState(false);
   const [showAboutDialog, setShowAboutDialog] = useState(false);
-  
+
   // API Keys state
   const [apiKeys, setApiKeys] = useState({
     googleBooks: '',

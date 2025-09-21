@@ -51,10 +51,17 @@ import { ViewMode, BookDetails, MediaItem, Library } from '../types';
 import { MediaItemService, MetadataService } from '../services/database';
 import { MetadataAPIService } from '../services/metadataApi';
 
-// Demo data for media items
+/**
+ * Generates a list of demo media items for a given library type.
+ * This function is for demonstration purposes to populate the UI with realistic data.
+ *
+ * @param {Library['type']} libraryType - The type of library (e.g., 'BOOK', 'MOVIE').
+ * @param {number} [count=20] - The number of demo items to generate.
+ * @returns {any[]} An array of demo media item objects.
+ */
 const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20) => {
   const items: any[] = [];
-  
+
   for (let i = 1; i <= count; i++) {
     const baseItem = {
       itemId: i,
@@ -62,7 +69,7 @@ const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20
       filePath: `/demo/${libraryType.toLowerCase()}/${i}`,
       fileName: `Demo ${libraryType} ${i}`,
       fileSize: Math.floor(Math.random() * 500000000) + 1000000,
-      mimeType: libraryType === 'BOOK' ? 'application/epub+zip' : 
+      mimeType: libraryType === 'BOOK' ? 'application/epub+zip' :
                 libraryType === 'MOVIE' ? 'video/mp4' : 'audio/mp3',
       mediaType: libraryType,
       dateAdded: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
@@ -79,8 +86,8 @@ const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20
       isDownloaded: true,
       genre: getRandomGenres(libraryType),
       year: 2020 + Math.floor(Math.random() * 5),
-      author: libraryType === 'BOOK' ? getRandomAuthor() : 
-              libraryType === 'MOVIE' ? getRandomDirector() : 
+      author: libraryType === 'BOOK' ? getRandomAuthor() :
+              libraryType === 'MOVIE' ? getRandomDirector() :
               getRandomArtist(),
     };
 
@@ -96,10 +103,16 @@ const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20
       } : undefined,
     });
   }
-  
+
   return items;
 };
 
+/**
+ * Returns a random title for a given media type.
+ * @param {string} type - The media type.
+ * @param {number} index - An index to vary the title.
+ * @returns {string} A random title.
+ */
 const getRandomTitle = (type: string, index: number) => {
   const titles = {
     BOOK: ['The Silent Echo', 'Midnight Chronicles', 'Digital Shadows', 'The Last Algorithm', 'Neon Dreams', 'Quantum Hearts', 'The Memory Thief', 'Stellar Winds', 'The Code Breaker', 'Future Past'],
@@ -109,6 +122,11 @@ const getRandomTitle = (type: string, index: number) => {
   return titles[type as keyof typeof titles]?.[index % 10] || `${type} Title ${index}`;
 };
 
+/**
+ * Returns a random description for a given media type.
+ * @param {string} type - The media type.
+ * @returns {string} A random description.
+ */
 const getRandomDescription = (type: string) => {
   const descriptions = {
     BOOK: 'A captivating tale of adventure, mystery, and discovery that will keep you turning pages late into the night.',
@@ -118,6 +136,12 @@ const getRandomDescription = (type: string) => {
   return descriptions[type as keyof typeof descriptions] || 'An engaging piece of media content.';
 };
 
+/**
+ * Generates a random placeholder thumbnail URL.
+ * @param {string} type - The media type.
+ * @param {number} index - An index to vary the color.
+ * @returns {string} A URL for a placeholder image.
+ */
 const getRandomThumbnail = (type: string, index: number) => {
   const colors = ['4A90E2', 'F5A623', '7ED321', 'D0021B', '9013FE', '50E3C2'];
   const color = colors[index % colors.length];
@@ -125,6 +149,11 @@ const getRandomThumbnail = (type: string, index: number) => {
   return `https://via.placeholder.com/300x450/${color}/ffffff?text=${text}+${index}`;
 };
 
+/**
+ * Returns a random genre for a given media type.
+ * @param {string} type - The media type.
+ * @returns {string[]} An array containing a random genre.
+ */
 const getRandomGenres = (type: string) => {
   const genres = {
     BOOK: ['Fiction', 'Sci-Fi', 'Mystery', 'Thriller', 'Fantasy', 'Romance'],
@@ -135,32 +164,63 @@ const getRandomGenres = (type: string) => {
   return [typeGenres[Math.floor(Math.random() * typeGenres.length)]];
 };
 
+/**
+ * Returns a random author name.
+ * @returns {string} A random author name.
+ */
 const getRandomAuthor = () => {
   const authors = ['Alex Chen', 'Sarah Johnson', 'Michael Rodriguez', 'Emily Zhang', 'David Kim', 'Lisa Thompson'];
   return authors[Math.floor(Math.random() * authors.length)];
 };
 
+/**
+ * Returns a random director name.
+ * @returns {string} A random director name.
+ */
 const getRandomDirector = () => {
   const directors = ['Christopher Davis', 'Jennifer Liu', 'Robert Miller', 'Amanda Wilson', 'James Park', 'Michelle Brown'];
   return directors[Math.floor(Math.random() * directors.length)];
 };
 
+/**
+ * Returns a random artist name.
+ * @returns {string} A random artist name.
+ */
 const getRandomArtist = () => {
   const artists = ['Neon Pulse', 'Cyber Dreams', 'Digital Flow', 'Synth Master', 'Echo Wave', 'Future Sound'];
   return artists[Math.floor(Math.random() * artists.length)];
 };
 
+/**
+ * Returns a random publisher name.
+ * @returns {string} A random publisher name.
+ */
 const getRandomPublisher = () => {
   const publishers = ['Digital Press', 'Future Books', 'Neon Publishing', 'Cyber Works', 'Tech Literature', 'Modern Tales'];
   return publishers[Math.floor(Math.random() * publishers.length)];
 };
 
+/**
+ * Returns a random series name.
+ * @returns {string} A random series name.
+ */
 const getRandomSeries = () => {
   const series = ['Cyber Chronicles', 'Digital Age', 'Future Tales', 'Neon Series', 'Tech Saga', 'Modern Myths'];
   return series[Math.floor(Math.random() * series.length)];
 };
 
-// Media card component with Plex styling
+/**
+ * A versatile card component for displaying a single media item.
+ * It adapts its layout based on the current view mode (grid, list, cover flow).
+ *
+ * @param {object} props The component props.
+ * @param {any} props.item The media item data.
+ * @param {ViewMode} props.viewMode The current display mode.
+ * @param {() => void} props.onClick Function to call when the item is clicked.
+ * @param {() => void} props.onEdit Function to call to edit the item's metadata.
+ * @param {() => void} props.onFavoriteToggle Function to toggle the item's favorite status.
+ * @returns {React.ReactElement} The rendered MediaCard component.
+ */
 const MediaCard: React.FC<{
   item: any;
   viewMode: ViewMode;
@@ -190,9 +250,9 @@ const MediaCard: React.FC<{
 
   if (viewMode === ViewMode.LIST) {
     return (
-      <Paper 
-        sx={{ 
-          mb: 1, 
+      <Paper
+        sx={{
+          mb: 1,
           bgcolor: 'background.paper',
           border: '1px solid #2d3136',
           '&:hover': {
@@ -237,8 +297,8 @@ const MediaCard: React.FC<{
             <IconButton size="small" onClick={onEdit}>
               <EditIcon />
             </IconButton>
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={onFavoriteToggle}
               sx={{ color: item.metadataCommon.isFavorite ? 'primary.main' : 'text.secondary' }}
             >
@@ -275,7 +335,7 @@ const MediaCard: React.FC<{
           height: viewMode === ViewMode.COVER_FLOW ? 220 : 260,
           bgcolor: 'secondary.main',
           position: 'relative',
-          backgroundImage: item.metadataCommon.thumbnailPath ? 
+          backgroundImage: item.metadataCommon.thumbnailPath ?
             `url(${item.metadataCommon.thumbnailPath})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -285,7 +345,7 @@ const MediaCard: React.FC<{
         }}
       >
         {!item.metadataCommon.thumbnailPath && getIcon()}
-        
+
         {/* Favorite indicator */}
         {item.metadataCommon.isFavorite && (
           <Chip
@@ -414,9 +474,9 @@ const MediaCard: React.FC<{
         )}
 
         {/* Action buttons */}
-        <Box sx={{ 
-          position: 'absolute', 
-          bottom: 8, 
+        <Box sx={{
+          position: 'absolute',
+          bottom: 8,
           right: 8,
           display: 'flex',
           gap: 0.5
@@ -472,6 +532,12 @@ const MediaCard: React.FC<{
   );
 };
 
+/**
+ * A screen component that displays the detailed contents of a single library.
+ * It includes functionality for searching, sorting, and changing the view mode of the media items.
+ *
+ * @returns {React.ReactElement} The rendered LibraryDetailsScreen component.
+ */
 export const LibraryDetailsScreen: React.FC = () => {
   const navigate = useNavigate();
   const { libraryId } = useParams<{ libraryId: string }>();
@@ -490,7 +556,7 @@ export const LibraryDetailsScreen: React.FC = () => {
   useEffect(() => {
     // Filter and sort items
     let filtered = items;
-    
+
     if (searchQuery.trim()) {
       filtered = items.filter(item =>
         item.metadataCommon.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -527,7 +593,7 @@ export const LibraryDetailsScreen: React.FC = () => {
       const types: Library['type'][] = ['BOOK', 'MOVIE', 'MUSIC'];
       const selectedType = types[parseInt(libraryId || '1') % types.length];
       setLibraryType(selectedType);
-      
+
       // Generate demo items
       const demoItems = generateDemoMediaItems(selectedType, 24);
       setItems(demoItems);
@@ -594,7 +660,7 @@ export const LibraryDetailsScreen: React.FC = () => {
                 ),
               }}
             />
-            
+
             <Button
               startIcon={<SortIcon />}
               onClick={(e) => {
@@ -650,7 +716,7 @@ export const LibraryDetailsScreen: React.FC = () => {
               {searchQuery ? 'No results found' : 'Library is empty'}
             </Typography>
             <Typography color="text.secondary" paragraph>
-              {searchQuery 
+              {searchQuery
                 ? 'Try adjusting your search terms or browse all items.'
                 : 'Add some media to get started with your collection.'
               }

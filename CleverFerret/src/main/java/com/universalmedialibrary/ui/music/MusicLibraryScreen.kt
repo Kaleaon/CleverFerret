@@ -12,6 +12,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
+/**
+ * A screen that displays the music library.
+ *
+ * @param navController The NavController for navigating to other screens.
+ * @param viewModel The view model for this screen.
+ */
 @Composable
 fun MusicLibraryScreen(
     navController: NavController,

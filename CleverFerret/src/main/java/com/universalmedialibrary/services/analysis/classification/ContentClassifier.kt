@@ -43,10 +43,16 @@ class ContentClassifier @Inject constructor() {
         "NC-17" to listOf("adult only", "explicit content", "pornographic")
     )
 
+    /**
+     * Classifies a document based on its text content.
+     *
+     * @param text The text of the document to classify.
+     * @return A [ContentClassification] object with the classification results.
+     */
     suspend fun classifyDocument(text: String): ContentClassification = withContext(Dispatchers.IO) {
         val normalizedText = text.lowercase()
         val words = normalizedText.split("\\s+".toRegex()).filter { it.length > 2 }
-        
+
         // Genre classification
         val genreScores = mutableMapOf<String, Int>()
         for ((genre, keywords) in genreClassifiers) {
@@ -57,27 +63,27 @@ class ContentClassifier @Inject constructor() {
                 genreScores[genre] = score
             }
         }
-        
+
         val topGenres = genreScores.entries
             .sortedByDescending { it.value }
             .take(3)
             .map { it.key }
-        
+
         val primaryGenre = topGenres.firstOrNull() ?: "general"
-        
+
         // Content rating classification
         val contentRating = classifyContentRating(normalizedText)
-        
+
         // Language complexity analysis
         val complexity = analyzeComplexity(text)
         val readingLevel = determineReadingLevel(complexity)
-        
+
         // Topic extraction (simple keyword-based)
         val topics = extractTopics(words)
-        
+
         // Sentiment analysis (basic)
         val sentiment = analyzeSentiment(normalizedText)
-        
+
         ContentClassification(
             mediaType = MediaType.DOCUMENT,
             genre = primaryGenre,
@@ -90,11 +96,17 @@ class ContentClassifier @Inject constructor() {
         )
     }
 
+    /**
+     * Classifies a video based on its extracted metadata.
+     *
+     * @param metadata The extracted metadata of the video.
+     * @return A [ContentClassification] object with the classification results.
+     */
     suspend fun classifyVideo(metadata: ExtractedMetadata): ContentClassification = withContext(Dispatchers.IO) {
         val title = metadata.title?.lowercase().orEmpty()
         val description = metadata.description?.lowercase().orEmpty()
         val combinedText = "$title $description"
-        
+
         // Video-specific genre classification
         val videoGenres = mapOf(
             "action" to listOf("action", "fight", "explosion", "chase", "battle"),
@@ -106,7 +118,7 @@ class ContentClassifier @Inject constructor() {
             "romance" to listOf("romance", "love", "romantic", "wedding"),
             "thriller" to listOf("thriller", "suspense", "mystery", "crime")
         )
-        
+
         val genreScores = mutableMapOf<String, Int>()
         for ((genre, keywords) in videoGenres) {
             val score = keywords.sumOf { keyword ->
@@ -116,12 +128,12 @@ class ContentClassifier @Inject constructor() {
                 genreScores[genre] = score
             }
         }
-        
+
         val topGenres = genreScores.entries
             .sortedByDescending { it.value }
             .take(2)
             .map { it.key }
-        
+
         ContentClassification(
             mediaType = MediaType.MOVIE,
             genre = topGenres.firstOrNull() ?: "general",
@@ -134,9 +146,15 @@ class ContentClassifier @Inject constructor() {
         )
     }
 
+    /**
+     * Classifies an audio file based on its extracted metadata.
+     *
+     * @param metadata The extracted metadata of the audio file.
+     * @return A [ContentClassification] object with the classification results.
+     */
     suspend fun classifyAudio(metadata: ExtractedMetadata): ContentClassification = withContext(Dispatchers.IO) {
         val genre = metadata.genre ?: "music"
-        
+
         ContentClassification(
             mediaType = MediaType.MUSIC,
             genre = genre,
@@ -149,6 +167,12 @@ class ContentClassifier @Inject constructor() {
         )
     }
 
+    /**
+     * Analyzes a comic book cover.
+     * This is a placeholder for a more complex implementation that would likely involve image analysis.
+     *
+     * @return A [ContentClassification] object with the classification results.
+     */
     suspend fun analyzeComicCover(): ContentClassification = withContext(Dispatchers.IO) {
         // Simplified comic classifier
         ContentClassification(
@@ -178,13 +202,13 @@ class ContentClassifier @Inject constructor() {
     private fun analyzeComplexity(text: String): Float {
         val sentences = text.split(Regex("[.!?]+")).filter { it.trim().isNotEmpty() }
         val words = text.split("\\s+".toRegex()).filter { it.isNotEmpty() }
-        
+
         if (sentences.isEmpty() || words.isEmpty()) return 0.5f
-        
+
         val avgWordsPerSentence = words.size.toFloat() / sentences.size
         val avgWordLength = words.map { it.length }.average().toFloat()
         val uniqueWordRatio = words.distinct().size.toFloat() / words.size
-        
+
         // Normalize complexity score between 0 and 1
         val complexity = ((avgWordsPerSentence / 30f) + (avgWordLength / 10f) + uniqueWordRatio) / 3f
         return complexity.coerceIn(0f, 1f)
@@ -211,7 +235,7 @@ class ContentClassifier @Inject constructor() {
             "sports" to listOf("sports", "game", "team", "player", "competition"),
             "entertainment" to listOf("movie", "music", "celebrity", "entertainment", "show")
         )
-        
+
         val topicScores = mutableMapOf<String, Int>()
         for ((topic, keywords) in topicKeywords) {
             val score = keywords.sumOf { keyword ->
@@ -221,7 +245,7 @@ class ContentClassifier @Inject constructor() {
                 topicScores[topic] = score
             }
         }
-        
+
         return topicScores.entries
             .sortedByDescending { it.value }
             .take(3)
@@ -231,11 +255,11 @@ class ContentClassifier @Inject constructor() {
     private fun analyzeSentiment(text: String): String {
         val positiveWords = listOf("good", "great", "excellent", "amazing", "wonderful", "love", "happy", "joy")
         val negativeWords = listOf("bad", "terrible", "awful", "hate", "sad", "angry", "disappointed", "horrible")
-        
+
         val words = text.split("\\s+".toRegex())
         val positiveCount = words.count { word -> positiveWords.any { pos -> word.contains(pos) } }
         val negativeCount = words.count { word -> negativeWords.any { neg -> word.contains(neg) } }
-        
+
         return when {
             positiveCount > negativeCount * 1.5 -> "positive"
             negativeCount > positiveCount * 1.5 -> "negative"
@@ -246,7 +270,7 @@ class ContentClassifier @Inject constructor() {
     private fun calculateClassificationConfidence(genreScores: Map<String, Int>, genreCount: Int): Float {
         val totalScore = genreScores.values.sum()
         val maxScore = genreScores.values.maxOrNull() ?: 0
-        
+
         return when {
             genreCount == 0 -> 0.1f
             genreCount == 1 && maxScore > 5 -> 0.9f

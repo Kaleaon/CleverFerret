@@ -21,7 +21,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
- * Main metadata editor screen that adapts to different screen sizes
+ * A screen for editing the metadata of a media item.
+ * This screen adapts its layout for phones and tablets.
+ *
+ * @param itemId The ID of the media item to edit.
+ * @param onSave A callback for when the user saves the changes.
+ * @param onCancel A callback for when the user cancels the edit.
+ * @param viewModel The view model for this screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

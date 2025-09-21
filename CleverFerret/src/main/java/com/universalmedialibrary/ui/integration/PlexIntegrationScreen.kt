@@ -17,6 +17,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.integration.plex.PlexConnectionResult
 import com.universalmedialibrary.ui.theme.PlexTheme
 
+/**
+ * A screen for managing Plex integration.
+ * This screen allows users to add and manage Plex servers, and to perform actions like syncing libraries and enhancing metadata.
+ *
+ * @param viewModel The view model for this screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlexIntegrationScreen(

@@ -12,6 +12,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * The view model for the book details screen.
+ *
+ * @param mediaItemDao The DAO for media items.
+ * @param metadataDao The DAO for metadata.
+ */
 @HiltViewModel
 class BookDetailsViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
@@ -19,8 +25,13 @@ class BookDetailsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BookDetailsUiState())
+    /** The UI state for the book details screen. */
     val uiState: StateFlow<BookDetailsUiState> = _uiState.asStateFlow()
 
+    /**
+     * Loads the details for a specific book.
+     * @param bookId The ID of the book to load.
+     */
     fun load(bookId: Long) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
@@ -59,6 +70,13 @@ class BookDetailsViewModel @Inject constructor(
     }
 }
 
+/**
+ * Represents the UI state for the book details screen.
+ *
+ * @property isLoading Whether the screen is currently loading.
+ * @property details The details of the book.
+ * @property error An error message, if any.
+ */
 data class BookDetailsUiState(
     val isLoading: Boolean = false,
     val details: BookDetails? = null,

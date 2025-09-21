@@ -19,18 +19,29 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * The view model for the universal video player screen.
+ *
+ * @param videoService The service for comprehensive video support.
+ */
 @HiltViewModel
 class UniversalVideoPlayerViewModel @Inject constructor(
     private val videoService: ComprehensiveVideoService
 ) : ViewModel() {
 
     private val _playerState = MutableStateFlow(UniversalPlayerState())
+    /** The UI state for the universal video player screen. */
     val playerState: StateFlow<UniversalPlayerState> = _playerState.asStateFlow()
 
     private var exoPlayer: ExoPlayer? = null
     private var vlcPlayer: Any? = null
     private var currentUri: Uri? = null
 
+    /**
+     * Initializes the player with the appropriate engine for the given URI.
+     * @param context The context to use for creating the player.
+     * @param uri The URI of the video to play.
+     */
     fun initializePlayer(context: Context, uri: Uri) {
         viewModelScope.launch {
             try {
@@ -71,7 +82,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
             } catch (e: Exception) {
                 _playerState.value = _playerState.value.copy(
                     isLoading = false,
-                    error = "Failed to initialize player: ${'$'}{e.message}"
+                    error = "Failed to initialize player: ${e.message}"
                 )
             }
         }
@@ -109,7 +120,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
         } catch (e: Exception) {
             _playerState.value = _playerState.value.copy(
-                error = "ExoPlayer initialization failed: ${'$'}{e.message}"
+                error = "ExoPlayer initialization failed: ${e.message}"
             )
         }
     }
@@ -138,7 +149,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
         } catch (e: Exception) {
             _playerState.value = _playerState.value.copy(
-                error = "VLC player initialization failed: ${'$'}{e.message}"
+                error = "VLC player initialization failed: ${e.message}"
             )
         }
     }
@@ -150,6 +161,9 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Toggles between play and pause.
+     */
     fun togglePlayPause() {
         when (_playerState.value.playerType) {
             VideoPlayerType.EXOPLAYER -> {
@@ -167,6 +181,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Seeks to a specific position in the current media item.
+     * @param positionMs The position in milliseconds.
+     */
     fun seekTo(positionMs: Long) {
         when (_playerState.value.playerType) {
             VideoPlayerType.EXOPLAYER -> exoPlayer?.seekTo(positionMs)
@@ -175,6 +193,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sets the player volume.
+     * @param volume The volume level, from 0.0 to 1.0.
+     */
     fun setVolume(volume: Float) {
         when (_playerState.value.playerType) {
             VideoPlayerType.EXOPLAYER -> exoPlayer?.volume = volume
@@ -184,6 +206,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         _playerState.value = _playerState.value.copy(volume = volume)
     }
 
+    /**
+     * Sets the playback speed.
+     * @param speed The new playback speed.
+     */
     fun setPlaybackSpeed(speed: Float) {
         when (_playerState.value.playerType) {
             VideoPlayerType.EXOPLAYER -> exoPlayer?.setPlaybackSpeed(speed)
@@ -193,12 +219,19 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         _playerState.value = _playerState.value.copy(playbackSpeed = speed)
     }
 
+    /**
+     * Toggles subtitles on or off.
+     */
     fun toggleSubtitles() {
         // Implementation depends on player type
         val newState = !_playerState.value.subtitlesEnabled
         _playerState.value = _playerState.value.copy(subtitlesEnabled = newState)
     }
 
+    /**
+     * Changes the audio track.
+     * @param trackIndex The index of the audio track to select.
+     */
     fun changeAudioTrack(trackIndex: Int) {
         when (_playerState.value.playerType) {
             VideoPlayerType.EXOPLAYER -> {
@@ -209,11 +242,18 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Toggles fullscreen mode.
+     */
     fun toggleFullscreen() {
         val newState = !_playerState.value.isFullscreen
         _playerState.value = _playerState.value.copy(isFullscreen = newState)
     }
 
+    /**
+     * Switches the player engine.
+     * @param newPlayerType The new player type to use.
+     */
     fun switchPlayer(newPlayerType: VideoPlayerType) {
         currentUri?.let { uri ->
             viewModelScope.launch {
@@ -235,6 +275,9 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Retries playback after an error.
+     */
     fun retryPlayback() {
         currentUri?.let { uri ->
             val context = _playerState.value.exoPlayerView?.context
@@ -291,6 +334,9 @@ class UniversalVideoPlayerViewModel @Inject constructor(
         vlcPlayer = null
     }
 
+    /**
+     * Releases the player resources.
+     */
     fun releasePlayer() {
         releaseCurrentPlayer()
         _playerState.value = UniversalPlayerState()
@@ -313,8 +359,24 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     }
 }
 
-// Data class for player state
-
+/**
+ * Represents the UI state for the universal video player screen.
+ *
+ * @property playerType The type of player currently in use.
+ * @property isLoading Whether the player is currently loading.
+ * @property isPlaying Whether the player is currently playing.
+ * @property isFullscreen Whether the player is in fullscreen mode.
+ * @property currentPosition The current playback position in milliseconds.
+ * @property duration The total duration of the video in milliseconds.
+ * @property progress The current playback progress, from 0.0 to 1.0.
+ * @property volume The current volume.
+ * @property playbackSpeed The current playback speed.
+ * @property subtitlesEnabled Whether subtitles are currently enabled.
+ * @property videoMetadata The metadata for the current video.
+ * @property error An error message, if any.
+ * @property exoPlayerView The ExoPlayer view, if applicable.
+ * @property vlcVideoLayout The VLC video layout, if applicable.
+ */
 data class UniversalPlayerState(
     val playerType: VideoPlayerType = VideoPlayerType.EXOPLAYER,
     val isLoading: Boolean = false,

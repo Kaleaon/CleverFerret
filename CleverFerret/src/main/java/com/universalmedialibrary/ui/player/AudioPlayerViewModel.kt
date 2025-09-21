@@ -21,12 +21,17 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * ViewModel for the audio player with metadata extraction and playlist support
+ * The view model for the audio player screen.
+ *
+ * @param context The application context.
  */
 @HiltViewModel
-class AudioPlayerViewModel @Inject constructor() : ViewModel() {
+class AudioPlayerViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AudioPlayerUiState())
+    /** The UI state for the audio player screen. */
     val uiState: StateFlow<AudioPlayerUiState> = _uiState.asStateFlow()
 
     private var exoPlayer: ExoPlayer? = null
@@ -66,7 +71,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         override fun onPlayerError(error: PlaybackException) {
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
-                error = "Playback error: ${'$'}{error.message}"
+                error = "Playback error: ${error.message}"
             )
         }
 
@@ -98,7 +103,9 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     /**
-     * Start playback for a single local audio file
+     * Loads an audio file for playback.
+     * @param context The context to use for creating the player.
+     * @param filePath The path to the audio file to play.
      */
     fun loadAudio(context: Context, filePath: String) {
         viewModelScope.launch {
@@ -136,14 +143,18 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to load audio: ${'$'}{e.message}"
+                    error = "Failed to load audio: ${e.message}"
                 )
             }
         }
     }
 
     /**
-     * Set a playlist (queue) from file paths
+     * Sets a playlist (queue) from a list of file paths.
+     * @param context The context to use for creating the player.
+     * @param filePaths The list of file paths to play.
+     * @param startIndex The index to start playback from.
+     * @param playWhenReady Whether to start playback immediately.
      */
     fun setQueue(context: Context, filePaths: List<String>, startIndex: Int = 0, playWhenReady: Boolean = true) {
         viewModelScope.launch {
@@ -181,38 +192,69 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    /**
+     * Adds a new item to the end of the queue.
+     * @param filePath The path to the audio file.
+     */
     fun addToQueue(filePath: String) {
         val item = MediaItem.fromUri(Uri.fromFile(File(filePath)))
         mediaQueue.add(item)
         exoPlayer?.addMediaItem(item)
     }
 
+    /**
+     * Skips to the next item in the queue.
+     */
     fun skipToNext() { exoPlayer?.seekToNext() }
+    /**
+     * Skips to the previous item in the queue.
+     */
     fun skipToPrevious() { exoPlayer?.seekToPrevious() }
 
+    /**
+     * Toggles between play and pause.
+     */
     fun togglePlayPause() {
         exoPlayer?.let { player ->
             if (player.isPlaying) player.pause() else player.play()
         }
     }
 
+    /**
+     * Seeks to a specific position in the current media item.
+     * @param positionMs The position in milliseconds.
+     */
     fun seekTo(positionMs: Long) { exoPlayer?.seekTo(positionMs) }
 
+    /**
+     * Sets the position update interval.
+     * @param intervalMs The interval in milliseconds.
+     */
     fun setPositionUpdateInterval(intervalMs: Long) {
         positionUpdateIntervalMs = intervalMs.coerceIn(50L, 2000L)
     }
 
+    /**
+     * Sets the player volume.
+     * @param volume The volume level, from 0.0 to 1.0.
+     */
     fun setVolume(volume: Float) {
         exoPlayer?.volume = volume.coerceIn(0f, 1f)
         _uiState.value = _uiState.value.copy(volume = exoPlayer?.volume ?: volume)
     }
 
+    /**
+     * Toggles shuffle mode.
+     */
     fun toggleShuffle() {
         val enabled = !(exoPlayer?.shuffleModeEnabled ?: false)
         exoPlayer?.shuffleModeEnabled = enabled
         _uiState.value = _uiState.value.copy(isShuffleEnabled = enabled)
     }
 
+    /**
+     * Toggles repeat mode between OFF, ALL, and ONE.
+     */
     fun toggleRepeat() {
         val current = _uiState.value.repeatMode
         val next = when (current) {
@@ -295,9 +337,28 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     }
 }
 
-// Repeat mode for UI
+/**
+ * The available repeat modes for the player.
+ */
 enum class RepeatMode { OFF, ONE, ALL }
 
+/**
+ * Represents the UI state for the audio player screen.
+ *
+ * @property isLoading Whether the player is currently loading.
+ * @property isLoaded Whether the player has loaded the media.
+ * @property isPlaying Whether the player is currently playing.
+ * @property title The title of the current track.
+ * @property artist The artist of the current track.
+ * @property album The album of the current track.
+ * @property coverArtUri The URI of the cover art.
+ * @property duration The total duration of the current track in milliseconds.
+ * @property currentPosition The current playback position in milliseconds.
+ * @property isShuffleEnabled Whether shuffle mode is enabled.
+ * @property repeatMode The current repeat mode.
+ * @property volume The current player volume.
+ * @property error An error message, if any.
+ */
 data class AudioPlayerUiState(
     val isLoading: Boolean = false,
     val isLoaded: Boolean = false,

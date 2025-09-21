@@ -31,6 +31,14 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.data.MediaType
 import kotlinx.coroutines.launch
 
+/**
+ * The main screen for the universal media library.
+ * This screen displays all media items, with tabs for each media type.
+ *
+ * @param navController The NavController for navigating to other screens.
+ * @param libraryId The ID of the library to display.
+ * @param viewModel The view model for this screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun UniversalMediaLibraryScreen(
@@ -224,6 +232,12 @@ fun UniversalMediaLibraryScreen(
     }
 }
 
+/**
+ * A row of filter chips for filtering the media library.
+ *
+ * @param viewModel The view model for this screen.
+ * @param modifier The modifier to be applied to the row.
+ */
 @Composable
 fun FilterRow(
     viewModel: UniversalMediaLibraryViewModel,
@@ -262,6 +276,14 @@ fun FilterRow(
     }
 }
 
+/**
+ * A composable that displays the content for a specific media type.
+ *
+ * @param mediaType The media type to display.
+ * @param items The list of media items of the specified type.
+ * @param viewMode The current view mode.
+ * @param onItemClick A callback for when a media item is clicked.
+ */
 @Composable
 fun MediaTypeContent(
     mediaType: MediaType,
@@ -318,7 +340,10 @@ fun MediaTypeContent(
     }
 }
 
-// Extension functions for MediaType
+/**
+ * Extension function to get a user-friendly display name for a [MediaType].
+ * @return The display name as a [String].
+ */
 fun MediaType.displayName(): String {
     return when (this) {
         MediaType.BOOK -> "Books"
@@ -356,6 +381,10 @@ fun MediaType.displayName(): String {
     }
 }
 
+/**
+ * Extension function to get an icon for a [MediaType].
+ * @return The icon as an [ImageVector].
+ */
 fun MediaType.getIcon(): ImageVector {
     return when (this) {
         MediaType.BOOK, MediaType.EBOOK -> Icons.Default.MenuBook
@@ -387,12 +416,18 @@ fun MediaType.getIcon(): ImageVector {
     }
 }
 
+/**
+ * The available view modes for the media library.
+ */
 enum class ViewMode(val displayName: String) {
     GRID("Grid"),
     LIST("List"),
     COVER_FLOW("Cover Flow")
 }
 
+/**
+ * The available sort options for the media library.
+ */
 enum class SortOption(val displayName: String) {
     TITLE("Title"),
     DATE_ADDED("Date Added"),
@@ -402,7 +437,18 @@ enum class SortOption(val displayName: String) {
     RECENTLY_VIEWED("Recently Viewed")
 }
 
-// Placeholder data classes - these would be defined in your data layer
+/**
+ * A data class representing a media item with its metadata for display in the UI.
+ *
+ * @property itemId The ID of the media item.
+ * @property title The title of the media item.
+ * @property mediaType The type of the media item.
+ * @property coverImagePath The path to the cover image.
+ * @property author The author of the media item.
+ * @property dateAdded The date the media item was added.
+ * @property isFavorite Whether the media item is a favorite.
+ * @property progress The user's progress through the media item.
+ */
 data class MediaItemWithMetadata(
     val itemId: Long,
     val title: String,
@@ -414,6 +460,13 @@ data class MediaItemWithMetadata(
     val progress: Float = 0f
 )
 
+/**
+ * A card for displaying a media item in a grid.
+ *
+ * @param item The media item to display.
+ * @param onClick A callback for when the card is clicked.
+ * @param modifier The modifier to be applied to the card.
+ */
 @Composable
 fun MediaItemCard(
     item: MediaItemWithMetadata,
@@ -471,6 +524,13 @@ fun MediaItemCard(
     }
 }
 
+/**
+ * A list item for displaying a media item.
+ *
+ * @param item The media item to display.
+ * @param onClick A callback for when the item is clicked.
+ * @param modifier The modifier to be applied to the item.
+ */
 @Composable
 fun MediaItemListItem(
     item: MediaItemWithMetadata,

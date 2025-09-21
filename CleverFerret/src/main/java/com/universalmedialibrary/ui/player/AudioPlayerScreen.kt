@@ -23,6 +23,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import java.util.Locale
 
+/**
+ * A screen that displays the audio player.
+ *
+ * @param audioFilePath The path to the audio file to play.
+ * @param onBack A callback for when the user navigates back.
+ * @param viewModel The view model for this screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AudioPlayerScreen(

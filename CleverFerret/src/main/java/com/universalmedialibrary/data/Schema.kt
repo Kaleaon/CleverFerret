@@ -1,7 +1,12 @@
 package com.universalmedialibrary.data
 
+/**
+ * A singleton object that defines the database schema for the application.
+ * It contains all the SQL `CREATE TABLE` statements as constants.
+ */
 object DatabaseSchema {
 
+    /** SQL statement to create the `media_items` table. This is the central table for all media. */
     const val SQL_CREATE_MEDIA_ITEMS = """
         CREATE TABLE media_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,6 +25,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `books` table, containing book-specific metadata. */
     const val SQL_CREATE_BOOKS = """
         CREATE TABLE books (
             media_item_id INTEGER PRIMARY KEY,
@@ -31,6 +37,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `authors` table. */
     const val SQL_CREATE_AUTHORS = """
         CREATE TABLE authors (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +46,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `tags` table. */
     const val SQL_CREATE_TAGS = """
         CREATE TABLE tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,6 +54,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `media_item_author_join` join table, linking media items to authors. */
     const val SQL_CREATE_MEDIA_ITEM_AUTHOR_JOIN = """
         CREATE TABLE media_item_author_join (
             media_item_id INTEGER NOT NULL,
@@ -56,6 +65,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `media_item_tag_join` join table, linking media items to tags. */
     const val SQL_CREATE_MEDIA_ITEM_TAG_JOIN = """
         CREATE TABLE media_item_tag_join (
             media_item_id INTEGER NOT NULL,
@@ -66,7 +76,7 @@ object DatabaseSchema {
         );
     """
 
-    // Additional metadata tables for different media types
+    /** SQL statement to create the `movies` table, containing movie-specific metadata. */
     const val SQL_CREATE_MOVIES = """
         CREATE TABLE movies (
             media_item_id INTEGER PRIMARY KEY,
@@ -83,6 +93,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `tv_shows` table, containing TV show-specific metadata. */
     const val SQL_CREATE_TV_SHOWS = """
         CREATE TABLE tv_shows (
             media_item_id INTEGER PRIMARY KEY,
@@ -99,6 +110,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `music` table, containing music-specific metadata. */
     const val SQL_CREATE_MUSIC = """
         CREATE TABLE music (
             media_item_id INTEGER PRIMARY KEY,
@@ -117,6 +129,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `podcasts` table, containing podcast-specific metadata. */
     const val SQL_CREATE_PODCASTS = """
         CREATE TABLE podcasts (
             media_item_id INTEGER PRIMARY KEY,
@@ -133,6 +146,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `magazines` table, containing magazine-specific metadata. */
     const val SQL_CREATE_MAGAZINES = """
         CREATE TABLE magazines (
             media_item_id INTEGER PRIMARY KEY,
@@ -148,6 +162,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `documents` table, containing generic document metadata. */
     const val SQL_CREATE_DOCUMENTS = """
         CREATE TABLE documents (
             media_item_id INTEGER PRIMARY KEY,
@@ -164,6 +179,7 @@ object DatabaseSchema {
         );
     """
 
+    /** SQL statement to create the `academic_papers` table, containing academic paper-specific metadata. */
     const val SQL_CREATE_ACADEMIC_PAPERS = """
         CREATE TABLE academic_papers (
             media_item_id INTEGER PRIMARY KEY,

@@ -16,12 +16,13 @@ import javax.inject.Inject
 import java.io.File
 
 /**
- * ViewModel for the video player
+ * The view model for the video player screen.
  */
 @HiltViewModel
 class VideoPlayerViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(VideoPlayerUiState())
+    /** The UI state for the video player screen. */
     val uiState: StateFlow<VideoPlayerUiState> = _uiState.asStateFlow()
 
     private var exoPlayer: ExoPlayer? = null
@@ -57,7 +58,9 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     /**
-     * Load a video file for playback
+     * Loads a video file for playback.
+     * @param context The context to use for creating the player.
+     * @param filePath The path to the video file to play.
      */
     fun loadVideo(context: Context, filePath: String) {
         viewModelScope.launch {
@@ -102,12 +105,13 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     /**
-     * Get the ExoPlayer instance for use in PlayerView
+     * Gets the ExoPlayer instance for use in PlayerView.
+     * @return The ExoPlayer instance, or null if it has not been initialized.
      */
     fun getExoPlayer(): ExoPlayer? = exoPlayer
 
     /**
-     * Toggle play/pause
+     * Toggles between play and pause.
      */
     fun togglePlayPause() {
         exoPlayer?.let { player ->
@@ -120,7 +124,8 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     /**
-     * Seek to specific position
+     * Seeks to a specific position in the current media item.
+     * @param positionMs The position in milliseconds.
      */
     fun seekTo(positionMs: Long) {
         exoPlayer?.seekTo(positionMs)
@@ -133,7 +138,15 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
 }
 
 /**
- * UI state for the video player
+ * Represents the UI state for the video player screen.
+ *
+ * @property isLoading Whether the player is currently loading.
+ * @property isLoaded Whether the player has loaded the media.
+ * @property isPlaying Whether the player is currently playing.
+ * @property title The title of the video.
+ * @property duration The total duration of the video in milliseconds.
+ * @property currentPosition The current playback position in milliseconds.
+ * @property error An error message, if any.
  */
 data class VideoPlayerUiState(
     val isLoading: Boolean = false,

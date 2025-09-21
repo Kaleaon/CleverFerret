@@ -10,6 +10,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * The view model for the bookshelf screen.
+ * This class is responsible for loading and managing the data for the bookshelf.
+ *
+ * @param mediaItemDao The DAO for media items.
+ * @param metadataDao The DAO for metadata.
+ */
 @HiltViewModel
 class BookshelfViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
@@ -17,26 +24,32 @@ class BookshelfViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _viewMode = MutableStateFlow(ViewMode.GRID)
+    /** The current view mode for the bookshelf. */
     val viewMode = _viewMode.asStateFlow()
 
     private val _sortOption = MutableStateFlow(SortOption.TITLE)
+    /** The current sort option for the bookshelf. */
     val sortOption = _sortOption.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
+    /** The current search query. */
     val searchQuery = _searchQuery.asStateFlow()
 
     private val _selectedGenre = MutableStateFlow<String?>(null)
+    /** The currently selected genre for filtering. */
     val selectedGenre = _selectedGenre.asStateFlow()
 
     private val _showFilters = MutableStateFlow(false)
+    /** Whether the filter controls are currently visible. */
     val showFilters = _showFilters.asStateFlow()
 
     private val _searchActive = MutableStateFlow(false)
+    /** Whether the search bar is currently active. */
     val searchActive = _searchActive.asStateFlow()
 
     private val _allBooks = MutableStateFlow<List<BookDetails>>(emptyList())
-    
-    // Filtered and sorted books
+
+    /** A [Flow] that emits the filtered and sorted list of books to display. */
     val books = combine(
         _allBooks,
         _searchQuery,
@@ -44,7 +57,7 @@ class BookshelfViewModel @Inject constructor(
         _sortOption
     ) { allBooks, query, genre, sort ->
         var filteredBooks = allBooks
-        
+
         // Apply search filter
         if (query.isNotEmpty()) {
             filteredBooks = filteredBooks.filter { book ->
@@ -52,17 +65,17 @@ class BookshelfViewModel @Inject constructor(
                 book.authorName?.contains(query, ignoreCase = true) == true
             }
         }
-        
+
         // Apply genre filter
         if (genre != null) {
             // In a real implementation, you'd filter by actual genre data
             // For now, this is a placeholder
-            filteredBooks = filteredBooks.filter { 
+            filteredBooks = filteredBooks.filter {
                 // Placeholder genre filtering logic
-                true 
+                true
             }
         }
-        
+
         // Apply sorting
         when (sort) {
             SortOption.TITLE -> filteredBooks.sortedBy { it.metadata.title }
@@ -77,7 +90,7 @@ class BookshelfViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    // Favorites (books with isFavorite = true)
+    /** A [Flow] that emits the list of favorite books. */
     val favorites = _allBooks.map { books ->
         books.filter { it.metadata.isFavorite }
     }.stateIn(
@@ -86,6 +99,10 @@ class BookshelfViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
+    /**
+     * Loads the books for a specific library.
+     * @param libraryId The ID of the library to load.
+     */
     fun loadBooks(libraryId: Long) {
         viewModelScope.launch {
             mediaItemDao.getBookDetailsForLibrary(libraryId).collect { bookList ->
@@ -94,24 +111,42 @@ class BookshelfViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sets the view mode for the bookshelf.
+     * @param mode The new view mode.
+     */
     fun setViewMode(mode: ViewMode) {
         _viewMode.value = mode
     }
 
+    /**
+     * Sets the sort option for the bookshelf.
+     * @param option The new sort option.
+     */
     fun setSortOption(option: SortOption) {
         _sortOption.value = option
     }
 
+    /**
+     * Sets the search query.
+     * @param query The new search query.
+     */
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
         _searchActive.value = query.isNotEmpty()
     }
 
+    /**
+     * Clears the search query.
+     */
     fun clearSearch() {
         _searchQuery.value = ""
         _searchActive.value = false
     }
 
+    /**
+     * Toggles the search bar's visibility.
+     */
     fun toggleSearch() {
         _searchActive.value = !_searchActive.value
         if (!_searchActive.value) {
@@ -119,14 +154,25 @@ class BookshelfViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sets the selected genre for filtering.
+     * @param genre The genre to filter by, or null to clear the filter.
+     */
     fun setSelectedGenre(genre: String?) {
         _selectedGenre.value = genre
     }
 
+    /**
+     * Toggles the visibility of the filter controls.
+     */
     fun toggleFilters() {
         _showFilters.value = !_showFilters.value
     }
 
+    /**
+     * Toggles the favorite status of a book.
+     * @param book The book to toggle.
+     */
     fun toggleFavorite(book: BookDetails) {
         viewModelScope.launch {
             try {
@@ -135,7 +181,7 @@ class BookshelfViewModel @Inject constructor(
                     isFavorite = !book.metadata.isFavorite
                 )
                 metadataDao.updateMetadata(metadataCommon = updatedMetadata)
-                
+
                 // Update local state immediately for better UX
                 val updatedBooks = _allBooks.value.map { existingBook ->
                     if (existingBook.metadata.itemId == book.metadata.itemId) {

@@ -31,6 +31,12 @@ interface MediaViewerProps {
   metadata?: MetadataCommon;
 }
 
+/**
+ * A viewer component for e-books.
+ * This is a demo component that displays sample text and provides basic font size controls.
+ * @param {MediaViewerProps} props - The component props.
+ * @returns {React.ReactElement} The rendered EBookViewer component.
+ */
 const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages] = useState(250); // Demo value
@@ -39,7 +45,7 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   const demoContent = `
     <h1>${metadata?.title || 'Sample Book'}</h1>
     <p>This is a demonstration of the e-book reader component. In a production environment, this would render actual EPUB content using a library like epub.js or similar.</p>
-    
+
     <p>The reader would support:</p>
     <ul>
       <li>EPUB 2 and EPUB 3 formats</li>
@@ -50,25 +56,25 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       <li>Search functionality</li>
       <li>Table of contents navigation</li>
     </ul>
-    
+
     <p>Users could navigate through pages using touch gestures, keyboard arrows, or the navigation controls.</p>
-    
+
     <h2>Chapter 1: Getting Started</h2>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-    
+
     <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
   `;
 
   return (
-    <Box sx={{ 
-      bgcolor: 'background.paper', 
+    <Box sx={{
+      bgcolor: 'background.paper',
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column'
     }}>
       {/* Reader Controls */}
-      <Box sx={{ 
-        p: 2, 
+      <Box sx={{
+        p: 2,
         borderBottom: '1px solid #2d3136',
         display: 'flex',
         justifyContent: 'space-between',
@@ -88,8 +94,8 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       </Box>
 
       {/* Content Area */}
-      <Box sx={{ 
-        flex: 1, 
+      <Box sx={{
+        flex: 1,
         p: 4,
         maxWidth: '800px',
         mx: 'auto',
@@ -103,19 +109,19 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       </Box>
 
       {/* Navigation */}
-      <Box sx={{ 
-        p: 2, 
+      <Box sx={{
+        p: 2,
         borderTop: '1px solid #2d3136',
         display: 'flex',
         justifyContent: 'space-between'
       }}>
-        <IconButton 
+        <IconButton
           disabled={currentPage <= 1}
           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
         >
           ← Previous
         </IconButton>
-        <IconButton 
+        <IconButton
           disabled={currentPage >= totalPages}
           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
         >
@@ -126,6 +132,12 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   );
 };
 
+/**
+ * A viewer component for videos.
+ * This is a demo component that displays a placeholder and mock video controls.
+ * @param {MediaViewerProps} props - The component props.
+ * @returns {React.ReactElement} The rendered VideoPlayer component.
+ */
 const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -139,16 +151,16 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   };
 
   return (
-    <Box sx={{ 
-      bgcolor: '#000', 
+    <Box sx={{
+      bgcolor: '#000',
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
       position: 'relative'
     }}>
       {/* Video Area */}
-      <Box sx={{ 
-        flex: 1, 
+      <Box sx={{
+        flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -156,7 +168,7 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
         backgroundSize: '20px 20px',
         backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
       }}>
-        <Box sx={{ 
+        <Box sx={{
           textAlign: 'center',
           color: 'white',
           p: 4
@@ -167,9 +179,9 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
           <Typography variant="body1" color="grey.400" mb={4}>
             Demo video player. In production, this would use a video.js player or similar component to handle various video formats (MP4, WebM, etc.)
           </Typography>
-          
-          <IconButton 
-            sx={{ 
+
+          <IconButton
+            sx={{
               bgcolor: 'primary.main',
               color: 'black',
               width: 80,
@@ -184,7 +196,7 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       </Box>
 
       {/* Video Controls */}
-      <Box sx={{ 
+      <Box sx={{
         bgcolor: 'rgba(0,0,0,0.8)',
         p: 2,
         display: 'flex',
@@ -194,15 +206,15 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
         <IconButton onClick={() => setIsPlaying(!isPlaying)} sx={{ color: 'white' }}>
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
         </IconButton>
-        
+
         <Typography variant="body2" color="white" sx={{ minWidth: '80px' }}>
           {formatTime(currentTime)}
         </Typography>
-        
-        <Box sx={{ 
-          flex: 1, 
-          height: 4, 
-          bgcolor: 'grey.700', 
+
+        <Box sx={{
+          flex: 1,
+          height: 4,
+          bgcolor: 'grey.700',
           borderRadius: 2,
           position: 'relative',
           cursor: 'pointer'
@@ -217,15 +229,15 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
             width: `${(currentTime / duration) * 100}%`
           }} />
         </Box>
-        
+
         <Typography variant="body2" color="white" sx={{ minWidth: '80px' }}>
           {formatTime(duration)}
         </Typography>
-        
+
         <IconButton sx={{ color: 'white' }}>
           <VolumeIcon />
         </IconButton>
-        
+
         <IconButton sx={{ color: 'white' }}>
           <FullscreenIcon />
         </IconButton>
@@ -234,13 +246,19 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   );
 };
 
+/**
+ * A viewer component for audio tracks.
+ * This is a demo component that displays album art and mock audio controls.
+ * @param {MediaViewerProps} props - The component props.
+ * @returns {React.ReactElement} The rendered AudioPlayer component.
+ */
 const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration] = useState(180); // 3 minutes demo
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       bgcolor: 'background.default',
       minHeight: '100vh',
       display: 'flex',
@@ -250,7 +268,7 @@ const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       p: 4
     }}>
       {/* Album Art */}
-      <Paper sx={{ 
+      <Paper sx={{
         width: 300,
         height: 300,
         mb: 4,
@@ -276,19 +294,19 @@ const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       </Typography>
 
       {/* Audio Controls */}
-      <Box sx={{ 
+      <Box sx={{
         width: '100%',
         maxWidth: 400,
         mt: 4
       }}>
-        <Box sx={{ 
+        <Box sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           mb: 2
         }}>
-          <IconButton 
-            sx={{ 
+          <IconButton
+            sx={{
               bgcolor: 'primary.main',
               color: 'black',
               width: 60,
@@ -301,7 +319,7 @@ const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
           </IconButton>
         </Box>
 
-        <Box sx={{ 
+        <Box sx={{
           display: 'flex',
           alignItems: 'center',
           gap: 2
@@ -309,11 +327,11 @@ const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
           <Typography variant="caption">
             {Math.floor(currentTime / 60)}:{(currentTime % 60).toString().padStart(2, '0')}
           </Typography>
-          
-          <Box sx={{ 
-            flex: 1, 
-            height: 4, 
-            bgcolor: 'secondary.main', 
+
+          <Box sx={{
+            flex: 1,
+            height: 4,
+            bgcolor: 'secondary.main',
             borderRadius: 2,
             position: 'relative',
             cursor: 'pointer'
@@ -328,7 +346,7 @@ const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
               width: `${(currentTime / duration) * 100}%`
             }} />
           </Box>
-          
+
           <Typography variant="caption">
             {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
           </Typography>
@@ -338,6 +356,11 @@ const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   );
 };
 
+/**
+ * The main screen component for viewing a media item.
+ * It dynamically loads the appropriate viewer (e.g., EBookViewer, VideoPlayer) based on the media type.
+ * @returns {React.ReactElement} The rendered MediaViewerScreen component.
+ */
 export const MediaViewerScreen: React.FC = () => {
   const { mediaId } = useParams<{ mediaId: string }>();
   const navigate = useNavigate();
@@ -425,11 +448,11 @@ export const MediaViewerScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh'
       }}>
         <CircularProgress />
       </Box>

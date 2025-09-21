@@ -29,6 +29,12 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * A screen for managing podcast subscriptions, episodes, and downloads.
+ *
+ * @param navController The NavController for navigating to other screens.
+ * @param viewModel The view model for this screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PodcastManagerScreen(
@@ -44,7 +50,7 @@ fun PodcastManagerScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Podcast Manager",
                             fontWeight = FontWeight.Medium
@@ -206,6 +212,13 @@ fun PodcastManagerScreen(
     }
 }
 
+/**
+ * A tab for displaying podcast subscriptions.
+ *
+ * @param podcasts The list of subscribed podcasts.
+ * @param onPodcastClick A callback for when a podcast is clicked.
+ * @param onUnsubscribe A callback for when the user unsubscribes from a podcast.
+ */
 @Composable
 fun PodcastSubscriptionsTab(
     podcasts: List<Podcast>,
@@ -257,6 +270,14 @@ fun PodcastSubscriptionsTab(
     }
 }
 
+/**
+ * A tab for displaying all podcast episodes.
+ *
+ * @param episodes The list of all episodes.
+ * @param onEpisodeClick A callback for when an episode is clicked.
+ * @param onDownloadClick A callback for when the download button is clicked.
+ * @param onPlayClick A callback for when the play button is clicked.
+ */
 @Composable
 fun PodcastEpisodesTab(
     episodes: List<PodcastEpisode>,
@@ -280,6 +301,13 @@ fun PodcastEpisodesTab(
     }
 }
 
+/**
+ * A tab for displaying downloaded podcast episodes.
+ *
+ * @param downloads The list of downloaded episodes.
+ * @param onEpisodeClick A callback for when an episode is clicked.
+ * @param onDeleteClick A callback for when the delete button is clicked.
+ */
 @Composable
 fun PodcastDownloadsTab(
     downloads: List<PodcastEpisode>,
@@ -301,6 +329,13 @@ fun PodcastDownloadsTab(
     }
 }
 
+/**
+ * A card for displaying a podcast subscription.
+ *
+ * @param podcast The podcast to display.
+ * @param onClick A callback for when the card is clicked.
+ * @param onUnsubscribe A callback for when the user unsubscribes from the podcast.
+ */
 @Composable
 fun PodcastCard(
     podcast: Podcast,
@@ -404,6 +439,14 @@ fun PodcastCard(
     }
 }
 
+/**
+ * A card for displaying a podcast episode.
+ *
+ * @param episode The episode to display.
+ * @param onClick A callback for when the card is clicked.
+ * @param onDownloadClick A callback for when the download button is clicked.
+ * @param onPlayClick A callback for when the play button is clicked.
+ */
 @Composable
 fun EpisodeCard(
     episode: PodcastEpisode,
@@ -494,6 +537,13 @@ fun EpisodeCard(
     }
 }
 
+/**
+ * A card for displaying a downloaded podcast episode.
+ *
+ * @param episode The episode to display.
+ * @param onClick A callback for when the card is clicked.
+ * @param onDeleteClick A callback for when the delete button is clicked.
+ */
 @Composable
 fun DownloadedEpisodeCard(
     episode: PodcastEpisode,
@@ -548,6 +598,15 @@ fun DownloadedEpisodeCard(
     }
 }
 
+/**
+ * A dialog for searching for podcasts.
+ *
+ * @param searchResults The list of search results.
+ * @param isSearching Whether a search is currently in progress.
+ * @param onDismiss A callback for when the dialog is dismissed.
+ * @param onSearch A callback for when the user performs a search.
+ * @param onSubscribe A callback for when the user subscribes to a podcast.
+ */
 @Composable
 fun PodcastSearchDialog(
     searchResults: List<PodcastSearchResult>,
@@ -634,6 +693,12 @@ fun PodcastSearchDialog(
     )
 }
 
+/**
+ * A dialog for adding a podcast by its RSS feed URL.
+ *
+ * @param onDismiss A callback for when the dialog is dismissed.
+ * @param onAdd A callback for when the user adds a feed.
+ */
 @Composable
 fun AddPodcastFeedDialog(
     onDismiss: () -> Unit,
@@ -669,11 +734,17 @@ fun AddPodcastFeedDialog(
     )
 }
 
+/**
+ * Formats a duration in seconds into a string in the format "HH:MM:SS" or "MM:SS".
+ *
+ * @param seconds The duration in seconds.
+ * @return The formatted duration string.
+ */
 private fun formatDuration(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60
-    
+
     return if (hours > 0) {
         String.format("%d:%02d:%02d", hours, minutes, secs)
     } else {

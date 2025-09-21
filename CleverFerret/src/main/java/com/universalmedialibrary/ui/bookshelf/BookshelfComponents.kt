@@ -19,6 +19,14 @@ import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.local.model.BookDetails
 import kotlin.math.absoluteValue
 
+/**
+ * A detailed card for displaying a book with a large cover, favorite button, and progress.
+ *
+ * @param book The book details to display.
+ * @param onClick The action to perform when the card is clicked.
+ * @param onFavoriteToggle The action to perform when the favorite button is clicked.
+ * @param modifier The modifier to be applied to the card.
+ */
 @Composable
 fun EnhancedBookCard(
     book: BookDetails,
@@ -130,6 +138,13 @@ fun EnhancedBookCard(
     }
 }
 
+/**
+ * A compact card for displaying a book, suitable for a horizontal list or a dense grid.
+ *
+ * @param book The book details to display.
+ * @param onClick The action to perform when the card is clicked.
+ * @param modifier The modifier to be applied to the card.
+ */
 @Composable
 fun CompactBookCard(
     book: BookDetails,
@@ -173,6 +188,14 @@ fun CompactBookCard(
     }
 }
 
+/**
+ * A list item for displaying a book with its cover, title, author, and progress in a row.
+ *
+ * @param book The book details to display.
+ * @param onClick The action to perform when the item is clicked.
+ * @param onFavoriteToggle The action to perform when the favorite button is clicked.
+ * @param modifier The modifier to be applied to the item.
+ */
 @Composable
 fun ListBookItem(
     book: BookDetails,
@@ -275,6 +298,14 @@ fun ListBookItem(
     }
 }
 
+/**
+ * A card for displaying a book in a "cover flow" style, with a large cover and minimal text below.
+ *
+ * @param book The book details to display.
+ * @param onClick The action to perform when the card is clicked.
+ * @param onFavoriteToggle The action to perform when the favorite button is clicked.
+ * @param modifier The modifier to be applied to the card.
+ */
 @Composable
 fun CoverFlowCard(
     book: BookDetails,
@@ -354,6 +385,14 @@ fun CoverFlowCard(
     }
 }
 
+/**
+ * A placeholder composable for displaying a book cover when no image is available.
+ * It generates a colored background with the book's title and author.
+ *
+ * @param title The title of the book.
+ * @param author The author of the book.
+ * @param modifier The modifier to be applied to the placeholder.
+ */
 @Composable
 fun EnhancedPlaceholderCover(
     title: String,
@@ -419,6 +458,13 @@ fun EnhancedPlaceholderCover(
     }
 }
 
+/**
+ * A composable that displays a star rating.
+ *
+ * @param rating The rating to display.
+ * @param modifier The modifier to be applied to the rating stars.
+ * @param maxStars The maximum number of stars to display.
+ */
 @Composable
 fun RatingStars(
     rating: Float,

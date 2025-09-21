@@ -10,6 +10,15 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Service responsible for importing a Calibre library into the application's database.
+ * It reads the Calibre `metadata.db` file, resolves file paths, and populates
+ * the local database with media items and their associated metadata.
+ *
+ * @param mediaItemDao DAO for media item database operations.
+ * @param metadataDao DAO for metadata database operations.
+ * @param calibreReader A utility to read the Calibre database file.
+ */
 @Singleton
 class CalibreImportService @Inject constructor(
     private val mediaItemDao: MediaItemDao,
@@ -17,6 +26,13 @@ class CalibreImportService @Inject constructor(
     private val calibreReader: CalibreDatabaseReader
 ) {
 
+    /**
+     * Imports books from a Calibre database into the local library.
+     *
+     * @param calibreDbPath The absolute path to the Calibre `metadata.db` file.
+     * @param libraryRootPath The root directory of the Calibre library content.
+     * @param libraryId The ID of the local library to import the books into.
+     */
     suspend fun importCalibreDatabase(calibreDbPath: String, libraryRootPath: String, libraryId: Long) {
         val rawBooks = calibreReader.readBooks(calibreDbPath)
 
@@ -94,21 +110,29 @@ class CalibreImportService @Inject constructor(
         }
     }
 
+    /**
+     * Resolves the full path to a book's file from the Calibre library root and relative path.
+     * If the path points to a directory, it searches for a file with a preferred extension.
+     *
+     * @param libraryRootPath The root directory of the Calibre library.
+     * @param relativePath The relative path from the Calibre database.
+     * @return The absolute path to the book file, or null if not found.
+     */
     private fun resolveFullPath(libraryRootPath: String, relativePath: String): String? {
         val file = File(libraryRootPath, relativePath)
         if (file.isDirectory) {
             // File format preference order as specified in IMPORT_LOGIC.md
             val preferredExtensions = listOf("epub", "mobi", "azw3", "pdf", "cbz", "cbr")
-            
+
             for (extension in preferredExtensions) {
-                val matchingFile = file.listFiles()?.firstOrNull { 
+                val matchingFile = file.listFiles()?.firstOrNull {
                     it.extension.equals(extension, ignoreCase = true)
                 }
                 if (matchingFile != null) {
                     return matchingFile.absolutePath
                 }
             }
-            
+
             // Fallback: return any e-book file if no preferred format found
             return file.listFiles()
                 ?.firstOrNull { it.extension.lowercase() in listOf("epub", "pdf", "mobi", "azw3", "cbz", "cbr", "txt") }
@@ -117,10 +141,22 @@ class CalibreImportService @Inject constructor(
         return if (file.exists()) file.absolutePath else null
     }
 
+    /**
+     * Cleans and capitalizes a book title.
+     *
+     * @param rawTitle The raw title string.
+     * @return The cleaned title.
+     */
     private fun cleanTitle(rawTitle: String): String {
         return rawTitle.split(' ').joinToString(" ") { it.myCapitalize() }
     }
 
+    /**
+     * Creates a sortable title by moving leading articles to the end.
+     *
+     * @param title The title to process.
+     * @return The sortable title string.
+     */
     private fun createSortTitle(title: String): String {
         val articles = listOf("The ", "A ", "An ")
         for (article in articles) {
@@ -131,6 +167,12 @@ class CalibreImportService @Inject constructor(
         return title
     }
 
+    /**
+     * Cleans and parses an author's name into a `People` object.
+     *
+     * @param rawName The raw author name string.
+     * @return A `People` object with cleaned name and sort name.
+     */
     private fun cleanAuthorName(rawName: String): People {
         val (lastName, firstName) = if (rawName.contains(",")) {
             val parts = rawName.split(",", limit = 2).map { it.trim() }
@@ -148,11 +190,22 @@ class CalibreImportService @Inject constructor(
         return People(personId = 0, name = cleanName, sortName = sortName)
     }
 
+    /**
+     * Capitalizes the first letter of a string.
+     *
+     * @return The capitalized string.
+     */
     private fun String.myCapitalize(): String {
         if (this.isEmpty()) return ""
         return this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     }
 
+    /**
+     * Calculates the MD5 hash of a file.
+     *
+     * @param file The file to hash.
+     * @return The MD5 hash as a hex string.
+     */
     private fun calculateMD5(file: File): String {
         val digest = MessageDigest.getInstance("MD5")
         val inputStream = FileInputStream(file)

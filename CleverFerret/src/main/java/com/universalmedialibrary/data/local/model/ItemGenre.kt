@@ -3,6 +3,12 @@ package com.universalmedialibrary.data.local.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 
+/**
+ * Represents the many-to-many relationship between a media item and a genre.
+ *
+ * @property itemId The ID of the media item.
+ * @property genreId The ID of the genre.
+ */
 @Entity(
     tableName = "item_genre",
     primaryKeys = ["itemId", "genreId"],

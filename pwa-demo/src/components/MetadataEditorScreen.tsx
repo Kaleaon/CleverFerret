@@ -45,10 +45,17 @@ import { MediaItem, MetadataCommon, MetadataBook } from '../types';
 import { MetadataAPIService, MetadataSearchResult } from '../services/metadataApi';
 import { MetadataService } from '../services/database';
 
+/**
+ * A screen for editing the metadata of a media item.
+ * It provides a form with fields for common and type-specific metadata,
+ * and integrates with an API to search for and apply metadata automatically.
+ *
+ * @returns {React.ReactElement} The rendered MetadataEditorScreen component.
+ */
 export const MetadataEditorScreen: React.FC = () => {
   const { mediaId } = useParams<{ mediaId: string }>();
   const navigate = useNavigate();
-  
+
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -58,19 +65,19 @@ export const MetadataEditorScreen: React.FC = () => {
   const [rating, setRating] = useState<number | null>(null);
   const [thumbnailPath, setThumbnailPath] = useState('');
   const [mediaType, setMediaType] = useState<'BOOK' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT'>('BOOK');
-  
+
   // Book-specific fields
   const [isbn, setIsbn] = useState('');
   const [publisher, setPublisher] = useState('');
   const [pageCount, setPageCount] = useState<number | ''>('');
   const [series, setSeries] = useState('');
-  
+
   // API search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<MetadataSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDialog, setShowSearchDialog] = useState(false);
-  
+
   // General state
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -150,7 +157,7 @@ export const MetadataEditorScreen: React.FC = () => {
     if (result.rating) setRating(result.rating);
     if (result.cover || result.poster) setThumbnailPath(result.cover || result.poster || '');
     if (result.isbn) setIsbn(result.isbn);
-    
+
     setShowSearchDialog(false);
   };
 
@@ -167,10 +174,10 @@ export const MetadataEditorScreen: React.FC = () => {
       };
 
       console.log('Saving metadata:', updatedMetadata);
-      
+
       // Simulate save delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       navigate(-1);
     } catch (err) {
       setError('Failed to save metadata');
@@ -191,11 +198,11 @@ export const MetadataEditorScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh'
       }}>
         <CircularProgress />
       </Box>
@@ -238,7 +245,7 @@ export const MetadataEditorScreen: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Cover Art
               </Typography>
-              <Box sx={{ 
+              <Box sx={{
                 width: '100%',
                 height: 300,
                 bgcolor: 'secondary.main',
@@ -452,7 +459,7 @@ export const MetadataEditorScreen: React.FC = () => {
                 <ListItem
                   button
                   onClick={() => applySearchResult(result)}
-                  sx={{ 
+                  sx={{
                     borderRadius: 2,
                     mb: 1,
                     '&:hover': { bgcolor: 'secondary.main' }

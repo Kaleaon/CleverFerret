@@ -7,30 +7,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 /**
- * CleverFerret Typography System
- * 
- * Implements Material Design 3 typography scale optimized for media library
- * interfaces. Provides excellent readability for metadata, titles, and content
- * across various media types and screen sizes.
- * 
- * ## Typography Goals:
- * - **Readability**: Optimized for long reading sessions and metadata scanning
- * - **Hierarchy**: Clear visual hierarchy for media organization
- * - **Accessibility**: Meets WCAG guidelines for text accessibility
- * - **Performance**: System fonts for fast rendering and consistent appearance
- * 
- * ## Use Cases:
- * - **Display**: Large media titles and hero content
- * - **Headline**: Section headers and media category titles  
- * - **Title**: Individual media item titles
- * - **Body**: Descriptions, metadata, and content text
- * - **Label**: UI labels, buttons, and navigation
- * 
- * @author CleverFerret Development Team
- * @since Version 1.2-enhanced
+ * Defines the typography scale for the CleverFerret application, following Material Design 3 guidelines.
+ * This includes styles for display, headline, title, body, and label text, ensuring a
+ * consistent and readable typographic hierarchy throughout the app.
  */
-
-// CleverFerret Typography Scale
 val CleverFerretTypography = Typography(
     // Display styles - for large, prominent text
     displayLarge = TextStyle(
