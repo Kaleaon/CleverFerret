@@ -110,3 +110,7 @@ temp/
 .Trashes
 ehthumbs.db
 Thumbs.db
+-e 
+# Environment files
+*.env
+*.env.*
