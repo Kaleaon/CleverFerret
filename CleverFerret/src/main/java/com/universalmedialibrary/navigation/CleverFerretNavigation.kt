@@ -5,9 +5,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.universalmedialibrary.ui.screens.*
-import com.universalmedialibrary.ui.settings.*
-import com.universalmedialibrary.ui.organization.*
+import com.universalmedialibrary.ui.screens.MainScreen
+import com.universalmedialibrary.ui.settings.ApiSettingsScreen
+import com.universalmedialibrary.ui.settings.ReaderSettingsScreen  
+import com.universalmedialibrary.ui.settings.SecuritySettingsScreen
+import com.universalmedialibrary.ui.settings.GeneralSettingsScreen
+import com.universalmedialibrary.ui.settings.IntegrationSettingsScreen
+import com.universalmedialibrary.ui.settings.APIKeysManagerScreen
+import com.universalmedialibrary.ui.settings.GeminiApiSettingsScreen
+import com.universalmedialibrary.ui.organization.FileOrganizationScreen
+import com.universalmedialibrary.ui.settings.PlexCalibreIntegrationScreen
+import com.universalmedialibrary.ui.settings.NotificationSettingsScreen
+import com.universalmedialibrary.ui.settings.AboutSettingsScreen
 
 /**
  * Sealed class representing all navigation destinations in the app

@@ -2,42 +2,29 @@
 
 ## 📖 Overview
 
-CleverFerret is a comprehensive Universal Media Library Android application with **revolutionary multi-architecture build support** and **AI-powered development workflow**. This system automatically detects your development machine's architecture, configures the appropriate Android build tools, and uses AI to review every code change, ensuring seamless compilation and high-quality builds across **ARM64, x86_64, ARM32, and x86** architectures.
+# 🦫 CleverFerret Universal Media Library
 
-## 🏗️ Universal Build System + AI Review
+## 📖 Overview
 
-### Key Features
+CleverFerret is an Android application project aimed at creating a Universal Media Library for managing books, music, movies, and podcasts. The project is currently in active development.
 
-- **🤖 AI-Powered Code Review**: Every push is automatically reviewed by Gemini AI for quality and safety
-- **🎯 Automatic Architecture Detection**: Detects host system architecture automatically
-- **🔧 Smart AAPT2 Configuration**: Uses architecture-specific AAPT2 binaries for optimal compatibility
-- **📱 Multi-Architecture APK Generation**: Builds APKs for all major Android architectures
-- **🚀 Auto-Build & Publish**: Successful reviews trigger automatic builds and publishing
-- **🛡️ Quality Gates**: Blocks builds that don't meet safety and quality standards
-- **🛠️ Comprehensive Tooling**: Integrated diagnostics, testing, and build verification
+## 🚧 Current Development Status
 
-### Supported Architectures
+**⚠️ Important**: This project is currently under development and is not yet ready for production use. The application currently has build issues that prevent compilation.
 
-| Host Architecture | Android ABI | AAPT2 Support | Status |
-|------------------|-------------|---------------|---------|
-| ARM64 (aarch64) | arm64-v8a | ✅ | Primary |
-| x86_64 (amd64) | x86_64 | ✅ | Primary |
-| ARM32 (armv7l) | armeabi-v7a | ✅ | Supported |
-| x86 (i386/i686) | x86 | ✅ | Supported |
+### Development Features
+- **📱 Modern Android Architecture**: Jetpack Compose UI with Material 3 design
+- **🔧 Dependency Injection**: Hilt DI framework configured  
+- **🗄️ Database Layer**: Room database with media library schema
+- **🎨 UI Framework**: Compose-based screens for media management
+- **📱 Navigation**: Navigation Compose for screen transitions
 
-## 🤖 AI Review System
-
-CleverFerret features an advanced AI-powered development workflow that automatically reviews every code change with **comprehensive failure analysis**:
-
-### Review Process
-
-1. **Push Detection** - System detects new commits
-2. **AI Analysis** - Gemini Pro analyzes changes for:
-   - Build safety and compatibility
-   - Architecture support maintenance
-   - Code quality and best practices
-   - Integration safety (AI tools, dependencies)
-3. **Quality Gate** - Changes must pass AI review to proceed
+### Planned Features (Not Yet Implemented)
+- **📚 Universal Media Support**: Books (EPUB/PDF), Music (MP3/FLAC), Movies (MP4), Podcasts
+- **📖 E-Reader**: Document viewing and reading capabilities
+- **🎵 Audio Player**: Music playback with metadata support  
+- **🎬 Video Player**: Video playback integration
+- **📊 Calibre Integration**: Import libraries from Calibre
 4. **Detailed Failure Analysis** - Failed reviews include:
    - **Why it failed** - Comprehensive explanations
    - **What's problematic** - Specific issue identification  
@@ -81,56 +68,43 @@ chmod +x build-scripts/*.sh
 ./build-scripts/universal-build.sh info
 ```
 
-### Building
+## 🛠️ Building (Current Issues)
 
+**⚠️ Build Status**: The project currently has compilation issues and cannot be built successfully.
+
+### Known Issues
+- Dependency resolution failures
+- Kotlin compilation errors during kapt phase
+- Missing or incompatible library dependencies
+
+### Standard Android Build Commands
 ```bash
-# Quick build (detects architecture automatically)
-./build-scripts/universal-build.sh build
-
-# Full clean build
-./build-scripts/universal-build.sh full-build
-
-# Release build
-./build-scripts/universal-build.sh build release
-
-# Test environment
-./build-scripts/universal-build.sh test-env
+# These commands currently fail due to compilation issues:
+./gradlew assembleDebug    # Debug build (currently failing)
+./gradlew testDebugUnitTest    # Unit tests (currently failing)
 ```
 
-## 🔧 Architecture System
+### Development Environment Setup
+- **Java**: OpenJDK 17 or later
+- **Android SDK**: API 34 with build tools 34.0.0
+- **IDE**: Android Studio or IntelliJ with Android plugin
 
-### How It Works
+## 🔧 Project Structure
 
-1. **Architecture Detection**: The build system automatically detects your host machine's architecture
-2. **Tool Selection**: Selects the appropriate AAPT2 binary from the integrated android-tools repository
-3. **Cache Management**: Intelligently manages Gradle caches to use compatible binaries
-4. **APK Generation**: Builds APKs for all supported Android architectures
-
-### Android Tools Integration
-
-The project includes pre-compiled Android build tools from [JonForShort/android-tools](https://github.com/JonForShort/android-tools):
+The project follows modern Android development patterns:
 
 ```
-android-tools/
-├── build/
-│   ├── android-11.0.0_r33/    # Latest tools
-│   │   ├── aapt2/
-│   │   │   ├── arm64-v8a/bin/aapt2     # ARM64 binary
-│   │   │   ├── armeabi-v7a/bin/aapt2   # ARM32 binary
-│   │   │   ├── x86_64/bin/aapt2        # x86_64 binary
-│   │   │   └── x86/bin/aapt2           # x86 binary
-│   │   └── [other tools...]
-│   └── android-9.0.0_r33/     # Fallback tools
-└── README.md
+CleverFerret/
+├── src/main/java/com/universalmedialibrary/
+│   ├── MainActivity.kt                 # Main entry point
+│   ├── CleverFerretApplication.kt     # App class with Hilt
+│   ├── data/                          # Room database entities
+│   ├── ui/                            # Compose UI screens  
+│   ├── services/                      # Background services
+│   └── navigation/                    # Navigation setup
+├── build.gradle.kts                   # Module configuration
+└── src/test/                          # Unit tests
 ```
-
-### Build Process Flow
-
-```mermaid
-graph TD
-    A[Start Build] --> B[Detect Host Architecture]
-    B --> C[Select Compatible AAPT2]
-    C --> D[Configure Gradle Cache]
     D --> E[Run Build Tasks]
     E --> F[Generate Multi-Arch APKs]
     F --> G[Verify & Report Results]

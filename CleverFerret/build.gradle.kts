@@ -54,9 +54,10 @@ android {
     }
     
     // AAPT2 configuration for theme compatibility
-    androidResources {
-        generateLocaleConfig = true
-    }
+    // Note: generateLocaleConfig disabled due to missing resources.properties
+    // androidResources {
+    //     generateLocaleConfig = true
+    // }
 }
 
 dependencies {
@@ -82,8 +83,8 @@ dependencies {
     // Security for encrypted preferences - WORKING API Key Storage
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     
-    // Audio metadata editing - WORKING File Organization
-    implementation("org.jaudiotagger:jaudiotagger:3.0.1")
+    // Audio metadata editing - Note: Using alternative due to jaudiotagger availability
+    // implementation("org.jaudiotagger:jaudiotagger:3.0.1") // Currently unavailable in repos
     
     // Hilt for Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")
