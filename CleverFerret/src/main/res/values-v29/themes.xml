@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android API 29+ specific theme using Material3 -->
-    <style name="Theme.UniversalMediaLibrary" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Use simple colors that work with basic Material3 -->
-        <item name="colorPrimary">#1E3A5F</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorSecondary">#B8860B</item>
-        <item name="colorOnSecondary">#FFFFFF</item>
+    <!-- Android API 29+ specific theme -->
+    <style name="Theme.UniversalMediaLibrary" parent="android:Theme.DeviceDefault.DayNight">
+        <item name="android:colorPrimary">#1E3A5F</item>
     </style>
 </resources>
