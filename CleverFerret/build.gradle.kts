@@ -44,7 +44,7 @@ android {
     }
     
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
     
     packaging {
@@ -55,7 +55,7 @@ android {
     
     // AAPT2 configuration for theme compatibility
     androidResources {
-        generateLocaleConfig = true
+        generateLocaleConfig = false
     }
 }
 
@@ -82,8 +82,8 @@ dependencies {
     // Security for encrypted preferences - WORKING API Key Storage
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     
-    // Audio metadata editing - WORKING File Organization
-    implementation("org.jaudiotagger:jaudiotagger:3.0.1")
+    // Audio metadata editing - TEMPORARILY DISABLED for build fix  
+    // implementation("net.jthink:jaudiotagger:3.0.1")
     
     // Hilt for Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")
