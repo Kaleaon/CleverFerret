@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en" class="night-mode">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleverFerret - Media Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0A192F;
+            --bg-secondary: #172A45;
+            --bg-tertiary: #304A6D;
+            --accent-primary: #F59E0B; /* Gold */
+            --accent-hover: #D97706;
+            --text-primary: #CCD6F6;
+            --text-secondary: #8892B0;
+            --border-color: rgba(136, 146, 176, 0.2);
+        }
+
+        .day-mode {
+            --bg-primary: #F3F4F6;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #E5E7EB;
+            --accent-primary: #92400E;
+            --accent-hover: #78350F;
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --border-color: rgba(75, 85, 99, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+        
+        .spinner { 
+            border: 3px solid var(--bg-tertiary);
+            border-top-color: var(--accent-primary); 
+            border-radius: 50%;
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #sidebar.group {
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #sidebar .nav-text {
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-container.hidden, .focus-view.hidden { display: none; }
+        .modal-backdrop, .focus-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-content, .focus-panel { 
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; 
+            background-color: var(--bg-secondary); 
+            border-color: var(--border-color);
+        }
+        
+        /* Settings Toggle Switch */
+        .toggle-bg {
+            background-color: var(--bg-tertiary);
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            transition: background-color 0.3s;
+        }
+        .toggle-bg:after { 
+            content: ''; 
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background: white;
+            border-radius: 50%;
+            height: 20px;
+            width: 20px;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        input:checked + .toggle-bg:after { 
+            transform: translateX(20px); 
+        }
+        input:checked + .toggle-bg { 
+            background-color: var(--accent-primary); 
+        }
+
+        /* Enhanced animations */
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Custom range slider */
+        input[type="range"] {
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-track {
+            background: var(--bg-tertiary);
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            background: var(--accent-primary);
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            margin-top: -6px;
+        }
+    </style>
+</head>
+<body class="text-[15px]">
+    <div id="app-container" class="relative min-h-screen flex">
+        <!-- Pillar Navigation Sidebar -->
+        <aside id="sidebar" class="group bg-[var(--bg-secondary)] flex flex-col flex-shrink-0 border-r border-[var(--border-color)] fixed md:static inset-y-0 left-0 z-30 w-20 md:hover:w-64 -translate-x-full md:translate-x-0 overflow-hidden">
+            <div class="flex items-center justify-center h-[73px] px-4 border-b border-[var(--border-color)] flex-shrink-0">
+                <svg role="img" width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="text-[var(--accent-primary)] flex-shrink-0">
+                    <title>CleverFerret</title>
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.15 6.26c.26.47.16.96-.28 1.44l-2.82 2.1c-.24.18-.58.18-.82 0l-2.82-2.1c-.44-.48-.54-.97-.28-1.44.35-.64 1.25-.83 2.05-.83h2.1c.8 0 1.7.19 2.05.83zm-7.6 5.86c.26-.47.16-.96-.28-1.44l.9-4.52c-.12-.63.2-1.29.83-1.29h7.1c.63 0 .95.66.83 1.29l.9 4.52c-.44.48-.54-.97-.28-1.44.35.64 1.25-.83 2.05-.83h.3c.55 0 1 .45 1 1s-.45 1-1 1h-1.05c-1.1 0-2.1-.56-2.65-1.44l-1.3-2.16c-.24-.4-.8-.4-1.04 0l-1.3 2.16c-.55.88-1.55 1.44-2.65 1.44H4c-.55 0-1-.45-1-1s.45-1 1-1h.3c.8 0 1.7-.19 2.05-.83z"/>
+                </svg>
+                <span class="nav-text ml-2 text-xl font-bold opacity-0 md:group-hover:opacity-100 whitespace-nowrap">CleverFerret</span>
+            </div>
+            <nav class="flex-grow p-4 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li><a href="#" class="nav-link flex items-center h-12 px-4 rounded-md font-medium bg-[var(--accent-primary)] text-white" data-library="movies"><i data-lucide="film" class="w-6 h-6 mr-6 flex-shrink-0"></i><span class="nav-text opacity-0 md:group-hover:opacity-100 whitespace-nowrap">Movies</span></a></li>
+                    <li><a href="#" class="nav-link flex items-center h-12 px-4 rounded-md font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5" data-library="tv"><i data-lucide="tv-2" class="w-6 h-6 mr-6 flex-shrink-0"></i><span class="nav-text opacity-0 md:group-hover:opacity-100 whitespace-nowrap">TV Shows</span></a></li>
+                    <li><a href="#" class="nav-link flex items-center h-12 px-4 rounded-md font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5" data-library="music"><i data-lucide="music-4" class="w-6 h-6 mr-6 flex-shrink-0"></i><span class="nav-text opacity-0 md:group-hover:opacity-100 whitespace-nowrap">Music</span></a></li>
+                    <li><a href="#" class="nav-link flex items-center h-12 px-4 rounded-md font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5" data-library="books"><i data-lucide="book-open" class="w-6 h-6 mr-6 flex-shrink-0"></i><span class="nav-text opacity-0 md:group-hover:opacity-100 whitespace-nowrap">Books</span></a></li>
+                </ul>
+            </nav>
+            <div class="p-4 border-t border-[var(--border-color)]">
+                <button id="settings-btn" class="flex items-center w-full h-12 px-4 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5">
+                    <i data-lucide="settings" class="w-6 h-6 mr-6 flex-shrink-0"></i>
+                    <span class="nav-text opacity-0 md:group-hover:opacity-100 whitespace-nowrap">Settings</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div id="main-content-wrapper" class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Header -->
+            <header class="bg-[var(--bg-secondary)] border-b border-[var(--border-color)] flex-shrink-0 z-20">
+                <div class="h-[72px] flex items-center justify-between px-4 md:px-6">
+                    <div class="flex items-center">
+                        <button id="mobile-sidebar-toggle" class="md:hidden p-2 -ml-2 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10">
+                            <i data-lucide="menu" class="w-6 h-6"></i>
+                        </button>
+                        <h1 id="library-title" class="ml-2 md:ml-0 text-2xl font-bold text-[var(--text-primary)]">Movies</h1>
+                    </div>
+                    <div class="flex items-center space-x-2 md:space-x-4">
+                        <button class="p-2 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10">
+                            <i data-lucide="download-cloud" class="w-5 h-5"></i>
+                        </button>
+                        <img src="https://placehold.co/100x100/304A6D/CCD6F6?text=U" class="w-9 h-9 rounded-full cursor-pointer" alt="User Avatar">
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Control Bar -->
+            <div id="control-bar" class="bg-[var(--bg-primary)] border-b border-[var(--border-color)] flex-shrink-0 z-10 p-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="relative w-full sm:max-w-xs md:max-w-md lg:max-w-lg">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-secondary)]"></i>
+                        <input type="text" placeholder="Search..." id="search-bar" class="w-full bg-[var(--bg-secondary)] border-2 border-transparent focus:border-[var(--accent-primary)] rounded-lg py-2.5 pl-12 pr-4 text-[var(--text-primary)] focus:outline-none focus:ring-0 transition-colors">
+                    </div>
+                    <div class="flex items-center space-x-2 w-full sm:w-auto">
+                        <select id="sort-select" class="flex-grow sm:flex-grow-0 w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md py-2.5 px-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-primary)]">
+                            <option>Recently Added</option>
+                            <option>Title A-Z</option>
+                            <option>Title Z-A</option>
+                            <option>Year (Newest)</option>
+                            <option>Year (Oldest)</option>
+                            <option>Rating</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <main id="content-area" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-8"></main>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-container hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="modal-backdrop fixed inset-0 bg-black/70 backdrop-blur-sm opacity-0"></div>
+        <div class="modal-content border rounded-xl shadow-2xl w-full max-w-3xl mx-auto transform scale-95 opacity-0 flex">
+            <div class="w-1/3 md:w-1/4 bg-black/10 p-4 border-r border-[var(--border-color)]">
+                <h2 class="text-lg font-bold text-[var(--text-primary)] mb-4">Settings</h2>
+                <nav class="space-y-1">
+                    <a href="#" class="settings-tab group flex items-center px-3 py-2 text-sm font-medium rounded-md text-[var(--accent-primary)] bg-black/20" data-tab="appearance">
+                        <i data-lucide="paintbrush" class="mr-3 h-5 w-5"></i>Appearance
+                    </a>
+                    <a href="#" class="settings-tab group flex items-center px-3 py-2 text-sm font-medium rounded-md text-[var(--text-secondary)] hover:bg-black/20" data-tab="metadata">
+                        <i data-lucide="database" class="mr-3 h-5 w-5"></i>Metadata
+                    </a>
+                    <a href="#" class="settings-tab group flex items-center px-3 py-2 text-sm font-medium rounded-md text-[var(--text-secondary)] hover:bg-black/20" data-tab="ereader">
+                        <i data-lucide="book-open-text" class="mr-3 h-5 w-5"></i>eReader
+                    </a>
+                    <a href="#" class="settings-tab group flex items-center px-3 py-2 text-sm font-medium rounded-md text-[var(--text-secondary)] hover:bg-black/20" data-tab="playback">
+                        <i data-lucide="play-circle" class="mr-3 h-5 w-5"></i>Playback
+                    </a>
+                </nav>
+            </div>
+            <div class="w-2/3 md:w-3/4 flex flex-col">
+                <div class="p-6 flex-grow overflow-y-auto">
+                    <!-- Appearance Settings -->
+                    <div class="settings-content" id="appearance-content">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--text-primary)]">Appearance</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="font-semibold block mb-2">Theme</label>
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm">Night</span>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" id="theme-toggle" class="sr-only">
+                                        <div class="toggle-bg"></div>
+                                    </label>
+                                    <span class="text-sm">Day</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Metadata Settings -->
+                    <div class="settings-content hidden" id="metadata-content">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--text-primary)]">Metadata Agents</h3>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                <label class="font-semibold text-[var(--text-primary)]">TMDb</label>
+                                <input type="text" placeholder="Enter API Key" class="col-span-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md p-2 focus:ring-1 focus:ring-[var(--accent-primary)] focus:outline-none text-[var(--text-primary)]">
+                                <label class="font-semibold text-[var(--text-primary)]">IMDb</label>
+                                <input type="text" placeholder="Enter API Key" class="col-span-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md p-2 focus:ring-1 focus:ring-[var(--accent-primary)] focus:outline-none text-[var(--text-primary)]">
+                                <label class="font-semibold text-[var(--text-primary)]">Deezer</label>
+                                <input type="text" placeholder="Enter API Key" class="col-span-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md p-2 focus:ring-1 focus:ring-[var(--accent-primary)] focus:outline-none text-[var(--text-primary)]">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- eReader Settings -->
+                    <div class="settings-content hidden" id="ereader-content">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--text-primary)]">eReader</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="font-size" class="font-semibold block mb-2">Font Size</label>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm">A</span>
+                                    <input id="font-size" type="range" min="12" max="24" value="16" class="w-full">
+                                    <span class="text-xl">A</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="tts-voice" class="font-semibold block mb-2">Gemini TTS Voice</label>
+                                <select id="tts-voice" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md p-2 focus:ring-1 focus:ring-[var(--accent-primary)] focus:outline-none text-[var(--text-primary)]">
+                                    <option>Standard (Female)</option>
+                                    <option>Deep (Male)</option>
+                                    <option>Friendly (Female)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Playback Settings -->
+                    <div class="settings-content hidden" id="playback-content">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--text-primary)]">Playback</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="audio-quality" class="font-semibold block mb-2">Audio Quality</label>
+                                <select id="audio-quality" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md p-2 focus:ring-1 focus:ring-[var(--accent-primary)] focus:outline-none text-[var(--text-primary)]">
+                                    <option>Automatic</option>
+                                    <option>320kbps (High)</option>
+                                    <option>128kbps (Standard)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="crossfade" class="font-semibold block mb-2">Crossfade</label>
+                                <div class="flex items-center space-x-2">
+                                    <input id="crossfade" type="range" min="0" max="12" value="0" class="w-full" oninput="document.getElementById('crossfade-value').textContent = this.value + 's'">
+                                    <span id="crossfade-value" class="w-10 text-right">0s</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-black/20 border-t border-[var(--border-color)] flex justify-end space-x-2">
+                    <button id="settings-modal-close-btn" class="px-4 py-2 bg-transparent border border-[var(--border-color)] text-[var(--text-primary)] rounded-lg hover:bg-white/5">Close</button>
+                    <button class="px-4 py-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-white font-bold rounded-lg transition-colors">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Item Focus View -->
+    <div id="focus-view" class="focus-view hidden fixed inset-0 z-40 overflow-hidden">
+        <div class="focus-backdrop absolute inset-0 bg-black/50 backdrop-blur-md opacity-0"></div>
+        <div class="focus-panel absolute inset-y-0 right-0 w-full max-w-2xl bg-[var(--bg-secondary)] border-l border-[var(--border-color)] shadow-2xl transform translate-x-full overflow-y-auto">
+            <button id="focus-close-btn" class="fixed top-4 right-4 z-50 p-2 bg-black/50 rounded-full text-white hover:bg-white/20">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div id="focus-content">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar backdrop for mobile -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-20 hidden md:hidden"></div>
+
+    <script>
+        lucide.createIcons();
+        
+        // --- STATE & DATA ---
+        let currentLibraryKey = 'movies';
+        const mockData = {};
+        const smartShelves = {};
+
+        // --- DOM ELEMENTS ---
+        const contentArea = document.getElementById('content-area');
+        const settingsModal = document.getElementById('settings-modal');
+        const focusView = document.getElementById('focus-view');
+        
+        // --- MOCK GEMINI API ---
+        const API_KEY = ""; // In a real app, this would be your key
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+        
+        async function callGeminiAPI(prompt) {
+            // This is a mock function to simulate API calls without needing a real key.
+            // It returns realistic data based on the prompt.
+            console.log("Calling Mock Gemini API with prompt:", prompt);
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+
+            if (prompt.includes("synopsis")) {
+                return "This is a dynamically generated, spoiler-free synopsis from the Gemini API. It provides a compelling overview of the plot, introducing the main characters and the central conflict they face without revealing key twists or the ending. The tone is crafted to entice the viewer, highlighting the genre's core elements, whether it's action, drama, or comedy.";
+            }
+            if (prompt.includes("fun facts")) {
+                return "• **Fact 1:** This is a fun fact generated by Gemini. Many of the iconic scenes were improvised by the actors on set.\n• **Fact 2:** Another interesting fact from the API. The memorable soundtrack was composed in less than a week.\n• **Fact 3:** The director originally planned this as a short film before expanding it into a full feature.";
+            }
+            if (prompt.includes("Generate a new, creative shelf")) {
+                const shelves = [
+                    "✨ AI-Generated: Mind-Benders",
+                    "🚀 Space Odysseys", 
+                    "🎭 Hidden Gems",
+                    "⚡ Adrenaline Rush",
+                    "🌟 Critics' Choice",
+                    "🔥 Trending Now"
+                ];
+                const randomShelf = shelves[Math.floor(Math.random() * shelves.length)];
+                return JSON.stringify({
+                    shelfTitle: randomShelf,
+                    itemTitles: [mockData[currentLibraryKey].items[0].title, mockData[currentLibraryKey].items[1].title]
+                });
+            }
+            return "No specific response for this prompt.";
+        }
+
+        // --- UI FUNCTIONS ---
+        const createMediaCard = (item) => `
+            <div class='group relative rounded-lg overflow-hidden shadow-lg cursor-pointer focus-item-trigger hover-lift flex-shrink-0 w-40 sm:w-44 md:w-48' data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
+                <img src='${item.image.replace('800x1200', '400x600').replace('800x800', '400x400')}' alt='${item.title}' class='w-full h-auto object-cover bg-[var(--bg-secondary)]' loading="lazy">
+                <div class='absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent'></div>
+                <div class='absolute bottom-0 left-0 p-3 w-full'>
+                    <h3 class='font-bold text-white text-base truncate'>${item.title}</h3>
+                    <p class='text-xs text-gray-300'>${item.year || item.artist || item.author}</p>
+                </div>
+                <div class='absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity'>
+                    <button class='p-1 bg-black/50 rounded-full text-white hover:bg-[var(--accent-primary)]'>
+                        <i data-lucide="play" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>`;
+
+        function renderLibrary() {
+            document.getElementById('library-title').textContent = mockData[currentLibraryKey].title;
+            document.getElementById('search-bar').placeholder = `Search in ${mockData[currentLibraryKey].title}...`;
+            
+            const shelvesHtml = smartShelves[currentLibraryKey].map(shelf => {
+                const itemsHtml = shelf.items.map(index => createMediaCard(mockData[currentLibraryKey].items[index])).join('');
+                return `<section class="smart-shelf" data-title="${shelf.title}">
+                            <h2 class="text-xl font-bold mb-4 flex items-center">
+                                <span>${shelf.title}</span>
+                                <i data-lucide="chevron-right" class="w-5 h-5 ml-2 text-[var(--text-secondary)]"></i>
+                            </h2>
+                            <div class="flex space-x-4 overflow-x-auto pb-4 -mb-4">${itemsHtml}</div>
+                        </section>`;
+            }).join('');
+
+            const allItemsHtml = mockData[currentLibraryKey].items.map(item => createMediaCard(item)).join('');
+
+            contentArea.innerHTML = `
+                ${shelvesHtml}
+                <section>
+                    <div class="flex items-center justify-between mt-8">
+                        <h2 class="text-xl font-bold">All ${mockData[currentLibraryKey].title}</h2>
+                        <button id="generate-shelf-btn" class="flex items-center space-x-2 px-3 py-2 text-sm font-semibold bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-white rounded-md transition-colors">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            <span>Generate AI Shelf</span>
+                        </button>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6">
+                        ${allItemsHtml}
+                    </div>
+                </section>
+            `;
+            lucide.createIcons();
+        }
+        
+        function updateNav(libraryKey) {
+            currentLibraryKey = libraryKey;
+            document.querySelectorAll('.nav-link').forEach(l => {
+                const isActive = l.dataset.library === libraryKey;
+                l.classList.toggle('bg-[var(--accent-primary)]', isActive);
+                l.classList.toggle('text-white', isActive);
+                l.classList.toggle('text-[var(--text-secondary)]', !isActive);
+                l.classList.toggle('hover:bg-white/5', !isActive);
+            });
+            renderLibrary();
+        }
+        
+        function openModal(modal) { 
+            modal.classList.remove('hidden'); 
+            setTimeout(() => { 
+                modal.querySelector('.modal-backdrop').classList.remove('opacity-0'); 
+                modal.querySelector('.modal-content').classList.remove('scale-95', 'opacity-0'); 
+            }, 10); 
+        }
+        
+        function closeModal(modal) { 
+            modal.querySelector('.modal-backdrop').classList.add('opacity-0'); 
+            modal.querySelector('.modal-content').classList.add('scale-95', 'opacity-0'); 
+            setTimeout(() => modal.classList.add('hidden'), 300); 
+        }
+        
+        function openFocusView() {
+            focusView.classList.remove('hidden');
+            setTimeout(() => {
+                focusView.querySelector('.focus-backdrop').classList.remove('opacity-0');
+                focusView.querySelector('.focus-panel').classList.remove('translate-x-full');
+            }, 10);
+        }
+        
+        function closeFocusView() {
+            focusView.querySelector('.focus-backdrop').classList.add('opacity-0');
+            focusView.querySelector('.focus-panel').classList.add('translate-x-full');
+            setTimeout(() => focusView.classList.add('hidden'), 300);
+        }
+
+        async function populateFocusView(item) {
+            const focusContent = document.getElementById('focus-content');
+            focusContent.innerHTML = `
+                <div class="p-8 flex items-center justify-center h-64">
+                    <div class="text-center">
+                        <div class="spinner w-8 h-8 mx-auto mb-4"></div>
+                        <p class="text-[var(--text-secondary)]">Loading details...</p>
+                    </div>
+                </div>`;
+            openFocusView();
+
+            const synopsisPrompt = `Generate a compelling, spoiler-free, one-paragraph synopsis for the ${currentLibraryKey.slice(0, -1)} titled '${item.title}'.`;
+            const factsPrompt = `Generate three interesting, little-known fun facts about the ${currentLibraryKey.slice(0, -1)} '${item.title}'.`;
+            
+            try {
+                const [synopsis, funFacts] = await Promise.all([
+                    callGeminiAPI(synopsisPrompt),
+                    callGeminiAPI(factsPrompt)
+                ]);
+
+                focusContent.innerHTML = `
+                    <div>
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-80 object-cover">
+                        <div class="p-6 space-y-6">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-[var(--text-primary)] mb-2">${item.title}</h1>
+                                    <p class="text-[var(--text-secondary)]">${item.year || item.artist || item.author}</p>
+                                </div>
+                                <button class="flex items-center space-x-2 px-4 py-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors">
+                                    <i data-lucide="play" class="w-4 h-4"></i>
+                                    <span>Play</span>
+                                </button>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-[var(--text-primary)] mb-2">Synopsis</h2>
+                                <p class="text-[var(--text-secondary)] leading-relaxed">${synopsis}</p>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-[var(--text-primary)] mb-2 flex items-center">
+                                    <i data-lucide="sparkles" class="w-5 h-5 mr-2 text-[var(--accent-primary)]"></i>
+                                    Fun Facts
+                                </h2>
+                                <div class="text-[var(--text-secondary)] space-y-2">
+                                    ${funFacts.split('•').slice(1).map(fact => `<p>• ${fact.trim()}</p>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            } catch (error) {
+                focusContent.innerHTML = `
+                    <div class="p-8 text-center">
+                        <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-4 text-red-500"></i>
+                        <p class="text-[var(--text-secondary)]">Failed to load details. Please try again.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        // Search functionality
+        function handleSearch() {
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const items = document.querySelectorAll('.focus-item-trigger');
+            
+            items.forEach(item => {
+                const itemData = JSON.parse(item.dataset.item.replace(/&apos;/g, "'"));
+                const matches = itemData.title.toLowerCase().includes(searchTerm) ||
+                               (itemData.year && itemData.year.toString().includes(searchTerm)) ||
+                               (itemData.artist && itemData.artist.toLowerCase().includes(searchTerm)) ||
+                               (itemData.author && itemData.author.toLowerCase().includes(searchTerm));
+                
+                item.style.display = matches ? 'block' : 'none';
+            });
+        }
+
+        // --- EVENT LISTENERS ---
+        document.querySelectorAll('.nav-link').forEach(link => 
+            link.addEventListener('click', e => { 
+                e.preventDefault(); 
+                updateNav(link.dataset.library); 
+                document.getElementById('sidebar').classList.add('-translate-x-full'); 
+                document.getElementById('sidebar-backdrop').classList.add('hidden'); 
+            })
+        );
+
+        document.getElementById('mobile-sidebar-toggle').addEventListener('click', () => { 
+            document.getElementById('sidebar').classList.remove('-translate-x-full'); 
+            document.getElementById('sidebar-backdrop').classList.remove('hidden'); 
+        });
+
+        document.getElementById('sidebar-backdrop').addEventListener('click', () => { 
+            document.getElementById('sidebar').classList.add('-translate-x-full'); 
+            document.getElementById('sidebar-backdrop').classList.add('hidden'); 
+        });
+
+        // Search
+        document.getElementById('search-bar').addEventListener('input', handleSearch);
+
+        // Settings Modal
+        document.getElementById('settings-btn').addEventListener('click', () => openModal(settingsModal));
+        document.getElementById('settings-modal-close-btn').addEventListener('click', () => closeModal(settingsModal));
+        settingsModal.querySelector('.modal-backdrop').addEventListener('click', () => closeModal(settingsModal));
+        
+        document.getElementById('theme-toggle').addEventListener('change', e => { 
+            document.documentElement.classList.toggle('day-mode', e.target.checked); 
+            document.documentElement.classList.toggle('night-mode', !e.target.checked); 
+        });
+
+        document.querySelectorAll('.settings-tab').forEach(tab => { 
+            tab.addEventListener('click', e => { 
+                e.preventDefault(); 
+                const targetTab = e.currentTarget.dataset.tab; 
+                document.querySelectorAll('.settings-tab').forEach(t => { 
+                    t.classList.toggle('text-[var(--accent-primary)]', t.dataset.tab === targetTab); 
+                    t.classList.toggle('bg-black/20', t.dataset.tab === targetTab); 
+                    t.classList.toggle('text-[var(--text-secondary)]', t.dataset.tab !== targetTab); 
+                }); 
+                document.querySelectorAll('.settings-content').forEach(content => { 
+                    content.classList.toggle('hidden', content.id !== `${targetTab}-content`); 
+                }); 
+            }); 
+        });
+
+        // Focus View
+        contentArea.addEventListener('click', e => {
+            const card = e.target.closest('.focus-item-trigger');
+            if (card) {
+                const item = JSON.parse(card.dataset.item.replace(/&apos;/g, "'"));
+                populateFocusView(item);
+            }
+        });
+
+        focusView.querySelector('.focus-backdrop').addEventListener('click', closeFocusView);
+        document.getElementById('focus-close-btn').addEventListener('click', closeFocusView);
+
+        // AI Shelf Generation
+        contentArea.addEventListener('click', async e => {
+            const btn = e.target.closest('#generate-shelf-btn');
+            if (!btn) return;
+            
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner w-4 h-4"></div><span>Generating...</span>`;
+            
+            try {
+                const titles = mockData[currentLibraryKey].items.map(item => item.title);
+                const prompt = `Generate a new, creative shelf title and select relevant items from this list: ${titles.join(', ')}. Respond in JSON.`;
+                const response = await callGeminiAPI(prompt);
+                
+                const newShelfData = JSON.parse(response);
+                const shelfItems = mockData[currentLibraryKey].items.map((item, index) => 
+                    newShelfData.itemTitles.includes(item.title) ? index : -1
+                ).filter(index => index !== -1);
+                
+                // Add to smart shelves data
+                const newShelf = { title: newShelfData.shelfTitle, items: shelfItems };
+                smartShelves[currentLibraryKey].push(newShelf);
+
+                const newShelfHTML = `<section class="smart-shelf" data-title="${newShelf.title}">
+                            <h2 class="text-xl font-bold mb-4 flex items-center">
+                                <span>${newShelf.title}</span>
+                                <i data-lucide="chevron-right" class="w-5 h-5 ml-2 text-[var(--text-secondary)]"></i>
+                            </h2>
+                            <div class="flex space-x-4 overflow-x-auto pb-4 -mb-4">${newShelf.items.map(index => createMediaCard(mockData[currentLibraryKey].items[index])).join('')}</div>
+                        </section>`;
+                
+                const firstShelf = contentArea.querySelector('.smart-shelf');
+                if (firstShelf) {
+                    firstShelf.insertAdjacentHTML('afterend', newShelfHTML);
+                }
+                lucide.createIcons();
+
+            } catch (error) {
+                console.error("Failed to parse AI shelf response:", error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Generate AI Shelf</span>`;
+                lucide.createIcons();
+            }
+        });
+
+        // --- INIT & DATA HYDRATION ---
+        (function fillMockData() {
+            mockData.movies = { 
+                title: "Movies", 
+                items: [
+                    { title: "Quantum Rift", year: 2024, image: "https://placehold.co/800x1200/0A192F/F59E0B?text=Quantum+Rift"},
+                    { title: "Echoes of Nebula", year: 2023, image: "https://placehold.co/800x1200/1E40AF/FBBF24?text=Echoes+of+Nebula"},
+                    { title: "Digital Horizons", year: 2024, image: "https://placehold.co/800x1200/7C2D12/FCD34D?text=Digital+Horizons"},
+                    { title: "Neon Dreams", year: 2022, image: "https://placehold.co/800x1200/BE185D/F9A8D4?text=Neon+Dreams"},
+                    { title: "Stellar Awakening", year: 2023, image: "https://placehold.co/800x1200/065F46/6EE7B7?text=Stellar+Awakening"},
+                    { title: "Chrome Shadows", year: 2024, image: "https://placehold.co/800x1200/374151/D1D5DB?text=Chrome+Shadows"}
+                ] 
+            };
+            mockData.tv = { 
+                title: "TV Shows", 
+                items: [
+                    { title: "Arcane", seasons: 1, year: 2021, image: "https://placehold.co/800x1200/5B21B6/FDE047?text=Arcane"},
+                    { title: "The Expanse", seasons: 6, year: 2015, image: "https://placehold.co/800x1200/1E3A8A/93C5FD?text=The+Expanse"},
+                    { title: "Cyberpunk Chronicles", seasons: 2, year: 2023, image: "https://placehold.co/800x1200/DC2626/FCA5A5?text=Cyberpunk+Chronicles"},
+                    { title: "Quantum Investigations", seasons: 3, year: 2022, image: "https://placehold.co/800x1200/059669/A7F3D0?text=Quantum+Investigations"}
+                ] 
+            };
+            mockData.music = { 
+                title: "Music", 
+                items: [
+                    { title: "Currents", artist: "Tame Impala", image: "https://placehold.co/800x800/7c3aed/ffffff?text=Currents"},
+                    { title: "Discovery", artist: "Daft Punk", image: "https://placehold.co/800x800/db2777/ffffff?text=Discovery"},
+                    { title: "Synthwave Dreams", artist: "Neon Riders", image: "https://placehold.co/800x800/f59e0b/000000?text=Synthwave+Dreams"},
+                    { title: "Digital Echoes", artist: "Circuit Breakers", image: "https://placehold.co/800x800/06b6d4/ffffff?text=Digital+Echoes"}
+                ] 
+            };
+            mockData.books = { 
+                title: "Books", 
+                items: [
+                    { title: "Dune", author: "Frank Herbert", image: "https://placehold.co/800x1200/D97706/F7F2E4?text=Dune"},
+                    { title: "Project Hail Mary", author: "Andy Weir", image: "https://placehold.co/800x1200/047857/E0F2F1?text=Project+Hail+Mary"},
+                    { title: "Neuromancer", author: "William Gibson", image: "https://placehold.co/800x1200/4c1d95/ddd6fe?text=Neuromancer"},
+                    { title: "The Martian", author: "Andy Weir", image: "https://placehold.co/800x1200/dc2626/fecaca?text=The+Martian"}
+                ] 
+            };
+            
+            smartShelves.movies = [
+                { title: 'Continue Watching', items: [0, 2] }, 
+                { title: 'Sci-Fi Favorites', items: [0, 1, 4] },
+                { title: 'Recently Added', items: [2, 3, 5] }
+            ];
+            smartShelves.tv = [
+                { title: 'Continue Watching', items: [1, 3] }, 
+                { title: 'Binge-Worthy', items: [0, 1, 2] },
+                { title: 'New Episodes', items: [2, 3] }
+            ];
+            smartShelves.music = [
+                { title: 'Recently Played', items: [0, 2] }, 
+                { title: 'Electronic Hits', items: [1, 3] },
+                { title: 'Favorites', items: [0, 1] }
+            ];
+            smartShelves.books = [
+                { title: 'Continue Reading', items: [0, 2] }, 
+                { title: 'Sci-Fi Adventures', items: [1, 2, 3] },
+                { title: 'Must Reads', items: [0, 1] }
+            ];
+        })();
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNav('movies');
+        });
+    </script>
+</body>
+</html>
