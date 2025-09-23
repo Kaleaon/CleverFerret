@@ -1,43 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android API 29+ specific theme using Material Components -->
-    <style name="Theme.UniversalMediaLibrary" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Primary brand colors -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/on_primary</item>
-        <item name="colorPrimaryContainer">@color/primary_container</item>
-        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
-        
-        <!-- Secondary brand colors -->
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorOnSecondary">@color/on_secondary</item>
-        <item name="colorSecondaryContainer">@color/secondary_container</item>
-        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
-        
-        <!-- Surface colors -->
-        <item name="android:colorBackground">@color/background</item>
-        <item name="colorOnBackground">@color/on_background</item>
-        <item name="colorSurface">@color/surface</item>
-        <item name="colorOnSurface">@color/on_surface</item>
-        <item name="colorSurfaceVariant">@color/surface_variant</item>
-        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
-        
-        <!-- Error colors -->
-        <item name="colorError">@color/error</item>
-        <item name="colorOnError">@color/on_error</item>
-        <item name="colorErrorContainer">@color/error_container</item>
-        <item name="colorOnErrorContainer">@color/on_error_container</item>
-        
-        <!-- Outline colors -->
-        <item name="colorOutline">@color/outline</item>
-        <item name="colorOutlineVariant">@color/outline_variant</item>
-        
-        <!-- Android 10+ specific features -->
-        <item name="android:statusBarColor">@color/deep_navy_blue</item>
-        <item name="android:navigationBarColor">@color/surface</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">true</item>
-        <item name="android:enforceNavigationBarContrast">false</item>
-        <item name="android:enforceStatusBarContrast">false</item>
+    <!-- Android API 29+ specific theme -->
+    <style name="Theme.UniversalMediaLibrary" parent="android:Theme.DeviceDefault.DayNight">
+        <item name="android:colorPrimary">#1E3A5F</item>
     </style>
 </resources>

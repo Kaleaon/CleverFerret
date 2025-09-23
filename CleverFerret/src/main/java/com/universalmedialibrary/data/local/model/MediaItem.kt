@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.local.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.universalmedialibrary.data.MediaType
 import java.util.Date
 
 /**
