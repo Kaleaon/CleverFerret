@@ -29,7 +29,10 @@ class ContentCreationViewModel @Inject constructor(
         val title: String? = null,
         val author: String? = null,
         val chapters: Int = 0,
-        val errorMessage: String? = null
+        val errorMessage: String? = null,
+        val wasUpdate: Boolean = false,
+        val previousChapters: Int = 0,
+        val storyId: String? = null
     )
 
     /**
@@ -122,13 +125,20 @@ class ContentCreationViewModel @Inject constructor(
 
             try {
                 _uiState.value = _uiState.value.copy(
-                    conversionProgress = "Downloading story..."
+                    conversionProgress = "Checking for existing downloads..."
                 )
 
-                val result = fanfictionConverter.convertFanfictionToEpub(url)
+                val result = fanfictionConverter.convertFanfictionToEpubWithUpdateDetection(url)
+
+                val progressMessage = when {
+                    result.wasUpdate -> "Updated story with ${result.chapters - result.previousChapters} new chapters"
+                    result.success && !result.wasUpdate && result.storyId != null -> "Story already up-to-date"
+                    result.success -> "Creating EPUB with ${result.chapters} chapter(s)..."
+                    else -> ""
+                }
 
                 _uiState.value = _uiState.value.copy(
-                    conversionProgress = if (result.success) "Creating EPUB with ${result.chapters} chapter(s)..." else ""
+                    conversionProgress = progressMessage
                 )
 
                 // Convert to our unified result type
@@ -138,7 +148,10 @@ class ContentCreationViewModel @Inject constructor(
                     title = result.title,
                     author = result.author,
                     chapters = result.chapters,
-                    errorMessage = result.errorMessage
+                    errorMessage = result.errorMessage,
+                    wasUpdate = result.wasUpdate,
+                    previousChapters = result.previousChapters,
+                    storyId = result.storyId
                 )
 
                 _uiState.value = _uiState.value.copy(

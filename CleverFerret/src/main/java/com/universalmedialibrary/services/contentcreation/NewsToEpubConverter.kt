@@ -34,7 +34,9 @@ class NewsToEpubConverter @Inject constructor(
         val filePath: String? = null,
         val title: String? = null,
         val author: String? = null,
-        val errorMessage: String? = null
+        val errorMessage: String? = null,
+        val wasUpdate: Boolean = false,
+        val storyId: String? = null
     )
 
     private val epubCreator = SimpleEpubCreator()

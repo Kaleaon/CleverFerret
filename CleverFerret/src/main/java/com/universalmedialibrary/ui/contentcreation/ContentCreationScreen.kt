@@ -200,8 +200,26 @@ fun ContentCreationScreen(
                         }
                         if (result.chapters > 0) {
                             Text(
-                                text = "Chapters: ${result.chapters}",
+                                text = if (result.wasUpdate) {
+                                    "Updated: ${result.previousChapters} → ${result.chapters} chapters (+${result.chapters - result.previousChapters} new)"
+                                } else {
+                                    "Chapters: ${result.chapters}"
+                                },
                                 style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        if (result.wasUpdate) {
+                            Text(
+                                text = "✨ Story was updated with new content!",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        } else if (result.storyId != null && result.success) {
+                            Text(
+                                text = "📚 Previously downloaded story is up-to-date",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
                             )
                         }
                         if (result.filePath != null) {
