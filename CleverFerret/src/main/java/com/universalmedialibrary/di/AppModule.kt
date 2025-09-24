@@ -9,6 +9,10 @@ import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
 import com.universalmedialibrary.services.contentcreation.NewsToEpubConverter
 import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
+import com.universalmedialibrary.services.media.MediaScanningService
+import com.universalmedialibrary.services.media.MetadataExtractionService
+import com.universalmedialibrary.services.media.UniversalMediaPlayerService
+import com.universalmedialibrary.services.media.UniversalReaderService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -90,6 +94,43 @@ object AppModule {
         metadataDao: MetadataDao
     ): MediaRepository {
         return MediaRepository(mediaItemDao, metadataDao)
+    }
+    
+    // Universal Media Services
+    @Provides
+    @Singleton
+    fun provideMediaScanningService(
+        @ApplicationContext context: Context,
+        libraryRepository: LibraryRepository,
+        mediaRepository: MediaRepository
+    ): MediaScanningService {
+        return MediaScanningService(context, libraryRepository, mediaRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideMetadataExtractionService(
+        @ApplicationContext context: Context,
+        mediaRepository: MediaRepository
+    ): MetadataExtractionService {
+        return MetadataExtractionService(context, mediaRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideUniversalMediaPlayerService(
+        @ApplicationContext context: Context
+    ): UniversalMediaPlayerService {
+        return UniversalMediaPlayerService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideUniversalReaderService(
+        @ApplicationContext context: Context,
+        mediaRepository: MediaRepository
+    ): UniversalReaderService {
+        return UniversalReaderService(context, mediaRepository)
     }
     
     // Legacy services for content creation
