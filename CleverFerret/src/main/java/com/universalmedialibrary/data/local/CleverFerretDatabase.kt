@@ -75,7 +75,7 @@ abstract class CleverFerretDatabase : RoomDatabase() {
                     CleverFerretDatabase::class.java,
                     DATABASE_NAME
                 )
-                .fallbackToDestructiveMigration() // For now during development
+                // .fallbackToDestructiveMigration() // REMOVED: Do not use destructive migration in production
                 .build()
                 INSTANCE = instance
                 instance
