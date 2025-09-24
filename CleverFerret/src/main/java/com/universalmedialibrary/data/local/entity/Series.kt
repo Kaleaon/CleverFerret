@@ -37,7 +37,10 @@ data class Series(
 @Entity(
     tableName = "albums",
     indices = [
-        Index(value = ["title", "albumArtistId"], unique = true)
+        Index(value = ["title", "releaseYear", "recordLabel"]),
+        Index(value = ["albumArtistId"]),
+        Index(value = ["musicBrainzAlbumId"], unique = true),
+        Index(value = ["spotifyAlbumId"], unique = true)
     ]
 )
 data class Album(
