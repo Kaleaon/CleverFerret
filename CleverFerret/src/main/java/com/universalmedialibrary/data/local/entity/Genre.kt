@@ -11,7 +11,7 @@ import androidx.room.Index
 @Entity(
     tableName = "genre",
     indices = [
-        Index(value = ["name"], unique = true)
+        Index(value = ["name", "mediaType"], unique = true)
     ]
 )
 data class Genre(
