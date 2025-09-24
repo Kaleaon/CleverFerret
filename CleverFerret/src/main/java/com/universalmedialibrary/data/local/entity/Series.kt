@@ -10,7 +10,7 @@ import androidx.room.Index
 @Entity(
     tableName = "series",
     indices = [
-        Index(value = ["name"], unique = true)
+        Index(value = ["name", "mediaType"], unique = true)
     ]
 )
 data class Series(
