@@ -11,7 +11,7 @@ import androidx.room.Index
 @Entity(
     tableName = "people",
     indices = [
-        Index(value = ["name"], unique = true)
+        // Removed unique constraint on 'name' field; add other indices if needed
     ]
 )
 data class People(
