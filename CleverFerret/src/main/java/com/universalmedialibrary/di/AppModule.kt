@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.universalmedialibrary.data.local.CleverFerretDatabase
 import com.universalmedialibrary.data.local.dao.*
+import com.universalmedialibrary.data.repository.LibraryRepository
+import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
 import com.universalmedialibrary.services.contentcreation.NewsToEpubConverter
 import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
@@ -71,6 +73,22 @@ object AppModule {
     @Provides
     fun provideBookmarkDao(database: CleverFerretDatabase): BookmarkDao {
         return database.bookmarkDao()
+    }
+    
+    // Repositories
+    @Provides
+    @Singleton
+    fun provideLibraryRepository(libraryDao: LibraryDao): LibraryRepository {
+        return LibraryRepository(libraryDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideMediaRepository(
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao
+    ): MediaRepository {
+        return MediaRepository(mediaItemDao, metadataDao)
     }
     
     // Legacy services for content creation
