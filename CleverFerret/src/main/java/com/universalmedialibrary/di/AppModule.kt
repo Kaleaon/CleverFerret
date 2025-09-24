@@ -34,7 +34,8 @@ object AppModule {
             CleverFerretDatabase::class.java,
             CleverFerretDatabase.DATABASE_NAME
         )
-        .fallbackToDestructiveMigration() // For development - remove in production
+        // TODO: Add proper migration objects below to handle schema changes safely
+        // .addMigrations(MIGRATION_1_2, MIGRATION_2_3, ...) // Example usage
         .build()
     }
     
