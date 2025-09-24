@@ -35,12 +35,41 @@ CleverFerret is a working Android application for creating a Universal Media Lib
 - **🎨 UI Framework**: Compose-based screens for media management
 - **📱 Navigation**: Navigation Compose for screen transitions
 
-### Planned Features (Not Yet Implemented)
+### Planned Features (In Development)
 - **📚 Universal Media Support**: Books (EPUB/PDF), Music (MP3/FLAC), Movies (MP4), Podcasts
 - **📖 E-Reader**: Document viewing and reading capabilities
-- **🎵 Audio Player**: Music playback with metadata support  
+- **🎵 Audio Player**: Music playbook with metadata support  
 - **🎬 Video Player**: Video playback integration
 - **📊 Calibre Integration**: Import libraries from Calibre
+
+## 🛠️ Build Instructions
+
+```bash
+# Clone the repository
+git clone https://github.com/Kaleaon/CleverFerret.git
+cd CleverFerret
+
+# Build debug APK
+./gradlew assembleDebug
+
+# Run tests
+./gradlew testDebugUnitTest
+
+# Find your APK
+ls -la CleverFerret/build/outputs/apk/debug/
+```
+
+### Requirements
+- Java 17 or higher
+- Android SDK (API 34)
+- Build tools 33.0.2+
+
+### CI/CD
+GitHub Actions automatically builds and tests on every push, producing APK artifacts.
+
+## 📝 Documentation
+- [BUILD_STATUS.md](BUILD_STATUS.md) - Current build status and instructions
+- [CLEVERFERRET_APK_READY.md](CLEVERFERRET_APK_READY.md) - APK availability information
 4. **Detailed Failure Analysis** - Failed reviews include:
    - **Why it failed** - Comprehensive explanations
    - **What's problematic** - Specific issue identification  
