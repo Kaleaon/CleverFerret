@@ -1,20 +1,34 @@
 # 🦫 CleverFerret Universal Media Library
 
 ![Android CI](https://github.com/Kaleaon/CleverFerret/workflows/Android%20CI/badge.svg)
+[![Latest Release](https://img.shields.io/github/v/release/Kaleaon/CleverFerret)](https://github.com/Kaleaon/CleverFerret/releases)
+
+## 📱 Direct APK Downloads
+
+### 🔥 Latest Release APK (Recommended)
+**[Download CleverFerret-release-latest.apk](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-release-latest.apk)** (~10MB)
+
+### 🛠️ Debug APK (Development)
+**[Download CleverFerret-debug-latest.apk](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-debug-latest.apk)** (~13MB)
+
+### 📦 Stable Releases
+Check the [Releases page](https://github.com/Kaleaon/CleverFerret/releases) for versioned releases with full release notes.
+
+---
 
 ## 📖 Overview
 
-CleverFerret is a working Android application for creating a Universal Media Library for managing books, music, movies, and podcasts. The project uses modern Android architecture and is currently functional for development and testing.
+CleverFerret is a **working Android application** for creating a Universal Media Library for managing books, music, movies, and podcasts. The project uses modern Android architecture and is currently functional for development and testing.
 
 ## ✅ Current Build Status
 
 **✅ Successfully Building**: The application compiles and generates working APK files.
 
-- **Build Time**: ~3 minutes 22 seconds
-- **Test Time**: ~23 seconds
-- **APK Size**: ~13MB
+- **Build Time**: ~5 minutes (initial), ~2 minutes (incremental)
+- **Test Time**: ~45 seconds  
+- **APK Size**: ~10MB (Release), ~13MB (Debug)
 - **Target**: Android API 34 (Android 14)
-- **Minimum**: Android API 26 (Android 8.0)
+- **Minimum**: Android API 24 (Android 7.0)
 
 ### Quick Start
 ```bash
