@@ -1,6 +1,7 @@
 package com.universalmedialibrary
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -24,16 +25,77 @@ import dagger.hilt.android.AndroidEntryPoint
  * CleverFerret Universal Media Library - Main Activity
  * 
  * Enhanced with complete database infrastructure and ready for media library management
+ * Fixed with better error handling for installation issues
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                CleverFerretApp()
+        try {
+            super.onCreate(savedInstanceState)
+            Log.d(TAG, "MainActivity starting...")
+            
+            setContent {
+                MaterialTheme {
+                    CleverFerretApp()
+                }
+            }
+            
+            Log.d(TAG, "MainActivity UI content set successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in MainActivity onCreate", e)
+            // Try to show a fallback UI instead of crashing
+            try {
+                setContent {
+                    MaterialTheme {
+                        ErrorScreen(e.message ?: "Unknown error occurred")
+                    }
+                }
+            } catch (fallbackError: Exception) {
+                Log.e(TAG, "Fallback UI also failed", fallbackError)
+                finish()
             }
         }
+    }
+}
+
+@Composable
+fun ErrorScreen(errorMessage: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = "Error",
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(48.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "CleverFerret Error",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = errorMessage,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Please restart the app or contact support if this continues.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
