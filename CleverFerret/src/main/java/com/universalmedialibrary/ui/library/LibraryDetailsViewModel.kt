@@ -331,13 +331,13 @@ fun LibraryDetailsViewModel.MediaItemWithMetadata.toMediaItemData(): MediaItemDa
         title = title,
         author = author,
         year = metadata?.year ?: 2024,
-        rating = metadata?.rating ?: (3.5f + (0..10).random() * 0.15f), // Random rating for demo
+        rating = metadata?.rating ?: (3.5f + (mediaItem.itemId % 11) * 0.15f), // Deterministic rating for demo
         genre = when (mediaItem.mediaType) {
-            "BOOK" -> listOf("Sci-Fi", "Fiction", "Non-Fiction", "Biography").random()
-            "MOVIE" -> listOf("Thriller", "Action", "Drama", "Comedy").random()
-            "MUSIC" -> listOf("Electronic", "Pop", "Rock", "Jazz").random()
-            "PODCAST" -> listOf("Technology", "Education", "Entertainment").random()
-            "MAGAZINE" -> listOf("Technology", "Science", "Lifestyle").random()
+            "BOOK" -> listOf("Sci-Fi", "Fiction", "Non-Fiction", "Biography")[(mediaItem.itemId % 4).toInt()]
+            "MOVIE" -> listOf("Thriller", "Action", "Drama", "Comedy")[(mediaItem.itemId % 4).toInt()]
+            "MUSIC" -> listOf("Electronic", "Pop", "Rock", "Jazz")[(mediaItem.itemId % 4).toInt()]
+            "PODCAST" -> listOf("Technology", "Education", "Entertainment")[(mediaItem.itemId % 3).toInt()]
+            "MAGAZINE" -> listOf("Technology", "Science", "Lifestyle")[(mediaItem.itemId % 3).toInt()]
             else -> "General"
         },
         type = when (mediaItem.mediaType) {
