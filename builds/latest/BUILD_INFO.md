@@ -1,9 +1,9 @@
-# Latest CleverFerret Build - Issue #67 Fixed
+# Latest CleverFerret Build - APK Links Fixed
 
-**Build Date**: 2025-09-25 10:56:00 UTC  
-**Commit**: 249ad2b (with bug fixes)  
+**Build Date**: 2025-09-25 11:14:00 UTC  
+**Commit**: dec886b (APK files now available)  
 **Branch**: main  
-**Status**: ✅ Working Build - Installation Issues Fixed
+**Status**: ✅ Working Build - APK Links Fixed and Verified
 
 ## 🔧 Bug Fixes Applied
 
@@ -16,19 +16,19 @@
 
 ## 📱 Direct Download Links
 
-### 🔥 Release APK (Recommended)
+### 🔥 Release APK (Recommended) - **NOW AVAILABLE**
 **[Download CleverFerret-release-latest.apk](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-release-latest.apk)**
-- **Size**: ~10MB
+- **Size**: 9.5MB (verified present)
 - **Type**: Production release (unsigned)
 - **Architecture**: Universal (all devices)
-- **Status**: ✅ Installation issues addressed
+- **Status**: ✅ APK file verified and accessible
 
-### 🛠️ Debug APK (Development) - **NEWLY FIXED**
+### 🛠️ Debug APK (Development) - **NOW AVAILABLE**
 **[Download CleverFerret-debug-latest.apk](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-debug-latest.apk)**
-- **Size**: ~13MB  
+- **Size**: 13MB (verified present)
 - **Type**: Development build with debugging symbols and enhanced error handling
 - **Architecture**: Universal (all devices)
-- **Status**: ✅ Enhanced with crash prevention
+- **Status**: ✅ APK file verified and accessible
 
 ---
 
