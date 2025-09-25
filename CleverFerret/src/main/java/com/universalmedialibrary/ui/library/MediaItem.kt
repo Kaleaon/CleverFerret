@@ -211,6 +211,68 @@ fun MediaItem(
                         fontSize = 10.sp
                     )
                 }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Metadata action buttons
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // API Search button
+                    Surface(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { /* Handle API metadata search */ },
+                        color = Color(0xFF2C5F2D).copy(alpha = 0.3f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = PhosphorIcons.MagnifyingGlass,
+                                contentDescription = "Search metadata",
+                                modifier = Modifier.size(12.dp),
+                                tint = Color(0xFF97BC62)
+                            )
+                            Text(
+                                text = "Find",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF97BC62),
+                                fontSize = 9.sp
+                            )
+                        }
+                    }
+                    
+                    // Manual Edit button
+                    Surface(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { /* Handle manual metadata edit */ },
+                        color = Color(0xFF1565C0).copy(alpha = 0.3f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = PhosphorIcons.Pencil,
+                                contentDescription = "Edit metadata",
+                                modifier = Modifier.size(12.dp),
+                                tint = Color(0xFF42A5F5)
+                            )
+                            Text(
+                                text = "Edit",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF42A5F5),
+                                fontSize = 9.sp
+                            )
+                        }
+                    }
+                }
             }
         }
     }

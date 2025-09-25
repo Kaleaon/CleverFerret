@@ -537,6 +537,73 @@ object PhosphorIcons {
             return _pencilSimple!!
         }
 
+    val MagnifyingGlass: ImageVector
+        get() {
+            if (_magnifyingGlass != null) {
+                return _magnifyingGlass!!
+            }
+            _magnifyingGlass = materialIcon(name = "MagnifyingGlass") {
+                materialPath {
+                    moveTo(15.5f, 14.0f)
+                    horizontalLineTo(14.71f)
+                    lineTo(14.43f, 13.73f)
+                    curveTo(15.41f, 12.59f, 16.0f, 11.11f, 16.0f, 9.5f)
+                    curveTo(16.0f, 5.91f, 13.09f, 3.0f, 9.5f, 3.0f)
+                    reflectiveCurveTo(3.0f, 5.91f, 3.0f, 9.5f)
+                    reflectiveCurveTo(5.91f, 16.0f, 9.5f, 16.0f)
+                    curveTo(11.11f, 16.0f, 12.59f, 15.41f, 13.73f, 14.43f)
+                    lineTo(14.0f, 14.71f)
+                    verticalLineTo(15.5f)
+                    lineTo(19.0f, 20.49f)
+                    lineTo(20.49f, 19.0f)
+                    lineTo(15.5f, 14.0f)
+                    close()
+                    moveTo(9.5f, 14.0f)
+                    curveTo(7.01f, 14.0f, 5.0f, 11.99f, 5.0f, 9.5f)
+                    reflectiveCurveTo(7.01f, 5.0f, 9.5f, 5.0f)
+                    reflectiveCurveTo(14.0f, 7.01f, 14.0f, 9.5f)
+                    reflectiveCurveTo(11.99f, 14.0f, 9.5f, 14.0f)
+                    close()
+                }
+            }
+            return _magnifyingGlass!!
+        }
+
+    val Pencil: ImageVector
+        get() {
+            if (_pencil != null) {
+                return _pencil!!
+            }
+            _pencil = materialIcon(name = "Pencil") {
+                materialPath {
+                    moveTo(14.06f, 9.02f)
+                    lineTo(14.98f, 9.94f)
+                    lineTo(5.92f, 19.0f)
+                    horizontalLineTo(5.0f)
+                    verticalLineTo(18.08f)
+                    lineTo(14.06f, 9.02f)
+                    close()
+                    moveTo(17.66f, 3.0f)
+                    curveTo(17.41f, 3.0f, 17.15f, 3.1f, 16.96f, 3.29f)
+                    lineTo(15.13f, 5.12f)
+                    lineTo(18.88f, 8.87f)
+                    lineTo(20.71f, 7.04f)
+                    curveTo(21.1f, 6.65f, 21.1f, 6.02f, 20.71f, 5.63f)
+                    lineTo(18.37f, 3.29f)
+                    curveTo(18.17f, 3.09f, 17.92f, 3.0f, 17.66f, 3.0f)
+                    close()
+                    moveTo(14.06f, 6.19f)
+                    lineTo(3.0f, 17.25f)
+                    verticalLineTo(21.0f)
+                    horizontalLineTo(6.75f)
+                    lineTo(17.81f, 9.94f)
+                    lineTo(14.06f, 6.19f)
+                    close()
+                }
+            }
+            return _pencil!!
+        }
+
     private var _book: ImageVector? = null
     private var _filmStrip: ImageVector? = null
     private var _musicNote: ImageVector? = null
@@ -553,4 +620,6 @@ object PhosphorIcons {
     private var _warning: ImageVector? = null
     private var _house: ImageVector? = null
     private var _pencilSimple: ImageVector? = null
+    private var _magnifyingGlass: ImageVector? = null
+    private var _pencil: ImageVector? = null
 }

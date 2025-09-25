@@ -1,14 +1,17 @@
 package com.universalmedialibrary.ui.library
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -103,6 +106,66 @@ fun LibraryDetailsScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFFB3B3B3)
                 )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Metadata management actions
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Bulk API Search button
+                    Surface(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { /* Handle bulk API metadata search */ },
+                        color = Color(0xFF2C5F2D).copy(alpha = 0.4f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Icon(
+                                imageVector = PhosphorIcons.MagnifyingGlass,
+                                contentDescription = "Search all metadata",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color(0xFF97BC62)
+                            )
+                            Text(
+                                text = "Find Metadata",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color(0xFF97BC62)
+                            )
+                        }
+                    }
+                    
+                    // Bulk Edit button  
+                    Surface(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { /* Handle bulk metadata edit */ },
+                        color = Color(0xFF1565C0).copy(alpha = 0.4f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Icon(
+                                imageVector = PhosphorIcons.Pencil,
+                                contentDescription = "Edit metadata",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color(0xFF42A5F5)
+                            )
+                            Text(
+                                text = "Edit Metadata",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color(0xFF42A5F5)
+                            )
+                        }
+                    }
+                }
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
