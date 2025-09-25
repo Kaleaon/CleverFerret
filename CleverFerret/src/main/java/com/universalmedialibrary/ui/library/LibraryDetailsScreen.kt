@@ -14,8 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.ui.icons.PhosphorIcons
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * Library details screen showing the contents of a specific library.
