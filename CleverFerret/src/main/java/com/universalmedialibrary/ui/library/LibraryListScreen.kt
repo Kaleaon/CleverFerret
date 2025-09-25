@@ -16,76 +16,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * Main library list screen with Plex-inspired design.
  * Converted from React LibraryListScreen component.
+ * Now integrated with Room database via ViewModel.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryListScreen(
     onNavigateToLibrary: (Int) -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    onCreateLibrary: () -> Unit = {}
+    onCreateLibrary: () -> Unit = {},
+    viewModel: LibraryListViewModel = hiltViewModel()
 ) {
-    // Demo libraries data (in real app, this would come from ViewModel)
-    val demoLibraries = remember {
-        listOf(
-            LibraryItem(
-                id = 1,
-                name = "My Books",
-                type = LibraryType.BOOK,
-                itemCount = 284,
-                isActive = true,
-                lastSyncTime = "Updated today"
-            ),
-            LibraryItem(
-                id = 2, 
-                name = "Movies & TV",
-                type = LibraryType.MOVIE,
-                itemCount = 156,
-                isActive = true,
-                lastSyncTime = "Updated 2 days ago"
-            ),
-            LibraryItem(
-                id = 3,
-                name = "Music Library", 
-                type = LibraryType.MUSIC,
-                itemCount = 1847,
-                isActive = true,
-                lastSyncTime = "Updated today"
-            ),
-            LibraryItem(
-                id = 4,
-                name = "Podcasts",
-                type = LibraryType.PODCAST,
-                itemCount = 45,
-                isActive = true,
-                lastSyncTime = "Updated 1 hour ago"
-            ),
-            LibraryItem(
-                id = 5,
-                name = "Magazines",
-                type = LibraryType.MAGAZINE,
-                itemCount = 12,
-                isActive = false,
-                lastSyncTime = "Updated 1 week ago"
-            ),
-            LibraryItem(
-                id = 6,
-                name = "Documents",
-                type = LibraryType.DOCUMENT,
-                itemCount = 89,
-                isActive = true,
-                lastSyncTime = "Updated today"
-            )
-        )
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
     // Plex-inspired dark theme colors
     val backgroundColor = Color(0xFF1A1A1A)
     val surfaceColor = Color(0xFF1F2326)
     val primaryColor = Color(0xFFE5A00D)
+
+    // Create sample data on first launch
+    LaunchedEffect(Unit) {
+        viewModel.createSampleData()
+    }
 
     Box(
         modifier = Modifier
@@ -127,6 +83,13 @@ fun LibraryListScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { viewModel.refresh() }) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             Icons.Default.Settings,
@@ -158,25 +121,61 @@ fun LibraryListScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Text(
-                    text = "${demoLibraries.size} libraries",
+                    text = "${uiState.libraries.size} libraries",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFFB3B3B3)
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // Libraries grid
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 300.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(demoLibraries) { library ->
-                        LibraryCard(
-                            library = library,
-                            onClick = { onNavigateToLibrary(library.id) }
+                // Error handling
+                uiState.error?.let { error ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF4A1A1A)
                         )
+                    ) {
+                        Text(
+                            text = "Error: $error",
+                            modifier = Modifier.padding(16.dp),
+                            color = Color(0xFFFF6B6B)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                
+                // Loading state
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            CircularProgressIndicator(color = primaryColor)
+                            Text(
+                                text = "Loading libraries...",
+                                color = Color(0xFFB3B3B3)
+                            )
+                        }
+                    }
+                } else {
+                    // Libraries grid
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 300.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(uiState.libraries) { libraryWithCount ->
+                            LibraryCard(
+                                library = libraryWithCount.toLibraryItem(),
+                                onClick = { onNavigateToLibrary(libraryWithCount.library.libraryId.toInt()) }
+                            )
+                        }
                     }
                 }
             }

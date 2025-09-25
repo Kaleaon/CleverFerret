@@ -14,81 +14,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * Library details screen showing the contents of a specific library.
  * Converted from React LibraryDetailsScreen component.
+ * Now integrated with Room database via ViewModel.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryDetailsScreen(
     libraryId: Int,
     onNavigateBack: () -> Unit = {},
-    onNavigateToMediaViewer: (Int) -> Unit = {}
+    onNavigateToMediaViewer: (Int) -> Unit = {},
+    viewModel: LibraryDetailsViewModel = hiltViewModel()
 ) {
-    // Demo media items (in real app, this would come from ViewModel based on libraryId)
-    val demoItems = remember {
-        listOf(
-            MediaItemData(
-                id = 1,
-                title = "The Digital Frontier",
-                author = "Sarah Chen",
-                year = 2024,
-                rating = 4.5f,
-                genre = "Sci-Fi",
-                type = MediaType.BOOK
-            ),
-            MediaItemData(
-                id = 2,
-                title = "Cyber Dreams",
-                author = "Michael Rodriguez", 
-                year = 2023,
-                rating = 4.8f,
-                genre = "Thriller",
-                type = MediaType.MOVIE
-            ),
-            MediaItemData(
-                id = 3,
-                title = "Neon Nights",
-                author = "Synthwave Collective",
-                year = 2024,
-                rating = 4.2f,
-                genre = "Electronic",
-                type = MediaType.MUSIC
-            ),
-            MediaItemData(
-                id = 4,
-                title = "AI Revolution", 
-                author = "Dr. Emily Zhang",
-                year = 2024,
-                rating = 4.6f,
-                genre = "Non-Fiction",
-                type = MediaType.BOOK
-            ),
-            MediaItemData(
-                id = 5,
-                title = "Matrix Reborn",
-                author = "James Cameron",
-                year = 2025,
-                rating = 4.9f,
-                genre = "Action",
-                type = MediaType.MOVIE
-            ),
-            MediaItemData(
-                id = 6,
-                title = "Future Bass",
-                author = "Digital Dreams",
-                year = 2024, 
-                rating = 4.3f,
-                genre = "EDM",
-                type = MediaType.MUSIC
-            )
-        )
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
     // Plex-inspired colors
     val backgroundColor = Color(0xFF1A1A1A)
     val surfaceColor = Color(0xFF1F2326)
+    val primaryColor = Color(0xFFE5A00D)
+
+    // Load library details on composition
+    LaunchedEffect(libraryId) {
+        viewModel.loadLibraryDetails(libraryId.toLong())
+        viewModel.createSampleMediaItems(libraryId.toLong())
+    }
 
     Box(
         modifier = Modifier
@@ -100,7 +52,7 @@ fun LibraryDetailsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Library Contents",
+                        text = uiState.library?.name ?: "Library Contents",
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White
                     )
@@ -110,6 +62,15 @@ fun LibraryDetailsScreen(
                         Icon(
                             Icons.Default.ArrowBack,
                             contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.refresh(libraryId.toLong()) }) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "Refresh",
                             tint = Color.White
                         )
                     }
@@ -128,7 +89,7 @@ fun LibraryDetailsScreen(
             ) {
                 // Header section
                 Text(
-                    text = "Demo Library",
+                    text = uiState.library?.name ?: "Library",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Light,
                     color = Color.White
@@ -136,26 +97,92 @@ fun LibraryDetailsScreen(
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 
+                val itemCount = uiState.mediaItems.size
+                val libraryType = uiState.library?.type?.lowercase() ?: "mixed"
                 Text(
-                    text = "${demoItems.size} items • Mixed media",
+                    text = "$itemCount items • $libraryType media",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFFB3B3B3)
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // Media items grid
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 250.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(demoItems) { item ->
-                        MediaItem(
-                            item = item,
-                            onClick = { onNavigateToMediaViewer(item.id) }
+                // Error handling
+                uiState.error?.let { error ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF4A1A1A)
                         )
+                    ) {
+                        Text(
+                            text = "Error: $error",
+                            modifier = Modifier.padding(16.dp),
+                            color = Color(0xFFFF6B6B)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                
+                // Loading state
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            CircularProgressIndicator(color = primaryColor)
+                            Text(
+                                text = "Loading media items...",
+                                color = Color(0xFFB3B3B3)
+                            )
+                        }
+                    }
+                } else if (uiState.mediaItems.isEmpty()) {
+                    // Empty state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Home,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = Color(0xFF666666)
+                            )
+                            Text(
+                                text = "No media items found",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color(0xFF666666)
+                            )
+                            Text(
+                                text = "Add some files to this library to get started",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF999999)
+                            )
+                        }
+                    }
+                } else {
+                    // Media items grid
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 250.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(uiState.mediaItems) { mediaItemWithMetadata ->
+                            MediaItem(
+                                item = mediaItemWithMetadata.toMediaItemData(),
+                                onClick = { onNavigateToMediaViewer(mediaItemWithMetadata.mediaItem.itemId.toInt()) }
+                            )
+                        }
                     }
                 }
             }
