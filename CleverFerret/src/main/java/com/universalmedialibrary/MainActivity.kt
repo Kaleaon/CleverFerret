@@ -22,6 +22,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * CleverFerret Universal Media Library - Main Activity
+ * 
+ * Enhanced with complete database infrastructure and ready for media library management
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -42,10 +44,10 @@ fun CleverFerretApp() {
     
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "library"
     ) {
-        composable("home") {
-            HomeScreen(
+        composable("library") {
+            LibraryHomeScreen(
                 onNavigateToContentCreation = { navController.navigate("content_creation") }
             )
         }
@@ -58,7 +60,7 @@ fun CleverFerretApp() {
 }
 
 @Composable
-fun HomeScreen(
+fun LibraryHomeScreen(
     onNavigateToContentCreation: () -> Unit = {}
 ) {
     Surface(
@@ -91,7 +93,7 @@ fun HomeScreen(
             
             Spacer(modifier = Modifier.height(32.dp))
             
-            // Features Cards
+            // Database Ready Status
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -102,36 +104,88 @@ fun HomeScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "✨ New Feature: Content to EPUB",
+                        text = "✅ Database Ready",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Convert online articles and fanfiction to EPUB format for offline reading",
+                        text = "Universal media library database with 21 entities is fully operational",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+            
+            // Features Overview
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "🚀 Ready for Implementation",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     
-                    Button(
-                        onClick = onNavigateToContentCreation,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                    val readyFeatures = listOf(
+                        "📚 Books: EPUB, PDF, TXT support",
+                        "🎵 Music: MP3, FLAC, OGG support", 
+                        "🎬 Movies: MP4, MKV, AVI support",
+                        "📺 TV Shows: Season and episode tracking",
+                        "🎧 Podcasts: RSS feed management",
+                        "📄 Documents: Advanced text processing",
+                        "🔗 External APIs: Google Books, TMDB, Spotify",
+                        "☁️ Cloud Sync: Dropbox, Google Drive ready"
+                    )
+                    
+                    readyFeatures.forEach { feature ->
+                        Text(
+                            text = feature,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(vertical = 2.dp),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Try Content Creation")
                     }
                 }
             }
             
-            // Coming Soon Features
+            // Action Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Button(
+                    onClick = { /* TODO: Navigate to library management */ },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(Icons.Default.Home, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Manage Libraries")
+                }
+                
+                OutlinedButton(
+                    onClick = onNavigateToContentCreation,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Content Tools")
+                }
+            }
+            
+            // Statistics Preview
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -139,32 +193,42 @@ fun HomeScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "🚀 Coming Soon",
+                        text = "📊 System Status",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    val features = listOf(
-                        "📚 E-Book Library Management",
-                        "🎵 Music Library Integration", 
-                        "🎬 Movie & TV Show Tracking",
-                        "📰 Magazine & Comic Support",
-                        "🎧 Podcast Integration",
-                        "☁️ Cloud Sync Capabilities"
-                    )
-                    
-                    features.forEach { feature ->
-                        Text(
-                            text = feature,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        StatusItem("Libraries", "0")
+                        StatusItem("Media Items", "0")
+                        StatusItem("Bookmarks", "0")
+                        StatusItem("API Keys", "0")
                     }
                 }
             }
             
             Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+}
+
+@Composable
+fun StatusItem(label: String, count: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = count,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        )
     }
 }

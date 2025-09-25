@@ -5,33 +5,66 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import android.content.Context
-import com.universalmedialibrary.data.local.dao.DownloadedStoryDao
-import com.universalmedialibrary.data.local.dao.StoryUpdateDao
-import com.universalmedialibrary.data.local.entity.DownloadedStory
-import com.universalmedialibrary.data.local.entity.StoryUpdate
-import com.universalmedialibrary.data.local.entity.Converters
+import com.universalmedialibrary.data.local.dao.*
+import com.universalmedialibrary.data.local.entity.*
 
 /**
- * CleverFerret Room Database for content management
+ * CleverFerret Universal Media Library Database
  * 
- * Manages downloaded stories, update tracking, and content metadata
- * following patterns from Calibre's plugin architecture for fanfiction management
+ * Comprehensive database supporting all media types with metadata,
+ * progress tracking, bookmarks, and external service integration.
+ * 
+ * Schema based on Calibre's library structure with modern Android 
+ * Room database patterns and full media type support.
  */
 @Database(
     entities = [
+        // Legacy content creation entities
         DownloadedStory::class,
-        StoryUpdate::class
+        StoryUpdate::class,
+        
+        // Core universal media library entities
+        Library::class,
+        MediaItem::class,
+        MetadataCommon::class,
+        MetadataBook::class,
+        MetadataMovie::class,
+        MetadataMusicTrack::class,
+        
+        // Relational entities
+        People::class,
+        ItemPersonRole::class,
+        Genre::class,
+        ItemGenre::class,
+        Series::class,
+        Album::class,
+        
+        // System entities
+        APIKey::class,
+        Bookmark::class,
+        ReadingProgress::class,
+        ReadingSession::class
     ],
-    version = 1,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class CleverFerretDatabase : RoomDatabase() {
     
+    // Legacy DAOs
     abstract fun downloadedStoryDao(): DownloadedStoryDao
     abstract fun storyUpdateDao(): StoryUpdateDao
     
+    // Core universal media library DAOs
+    abstract fun libraryDao(): LibraryDao
+    abstract fun mediaItemDao(): MediaItemDao
+    abstract fun metadataDao(): MetadataDao
+    abstract fun apiKeyDao(): APIKeyDao
+    abstract fun bookmarkDao(): BookmarkDao
+    
     companion object {
+        const val DATABASE_NAME = "universal-media-library.db"
+        
         @Volatile
         private var INSTANCE: CleverFerretDatabase? = null
         
@@ -40,8 +73,9 @@ abstract class CleverFerretDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     CleverFerretDatabase::class.java,
-                    "cleverferret_database"
+                    DATABASE_NAME
                 )
+                // .fallbackToDestructiveMigration() // REMOVED: Do not use destructive migration in production
                 .build()
                 INSTANCE = instance
                 instance
