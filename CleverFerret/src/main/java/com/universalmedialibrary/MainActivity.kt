@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.contentcreation.ContentCreationScreen
+import com.universalmedialibrary.ui.library.LibraryManagementScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -110,11 +111,17 @@ fun CleverFerretApp() {
     ) {
         composable("library") {
             LibraryHomeScreen(
-                onNavigateToContentCreation = { navController.navigate("content_creation") }
+                onNavigateToContentCreation = { navController.navigate("content_creation") },
+                navController = navController
             )
         }
         composable("content_creation") {
             ContentCreationScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("library_management") {
+            LibraryManagementScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
@@ -123,7 +130,8 @@ fun CleverFerretApp() {
 
 @Composable
 fun LibraryHomeScreen(
-    onNavigateToContentCreation: () -> Unit = {}
+    onNavigateToContentCreation: () -> Unit = {},
+    navController: androidx.navigation.NavController
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -226,7 +234,7 @@ fun LibraryHomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(
-                    onClick = { /* TODO: Navigate to library management */ },
+                    onClick = { navController.navigate("library_management") },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
