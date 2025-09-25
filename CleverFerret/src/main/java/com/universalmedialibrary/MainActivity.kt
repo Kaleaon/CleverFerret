@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.contentcreation.ContentCreationScreen
 import dagger.hilt.android.AndroidEntryPoint
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * CleverFerret Universal Media Library - Main Activity
@@ -74,7 +75,7 @@ fun ErrorScreen(errorMessage: String) {
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Default.Warning,
+            imageVector = PhosphorIcons.Warning,
             contentDescription = "Error",
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier.size(48.dp)
@@ -270,7 +271,7 @@ fun LibraryHomeScreen(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Icon(Icons.Default.Home, contentDescription = null)
+                    Icon(PhosphorIcons.House, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Manage Libraries")
                 }
@@ -279,7 +280,7 @@ fun LibraryHomeScreen(
                     onClick = onNavigateToContentCreation,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.Edit, contentDescription = null)
+                    Icon(PhosphorIcons.PencilSimple, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Content Tools")
                 }

@@ -7,8 +7,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Main library list screen with Plex-inspired design.
@@ -85,14 +84,14 @@ fun LibraryListScreen(
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(
-                            Icons.Default.Refresh,
+                            PhosphorIcons.ArrowClockwise,
                             contentDescription = "Refresh",
                             tint = Color.White
                         )
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
-                            Icons.Default.Settings,
+                            PhosphorIcons.Gear,
                             contentDescription = "Settings",
                             tint = Color.White
                         )
@@ -192,7 +191,7 @@ fun LibraryListScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Icon(
-                Icons.Default.Add,
+                PhosphorIcons.Plus,
                 contentDescription = "Add Library",
                 modifier = Modifier.size(24.dp)
             )

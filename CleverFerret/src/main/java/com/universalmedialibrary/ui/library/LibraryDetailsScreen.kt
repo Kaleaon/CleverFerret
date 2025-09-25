@@ -5,14 +5,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 
@@ -60,7 +61,7 @@ fun LibraryDetailsScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            PhosphorIcons.ArrowLeft,
                             contentDescription = "Back",
                             tint = Color.White
                         )
@@ -69,7 +70,7 @@ fun LibraryDetailsScreen(
                 actions = {
                     IconButton(onClick = { viewModel.refresh(libraryId.toLong()) }) {
                         Icon(
-                            Icons.Default.Refresh,
+                            PhosphorIcons.ArrowClockwise,
                             contentDescription = "Refresh",
                             tint = Color.White
                         )
@@ -152,7 +153,7 @@ fun LibraryDetailsScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Icon(
-                                Icons.Default.Home,
+                                PhosphorIcons.FolderOpen,
                                 contentDescription = null,
                                 modifier = Modifier.size(64.dp),
                                 tint = Color(0xFF666666)

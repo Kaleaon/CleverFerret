@@ -8,8 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Data class representing a library with Plex-inspired design
@@ -200,15 +199,15 @@ private fun getLibraryGradient(type: LibraryType): Brush {
 }
 
 /**
- * Get the appropriate icon for each library type
+ * Get the appropriate icon for each library type using Phosphor Icons
  */
 private fun getLibraryIcon(type: LibraryType): ImageVector {
     return when (type) {
-        LibraryType.BOOK -> Icons.Default.Home  // Using available icon as placeholder
-        LibraryType.MOVIE -> Icons.Default.PlayArrow
-        LibraryType.MUSIC -> Icons.Default.PlayArrow
-        LibraryType.PODCAST -> Icons.Default.PlayArrow
-        LibraryType.MAGAZINE -> Icons.Default.Edit
-        LibraryType.DOCUMENT -> Icons.Default.Edit
+        LibraryType.BOOK -> PhosphorIcons.Book
+        LibraryType.MOVIE -> PhosphorIcons.FilmStrip
+        LibraryType.MUSIC -> PhosphorIcons.MusicNote
+        LibraryType.PODCAST -> PhosphorIcons.Microphone
+        LibraryType.MAGAZINE -> PhosphorIcons.Newspaper
+        LibraryType.DOCUMENT -> PhosphorIcons.FileText
     }
 }

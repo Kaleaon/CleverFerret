@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Data class representing a media item
@@ -80,12 +79,12 @@ fun MediaItem(
                 // Placeholder icon (no actual image loading in this demo)
                 Icon(
                     imageVector = when (item.type) {
-                        MediaType.BOOK -> Icons.Default.Home
-                        MediaType.MOVIE -> Icons.Default.PlayArrow
-                        MediaType.MUSIC -> Icons.Default.PlayArrow
-                        MediaType.PODCAST -> Icons.Default.PlayArrow
-                        MediaType.MAGAZINE -> Icons.Default.Edit
-                        MediaType.DOCUMENT -> Icons.Default.Edit
+                        MediaType.BOOK -> PhosphorIcons.Book
+                        MediaType.MOVIE -> PhosphorIcons.FilmStrip
+                        MediaType.MUSIC -> PhosphorIcons.MusicNote
+                        MediaType.PODCAST -> PhosphorIcons.Microphone
+                        MediaType.MAGAZINE -> PhosphorIcons.Newspaper
+                        MediaType.DOCUMENT -> PhosphorIcons.FileText
                     },
                     contentDescription = item.type.name,
                     modifier = Modifier.size(50.dp),
@@ -108,7 +107,7 @@ fun MediaItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Star,
+                            imageVector = PhosphorIcons.Star,
                             contentDescription = "Rating",
                             modifier = Modifier.size(12.dp),
                             tint = Color(0xFFE5A00D)
@@ -144,12 +143,12 @@ fun MediaItem(
                             ) {
                                 Icon(
                                     imageVector = when (item.type) {
-                                        MediaType.BOOK -> Icons.Default.Home
-                                        MediaType.MOVIE -> Icons.Default.PlayArrow
-                                        MediaType.MUSIC -> Icons.Default.PlayArrow
-                                        MediaType.PODCAST -> Icons.Default.PlayArrow
-                                        MediaType.MAGAZINE -> Icons.Default.Edit
-                                        MediaType.DOCUMENT -> Icons.Default.Edit
+                                        MediaType.BOOK -> PhosphorIcons.Book
+                                        MediaType.MOVIE -> PhosphorIcons.Play
+                                        MediaType.MUSIC -> PhosphorIcons.Play
+                                        MediaType.PODCAST -> PhosphorIcons.Play
+                                        MediaType.MAGAZINE -> PhosphorIcons.Newspaper
+                                        MediaType.DOCUMENT -> PhosphorIcons.FileText
                                     },
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp)
