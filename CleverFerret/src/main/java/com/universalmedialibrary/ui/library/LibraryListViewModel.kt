@@ -46,16 +46,12 @@ class LibraryListViewModel @Inject constructor(
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
                 
-                libraryDao.getAllActiveLibraries().combine(
-                    libraryDao.getAllActiveLibraries()
-                ) { libraries, _ ->
+                libraryDao.getAllActiveLibraries().collect { libraries ->
                     // Get item counts for each library
                     val librariesWithCounts = libraries.map { library ->
                         val itemCount = mediaItemDao.getItemCountByLibrary(library.libraryId)
                         LibraryWithCount(library, itemCount)
                     }
-                    librariesWithCounts
-                }.collect { librariesWithCounts ->
                     _uiState.value = _uiState.value.copy(
                         libraries = librariesWithCounts,
                         isLoading = false,
