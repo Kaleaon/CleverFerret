@@ -39,7 +39,7 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('build.gradle.kts', 'settings.gradle.kts', 'gradle/wrapper/gradle-wrapper.properties', 'CleverFerret/build.gradle.kts') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
