@@ -17,6 +17,7 @@ import com.universalmedialibrary.services.epub.EpubReaderService
 import com.universalmedialibrary.services.tts.TextToSpeechService
 import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
 import com.universalmedialibrary.data.repository.ReaderSettingsRepository
+import com.universalmedialibrary.data.repository.APIKeyRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -165,6 +166,14 @@ object AppModule {
         @ApplicationContext context: Context
     ): TextToSpeechService {
         return AndroidTextToSpeechService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAPIKeyRepository(
+        apiKeyDao: APIKeyDao
+    ): APIKeyRepository {
+        return APIKeyRepository(apiKeyDao)
     }
     
     // Legacy services for content creation
