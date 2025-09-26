@@ -70,6 +70,12 @@ fun EReaderScreen(
                 IconButton(onClick = { showChapterList = true }) {
                     Icon(Icons.Default.List, contentDescription = "Chapters")
                 }
+                IconButton(onClick = { viewModel.toggleTTS() }) {
+                    Icon(
+                        if (uiState.isTTSPlaying) Icons.Default.PlayArrow else Icons.Default.PlayArrow,
+                        contentDescription = if (uiState.isTTSPlaying) "Stop TTS" else "Play TTS"
+                    )
+                }
                 IconButton(onClick = onOpenSettings) {
                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                 }

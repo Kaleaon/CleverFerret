@@ -16,6 +16,9 @@ import com.universalmedialibrary.services.media.UniversalReaderService
 import com.universalmedialibrary.services.epub.EpubReaderService
 import com.universalmedialibrary.services.tts.TextToSpeechService
 import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
+import com.universalmedialibrary.services.gemini.GeminiService
+import com.universalmedialibrary.services.exoplayer.ExoPlayerService
+import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.data.repository.ReaderSettingsRepository
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import dagger.Module
@@ -174,6 +177,31 @@ object AppModule {
         apiKeyDao: APIKeyDao
     ): APIKeyRepository {
         return APIKeyRepository(apiKeyDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGeminiService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): GeminiService {
+        return GeminiService(context, apiKeyRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideExoPlayerService(
+        @ApplicationContext context: Context
+    ): ExoPlayerService {
+        return ExoPlayerService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun providePodcastService(
+        @ApplicationContext context: Context
+    ): PodcastService {
+        return PodcastService(context)
     }
     
     // Legacy services for content creation
