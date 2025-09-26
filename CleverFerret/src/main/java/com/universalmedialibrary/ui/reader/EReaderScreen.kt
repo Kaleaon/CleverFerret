@@ -70,9 +70,15 @@ fun EReaderScreen(
                 IconButton(onClick = { showChapterList = true }) {
                     Icon(Icons.Default.List, contentDescription = "Chapters")
                 }
+                IconButton(onClick = { /* Navigate to search */ }) {
+                    Icon(Icons.Default.Search, contentDescription = "Search")
+                }
+                IconButton(onClick = { /* Navigate to bookmarks */ }) {
+                    Icon(Icons.Default.BookmarkAdd, contentDescription = "Bookmarks")
+                }
                 IconButton(onClick = { viewModel.toggleTTS() }) {
                     Icon(
-                        if (uiState.isTTSPlaying) Icons.Default.PlayArrow else Icons.Default.PlayArrow,
+                        if (uiState.isTTSPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                         contentDescription = if (uiState.isTTSPlaying) "Stop TTS" else "Play TTS"
                     )
                 }

@@ -19,6 +19,7 @@ import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
 import com.universalmedialibrary.services.gemini.GeminiService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.services.reader.AnnotationService
 import com.universalmedialibrary.data.repository.ReaderSettingsRepository
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import dagger.Module
@@ -202,6 +203,17 @@ object AppModule {
         @ApplicationContext context: Context
     ): PodcastService {
         return PodcastService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAnnotationService(
+        @ApplicationContext context: Context,
+        annotationDao: AnnotationDao,
+        searchIndexDao: SearchIndexDao,
+        readingStatisticsDao: ReadingStatisticsDao
+    ): AnnotationService {
+        return AnnotationService(context, annotationDao, searchIndexDao, readingStatisticsDao)
     }
     
     // Legacy services for content creation

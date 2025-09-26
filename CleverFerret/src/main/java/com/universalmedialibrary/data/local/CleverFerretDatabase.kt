@@ -47,9 +47,14 @@ import com.universalmedialibrary.data.local.entity.*
         
         // Reader settings entities
         ReaderSettingsEntity::class,
-        BookReaderSettingsEntity::class
+        BookReaderSettingsEntity::class,
+        
+        // Annotation and search entities
+        TextAnnotation::class,
+        SearchIndex::class,
+        ReadingStatistics::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -66,6 +71,9 @@ abstract class CleverFerretDatabase : RoomDatabase() {
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun readerSettingsDao(): ReaderSettingsDao
+    abstract fun annotationDao(): AnnotationDao
+    abstract fun searchIndexDao(): SearchIndexDao
+    abstract fun readingStatisticsDao(): ReadingStatisticsDao
     
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
