@@ -13,6 +13,8 @@ import com.universalmedialibrary.services.media.MediaScanningService
 import com.universalmedialibrary.services.media.MetadataExtractionService
 import com.universalmedialibrary.services.media.UniversalMediaPlayerService
 import com.universalmedialibrary.services.media.UniversalReaderService
+import com.universalmedialibrary.services.epub.EpubReaderService
+import com.universalmedialibrary.data.repository.ReaderSettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -80,6 +82,11 @@ object AppModule {
         return database.bookmarkDao()
     }
     
+    @Provides 
+    fun provideReaderSettingsDao(database: CleverFerretDatabase): ReaderSettingsDao {
+        return database.readerSettingsDao()
+    }
+    
     // Repositories
     @Provides
     @Singleton
@@ -128,9 +135,26 @@ object AppModule {
     @Singleton
     fun provideUniversalReaderService(
         @ApplicationContext context: Context,
-        mediaRepository: MediaRepository
+        mediaRepository: MediaRepository,
+        epubReaderService: EpubReaderService
     ): UniversalReaderService {
-        return UniversalReaderService(context, mediaRepository)
+        return UniversalReaderService(context, mediaRepository, epubReaderService)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideEpubReaderService(
+        @ApplicationContext context: Context
+    ): EpubReaderService {
+        return EpubReaderService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideReaderSettingsRepository(
+        readerSettingsDao: ReaderSettingsDao
+    ): ReaderSettingsRepository {
+        return ReaderSettingsRepository(readerSettingsDao)
     }
     
     // Legacy services for content creation
