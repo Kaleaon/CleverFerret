@@ -114,3 +114,11 @@ Thumbs.db
 # Environment files
 *.env
 *.env.*
+
+# Build artifacts and temporary files
+build_enhanced_detailed.log
+*.md5
+*.sha256
+*.log
+*_test_results.json
+workflow_*.json
