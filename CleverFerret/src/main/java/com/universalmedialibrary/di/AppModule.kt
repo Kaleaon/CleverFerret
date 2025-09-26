@@ -14,6 +14,8 @@ import com.universalmedialibrary.services.media.MetadataExtractionService
 import com.universalmedialibrary.services.media.UniversalMediaPlayerService
 import com.universalmedialibrary.services.media.UniversalReaderService
 import com.universalmedialibrary.services.epub.EpubReaderService
+import com.universalmedialibrary.services.tts.TextToSpeechService
+import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
 import com.universalmedialibrary.data.repository.ReaderSettingsRepository
 import dagger.Module
 import dagger.Provides
@@ -155,6 +157,14 @@ object AppModule {
         readerSettingsDao: ReaderSettingsDao
     ): ReaderSettingsRepository {
         return ReaderSettingsRepository(readerSettingsDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideTextToSpeechService(
+        @ApplicationContext context: Context
+    ): TextToSpeechService {
+        return AndroidTextToSpeechService(context)
     }
     
     // Legacy services for content creation
