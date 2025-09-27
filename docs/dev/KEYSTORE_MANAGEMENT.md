@@ -36,10 +36,11 @@ keytool -genkey -v -keystore release.keystore -alias androidreleasekey -keyalg R
 
 2. Set environment variables:
 ```bash
-export KEYSTORE_FILE="/path/to/your/release.keystore"
-export KEYSTORE_PASSWORD="your_keystore_password"
-export KEY_ALIAS="androidreleasekey"
-export KEY_PASSWORD="your_key_password"
+# Replace the placeholder values below with your actual keystore information
+export KEYSTORE_FILE="/path/to/your/release.keystore"    # Replace with actual path to your keystore
+export KEYSTORE_PASSWORD="your_keystore_password"       # Replace with your actual keystore password
+export KEY_ALIAS="androidreleasekey"                     # Replace with your actual key alias
+export KEY_PASSWORD="your_key_password"                 # Replace with your actual key password
 ```
 
 3. Build the release APK:
