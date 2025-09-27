@@ -152,8 +152,12 @@ fun ImportCalibreDialog(
                                     folderPicker.launch(intent)
                                 } catch (e: Exception) {
                                     // Fallback for file picker issues
-                                    selectedPath = "/storage/emulated/0/Calibre Library"
-                                    libraryName = "Calibre Library"
+                                    // Use app's external files directory as a fallback
+                                    val context = LocalContext.current
+                                    val fallbackPath = context.getExternalFilesDir(null)?.absolutePath ?: ""
+                                    selectedPath = fallbackPath
+                                    libraryName = "App External Files"
+                                    // Optionally, show a message to the user about the fallback
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
