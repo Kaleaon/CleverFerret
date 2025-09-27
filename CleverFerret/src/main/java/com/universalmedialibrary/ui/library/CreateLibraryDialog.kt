@@ -153,7 +153,7 @@ fun CreateLibraryDialog(
                                 } catch (e: Exception) {
                                     // Fallback - use a default path
                                     val externalDir = context.getExternalFilesDir(null)
-                                    selectedPath = externalDir?.absolutePath + "/${getMediaTypeDisplayName(selectedType)}"
+                                    selectedPath = "${externalDir?.absolutePath ?: ""}/${getMediaTypeDisplayName(selectedType)}"
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
