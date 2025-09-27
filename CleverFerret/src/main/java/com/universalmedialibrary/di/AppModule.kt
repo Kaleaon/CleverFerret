@@ -13,6 +13,17 @@ import com.universalmedialibrary.services.media.MediaScanningService
 import com.universalmedialibrary.services.media.MetadataExtractionService
 import com.universalmedialibrary.services.media.UniversalMediaPlayerService
 import com.universalmedialibrary.services.media.UniversalReaderService
+import com.universalmedialibrary.services.epub.EpubReaderService
+import com.universalmedialibrary.services.tts.TextToSpeechService
+import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
+import com.universalmedialibrary.services.gemini.GeminiService
+import com.universalmedialibrary.services.exoplayer.ExoPlayerService
+import com.universalmedialibrary.services.audiobook.AudiobookService
+import com.universalmedialibrary.services.audiobook.SynchronizedReadingService
+import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.services.reader.AnnotationService
+import com.universalmedialibrary.data.repository.ReaderSettingsRepository
+import com.universalmedialibrary.data.repository.APIKeyRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -80,6 +91,11 @@ object AppModule {
         return database.bookmarkDao()
     }
     
+    @Provides 
+    fun provideReaderSettingsDao(database: CleverFerretDatabase): ReaderSettingsDao {
+        return database.readerSettingsDao()
+    }
+    
     // Repositories
     @Provides
     @Singleton
@@ -128,9 +144,98 @@ object AppModule {
     @Singleton
     fun provideUniversalReaderService(
         @ApplicationContext context: Context,
-        mediaRepository: MediaRepository
+        mediaRepository: MediaRepository,
+        epubReaderService: EpubReaderService
     ): UniversalReaderService {
-        return UniversalReaderService(context, mediaRepository)
+        return UniversalReaderService(context, mediaRepository, epubReaderService)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideEpubReaderService(
+        @ApplicationContext context: Context
+    ): EpubReaderService {
+        return EpubReaderService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideReaderSettingsRepository(
+        readerSettingsDao: ReaderSettingsDao
+    ): ReaderSettingsRepository {
+        return ReaderSettingsRepository(readerSettingsDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideTextToSpeechService(
+        @ApplicationContext context: Context
+    ): TextToSpeechService {
+        return AndroidTextToSpeechService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAPIKeyRepository(
+        apiKeyDao: APIKeyDao
+    ): APIKeyRepository {
+        return APIKeyRepository(apiKeyDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGeminiService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): GeminiService {
+        return GeminiService(context, apiKeyRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideExoPlayerService(
+        @ApplicationContext context: Context
+    ): ExoPlayerService {
+        return ExoPlayerService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun providePodcastService(
+        @ApplicationContext context: Context
+    ): PodcastService {
+        return PodcastService(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAnnotationService(
+        @ApplicationContext context: Context,
+        annotationDao: AnnotationDao,
+        searchIndexDao: SearchIndexDao,
+        readingStatisticsDao: ReadingStatisticsDao
+    ): AnnotationService {
+        return AnnotationService(context, annotationDao, searchIndexDao, readingStatisticsDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAudiobookService(
+        @ApplicationContext context: Context,
+        mediaRepository: MediaRepository,
+        exoPlayerService: ExoPlayerService
+    ): AudiobookService {
+        return AudiobookService(context, mediaRepository, exoPlayerService)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynchronizedReadingService(
+        @ApplicationContext context: Context,
+        epubReaderService: EpubReaderService,
+        geminiService: GeminiService
+    ): SynchronizedReadingService {
+        return SynchronizedReadingService(context, epubReaderService, geminiService)
     }
     
     // Legacy services for content creation
@@ -149,5 +254,44 @@ object AppModule {
         @ApplicationContext context: Context
     ): NewsToEpubConverter {
         return NewsToEpubConverter(context)
+    }
+    
+    // Advanced Music Services
+    @Provides
+    @Singleton
+    fun provideMusicMetadataService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): com.universalmedialibrary.services.music.MusicMetadataService {
+        return com.universalmedialibrary.services.music.MusicMetadataService(context, apiKeyRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAdvancedMusicPlayerService(
+        @ApplicationContext context: Context,
+        exoPlayerService: ExoPlayerService,
+        musicMetadataService: com.universalmedialibrary.services.music.MusicMetadataService
+    ): com.universalmedialibrary.services.music.AdvancedMusicPlayerService {
+        return com.universalmedialibrary.services.music.AdvancedMusicPlayerService(
+            context, 
+            exoPlayerService, 
+            musicMetadataService
+        )
+    }
+    
+    // Advanced Podcast Services
+    @Provides
+    @Singleton
+    fun provideAdvancedPodcastPlayerService(
+        @ApplicationContext context: Context,
+        exoPlayerService: ExoPlayerService,
+        podcastService: PodcastService
+    ): com.universalmedialibrary.services.podcast.AdvancedPodcastPlayerService {
+        return com.universalmedialibrary.services.podcast.AdvancedPodcastPlayerService(
+            context,
+            exoPlayerService,
+            podcastService
+        )
     }
 }

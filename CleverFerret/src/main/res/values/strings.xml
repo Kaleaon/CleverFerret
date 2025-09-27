@@ -7,9 +7,9 @@
     <string name="app_version">1.3 Professional Enhanced Edition</string>
     
     <!-- Logo and Branding Descriptions -->
-    <string name="logo_description">Clever Ferret logo - ferret face with glasses</string>
-    <string name="ferret_mascot_description">Smart ferret mascot wearing glasses</string>
-    <string name="app_icon_description">Clever Ferret app icon</string>
+    <string name="logo_description">Clever Ferret logo - adorable ferret mascot with glasses</string>
+    <string name="ferret_mascot_description">Smart ferret mascot wearing glasses and sitting proudly</string>
+    <string name="app_icon_description">Clever Ferret app icon featuring cute ferret mascot</string>
     
     <!-- Main Navigation -->
     <string name="tab_library">Library</string>

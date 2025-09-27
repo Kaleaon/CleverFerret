@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Circular background -->
+    <path
+        android:fillColor="#4A90E2"
+        android:pathData="M54,54m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0" />
+    
+    <group android:translateX="54" android:translateY="54">
+        
+        <!-- Ferret body (sitting position) -->
+        <path
+            android:fillColor="#8B4513"
+            android:pathData="M0,-9c-8,0 -14,6 -14,14v20c0,4 3,7 7,7h14c4,0 7,-3 7,-7V5C14,-3 8,-9 0,-9z" />
+        
+        <!-- Ferret head -->
+        <path
+            android:fillColor="#D2691E"
+            android:pathData="M0,-24c-10,0 -18,8 -18,18v5c0,8 6,14 14,14h8c8,0 14,-6 14,-14v-5C18,-16 10,-24 0,-24z" />
+        
+        <!-- Ferret face markings -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M0,-19c-6,0 -11,5 -11,11v8c0,5 4,9 9,9h4c5,0 9,-4 9,-9v-8C11,-14 6,-19 0,-19z" />
+        
+        <!-- Ears -->
+        <path
+            android:fillColor="#8B4513"
+            android:pathData="M-9,-22c-2,0 -4,2 -4,4s2,4 4,4s4,-2 4,-4S-7,-22 -9,-22z" />
+        <path
+            android:fillColor="#8B4513"
+            android:pathData="M9,-22c-2,0 -4,2 -4,4s2,4 4,4s4,-2 4,-4S11,-22 9,-22z" />
+        
+        <!-- Eyes -->
+        <path
+            android:fillColor="#2C2C2C"
+            android:pathData="M-6,-12c-1.5,0 -3,1.5 -3,3s1.5,3 3,3s3,-1.5 3,-3S-4.5,-12 -6,-12z" />
+        <path
+            android:fillColor="#2C2C2C"
+            android:pathData="M6,-12c-1.5,0 -3,1.5 -3,3s1.5,3 3,3s3,-1.5 3,-3S7.5,-12 6,-12z" />
+        
+        <!-- Eye shine -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M-5,-11c-0.5,0 -1,0.5 -1,1s0.5,1 1,1s1,-0.5 1,-1S-4.5,-11 -5,-11z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M7,-11c-0.5,0 -1,0.5 -1,1s0.5,1 1,1s1,-0.5 1,-1S7.5,-11 7,-11z" />
+        
+        <!-- Nose -->
+        <path
+            android:fillColor="#FF69B4"
+            android:pathData="M0,-6c-1,0 -2,1 -2,2s1,2 2,2s2,-1 2,-2S1,-6 0,-6z" />
+        
+        <!-- Glasses frames -->
+        <path
+            android:strokeColor="#2C2C2C"
+            android:strokeWidth="1.5"
+            android:pathData="M-12,-12c0,-3 3,-6 6,-6s6,3 6,6s-3,6 -6,6S-12,-9 -12,-12z" />
+        <path
+            android:strokeColor="#2C2C2C"
+            android:strokeWidth="1.5"
+            android:pathData="M6,-12c0,-3 3,-6 6,-6s6,3 6,6s-3,6 -6,6S6,-9 6,-12z" />
+        
+        <!-- Glasses bridge -->
+        <path
+            android:strokeColor="#2C2C2C"
+            android:strokeWidth="1.5"
+            android:pathData="M0,-14L0,-10" />
+        
+        <!-- Tail -->
+        <path
+            android:fillColor="#8B4513"
+            android:pathData="M14,6c2,0 4,2 6,4c2,2 2,6 0,8c-2,2 -4,2 -6,0L14,6z" />
+    </group>
+</vector>

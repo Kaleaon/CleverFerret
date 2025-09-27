@@ -4,6 +4,7 @@ import android.content.Context
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.services.epub.EpubReaderService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,8 @@ import javax.inject.Singleton
 @Singleton
 class UniversalReaderService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val epubReaderService: EpubReaderService
 ) {
     
     private val _readerState = MutableStateFlow(ReaderState())
@@ -53,7 +55,7 @@ class UniversalReaderService @Inject constructor(
             }
             
             val content = when (mediaItem.fileExtension.lowercase()) {
-                "epub" -> loadEpubContent(file)
+                "epub" -> loadEpubContentWithService(file)
                 "pdf" -> loadPdfContent(file)
                 "txt" -> loadTextContent(file)
                 "html", "htm" -> loadHtmlContent(file)
@@ -82,6 +84,21 @@ class UniversalReaderService @Inject constructor(
         } catch (e: Exception) {
             updateReaderState(error = "Failed to open document: ${e.message}")
             false
+        }
+    }
+    
+    private suspend fun loadEpubContentWithService(file: File): DocumentContent? {
+        return try {
+            val success = epubReaderService.loadEPUB(file)
+            if (success) {
+                epubReaderService.getDocumentContent()
+            } else {
+                // Fallback to old method if new service fails
+                loadEpubContent(file)
+            }
+        } catch (e: Exception) {
+            // Fallback to old method if new service fails
+            loadEpubContent(file)
         }
     }
     

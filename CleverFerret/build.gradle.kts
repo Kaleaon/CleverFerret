@@ -73,6 +73,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     
     // Phosphor Icons - Official typeface library
     implementation("com.mikepenz:phosphor-typeface:1.0.0.1-kotlin")
@@ -98,8 +99,25 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     
+    // Google AI (Gemini) API
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
+    
+    // ExoPlayer for advanced media playback
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+    implementation("androidx.media3:media3-common:1.3.1")
+    implementation("androidx.media3:media3-session:1.3.1")
+    
+    // Image loading for album art and covers
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    
+    // Advanced JSON parsing for music APIs
+    implementation("org.json:json:20240303")
+    
     // Testing
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.1.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
