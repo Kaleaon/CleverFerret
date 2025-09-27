@@ -6,9 +6,15 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.universalmedialibrary.core.FeatureFlags
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -220,6 +226,23 @@ class ExoPlayerService @Inject constructor(
      * Check if ExoPlayer is available
      */
     fun isAvailable(): Boolean = FeatureFlags.ENABLE_EXOPLAYER
+    
+    // Convenience StateFlow properties for UI
+    val isPlaying: StateFlow<Boolean> = playerState
+        .map { it.isPlaying }
+        .stateIn(
+            scope = CoroutineScope(Dispatchers.Main),
+            started = SharingStarted.Lazily,
+            initialValue = false
+        )
+    
+    val currentPosition: StateFlow<Long> = playerState
+        .map { it.currentPosition }
+        .stateIn(
+            scope = CoroutineScope(Dispatchers.Main),
+            started = SharingStarted.Lazily,
+            initialValue = 0L
+        )
     
     /**
      * Release resources

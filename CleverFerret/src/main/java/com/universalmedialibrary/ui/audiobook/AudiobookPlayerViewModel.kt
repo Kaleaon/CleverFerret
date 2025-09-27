@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.audiobook
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audiobook.AudiobookBookmark
 import com.universalmedialibrary.services.audiobook.AudiobookService
@@ -58,7 +59,7 @@ class AudiobookPlayerViewModel @Inject constructor(
                 exoPlayerService.currentPosition,
                 audiobookState,
                 synchronizationState
-            ) { position, audioState, syncState ->
+            ) { position: Long, audioState: AudiobookState, syncState: SynchronizationState ->
                 if (syncState.enabled && audioState.isLoaded) {
                     updateHighlightedText(position, audioState.currentChapterIndex)
                 }
@@ -81,7 +82,7 @@ class AudiobookPlayerViewModel @Inject constructor(
                     
                     if (success) {
                         // Try to find matching e-book for synchronized reading
-                        findMatchingEbook(mediaItem.title, mediaItem.metadata?.firstOrNull()?.toString())
+                        findMatchingEbook(mediaItem.fileName, mediaItem.filePath)
                     }
                 }
             } catch (e: Exception) {
@@ -232,17 +233,14 @@ class AudiobookPlayerViewModel @Inject constructor(
     
     // Private helper methods
     
-    private suspend fun findMatchingEbook(title: String, author: String?) {
+    private suspend fun findMatchingEbook(fileName: String, filePath: String?) {
         try {
             // Search for matching e-book in the library
-            val allMedia = mediaRepository.getAllMediaItems()
+            val allMedia = mediaRepository.searchMediaItems("epub", limit = 100)
             
-            val matchingEbook = allMedia.find { media ->
+            val matchingEbook = allMedia.find { media: MediaItem ->
                 media.fileExtension.lowercase() == "epub" &&
-                media.title.contains(title, ignoreCase = true) &&
-                (author == null || media.metadata?.any { 
-                    it.toString().contains(author, ignoreCase = true) 
-                } == true)
+                media.fileName.contains(fileName, ignoreCase = true)
             }
             
             matchingEbookId = matchingEbook?.itemId

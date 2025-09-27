@@ -185,7 +185,7 @@ fun AudiobookPlayerScreen(
             SleepTimerDialog(
                 currentTimer = audiobookState.sleepTimerEndTime,
                 onTimerSet = { minutes ->
-                    viewModel.setSleepTimer(minutes)
+                    viewModel.setSleepTimer(minutes.toInt())
                     showSleepTimer = false
                 },
                 onDismiss = { showSleepTimer = false }
@@ -492,7 +492,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.SkipPrevious,
+                    Icons.Default.ArrowBack,
                     contentDescription = "Previous Chapter",
                     modifier = Modifier.size(32.dp)
                 )
@@ -504,7 +504,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.Replay30,
+                    Icons.Default.Refresh,
                     contentDescription = "Skip Backward 30s",
                     modifier = Modifier.size(28.dp)
                 )
@@ -528,7 +528,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.Forward30,
+                    Icons.Default.Refresh,
                     contentDescription = "Skip Forward 30s",
                     modifier = Modifier.size(28.dp)
                 )
@@ -540,7 +540,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.SkipNext,
+                    Icons.Default.ArrowForward,
                     contentDescription = "Next Chapter",
                     modifier = Modifier.size(32.dp)
                 )
@@ -576,7 +576,7 @@ private fun AudiobookPlaybackControls(
                 onClick = onToggleSkipSilence
             ) {
                 Icon(
-                    imageVector = if (skipSilenceEnabled) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                    imageVector = Icons.Default.Settings,
                     contentDescription = "Toggle Skip Silence",
                     tint = if (skipSilenceEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -584,7 +584,7 @@ private fun AudiobookPlaybackControls(
             
             // Sleep Timer
             IconButton(onClick = onShowSleepTimer) {
-                Icon(Icons.Default.Timer, contentDescription = "Sleep Timer")
+                Icon(Icons.Default.Settings, contentDescription = "Sleep Timer")
             }
         }
     }
