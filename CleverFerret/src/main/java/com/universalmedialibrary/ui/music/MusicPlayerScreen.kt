@@ -371,10 +371,10 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             val (icon, tint) = when (playlistMode) {
-                PlaylistMode.SHUFFLE -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ALL -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ONE -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.primary
-                else -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.onSurfaceVariant
+                PlaylistMode.SHUFFLE -> Icons.Filled.Shuffle to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ALL -> Icons.Filled.Repeat to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ONE -> Icons.Filled.RepeatOne to MaterialTheme.colorScheme.primary
+                else -> Icons.Filled.Repeat to MaterialTheme.colorScheme.onSurfaceVariant
             }
             Icon(icon, contentDescription = "Playlist Mode", tint = tint)
         }
