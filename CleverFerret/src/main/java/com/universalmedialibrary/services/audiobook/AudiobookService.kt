@@ -203,6 +203,35 @@ class AudiobookService @Inject constructor(
         // Set playback speed
         // Would need ExoPlayer implementation
     }
+    
+    fun setSkipSilence(enabled: Boolean) {
+        // Toggle skip silence feature
+        exoPlayerService.setSkipSilence(enabled)
+    }
+    
+    fun setSleepTimer(minutes: Int) {
+        // Set sleep timer for automatic pause
+        // Would need timer implementation
+    }
+    
+    fun cancelSleepTimer() {
+        // Cancel active sleep timer
+        // Would need timer implementation  
+    }
+    
+    fun createBookmark(note: String? = null) {
+        // Create bookmark at current position
+        // Would need bookmark persistence implementation
+    }
+    
+    fun jumpToBookmark(bookmark: AudiobookBookmark) {
+        // Jump to saved bookmark position
+        // Would need ExoPlayer seek implementation
+    }
+    
+    fun stop() {
+        exoPlayerService.stop()
+    }
 }
 
 data class Audiobook(

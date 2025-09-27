@@ -185,7 +185,7 @@ fun AudiobookPlayerScreen(
             SleepTimerDialog(
                 currentTimer = audiobookState.sleepTimerEndTime,
                 onTimerSet = { minutes ->
-                    viewModel.setSleepTimer(minutes)
+                    viewModel.setSleepTimer(minutes.toInt())
                     showSleepTimer = false
                 },
                 onDismiss = { showSleepTimer = false }

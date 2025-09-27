@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.podcast
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -88,7 +89,7 @@ fun PodcastPlayerScreen(
                                 Text("${playbackSettings.sleepTimerMinutes}")
                             }
                         }
-                        Icon(Icons.Default.Timer, contentDescription = "Sleep Timer")
+                        Icon(PhosphorIcons.Timer, contentDescription = "Sleep Timer")
                     }
                     
                     // More Options
@@ -119,27 +120,31 @@ fun PodcastPlayerScreen(
             ) {
                 
                 // Episode Cover Section
-                EpisodeCoverSection(
-                    episode = currentEpisode,
-                    onShowClick = { episode ->
-                        onNavigateToShow(episode.episode.id)
-                    }
-                )
+                currentEpisode?.let { episode ->
+                    EpisodeCoverSection(
+                        episode = episode,
+                        onShowClick = { ep ->
+                            onNavigateToShow(ep.episode.id)
+                        }
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 // Episode Information
-                EpisodeInfoSection(
-                    episode = currentEpisode,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                currentEpisode?.let { episode ->
+                    EpisodeInfoSection(
+                        episode = episode,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // Progress Section
                 PodcastProgressSection(
                     currentPosition = currentPosition,
-                    duration = currentEpisode.episode.duration,
+                    duration = currentEpisode?.episode?.duration ?: 0L,
                     onSeek = { position ->
                         currentPosition = position
                         viewModel.seekTo(position)
@@ -210,7 +215,7 @@ fun PodcastPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        Icons.Default.Podcasts,
+                        PhosphorIcons.Microphone,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -331,7 +336,6 @@ private fun PodcastProgressSection(
                 val newPosition = (newProgress * duration).toLong()
                 onSeek(newPosition)
             },
-            onValueChangeStarted = { onDragStart() },
             onValueChangeFinished = { onDragEnd() },
             modifier = Modifier.fillMaxWidth()
         )
@@ -381,7 +385,7 @@ private fun PodcastControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             Icon(
-                Icons.Default.SkipPrevious,
+                PhosphorIcons.SkipPrevious,
                 contentDescription = "Previous Episode",
                 modifier = Modifier.size(24.dp)
             )
@@ -393,7 +397,7 @@ private fun PodcastControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             Icon(
-                Icons.Default.Replay,
+                PhosphorIcons.Replay30,
                 contentDescription = "Skip Back 15s",
                 modifier = Modifier.size(24.dp)
             )
@@ -405,7 +409,7 @@ private fun PodcastControlButtonsSection(
             modifier = Modifier.size(64.dp)
         ) {
             Icon(
-                if (isPlaying) PhosphorIcons.Pause else Icons.Default.PlayArrow,
+                if (isPlaying) PhosphorIcons.Pause else PhosphorIcons.Play,
                 contentDescription = if (isPlaying) "Pause" else "Play",
                 modifier = Modifier.size(32.dp)
             )
@@ -417,7 +421,7 @@ private fun PodcastControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             Icon(
-                Icons.Default.Forward30,
+                PhosphorIcons.Forward30,
                 contentDescription = "Skip Forward 30s",
                 modifier = Modifier.size(24.dp)
             )
@@ -430,7 +434,7 @@ private fun PodcastControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             Icon(
-                Icons.Default.SkipNext,
+                PhosphorIcons.SkipNext,
                 contentDescription = "Next Episode",
                 modifier = Modifier.size(24.dp)
             )
@@ -450,7 +454,7 @@ private fun PodcastControlButtonsSection(
         // Skip Silence Indicator
         if (skipSilence) {
             Icon(
-                Icons.Default.VolumeOff,
+                PhosphorIcons.VolumeOff,
                 contentDescription = "Skip Silence Enabled",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp)
@@ -576,15 +580,15 @@ private fun ChaptersSection(
                             supportingContent = { 
                                 Text(formatTime(chapter.startTime)) 
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onChapterClick(index) },
                             colors = ListItemDefaults.colors(
                                 containerColor = if (isActive) 
                                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                     else Color.Transparent
                             )
-                        ) {
-                            onChapterClick(index)
-                        }
+                        )
                     }
                 }
             }

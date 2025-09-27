@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.audiobook
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audiobook.AudiobookBookmark
 import com.universalmedialibrary.services.audiobook.AudiobookService
@@ -208,7 +209,7 @@ class AudiobookPlayerViewModel @Inject constructor(
      */
     fun createBookmark(title: String, notes: String? = null) {
         viewModelScope.launch {
-            audiobookService.createBookmark(title, notes)
+            audiobookService.createBookmark(notes)
         }
     }
     
@@ -242,14 +243,11 @@ class AudiobookPlayerViewModel @Inject constructor(
     private suspend fun findMatchingEbook(title: String, author: String?) {
         try {
             // Search for matching e-book in the library
-            val allMedia = mediaRepository.getAllMediaItems()
+            val allMedia = mediaRepository.searchMediaItems("epub", limit = 100)
             
-            val matchingEbook = allMedia.find { media ->
+            val matchingEbook = allMedia.find { media: MediaItem ->
                 media.fileExtension.lowercase() == "epub" &&
-                media.title.contains(title, ignoreCase = true) &&
-                (author == null || media.metadata?.any { 
-                    it.toString().contains(author, ignoreCase = true) 
-                } == true)
+                media.fileName.contains(title, ignoreCase = true)
             }
             
             matchingEbookId = matchingEbook?.itemId

@@ -82,7 +82,7 @@ fun MusicPlayerScreen(
                         ) {
                             Text("${queue.size}")
                         }
-                        Icon(Icons.Default.QueueMusic, contentDescription = "Queue")
+                        Icon(PhosphorIcons.QueueMusic, contentDescription = "Queue")
                     }
                     IconButton(onClick = { /* TODO: Show more options */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
@@ -111,23 +111,27 @@ fun MusicPlayerScreen(
             ) {
                 
                 // Album Art Section
-                AlbumArtSection(
-                    track = currentTrack,
-                    isPlaying = playbackState.isPlaying,
-                    onAlbumClick = { track ->
-                        track.album?.let { album ->
-                            onNavigateToAlbum(album)
+                currentTrack?.let { track ->
+                    AlbumArtSection(
+                        track = track,
+                        isPlaying = playbackState.isPlaying,
+                        onAlbumClick = { tr ->
+                            tr.album?.let { album ->
+                                onNavigateToAlbum(album)
+                            }
                         }
-                    }
-                )
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 // Track Information
-                TrackInfoSection(
-                    track = currentTrack,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                currentTrack?.let { track ->
+                    TrackInfoSection(
+                        track = track,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
@@ -448,7 +452,7 @@ private fun SecondaryControlsSection(
         }
         
         IconButton(onClick = onEqualizerClick) {
-            Icon(Icons.Default.GraphicEq, contentDescription = "Equalizer")
+            Icon(PhosphorIcons.Equalizer, contentDescription = "Equalizer")
         }
         
         IconButton(onClick = onShareClick) {
