@@ -92,7 +92,7 @@ jobs:
                 LOG_SECTION="$FILE_HEADER"$'\n'"$TAIL_CONTENT"$'\n'
                 
                 # Check if adding this section would exceed the limit
-                SECTION_SIZE=${#LOG_SECTION}
+                SECTION_SIZE=$((${#LOG_SECTION} + 1))
                 if [ $((TOTAL_SIZE + SECTION_SIZE)) -le $MAX_SIZE ]; then
                   LOG_CONTENT="$LOG_CONTENT$LOG_SECTION"$'\n'
                   TOTAL_SIZE=$((TOTAL_SIZE + SECTION_SIZE))
