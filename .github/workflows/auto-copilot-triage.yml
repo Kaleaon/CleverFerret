@@ -1,0 +1,252 @@
+name: Auto Copilot Triage
+
+# Automated triage workflow that triggers Copilot analysis for failed CI runs
+# This workflow monitors for failed workflow runs and check suites on PRs,
+# then automatically creates PR comments mentioning @copilot with failure details
+
+on:
+  workflow_run:
+    workflows: ["*"]  # Monitor all workflows
+    types: [completed]
+  check_suite:
+    types: [completed]
+
+# Use minimal required permissions following least privilege principle
+permissions:
+  actions: read          # Read workflow run data and download logs
+  contents: read         # Read repository contents  
+  pull-requests: write   # Write comments to PRs
+
+jobs:
+  # Handle failed GitHub Actions workflow runs
+  triage_workflow_run:
+    name: Triage Failed Workflow Run
+    runs-on: ubuntu-latest
+    # Only run for:
+    # - Completed workflow runs (not skipped/cancelled)
+    # - That were triggered by pull requests 
+    # - That failed (conclusion != 'success')
+    # - That are not this workflow itself (prevent infinite loops)
+    if: |
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion != 'success' &&
+      github.event.workflow_run.conclusion != 'skipped' &&
+      github.event.workflow_run.conclusion != 'cancelled' &&
+      github.event.workflow_run.name != 'Auto Copilot Triage'
+    
+    steps:
+      - name: Get PR Number
+        id: get_pr
+        run: |
+          # Extract PR number from the workflow run that triggered this
+          PR_NUMBER=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "${{ github.event.workflow_run.pull_requests[0].url }}" \
+            | jq -r '.number // empty')
+          
+          if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+            echo "No valid PR number found, skipping triage"
+            echo "skip_triage=true" >> $GITHUB_OUTPUT
+          else
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            echo "skip_triage=false" >> $GITHUB_OUTPUT
+            echo "Found PR number: $PR_NUMBER"
+          fi
+
+      - name: Download and Process Workflow Logs
+        if: steps.get_pr.outputs.skip_triage == 'false'
+        id: get_logs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_RUN_ID="${{ github.event.workflow_run.id }}"
+          REPO="${{ github.repository }}"
+          
+          echo "Downloading logs for workflow run: $WORKFLOW_RUN_ID"
+          
+          # Create temporary directory for logs
+          mkdir -p /tmp/workflow_logs
+          cd /tmp/workflow_logs
+          
+          # Download workflow logs using GitHub CLI
+          if gh run download "$WORKFLOW_RUN_ID" --repo "$REPO" 2>/dev/null; then
+            echo "Successfully downloaded workflow logs"
+            
+            # Find and process log files, focusing on failed jobs
+            LOG_CONTENT=""
+            TOTAL_SIZE=0
+            MAX_SIZE=32000  # Leave room for comment metadata (GitHub limit ~65K chars)
+            
+            # Look for log files and extract the most relevant failure information
+            LOG_FILES=$(find . -name "*.txt" -type f)
+            for log_file in $LOG_FILES; do
+              if [ $TOTAL_SIZE -ge $MAX_SIZE ]; then
+                break
+              fi
+              
+              # Get last 100 lines of each log file to capture recent failures
+              TAIL_CONTENT=$(tail -100 "$log_file" 2>/dev/null || echo "")
+              if [ -n "$TAIL_CONTENT" ]; then
+                FILE_HEADER="=== $(basename "$log_file") ==="
+                LOG_SECTION="$FILE_HEADER"$'\n'"$TAIL_CONTENT"$'\n'
+                
+                # Check if adding this section would exceed the limit
+                SECTION_SIZE=$((${#LOG_SECTION} + 1))
+                if [ $((TOTAL_SIZE + SECTION_SIZE)) -le $MAX_SIZE ]; then
+                  LOG_CONTENT="$LOG_CONTENT$LOG_SECTION"$'\n'
+                  TOTAL_SIZE=$((TOTAL_SIZE + SECTION_SIZE))
+                fi
+              fi
+            done
+            
+            # Save processed logs to file for GitHub Actions to read
+            if [ -n "$LOG_CONTENT" ]; then
+              echo "$LOG_CONTENT" > /tmp/processed_logs.txt
+              echo "logs_available=true" >> $GITHUB_OUTPUT
+              echo "Processed $(echo "$LOG_CONTENT" | wc -l) lines of logs"
+            else
+              echo "logs_available=false" >> $GITHUB_OUTPUT
+              echo "No log content could be extracted"
+            fi
+          else
+            echo "Failed to download workflow logs, will post comment without logs"
+            echo "logs_available=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Comment Content
+        if: steps.get_pr.outputs.skip_triage == 'false'
+        id: create_comment
+        run: |
+          # Create comment body in parts to avoid YAML issues
+          echo "🚨 **CI Failure Detected** 🚨" > /tmp/comment.md
+          echo "" >> /tmp/comment.md
+          echo "**@copilot** The **${{ github.event.workflow_run.name }}** workflow has failed on this PR." >> /tmp/comment.md
+          echo "" >> /tmp/comment.md
+          echo "**Failure Details:**" >> /tmp/comment.md
+          echo "- **Workflow**: [${{ github.event.workflow_run.name }}](${{ github.event.workflow_run.html_url }})" >> /tmp/comment.md
+          echo "- **Status**: ${{ github.event.workflow_run.conclusion }}" >> /tmp/comment.md
+          echo "- **Run ID**: ${{ github.event.workflow_run.id }}" >> /tmp/comment.md
+          echo "- **Commit**: ${{ github.event.workflow_run.head_sha }}" >> /tmp/comment.md
+          echo "" >> /tmp/comment.md
+          
+          # Add logs if available
+          if [ "${{ steps.get_logs.outputs.logs_available }}" = "true" ] && [ -f "/tmp/processed_logs.txt" ]; then
+            echo "**Failure Logs:**" >> /tmp/comment.md
+            echo '```' >> /tmp/comment.md
+            cat /tmp/processed_logs.txt >> /tmp/comment.md
+            echo '```' >> /tmp/comment.md
+            echo "" >> /tmp/comment.md
+          else
+            echo "**Note**: Workflow logs could not be retrieved. Please check the [workflow run](${{ github.event.workflow_run.html_url }}) directly for detailed error information." >> /tmp/comment.md
+            echo "" >> /tmp/comment.md
+          fi
+          
+          # Add Copilot instructions
+          echo "**Copilot Instructions:**" >> /tmp/comment.md
+          echo "Please analyze the failure above and:" >> /tmp/comment.md
+          echo "1. Identify the root cause of the build/test failure" >> /tmp/comment.md
+          echo "2. Suggest specific code changes or configuration fixes" >> /tmp/comment.md
+          echo "3. Provide a step-by-step remediation plan" >> /tmp/comment.md
+          echo "4. If possible, propose a code patch or pull request to resolve the issue" >> /tmp/comment.md
+          echo "" >> /tmp/comment.md
+          echo "The goal is to get this PR's CI passing again. Thank you! 🙏" >> /tmp/comment.md
+          
+          echo "comment_ready=true" >> $GITHUB_OUTPUT
+
+      - name: Post Copilot Triage Comment
+        if: steps.get_pr.outputs.skip_triage == 'false' && steps.create_comment.outputs.comment_ready == 'true'
+        run: |
+          PR_NUMBER="${{ steps.get_pr.outputs.pr_number }}"
+          
+          # Read the comment content and escape it for JSON
+          COMMENT_BODY=$(cat /tmp/comment.md | jq -Rs '.')
+          
+          # Post the comment using GitHub API
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            -d "{\"body\": $COMMENT_BODY}"
+          
+          echo "Posted triage comment to PR #$PR_NUMBER"
+
+  # Handle failed check suites (non-Actions checks like external CI systems)
+  triage_check_suite:
+    name: Triage Failed Check Suite  
+    runs-on: ubuntu-latest
+    # Only run for:
+    # - Completed check suites
+    # - That failed (conclusion != 'success')
+    # - That have associated pull requests
+    if: |
+      github.event_name == 'check_suite' &&
+      github.event.check_suite.conclusion != 'success' &&
+      github.event.check_suite.conclusion != 'skipped' &&
+      github.event.check_suite.conclusion != 'cancelled' &&
+      github.event.check_suite.pull_requests != null &&
+      length(github.event.check_suite.pull_requests) > 0
+    
+    steps:
+      - name: Process Check Suite Failure
+        id: process_check
+        run: |
+          # Extract check suite details
+          CHECK_NAME="${{ github.event.check_suite.app.name }}"
+          CHECK_URL="${{ github.event.check_suite.url }}"
+          CONCLUSION="${{ github.event.check_suite.conclusion }}"
+          
+          # Get the first associated PR (there could be multiple)
+          PR_NUMBER=$(echo '${{ toJSON(github.event.check_suite.pull_requests) }}' | jq -r '.[0].number')
+          
+          echo "check_name=$CHECK_NAME" >> $GITHUB_OUTPUT
+          echo "check_url=$CHECK_URL" >> $GITHUB_OUTPUT  
+          echo "conclusion=$CONCLUSION" >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          
+          echo "Processing check suite failure: $CHECK_NAME ($CONCLUSION) for PR #$PR_NUMBER"
+
+      - name: Create Check Suite Comment
+        id: create_check_comment
+        run: |
+          # Create comment body for check suite failures
+          echo "🔍 **External Check Failure Detected** 🔍" > /tmp/check_comment.md
+          echo "" >> /tmp/check_comment.md
+          echo "**@copilot** The **${{ steps.process_check.outputs.check_name }}** check has failed on this PR." >> /tmp/check_comment.md
+          echo "" >> /tmp/check_comment.md
+          echo "**Check Details:**" >> /tmp/check_comment.md
+          echo "- **Check Name**: ${{ steps.process_check.outputs.check_name }}" >> /tmp/check_comment.md
+          echo "- **Status**: ${{ steps.process_check.outputs.conclusion }}" >> /tmp/check_comment.md
+          echo "- **Details**: [View Check Results](${{ steps.process_check.outputs.check_url }})" >> /tmp/check_comment.md
+          echo "" >> /tmp/check_comment.md
+          echo "**Copilot Instructions:**" >> /tmp/check_comment.md
+          echo "This appears to be a failure from an external check system. Please:" >> /tmp/check_comment.md
+          echo "1. Examine the check details at the provided link" >> /tmp/check_comment.md
+          echo "2. Analyze any available error information or status messages" >> /tmp/check_comment.md
+          echo "3. Identify potential causes based on the check type and recent changes" >> /tmp/check_comment.md
+          echo "4. Suggest appropriate remediation steps or code changes" >> /tmp/check_comment.md
+          echo "5. Provide guidance on how to verify the fix" >> /tmp/check_comment.md
+          echo "" >> /tmp/check_comment.md
+          echo "Please help resolve this check failure so the PR can proceed. Thank you! 🙏" >> /tmp/check_comment.md
+          
+          echo "check_comment_ready=true" >> $GITHUB_OUTPUT
+
+      - name: Post Check Suite Triage Comment
+        if: steps.create_check_comment.outputs.check_comment_ready == 'true'
+        run: |
+          PR_NUMBER="${{ steps.process_check.outputs.pr_number }}"
+          
+          # Read the comment content and escape it for JSON
+          COMMENT_BODY=$(cat /tmp/check_comment.md | jq -Rs '.')
+          
+          # Post the comment using GitHub API
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            -d "{\"body\": $COMMENT_BODY}"
+          
+          echo "Posted check suite triage comment to PR #$PR_NUMBER"
