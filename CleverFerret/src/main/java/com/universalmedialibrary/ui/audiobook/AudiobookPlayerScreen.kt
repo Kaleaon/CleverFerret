@@ -595,6 +595,62 @@ private fun AudiobookPlaybackControls(
 // Additional composables for modal sheets would go here...
 // (ChapterListBottomSheet, BookmarksBottomSheet, SleepTimerDialog)
 
+
+@Composable
+fun ChapterListBottomSheet(
+    chapters: List<AudiobookChapter>,
+    currentChapterIndex: Int,
+    onChapterSelected: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    // TODO: Implement chapter list UI
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Chapter List Bottom Sheet")
+    }
+}
+
+@Composable
+fun BookmarksBottomSheet(
+    bookmarks: List<AudiobookBookmark>,
+    onBookmarkSelected: (AudiobookBookmark) -> Unit,
+    onBookmarkDelete: (AudiobookBookmark) -> Unit,
+    onDismiss: () -> Unit
+) {
+    // TODO: Implement bookmarks UI
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Bookmarks Bottom Sheet")
+    }
+}
+
+@Composable
+fun SleepTimerDialog(
+    currentTimer: Long?,
+    onTimerSet: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    // TODO: Implement sleep timer dialog UI
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Sleep Timer Dialog")
+    }
+}
 private fun formatTime(milliseconds: Long): String {
     val totalSeconds = milliseconds / 1000
     val hours = totalSeconds / 3600
