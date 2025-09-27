@@ -4,7 +4,7 @@
 
 CleverFerret now has a fully operational **AI-powered code review and automated upload system** that provides:
 
-- **🤖 AI Code Analysis**: Powered by Gemini 1.5 Flash for intelligent code review
+- **🤖 AI Code Analysis**: Powered by Gemini 2.5 Flash for intelligent code review
 - **🔧 Automatic Corrections**: Self-healing build system with multiple fallback strategies
 - **📦 APK Upload**: Automated building and uploading of APKs to repository
 - **🛡️ Bulletproof Reliability**: Comprehensive error handling and recovery mechanisms
