@@ -1378,4 +1378,224 @@ object PhosphorIcons {
     private var _shuffle: ImageVector? = null
     private var _repeat: ImageVector? = null
     private var _repeatOne: ImageVector? = null
+
+    // Missing icons from compilation errors
+    val Lightbulb: ImageVector
+        get() {
+            if (_lightbulb != null) {
+                return _lightbulb!!
+            }
+            _lightbulb = materialIcon(name = "Lightbulb") {
+                materialPath {
+                    moveTo(9.0f, 21.0f)
+                    curveTo(9.0f, 21.55f, 9.45f, 22.0f, 10.0f, 22.0f)
+                    horizontalLineTo(14.0f)
+                    curveTo(14.55f, 22.0f, 15.0f, 21.55f, 15.0f, 21.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(9.0f)
+                    verticalLineTo(21.0f)
+                    close()
+                    moveTo(12.0f, 2.0f)
+                    curveTo(8.14f, 2.0f, 5.0f, 5.14f, 5.0f, 9.0f)
+                    curveTo(5.0f, 11.38f, 6.19f, 13.47f, 8.0f, 14.74f)
+                    verticalLineTo(17.0f)
+                    curveTo(8.0f, 17.55f, 8.45f, 18.0f, 9.0f, 18.0f)
+                    horizontalLineTo(15.0f)
+                    curveTo(15.55f, 18.0f, 16.0f, 17.55f, 16.0f, 17.0f)
+                    verticalLineTo(14.74f)
+                    curveTo(17.81f, 13.47f, 19.0f, 11.38f, 19.0f, 9.0f)
+                    curveTo(19.0f, 5.14f, 15.86f, 2.0f, 12.0f, 2.0f)
+                    close()
+                    moveTo(14.85f, 13.1f)
+                    lineTo(14.0f, 13.7f)
+                    verticalLineTo(16.0f)
+                    horizontalLineTo(10.0f)
+                    verticalLineTo(13.7f)
+                    lineTo(9.15f, 13.1f)
+                    curveTo(7.8f, 12.16f, 7.0f, 10.63f, 7.0f, 9.0f)
+                    curveTo(7.0f, 6.24f, 9.24f, 4.0f, 12.0f, 4.0f)
+                    reflectiveCurveTo(17.0f, 6.24f, 17.0f, 9.0f)
+                    curveTo(17.0f, 10.63f, 16.2f, 12.16f, 14.85f, 13.1f)
+                    close()
+                }
+            }
+            return _lightbulb!!
+        }
+
+    val Note: ImageVector
+        get() {
+            if (_note != null) {
+                return _note!!
+            }
+            _note = materialIcon(name = "Note") {
+                materialPath {
+                    moveTo(14.0f, 2.0f)
+                    horizontalLineTo(6.0f)
+                    curveTo(4.9f, 2.0f, 4.0f, 2.9f, 4.0f, 4.0f)
+                    verticalLineTo(20.0f)
+                    curveTo(4.0f, 21.1f, 4.9f, 22.0f, 6.0f, 22.0f)
+                    horizontalLineTo(18.0f)
+                    curveTo(19.1f, 22.0f, 20.0f, 21.1f, 20.0f, 20.0f)
+                    verticalLineTo(8.0f)
+                    lineTo(14.0f, 2.0f)
+                    close()
+                    moveTo(18.0f, 20.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(4.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(9.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                    moveTo(8.0f, 12.0f)
+                    horizontalLineTo(16.0f)
+                    verticalLineTo(14.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(12.0f)
+                    close()
+                    moveTo(8.0f, 16.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(18.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(16.0f)
+                    close()
+                }
+            }
+            return _note!!
+        }
+
+    val Bookmark: ImageVector
+        get() {
+            if (_bookmark != null) {
+                return _bookmark!!
+            }
+            _bookmark = materialIcon(name = "Bookmark") {
+                materialPath {
+                    moveTo(17.0f, 3.0f)
+                    horizontalLineTo(7.0f)
+                    curveTo(5.9f, 3.0f, 5.0f, 3.9f, 5.0f, 5.0f)
+                    verticalLineTo(21.0f)
+                    lineTo(12.0f, 18.0f)
+                    lineTo(19.0f, 21.0f)
+                    verticalLineTo(5.0f)
+                    curveTo(19.0f, 3.9f, 18.1f, 3.0f, 17.0f, 3.0f)
+                    close()
+                }
+            }
+            return _bookmark!!
+        }
+
+    // Also need to add Share and Equalizer icons mentioned in other files
+    val Share: ImageVector
+        get() {
+            if (_share != null) {
+                return _share!!
+            }
+            _share = materialIcon(name = "Share") {
+                materialPath {
+                    moveTo(18.0f, 16.08f)
+                    curveTo(17.24f, 16.08f, 16.56f, 16.38f, 16.04f, 16.85f)
+                    lineTo(8.91f, 12.7f)
+                    curveTo(8.96f, 12.47f, 9.0f, 12.24f, 9.0f, 12.0f)
+                    reflectiveCurveTo(8.96f, 11.53f, 8.91f, 11.3f)
+                    lineTo(15.96f, 7.19f)
+                    curveTo(16.5f, 7.69f, 17.21f, 8.0f, 18.0f, 8.0f)
+                    curveTo(19.66f, 8.0f, 21.0f, 6.66f, 21.0f, 5.0f)
+                    reflectiveCurveTo(19.66f, 2.0f, 18.0f, 2.0f)
+                    reflectiveCurveTo(15.0f, 3.34f, 15.0f, 5.0f)
+                    curveTo(15.0f, 5.24f, 15.04f, 5.47f, 15.09f, 5.7f)
+                    lineTo(8.04f, 9.81f)
+                    curveTo(7.5f, 9.31f, 6.79f, 9.0f, 6.0f, 9.0f)
+                    curveTo(4.34f, 9.0f, 3.0f, 10.34f, 3.0f, 12.0f)
+                    reflectiveCurveTo(4.34f, 15.0f, 6.0f, 15.0f)
+                    curveTo(6.79f, 15.0f, 7.5f, 14.69f, 8.04f, 14.19f)
+                    lineTo(15.16f, 18.35f)
+                    curveTo(15.11f, 18.56f, 15.08f, 18.78f, 15.08f, 19.0f)
+                    curveTo(15.08f, 20.61f, 16.39f, 21.92f, 18.0f, 21.92f)
+                    reflectiveCurveTo(20.92f, 20.61f, 20.92f, 19.0f)
+                    reflectiveCurveTo(19.61f, 16.08f, 18.0f, 16.08f)
+                    close()
+                }
+            }
+            return _share!!
+        }
+
+    val Equalizer: ImageVector
+        get() {
+            if (_equalizer != null) {
+                return _equalizer!!
+            }
+            _equalizer = materialIcon(name = "Equalizer") {
+                materialPath {
+                    moveTo(10.0f, 20.0f)
+                    horizontalLineTo(14.0f)
+                    verticalLineTo(4.0f)
+                    horizontalLineTo(10.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                    moveTo(4.0f, 20.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(4.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                    moveTo(16.0f, 9.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(20.0f)
+                    verticalLineTo(9.0f)
+                    horizontalLineTo(16.0f)
+                    close()
+                }
+            }
+            return _equalizer!!
+        }
+
+    // Add CaretUp and CaretDown icons referenced in other screens
+    val CaretUp: ImageVector
+        get() {
+            if (_caretUp != null) {
+                return _caretUp!!
+            }
+            _caretUp = materialIcon(name = "CaretUp") {
+                materialPath {
+                    moveTo(7.41f, 15.41f)
+                    lineTo(12.0f, 10.83f)
+                    lineTo(16.59f, 15.41f)
+                    lineTo(18.0f, 14.0f)
+                    lineTo(12.0f, 8.0f)
+                    lineTo(6.0f, 14.0f)
+                    lineTo(7.41f, 15.41f)
+                    close()
+                }
+            }
+            return _caretUp!!
+        }
+
+    val CaretDown: ImageVector
+        get() {
+            if (_caretDown != null) {
+                return _caretDown!!
+            }
+            _caretDown = materialIcon(name = "CaretDown") {
+                materialPath {
+                    moveTo(7.41f, 8.59f)
+                    lineTo(12.0f, 13.17f)
+                    lineTo(16.59f, 8.59f)
+                    lineTo(18.0f, 10.0f)
+                    lineTo(12.0f, 16.0f)
+                    lineTo(6.0f, 10.0f)
+                    lineTo(7.41f, 8.59f)
+                    close()
+                }
+            }
+            return _caretDown!!
+        }
+
+    private var _lightbulb: ImageVector? = null
+    private var _note: ImageVector? = null
+    private var _bookmark: ImageVector? = null
+    private var _share: ImageVector? = null
+    private var _equalizer: ImageVector? = null
+    private var _caretUp: ImageVector? = null
+    private var _caretDown: ImageVector? = null
 }

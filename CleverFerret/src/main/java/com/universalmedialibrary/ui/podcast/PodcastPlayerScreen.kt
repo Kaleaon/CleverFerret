@@ -549,7 +549,7 @@ private fun ChaptersSection(
                 
                 IconButton(onClick = onToggleExpanded) {
                     Icon(
-                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        if (expanded) PhosphorIcons.CaretUp else PhosphorIcons.CaretDown,
                         contentDescription = if (expanded) "Collapse" else "Expand"
                     )
                 }

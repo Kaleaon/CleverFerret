@@ -12,9 +12,12 @@ import com.universalmedialibrary.services.audiobook.SynchronizedReadingService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,7 +49,11 @@ class AudiobookPlayerViewModel @Inject constructor(
     val highlightedText: StateFlow<HighlightedText?> = _highlightedText.asStateFlow()
     
     // Playback state from ExoPlayer
-    val isPlaying: StateFlow<Boolean> = exoPlayerService.isPlaying
+    val isPlaying: StateFlow<Boolean> = exoPlayerService.playerState.map { it.isPlaying }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
     
     private var currentAudiobookId: Long? = null
     private var matchingEbookId: Long? = null
@@ -55,10 +62,10 @@ class AudiobookPlayerViewModel @Inject constructor(
         // Monitor playback position for synchronized reading
         viewModelScope.launch {
             combine(
-                exoPlayerService.currentPosition,
+                exoPlayerService.playerState.map { it.currentPosition },
                 audiobookState,
                 synchronizationState
-            ) { position, audioState, syncState ->
+            ) { position: Long, audioState: AudiobookState, syncState: SynchronizationState ->
                 if (syncState.enabled && audioState.isLoaded) {
                     updateHighlightedText(position, audioState.currentChapterIndex)
                 }
@@ -81,7 +88,7 @@ class AudiobookPlayerViewModel @Inject constructor(
                     
                     if (success) {
                         // Try to find matching e-book for synchronized reading
-                        findMatchingEbook(mediaItem.title, mediaItem.metadata?.firstOrNull()?.toString())
+                        findMatchingEbook(mediaItem.fileName, null)
                     }
                 }
             } catch (e: Exception) {
