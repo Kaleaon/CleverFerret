@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -21,11 +22,13 @@ import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.contentcreation.ContentCreationScreen
 import com.universalmedialibrary.ui.library.LibraryManagementScreen
 import dagger.hilt.android.AndroidEntryPoint
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * CleverFerret Universal Media Library - Main Activity
  * 
- * Enhanced with complete database infrastructure and ready for media library management
+ * Enhanced with Plex-inspired UI design converted from React components
+ * Enhanced with complete database infrastructure and library management UI
  * Fixed with better error handling for installation issues
  */
 @AndroidEntryPoint
@@ -107,12 +110,42 @@ fun CleverFerretApp() {
     
     NavHost(
         navController = navController,
-        startDestination = "library"
+        startDestination = "library_list"
     ) {
-        composable("library") {
-            LibraryHomeScreen(
-                onNavigateToContentCreation = { navController.navigate("content_creation") },
-                navController = navController
+        composable("library_list") {
+            com.universalmedialibrary.ui.library.LibraryListScreen(
+                onNavigateToLibrary = { libraryId -> 
+                    navController.navigate("library_details/$libraryId") 
+                },
+                onNavigateToSettings = { 
+                    navController.navigate("settings") 
+                },
+                onCreateLibrary = { 
+                    navController.navigate("content_creation") 
+                }
+            )
+        }
+        composable("library_details/{libraryId}") { backStackEntry ->
+            val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 1
+            com.universalmedialibrary.ui.library.LibraryDetailsScreen(
+                libraryId = libraryId,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToMediaViewer = { mediaId ->
+                    navController.navigate("media_viewer/$mediaId")
+                }
+            )
+        }
+        composable("media_viewer/{mediaId}") { backStackEntry ->
+            val mediaId = backStackEntry.arguments?.getString("mediaId")?.toIntOrNull() ?: 1
+            // For now, show a placeholder screen
+            MediaViewerPlaceholder(
+                mediaId = mediaId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings") {
+            SettingsPlaceholder(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable("content_creation") {
@@ -123,6 +156,13 @@ fun CleverFerretApp() {
         composable("library_management") {
             LibraryManagementScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        // Keep the old route for compatibility
+        composable("library") {
+            LibraryHomeScreen(
+                onNavigateToContentCreation = { navController.navigate("content_creation") },
+                navController = navController
             )
         }
     }
@@ -300,5 +340,108 @@ fun StatusItem(label: String, count: String) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MediaViewerPlaceholder(
+    mediaId: Int,
+    onNavigateBack: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column {
+            TopAppBar(
+                title = { Text("Media Viewer") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1F2326),
+                    titleContentColor = Color.White
+                )
+            )
+            
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = Color(0xFFE5A00D)
+                    )
+                    Text(
+                        text = "Media Viewer",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text(
+                        text = "Media viewer for item #$mediaId coming soon",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color(0xFFB3B3B3)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsPlaceholder(
+    onNavigateBack: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column {
+            TopAppBar(
+                title = { Text("Settings") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1F2326),
+                    titleContentColor = Color.White
+                )
+            )
+            
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = Color(0xFFE5A00D)
+                    )
+                    Text(
+                        text = "Settings",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text(
+                        text = "Settings screen coming soon",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color(0xFFB3B3B3)
+                    )
+                }
+            }
+        }
     }
 }
