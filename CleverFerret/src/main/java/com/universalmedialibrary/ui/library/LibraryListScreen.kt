@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -30,7 +31,7 @@ fun LibraryListScreen(
     onCreateLibrary: () -> Unit = {},
     viewModel: LibraryListViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Plex-inspired dark theme colors
     val backgroundColor = Color(0xFF1A1A1A)
