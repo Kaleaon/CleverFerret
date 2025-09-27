@@ -577,8 +577,8 @@ private fun ChaptersSection(
                                 Text(formatTime(chapter.startTime)) 
                             },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onChapterClick(index) },
+                                .clickable { onChapterClick(index) }
+                                .fillMaxWidth(),
                             colors = ListItemDefaults.colors(
                                 containerColor = if (isActive) 
                                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
