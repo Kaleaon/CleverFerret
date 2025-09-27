@@ -138,7 +138,7 @@ fun MusicPlayerScreen(
                 // Progress Section
                 ProgressSection(
                     currentPosition = currentPosition,
-                    duration = currentTrack.duration,
+                    duration = currentTrack?.duration ?: 0L,
                     onSeek = { position ->
                         currentPosition = position
                         viewModel.seekTo(position)
@@ -187,7 +187,7 @@ fun MusicPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        Icons.Default.MusicNote,
+                        PhosphorIcons.MusicNote,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -330,7 +330,6 @@ private fun ProgressSection(
                 val newPosition = (newProgress * duration).toLong()
                 onSeek(newPosition)
             },
-            onValueChangeStarted = { onDragStart() },
             onValueChangeFinished = { onDragEnd() },
             modifier = Modifier.fillMaxWidth()
         )
@@ -376,10 +375,10 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             val (icon, tint) = when (playlistMode) {
-                PlaylistMode.SHUFFLE -> Icons.Default.Shuffle to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ALL -> Icons.Default.Repeat to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ONE -> Icons.Default.RepeatOne to MaterialTheme.colorScheme.primary
-                else -> Icons.Default.Shuffle to MaterialTheme.colorScheme.onSurfaceVariant
+                PlaylistMode.SHUFFLE -> PhosphorIcons.Shuffle to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ALL -> PhosphorIcons.Repeat to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ONE -> PhosphorIcons.RepeatOne to MaterialTheme.colorScheme.primary
+                else -> PhosphorIcons.Shuffle to MaterialTheme.colorScheme.onSurfaceVariant
             }
             Icon(icon, contentDescription = "Playlist Mode", tint = tint)
         }
