@@ -24,14 +24,17 @@ import androidx.compose.ui.window.Dialog
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportCalibreDialog(
+    open: Boolean,
     onDismiss: () -> Unit,
-    onImport: (path: String) -> Unit
+    onConfirm: (String, String) -> Unit
 ) {
     var selectedPath by remember { mutableStateOf("") }
     var libraryName by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
+    
+    if (!open) return
     
     val folderPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -226,7 +229,7 @@ fun ImportCalibreDialog(
                         onClick = {
                             if (selectedPath.isNotBlank() && libraryName.isNotBlank()) {
                                 isLoading = true
-                                onImport(selectedPath)
+                                onConfirm(libraryName.trim(), selectedPath)
                             }
                         },
                         enabled = selectedPath.isNotBlank() && libraryName.isNotBlank() && !isLoading,

@@ -124,8 +124,9 @@ fun LibraryManagementScreen(
     
     if (showCreateDialog) {
         CreateLibraryDialog(
+            open = showCreateDialog,
             onDismiss = { showCreateDialog = false },
-            onCreateLibrary = { name, type, path ->
+            onConfirm = { name, type, path ->
                 viewModel.createLibrary(name, type, path)
                 showCreateDialog = false
             }
@@ -134,9 +135,10 @@ fun LibraryManagementScreen(
     
     if (showImportDialog) {
         ImportCalibreDialog(
+            open = showImportDialog,
             onDismiss = { showImportDialog = false },
-            onImport = { path ->
-                viewModel.importCalibreLibrary(path, "Imported Calibre Library")
+            onConfirm = { name, path ->
+                viewModel.importCalibreLibrary(path, name)
                 showImportDialog = false
             }
         )

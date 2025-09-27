@@ -29,8 +29,9 @@ import androidx.compose.ui.window.Dialog
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateLibraryDialog(
+    open: Boolean,
     onDismiss: () -> Unit,
-    onCreateLibrary: (name: String, type: String, path: String) -> Unit
+    onConfirm: (String, String, String) -> Unit
 ) {
     var libraryName by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf("BOOK") }
@@ -39,7 +40,7 @@ fun CreateLibraryDialog(
     
     val context = LocalContext.current
     
-    val folderPicker = rememberLauncherForActivityResult(
+    if (!open) return
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -192,7 +193,7 @@ fun CreateLibraryDialog(
                                 val finalPath = selectedPath.ifEmpty { 
                                     context.getExternalFilesDir(getMediaTypeDisplayName(selectedType))?.absolutePath ?: ""
                                 }
-                                onCreateLibrary(libraryName.trim(), selectedType, finalPath)
+                                onConfirm(libraryName.trim(), selectedType, finalPath)
                             }
                         },
                         enabled = libraryName.isNotBlank(),
