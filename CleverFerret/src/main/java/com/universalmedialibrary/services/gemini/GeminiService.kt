@@ -30,6 +30,18 @@ class GeminiService @Inject constructor(
     private var generativeModel: GenerativeModel? = null
     
     /**
+     * Check if Gemini service is configured with a valid API key
+     */
+    suspend fun isConfigured(): Boolean = withContext(Dispatchers.IO) {
+        if (!FeatureFlags.ENABLE_GEMINI) {
+            return@withContext false
+        }
+        
+        val apiKey = apiKeyRepository.getGeminiApiKey()
+        return@withContext !apiKey.isNullOrBlank() && generativeModel != null
+    }
+    
+    /**
      * Initialize the Gemini service with API key
      */
     suspend fun initialize(): Boolean = withContext(Dispatchers.IO) {

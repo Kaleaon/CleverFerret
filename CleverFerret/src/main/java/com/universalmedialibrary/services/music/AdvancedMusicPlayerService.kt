@@ -337,10 +337,10 @@ class AdvancedMusicPlayerService @Inject constructor(
     private fun createTrackInfo(mediaItem: LocalMediaItem, queuePosition: Int = 0): TrackInfo {
         return TrackInfo(
             id = mediaItem.itemId.toString(),
-            title = mediaItem.title ?: mediaItem.fileName,
+            title = mediaItem.fileName.substringBeforeLast('.'),
             artist = extractArtistFromMetadata(mediaItem),
             album = extractAlbumFromMetadata(mediaItem),
-            duration = mediaItem.duration ?: 0,
+            duration = 0L, // TODO: Extract duration from file metadata
             filePath = mediaItem.filePath,
             albumArtUrl = null, // Will be enhanced later
             queuePosition = queuePosition

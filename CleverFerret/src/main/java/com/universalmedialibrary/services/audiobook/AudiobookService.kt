@@ -66,7 +66,8 @@ class AudiobookService @Inject constructor(
             loadSynchronizedText(audiobook)
             
             // Initialize ExoPlayer with chapters
-            val success = exoPlayerService.loadPlaylist(audiobook.chapters.map { it.audioUri })
+            val mediaItems = audiobook.chapters.map { androidx.media3.common.MediaItem.fromUri(it.audioUri) }
+            val success = exoPlayerService.preparePlaylist(mediaItems)
             
             if (success) {
                 updateAudiobookState(
@@ -125,8 +126,8 @@ class AudiobookService @Inject constructor(
             val chapters = parseAudiobookChapters(mediaItem)
             Audiobook(
                 id = mediaItem.itemId,
-                title = mediaItem.title,
-                author = mediaItem.metadata?.joinToString(", ") { it.toString() } ?: "Unknown",
+                title = mediaItem.fileName.substringBeforeLast('.'),
+                author = "Unknown Author", // TODO: Extract from metadata when available
                 chapters = chapters,
                 totalDuration = chapters.sumOf { it.durationMs }
             )
@@ -221,7 +222,10 @@ data class AudiobookState(
     val sleepTimerEndTime: Long? = null,
     val bookmarks: List<AudiobookBookmark> = emptyList(),
     val error: String? = null
-)
+) {
+    val hasError: Boolean get() = error != null
+    val currentChapter: AudiobookChapter? get() = chapters.getOrNull(currentChapterIndex)
+}
 
 data class SynchronizationState(
     val available: Boolean = false,

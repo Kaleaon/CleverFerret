@@ -172,6 +172,9 @@ fun AudiobookPlayerScreen(
                     viewModel.jumpToBookmark(bookmark)
                     showBookmarks = false
                 },
+                onBookmarkDelete = { bookmark ->
+                    viewModel.deleteBookmark(bookmark)
+                },
                 onCreateBookmark = { title, notes ->
                     viewModel.createBookmark(title, notes)
                 },
@@ -181,13 +184,9 @@ fun AudiobookPlayerScreen(
         
         if (showSleepTimer) {
             SleepTimerDialog(
-                currentEndTime = audiobookState.sleepTimerEndTime,
-                onSetTimer = { minutes ->
+                currentTimer = audiobookState.sleepTimerEndTime,
+                onTimerSet = { minutes ->
                     viewModel.setSleepTimer(minutes)
-                    showSleepTimer = false
-                },
-                onCancelTimer = {
-                    viewModel.cancelSleepTimer()
                     showSleepTimer = false
                 },
                 onDismiss = { showSleepTimer = false }
