@@ -716,7 +716,6 @@ object PhosphorIcons {
                     moveTo(1.0f, 11.0f)
                     horizontalLineTo(3.0f)
                     curveTo(3.0f, 7.13f, 4.73f, 3.78f, 7.4f, 1.86f)
-                    lineTo(6.6f, 1.86f)
                     curveTo(3.74f, 4.0f, 2.0f, 7.26f, 2.0f, 11.0f)
                     horizontalLineTo(1.0f)
                     close()
