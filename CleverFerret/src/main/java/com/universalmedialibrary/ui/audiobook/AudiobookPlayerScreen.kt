@@ -174,10 +174,8 @@ fun AudiobookPlayerScreen(
                     showBookmarks = false
                 },
                 onBookmarkDelete = { bookmark ->
-                    viewModel.deleteBookmark(bookmark)
-                },
-                onCreateBookmark = { title, notes ->
-                    viewModel.createBookmark(title, notes)
+                    // TODO: Add deleteBookmark method to ViewModel
+                    // viewModel.deleteBookmark(bookmark)
                 },
                 onDismiss = { showBookmarks = false }
             )
@@ -233,7 +231,7 @@ private fun AudiobookTopBar(
         actions = {
             IconButton(onClick = onToggleSynchronizedText) {
                 Icon(
-                    imageVector = if (synchronizedTextEnabled) Icons.Default.CloudSync else Icons.Default.CloudOff,
+                    imageVector = if (synchronizedTextEnabled) PhosphorIcons.CloudSync else PhosphorIcons.CloudOff,
                     contentDescription = "Toggle Synchronized Reading",
                     tint = if (synchronizedTextEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -242,7 +240,7 @@ private fun AudiobookTopBar(
                 Icon(Icons.Default.List, contentDescription = "Chapters")
             }
             IconButton(onClick = onShowBookmarks) {
-                Icon(Icons.Default.BookmarkBorder, contentDescription = "Bookmarks")
+                Icon(PhosphorIcons.BookmarkBorder, contentDescription = "Bookmarks")
             }
         }
     )
@@ -282,7 +280,7 @@ private fun AudiobookErrorState(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.ErrorOutline,
+                imageVector = PhosphorIcons.ErrorOutline,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(48.dp)
@@ -381,7 +379,7 @@ private fun SynchronizedTextDisplay(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Sync,
+                    imageVector = PhosphorIcons.Sync,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(16.dp)

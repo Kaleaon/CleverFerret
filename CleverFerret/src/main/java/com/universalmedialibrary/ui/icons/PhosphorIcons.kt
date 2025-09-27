@@ -790,6 +790,175 @@ object PhosphorIcons {
             return _pause!!
         }
 
+    val CloudSync: ImageVector
+        get() {
+            if (_cloudSync != null) {
+                return _cloudSync!!
+            }
+            _cloudSync = materialIcon(name = "CloudSync") {
+                materialPath {
+                    moveTo(6.5f, 20.0f)
+                    curveTo(4.25f, 20.0f, 2.36f, 18.7f, 1.68f, 16.84f)
+                    curveTo(0.68f, 16.54f, 0.0f, 15.6f, 0.0f, 14.5f)
+                    curveTo(0.0f, 13.12f, 1.12f, 12.0f, 2.5f, 12.0f)
+                    curveTo(2.92f, 12.0f, 3.31f, 12.13f, 3.63f, 12.35f)
+                    curveTo(4.26f, 9.22f, 7.03f, 7.0f, 10.5f, 7.0f)
+                    curveTo(14.64f, 7.0f, 18.0f, 10.36f, 18.0f, 14.5f)
+                    curveTo(19.66f, 14.5f, 21.0f, 15.84f, 21.0f, 17.5f)
+                    reflectiveCurveTo(19.66f, 20.5f, 18.0f, 20.5f)
+                    horizontalLineTo(6.5f)
+                    verticalLineTo(20.0f)
+                    close()
+                    moveTo(12.0f, 15.5f)
+                    lineTo(16.0f, 11.5f)
+                    horizontalLineTo(13.5f)
+                    verticalLineTo(8.5f)
+                    horizontalLineTo(10.5f)
+                    verticalLineTo(11.5f)
+                    horizontalLineTo(8.0f)
+                    lineTo(12.0f, 15.5f)
+                    close()
+                }
+            }
+            return _cloudSync!!
+        }
+
+    val CloudOff: ImageVector
+        get() {
+            if (_cloudOff != null) {
+                return _cloudOff!!
+            }
+            _cloudOff = materialIcon(name = "CloudOff") {
+                materialPath {
+                    moveTo(21.9f, 21.9f)
+                    lineTo(2.1f, 2.1f)
+                    lineTo(0.69f, 3.51f)
+                    lineTo(5.55f, 8.37f)
+                    curveTo(5.2f, 9.23f, 5.0f, 10.18f, 5.0f, 11.18f)
+                    curveTo(2.79f, 11.86f, 1.0f, 13.8f, 1.0f, 16.18f)
+                    curveTo(1.0f, 19.0f, 3.24f, 21.18f, 6.0f, 21.18f)
+                    horizontalLineTo(18.0f)
+                    curveTo(18.35f, 21.18f, 18.68f, 21.12f, 19.0f, 21.02f)
+                    lineTo(20.49f, 22.51f)
+                    lineTo(21.9f, 21.1f)
+                    verticalLineTo(21.9f)
+                    close()
+                    moveTo(6.0f, 19.18f)
+                    curveTo(4.34f, 19.18f, 3.0f, 17.84f, 3.0f, 16.18f)
+                    curveTo(3.0f, 14.67f, 4.12f, 13.45f, 5.6f, 13.2f)
+                    curveTo(5.71f, 12.3f, 6.05f, 11.5f, 6.56f, 10.85f)
+                    lineTo(16.73f, 21.02f)
+                    curveTo(16.5f, 21.08f, 16.25f, 21.12f, 16.0f, 21.12f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(19.18f)
+                    close()
+                }
+            }
+            return _cloudOff!!
+        }
+
+    val BookmarkBorder: ImageVector
+        get() {
+            if (_bookmarkBorder != null) {
+                return _bookmarkBorder!!
+            }
+            _bookmarkBorder = materialIcon(name = "BookmarkBorder") {
+                materialPath {
+                    moveTo(17.0f, 3.0f)
+                    horizontalLineTo(7.0f)
+                    curveTo(5.9f, 3.0f, 5.0f, 3.9f, 5.0f, 5.0f)
+                    verticalLineTo(21.0f)
+                    lineTo(12.0f, 18.0f)
+                    lineTo(19.0f, 21.0f)
+                    verticalLineTo(5.0f)
+                    curveTo(19.0f, 3.9f, 18.1f, 3.0f, 17.0f, 3.0f)
+                    close()
+                    moveTo(17.0f, 18.0f)
+                    lineTo(12.0f, 15.82f)
+                    lineTo(7.0f, 18.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(17.0f)
+                    verticalLineTo(18.0f)
+                    close()
+                }
+            }
+            return _bookmarkBorder!!
+        }
+
+    val ErrorOutline: ImageVector
+        get() {
+            if (_errorOutline != null) {
+                return _errorOutline!!
+            }
+            _errorOutline = materialIcon(name = "ErrorOutline") {
+                materialPath {
+                    moveTo(11.0f, 15.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(17.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(15.0f)
+                    close()
+                    moveTo(11.0f, 7.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(13.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(7.0f)
+                    close()
+                    moveTo(11.99f, 2.0f)
+                    curveTo(6.47f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                    reflectiveCurveTo(6.47f, 22.0f, 11.99f, 22.0f)
+                    curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
+                    reflectiveCurveTo(17.52f, 2.0f, 11.99f, 2.0f)
+                    close()
+                    moveTo(12.0f, 20.0f)
+                    curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
+                    reflectiveCurveTo(7.58f, 4.0f, 12.0f, 4.0f)
+                    reflectiveCurveTo(20.0f, 7.58f, 20.0f, 12.0f)
+                    reflectiveCurveTo(16.42f, 20.0f, 12.0f, 20.0f)
+                    close()
+                }
+            }
+            return _errorOutline!!
+        }
+
+    val Sync: ImageVector
+        get() {
+            if (_sync != null) {
+                return _sync!!
+            }
+            _sync = materialIcon(name = "Sync") {
+                materialPath {
+                    moveTo(12.0f, 4.0f)
+                    verticalLineTo(1.0f)
+                    lineTo(8.0f, 5.0f)
+                    lineTo(12.0f, 9.0f)
+                    verticalLineTo(6.0f)
+                    curveTo(15.31f, 6.0f, 18.0f, 8.69f, 18.0f, 12.0f)
+                    reflectiveCurveTo(15.31f, 18.0f, 12.0f, 18.0f)
+                    curveTo(10.99f, 18.0f, 10.03f, 17.75f, 9.2f, 17.3f)
+                    lineTo(7.74f, 18.76f)
+                    curveTo(8.97f, 19.54f, 10.43f, 20.0f, 12.0f, 20.0f)
+                    curveTo(16.42f, 20.0f, 20.0f, 16.42f, 20.0f, 12.0f)
+                    reflectiveCurveTo(16.42f, 4.0f, 12.0f, 4.0f)
+                    close()
+                    moveTo(12.0f, 14.0f)
+                    curveTo(8.69f, 14.0f, 6.0f, 11.31f, 6.0f, 8.0f)
+                    reflectiveCurveTo(8.69f, 2.0f, 12.0f, 2.0f)
+                    curveTo(13.01f, 2.0f, 13.97f, 2.25f, 14.8f, 2.7f)
+                    lineTo(16.26f, 1.24f)
+                    curveTo(15.03f, 0.46f, 13.57f, 0.0f, 12.0f, 0.0f)
+                    curveTo(7.58f, 0.0f, 4.0f, 3.58f, 4.0f, 8.0f)
+                    reflectiveCurveTo(7.58f, 16.0f, 12.0f, 16.0f)
+                    verticalLineTo(19.0f)
+                    lineTo(16.0f, 15.0f)
+                    lineTo(12.0f, 11.0f)
+                    verticalLineTo(14.0f)
+                    close()
+                }
+            }
+            return _sync!!
+        }
+
     private var _book: ImageVector? = null
     private var _filmStrip: ImageVector? = null
     private var _musicNote: ImageVector? = null
@@ -813,4 +982,9 @@ object PhosphorIcons {
     private var _history: ImageVector? = null
     private var _bookmarkAdd: ImageVector? = null
     private var _pause: ImageVector? = null
+    private var _cloudSync: ImageVector? = null
+    private var _cloudOff: ImageVector? = null
+    private var _bookmarkBorder: ImageVector? = null
+    private var _errorOutline: ImageVector? = null
+    private var _sync: ImageVector? = null
 }

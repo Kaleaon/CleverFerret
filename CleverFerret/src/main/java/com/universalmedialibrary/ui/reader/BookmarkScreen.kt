@@ -136,8 +136,8 @@ private fun BookmarkList(
     selectedItems: Set<Long>,
     isSelectionMode: Boolean,
     onBookmarkClick: (TextAnnotation) -> Unit,
-    onBookmarkLongClick: (Annotation) -> Unit,
-    onBookmarkSelect: (Annotation) -> Unit
+    onBookmarkLongClick: (TextAnnotation) -> Unit,
+    onBookmarkSelect: (TextAnnotation) -> Unit
 ) {
     if (bookmarks.isEmpty()) {
         EmptyState(
@@ -169,9 +169,9 @@ private fun HighlightList(
     highlights: List<TextAnnotation>,
     selectedItems: Set<Long>,
     isSelectionMode: Boolean,
-    onHighlightClick: (Annotation) -> Unit,
-    onHighlightLongClick: (Annotation) -> Unit,
-    onHighlightSelect: (Annotation) -> Unit
+    onHighlightClick: (TextAnnotation) -> Unit,
+    onHighlightLongClick: (TextAnnotation) -> Unit,
+    onHighlightSelect: (TextAnnotation) -> Unit
 ) {
     if (highlights.isEmpty()) {
         EmptyState(
@@ -203,9 +203,9 @@ private fun NoteList(
     notes: List<TextAnnotation>,
     selectedItems: Set<Long>,
     isSelectionMode: Boolean,
-    onNoteClick: (Annotation) -> Unit,
-    onNoteLongClick: (Annotation) -> Unit,
-    onNoteSelect: (Annotation) -> Unit
+    onNoteClick: (TextAnnotation) -> Unit,
+    onNoteLongClick: (TextAnnotation) -> Unit,
+    onNoteSelect: (TextAnnotation) -> Unit
 ) {
     if (notes.isEmpty()) {
         EmptyState(
@@ -234,7 +234,7 @@ private fun NoteList(
 
 @Composable
 private fun BookmarkItem(
-    bookmark: Annotation,
+    bookmark: TextAnnotation,
     isSelected: Boolean,
     isSelectionMode: Boolean,
     onClick: () -> Unit,
@@ -293,7 +293,7 @@ private fun BookmarkItem(
 
 @Composable
 private fun HighlightItem(
-    highlight: Annotation,
+    highlight: TextAnnotation,
     isSelected: Boolean,
     isSelectionMode: Boolean,
     onClick: () -> Unit,
@@ -351,7 +351,7 @@ private fun HighlightItem(
 
 @Composable
 private fun NoteItem(
-    note: Annotation,
+    note: TextAnnotation,
     isSelected: Boolean,
     isSelectionMode: Boolean,
     onClick: () -> Unit,
