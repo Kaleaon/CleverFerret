@@ -48,6 +48,16 @@ object FeatureFlags {
     const val ENABLE_AI_METADATA = true
     
     /**
+     * Enable audiobook player with advanced features
+     */
+    const val ENABLE_AUDIOBOOK_PLAYER = true
+    
+    /**
+     * Enable synchronized reading (read-along) functionality
+     */
+    const val ENABLE_SYNCHRONIZED_READING = true
+    
+    /**
      * Enable experimental features (use with caution)
      */
     const val ENABLE_EXPERIMENTAL = false

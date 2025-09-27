@@ -18,6 +18,8 @@ import com.universalmedialibrary.services.tts.TextToSpeechService
 import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
 import com.universalmedialibrary.services.gemini.GeminiService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
+import com.universalmedialibrary.services.audiobook.AudiobookService
+import com.universalmedialibrary.services.audiobook.SynchronizedReadingService
 import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.services.reader.AnnotationService
 import com.universalmedialibrary.data.repository.ReaderSettingsRepository
@@ -214,6 +216,26 @@ object AppModule {
         readingStatisticsDao: ReadingStatisticsDao
     ): AnnotationService {
         return AnnotationService(context, annotationDao, searchIndexDao, readingStatisticsDao)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAudiobookService(
+        @ApplicationContext context: Context,
+        mediaRepository: MediaRepository,
+        exoPlayerService: ExoPlayerService
+    ): AudiobookService {
+        return AudiobookService(context, mediaRepository, exoPlayerService)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSynchronizedReadingService(
+        @ApplicationContext context: Context,
+        epubReaderService: EpubReaderService,
+        geminiService: GeminiService
+    ): SynchronizedReadingService {
+        return SynchronizedReadingService(context, epubReaderService, geminiService)
     }
     
     // Legacy services for content creation
