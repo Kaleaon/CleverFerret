@@ -105,6 +105,13 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")
     implementation("androidx.media3:media3-common:1.3.1")
+    implementation("androidx.media3:media3-session:1.3.1")
+    
+    // Image loading for album art and covers
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    
+    // Advanced JSON parsing for music APIs
+    implementation("org.json:json:20240303")
     
     // Testing
     testImplementation("junit:junit:4.13.2")

@@ -233,4 +233,43 @@ object AppModule {
     ): NewsToEpubConverter {
         return NewsToEpubConverter(context)
     }
+    
+    // Advanced Music Services
+    @Provides
+    @Singleton
+    fun provideMusicMetadataService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): com.universalmedialibrary.services.music.MusicMetadataService {
+        return com.universalmedialibrary.services.music.MusicMetadataService(context, apiKeyRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAdvancedMusicPlayerService(
+        @ApplicationContext context: Context,
+        exoPlayerService: ExoPlayerService,
+        musicMetadataService: com.universalmedialibrary.services.music.MusicMetadataService
+    ): com.universalmedialibrary.services.music.AdvancedMusicPlayerService {
+        return com.universalmedialibrary.services.music.AdvancedMusicPlayerService(
+            context, 
+            exoPlayerService, 
+            musicMetadataService
+        )
+    }
+    
+    // Advanced Podcast Services
+    @Provides
+    @Singleton
+    fun provideAdvancedPodcastPlayerService(
+        @ApplicationContext context: Context,
+        exoPlayerService: ExoPlayerService,
+        podcastService: PodcastService
+    ): com.universalmedialibrary.services.podcast.AdvancedPodcastPlayerService {
+        return com.universalmedialibrary.services.podcast.AdvancedPodcastPlayerService(
+            context,
+            exoPlayerService,
+            podcastService
+        )
+    }
 }

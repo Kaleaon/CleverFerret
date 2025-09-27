@@ -41,6 +41,32 @@ class APIKeyRepository @Inject constructor(
     }
     
     /**
+     * Get Last.fm API key
+     */
+    suspend fun getLastFmApiKey(): String? {
+        return apiKeyDao.getAPIKeyByProvider("lastfm")?.keyValue
+    }
+    
+    /**
+     * Set Last.fm API key
+     */
+    suspend fun setLastFmApiKey(key: String) {
+        val existingKey = apiKeyDao.getAPIKeyByProvider("lastfm")
+        if (existingKey != null) {
+            apiKeyDao.updateAPIKeyValue("lastfm", key)
+        } else {
+            val apiKey = APIKey(
+                provider = "lastfm",
+                keyValue = key,
+                displayName = "Last.fm API",
+                description = "API key for Last.fm music metadata services",
+                category = "MUSIC"
+            )
+            apiKeyDao.insertAPIKey(apiKey)
+        }
+    }
+    
+    /**
      * Get all API keys
      */
     suspend fun getAllApiKeys(): List<APIKey> {

@@ -89,6 +89,80 @@ class ExoPlayerService @Inject constructor(
     }
     
     /**
+     * Prepare a single media item for playback
+     */
+    fun prepareMedia(mediaItem: MediaItem): Boolean {
+        if (!FeatureFlags.ENABLE_EXOPLAYER) {
+            updatePlayerState(error = "ExoPlayer is disabled")
+            return false
+        }
+        
+        initialize()
+        
+        return try {
+            exoPlayer?.apply {
+                setMediaItem(mediaItem)
+                prepare()
+            }
+            true
+        } catch (e: Exception) {
+            updatePlayerState(error = "Failed to prepare media: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * Prepare a playlist for playback
+     */
+    fun preparePlaylist(mediaItems: List<MediaItem>, startIndex: Int = 0): Boolean {
+        if (!FeatureFlags.ENABLE_EXOPLAYER) {
+            updatePlayerState(error = "ExoPlayer is disabled")
+            return false
+        }
+        
+        initialize()
+        
+        return try {
+            exoPlayer?.apply {
+                setMediaItems(mediaItems, startIndex, 0)
+                prepare()
+            }
+            true
+        } catch (e: Exception) {
+            updatePlayerState(error = "Failed to prepare playlist: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * Seek to specific media item in playlist
+     */
+    fun seekToMediaItem(mediaItemIndex: Int) {
+        exoPlayer?.seekTo(mediaItemIndex, 0)
+    }
+    
+    /**
+     * Get current position in milliseconds
+     */
+    fun getCurrentPosition(): Long {
+        return exoPlayer?.currentPosition ?: 0
+    }
+    
+    /**
+     * Get duration in milliseconds
+     */
+    fun getDuration(): Long {
+        return exoPlayer?.duration?.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
+    }
+    
+    /**
+     * Enable/disable skip silence
+     */
+    fun setSkipSilence(enabled: Boolean) {
+        exoPlayer?.skipSilenceEnabled = enabled
+    }
+    
+    /**
      * Start playback
      */
     fun play() {
