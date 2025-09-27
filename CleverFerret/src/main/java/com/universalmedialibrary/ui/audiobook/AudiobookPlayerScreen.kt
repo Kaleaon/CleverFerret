@@ -540,7 +540,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    PhosphorIcons.ArrowClockwise,
+                    PhosphorIcons.ArrowRight,
                     contentDescription = "Next Chapter",
                     modifier = Modifier.size(32.dp)
                 )
