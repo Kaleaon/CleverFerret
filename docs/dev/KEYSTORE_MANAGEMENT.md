@@ -54,10 +54,12 @@ Configure these secrets in your GitHub repository settings:
 
 | Secret Name | Description | Example |
 |-------------|-------------|---------|
-| `KEYSTORE_BASE64` | Base64-encoded keystore file | `MIIEvgIBADANBgkqhkiG9w0BA...` |
-| `KEYSTORE_PASSWORD` | Keystore password | `your_secure_password_123!` |
-| `KEY_ALIAS` | Key alias in keystore | `androidreleasekey` |
-| `KEY_PASSWORD` | Key password | `your_key_password_456!` |
+| `KEYSTORE_BASE64` | Base64-encoded keystore file | `MIIEvgIBADANBgkqhkiG9w0BA...` (truncated) |
+| `KEYSTORE_PASSWORD` | Keystore password | `MySecurePassword123!` *(replace with your actual password)* |
+| `KEY_ALIAS` | Key alias in keystore | `androidreleasekey` *(or your chosen alias)* |
+| `KEY_PASSWORD` | Key password | `MyKeyPassword456!` *(replace with your actual key password)* |
+
+**⚠️ Important**: The password examples above are placeholders. You must replace them with your actual passwords when creating GitHub Secrets.
 
 ### Setting Up GitHub Secrets
 
@@ -81,23 +83,25 @@ base64 -i release.keystore | tr -d '\n' > keystore.base64.txt
 
 ```
 Keystore: release.keystore
-Created: [DATE]
-Validity: [YEARS] years
+Created: [DATE]                    # Replace with actual creation date
+Validity: [YEARS] years            # Replace with actual validity period
 Algorithm: RSA
 Key Size: 2048 bits
 
-Store Password: [SECURE_PASSWORD]
+Store Password: [SECURE_PASSWORD]  # Replace with your actual keystore password
 Key Alias: androidreleasekey
-Key Password: [SECURE_PASSWORD]
+Key Password: [SECURE_PASSWORD]    # Replace with your actual key password
 
-Backup Locations:
+Backup Locations:                  # Replace with your actual backup locations
 1. [SECURE_LOCATION_1]
 2. [SECURE_LOCATION_2]
 3. [SECURE_LOCATION_3]
 
-Created By: [NAME]
-Contact: [EMAIL]
+Created By: [NAME]                 # Replace with actual name
+Contact: [EMAIL]                   # Replace with actual email
 ```
+
+**Note**: All values in square brackets `[...]` are placeholders that should be replaced with your actual information.
 
 ## Build Configuration
 
