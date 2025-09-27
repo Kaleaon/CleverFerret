@@ -411,7 +411,7 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
-                PhosphorIcons.ArrowClockwise,
+                PhosphorIcons.ArrowRight,
                 contentDescription = "Next",
                 modifier = Modifier.size(32.dp)
             )
