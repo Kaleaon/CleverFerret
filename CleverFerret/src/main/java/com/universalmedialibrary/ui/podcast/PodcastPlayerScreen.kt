@@ -88,7 +88,7 @@ fun PodcastPlayerScreen(
                                 Text("${playbackSettings.sleepTimerMinutes}")
                             }
                         }
-                        Icon(Icons.Default.Timer, contentDescription = "Sleep Timer")
+                        Icon(PhosphorIcons.AccessTime, contentDescription = "Sleep Timer")
                     }
                     
                     // More Options
@@ -103,7 +103,7 @@ fun PodcastPlayerScreen(
         }
     ) { paddingValues ->
         
-        if (currentEpisode != null) {
+        currentEpisode?.let { episode ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -120,9 +120,9 @@ fun PodcastPlayerScreen(
                 
                 // Episode Cover Section
                 EpisodeCoverSection(
-                    episode = currentEpisode,
-                    onShowClick = { episode ->
-                        onNavigateToShow(episode.episode.id)
+                    episode = episode,
+                    onShowClick = { clickedEpisode ->
+                        onNavigateToShow(clickedEpisode.episode.id)
                     }
                 )
                 
@@ -130,7 +130,7 @@ fun PodcastPlayerScreen(
                 
                 // Episode Information
                 EpisodeInfoSection(
-                    episode = currentEpisode,
+                    episode = episode,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 
@@ -139,7 +139,7 @@ fun PodcastPlayerScreen(
                 // Progress Section
                 PodcastProgressSection(
                     currentPosition = currentPosition,
-                    duration = currentEpisode.episode.duration,
+                    duration = episode.episode.duration,
                     onSeek = { position ->
                         currentPosition = position
                         viewModel.seekTo(position)
@@ -198,7 +198,7 @@ fun PodcastPlayerScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
-        } else {
+        } ?: run {
             // No episode loaded state
             Box(
                 modifier = Modifier
@@ -210,7 +210,7 @@ fun PodcastPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        Icons.Default.Podcasts,
+                        PhosphorIcons.Microphone,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
