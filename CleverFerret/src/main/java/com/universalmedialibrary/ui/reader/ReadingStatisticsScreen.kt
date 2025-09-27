@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 import com.universalmedialibrary.data.local.entity.ReadingStatistics
 import java.text.SimpleDateFormat
 import java.util.*
@@ -111,13 +112,13 @@ private fun StatisticsSummary(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 StatisticItem(
-                    icon = Icons.Default.AccessTime,
+                    icon = PhosphorIcons.AccessTime,
                     label = "Total Time",
                     value = "${totalReadingTime}m"
                 )
                 
                 StatisticItem(
-                    icon = Icons.Default.MenuBook,
+                    icon = PhosphorIcons.MenuBook,
                     label = "Pages Read",
                     value = totalPages.toString()
                 )
@@ -129,7 +130,7 @@ private fun StatisticsSummary(
                 )
                 
                 StatisticItem(
-                    icon = Icons.Default.AccessTime,
+                    icon = PhosphorIcons.AccessTime,
                     label = "Avg Session",
                     value = "${averageSessionTime}m"
                 )

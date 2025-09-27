@@ -34,8 +34,8 @@ class SynchronizedReadingService @Inject constructor(
     private val geminiService: GeminiService
 ) {
     
-    private val _synchronizationState = MutableStateFlow(SynchronizationState())
-    val synchronizationState: StateFlow<SynchronizationState> = _synchronizationState.asStateFlow()
+    private val _synchronizationState = MutableStateFlow(SyncProcessingState())
+    val synchronizationState: StateFlow<SyncProcessingState> = _synchronizationState.asStateFlow()
     
     private var currentSynchronization: BookAudioSync? = null
     
@@ -56,7 +56,7 @@ class SynchronizedReadingService @Inject constructor(
             updateSyncState(isProcessing = true, progress = 0.1f)
             
             // Step 1: Load the e-book content
-            val epubSuccess = epubReaderService.loadEPUB(ebookItem.filePath)
+            val epubSuccess = epubReaderService.loadEPUB(java.io.File(ebookItem.filePath))
             if (!epubSuccess) {
                 updateSyncState(error = "Failed to load e-book content")
                 return@withContext null
@@ -351,7 +351,7 @@ class SynchronizedReadingService @Inject constructor(
         )
     }
     
-    private fun canUseAISynchronization(): Boolean {
+    private suspend fun canUseAISynchronization(): Boolean {
         return FeatureFlags.ENABLE_GEMINI && geminiService.isConfigured()
     }
     
@@ -448,7 +448,7 @@ class SynchronizedReadingService @Inject constructor(
         status: String = _synchronizationState.value.status,
         error: String? = null
     ) {
-        _synchronizationState.value = SynchronizationState(
+        _synchronizationState.value = SyncProcessingState(
             isProcessing = isProcessing,
             isReady = isReady,
             progress = progress,
@@ -522,10 +522,3 @@ enum class SynchronizationType {
     PRE_SYNCHRONIZED // Embedded in audiobook file
 }
 
-data class SynchronizationState(
-    val isProcessing: Boolean = false,
-    val isReady: Boolean = false,
-    val progress: Float = 0f,
-    val status: String = "",
-    val error: String? = null
-)

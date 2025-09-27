@@ -227,20 +227,7 @@ data class AudiobookState(
     val currentChapter: AudiobookChapter? get() = chapters.getOrNull(currentChapterIndex)
 }
 
-data class SynchronizationState(
-    val available: Boolean = false,
-    val enabled: Boolean = false,
-    val currentHighlight: HighlightedText? = null,
-    val error: String? = null
-)
 
-data class HighlightedText(
-    val text: String,
-    val startPosition: Int,
-    val endPosition: Int,
-    val chapterIndex: Int,
-    val confidence: Float = 1.0f
-)
 
 data class AudiobookBookmark(
     val id: Long,

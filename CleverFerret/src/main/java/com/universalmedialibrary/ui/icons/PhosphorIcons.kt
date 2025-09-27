@@ -604,6 +604,193 @@ object PhosphorIcons {
             return _pencil!!
         }
 
+    // New icons for missing references
+    val AccessTime: ImageVector
+        get() {
+            if (_accessTime != null) {
+                return _accessTime!!
+            }
+            _accessTime = materialIcon(name = "AccessTime") {
+                materialPath {
+                    moveTo(11.99f, 2.0f)
+                    curveTo(6.47f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                    reflectiveCurveTo(6.47f, 22.0f, 11.99f, 22.0f)
+                    curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
+                    reflectiveCurveTo(17.52f, 2.0f, 11.99f, 2.0f)
+                    close()
+                    moveTo(12.0f, 20.0f)
+                    curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
+                    reflectiveCurveTo(7.58f, 4.0f, 12.0f, 4.0f)
+                    reflectiveCurveTo(20.0f, 7.58f, 20.0f, 12.0f)
+                    reflectiveCurveTo(16.42f, 20.0f, 12.0f, 20.0f)
+                    close()
+                    moveTo(12.5f, 7.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(13.0f)
+                    lineTo(16.25f, 15.85f)
+                    lineTo(17.0f, 14.65f)
+                    lineTo(12.5f, 12.25f)
+                    verticalLineTo(7.0f)
+                    close()
+                }
+            }
+            return _accessTime!!
+        }
+
+    val MenuBook: ImageVector
+        get() {
+            if (_menuBook != null) {
+                return _menuBook!!
+            }
+            _menuBook = materialIcon(name = "MenuBook") {
+                materialPath {
+                    moveTo(21.0f, 5.0f)
+                    curveTo(19.89f, 4.65f, 18.67f, 4.5f, 17.5f, 4.5f)
+                    curveTo(15.55f, 4.5f, 13.45f, 4.9f, 12.0f, 6.0f)
+                    curveTo(10.55f, 4.9f, 8.45f, 4.5f, 6.5f, 4.5f)
+                    curveTo(5.33f, 4.5f, 4.11f, 4.65f, 3.0f, 5.0f)
+                    verticalLineTo(18.5f)
+                    curveTo(4.11f, 18.15f, 5.33f, 18.0f, 6.5f, 18.0f)
+                    curveTo(8.45f, 18.0f, 10.55f, 18.4f, 12.0f, 19.5f)
+                    curveTo(13.45f, 18.4f, 15.55f, 18.0f, 17.5f, 18.0f)
+                    curveTo(18.67f, 18.0f, 19.89f, 18.15f, 21.0f, 18.5f)
+                    verticalLineTo(5.0f)
+                    close()
+                    moveTo(11.0f, 17.08f)
+                    curveTo(9.24f, 16.29f, 7.5f, 16.0f, 6.5f, 16.0f)
+                    curveTo(5.33f, 16.0f, 4.11f, 16.15f, 3.0f, 16.5f)
+                    verticalLineTo(7.08f)
+                    curveTo(4.11f, 6.73f, 5.33f, 6.58f, 6.5f, 6.58f)
+                    curveTo(7.5f, 6.58f, 9.24f, 6.87f, 11.0f, 7.66f)
+                    verticalLineTo(17.08f)
+                    close()
+                    moveTo(21.0f, 16.5f)
+                    curveTo(19.89f, 16.15f, 18.67f, 16.0f, 17.5f, 16.0f)
+                    curveTo(16.5f, 16.0f, 14.76f, 16.29f, 13.0f, 17.08f)
+                    verticalLineTo(7.66f)
+                    curveTo(14.76f, 6.87f, 16.5f, 6.58f, 17.5f, 6.58f)
+                    curveTo(18.67f, 6.58f, 19.89f, 6.73f, 21.0f, 7.08f)
+                    verticalLineTo(16.5f)
+                    close()
+                }
+            }
+            return _menuBook!!
+        }
+
+    val History: ImageVector
+        get() {
+            if (_history != null) {
+                return _history!!
+            }
+            _history = materialIcon(name = "History") {
+                materialPath {
+                    moveTo(13.0f, 3.0f)
+                    curveTo(16.31f, 3.0f, 19.0f, 5.69f, 19.0f, 9.0f)
+                    horizontalLineTo(21.0f)
+                    lineTo(17.5f, 13.5f)
+                    lineTo(14.0f, 9.0f)
+                    horizontalLineTo(16.0f)
+                    curveTo(16.0f, 7.34f, 14.66f, 6.0f, 13.0f, 6.0f)
+                    reflectiveCurveTo(10.0f, 7.34f, 10.0f, 9.0f)
+                    reflectiveCurveTo(11.34f, 12.0f, 13.0f, 12.0f)
+                    curveTo(13.35f, 12.0f, 13.69f, 11.93f, 14.0f, 11.79f)
+                    lineTo(15.42f, 13.21f)
+                    curveTo(14.66f, 13.75f, 13.87f, 14.0f, 13.0f, 14.0f)
+                    curveTo(10.24f, 14.0f, 8.0f, 11.76f, 8.0f, 9.0f)
+                    reflectiveCurveTo(10.24f, 4.0f, 13.0f, 4.0f)
+                    close()
+                    moveTo(12.0f, 7.0f)
+                    verticalLineTo(9.0f)
+                    lineTo(13.5f, 10.5f)
+                    lineTo(14.5f, 9.5f)
+                    lineTo(13.0f, 8.0f)
+                    verticalLineTo(7.0f)
+                    horizontalLineTo(12.0f)
+                    close()
+                    moveTo(7.88f, 3.39f)
+                    lineTo(6.6f, 1.86f)
+                    curveTo(5.29f, 2.82f, 4.19f, 4.05f, 3.41f, 5.5f)
+                    lineTo(5.03f, 6.5f)
+                    curveTo(5.6f, 5.37f, 6.37f, 4.34f, 7.88f, 3.39f)
+                    close()
+                    moveTo(1.0f, 11.0f)
+                    horizontalLineTo(3.0f)
+                    curveTo(3.0f, 7.13f, 4.73f, 3.78f, 7.4f, 1.86f)
+                    lineTo(6.6f, 1.86f)
+                    curveTo(3.74f, 4.0f, 2.0f, 7.26f, 2.0f, 11.0f)
+                    horizontalLineTo(1.0f)
+                    close()
+                }
+            }
+            return _history!!
+        }
+
+    val BookmarkAdd: ImageVector
+        get() {
+            if (_bookmarkAdd != null) {
+                return _bookmarkAdd!!
+            }
+            _bookmarkAdd = materialIcon(name = "BookmarkAdd") {
+                materialPath {
+                    moveTo(17.0f, 3.0f)
+                    horizontalLineTo(7.0f)
+                    curveTo(5.9f, 3.0f, 5.0f, 3.9f, 5.0f, 5.0f)
+                    verticalLineTo(21.0f)
+                    lineTo(12.0f, 18.0f)
+                    lineTo(19.0f, 21.0f)
+                    verticalLineTo(5.0f)
+                    curveTo(19.0f, 3.9f, 18.1f, 3.0f, 17.0f, 3.0f)
+                    close()
+                    moveTo(17.0f, 18.0f)
+                    lineTo(12.0f, 15.82f)
+                    lineTo(7.0f, 18.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(17.0f)
+                    verticalLineTo(18.0f)
+                    close()
+                    moveTo(13.0f, 7.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(10.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(15.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(16.0f)
+                    verticalLineTo(10.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(7.0f)
+                    close()
+                }
+            }
+            return _bookmarkAdd!!
+        }
+
+    val Pause: ImageVector
+        get() {
+            if (_pause != null) {
+                return _pause!!
+            }
+            _pause = materialIcon(name = "Pause") {
+                materialPath {
+                    moveTo(6.0f, 19.0f)
+                    horizontalLineTo(10.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(19.0f)
+                    close()
+                    moveTo(14.0f, 5.0f)
+                    verticalLineTo(19.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(14.0f)
+                    close()
+                }
+            }
+            return _pause!!
+        }
+
     private var _book: ImageVector? = null
     private var _filmStrip: ImageVector? = null
     private var _musicNote: ImageVector? = null
@@ -622,4 +809,9 @@ object PhosphorIcons {
     private var _pencilSimple: ImageVector? = null
     private var _magnifyingGlass: ImageVector? = null
     private var _pencil: ImageVector? = null
+    private var _accessTime: ImageVector? = null
+    private var _menuBook: ImageVector? = null
+    private var _history: ImageVector? = null
+    private var _bookmarkAdd: ImageVector? = null
+    private var _pause: ImageVector? = null
 }
