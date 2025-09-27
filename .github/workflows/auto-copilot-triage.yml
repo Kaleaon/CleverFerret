@@ -187,7 +187,7 @@ jobs:
       github.event.check_suite.conclusion != 'skipped' &&
       github.event.check_suite.conclusion != 'cancelled' &&
       github.event.check_suite.pull_requests != null &&
-      length(github.event.check_suite.pull_requests) > 0
+      toJSON(github.event.check_suite.pull_requests) != '[]'
     
     steps:
       - name: Process Check Suite Failure
