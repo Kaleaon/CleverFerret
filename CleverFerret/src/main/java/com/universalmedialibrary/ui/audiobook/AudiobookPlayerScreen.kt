@@ -225,7 +225,7 @@ private fun AudiobookTopBar(
         },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(PhosphorIcons.ArrowLeft, contentDescription = "Back")
             }
         },
         actions = {
@@ -237,7 +237,7 @@ private fun AudiobookTopBar(
                 )
             }
             IconButton(onClick = onShowChapters) {
-                Icon(Icons.Default.List, contentDescription = "Chapters")
+                Icon(PhosphorIcons.MenuBook, contentDescription = "Chapters")
             }
             IconButton(onClick = onShowBookmarks) {
                 Icon(PhosphorIcons.BookmarkBorder, contentDescription = "Bookmarks")
@@ -492,7 +492,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.ArrowBack,
+                    PhosphorIcons.ArrowLeft,
                     contentDescription = "Previous Chapter",
                     modifier = Modifier.size(32.dp)
                 )
@@ -504,7 +504,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.Refresh,
+                    PhosphorIcons.History,
                     contentDescription = "Skip Backward 30s",
                     modifier = Modifier.size(28.dp)
                 )
@@ -516,7 +516,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(64.dp)
             ) {
                 Icon(
-                    imageVector = if (isPlaying) PhosphorIcons.Pause else Icons.Default.PlayArrow,
+                    imageVector = if (isPlaying) PhosphorIcons.Pause else PhosphorIcons.Play,
                     contentDescription = if (isPlaying) "Pause" else "Play",
                     modifier = Modifier.size(32.dp)
                 )
@@ -528,7 +528,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.Refresh,
+                    PhosphorIcons.ArrowClockwise,
                     contentDescription = "Skip Forward 30s",
                     modifier = Modifier.size(28.dp)
                 )
@@ -540,7 +540,7 @@ private fun AudiobookPlaybackControls(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    Icons.Default.ArrowForward,
+                    PhosphorIcons.ArrowClockwise,
                     contentDescription = "Next Chapter",
                     modifier = Modifier.size(32.dp)
                 )
@@ -576,7 +576,7 @@ private fun AudiobookPlaybackControls(
                 onClick = onToggleSkipSilence
             ) {
                 Icon(
-                    imageVector = Icons.Default.Settings,
+                    imageVector = PhosphorIcons.Gear,
                     contentDescription = "Toggle Skip Silence",
                     tint = if (skipSilenceEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -584,7 +584,7 @@ private fun AudiobookPlaybackControls(
             
             // Sleep Timer
             IconButton(onClick = onShowSleepTimer) {
-                Icon(Icons.Default.Settings, contentDescription = "Sleep Timer")
+                Icon(PhosphorIcons.AccessTime, contentDescription = "Sleep Timer")
             }
         }
     }

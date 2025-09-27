@@ -72,7 +72,7 @@ fun MusicPlayerScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Back")
+                        Icon(PhosphorIcons.ArrowLeft, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -82,10 +82,10 @@ fun MusicPlayerScreen(
                         ) {
                             Text("${queue.size}")
                         }
-                        Icon(Icons.Default.List, contentDescription = "Queue")
+                        Icon(PhosphorIcons.MenuBook, contentDescription = "Queue")
                     }
                     IconButton(onClick = { /* TODO: Show more options */ }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                        Icon(PhosphorIcons.Gear, contentDescription = "More")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -183,7 +183,7 @@ fun MusicPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        Icons.Default.MusicNote,
+                        PhosphorIcons.MusicNote,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -371,10 +371,10 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             val (icon, tint) = when (playlistMode) {
-                PlaylistMode.SHUFFLE -> Icons.Default.Refresh to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ALL -> Icons.Default.Refresh to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ONE -> Icons.Default.Refresh to MaterialTheme.colorScheme.primary
-                else -> Icons.Default.Refresh to MaterialTheme.colorScheme.onSurfaceVariant
+                PlaylistMode.SHUFFLE -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ALL -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ONE -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.primary
+                else -> PhosphorIcons.ArrowClockwise to MaterialTheme.colorScheme.onSurfaceVariant
             }
             Icon(icon, contentDescription = "Playlist Mode", tint = tint)
         }
@@ -386,7 +386,7 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
-                Icons.Default.ArrowBack,
+                PhosphorIcons.ArrowLeft,
                 contentDescription = "Previous",
                 modifier = Modifier.size(32.dp)
             )
@@ -398,7 +398,7 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(72.dp)
         ) {
             Icon(
-                if (isPlaying) PhosphorIcons.Pause else Icons.Default.PlayArrow,
+                if (isPlaying) PhosphorIcons.Pause else PhosphorIcons.Play,
                 contentDescription = if (isPlaying) "Pause" else "Play",
                 modifier = Modifier.size(36.dp)
             )
@@ -411,7 +411,7 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
-                Icons.Default.ArrowForward,
+                PhosphorIcons.ArrowClockwise,
                 contentDescription = "Next",
                 modifier = Modifier.size(32.dp)
             )
@@ -423,7 +423,7 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             Icon(
-                Icons.Default.FavoriteBorder,
+                PhosphorIcons.Star,
                 contentDescription = "Favorite",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -443,15 +443,15 @@ private fun SecondaryControlsSection(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         IconButton(onClick = onVolumeClick) {
-            Icon(Icons.Default.Settings, contentDescription = "Volume")
+            Icon(PhosphorIcons.Gear, contentDescription = "Volume")
         }
         
         IconButton(onClick = onEqualizerClick) {
-            Icon(Icons.Default.Settings, contentDescription = "Equalizer")
+            Icon(PhosphorIcons.Gear, contentDescription = "Equalizer")
         }
         
         IconButton(onClick = onShareClick) {
-            Icon(Icons.Default.Share, contentDescription = "Share")
+            Icon(PhosphorIcons.Gear, contentDescription = "Share")
         }
     }
 }
