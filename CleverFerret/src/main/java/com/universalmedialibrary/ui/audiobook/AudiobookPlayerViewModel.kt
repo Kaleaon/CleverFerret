@@ -82,7 +82,7 @@ class AudiobookPlayerViewModel @Inject constructor(
                     
                     if (success) {
                         // Try to find matching e-book for synchronized reading
-                        findMatchingEbook(mediaItem.fileName, mediaItem.filePath)
+                        findMatchingEbook(mediaItem.fileName, mediaItem.filePath?.toString())
                     }
                 }
             } catch (e: Exception) {
