@@ -153,7 +153,6 @@ fun ImportCalibreDialog(
                                 } catch (e: Exception) {
                                     // Fallback for file picker issues
                                     // Use app's external files directory as a fallback
-                                    val context = LocalContext.current
                                     val fallbackPath = context.getExternalFilesDir(null)?.absolutePath ?: ""
                                     selectedPath = fallbackPath
                                     libraryName = "App External Files"
