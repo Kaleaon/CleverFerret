@@ -443,15 +443,15 @@ private fun SecondaryControlsSection(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         IconButton(onClick = onVolumeClick) {
-            Icon(PhosphorIcons.Gear, contentDescription = "Volume")
+            Icon(PhosphorIcons.VolumeUp, contentDescription = "Volume")
         }
         
         IconButton(onClick = onEqualizerClick) {
-            Icon(PhosphorIcons.Gear, contentDescription = "Equalizer")
+            Icon(PhosphorIcons.Equalizer, contentDescription = "Equalizer")
         }
         
         IconButton(onClick = onShareClick) {
-            Icon(PhosphorIcons.Gear, contentDescription = "Share")
+            Icon(PhosphorIcons.Share, contentDescription = "Share")
         }
     }
 }

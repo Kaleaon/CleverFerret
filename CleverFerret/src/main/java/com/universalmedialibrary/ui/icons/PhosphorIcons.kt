@@ -993,6 +993,103 @@ object PhosphorIcons {
             return _caretDown!!
         }
 
+    val VolumeUp: ImageVector
+        get() {
+            if (_volumeUp != null) {
+                return _volumeUp!!
+            }
+            _volumeUp = materialIcon(name = "VolumeUp") {
+                materialPath {
+                    moveTo(3.0f, 9.0f)
+                    verticalLineTo(15.0f)
+                    horizontalLineTo(7.0f)
+                    lineTo(12.0f, 20.0f)
+                    verticalLineTo(4.0f)
+                    lineTo(7.0f, 9.0f)
+                    horizontalLineTo(3.0f)
+                    close()
+                    moveTo(16.5f, 12.0f)
+                    curveTo(16.5f, 10.23f, 15.48f, 8.71f, 14.0f, 7.97f)
+                    verticalLineTo(16.02f)
+                    curveTo(15.48f, 15.29f, 16.5f, 13.77f, 16.5f, 12.0f)
+                    close()
+                    moveTo(14.0f, 3.23f)
+                    verticalLineTo(5.29f)
+                    curveTo(16.89f, 6.15f, 19.0f, 8.83f, 19.0f, 12.0f)
+                    curveTo(19.0f, 15.17f, 16.89f, 17.85f, 14.0f, 18.71f)
+                    verticalLineTo(20.77f)
+                    curveTo(18.01f, 19.86f, 21.0f, 16.28f, 21.0f, 12.0f)
+                    curveTo(21.0f, 7.72f, 18.01f, 4.14f, 14.0f, 3.23f)
+                    close()
+                }
+            }
+            return _volumeUp!!
+        }
+
+    val Equalizer: ImageVector
+        get() {
+            if (_equalizer != null) {
+                return _equalizer!!
+            }
+            _equalizer = materialIcon(name = "Equalizer") {
+                materialPath {
+                    moveTo(10.0f, 20.0f)
+                    horizontalLineTo(14.0f)
+                    verticalLineTo(4.0f)
+                    horizontalLineTo(10.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                    moveTo(4.0f, 20.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(4.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                    moveTo(16.0f, 9.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(20.0f)
+                    verticalLineTo(9.0f)
+                    horizontalLineTo(16.0f)
+                    close()
+                }
+            }
+            return _equalizer!!
+        }
+
+    val Share: ImageVector
+        get() {
+            if (_share != null) {
+                return _share!!
+            }
+            _share = materialIcon(name = "Share") {
+                materialPath {
+                    moveTo(18.0f, 16.08f)
+                    curveTo(17.24f, 16.08f, 16.56f, 16.38f, 16.04f, 16.85f)
+                    lineTo(8.91f, 12.7f)
+                    curveTo(8.96f, 12.47f, 9.0f, 12.24f, 9.0f, 12.0f)
+                    reflectiveCurveTo(8.96f, 11.53f, 8.91f, 11.3f)
+                    lineTo(15.96f, 7.19f)
+                    curveTo(16.5f, 7.69f, 17.21f, 8.0f, 18.0f, 8.0f)
+                    curveTo(19.66f, 8.0f, 21.0f, 6.66f, 21.0f, 5.0f)
+                    reflectiveCurveTo(19.66f, 2.0f, 18.0f, 2.0f)
+                    reflectiveCurveTo(15.0f, 3.34f, 15.0f, 5.0f)
+                    curveTo(15.0f, 5.24f, 15.04f, 5.47f, 15.09f, 5.7f)
+                    lineTo(8.04f, 9.81f)
+                    curveTo(7.5f, 9.31f, 6.79f, 9.0f, 6.0f, 9.0f)
+                    curveTo(4.34f, 9.0f, 3.0f, 10.34f, 3.0f, 12.0f)
+                    reflectiveCurveTo(4.34f, 15.0f, 6.0f, 15.0f)
+                    curveTo(6.79f, 15.0f, 7.5f, 14.69f, 8.04f, 14.19f)
+                    lineTo(15.16f, 18.35f)
+                    curveTo(15.11f, 18.56f, 15.08f, 18.78f, 15.08f, 19.0f)
+                    curveTo(15.08f, 20.61f, 16.39f, 21.92f, 18.0f, 21.92f)
+                    reflectiveCurveTo(20.92f, 20.61f, 20.92f, 19.0f)
+                    reflectiveCurveTo(19.61f, 16.08f, 18.0f, 16.08f)
+                    close()
+                }
+            }
+            return _share!!
+        }
+
     private var _book: ImageVector? = null
     private var _filmStrip: ImageVector? = null
     private var _musicNote: ImageVector? = null
@@ -1023,4 +1120,7 @@ object PhosphorIcons {
     private var _sync: ImageVector? = null
     private var _caretUp: ImageVector? = null
     private var _caretDown: ImageVector? = null
+    private var _volumeUp: ImageVector? = null
+    private var _equalizer: ImageVector? = null
+    private var _share: ImageVector? = null
 }
