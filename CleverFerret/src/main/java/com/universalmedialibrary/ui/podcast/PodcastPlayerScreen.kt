@@ -549,7 +549,7 @@ private fun ChaptersSection(
                 
                 IconButton(onClick = onToggleExpanded) {
                     Icon(
-                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        if (expanded) PhosphorIcons.CaretUp else PhosphorIcons.CaretDown,
                         contentDescription = if (expanded) "Collapse" else "Expand"
                     )
                 }
@@ -576,15 +576,15 @@ private fun ChaptersSection(
                             supportingContent = { 
                                 Text(formatTime(chapter.startTime)) 
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onChapterClick(index) },
                             colors = ListItemDefaults.colors(
                                 containerColor = if (isActive) 
                                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                     else Color.Transparent
                             )
-                        ) {
-                            onChapterClick(index)
-                        }
+                        )
                     }
                 }
             }

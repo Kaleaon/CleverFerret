@@ -959,6 +959,40 @@ object PhosphorIcons {
             return _sync!!
         }
 
+    val CaretUp: ImageVector
+        get() {
+            if (_caretUp != null) {
+                return _caretUp!!
+            }
+            _caretUp = materialIcon(name = "CaretUp") {
+                materialPath {
+                    moveTo(7.0f, 14.0f)
+                    lineTo(12.0f, 9.0f)
+                    lineTo(17.0f, 14.0f)
+                    horizontalLineTo(7.0f)
+                    close()
+                }
+            }
+            return _caretUp!!
+        }
+
+    val CaretDown: ImageVector
+        get() {
+            if (_caretDown != null) {
+                return _caretDown!!
+            }
+            _caretDown = materialIcon(name = "CaretDown") {
+                materialPath {
+                    moveTo(7.0f, 10.0f)
+                    lineTo(12.0f, 15.0f)
+                    lineTo(17.0f, 10.0f)
+                    horizontalLineTo(7.0f)
+                    close()
+                }
+            }
+            return _caretDown!!
+        }
+
     private var _book: ImageVector? = null
     private var _filmStrip: ImageVector? = null
     private var _musicNote: ImageVector? = null
@@ -987,4 +1021,6 @@ object PhosphorIcons {
     private var _bookmarkBorder: ImageVector? = null
     private var _errorOutline: ImageVector? = null
     private var _sync: ImageVector? = null
+    private var _caretUp: ImageVector? = null
+    private var _caretDown: ImageVector? = null
 }
