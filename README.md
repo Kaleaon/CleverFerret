@@ -3,6 +3,8 @@
 ![Android CI](https://github.com/Kaleaon/CleverFerret/workflows/Android%20CI/badge.svg)
 [![Latest Release](https://img.shields.io/github/v/release/Kaleaon/CleverFerret)](https://github.com/Kaleaon/CleverFerret/releases)
 
+<!-- AI Review & Upload System: ENABLED ✅ -->
+
 ## 📱 Direct APK Downloads
 
 ### 🔥 Latest Release APK (Recommended)
