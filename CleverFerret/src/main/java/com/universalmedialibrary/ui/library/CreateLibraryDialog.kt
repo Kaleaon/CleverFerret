@@ -152,7 +152,6 @@ fun CreateLibraryDialog(
                                     folderPicker.launch(intent)
                                 } catch (e: Exception) {
                                     // Fallback - use a default path
-                                    val context = LocalContext.current
                                     val externalDir = context.getExternalFilesDir(null)
                                     selectedPath = externalDir?.absolutePath + "/${getMediaTypeDisplayName(selectedType)}"
                                 }
