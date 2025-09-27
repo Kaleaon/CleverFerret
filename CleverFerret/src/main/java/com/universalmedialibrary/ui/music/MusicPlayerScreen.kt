@@ -82,7 +82,7 @@ fun MusicPlayerScreen(
                         ) {
                             Text("${queue.size}")
                         }
-                        Icon(Icons.Default.QueueMusic, contentDescription = "Queue")
+                        Icon(Icons.Default.List, contentDescription = "Queue")
                     }
                     IconButton(onClick = { /* TODO: Show more options */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
@@ -95,7 +95,7 @@ fun MusicPlayerScreen(
         }
     ) { paddingValues ->
         
-        if (currentTrack != null) {
+        currentTrack?.let { track ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -112,10 +112,10 @@ fun MusicPlayerScreen(
                 
                 // Album Art Section
                 AlbumArtSection(
-                    track = currentTrack,
+                    track = track,
                     isPlaying = playbackState.isPlaying,
-                    onAlbumClick = { track ->
-                        track.album?.let { album ->
+                    onAlbumClick = { clickedTrack ->
+                        clickedTrack.album?.let { album ->
                             onNavigateToAlbum(album)
                         }
                     }
@@ -125,7 +125,7 @@ fun MusicPlayerScreen(
                 
                 // Track Information
                 TrackInfoSection(
-                    track = currentTrack,
+                    track = track,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
                 
@@ -134,7 +134,7 @@ fun MusicPlayerScreen(
                 // Progress Section
                 ProgressSection(
                     currentPosition = currentPosition,
-                    duration = currentTrack.duration,
+                    duration = track.duration,
                     onSeek = { position ->
                         currentPosition = position
                         viewModel.seekTo(position)
@@ -150,11 +150,11 @@ fun MusicPlayerScreen(
                 ControlButtonsSection(
                     isPlaying = playbackState.isPlaying,
                     playlistMode = playlistMode,
-                    canSkipPrevious = true,
-                    canSkipNext = queue.size > 1,
+                    canArrowBack = true,
+                    canArrowForward = queue.size > 1,
                     onPlayPause = viewModel::togglePlayPause,
-                    onSkipPrevious = viewModel::skipToPrevious,
-                    onSkipNext = viewModel::skipToNext,
+                    onArrowBack = viewModel::skipToPrevious,
+                    onArrowForward = viewModel::skipToNext,
                     onToggleMode = viewModel::togglePlaylistMode,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
@@ -171,7 +171,7 @@ fun MusicPlayerScreen(
                 
                 Spacer(modifier = Modifier.weight(1f))
             }
-        } else {
+        } ?: run {
             // No track loaded state
             Box(
                 modifier = Modifier
@@ -326,7 +326,6 @@ private fun ProgressSection(
                 val newPosition = (newProgress * duration).toLong()
                 onSeek(newPosition)
             },
-            onValueChangeStarted = { onDragStart() },
             onValueChangeFinished = { onDragEnd() },
             modifier = Modifier.fillMaxWidth()
         )
@@ -353,11 +352,11 @@ private fun ProgressSection(
 private fun ControlButtonsSection(
     isPlaying: Boolean,
     playlistMode: PlaylistMode,
-    canSkipPrevious: Boolean,
-    canSkipNext: Boolean,
+    canArrowBack: Boolean,
+    canArrowForward: Boolean,
     onPlayPause: () -> Unit,
-    onSkipPrevious: () -> Unit,
-    onSkipNext: () -> Unit,
+    onArrowBack: () -> Unit,
+    onArrowForward: () -> Unit,
     onToggleMode: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -372,22 +371,22 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             val (icon, tint) = when (playlistMode) {
-                PlaylistMode.SHUFFLE -> Icons.Default.Shuffle to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ALL -> Icons.Default.Repeat to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ONE -> Icons.Default.RepeatOne to MaterialTheme.colorScheme.primary
-                else -> Icons.Default.Shuffle to MaterialTheme.colorScheme.onSurfaceVariant
+                PlaylistMode.SHUFFLE -> Icons.Default.Refresh to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ALL -> Icons.Default.Refresh to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ONE -> Icons.Default.Refresh to MaterialTheme.colorScheme.primary
+                else -> Icons.Default.Refresh to MaterialTheme.colorScheme.onSurfaceVariant
             }
             Icon(icon, contentDescription = "Playlist Mode", tint = tint)
         }
         
         // Previous Track
         IconButton(
-            onClick = onSkipPrevious,
-            enabled = canSkipPrevious,
+            onClick = onArrowBack,
+            enabled = canArrowBack,
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
-                Icons.Default.SkipPrevious,
+                Icons.Default.ArrowBack,
                 contentDescription = "Previous",
                 modifier = Modifier.size(32.dp)
             )
@@ -407,12 +406,12 @@ private fun ControlButtonsSection(
         
         // Next Track
         IconButton(
-            onClick = onSkipNext,
-            enabled = canSkipNext,
+            onClick = onArrowForward,
+            enabled = canArrowForward,
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
-                Icons.Default.SkipNext,
+                Icons.Default.ArrowForward,
                 contentDescription = "Next",
                 modifier = Modifier.size(32.dp)
             )
@@ -444,11 +443,11 @@ private fun SecondaryControlsSection(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         IconButton(onClick = onVolumeClick) {
-            Icon(Icons.Default.VolumeUp, contentDescription = "Volume")
+            Icon(Icons.Default.Settings, contentDescription = "Volume")
         }
         
         IconButton(onClick = onEqualizerClick) {
-            Icon(Icons.Default.GraphicEq, contentDescription = "Equalizer")
+            Icon(Icons.Default.Settings, contentDescription = "Equalizer")
         }
         
         IconButton(onClick = onShareClick) {
