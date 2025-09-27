@@ -58,6 +58,8 @@ jobs:
       - name: Download and Process Workflow Logs
         if: steps.get_pr.outputs.skip_triage == 'false'
         id: get_logs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           WORKFLOW_RUN_ID="${{ github.event.workflow_run.id }}"
           REPO="${{ github.repository }}"
