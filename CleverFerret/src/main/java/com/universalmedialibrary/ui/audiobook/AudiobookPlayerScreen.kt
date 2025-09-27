@@ -576,8 +576,8 @@ private fun AudiobookPlaybackControls(
                 onClick = onToggleSkipSilence
             ) {
                 Icon(
-                    imageVector = PhosphorIcons.Gear,
-                    contentDescription = "Toggle Skip Silence",
+                    imageVector = if (skipSilenceEnabled) PhosphorIcons.Waveform else PhosphorIcons.WaveformSlash,
+                    contentDescription = if (skipSilenceEnabled) "Disable Skip Silence" else "Enable Skip Silence",
                     tint = if (skipSilenceEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
