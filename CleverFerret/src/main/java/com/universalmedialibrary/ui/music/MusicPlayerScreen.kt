@@ -326,6 +326,7 @@ private fun ProgressSection(
                 val newPosition = (newProgress * duration).toLong()
                 onSeek(newPosition)
             },
+            onValueChangeStarted = { onDragStart() },
             onValueChangeFinished = { onDragEnd() },
             modifier = Modifier.fillMaxWidth()
         )
