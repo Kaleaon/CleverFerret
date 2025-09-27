@@ -80,7 +80,8 @@ jobs:
             MAX_SIZE=32000  # Leave room for comment metadata (GitHub limit ~65K chars)
             
             # Look for log files and extract the most relevant failure information
-            find . -name "*.txt" -type f | while read -r log_file; do
+            LOG_FILES=$(find . -name "*.txt" -type f)
+            for log_file in $LOG_FILES; do
               if [ $TOTAL_SIZE -ge $MAX_SIZE ]; then
                 break
               fi
