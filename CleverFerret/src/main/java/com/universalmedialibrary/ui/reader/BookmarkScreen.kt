@@ -175,7 +175,7 @@ private fun HighlightList(
 ) {
     if (highlights.isEmpty()) {
         EmptyState(
-            icon = Icons.Default.Lightbulb,
+            icon = PhosphorIcons.Lightbulb,
             title = "No Highlights",
             description = "Select text in the reader and choose highlight to create highlights"
         )
@@ -209,7 +209,7 @@ private fun NoteList(
 ) {
     if (notes.isEmpty()) {
         EmptyState(
-            icon = Icons.Default.Note,
+            icon = PhosphorIcons.Note,
             title = "No Notes",
             description = "Select text in the reader and choose note to create annotations"
         )
@@ -262,7 +262,7 @@ private fun BookmarkItem(
             }
             
             Icon(
-                Icons.Default.Bookmark,
+                PhosphorIcons.Bookmark,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
@@ -381,7 +381,7 @@ private fun NoteItem(
                 }
                 
                 Icon(
-                    Icons.Default.Note,
+                    PhosphorIcons.Note,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)

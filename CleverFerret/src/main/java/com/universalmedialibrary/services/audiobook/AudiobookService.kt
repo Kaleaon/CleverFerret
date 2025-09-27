@@ -167,6 +167,71 @@ class AudiobookService @Inject constructor(
             error = error
         )
     }
+    
+    /**
+     * Additional methods for playback control
+     */
+    fun play() = exoPlayerService.play()
+    fun pause() = exoPlayerService.pause()
+    
+    fun setSynchronizedReading(enabled: Boolean) {
+        updateSynchronizationState(enabled = enabled)
+    }
+    
+    fun goToChapter(chapterIndex: Int) {
+        // Navigate to specific chapter
+        val audiobook = currentAudiobook ?: return
+        if (chapterIndex >= 0 && chapterIndex < audiobook.chapters.size) {
+            val chapter = audiobook.chapters[chapterIndex]
+            // Seek to chapter start time - would need ExoPlayer implementation
+            // For now, just update the state
+            updateAudiobookState(currentChapterIndex = chapterIndex)
+        }
+    }
+    
+    fun seekForward(seconds: Int) {
+        // Skip forward by specified seconds
+        // Would need ExoPlayer implementation
+    }
+    
+    fun seekBackward(seconds: Int) {
+        // Skip backward by specified seconds  
+        // Would need ExoPlayer implementation
+    }
+    
+    fun setPlaybackSpeed(speed: Float) {
+        // Set playback speed
+        // Would need ExoPlayer implementation
+    }
+    
+    fun setSkipSilence(enabled: Boolean) {
+        // Toggle skip silence feature
+        exoPlayerService.setSkipSilence(enabled)
+    }
+    
+    fun setSleepTimer(minutes: Int) {
+        // Set sleep timer for automatic pause
+        // Would need timer implementation
+    }
+    
+    fun cancelSleepTimer() {
+        // Cancel active sleep timer
+        // Would need timer implementation  
+    }
+    
+    fun createBookmark(note: String? = null) {
+        // Create bookmark at current position
+        // Would need bookmark persistence implementation
+    }
+    
+    fun jumpToBookmark(bookmark: AudiobookBookmark) {
+        // Jump to saved bookmark position
+        // Would need ExoPlayer seek implementation
+    }
+    
+    fun stop() {
+        exoPlayerService.stop()
+    }
 }
 
 data class Audiobook(

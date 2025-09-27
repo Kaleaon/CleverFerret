@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.audiobook
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audiobook.AudiobookBookmark
 import com.universalmedialibrary.services.audiobook.AudiobookService
@@ -12,9 +13,12 @@ import com.universalmedialibrary.services.audiobook.SynchronizedReadingService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,7 +50,11 @@ class AudiobookPlayerViewModel @Inject constructor(
     val highlightedText: StateFlow<HighlightedText?> = _highlightedText.asStateFlow()
     
     // Playback state from ExoPlayer
-    val isPlaying: StateFlow<Boolean> = exoPlayerService.isPlaying
+    val isPlaying: StateFlow<Boolean> = exoPlayerService.playerState.map { it.isPlaying }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
     
     private var currentAudiobookId: Long? = null
     private var matchingEbookId: Long? = null
@@ -55,10 +63,10 @@ class AudiobookPlayerViewModel @Inject constructor(
         // Monitor playback position for synchronized reading
         viewModelScope.launch {
             combine(
-                exoPlayerService.currentPosition,
+                exoPlayerService.playerState.map { it.currentPosition },
                 audiobookState,
                 synchronizationState
-            ) { position, audioState, syncState ->
+            ) { position: Long, audioState: AudiobookState, syncState: SynchronizationState ->
                 if (syncState.enabled && audioState.isLoaded) {
                     updateHighlightedText(position, audioState.currentChapterIndex)
                 }
@@ -81,7 +89,7 @@ class AudiobookPlayerViewModel @Inject constructor(
                     
                     if (success) {
                         // Try to find matching e-book for synchronized reading
-                        findMatchingEbook(mediaItem.title, mediaItem.metadata?.firstOrNull()?.toString())
+                        findMatchingEbook(mediaItem.fileName, null)
                     }
                 }
             } catch (e: Exception) {
@@ -201,7 +209,7 @@ class AudiobookPlayerViewModel @Inject constructor(
      */
     fun createBookmark(title: String, notes: String? = null) {
         viewModelScope.launch {
-            audiobookService.createBookmark(title, notes)
+            audiobookService.createBookmark(notes)
         }
     }
     
@@ -235,14 +243,11 @@ class AudiobookPlayerViewModel @Inject constructor(
     private suspend fun findMatchingEbook(title: String, author: String?) {
         try {
             // Search for matching e-book in the library
-            val allMedia = mediaRepository.getAllMediaItems()
+            val allMedia = mediaRepository.searchMediaItems("epub", limit = 100)
             
-            val matchingEbook = allMedia.find { media ->
+            val matchingEbook = allMedia.find { media: MediaItem ->
                 media.fileExtension.lowercase() == "epub" &&
-                media.title.contains(title, ignoreCase = true) &&
-                (author == null || media.metadata?.any { 
-                    it.toString().contains(author, ignoreCase = true) 
-                } == true)
+                media.fileName.contains(title, ignoreCase = true)
             }
             
             matchingEbookId = matchingEbook?.itemId

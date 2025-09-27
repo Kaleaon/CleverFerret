@@ -82,7 +82,7 @@ fun MusicPlayerScreen(
                         ) {
                             Text("${queue.size}")
                         }
-                        Icon(Icons.Default.QueueMusic, contentDescription = "Queue")
+                        Icon(PhosphorIcons.QueueMusic, contentDescription = "Queue")
                     }
                     IconButton(onClick = { /* TODO: Show more options */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
@@ -111,30 +111,34 @@ fun MusicPlayerScreen(
             ) {
                 
                 // Album Art Section
-                AlbumArtSection(
-                    track = currentTrack,
-                    isPlaying = playbackState.isPlaying,
-                    onAlbumClick = { track ->
-                        track.album?.let { album ->
-                            onNavigateToAlbum(album)
+                currentTrack?.let { track ->
+                    AlbumArtSection(
+                        track = track,
+                        isPlaying = playbackState.isPlaying,
+                        onAlbumClick = { tr ->
+                            tr.album?.let { album ->
+                                onNavigateToAlbum(album)
+                            }
                         }
-                    }
-                )
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 // Track Information
-                TrackInfoSection(
-                    track = currentTrack,
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                currentTrack?.let { track ->
+                    TrackInfoSection(
+                        track = track,
+                        modifier = Modifier.padding(horizontal = 24.dp)
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 // Progress Section
                 ProgressSection(
                     currentPosition = currentPosition,
-                    duration = currentTrack.duration,
+                    duration = currentTrack?.duration ?: 0L,
                     onSeek = { position ->
                         currentPosition = position
                         viewModel.seekTo(position)
@@ -183,7 +187,7 @@ fun MusicPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        Icons.Default.MusicNote,
+                        PhosphorIcons.MusicNote,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -326,7 +330,6 @@ private fun ProgressSection(
                 val newPosition = (newProgress * duration).toLong()
                 onSeek(newPosition)
             },
-            onValueChangeStarted = { onDragStart() },
             onValueChangeFinished = { onDragEnd() },
             modifier = Modifier.fillMaxWidth()
         )
@@ -372,10 +375,10 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             val (icon, tint) = when (playlistMode) {
-                PlaylistMode.SHUFFLE -> Icons.Default.Shuffle to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ALL -> Icons.Default.Repeat to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ONE -> Icons.Default.RepeatOne to MaterialTheme.colorScheme.primary
-                else -> Icons.Default.Shuffle to MaterialTheme.colorScheme.onSurfaceVariant
+                PlaylistMode.SHUFFLE -> PhosphorIcons.Shuffle to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ALL -> PhosphorIcons.Repeat to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ONE -> PhosphorIcons.RepeatOne to MaterialTheme.colorScheme.primary
+                else -> PhosphorIcons.Shuffle to MaterialTheme.colorScheme.onSurfaceVariant
             }
             Icon(icon, contentDescription = "Playlist Mode", tint = tint)
         }
@@ -448,7 +451,7 @@ private fun SecondaryControlsSection(
         }
         
         IconButton(onClick = onEqualizerClick) {
-            Icon(Icons.Default.GraphicEq, contentDescription = "Equalizer")
+            Icon(PhosphorIcons.Equalizer, contentDescription = "Equalizer")
         }
         
         IconButton(onClick = onShareClick) {
