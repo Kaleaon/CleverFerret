@@ -191,7 +191,7 @@ fun CreateLibraryDialog(
                         onClick = {
                             if (libraryName.isNotBlank()) {
                                 val finalPath = selectedPath.ifEmpty { 
-                                    "/storage/emulated/0/${getMediaTypeDisplayName(selectedType)}"
+                                    context.getExternalFilesDir(getMediaTypeDisplayName(selectedType))?.absolutePath ?: ""
                                 }
                                 onCreateLibrary(libraryName.trim(), selectedType, finalPath)
                             }
