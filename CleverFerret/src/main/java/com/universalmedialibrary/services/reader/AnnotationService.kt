@@ -110,7 +110,7 @@ class AnnotationService @Inject constructor(
     /**
      * Get all annotations for a specific chapter
      */
-    fun getAnnotationsForChapter(itemId: Long, chapterIndex: Int): Flow<List<Annotation>> {
+    fun getAnnotationsForChapter(itemId: Long, chapterIndex: Int): Flow<List<TextAnnotation>> {
         return annotationDao.getAnnotationsForChapter(itemId, chapterIndex)
     }
 

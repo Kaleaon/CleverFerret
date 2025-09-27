@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -74,11 +75,11 @@ fun EReaderScreen(
                     Icon(Icons.Default.Search, contentDescription = "Search")
                 }
                 IconButton(onClick = { /* Navigate to bookmarks */ }) {
-                    Icon(Icons.Default.BookmarkAdd, contentDescription = "Bookmarks")
+                    Icon(PhosphorIcons.BookmarkAdd, contentDescription = "Bookmarks")
                 }
                 IconButton(onClick = { viewModel.toggleTTS() }) {
                     Icon(
-                        if (uiState.isTTSPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        if (uiState.isTTSPlaying) PhosphorIcons.Pause else Icons.Default.PlayArrow,
                         contentDescription = if (uiState.isTTSPlaying) "Stop TTS" else "Play TTS"
                     )
                 }

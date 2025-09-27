@@ -6,9 +6,12 @@ import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,6 +50,8 @@ class AdvancedPodcastPlayerService @Inject constructor(
     
     private val _chapters = MutableStateFlow<List<PodcastChapter>>(emptyList())
     val chapters: StateFlow<List<PodcastChapter>> = _chapters.asStateFlow()
+    
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     
     private var currentQueueIndex = 0
     
@@ -394,7 +399,10 @@ class AdvancedPodcastPlayerService @Inject constructor(
                 exoPlayerService.seekTo(currentEpisode.savedPosition)
             }
             
-            loadEpisodeChapters(currentEpisode.episode)
+            // Launch coroutine to load episode chapters
+            serviceScope.launch {
+                loadEpisodeChapters(currentEpisode.episode)
+            }
             
             if (!_playbackState.value.isPlaying) {
                 play()
