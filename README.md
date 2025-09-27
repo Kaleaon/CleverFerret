@@ -1,7 +1,9 @@
-# 🦫 CleverFerret Universal Media Library
+# 🧠⚡ CleverFerret Universal Media Library
 
 ![Android CI](https://github.com/Kaleaon/CleverFerret/workflows/Android%20CI/badge.svg)
 [![Latest Release](https://img.shields.io/github/v/release/Kaleaon/CleverFerret)](https://github.com/Kaleaon/CleverFerret/releases)
+
+<!-- AI Review & Upload System: ENABLED ✅ -->
 
 ## 📱 Direct APK Downloads
 
@@ -469,6 +471,6 @@ When reporting issues, include:
 
 ---
 
-**🦫 CleverFerret - Universal Media Library with Universal Build Support**
+**🧠⚡ CleverFerret - Universal Media Library with Universal Build Support**
 
 *Build once, run everywhere. Develop anywhere, deploy everywhere.*

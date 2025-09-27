@@ -1,4 +1,4 @@
-# 🦫 CleverFerret Universal Media Library - Installation Guide
+# 🧠⚡ CleverFerret Universal Media Library - Installation Guide
 
 ## 📦 **APK DOWNLOAD & INSTALLATION**
 
@@ -166,6 +166,6 @@ CleverFerret brings together all your media in one professional, feature-rich ap
 
 ---
 
-**🦫 CleverFerret Universal Media Library v1.0.0**
+**🧠⚡ CleverFerret Universal Media Library v1.0.0**
 
 *Transform your media experience with the most comprehensive media management solution available*

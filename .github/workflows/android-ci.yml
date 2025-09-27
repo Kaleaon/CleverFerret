@@ -32,6 +32,12 @@ jobs:
       with:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: 'temurin'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Accept Android SDK licenses
+      run: yes | sdkmanager --licenses
         
     - name: Cache Gradle dependencies
       uses: actions/cache@v4
@@ -49,8 +55,42 @@ jobs:
     - name: Build Debug APK
       run: ./gradlew assembleDebug --stacktrace --no-daemon
       
-    - name: Build Release APK  
+    - name: Build Release APK
       run: ./gradlew assembleRelease --stacktrace --no-daemon
+
+    # ----- Signing (Release) -----
+    - name: Prepare signing key
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      env:
+        ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      run: |
+        echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > keystore.jks
+
+    - name: Ensure build-tools (for apksigner)
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      run: sdkmanager --install "build-tools;34.0.0"
+
+    - name: Sign Release APK
+      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      env:
+        ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      run: |
+        RELEASE_UNSIGNED="CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk"
+        RELEASE_SIGNED="CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk"
+        if [ -f "$RELEASE_UNSIGNED" ]; then
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign \
+            --ks keystore.jks \
+            --ks-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
+            --ks-key-alias "$ANDROID_KEY_ALIAS" \
+            --key-pass pass:"$ANDROID_KEY_PASSWORD" \
+            --out "$RELEASE_SIGNED" \
+            "$RELEASE_UNSIGNED"
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify "$RELEASE_SIGNED"
+        else
+          echo "No unsigned release APK found to sign."
+        fi
 
     - name: Run Unit Tests
       run: ./gradlew testDebugUnitTest --stacktrace --no-daemon
@@ -73,7 +113,10 @@ jobs:
           cp CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
              build-artifacts/CleverFerret-debug-${GITHUB_SHA:0:7}.apk
         fi
-        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
+        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]; then
+          cp CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk \
+             build-artifacts/CleverFerret-release-${GITHUB_SHA:0:7}.apk
+        elif [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
           cp CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
              build-artifacts/CleverFerret-release-${GITHUB_SHA:0:7}.apk
         fi
@@ -106,7 +149,10 @@ jobs:
           cp CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
              builds/latest/CleverFerret-debug-latest.apk
         fi
-        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
+        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]; then
+          cp CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk \
+             builds/latest/CleverFerret-release-latest.apk
+        elif [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
           cp CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
              builds/latest/CleverFerret-release-latest.apk
         fi
@@ -160,9 +206,12 @@ jobs:
           echo "- ❌ **Debug APK**: Build failed" >> $GITHUB_STEP_SUMMARY
         fi
         
-        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
+        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]; then
+          RELEASE_SIZE=$(ls -lh CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk | awk '{print $5}')
+          echo "- ✅ **Release APK**: Built and signed successfully (${RELEASE_SIZE})" >> $GITHUB_STEP_SUMMARY
+        elif [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
           RELEASE_SIZE=$(ls -lh CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk | awk '{print $5}')
-          echo "- ✅ **Release APK**: Built successfully (${RELEASE_SIZE})" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ **Release APK**: Built unsigned (${RELEASE_SIZE})" >> $GITHUB_STEP_SUMMARY
         else
           echo "- ❌ **Release APK**: Build failed" >> $GITHUB_STEP_SUMMARY
         fi
