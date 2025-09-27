@@ -117,7 +117,7 @@ private fun StatisticsSummary(
                 )
                 
                 StatisticItem(
-                    icon = Icons.Default.Book,
+                    icon = Icons.Default.MenuBook,
                     label = "Pages Read",
                     value = totalPages.toString()
                 )
@@ -129,7 +129,7 @@ private fun StatisticsSummary(
                 )
                 
                 StatisticItem(
-                    icon = Icons.Default.Timer,
+                    icon = Icons.Default.AccessTime,
                     label = "Avg Session",
                     value = "${averageSessionTime}m"
                 )

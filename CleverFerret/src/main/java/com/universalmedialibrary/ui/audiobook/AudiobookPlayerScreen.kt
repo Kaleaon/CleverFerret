@@ -232,7 +232,7 @@ private fun AudiobookTopBar(
         actions = {
             IconButton(onClick = onToggleSynchronizedText) {
                 Icon(
-                    imageVector = if (synchronizedTextEnabled) Icons.Default.Sync else Icons.Default.SyncDisabled,
+                    imageVector = if (synchronizedTextEnabled) Icons.Default.CloudSync else Icons.Default.CloudOff,
                     contentDescription = "Toggle Synchronized Reading",
                     tint = if (synchronizedTextEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -241,7 +241,7 @@ private fun AudiobookTopBar(
                 Icon(Icons.Default.List, contentDescription = "Chapters")
             }
             IconButton(onClick = onShowBookmarks) {
-                Icon(Icons.Default.Bookmark, contentDescription = "Bookmarks")
+                Icon(Icons.Default.BookmarkBorder, contentDescription = "Bookmarks")
             }
         }
     )
@@ -281,7 +281,7 @@ private fun AudiobookErrorState(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Error,
+                imageVector = Icons.Default.ErrorOutline,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(48.dp)
