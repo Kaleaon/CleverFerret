@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -140,7 +141,7 @@ private fun BookmarkList(
 ) {
     if (bookmarks.isEmpty()) {
         EmptyState(
-            icon = Icons.Default.BookmarkAdd,
+            icon = PhosphorIcons.BookmarkAdd,
             title = "No Bookmarks",
             description = "Tap and hold in the reader to create a bookmark"
         )
