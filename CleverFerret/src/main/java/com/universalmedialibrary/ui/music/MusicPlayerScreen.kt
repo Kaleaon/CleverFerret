@@ -82,7 +82,7 @@ fun MusicPlayerScreen(
                         ) {
                             Text("${queue.size}")
                         }
-                        Icon(Icons.Default.QueueMusic, contentDescription = "Queue")
+                        Icon(PhosphorIcons.QueueMusic, contentDescription = "Queue")
                     }
                     IconButton(onClick = { /* TODO: Show more options */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
@@ -183,7 +183,7 @@ fun MusicPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        Icons.Default.MusicNote,
+                        PhosphorIcons.MusicNote,
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -372,10 +372,10 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(48.dp)
         ) {
             val (icon, tint) = when (playlistMode) {
-                PlaylistMode.SHUFFLE -> Icons.Default.Shuffle to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ALL -> Icons.Default.Repeat to MaterialTheme.colorScheme.primary
-                PlaylistMode.REPEAT_ONE -> Icons.Default.RepeatOne to MaterialTheme.colorScheme.primary
-                else -> Icons.Default.Shuffle to MaterialTheme.colorScheme.onSurfaceVariant
+                PlaylistMode.SHUFFLE -> PhosphorIcons.Shuffle to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ALL -> PhosphorIcons.Repeat to MaterialTheme.colorScheme.primary
+                PlaylistMode.REPEAT_ONE -> PhosphorIcons.RepeatOne to MaterialTheme.colorScheme.primary
+                else -> PhosphorIcons.Shuffle to MaterialTheme.colorScheme.onSurfaceVariant
             }
             Icon(icon, contentDescription = "Playlist Mode", tint = tint)
         }
