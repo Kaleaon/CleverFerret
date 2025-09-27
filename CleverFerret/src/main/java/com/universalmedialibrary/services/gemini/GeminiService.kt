@@ -56,7 +56,7 @@ class GeminiService @Inject constructor(
             }
             
             generativeModel = GenerativeModel(
-                modelName = "gemini-1.5-flash",
+                modelName = "gemini-2.5-flash",
                 apiKey = apiKey
             )
             true
