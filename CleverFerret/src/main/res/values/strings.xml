@@ -46,4 +46,12 @@
     <string name="cd_ferret_logo">Clever Ferret Logo</string>
     <string name="cd_settings_icon">Settings</string>
     <string name="cd_menu_icon">Menu</string>
+    
+    <!-- Widget Strings -->
+    <string name="media_playback_widget_description">CleverFerret Media Playback Controls</string>
+    <string name="widget_no_media">No Media Playing</string>
+    <string name="widget_play">Play</string>
+    <string name="widget_pause">Pause</string>
+    <string name="widget_previous">Previous</string>
+    <string name="widget_next">Next</string>
 </resources>
