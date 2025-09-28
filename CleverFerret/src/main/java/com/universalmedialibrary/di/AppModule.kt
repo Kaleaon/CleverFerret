@@ -317,6 +317,38 @@ object AppModule {
     }
     
 
+    // Plex Integration Services
+    @Provides
+    fun providePlexServerDao(database: CleverFerretDatabase): com.universalmedialibrary.data.local.dao.PlexServerDao {
+        return database.plexServerDao()
+    }
+    
+    @Provides
+    fun providePlexMediaItemDao(database: CleverFerretDatabase): com.universalmedialibrary.data.local.dao.PlexMediaItemDao {
+        return database.plexMediaItemDao()
+    }
+    
+    @Provides
+    fun providePlexSyncDao(database: CleverFerretDatabase): com.universalmedialibrary.data.local.dao.PlexSyncDao {
+        return database.plexSyncDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun providePlexSyncService(
+        @ApplicationContext context: Context,
+        plexServerDao: com.universalmedialibrary.data.local.dao.PlexServerDao,
+        plexMediaItemDao: com.universalmedialibrary.data.local.dao.PlexMediaItemDao,
+        plexSyncDao: com.universalmedialibrary.data.local.dao.PlexSyncDao
+    ): com.universalmedialibrary.services.plex.PlexSyncService {
+        return com.universalmedialibrary.services.plex.PlexSyncService(
+            context,
+            plexServerDao,
+            plexMediaItemDao,
+            plexSyncDao
+        )
+
+
     // MediaSession and Notification Services
     @Provides
     @Singleton
@@ -345,6 +377,7 @@ object AppModule {
             context,
             universalMediaPlayerService
         )
+
 
     }
 }

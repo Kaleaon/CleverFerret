@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.contentcreation.ContentCreationScreen
 import com.universalmedialibrary.ui.library.LibraryManagementScreen
+import com.universalmedialibrary.ui.plex.PlexSyncScreen
 import dagger.hilt.android.AndroidEntryPoint
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
@@ -147,7 +148,8 @@ fun CleverFerretApp() {
         }
         composable("settings") {
             SettingsPlaceholder(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToPlexSync = { navController.navigate("plex_sync") }
             )
         }
         composable("content_creation") {
@@ -160,6 +162,9 @@ fun CleverFerretApp() {
             LibraryManagementScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
+        }
+        composable("plex_sync") {
+            PlexSyncScreen()
         }
         // Keep the old route for compatibility
         composable("library") {
@@ -410,14 +415,13 @@ fun MediaViewerPlaceholder(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsPlaceholder(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToPlexSync: (() -> Unit)? = null
 ) {
     Box(
-
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
-
     ) {
         Column {
             TopAppBar(
@@ -433,29 +437,86 @@ fun SettingsPlaceholder(
                 )
             )
             
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Settings,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = Color(0xFFE5A00D)
-                    )
-                    Text(
-                        text = "Settings",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                    Text(
-                        text = "Settings screen coming soon",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color(0xFFB3B3B3)
-                    )
+                // Plex Integration Section
+                Card {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Integrations",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        if (onNavigateToPlexSync != null) {
+                            Card(
+                                onClick = onNavigateToPlexSync,
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = PhosphorIcons.CloudSync,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Plex Sync",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = "Sync progress, ratings, collections & tags",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowForward,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Placeholder for other settings
+                Card {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "More Settings Coming Soon",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }

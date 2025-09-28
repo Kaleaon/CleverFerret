@@ -54,10 +54,21 @@ import com.universalmedialibrary.data.local.entity.*
         SearchIndex::class,
         ReadingStatistics::class,
         
+        // Plex integration entities
+        PlexServer::class,
+        PlexMediaItem::class,
+        PlexProgress::class,
+        PlexRating::class,
+        PlexCollection::class,
+        PlexCollectionItem::class,
+        PlexTag::class,
+        PlexMediaTag::class
+
         // Unified playback queue entities
         PlaybackQueue::class,
         QueueItem::class,
         PlaybackSession::class
+
     ],
     version = 9,
     exportSchema = false
@@ -80,10 +91,17 @@ abstract class CleverFerretDatabase : RoomDatabase() {
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
     
+
+    // Plex integration DAOs
+    abstract fun plexServerDao(): PlexServerDao
+    abstract fun plexMediaItemDao(): PlexMediaItemDao
+    abstract fun plexSyncDao(): PlexSyncDao
+
     // Unified playback queue DAOs
     abstract fun playbackQueueDao(): PlaybackQueueDao
     abstract fun queueItemDao(): QueueItemDao
     abstract fun playbackSessionDao(): PlaybackSessionDao
+
     
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
