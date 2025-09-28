@@ -96,6 +96,21 @@ object AppModule {
         return database.readerSettingsDao()
     }
     
+    @Provides
+    fun provideAnnotationDao(database: CleverFerretDatabase): AnnotationDao {
+        return database.annotationDao()
+    }
+    
+    @Provides
+    fun provideSearchIndexDao(database: CleverFerretDatabase): SearchIndexDao {
+        return database.searchIndexDao()
+    }
+    
+    @Provides
+    fun provideReadingStatisticsDao(database: CleverFerretDatabase): ReadingStatisticsDao {
+        return database.readingStatisticsDao()
+    }
+    
     // Repositories
     @Provides
     @Singleton

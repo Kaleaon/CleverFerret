@@ -390,7 +390,7 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
-                Icons.Default.SkipPrevious,
+                PhosphorIcons.SkipPrevious,
                 contentDescription = "Previous",
                 modifier = Modifier.size(32.dp)
             )
@@ -415,7 +415,7 @@ private fun ControlButtonsSection(
             modifier = Modifier.size(56.dp)
         ) {
             Icon(
-                Icons.Default.SkipNext,
+                PhosphorIcons.SkipNext,
                 contentDescription = "Next",
                 modifier = Modifier.size(32.dp)
             )
@@ -447,7 +447,7 @@ private fun SecondaryControlsSection(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         IconButton(onClick = onVolumeClick) {
-            Icon(Icons.Default.VolumeUp, contentDescription = "Volume")
+            Icon(PhosphorIcons.VolumeUp, contentDescription = "Volume")
         }
         
         IconButton(onClick = onEqualizerClick) {

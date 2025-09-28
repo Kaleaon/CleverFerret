@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.contentcreation.ContentCreationScreen
+import com.universalmedialibrary.ui.library.LibraryManagementScreen
 import dagger.hilt.android.AndroidEntryPoint
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
@@ -27,6 +28,9 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
  * CleverFerret Universal Media Library - Main Activity
  * 
  * Enhanced with Plex-inspired UI design converted from React components
+
+ * Enhanced with complete database infrastructure and library management UI
+
  * Fixed with better error handling for installation issues
  */
 @AndroidEntryPoint
@@ -151,10 +155,18 @@ fun CleverFerretApp() {
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+
+        composable("library_management") {
+            LibraryManagementScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
         // Keep the old route for compatibility
         composable("library") {
             LibraryHomeScreen(
-                onNavigateToContentCreation = { navController.navigate("content_creation") }
+                onNavigateToContentCreation = { navController.navigate("content_creation") },
+                navController = navController
+
             )
         }
     }
@@ -162,7 +174,8 @@ fun CleverFerretApp() {
 
 @Composable
 fun LibraryHomeScreen(
-    onNavigateToContentCreation: () -> Unit = {}
+    onNavigateToContentCreation: () -> Unit = {},
+    navController: androidx.navigation.NavController
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -265,7 +278,7 @@ fun LibraryHomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(
-                    onClick = { /* TODO: Navigate to library management */ },
+                    onClick = { navController.navigate("library_management") },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
@@ -334,9 +347,7 @@ fun StatusItem(label: String, count: String) {
     }
 }
 
-/**
- * Placeholder screen for media viewer functionality
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaViewerPlaceholder(
@@ -344,9 +355,11 @@ fun MediaViewerPlaceholder(
     onNavigateBack: () -> Unit
 ) {
     Box(
+
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
+
     ) {
         Column {
             TopAppBar(
@@ -381,7 +394,9 @@ fun MediaViewerPlaceholder(
                         style = MaterialTheme.typography.headlineMedium
                     )
                     Text(
+
                         text = "Opening media item $mediaId",
+
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color(0xFFB3B3B3)
                     )
@@ -391,18 +406,18 @@ fun MediaViewerPlaceholder(
     }
 }
 
-/**
- * Placeholder screen for settings functionality
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsPlaceholder(
     onNavigateBack: () -> Unit
 ) {
     Box(
+
         modifier = Modifier
             .fillMaxSize()
             .systemBarsPadding()
+
     ) {
         Column {
             TopAppBar(
