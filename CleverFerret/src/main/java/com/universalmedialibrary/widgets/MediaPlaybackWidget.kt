@@ -62,81 +62,113 @@ object MediaPlaybackWidget : GlanceAppWidget() {
                 .background(getBackgroundColor(mediaType))
                 .clickable(actionRunCallback<OpenAppAction>())
         ) {
-            Column(
+            // Gradient scrim overlay for text legibility
+            Box(
                 modifier = GlanceModifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.Bottom
+                    .background(
+                        ColorProvider(
+                            Color.Black.copy(alpha = 0.3f)
+                        )
+                    )
             ) {
-                // Media info
-                if (title.isNotEmpty()) {
-                    Text(
-                        text = title,
-                        style = TextStyle(
-                            color = ColorProvider(Color.White),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = GlanceModifier.padding(bottom = 4.dp)
-                    )
-                }
-                
-                if (subtitle.isNotEmpty()) {
-                    Text(
-                        text = subtitle,
-                        style = TextStyle(
-                            color = ColorProvider(Color.White.copy(alpha = 0.8f)),
-                            fontSize = 14.sp
-                        ),
-                        modifier = GlanceModifier.padding(bottom = 12.dp)
-                    )
-                }
-
-                // Playback controls row
-                Row(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = GlanceModifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    // Previous button
-                    Text(
-                        "⏮",
-                        style = TextStyle(
-                            color = ColorProvider(Color.White),
-                            fontSize = 18.sp
-                        ),
-                        modifier = GlanceModifier
-                            .clickable(actionRunCallback<PreviousAction>())
-                            .padding(12.dp)
-                    )
+                    // Media info with accessibility
+                    if (title.isNotEmpty()) {
+                        Text(
+                            text = title,
+                            style = TextStyle(
+                                color = ColorProvider(Color.White),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            modifier = GlanceModifier.padding(bottom = 4.dp)
+                        )
+                    }
+                    
+                    if (subtitle.isNotEmpty()) {
+                        Text(
+                            text = subtitle,
+                            style = TextStyle(
+                                color = ColorProvider(Color.White.copy(alpha = 0.8f)),
+                                fontSize = 14.sp
+                            ),
+                            modifier = GlanceModifier.padding(bottom = 12.dp)
+                        )
+                    }
 
-                    Spacer(modifier = GlanceModifier.width(16.dp))
+                    // Playback controls row with accessibility
+                    Row(
+                        modifier = GlanceModifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Previous button with 48dp minimum touch target
+                        Box(
+                            modifier = GlanceModifier
+                                .size(48.dp) // Accessibility: 48dp minimum touch target
+                                .clickable(actionRunCallback<PreviousAction>())
+                                .background(
+                                    ColorProvider(Color.White.copy(alpha = 0.1f))
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "⏮",
+                                style = TextStyle(
+                                    color = ColorProvider(Color.White),
+                                    fontSize = 18.sp
+                                )
+                            )
+                        }
 
-                    // Play/Pause button
-                    Text(
-                        if (isPlaying) "⏸" else "▶",
-                        style = TextStyle(
-                            color = ColorProvider(Color.White),
-                            fontSize = 24.sp
-                        ),
-                        modifier = GlanceModifier
-                            .clickable(actionRunCallback<PlayPauseAction>())
-                            .padding(16.dp)
-                    )
+                        Spacer(modifier = GlanceModifier.width(16.dp))
 
-                    Spacer(modifier = GlanceModifier.width(16.dp))
+                        // Play/Pause button with 56dp touch target (larger for primary action)
+                        Box(
+                            modifier = GlanceModifier
+                                .size(56.dp) // Larger touch target for primary action
+                                .clickable(actionRunCallback<PlayPauseAction>())
+                                .background(
+                                    ColorProvider(Color.White.copy(alpha = 0.9f))
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                if (isPlaying) "⏸" else "▶",
+                                style = TextStyle(
+                                    color = ColorProvider(Color.Black),
+                                    fontSize = 24.sp
+                                )
+                            )
+                        }
 
-                    // Next button
-                    Text(
-                        "⏭",
-                        style = TextStyle(
-                            color = ColorProvider(Color.White),
-                            fontSize = 18.sp
-                        ),
-                        modifier = GlanceModifier
-                            .clickable(actionRunCallback<NextAction>())
-                            .padding(12.dp)
-                    )
+                        Spacer(modifier = GlanceModifier.width(16.dp))
+
+                        // Next button with 48dp minimum touch target
+                        Box(
+                            modifier = GlanceModifier
+                                .size(48.dp) // Accessibility: 48dp minimum touch target
+                                .clickable(actionRunCallback<NextAction>())
+                                .background(
+                                    ColorProvider(Color.White.copy(alpha = 0.1f))
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "⏭",
+                                style = TextStyle(
+                                    color = ColorProvider(Color.White),
+                                    fontSize = 18.sp
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
