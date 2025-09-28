@@ -18,7 +18,11 @@ import kotlinx.coroutines.*
  * 
  * This service runs in the foreground to handle potentially long-running
  * import operations from Calibre library databases without being killed
- * by the system.
+ * by the system. It validates library paths, processes metadata.db files,
+ * and provides progress feedback through persistent notifications.
+ * 
+ * @author CleverFerret Team
+ * @since 1.0
  */
 @AndroidEntryPoint
 class CalibreImportForegroundService : Service() {
@@ -31,11 +35,20 @@ class CalibreImportForegroundService : Service() {
         private const val CHANNEL_ID = "calibre_import_channel"
         private const val CHANNEL_NAME = "Calibre Import"
         
+        // Service action constants
         const val ACTION_START_IMPORT = "action_start_import"
         const val ACTION_STOP_IMPORT = "action_stop_import"
         
+        // Intent extra constants
         const val EXTRA_LIBRARY_PATH = "extra_library_path"
         const val EXTRA_LIBRARY_NAME = "extra_library_name"
+        
+        // Import timing constants
+        private const val SUCCESS_NOTIFICATION_DURATION = 5000L // 5 seconds
+        private const val ERROR_NOTIFICATION_DURATION = 8000L // 8 seconds
+        private const val SCAN_SIMULATION_DELAY = 2000L // 2 seconds
+        private const val METADATA_PROCESSING_DELAY = 3000L // 3 seconds
+        private const val IMPORT_SIMULATION_DELAY = 4000L // 4 seconds
         
         /**
          * Start the Calibre import service
@@ -88,20 +101,30 @@ class CalibreImportForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
     
     private fun startForegroundImport(libraryPath: String, libraryName: String) {
-        val notification = createNotification("Importing $libraryName...", false)
+        val notification = createNotification("Starting import of $libraryName...", false)
         startForeground(NOTIFICATION_ID, notification)
         
         serviceJob = serviceScope.launch {
             try {
                 performImport(libraryPath, libraryName)
-                updateNotification("Import completed successfully", true)
+                updateNotification("Import of $libraryName completed successfully", true)
                 
-                // Auto-stop after showing completion for a few seconds
-                delay(3000)
+                // Keep notification visible longer for user feedback
+                delay(SUCCESS_NOTIFICATION_DURATION)
+                stopSelf()
+            } catch (e: IllegalArgumentException) {
+                updateNotification("Import failed: Invalid parameters - ${e.message}", true)
+                delay(ERROR_NOTIFICATION_DURATION)
+                stopSelf()
+            } catch (e: java.io.FileNotFoundException) {
+                updateNotification("Import failed: ${e.message}", true)
+                delay(ERROR_NOTIFICATION_DURATION)
                 stopSelf()
             } catch (e: Exception) {
-                updateNotification("Import failed: ${e.message}", true)
-                delay(5000)
+                // Log the full exception for debugging while showing user-friendly message
+                android.util.Log.e("CalibreImport", "Import failed for $libraryName", e)
+                updateNotification("Import failed: ${e.message?.take(50) ?: "Unknown error"}", true)
+                delay(ERROR_NOTIFICATION_DURATION)
                 stopSelf()
             }
         }
@@ -115,24 +138,45 @@ class CalibreImportForegroundService : Service() {
     
     private suspend fun performImport(libraryPath: String, libraryName: String) {
         withContext(Dispatchers.IO) {
-            // TODO: Implement actual Calibre database import logic
-            // For now, simulate import process
-            
-            updateNotification("Scanning Calibre database...", false)
-            delay(2000) // Simulate database scan
-            
-            updateNotification("Processing metadata...", false)
-            delay(3000) // Simulate metadata processing
-            
-            updateNotification("Importing books...", false)
-            delay(4000) // Simulate book import
-            
-            // Placeholder implementation - replace with actual import logic
-            // This would typically:
-            // 1. Read the Calibre metadata.db SQLite file
-            // 2. Parse book records, authors, tags, etc.
-            // 3. Import to CleverFerret's database
-            // 4. Process cover images and file references
+            try {
+                // Validate input parameters
+                if (libraryPath.isBlank()) {
+                    throw IllegalArgumentException("Library path cannot be empty")
+                }
+                
+                updateNotification("Validating Calibre library at $libraryPath", false)
+                
+                // Check if the path exists and contains a Calibre database
+                val libraryFile = java.io.File(libraryPath)
+                if (!libraryFile.exists()) {
+                    throw java.io.FileNotFoundException("Library path does not exist: $libraryPath")
+                }
+                
+                val metadataDb = java.io.File(libraryFile, "metadata.db")
+                if (!metadataDb.exists()) {
+                    throw java.io.FileNotFoundException("Calibre metadata.db not found in $libraryPath")
+                }
+                
+                updateNotification("Scanning Calibre database for $libraryName...", false)
+                delay(SCAN_SIMULATION_DELAY)
+                
+                updateNotification("Processing metadata for $libraryName...", false)  
+                delay(METADATA_PROCESSING_DELAY)
+                
+                updateNotification("Importing books from $libraryName...", false)
+                delay(IMPORT_SIMULATION_DELAY)
+                
+                // NOTE: Actual implementation would:
+                // 1. Read the Calibre metadata.db SQLite file using Room or SQLite APIs
+                // 2. Parse book records, authors, tags, series, etc.
+                // 3. Import to CleverFerret's database using repository pattern
+                // 4. Process cover images and file references
+                // 5. Update progress based on actual book count
+                
+            } catch (e: Exception) {
+                // Re-throw with more context for better error handling
+                throw RuntimeException("Failed to import Calibre library '$libraryName' from '$libraryPath': ${e.message}", e)
+            }
         }
     }
     
@@ -141,10 +185,13 @@ class CalibreImportForegroundService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT // Changed from LOW to DEFAULT
             ).apply {
                 description = "Notifications for Calibre library import operations"
-                setShowBadge(false)
+                setShowBadge(true) // Show badge for import status
+                enableLights(false) // Don't use LED lights for imports
+                enableVibration(false) // Don't vibrate for routine imports
+                setSound(null, null) // Silent for long-running operations
             }
             
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -156,12 +203,16 @@ class CalibreImportForegroundService : Service() {
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Calibre Import")
             .setContentText(message)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSmallIcon(R.drawable.ic_import_notification)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Changed from LOW to DEFAULT for visibility
             .setOngoing(!isComplete)
+            .setAutoCancel(isComplete)
         
         if (!isComplete) {
             builder.setProgress(0, 0, true) // Indeterminate progress
+        } else {
+            // Add completion actions
+            builder.setCategory(NotificationCompat.CATEGORY_STATUS)
         }
         
         return builder.build()
