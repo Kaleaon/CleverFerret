@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.Locale
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -438,7 +439,7 @@ class SynchronizedReadingService @Inject constructor(
         val seconds = totalSeconds % 60
         val milliseconds = timeMs % 1000
         
-        return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds)
+        return String.format(Locale.getDefault(), "%02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds)
     }
     
     private fun updateSyncState(

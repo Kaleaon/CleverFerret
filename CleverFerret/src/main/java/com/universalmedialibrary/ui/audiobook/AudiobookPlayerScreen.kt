@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import java.util.Locale
 import com.universalmedialibrary.services.audiobook.AudiobookBookmark
 import com.universalmedialibrary.services.audiobook.AudiobookChapter
 import com.universalmedialibrary.services.audiobook.AudiobookState
@@ -656,8 +657,8 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = totalSeconds % 60
     
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format("%d:%02d", minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
 }
