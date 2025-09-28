@@ -117,6 +117,10 @@ dependencies {
     // Image loading for album art and covers
     implementation("io.coil-kt:coil-compose:2.6.0")
     
+    // Jetpack Glance for modern widgets
+    implementation("androidx.glance:glance-appwidget:1.0.0")
+    implementation("androidx.glance:glance-material3:1.0.0")
+    
     // Advanced JSON parsing for music APIs
     implementation("org.json:json:20240303")
     
