@@ -40,7 +40,7 @@ fun CreateLibraryDialog(
     
     val context = LocalContext.current
     
-    if (!open) return
+    val folderPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -49,6 +49,8 @@ fun CreateLibraryDialog(
             }
         }
     }
+    
+    if (!open) return
     
     Dialog(onDismissRequest = onDismiss) {
         Card(
