@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
@@ -226,7 +228,7 @@ private fun AudiobookTopBar(
         },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
         },
         actions = {
@@ -238,7 +240,7 @@ private fun AudiobookTopBar(
                 )
             }
             IconButton(onClick = onShowChapters) {
-                Icon(Icons.Default.List, contentDescription = "Chapters")
+                Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Chapters")
             }
             IconButton(onClick = onShowBookmarks) {
                 Icon(PhosphorIcons.BookmarkBorder, contentDescription = "Bookmarks")
