@@ -39,6 +39,12 @@ import com.universalmedialibrary.data.local.entity.*
         Series::class,
         Album::class,
         
+        // New unified tagging and collection system
+        Tag::class,
+        ItemTag::class,
+        MediaCollection::class,
+        MediaCollectionItem::class,
+        
         // System entities
         APIKey::class,
         Bookmark::class,
@@ -54,7 +60,7 @@ import com.universalmedialibrary.data.local.entity.*
         SearchIndex::class,
         ReadingStatistics::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -74,6 +80,10 @@ abstract class CleverFerretDatabase : RoomDatabase() {
     abstract fun annotationDao(): AnnotationDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
+    
+    // New unified tagging and collection DAOs
+    abstract fun tagDao(): TagDao
+    abstract fun mediaCollectionDao(): CollectionDao
     
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
