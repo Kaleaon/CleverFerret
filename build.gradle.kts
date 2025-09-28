@@ -1,9 +1,16 @@
 plugins {
+<<<<<<< HEAD
     id("com.android.application") version "8.4.1" apply false
     id("org.jetbrains.kotlin.android") version "1.9.23" apply false
     id("com.google.dagger.hilt.android") version "2.50" apply false
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23" apply false
     id("com.google.devtools.ksp") version "1.9.23-1.0.19" apply false
+=======
+    id("com.android.application") version "8.7.3" apply false
+    id("org.jetbrains.kotlin.android") version "2.1.0" apply false
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29" apply false
+    id("com.google.dagger.hilt.android") version "2.53.1" apply false
+>>>>>>> origin/copilot/fix-28842264-a06b-4f3d-ae5d-2892a8bb518d
 }
 
 // Architecture Detection
