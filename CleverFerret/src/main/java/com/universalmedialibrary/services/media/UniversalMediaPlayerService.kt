@@ -98,7 +98,7 @@ class UniversalMediaPlayerService @Inject constructor(
      */
     fun play() {
         try {
-            // Start MediaSession when playbook begins
+            // Start MediaSession when playback begins
             mediaSessionManager.startMediaSession(MediaServiceType.UNIVERSAL)
             
             mediaPlayer?.start()
