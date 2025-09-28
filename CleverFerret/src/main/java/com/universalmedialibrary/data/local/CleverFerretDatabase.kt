@@ -52,9 +52,19 @@ import com.universalmedialibrary.data.local.entity.*
         // Annotation and search entities
         TextAnnotation::class,
         SearchIndex::class,
-        ReadingStatistics::class
+        ReadingStatistics::class,
+        
+        // Plex integration entities
+        PlexServer::class,
+        PlexMediaItem::class,
+        PlexProgress::class,
+        PlexRating::class,
+        PlexCollection::class,
+        PlexCollectionItem::class,
+        PlexTag::class,
+        PlexMediaTag::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -74,6 +84,11 @@ abstract class CleverFerretDatabase : RoomDatabase() {
     abstract fun annotationDao(): AnnotationDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
+    
+    // Plex integration DAOs
+    abstract fun plexServerDao(): PlexServerDao
+    abstract fun plexMediaItemDao(): PlexMediaItemDao
+    abstract fun plexSyncDao(): PlexSyncDao
     
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
