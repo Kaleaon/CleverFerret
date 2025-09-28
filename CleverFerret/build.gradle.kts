@@ -109,8 +109,18 @@ dependencies {
     implementation("androidx.media3:media3-common:1.3.1")
     implementation("androidx.media3:media3-session:1.3.1")
     
+    // Media support library for notifications
+    implementation("androidx.media:media:1.7.0")
+    
+    // Guava for ListenableFuture (required by Media3)
+    implementation("com.google.guava:guava:32.1.3-android")
+    
     // Image loading for album art and covers
     implementation("io.coil-kt:coil-compose:2.6.0")
+    
+    // Jetpack Glance for modern widgets
+    implementation("androidx.glance:glance-appwidget:1.0.0")
+    implementation("androidx.glance:glance-material3:1.0.0")
     
     // Advanced JSON parsing for music APIs
     implementation("org.json:json:20240303")
