@@ -211,9 +211,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideExoPlayerService(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        mediaController: MediaController
     ): ExoPlayerService {
-        return ExoPlayerService(context)
+        return ExoPlayerService(context, mediaController)
     }
     
     @Provides
@@ -240,9 +241,10 @@ object AppModule {
     fun provideAudiobookService(
         @ApplicationContext context: Context,
         mediaRepository: MediaRepository,
-        exoPlayerService: ExoPlayerService
+        exoPlayerService: ExoPlayerService,
+        mediaController: MediaController
     ): AudiobookService {
-        return AudiobookService(context, mediaRepository, exoPlayerService)
+        return AudiobookService(context, mediaRepository, exoPlayerService, mediaController)
     }
     
     @Provides
@@ -288,12 +290,14 @@ object AppModule {
     fun provideAdvancedMusicPlayerService(
         @ApplicationContext context: Context,
         exoPlayerService: ExoPlayerService,
-        musicMetadataService: com.universalmedialibrary.services.music.MusicMetadataService
+        musicMetadataService: com.universalmedialibrary.services.music.MusicMetadataService,
+        mediaController: MediaController
     ): com.universalmedialibrary.services.music.AdvancedMusicPlayerService {
         return com.universalmedialibrary.services.music.AdvancedMusicPlayerService(
             context, 
             exoPlayerService, 
-            musicMetadataService
+            musicMetadataService,
+            mediaController
         )
     }
     

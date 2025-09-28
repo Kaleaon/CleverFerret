@@ -7,6 +7,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.local.entity.MediaItem as LocalMediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
+import com.universalmedialibrary.services.media.MediaController
+import com.universalmedialibrary.services.media.MediaServiceType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +31,8 @@ import javax.inject.Singleton
 class AdvancedMusicPlayerService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val exoPlayerService: ExoPlayerService,
-    private val musicMetadataService: MusicMetadataService
+    private val musicMetadataService: MusicMetadataService,
+    private val mediaController: MediaController
 ) {
     
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -67,14 +70,18 @@ class AdvancedMusicPlayerService @Inject constructor(
             _currentTrack.value = trackInfo
             currentQueueIndex = 0
             
-            // Prepare ExoPlayer
-            val exoMediaItem = MediaItem.fromUri(mediaItem.filePath)
-            if (exoPlayerService.prepareMedia(exoMediaItem)) {
-                exoPlayerService.play()
-                updatePlaybackState(isPlaying = true, isLoading = false)
-            } else {
-                updatePlaybackState(error = "Failed to load track")
-            }
+            // Use the MediaSession-integrated method
+            exoPlayerService.loadMediaWithSession(
+                mediaPath = mediaItem.filePath,
+                title = trackInfo.title,
+                artist = trackInfo.artist,
+                album = trackInfo.album,
+                artwork = null, // TODO: Load artwork from albumArtUrl
+                serviceType = MediaServiceType.MUSIC
+            )
+            
+            exoPlayerService.play()
+            updatePlaybackState(isPlaying = true, isLoading = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Error playing track: ${e.message}")
         }
@@ -146,7 +153,7 @@ class AdvancedMusicPlayerService @Inject constructor(
      * Stop playback and clear queue
      */
     fun stop() {
-        exoPlayerService.stop()
+        exoPlayerService.stop() // This will also stop MediaController
         _queue.value = emptyList()
         _currentTrack.value = null
         currentQueueIndex = 0
