@@ -90,8 +90,8 @@ class MediaSessionManager @Inject constructor(
         }
         
         if (duration > 0) {
-            // Convert milliseconds to microseconds for MediaMetadata
-            metadataBuilder.setRecordingYear((duration / 1000).toInt())
+            // Set duration in milliseconds for MediaMetadata
+            metadataBuilder.setDuration(duration)
         }
         
         val mediaItem = MediaItem.Builder()
