@@ -333,6 +333,7 @@ object AppModule {
         mediaSessionManager: MediaSessionManager
     ): MediaController {
         return MediaController(context, mediaSessionManager)
+    }
 
     // Widget Services
     @Provides

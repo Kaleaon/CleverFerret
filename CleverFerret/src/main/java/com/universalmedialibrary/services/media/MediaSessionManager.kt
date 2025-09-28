@@ -90,8 +90,8 @@ class MediaSessionManager @Inject constructor(
         }
         
         if (duration > 0) {
-            // Set duration in milliseconds for MediaMetadata
-            metadataBuilder.setDuration(duration)
+            // TODO: Set duration for MediaMetadata - need to check Media3 API
+            // Media3 might handle duration differently than the old MediaMetadata API
         }
         
         val mediaItem = MediaItem.Builder()
