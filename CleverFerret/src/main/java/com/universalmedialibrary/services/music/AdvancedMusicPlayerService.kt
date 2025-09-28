@@ -8,6 +8,7 @@ import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.local.entity.MediaItem as LocalMediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.media.MediaSessionManager
+import com.universalmedialibrary.services.media.MediaServiceType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -73,7 +74,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             val exoMediaItem = MediaItem.fromUri(mediaItem.filePath)
             if (exoPlayerService.prepareMedia(exoMediaItem)) {
                 // Start MediaSession when track begins
-                mediaSessionManager.startMediaSession()
+                mediaSessionManager.startMediaSession(MediaServiceType.MUSIC)
                 
                 exoPlayerService.play()
                 updatePlaybackState(isPlaying = true, isLoading = false)
@@ -136,7 +137,7 @@ class AdvancedMusicPlayerService @Inject constructor(
      */
     fun play() {
         // Start MediaSession when playback begins
-        mediaSessionManager.startMediaSession()
+        mediaSessionManager.startMediaSession(MediaServiceType.MUSIC)
         
         exoPlayerService.play()
         updatePlaybackState(isPlaying = true)

@@ -50,7 +50,7 @@ class MediaSessionManager @Inject constructor(
      * Start the MediaSession service for playback controls
      * Call this when any media playback begins
      */
-    fun startMediaSession() {
+    fun startMediaSession(serviceType: MediaServiceType = MediaServiceType.MUSIC) {
         if (!isBound) {
             val intent = Intent(context, MediaSessionService::class.java)
             
@@ -60,6 +60,9 @@ class MediaSessionManager @Inject constructor(
             // Bind to the service for direct communication
             context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
         }
+        
+        // Set the active service type
+        mediaSessionService?.setActiveMediaService(serviceType)
     }
     
     /**

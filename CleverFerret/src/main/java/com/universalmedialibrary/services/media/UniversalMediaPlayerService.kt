@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.services.media.MediaSessionManager
+import com.universalmedialibrary.services.media.MediaServiceType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +26,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class UniversalMediaPlayerService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val mediaSessionManager: MediaSessionManager
 ) {
     
     private var mediaPlayer: MediaPlayer? = null
@@ -95,6 +98,9 @@ class UniversalMediaPlayerService @Inject constructor(
      */
     fun play() {
         try {
+            // Start MediaSession when playbook begins
+            mediaSessionManager.startMediaSession(MediaServiceType.UNIVERSAL)
+            
             mediaPlayer?.start()
             updatePlaybackState(isPlaying = true)
         } catch (e: Exception) {
@@ -115,12 +121,26 @@ class UniversalMediaPlayerService @Inject constructor(
     }
     
     /**
+     * Toggle play/pause
+     */
+    fun togglePlayPause() {
+        if (_playbackState.value.isPlaying) {
+            pause()
+        } else {
+            play()
+        }
+    }
+    
+    /**
      * Stop playback
      */
     fun stop() {
         try {
             mediaPlayer?.stop()
             updatePlaybackState(isPlaying = false)
+            
+            // Stop MediaSession when playback ends
+            mediaSessionManager.stopMediaSession()
         } catch (e: Exception) {
             updatePlaybackState(error = "Failed to stop playback: ${e.message}")
         }

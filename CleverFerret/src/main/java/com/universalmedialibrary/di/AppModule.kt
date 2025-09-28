@@ -150,9 +150,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideUniversalMediaPlayerService(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        mediaSessionManager: com.universalmedialibrary.services.media.MediaSessionManager
     ): UniversalMediaPlayerService {
-        return UniversalMediaPlayerService(context)
+        return UniversalMediaPlayerService(context, mediaSessionManager)
     }
     
     @Provides

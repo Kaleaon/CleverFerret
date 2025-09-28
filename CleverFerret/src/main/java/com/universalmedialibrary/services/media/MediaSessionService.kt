@@ -20,6 +20,9 @@ import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.R
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
+import com.universalmedialibrary.services.audiobook.AudiobookService
+import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
+import com.universalmedialibrary.services.media.UniversalMediaPlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
@@ -34,6 +37,7 @@ import javax.inject.Inject
  * - Integration with existing ExoPlayerService and AdvancedMusicPlayerService
  * - Foreground service lifecycle management
  * - Android Auto/TV compatibility through MediaSession
+ * - Support for music, audiobooks, TTS, and universal media playback
  */
 @AndroidEntryPoint
 class MediaSessionService : Service() {
@@ -43,6 +47,15 @@ class MediaSessionService : Service() {
     
     @Inject 
     lateinit var musicPlayerService: AdvancedMusicPlayerService
+    
+    @Inject
+    lateinit var audiobookService: AudiobookService
+    
+    @Inject
+    lateinit var ttsService: AndroidTextToSpeechService
+    
+    @Inject
+    lateinit var universalMediaPlayerService: UniversalMediaPlayerService
 
     private var mediaSession: MediaSessionCompat? = null
     private var notificationManager: NotificationManager? = null
@@ -51,6 +64,9 @@ class MediaSessionService : Service() {
     private var notificationJob: Job? = null
     
     private val binder = MediaSessionBinder()
+    
+    // Track which service is currently active
+    private var activeMediaService: MediaServiceType = MediaServiceType.NONE
     
     // Current playback state
     private var currentTrackTitle: String = "Unknown Track"
@@ -265,25 +281,99 @@ class MediaSessionService : Service() {
     }
 
     private fun handlePlayPause() {
-        musicPlayerService.togglePlayPause()
+        when (activeMediaService) {
+            MediaServiceType.MUSIC -> musicPlayerService.togglePlayPause()
+            MediaServiceType.AUDIOBOOK -> {
+                // Add audiobook play/pause logic when available
+                // For now, fallback to universal media player
+                universalMediaPlayerService.togglePlayPause()
+            }
+            MediaServiceType.TTS -> {
+                if (isPlaying) {
+                    ttsService.pause()
+                } else {
+                    ttsService.resume()
+                }
+            }
+            MediaServiceType.UNIVERSAL -> universalMediaPlayerService.togglePlayPause()
+            MediaServiceType.NONE -> {
+                // Try to determine active service and delegate
+                musicPlayerService.togglePlayPause()
+            }
+        }
     }
 
     private fun handleNext() {
-        musicPlayerService.skipToNext()
+        when (activeMediaService) {
+            MediaServiceType.MUSIC -> musicPlayerService.skipToNext()
+            MediaServiceType.AUDIOBOOK -> {
+                // Add audiobook next chapter logic when available
+            }
+            MediaServiceType.TTS -> {
+                // TTS doesn't typically have next/previous
+            }
+            MediaServiceType.UNIVERSAL -> {
+                // Universal player doesn't have next/previous by default
+            }
+            MediaServiceType.NONE -> musicPlayerService.skipToNext()
+        }
     }
 
     private fun handlePrevious() {
-        musicPlayerService.skipToPrevious()
+        when (activeMediaService) {
+            MediaServiceType.MUSIC -> musicPlayerService.skipToPrevious()
+            MediaServiceType.AUDIOBOOK -> {
+                // Add audiobook previous chapter logic when available
+            }
+            MediaServiceType.TTS -> {
+                // TTS doesn't typically have next/previous
+            }
+            MediaServiceType.UNIVERSAL -> {
+                // Universal player doesn't have next/previous by default
+            }
+            MediaServiceType.NONE -> musicPlayerService.skipToPrevious()
+        }
     }
 
     private fun handleStop() {
-        musicPlayerService.stop()
+        when (activeMediaService) {
+            MediaServiceType.MUSIC -> musicPlayerService.stop()
+            MediaServiceType.AUDIOBOOK -> {
+                // Add audiobook stop logic when available
+                universalMediaPlayerService.stop()
+            }
+            MediaServiceType.TTS -> ttsService.stop()
+            MediaServiceType.UNIVERSAL -> universalMediaPlayerService.stop()
+            MediaServiceType.NONE -> {
+                musicPlayerService.stop()
+                universalMediaPlayerService.stop()
+                ttsService.stop()
+            }
+        }
         stopForeground(true)
         stopSelf()
     }
 
     private fun seekTo(position: Long) {
-        musicPlayerService.seekTo(position)
+        when (activeMediaService) {
+            MediaServiceType.MUSIC -> musicPlayerService.seekTo(position)
+            MediaServiceType.AUDIOBOOK -> {
+                // Add audiobook seek logic when available
+                universalMediaPlayerService.seekTo(position)
+            }
+            MediaServiceType.TTS -> {
+                // TTS doesn't typically support seeking
+            }
+            MediaServiceType.UNIVERSAL -> universalMediaPlayerService.seekTo(position)
+            MediaServiceType.NONE -> musicPlayerService.seekTo(position)
+        }
+    }
+    
+    /**
+     * Set the active media service type for proper callback routing
+     */
+    fun setActiveMediaService(serviceType: MediaServiceType) {
+        activeMediaService = serviceType
     }
 
     private fun createNotificationChannel() {
@@ -311,4 +401,15 @@ class MediaSessionService : Service() {
         mediaSession = null
         super.onDestroy()
     }
+}
+
+/**
+ * Enum to identify which media service is currently active
+ */
+enum class MediaServiceType {
+    NONE,
+    MUSIC,
+    AUDIOBOOK, 
+    TTS,
+    UNIVERSAL
 }
