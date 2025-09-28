@@ -286,12 +286,14 @@ object AppModule {
     fun provideAdvancedMusicPlayerService(
         @ApplicationContext context: Context,
         exoPlayerService: ExoPlayerService,
-        musicMetadataService: com.universalmedialibrary.services.music.MusicMetadataService
+        musicMetadataService: com.universalmedialibrary.services.music.MusicMetadataService,
+        mediaSessionManager: com.universalmedialibrary.services.media.MediaSessionManager
     ): com.universalmedialibrary.services.music.AdvancedMusicPlayerService {
         return com.universalmedialibrary.services.music.AdvancedMusicPlayerService(
             context, 
             exoPlayerService, 
-            musicMetadataService
+            musicMetadataService,
+            mediaSessionManager
         )
     }
     

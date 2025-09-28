@@ -7,6 +7,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.local.entity.MediaItem as LocalMediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
+import com.universalmedialibrary.services.media.MediaSessionManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +30,8 @@ import javax.inject.Singleton
 class AdvancedMusicPlayerService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val exoPlayerService: ExoPlayerService,
-    private val musicMetadataService: MusicMetadataService
+    private val musicMetadataService: MusicMetadataService,
+    private val mediaSessionManager: MediaSessionManager
 ) {
     
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -70,6 +72,9 @@ class AdvancedMusicPlayerService @Inject constructor(
             // Prepare ExoPlayer
             val exoMediaItem = MediaItem.fromUri(mediaItem.filePath)
             if (exoPlayerService.prepareMedia(exoMediaItem)) {
+                // Start MediaSession when track begins
+                mediaSessionManager.startMediaSession()
+                
                 exoPlayerService.play()
                 updatePlaybackState(isPlaying = true, isLoading = false)
             } else {
@@ -130,6 +135,9 @@ class AdvancedMusicPlayerService @Inject constructor(
      * Start playback
      */
     fun play() {
+        // Start MediaSession when playback begins
+        mediaSessionManager.startMediaSession()
+        
         exoPlayerService.play()
         updatePlaybackState(isPlaying = true)
     }
@@ -151,6 +159,9 @@ class AdvancedMusicPlayerService @Inject constructor(
         _currentTrack.value = null
         currentQueueIndex = 0
         updatePlaybackState(isPlaying = false)
+        
+        // Stop MediaSession when playback stops
+        mediaSessionManager.stopMediaSession()
     }
     
     /**
