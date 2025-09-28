@@ -99,3 +99,7 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
+-e 
+# Environment files
+*.env
+*.env.*
