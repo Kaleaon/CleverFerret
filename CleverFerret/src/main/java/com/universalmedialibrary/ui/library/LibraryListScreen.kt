@@ -29,6 +29,7 @@ fun LibraryListScreen(
     onNavigateToLibrary: (Int) -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onCreateLibrary: () -> Unit = {},
+    onNavigateToPlexIntegration: () -> Unit = {},
     viewModel: LibraryListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -83,6 +84,13 @@ fun LibraryListScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToPlexIntegration) {
+                        Icon(
+                            PhosphorIcons.FilmStrip,
+                            contentDescription = "Plex Integration",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = { viewModel.refresh() }) {
                         Icon(
                             PhosphorIcons.ArrowClockwise,

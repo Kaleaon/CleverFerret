@@ -25,7 +25,7 @@ class AndroidPlexIntegrationTester:
     """Test suite for Android Plex integration components"""
     
     def __init__(self):
-        self.app_path = "/app"
+        self.app_path = "/home/runner/work/CleverFerret/CleverFerret"
         self.test_results = []
         self.errors = []
         self.warnings = []

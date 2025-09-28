@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.contentcreation.ContentCreationScreen
 import com.universalmedialibrary.ui.library.LibraryManagementScreen
+import com.universalmedialibrary.ui.integration.PlexIntegrationScreen
 import dagger.hilt.android.AndroidEntryPoint
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
@@ -124,6 +125,9 @@ fun CleverFerretApp() {
                 },
                 onCreateLibrary = { 
                     navController.navigate("content_creation") 
+                },
+                onNavigateToPlexIntegration = {
+                    navController.navigate("plex_integration")
                 }
             )
         }
@@ -158,6 +162,12 @@ fun CleverFerretApp() {
 
         composable("library_management") {
             LibraryManagementScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
+        composable("plex_integration") {
+            PlexIntegrationScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
