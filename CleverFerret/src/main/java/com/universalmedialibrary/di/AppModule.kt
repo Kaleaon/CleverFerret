@@ -309,4 +309,55 @@ object AppModule {
             podcastService
         )
     }
+    
+    // Queue/Artwork/Widget Integration Services
+    @Provides
+    @Singleton
+    fun provideArtworkLoader(
+        @ApplicationContext context: Context
+    ): com.universalmedialibrary.services.artwork.ArtworkLoader {
+        return com.universalmedialibrary.services.artwork.ArtworkLoader(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun providePlexApiService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): com.universalmedialibrary.services.plex.PlexApiService {
+        return com.universalmedialibrary.services.plex.PlexApiService(context, apiKeyRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideMediaQueueManager(): com.universalmedialibrary.services.queue.MediaQueueManager {
+        return com.universalmedialibrary.services.queue.MediaQueueManager()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideWidgetUpdateService(
+        @ApplicationContext context: Context,
+        queueManager: com.universalmedialibrary.services.queue.MediaQueueManager
+    ): com.universalmedialibrary.services.widget.WidgetUpdateService {
+        return com.universalmedialibrary.services.widget.WidgetUpdateService(context, queueManager)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideUnifiedMediaService(
+        @ApplicationContext context: Context,
+        queueManager: com.universalmedialibrary.services.queue.MediaQueueManager,
+        artworkLoader: com.universalmedialibrary.services.artwork.ArtworkLoader,
+        plexApiService: com.universalmedialibrary.services.plex.PlexApiService,
+        widgetUpdateService: com.universalmedialibrary.services.widget.WidgetUpdateService
+    ): com.universalmedialibrary.services.media.UnifiedMediaService {
+        return com.universalmedialibrary.services.media.UnifiedMediaService(
+            context,
+            queueManager,
+            artworkLoader,
+            plexApiService,
+            widgetUpdateService
+        )
+    }
 }

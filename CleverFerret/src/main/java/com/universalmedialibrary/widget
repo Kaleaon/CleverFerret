@@ -1,0 +1,221 @@
+package com.universalmedialibrary.widget
+
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
+import com.universalmedialibrary.MainActivity
+import com.universalmedialibrary.R
+import com.universalmedialibrary.services.artwork.ArtworkLoader
+import com.universalmedialibrary.services.queue.MediaQueueManager
+import com.universalmedialibrary.services.queue.UnifiedMediaItem
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/**
+ * Media Library Widget for home screen
+ * 
+ * Displays currently playing media with artwork and basic controls.
+ * Updates in real-time as queue or metadata changes.
+ */
+@AndroidEntryPoint
+class MediaLibraryWidget : AppWidgetProvider() {
+    
+    @Inject
+    lateinit var queueManager: MediaQueueManager
+    
+    @Inject
+    lateinit var artworkLoader: ArtworkLoader
+    
+    private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+        
+        for (appWidgetId in appWidgetIds) {
+            updateWidget(context, appWidgetManager, appWidgetId)
+        }
+    }
+    
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        
+        when (intent.action) {
+            ACTION_PLAY_PAUSE -> {
+                // Handle play/pause action
+                handlePlayPause(context)
+            }
+            ACTION_NEXT -> {
+                // Handle next track action
+                handleNext(context)
+            }
+            ACTION_PREVIOUS -> {
+                // Handle previous track action
+                handlePrevious(context)
+            }
+            ACTION_UPDATE_WIDGET -> {
+                // Handle manual widget update
+                updateAllWidgets(context)
+            }
+        }
+    }
+    
+    private fun updateWidget(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int
+    ) {
+        widgetScope.launch {
+            val currentQueue = queueManager.currentQueue.value
+            val currentItem = currentQueue.currentItem
+            
+            val views = RemoteViews(context.packageName, R.layout.widget_media_library)
+            
+            if (currentItem != null) {
+                updateWidgetWithMedia(context, views, currentItem)
+            } else {
+                updateWidgetEmpty(context, views)
+            }
+            
+            setupWidgetClickHandlers(context, views)
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+    }
+    
+    private suspend fun updateWidgetWithMedia(
+        context: Context,
+        views: RemoteViews,
+        mediaItem: UnifiedMediaItem
+    ) {
+        // Update text information
+        views.setTextViewText(R.id.widget_title, mediaItem.title)
+        views.setTextViewText(R.id.widget_artist, mediaItem.artist ?: "Unknown Artist")
+        
+        // Load and set artwork
+        val artwork = artworkLoader.loadArtworkBitmap(
+            mediaItem.artworkUrl,
+            ArtworkLoader.ArtworkSize.WIDGET_SMALL_WIDTH,
+            ArtworkLoader.ArtworkSize.WIDGET_SMALL_HEIGHT,
+            8f // Corner radius
+        )
+        
+        if (artwork != null) {
+            views.setImageViewBitmap(R.id.widget_artwork, artwork)
+        }
+        
+        // Show media info, hide empty state
+        views.setViewVisibility(R.id.widget_media_info, RemoteViews.VISIBLE)
+        views.setViewVisibility(R.id.widget_empty_state, RemoteViews.GONE)
+        
+        // Update source indicator
+        val sourceText = when (mediaItem.mediaSource) {
+            com.universalmedialibrary.services.queue.MediaSource.PLEX -> "Plex"
+            com.universalmedialibrary.services.queue.MediaSource.LOCAL -> "Local"
+        }
+        views.setTextViewText(R.id.widget_source, sourceText)
+    }
+    
+    private fun updateWidgetEmpty(context: Context, views: RemoteViews) {
+        // Hide media info, show empty state
+        views.setViewVisibility(R.id.widget_media_info, RemoteViews.GONE)
+        views.setViewVisibility(R.id.widget_empty_state, RemoteViews.VISIBLE)
+        
+        views.setTextViewText(R.id.widget_empty_text, "No media playing")
+    }
+    
+    private fun setupWidgetClickHandlers(context: Context, views: RemoteViews) {
+        // Main widget click - open app
+        val appIntent = Intent(context, MainActivity::class.java)
+        val appPendingIntent = PendingIntent.getActivity(
+            context, 0, appIntent, 
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.widget_container, appPendingIntent)
+        
+        // Play/Pause button
+        val playPauseIntent = Intent(context, MediaLibraryWidget::class.java).apply {
+            action = ACTION_PLAY_PAUSE
+        }
+        val playPausePendingIntent = PendingIntent.getBroadcast(
+            context, 1, playPauseIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.widget_play_pause, playPausePendingIntent)
+        
+        // Next button
+        val nextIntent = Intent(context, MediaLibraryWidget::class.java).apply {
+            action = ACTION_NEXT
+        }
+        val nextPendingIntent = PendingIntent.getBroadcast(
+            context, 2, nextIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.widget_next, nextPendingIntent)
+        
+        // Previous button
+        val prevIntent = Intent(context, MediaLibraryWidget::class.java).apply {
+            action = ACTION_PREVIOUS
+        }
+        val prevPendingIntent = PendingIntent.getBroadcast(
+            context, 3, prevIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.widget_previous, prevPendingIntent)
+    }
+    
+    private fun handlePlayPause(context: Context) {
+        // TODO: Integrate with actual playback service
+        // For now, just update the widget
+        updateAllWidgets(context)
+    }
+    
+    private fun handleNext(context: Context) {
+        widgetScope.launch {
+            queueManager.moveToNext()
+            updateAllWidgets(context)
+        }
+    }
+    
+    private fun handlePrevious(context: Context) {
+        widgetScope.launch {
+            queueManager.moveToPrevious()
+            updateAllWidgets(context)
+        }
+    }
+    
+    companion object {
+        const val ACTION_PLAY_PAUSE = "com.universalmedialibrary.widget.PLAY_PAUSE"
+        const val ACTION_NEXT = "com.universalmedialibrary.widget.NEXT"
+        const val ACTION_PREVIOUS = "com.universalmedialibrary.widget.PREVIOUS"
+        const val ACTION_UPDATE_WIDGET = "com.universalmedialibrary.widget.UPDATE"
+        
+        /**
+         * Update all widgets of this type
+         */
+        fun updateAllWidgets(context: Context) {
+            val intent = Intent(context, MediaLibraryWidget::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            }
+            
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val componentName = ComponentName(context, MediaLibraryWidget::class.java)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+            
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            context.sendBroadcast(intent)
+        }
+    }
+}
