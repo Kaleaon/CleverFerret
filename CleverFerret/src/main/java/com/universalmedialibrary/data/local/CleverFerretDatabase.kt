@@ -52,9 +52,14 @@ import com.universalmedialibrary.data.local.entity.*
         // Annotation and search entities
         TextAnnotation::class,
         SearchIndex::class,
-        ReadingStatistics::class
+        ReadingStatistics::class,
+        
+        // Unified playback queue entities
+        PlaybackQueue::class,
+        QueueItem::class,
+        PlaybackSession::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -74,6 +79,11 @@ abstract class CleverFerretDatabase : RoomDatabase() {
     abstract fun annotationDao(): AnnotationDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
+    
+    // Unified playback queue DAOs
+    abstract fun playbackQueueDao(): PlaybackQueueDao
+    abstract fun queueItemDao(): QueueItemDao
+    abstract fun playbackSessionDao(): PlaybackSessionDao
     
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
