@@ -97,7 +97,7 @@ See **[🗺️ PROJECT ROADMAP](../PROJECT_ROADMAP.md)** for complete issue deta
 ### 🚨 Critical Issues
 1. **Build System Failures** - Project currently cannot compile due to:
    - Missing/unavailable media3-decoder dependencies  
-   - Tika/Lucene compatibility issues with Android minSdk 24
+   - ✅ Tika/Lucene compatibility resolved (minSdk updated to 26)
    - Kotlin compilation errors in core files
 
 2. **Immediate Action Required**:
