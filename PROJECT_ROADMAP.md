@@ -71,7 +71,7 @@ CleverFerret is a comprehensive Universal Media Library for Android, currently i
 ### ⚠️ Known Issues  
 - **CRITICAL**: Build dependency issues preventing compilation:
   - Missing/unavailable media3-decoder components
-  - Tika/Lucene libraries requiring minSdkVersion 26+ (current: 24)
+  - ✅ Tika/Lucene libraries requiring minSdkVersion 26+ (resolved by updating to minSdk 26)
   - Kotlin compilation errors in MainActivity and AudioPlayerScreen
 - 25 lint warnings (mostly DefaultLocale and deprecated APIs)
 - Some TODO comments in codebase indicating incomplete features
