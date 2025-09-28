@@ -22,6 +22,7 @@
     <!-- Foreground service permissions for API 34+ -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
         android:name=".CleverFerretApplication"
@@ -49,6 +50,27 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+        
+        <!-- MediaSession service for media playback notifications -->
+        <service
+            android:name=".services.media.MediaNotificationService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+        
+        <!-- Broadcast receiver for media button events -->
+        <receiver
+            android:name=".services.media.MediaButtonReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
             
     </application>
 

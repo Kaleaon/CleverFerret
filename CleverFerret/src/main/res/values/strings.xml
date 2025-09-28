@@ -46,4 +46,24 @@
     <string name="cd_ferret_logo">Clever Ferret Logo</string>
     <string name="cd_settings_icon">Settings</string>
     <string name="cd_menu_icon">Menu</string>
+    
+    <!-- Media Playback -->
+    <string name="media_play">Play</string>
+    <string name="media_pause">Pause</string>
+    <string name="media_skip_previous">Previous</string>
+    <string name="media_skip_next">Next</string>
+    <string name="media_stop">Stop</string>
+    <string name="media_rewind">Rewind</string>
+    <string name="media_fast_forward">Fast Forward</string>
+    
+    <!-- Media Notifications -->
+    <string name="notification_channel_media_playback">Media Playback</string>
+    <string name="notification_channel_media_playback_description">Shows media playback controls and current track information</string>
+    <string name="media_notification_title">Now Playing</string>
+    <string name="media_notification_unknown_artist">Unknown Artist</string>
+    <string name="media_notification_unknown_title">Unknown Track</string>
+    
+    <!-- Now Playing -->
+    <string name="now_playing_title">Now Playing</string>
+    <string name="now_playing_empty">No media currently playing</string>
 </resources>

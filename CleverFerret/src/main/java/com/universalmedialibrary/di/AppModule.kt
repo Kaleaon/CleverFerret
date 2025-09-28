@@ -13,6 +13,8 @@ import com.universalmedialibrary.services.media.MediaScanningService
 import com.universalmedialibrary.services.media.MetadataExtractionService
 import com.universalmedialibrary.services.media.UniversalMediaPlayerService
 import com.universalmedialibrary.services.media.UniversalReaderService
+import com.universalmedialibrary.services.media.MediaSessionManager
+import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.epub.EpubReaderService
 import com.universalmedialibrary.services.tts.TextToSpeechService
 import com.universalmedialibrary.services.tts.AndroidTextToSpeechService
@@ -308,5 +310,23 @@ object AppModule {
             exoPlayerService,
             podcastService
         )
+    }
+    
+    // MediaSession and Notification Services
+    @Provides
+    @Singleton
+    fun provideMediaSessionManager(
+        @ApplicationContext context: Context
+    ): MediaSessionManager {
+        return MediaSessionManager(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideMediaController(
+        @ApplicationContext context: Context,
+        mediaSessionManager: MediaSessionManager
+    ): MediaController {
+        return MediaController(context, mediaSessionManager)
     }
 }
