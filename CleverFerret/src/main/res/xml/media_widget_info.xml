@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/media_widget_description"
+    android:initialKeyguardLayout="@layout/media_widget_keyguard"
+    android:initialLayout="@layout/media_widget_initial"
+    android:minWidth="250dp"
+    android:minHeight="100dp"
+    android:previewImage="@drawable/media_widget_preview"
+    android:previewLayout="@layout/media_widget_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="300dp"
+    android:maxResizeHeight="200dp"
+    android:updatePeriodMillis="0"
+    android:configure="com.universalmedialibrary.widget.MediaWidgetConfigActivity"
+    android:widgetCategory="home_screen" />

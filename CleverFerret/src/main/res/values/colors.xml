@@ -68,4 +68,17 @@
     <color name="settings_card_navy">#E8F1FF</color>
     <color name="settings_accent_gold">#FFF8DC</color>
     <color name="settings_divider">#E0E2EC</color>
+    
+    <!-- Widget colors -->
+    <color name="widget_background">#E0FFFFFF</color>
+    <color name="widget_background_keyguard">#CC000000</color>
+    <color name="widget_background_preview">#F0F8FF</color>
+    <color name="widget_border">#30000000</color>
+    <color name="widget_border_keyguard">#50FFFFFF</color>
+    <color name="widget_border_preview">#1E3A5F</color>
+    <color name="widget_text_primary">#1A1C1E</color>
+    <color name="widget_text_secondary">#6B6B6B</color>
+    <color name="widget_text_keyguard">#FFFFFF</color>
+    <color name="widget_preview_gradient_start">#1E3A5F</color>
+    <color name="widget_preview_gradient_end">#B8860B</color>
 </resources>

@@ -46,4 +46,15 @@
     <string name="cd_ferret_logo">Clever Ferret Logo</string>
     <string name="cd_settings_icon">Settings</string>
     <string name="cd_menu_icon">Menu</string>
+    
+    <!-- Widget Strings -->
+    <string name="media_widget_description">Media playback controls with Now Playing information</string>
+    <string name="media_widget_no_media">No media playing</string>
+    <string name="media_widget_tap_to_open">Tap to open Clever Ferret</string>
+    <string name="media_widget_locked_state">Media controls (locked)</string>
+    <string name="media_widget_play">Play</string>
+    <string name="media_widget_pause">Pause</string>
+    <string name="media_widget_skip_next">Skip Next</string>
+    <string name="media_widget_skip_previous">Skip Previous</string>
+    <string name="media_widget_loading">Loading</string>
 </resources>
