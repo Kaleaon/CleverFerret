@@ -309,4 +309,17 @@ object AppModule {
             podcastService
         )
     }
+    
+    // Widget Services
+    @Provides
+    @Singleton
+    fun provideMediaPlaybackWidgetService(
+        @ApplicationContext context: Context,
+        universalMediaPlayerService: UniversalMediaPlayerService
+    ): com.universalmedialibrary.widgets.MediaPlaybackWidgetService {
+        return com.universalmedialibrary.widgets.MediaPlaybackWidgetService(
+            context,
+            universalMediaPlayerService
+        )
+    }
 }
