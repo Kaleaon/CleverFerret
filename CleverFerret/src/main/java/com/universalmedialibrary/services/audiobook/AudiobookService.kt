@@ -6,6 +6,8 @@ import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
+import com.universalmedialibrary.services.media.MediaController
+import com.universalmedialibrary.services.media.MediaServiceType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +32,8 @@ import javax.inject.Singleton
 class AudiobookService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaRepository: MediaRepository,
-    private val exoPlayerService: ExoPlayerService
+    private val exoPlayerService: ExoPlayerService,
+    private val mediaController: MediaController
 ) {
     
     private val _audiobookState = MutableStateFlow(AudiobookState())
@@ -65,11 +68,25 @@ class AudiobookService @Inject constructor(
             // Load synchronized text if available
             loadSynchronizedText(audiobook)
             
-            // Initialize ExoPlayer with chapters
+            // Initialize ExoPlayer with chapters and MediaSession
             val mediaItems = audiobook.chapters.map { androidx.media3.common.MediaItem.fromUri(it.audioUri) }
             val success = exoPlayerService.preparePlaylist(mediaItems)
             
             if (success) {
+                // Start MediaSession for audiobook
+                val player = exoPlayerService.getPlayer()
+                if (player != null && mediaItems.isNotEmpty()) {
+                    val firstChapter = audiobook.chapters.firstOrNull()
+                    mediaController.startPlayback(
+                        player = player,
+                        serviceType = MediaServiceType.AUDIOBOOK,
+                        title = firstChapter?.title ?: audiobook.title,
+                        artist = audiobook.author,
+                        album = audiobook.title,
+                        artwork = null // TODO: Load audiobook cover art
+                    )
+                }
+                
                 updateAudiobookState(
                     isLoaded = true,
                     title = audiobook.title,

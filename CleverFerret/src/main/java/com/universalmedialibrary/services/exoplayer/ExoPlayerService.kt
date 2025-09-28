@@ -5,6 +5,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.universalmedialibrary.core.FeatureFlags
+import com.universalmedialibrary.services.media.MediaController
+import com.universalmedialibrary.services.media.MediaServiceType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +26,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class ExoPlayerService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val mediaController: MediaController
 ) {
     
     private var exoPlayer: ExoPlayer? = null
@@ -44,10 +47,18 @@ class ExoPlayerService @Inject constructor(
             exoPlayer = ExoPlayer.Builder(context).build().apply {
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
+                        val isPlaying = playbackState == Player.STATE_READY && playWhenReady
                         updatePlayerState(
-                            isPlaying = playbackState == Player.STATE_READY && playWhenReady,
+                            isPlaying = isPlaying,
                             isBuffering = playbackState == Player.STATE_BUFFERING,
                             hasEnded = playbackState == Player.STATE_ENDED
+                        )
+                        
+                        // Update MediaController state
+                        mediaController.updatePlaybackState(
+                            isPlaying = isPlaying,
+                            position = currentPosition,
+                            duration = duration.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
                         )
                     }
                     
@@ -67,6 +78,41 @@ class ExoPlayerService @Inject constructor(
                     }
                 })
             }
+        }
+    }
+    
+    /**
+     * Load and prepare media for playback with MediaSession integration
+     */
+    fun loadMediaWithSession(
+        mediaPath: String,
+        title: String = "Unknown",
+        artist: String? = null,
+        album: String? = null,
+        artwork: android.graphics.Bitmap? = null,
+        serviceType: MediaServiceType = MediaServiceType.UNIVERSAL_MEDIA
+    ) {
+        if (!FeatureFlags.ENABLE_EXOPLAYER) {
+            updatePlayerState(error = "ExoPlayer is disabled")
+            return
+        }
+        
+        initialize()
+        
+        val mediaItem = MediaItem.fromUri(mediaPath)
+        exoPlayer?.apply {
+            setMediaItem(mediaItem)
+            prepare()
+            
+            // Start MediaSession with metadata
+            mediaController.startPlayback(
+                player = this,
+                serviceType = serviceType,
+                title = title,
+                artist = artist,
+                album = album,
+                artwork = artwork
+            )
         }
     }
     
@@ -186,6 +232,9 @@ class ExoPlayerService @Inject constructor(
             currentPosition = 0,
             duration = 0
         )
+        
+        // Stop MediaSession
+        mediaController.stopPlayback()
     }
     
     /**
