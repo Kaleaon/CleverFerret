@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import java.util.Locale
 import com.universalmedialibrary.services.audiobook.AudiobookBookmark
 import com.universalmedialibrary.services.audiobook.AudiobookChapter
 import com.universalmedialibrary.services.audiobook.AudiobookState
@@ -225,7 +228,7 @@ private fun AudiobookTopBar(
         },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
         },
         actions = {
@@ -237,7 +240,7 @@ private fun AudiobookTopBar(
                 )
             }
             IconButton(onClick = onShowChapters) {
-                Icon(Icons.Default.List, contentDescription = "Chapters")
+                Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Chapters")
             }
             IconButton(onClick = onShowBookmarks) {
                 Icon(PhosphorIcons.BookmarkBorder, contentDescription = "Bookmarks")
@@ -656,8 +659,8 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = totalSeconds % 60
     
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format("%d:%02d", minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
 }

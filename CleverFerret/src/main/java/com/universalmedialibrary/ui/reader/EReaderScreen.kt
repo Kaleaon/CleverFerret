@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
@@ -64,12 +68,12 @@ fun EReaderScreen(
             },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             },
             actions = {
                 IconButton(onClick = { showChapterList = true }) {
-                    Icon(Icons.Default.List, contentDescription = "Chapters")
+                    Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Chapters")
                 }
                 IconButton(onClick = { /* Navigate to search */ }) {
                     Icon(Icons.Default.Search, contentDescription = "Search")
@@ -256,7 +260,7 @@ private fun BottomReaderControls(
             }
             
             LinearProgressIndicator(
-                progress = uiState.progress,
+                progress = { uiState.progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
@@ -271,7 +275,7 @@ private fun BottomReaderControls(
                     onClick = onPreviousChapter,
                     enabled = uiState.canGoPrevious
                 ) {
-                    Icon(Icons.Default.KeyboardArrowLeft, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
                     Spacer(Modifier.width(4.dp))
                     Text("Previous")
                 }
@@ -282,7 +286,7 @@ private fun BottomReaderControls(
                 ) {
                     Text("Next")
                     Spacer(Modifier.width(4.dp))
-                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
                 }
             }
         }
