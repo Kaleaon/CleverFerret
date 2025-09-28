@@ -30,7 +30,7 @@ CleverFerret is a **working Android application** for creating a Universal Media
 - **Test Time**: ~45 seconds  
 - **APK Size**: ~10MB (Release), ~13MB (Debug)
 - **Target**: Android API 34 (Android 14)
-- **Minimum**: Android API 24 (Android 7.0)
+- **Minimum**: Android API 26 (Android 8.0)
 
 ### Quick Start
 ```bash

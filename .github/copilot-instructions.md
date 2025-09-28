@@ -32,7 +32,7 @@ This file provides comprehensive guidance for AI assistants working on the Cleve
 ### Application Information
 - **Package Name:** `com.universalmedialibrary`
 - **Main Module:** `CleverFerret`
-- **Min SDK:** 24 (Android 7.0)
+- **Min SDK:** 26 (Android 8.0)
 - **Target SDK:** 34 (Android 14)  
 - **Version:** 1.0 (versionCode 1)
 - **Architecture:** Kotlin + Jetpack Compose + Material You + Hilt + Room
