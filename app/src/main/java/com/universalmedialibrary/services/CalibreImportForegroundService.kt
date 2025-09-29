@@ -16,13 +16,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * A foreground service that manages the long-running process of importing a Calibre library.
+ *
+ * This service is responsible for running the [CalibreImportService] in a background coroutine
+ * while displaying a persistent notification to the user. This ensures that the import process
+ * is not terminated by the Android system. The service handles its own lifecycle, stopping itself
+ * once the import is complete or if an error occurs.
+ */
 @AndroidEntryPoint
 class CalibreImportForegroundService : Service() {
+    /** Injected instance of the core import logic service. */
     @Inject
     lateinit var calibreImportService: CalibreImportService
 
     private val serviceScope = CoroutineScope(Dispatchers.IO)
 
+    /**
+     * Called when the service is started. This method initiates the import process.
+     *
+     * It retrieves the necessary paths and library ID from the start intent, promotes the service
+     * to the foreground with an initial notification, and launches a coroutine to execute the import.
+     *
+     * @return [START_NOT_STICKY] to indicate that the service should not be recreated if it's killed by the system.
+     */
     override fun onStartCommand(
         intent: Intent?,
         flags: Int,
@@ -49,10 +66,14 @@ class CalibreImportForegroundService : Service() {
         return START_NOT_STICKY
     }
 
+    /**
+     * Creates the initial notification to be displayed when the service starts.
+     *
+     * @param contentText The text to display in the notification body.
+     * @return A configured [Notification] object.
+     */
     private fun createNotification(contentText: String): Notification {
         createNotificationChannel()
-        // NOTE: This assumes a placeholder icon exists at R.drawable.ic_import_export
-        // In a real scenario, this resource would need to be added.
         return NotificationCompat
             .Builder(this, CHANNEL_ID)
             .setContentTitle("Library Import")
@@ -61,6 +82,13 @@ class CalibreImportForegroundService : Service() {
             .build()
     }
 
+    /**
+     * Updates the persistent notification with a new title and content text.
+     * Used to show the final status of the import (success or failure).
+     *
+     * @param title The new title for the notification.
+     * @param contentText The new content text for the notification.
+     */
     private fun updateNotification(
         title: String,
         contentText: String,
@@ -76,6 +104,10 @@ class CalibreImportForegroundService : Service() {
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
+    /**
+     * Creates the notification channel required for displaying notifications on Android 8.0 (Oreo) and higher.
+     * If the channel already exists, this method does nothing.
+     */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel =
@@ -89,13 +121,21 @@ class CalibreImportForegroundService : Service() {
         }
     }
 
+    /**
+     * This service does not support binding, so this method returns null.
+     */
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
+        /** Key for the extra containing the absolute path to the Calibre `metadata.db` file. */
         const val EXTRA_DB_PATH = "EXTRA_DB_PATH"
+        /** Key for the extra containing the absolute path to the Calibre library's root directory. */
         const val EXTRA_ROOT_PATH = "EXTRA_ROOT_PATH"
+        /** Key for the extra containing the ID of the library to import into. */
         const val EXTRA_LIBRARY_ID = "EXTRA_LIBRARY_ID"
+        /** The ID of the notification channel used by this service. */
         const val CHANNEL_ID = "CalibreImportServiceChannel"
+        /** The unique ID for the notification displayed by this service. */
         const val NOTIFICATION_ID = 1
     }
 }
