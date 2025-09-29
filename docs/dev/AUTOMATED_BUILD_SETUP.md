@@ -51,12 +51,10 @@ Go to your GitHub repository → Settings → Secrets and variables → Actions,
 
 #### How to create base64 keystore:
 ```bash
-# Convert your keystore to base64 (replace 'your-keystore.jks' with your actual keystore filename)
+# Convert your keystore to base64
 base64 -i your-keystore.jks | pbcopy  # macOS
 base64 your-keystore.jks | xclip      # Linux
 ```
-
-**Note**: Replace `your-keystore.jks` with the actual filename of your keystore file.
 
 ### 3. Update Build Configuration
 
@@ -69,7 +67,6 @@ base64 your-keystore.jks | xclip      # Linux
 
 2. **Configure package.json equivalent**: Update your GitHub username in `publish.gradle`:
    ```groovy
-   // Replace YOUR-USERNAME with your actual GitHub username
    url = uri("https://maven.pkg.github.com/YOUR-USERNAME/CleverFerret")
    ```
 

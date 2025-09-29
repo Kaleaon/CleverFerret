@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Use the uploaded color ferret icon as foreground -->
+    <group android:translateX="54" android:translateY="54">
+        <!-- Scale and center the ferret icon within the safe zone -->
+        <group android:scaleX="0.7" android:scaleY="0.7">
+            <!-- Reference to the actual ferret bitmap will be handled by the adaptive icon system -->
+            <!-- This is a placeholder - the actual bitmap will be used from mipmap -->
+        </group>
+    </group>
+</vector>

@@ -162,16 +162,13 @@ For enhanced functionality, configure these secrets:
 
 ```yaml
 # For release signing (production)
-# Replace the placeholder values below with your actual keystore information
-KEYSTORE_PASSWORD: "your-keystore-password"    # Replace with your actual keystore password
-KEY_ALIAS: "your-key-alias"                    # Replace with your actual key alias
-KEY_PASSWORD: "your-key-password"              # Replace with your actual key password
+KEYSTORE_PASSWORD: "your-keystore-password"
+KEY_ALIAS: "your-key-alias"
+KEY_PASSWORD: "your-key-password"
 
 # For enhanced dependency scanning
-NVD_API_KEY: "your-nvd-api-key"               # Replace with your actual NVD API key
+NVD_API_KEY: "your-nvd-api-key"
 ```
-
-**⚠️ Note**: All values starting with `your-` are placeholders that must be replaced with your actual values when configuring GitHub Secrets.
 
 ### Workflow Customization
 

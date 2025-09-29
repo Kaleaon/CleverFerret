@@ -154,8 +154,6 @@ generate_keystore_instructions() {
 
 ## 1. Generate a new keystore (if you don't have one):
 
-**Note**: The command below uses example values. Replace them with your actual information when prompted.
-
 ```bash
 keytool -genkey -v -keystore cleverferret-release.jks \
   -keyalg RSA -keysize 2048 -validity 10000 \
@@ -165,13 +163,13 @@ keytool -genkey -v -keystore cleverferret-release.jks \
 ## 2. Convert keystore to base64:
 
 ```bash
-# macOS (replace cleverferret-release.jks with your actual keystore filename)
+# macOS
 base64 -i cleverferret-release.jks | pbcopy
 
-# Linux (replace cleverferret-release.jks with your actual keystore filename)
+# Linux
 base64 cleverferret-release.jks | xclip -selection clipboard
 
-# Windows (PowerShell) - replace cleverferret-release.jks with your actual keystore filename
+# Windows (PowerShell)
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("cleverferret-release.jks")) | Set-Clipboard
 ```
 
@@ -182,10 +180,8 @@ Go to your GitHub repository → Settings → Secrets and variables → Actions
 Add these secrets:
 - `KEYSTORE_BASE64`: The base64 encoded keystore (from step 2)
 - `KEYSTORE_PASSWORD`: Password you used when creating the keystore
-- `KEY_ALIAS`: The alias (cleverferret-key from example above, or your chosen alias)
+- `KEY_ALIAS`: The alias (cleverferret-key from example above)
 - `KEY_PASSWORD`: Key password (often same as keystore password)
-
-**⚠️ Important**: Replace all placeholder values with your actual keystore information.
 
 ## 4. Security Notes:
 
@@ -292,13 +288,11 @@ create_release_script() {
 
 # CleverFerret Release Helper Script
 # Usage: ./create-release.sh <version> [--beta|--rc]
-# Note: Replace <version> with your actual version number (e.g., 1.2.0)
 
 set -e
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <version> [--beta|--rc]"
-    echo "Replace <version> with your actual version number:"
     echo "Example: $0 1.2.0"
     echo "Example: $0 1.2.0 --beta"
     exit 1

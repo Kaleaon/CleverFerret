@@ -1,231 +1,374 @@
-name: Android CI/CD
+name: Android CI/CD Pipeline
 
 on:
   push:
     branches: [ main, develop ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, develop ]
-  workflow_dispatch:
-
-permissions:
-  contents: write
-  actions: write
 
 env:
-  JAVA_VERSION: 17
-  GRADLE_OPTS: -Xmx4g -XX:MaxMetaspaceSize=1g
+  JAVA_VERSION: '17'
+  JAVA_DISTRIBUTION: 'temurin'
 
 jobs:
-  build-and-test:
-    name: Build, Test & Deploy APK
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
+      
     - name: Set up JDK ${{ env.JAVA_VERSION }}
       uses: actions/setup-java@v4
       with:
         java-version: ${{ env.JAVA_VERSION }}
-        distribution: 'temurin'
-
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+        
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
-
-    - name: Accept Android SDK licenses
-      run: yes | sdkmanager --licenses
+      with:
+        api-level: 34
+        build-tools: '34.0.0'
+        cmake-version: '3.22.1'
         
-    - name: Cache Gradle dependencies
+    - name: Cache Gradle packages
       uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('build.gradle.kts', 'settings.gradle.kts', 'gradle/wrapper/gradle-wrapper.properties', 'CleverFerret/build.gradle.kts') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
-
-    - name: Make gradlew executable
+          
+    - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-
-    - name: Clean build directory
-      run: ./gradlew clean --stacktrace --no-daemon
-
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace --no-daemon
       
-    - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace --no-daemon
-
-    # ----- Signing (Release) -----
-    - name: Prepare signing key
-      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
-      env:
-        ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      run: |
-        echo "${ANDROID_KEYSTORE_BASE64}" | base64 --decode > keystore.jks
-
-    - name: Ensure build-tools (for apksigner)
-      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
-      run: sdkmanager --install "build-tools;34.0.0"
-
-    - name: Sign Release APK
-      if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
-      env:
-        ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-        ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-      run: |
-        RELEASE_UNSIGNED="CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk"
-        RELEASE_SIGNED="CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk"
-        if [ -f "$RELEASE_UNSIGNED" ]; then
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign \
-            --ks keystore.jks \
-            --ks-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
-            --ks-key-alias "$ANDROID_KEY_ALIAS" \
-            --key-pass pass:"$ANDROID_KEY_PASSWORD" \
-            --out "$RELEASE_SIGNED" \
-            "$RELEASE_UNSIGNED"
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify "$RELEASE_SIGNED"
-        else
-          echo "No unsigned release APK found to sign."
-        fi
-
-    - name: Run Unit Tests
-      run: ./gradlew testDebugUnitTest --stacktrace --no-daemon
-      continue-on-error: true
+    - name: Run unit tests
+      run: ./gradlew testDebugUnitTest
       
-    - name: Run Lint Check
-      run: ./gradlew lint --stacktrace --no-daemon
-      continue-on-error: true
-
-    - name: Generate Test Report
-      run: ./gradlew jacocoTestReport --stacktrace --no-daemon
+    - name: Run lint checks
+      run: ./gradlew lintDebug
+      
+    - name: Upload test reports
+      uses: actions/upload-artifact@v4
       if: always()
-      continue-on-error: true
+      with:
+        name: test-reports
+        path: |
+          CleverFerret/build/reports/tests/
+          CleverFerret/build/reports/lint-results-debug.html
 
-    - name: Prepare APK Artifacts
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    needs: test
+    
+    outputs:
+      version-name: ${{ steps.version.outputs.version-name }}
+      version-code: ${{ steps.version.outputs.version-code }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+        
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 34
+        build-tools: '34.0.0'
+        cmake-version: '3.22.1'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Extract version information
+      id: version
       run: |
-        mkdir -p build-artifacts
-        # Copy APKs with descriptive names
-        if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
-          cp CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
-             build-artifacts/CleverFerret-debug-${GITHUB_SHA:0:7}.apk
-        fi
-        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]; then
-          cp CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk \
-             build-artifacts/CleverFerret-release-${GITHUB_SHA:0:7}.apk
-        elif [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
+        VERSION_NAME=$(./gradlew -q printVersionName | tail -n1)
+        VERSION_CODE=$(./gradlew -q printVersionCode | tail -n1)
+        echo "version-name=$VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "version-code=$VERSION_CODE" >> $GITHUB_OUTPUT
+        echo "Version Name: $VERSION_NAME"
+        echo "Version Code: $VERSION_CODE"
+        
+    - name: Build debug APK
+      run: ./gradlew assembleDebug
+      
+    - name: Build release APK (unsigned)
+      run: ./gradlew assembleRelease
+      
+    - name: Sign release APK
+      id: sign_apk
+      if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: |
+        if [[ -n "$KEYSTORE_PASSWORD" && -n "$KEY_ALIAS" && -n "$KEY_PASSWORD" ]]; then
+          echo "Signing APK with keystore..."
+          # Create keystore from base64 encoded secret
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-keystore.jks
+          
+          # Sign the APK
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore release-keystore.jks \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
+            CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
+            "$KEY_ALIAS"
+            
+          # Align the APK
+          $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
+            CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
+            CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
+            
+          echo "signed=true" >> $GITHUB_OUTPUT
+          echo "APK signed successfully"
+        else
+          echo "Keystore secrets not available, using unsigned APK"
           cp CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
-             build-artifacts/CleverFerret-release-${GITHUB_SHA:0:7}.apk
+             CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
+          echo "signed=false" >> $GITHUB_OUTPUT
         fi
-
-    - name: Upload APK Artifacts
+        
+    - name: Rename APK files
+      run: |
+        VERSION_NAME="${{ steps.version.outputs.version-name }}"
+        VERSION_CODE="${{ steps.version.outputs.version-code }}"
+        
+        # Rename debug APK
+        mv CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
+           CleverFerret/build/outputs/apk/debug/CleverFerret-v${VERSION_NAME}-debug.apk
+           
+        # Rename release APK
+        if [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]]; then
+          mv CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk \
+             CleverFerret/build/outputs/apk/release/CleverFerret-v${VERSION_NAME}-release.apk
+        else
+          mv CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
+             CleverFerret/build/outputs/apk/release/CleverFerret-v${VERSION_NAME}-release-unsigned.apk
+        fi
+        
+    - name: Upload debug APK
       uses: actions/upload-artifact@v4
       with:
-        name: clever-ferret-apks-${{ github.sha }}
-        path: build-artifacts/*.apk
+        name: debug-apk
+        path: CleverFerret/build/outputs/apk/debug/CleverFerret-v${{ steps.version.outputs.version-name }}-debug.apk
         retention-days: 30
         
-    - name: Upload Test Results
+    - name: Upload release APK
       uses: actions/upload-artifact@v4
-      if: always()
       with:
-        name: test-results-${{ github.sha }}
-        path: |
-          CleverFerret/build/reports/
-          CleverFerret/build/test-results/
-        retention-days: 7
+        name: release-apk
+        path: CleverFerret/build/outputs/apk/release/CleverFerret-v${{ steps.version.outputs.version-name }}-release*.apk
+        retention-days: 90
 
-    - name: Commit APK to Repository (Main Branch Only)
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download release APK
+      uses: actions/download-artifact@v4
+      with:
+        name: release-apk
+        path: ./apk/
+        
+    - name: Run APK security analysis
+      uses: guardsquare/proguard-core-action@v1
+      with:
+        input: ./apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release*.apk
+        
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: security-report.json
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [test, build, security-scan]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download release APK
+      uses: actions/download-artifact@v4
+      with:
+        name: release-apk
+        path: ./apk/
+        
+    - name: Download debug APK
+      uses: actions/download-artifact@v4
+      with:
+        name: debug-apk
+        path: ./apk/
+        
+    - name: Generate changelog
+      id: changelog
       run: |
-        # Create builds directory structure
-        mkdir -p builds/latest
-        
-        # Copy latest APKs
-        if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
-          cp CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
-             builds/latest/CleverFerret-debug-latest.apk
-        fi
-        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]; then
-          cp CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk \
-             builds/latest/CleverFerret-release-latest.apk
-        elif [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
-          cp CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
-             builds/latest/CleverFerret-release-latest.apk
+        # Generate changelog from git commits since last tag
+        LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+        if [ -n "$LAST_TAG" ]; then
+          CHANGELOG=$(git log --pretty=format:"- %s (%h)" ${LAST_TAG}..HEAD)
+        else
+          CHANGELOG=$(git log --pretty=format:"- %s (%h)" --max-count=10)
         fi
         
-        # Create build info
-        cat > builds/latest/BUILD_INFO.md << EOF
-        # Latest CleverFerret Build
+        # Save changelog to file
+        cat > CHANGELOG.md << EOF
+        # CleverFerret Universal Media Library v${{ needs.build.outputs.version-name }}
         
-        **Build Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")  
-        **Commit**: ${GITHUB_SHA}  
-        **Branch**: ${GITHUB_REF_NAME}  
-        **Workflow**: ${GITHUB_RUN_ID}
+        ## What's New
         
-        ## Direct Download Links
+        $CHANGELOG
         
-        ### 🔥 Release APK (Recommended)
-        [Download CleverFerret-release-latest.apk](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-release-latest.apk)
+        ## Installation
         
-        ### 🛠️ Debug APK (Development)  
-        [Download CleverFerret-debug-latest.apk](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-debug-latest.apk)
+        1. Download the APK file below
+        2. Enable "Install from Unknown Sources" in Android settings
+        3. Install the APK on your Android device
         
-        ---
+        ## Features
         
-        **Note**: These are automatically built from the latest main branch. For stable releases, check the [Releases page](https://github.com/Kaleaon/CleverFerret/releases).
+        - Universal media library management (books, movies, music, podcasts)
+        - Plex server integration with AI-powered metadata enhancement
+        - Advanced e-reader with Moon+ Reader beating features
+        - VLC-like video player with subtitle support
+        - Smart content analysis and auto-labeling
+        - 16+ metadata API integrations
+        - Dark Plex-inspired UI theme
+        
+        ## System Requirements
+        
+        - Android 7.0 (API level 24) or higher
+        - 100MB free storage space
+        - Internet connection for metadata fetching
         EOF
         
-        # Configure git for GitHub Actions
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        echo "changelog-file=CHANGELOG.md" >> $GITHUB_OUTPUT
         
-        # Add and commit if there are changes
-        git add builds/latest/
-        if ! git diff --cached --quiet; then
-          git commit -m "🤖 Auto-update latest APK builds from ${GITHUB_SHA:0:7}"
-          git push
-        else
-          echo "No changes to commit"
-        fi
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: CleverFerret v${{ needs.build.outputs.version-name }}
+        body_path: CHANGELOG.md
+        draft: false
+        prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
+        
+    - name: Upload release APK to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release.apk
+        asset_name: CleverFerret-v${{ needs.build.outputs.version-name }}-release.apk
+        asset_content_type: application/vnd.android.package-archive
+        
+    - name: Upload debug APK to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./apk/CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk
+        asset_name: CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk
+        asset_content_type: application/vnd.android.package-archive
 
-    - name: Build Summary
-      if: always()
+  publish-packages:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Download release APK
+      uses: actions/download-artifact@v4
+      with:
+        name: release-apk
+        path: ./apk/
+        
+    - name: Publish to GitHub Packages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USER: ${{ github.actor }}
       run: |
-        echo "## 🏗️ CleverFerret Build Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📱 APK Build Status:" >> $GITHUB_STEP_SUMMARY
+        # Configure Gradle for GitHub Packages
+        ./gradlew publishToGitHub \
+          -PgithubToken=$GITHUB_TOKEN \
+          -PgithubUser=$GITHUB_USER \
+          -PversionName=${{ needs.build.outputs.version-name }} \
+          -PversionCode=${{ needs.build.outputs.version-code }}
+
+  notify:
+    name: Notify Build Status
+    runs-on: ubuntu-latest
+    needs: [test, build, release, publish-packages]
+    if: always()
+    
+    steps:
+    - name: Notify success
+      if: needs.build.result == 'success'
+      run: |
+        echo "✅ Build completed successfully!"
+        echo "Version: ${{ needs.build.outputs.version-name }}"
+        echo "Build artifacts are available in the Actions tab"
         
-        if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
-          DEBUG_SIZE=$(ls -lh CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk | awk '{print $5}')
-          echo "- ✅ **Debug APK**: Built successfully (${DEBUG_SIZE})" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ **Debug APK**: Build failed" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        if [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]; then
-          RELEASE_SIZE=$(ls -lh CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk | awk '{print $5}')
-          echo "- ✅ **Release APK**: Built and signed successfully (${RELEASE_SIZE})" >> $GITHUB_STEP_SUMMARY
-        elif [ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]; then
-          RELEASE_SIZE=$(ls -lh CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk | awk '{print $5}')
-          echo "- ⚠️ **Release APK**: Built unsigned (${RELEASE_SIZE})" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "- ❌ **Release APK**: Build failed" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 🧪 Test Results:" >> $GITHUB_STEP_SUMMARY
-        echo "- Unit tests and lint checks completed (see artifacts for details)" >> $GITHUB_STEP_SUMMARY
-        
-        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📲 Direct Download (Latest):" >> $GITHUB_STEP_SUMMARY
-          echo "- [Release APK](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-release-latest.apk)" >> $GITHUB_STEP_SUMMARY
-          echo "- [Debug APK](https://github.com/Kaleaon/CleverFerret/raw/main/builds/latest/CleverFerret-debug-latest.apk)" >> $GITHUB_STEP_SUMMARY
-        fi
+    - name: Notify failure
+      if: needs.build.result == 'failure'
+      run: |
+        echo "❌ Build failed!"
+        echo "Check the build logs for details"
+        exit 1

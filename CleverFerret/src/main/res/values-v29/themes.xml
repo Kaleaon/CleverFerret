@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Android API 29+ specific theme -->
-    <style name="Theme.UniversalMediaLibrary" parent="android:Theme.DeviceDefault.DayNight">
-        <item name="android:colorPrimary">#1E3A5F</item>
+    <style name="Theme.CleverFerretMediaLibrary" parent="android:Theme.DeviceDefault.DayNight">
+        <item name="android:colorPrimary">@color/primary</item>
     </style>
+    
+    <!-- Legacy theme name for compatibility -->
+    <style name="Theme.UniversalMediaLibrary" parent="Theme.CleverFerretMediaLibrary" />
 </resources>

@@ -1,8 +1,6 @@
-# CleverFerret - Universal Media Library
+# Universal Media Library - Android Development Instructions
 
-**Android Development Instructions for GitHub Copilot**
-
-This file provides comprehensive guidance for AI assistants working on the CleverFerret Universal Media Library Android application. Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
+Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
 ## Working Effectively
 
@@ -24,15 +22,15 @@ This file provides comprehensive guidance for AI assistants working on the Cleve
 - Code coverage: `./gradlew jacocoTestReport` -- takes 6 seconds. Requires tests to run first.
 
 ### Lint and Code Quality  
-- Lint check: `./gradlew lint` -- currently FAILS due to missing service class `CalibreImportForegroundService`
-- Known lint issues: MissingClass (1 error), ScopedStorage (2 warnings), UnknownIssueId (6 warnings)
-- Use skip lint for builds: `./gradlew check -x lint` -- takes ~45 seconds, runs all tests including release variant
-- For development: Focus on unit tests and building rather than lint until missing service is implemented
+- Lint check: `./gradlew lint` -- takes ~49 seconds and SUCCEEDS with 31 warnings (0 errors). This is CURRENT STATUS.
+- Known lint issues: DefaultLocale (6), GradleDependency (21), OldTargetApi (1), SwitchIntDef (2), KaptUsageInsteadOfKsp (1)
+- Run with continue flag: `./gradlew lint --continue` to see all issues (though lint succeeds)
+- Full verification without lint: `./gradlew check -x lint` -- takes ~45 seconds, runs all tests including release variant
 
 ### Application Information
 - **Package Name:** `com.universalmedialibrary`
 - **Main Module:** `CleverFerret`
-- **Min SDK:** 26 (Android 8.0)
+- **Min SDK:** 24 (Android 7.0)
 - **Target SDK:** 34 (Android 14)  
 - **Version:** 1.0 (versionCode 1)
 - **Architecture:** Kotlin + Jetpack Compose + Material You + Hilt + Room
@@ -58,9 +56,9 @@ The app is designed to start in a clean, first-run state:
   - `./gradlew --no-daemon --stacktrace assembleDebug`
   - `./gradlew --no-daemon --stacktrace testDebugUnitTest` 
   - `./gradlew --no-daemon --stacktrace jacocoTestReport`
-  - `./gradlew --no-daemon --stacktrace lint` (currently fails - expect 1 error, 8 warnings)
-- Alternative: `./gradlew check -x lint` -- runs all verification tasks except lint (~45 seconds)
-- GitHub Actions workflows: `.github/workflows/android_ci.yml` and `.github/workflows/release.yml` may skip lint
+  - `./gradlew --no-daemon --stacktrace lint` (will fail but that's expected)
+- Alternative: `./gradlew check -x lint` -- runs all verification tasks except lint (12 seconds)
+- GitHub Actions workflows: `.github/workflows/android_ci.yml` and `.github/workflows/release.yml`
 
 ## Common Tasks
 
@@ -132,7 +130,7 @@ android {
     
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -171,70 +169,3 @@ BUILD SUCCESSFUL in 45s
 ```
 
 Always check the specific file you're working on by viewing its current content rather than making assumptions about the codebase structure.
-
-## Code Patterns and Style
-
-### Kotlin Best Practices
-- Use data classes for model objects (e.g., `MediaItem`, `Library`)
-- Prefer sealed classes for state management in ViewModels
-- Use extension functions for utility operations
-- Follow kotlinx.coroutines patterns for async operations
-
-### Jetpack Compose Guidelines
-- Use `@Composable` functions with proper state hoisting
-- Implement ViewModel integration with `hiltViewModel()`
-- Use `collectAsState()` for observing state changes
-- Follow Material Design 3 theming patterns
-
-### Architecture Patterns
-- **MVVM**: ViewModels manage UI state, Views observe and react
-- **Repository Pattern**: Abstract data layer with Room database
-- **Dependency Injection**: Use Hilt annotations (`@HiltAndroidApp`, `@AndroidEntryPoint`)
-- **Navigation**: Use Navigation Compose for screen transitions
-
-### Common Code Issues to Watch For
-- Missing service implementations (like `CalibreImportForegroundService`)
-- Deprecated permission usage (use scoped storage permissions)
-- Room database migrations when schema changes
-- Proper error handling in coroutines with try-catch blocks
-
-## Development Workflow
-
-### Before Making Changes
-1. Always run `./gradlew check -x lint` to validate current state
-2. Check if related unit tests exist and are passing
-3. Review existing code patterns in similar files
-4. Ensure Hilt dependency injection is properly configured
-
-### After Making Changes
-1. Run relevant unit tests: `./gradlew testDebugUnitTest`
-2. Build debug APK: `./gradlew assembleDebug`
-3. Check for new lint issues (if fixing lint-related code)
-4. Test integration points between components
-
-### Testing Strategy
-- **Unit Tests**: Focus on ViewModels, Repository classes, and utility functions
-- **Integration Tests**: Test Room database operations and service integrations
-- **UI Tests**: Limited due to Compose complexity, focus on state management
-- **Manual Testing**: Build APK and validate core functionality
-
-## Project-Specific Context
-
-### Current Development Status
-- **Working**: Core app structure, database schema, basic UI screens
-- **In Progress**: Media library functionality, Calibre import services
-- **Missing**: `CalibreImportForegroundService` implementation (causes lint failure)
-- **Known Issues**: Storage permissions need scoped storage update for Android 13+
-
-### Key Files to Understand
-- `MainActivity.kt`: Entry point with Compose setup
-- `MainApplication.kt`: Hilt application configuration
-- `data/` directory: Room database entities and DAOs
-- `ui/` directory: Compose screens and components
-- `di/` directory: Hilt dependency modules
-
-### External Dependencies
-- **Room**: Database persistence with coroutines support
-- **Hilt**: Dependency injection throughout the app
-- **Compose BOM**: UI framework with Material Design 3
-- **Navigation Compose**: Screen navigation and deep linking
