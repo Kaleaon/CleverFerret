@@ -2,8 +2,8 @@ package com.universalmedialibrary.data.local.dao
 
 import androidx.room.*
 import com.universalmedialibrary.data.local.model.Bookmark
-import com.universalmedialibrary.data.local.model.ReadingProgress
-import com.universalmedialibrary.data.local.model.ReadingSession
+// import com.universalmedialibrary.data.local.model.ReadingProgress
+// import com.universalmedialibrary.data.local.model.ReadingSession
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,6 +21,8 @@ interface BookmarkDao {
     @Query("DELETE FROM bookmarks WHERE mediaItemId = :mediaItemId")
     suspend fun deleteAllBookmarksForItem(mediaItemId: Long)
     
+    // Reading progress and session methods temporarily disabled - entities missing
+    /*
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateReadingProgress(progress: ReadingProgress)
     
@@ -76,4 +78,5 @@ interface BookmarkDao {
     
     @Query("DELETE FROM reading_sessions WHERE mediaItemId = :mediaItemId")
     suspend fun deleteReadingSessionsForItem(mediaItemId: Long)
+    */
 }

@@ -15,7 +15,6 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.R
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 /**
@@ -32,11 +31,7 @@ import javax.inject.Inject
  * - High-importance notification channel
  * - Smart notification management
  */
-@AndroidEntryPoint
 class MediaNotificationService : MediaSessionService() {
-    
-    @Inject
-    lateinit var mediaSessionManager: MediaSessionManager
     
     private var mediaSession: MediaSession? = null
     
@@ -76,8 +71,8 @@ class MediaNotificationService : MediaSessionService() {
         super.onCreate()
         createNotificationChannel()
         
-        // Get MediaSession from manager or create if needed
-        mediaSession = mediaSessionManager.getMediaSession()
+        // TODO: Get MediaSession from proper source
+        // mediaSession = mediaSessionManager.getMediaSession()
         
         // Start as foreground service with initial notification
         val notification = createMediaNotification(

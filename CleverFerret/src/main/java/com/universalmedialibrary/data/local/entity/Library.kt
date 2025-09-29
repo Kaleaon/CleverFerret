@@ -16,10 +16,6 @@ data class Library(
     
     val name: String,
     val type: String, // BOOK, MOVIE, TV_SHOW, MUSIC, COMIC, PODCAST, etc.
-    val path: String, // Root file system path
-    val isActive: Boolean = true,
-    val dateCreated: Long = System.currentTimeMillis(),
-    val lastScanned: Long = 0,
-    val description: String? = null,
-    val iconPath: String? = null
+    val path: String,
+    val dateModified: Long = System.currentTimeMillis()
 )

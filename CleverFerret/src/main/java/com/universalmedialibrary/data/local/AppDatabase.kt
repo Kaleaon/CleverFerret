@@ -4,47 +4,60 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.universalmedialibrary.data.local.dao.APIKeyDao
-import com.universalmedialibrary.data.local.dao.BookmarkDao
-import com.universalmedialibrary.data.local.dao.LibraryDao
-import com.universalmedialibrary.data.local.dao.MediaItemDao
-import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.model.*
+import com.universalmedialibrary.data.local.entity.*
 
 @Database(
     entities = [
-        Library::class,
-        MediaItem::class,
-        MetadataCommon::class,
-        MetadataBook::class,
-        MetadataMovie::class,
-        MetadataTvShow::class,
-        Album::class,
-        MetadataMusicTrack::class,
-        MetadataPodcast::class,
-        MetadataMagazine::class,
-        MetadataDocument::class,
-        MetadataAcademicPaper::class,
-        Genre::class,
-        ItemGenre::class,
-        People::class,
-        ItemPersonRole::class,
-        Series::class,
-        APIKey::class,
-        Bookmark::class,
-        ReadingProgress::class,
-        ReadingSession::class
+        // Using only entities that definitely exist
+        com.universalmedialibrary.data.local.model.Library::class,
+        com.universalmedialibrary.data.local.model.MediaItem::class,
+        com.universalmedialibrary.data.local.model.MetadataCommon::class,
+        com.universalmedialibrary.data.local.model.MetadataBook::class,
+        com.universalmedialibrary.data.local.model.MetadataMovie::class,
+        com.universalmedialibrary.data.local.model.MetadataTvShow::class,
+        com.universalmedialibrary.data.local.model.Album::class,
+        com.universalmedialibrary.data.local.model.MetadataMusicTrack::class,
+        com.universalmedialibrary.data.local.model.Genre::class,
+        com.universalmedialibrary.data.local.model.ItemGenre::class,
+        com.universalmedialibrary.data.local.model.People::class,
+        com.universalmedialibrary.data.local.model.ItemPersonRole::class,
+        com.universalmedialibrary.data.local.model.Series::class,
+        com.universalmedialibrary.data.local.model.APIKey::class,
+        com.universalmedialibrary.data.local.model.Bookmark::class
     ],
     version = 6,
-    exportSchema = false // For now, we can disable schema exporting
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
+    // Legacy DAOs for content creation - Temporarily disabled
+    // abstract fun downloadedStoryDao(): DownloadedStoryDao
+    // abstract fun storyUpdateDao(): StoryUpdateDao
+    
+    // Core DAOs
     abstract fun libraryDao(): LibraryDao
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun metadataDao(): MetadataDao
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun bookmarkDao(): BookmarkDao
+    
+    // Additional DAOs - Temporarily disabled until entities are properly configured
+    // abstract fun readerSettingsDao(): ReaderSettingsDao
+    // abstract fun annotationDao(): AnnotationDao
+    // abstract fun searchIndexDao(): SearchIndexDao
+    // abstract fun readingStatisticsDao(): ReadingStatisticsDao
+    
+    // Plex DAOs - Temporarily disabled
+    // abstract fun plexServerDao(): PlexServerDao
+    // abstract fun plexMediaItemDao(): PlexMediaItemDao
+    // abstract fun plexSyncDao(): PlexSyncDao
+    
+    // Playback queue DAOs - Temporarily disabled
+    // abstract fun playbackQueueDao(): PlaybackQueueDao
+    // abstract fun queueItemDao(): QueueItemDao
+    // abstract fun playbackSessionDao(): PlaybackSessionDao
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"

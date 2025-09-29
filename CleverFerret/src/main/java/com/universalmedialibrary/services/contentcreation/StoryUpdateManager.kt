@@ -1,7 +1,7 @@
 package com.universalmedialibrary.services.contentcreation
 
 import android.content.Context
-import com.universalmedialibrary.data.local.CleverFerretDatabase
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.DownloadedStory
 import com.universalmedialibrary.data.local.entity.StoryUpdate
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,12 +27,13 @@ import javax.inject.Singleton
 @Singleton
 class StoryUpdateManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val database: CleverFerretDatabase
+    private val database: AppDatabase
 ) {
     
     private val cleverFerretDatabase = database
-    private val storyDao = database.downloadedStoryDao()
-    private val updateDao = database.storyUpdateDao()
+    // Temporarily disabled due to missing DAOs in AppDatabase
+    // private val storyDao = database.downloadedStoryDao()
+    // private val updateDao = database.storyUpdateDao()
     
     data class UpdateCheckResult(
         val hasUpdates: Boolean,

@@ -106,6 +106,20 @@
     <string name="audio_shuffle">Shuffle</string>
     <string name="audio_repeat">Repeat</string>
     
+    <!-- Widget descriptions -->
+    <string name="media_playback_widget_description">Controls media playback</string>
+    
+    <!-- Media notifications -->
+    <string name="media_notification_title">Media Player</string>
+    <string name="media_notification_unknown_artist">Unknown Artist</string>
+    <string name="notification_channel_media_playback">Media Playback</string>
+    <string name="notification_channel_media_playback_description">Shows media playback controls</string>
+    <string name="media_pause">Pause</string>
+    <string name="media_play">Play</string>
+    <string name="media_skip_previous">Previous</string>
+    <string name="media_skip_next">Next</string>
+    <string name="media_stop">Stop</string>
+    
     <!-- Error messages -->
     <string name="error_generic">An error occurred</string>
     <string name="error_network">Network error</string>
