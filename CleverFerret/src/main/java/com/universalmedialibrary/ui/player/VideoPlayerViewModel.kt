@@ -48,11 +48,13 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
             _uiState.value = _uiState.value.copy(isPlaying = isPlaying)
         }
 
-        override fun onPlayerError(error: PlaybackException) {
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                error = "Video playback error: ${error.message}"
-            )
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
+            error?.let {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Video playback error: ${it.message}"
+                )
+            }
         }
     }
 
