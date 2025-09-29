@@ -3,11 +3,8 @@ package com.universalmedialibrary.di
 import android.content.Context
 import androidx.room.Room
 import com.universalmedialibrary.data.local.AppDatabase
-import com.universalmedialibrary.data.local.dao.APIKeyDao
-import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
-import com.universalmedialibrary.data.local.dao.MetadataDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,18 +38,19 @@ object DatabaseModule {
         return database.mediaItemDao()
     }
 
-    @Provides
-    fun provideMetadataDao(database: AppDatabase): MetadataDao {
-        return database.metadataDao()
-    }
+    // Temporarily disabled problematic DAOs
+    // @Provides
+    // fun provideMetadataDao(database: AppDatabase): MetadataDao {
+    //     return database.metadataDao()
+    // }
     
-    @Provides
-    fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
-        return database.bookmarkDao()
-    }
+    // @Provides
+    // fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
+    //     return database.bookmarkDao()
+    // }
     
-    @Provides
-    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
-        return database.apiKeyDao()
-    }
+    // @Provides
+    // fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
+    //     return database.apiKeyDao()
+    // }
 }

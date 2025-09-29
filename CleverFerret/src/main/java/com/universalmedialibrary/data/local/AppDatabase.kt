@@ -17,12 +17,10 @@ import com.universalmedialibrary.data.local.model.MetadataCommon
 
 @Database(
     entities = [
-        // Phase 2: Starting with essential entities only
+        // Phase 2: Starting with minimal essential entities only
         Library::class,
-        MediaItem::class,
-        MetadataCommon::class,
-        APIKey::class,
-        Bookmark::class
+        MediaItem::class
+        // Temporarily disabled: MetadataCommon, APIKey, Bookmark
     ],
     version = 6,
     exportSchema = false
@@ -33,12 +31,14 @@ abstract class AppDatabase : RoomDatabase() {
     // abstract fun downloadedStoryDao(): DownloadedStoryDao
     // abstract fun storyUpdateDao(): StoryUpdateDao
     
-    // Core DAOs
+    // Core DAOs  
     abstract fun libraryDao(): LibraryDao
     abstract fun mediaItemDao(): MediaItemDao
-    abstract fun metadataDao(): MetadataDao
-    abstract fun apiKeyDao(): APIKeyDao
-    abstract fun bookmarkDao(): BookmarkDao
+    
+    // Temporarily disabled problematic DAOs
+    // abstract fun metadataDao(): MetadataDao
+    // abstract fun apiKeyDao(): APIKeyDao
+    // abstract fun bookmarkDao(): BookmarkDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
