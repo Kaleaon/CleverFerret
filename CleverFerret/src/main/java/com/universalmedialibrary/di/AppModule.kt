@@ -365,6 +365,7 @@ object AppModule {
         mediaSessionManager: MediaSessionManager
     ): MediaController {
         return MediaController(context, mediaSessionManager)
+    }
 
     // Widget Services
     @Provides
@@ -379,5 +380,54 @@ object AppModule {
         )
 
 
+    }
+
+    // eBook Reader Services
+    @Provides
+    @Singleton
+    fun provideReaderEngineFactory(
+        epubReaderEngine: com.universalmedialibrary.services.epub.EpubReaderEngine,
+        pdfReaderEngine: com.universalmedialibrary.services.reader.PdfReaderEngine,
+        comicReaderEngine: com.universalmedialibrary.services.reader.ComicReaderEngine
+    ): com.universalmedialibrary.services.reader.ReaderEngineFactory {
+        return com.universalmedialibrary.services.reader.ReaderEngineFactory(
+            epubReaderEngine,
+            pdfReaderEngine,
+            comicReaderEngine
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideEpubReaderEngine(
+        @ApplicationContext context: Context
+    ): com.universalmedialibrary.services.epub.EpubReaderEngine {
+        return com.universalmedialibrary.services.epub.EpubReaderEngine(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providePdfReaderEngine(): com.universalmedialibrary.services.reader.PdfReaderEngine {
+        return com.universalmedialibrary.services.reader.PdfReaderEngine()
+    }
+
+    @Provides
+    @Singleton
+    fun provideComicReaderEngine(): com.universalmedialibrary.services.reader.ComicReaderEngine {
+        return com.universalmedialibrary.services.reader.ComicReaderEngine()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEnhancedUniversalReaderService(
+        @ApplicationContext context: Context,
+        readerEngineFactory: com.universalmedialibrary.services.reader.ReaderEngineFactory,
+        bookmarkDao: BookmarkDao
+    ): com.universalmedialibrary.services.reader.EnhancedUniversalReaderService {
+        return com.universalmedialibrary.services.reader.EnhancedUniversalReaderService(
+            context,
+            readerEngineFactory,
+            bookmarkDao
+        )
     }
 }
