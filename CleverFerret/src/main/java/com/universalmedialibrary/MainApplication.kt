@@ -1,7 +1,7 @@
 package com.universalmedialibrary
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-// Temporarily disabled Hilt while we restore functionality step by step
-// @HiltAndroidApp
+@HiltAndroidApp
 class MainApplication : Application()

@@ -9,14 +9,17 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 /**
- * Basic Hilt module for dependency injection
- * Starting with minimal dependencies to ensure successful build
+ * Phase 2 Hilt module - Basic setup
+ * Testing Hilt compilation first before adding Room
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
     
-    // For now, just provide basic Context-based services
-    // We'll add more complex dependencies incrementally
-    
+    // Phase 2: Start with basic context provision
+    @Provides
+    @Singleton
+    fun provideApplicationContext(@ApplicationContext context: Context): Context {
+        return context
+    }
 }

@@ -10,20 +10,10 @@ import com.universalmedialibrary.data.local.entity.*
 
 @Database(
     entities = [
-        // Using only entities that definitely exist
+        // Phase 2: Starting with essential entities only
         com.universalmedialibrary.data.local.model.Library::class,
         com.universalmedialibrary.data.local.model.MediaItem::class,
         com.universalmedialibrary.data.local.model.MetadataCommon::class,
-        com.universalmedialibrary.data.local.model.MetadataBook::class,
-        com.universalmedialibrary.data.local.model.MetadataMovie::class,
-        com.universalmedialibrary.data.local.model.MetadataTvShow::class,
-        com.universalmedialibrary.data.local.model.Album::class,
-        com.universalmedialibrary.data.local.model.MetadataMusicTrack::class,
-        com.universalmedialibrary.data.local.model.Genre::class,
-        com.universalmedialibrary.data.local.model.ItemGenre::class,
-        com.universalmedialibrary.data.local.model.People::class,
-        com.universalmedialibrary.data.local.model.ItemPersonRole::class,
-        com.universalmedialibrary.data.local.model.Series::class,
         com.universalmedialibrary.data.local.model.APIKey::class,
         com.universalmedialibrary.data.local.model.Bookmark::class
     ],

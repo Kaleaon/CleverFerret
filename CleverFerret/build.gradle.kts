@@ -1,8 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    // id("kotlin-kapt")  // Temporarily disabled until DB issues resolved
-    // id("dagger.hilt.android.plugin")  // Temporarily disabled
+    id("kotlin-kapt")  // Phase 2: Re-enable KAPT for Room and Hilt
+    id("dagger.hilt.android.plugin")  // Phase 2: Re-enable Hilt
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
@@ -67,17 +67,17 @@ dependencies {
     
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")  // Temporarily disabled
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")  // Phase 2: Re-enabled
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     
-    // Hilt dependency injection - temporarily disabled
-    // implementation("com.google.dagger:hilt-android:2.51.1")
-    // kapt("com.google.dagger:hilt-compiler:2.51.1")
+    // Hilt dependency injection - Phase 2: Re-enabled
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
     
-    // Room database - temporarily disabled
+    // Room database - Phase 2: Temporarily disabled to test Hilt first
     // implementation("androidx.room:room-runtime:2.6.1")
     // implementation("androidx.room:room-ktx:2.6.1")
     // kapt("androidx.room:room-compiler:2.6.1")

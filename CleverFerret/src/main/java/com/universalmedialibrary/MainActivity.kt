@@ -160,14 +160,14 @@ fun EnhancedHomeScreen(navController: NavController) {
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "✅ Restoration Progress",
+                            text = "✅ Phase 2 Progress",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "📱 UI Layer: Complete\n🔧 Build System: Fixed\n🎨 Enhanced UI: Active\n📊 Room Database: Ready\n⚡ Hilt DI: Next Phase",
+                            text = "📱 UI Layer: Complete\n🔧 Build System: Fixed\n🎨 Enhanced UI: Active\n📊 Room Database: Enabled\n⚡ Hilt DI: Enabled\n🔗 Repositories: Active",
                             style = MaterialTheme.typography.bodySmall,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
