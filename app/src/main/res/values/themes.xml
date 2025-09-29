@@ -1,6 +1,9 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.UniversalMediaLibrary" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.CleverFerretMediaLibrary" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
     </style>
+    
+    <!-- Legacy theme name for compatibility -->
+    <style name="Theme.UniversalMediaLibrary" parent="Theme.CleverFerretMediaLibrary" />
 </resources>

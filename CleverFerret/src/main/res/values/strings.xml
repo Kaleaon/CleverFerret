@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App name and basic strings -->
-    <string name="app_name">CleverFerret</string>
+    <string name="app_name">Clever Ferret Media Library</string>
     <string name="app_description">Universal Media Library</string>
     
     <!-- Navigation and UI -->

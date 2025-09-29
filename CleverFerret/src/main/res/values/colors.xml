@@ -52,4 +52,11 @@
     <color name="music_color">#9C27B0</color>
     <color name="podcasts_color">#FF9800</color>
     <color name="comics_color">#3F51B5</color>
+    
+    <!-- Ferret-themed colors -->
+    <color name="ferret_brown">#8B4513</color>
+    <color name="ferret_cream">#F5DEB3</color>
+    <color name="ferret_blue">#4A90E2</color>
+    <color name="ferret_blue_dark">#3D85D1</color>
+    <color name="ferret_accent">#E5A00D</color>
 </resources>
