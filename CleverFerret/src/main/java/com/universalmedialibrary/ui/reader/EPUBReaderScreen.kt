@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
+// import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
@@ -32,12 +32,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 @Composable
 fun EPUBReaderScreen(
     navController: NavController,
-    bookUri: String,
-    viewModel: EPUBReaderViewModel = hiltViewModel()
+    bookUri: String
+    // viewModel: EPUBReaderViewModel = hiltViewModel()  // Temporarily disabled
 ) {
     val context = LocalContext.current
-    val readerState by viewModel.readerState.collectAsState()
-    val uiSettings by viewModel.uiSettings.collectAsState()
+    // Temporarily disabled ViewModel usage
+    // val readerState by viewModel.readerState.collectAsState()
+    // val uiSettings by viewModel.uiSettings.collectAsState()
     val scope = rememberCoroutineScope()
     
     var showToc by remember { mutableStateOf(false) }

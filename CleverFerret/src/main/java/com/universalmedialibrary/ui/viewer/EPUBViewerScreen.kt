@@ -236,7 +236,7 @@ fun EPUBViewerScreen(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = readerState.error,
+                                text = readerState.error ?: "Unknown error",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.error,
                                 textAlign = TextAlign.Center
