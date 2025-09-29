@@ -35,8 +35,8 @@
     "fake-indexeddb": "^6.2.2",
     "jsdom": "^27.0.0",
     "typescript": "^5.2.2",
-    "vite": "^4.5.0",
-    "vite-plugin-pwa": "^0.17.4",
+    "vite": "^7.1.7",
+    "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
     "workbox-window": "^7.0.0"
   }
