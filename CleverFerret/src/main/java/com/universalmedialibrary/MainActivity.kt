@@ -10,12 +10,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 class MainActivity : ComponentActivity() {
     
@@ -82,9 +77,9 @@ fun EnhancedHomeScreen(navController: NavController) {
     )
     
     val mediaTabs = listOf(
-        "Books" to Icons.Default.Book,
-        "Music" to Icons.Default.MusicNote,
-        "Movies" to Icons.Default.Movie
+        "Books" to PhosphorIcons.Book,
+        "Music" to PhosphorIcons.MusicNote,
+        "Movies" to PhosphorIcons.FilmStrip
     )
 
     Scaffold(
@@ -100,7 +95,7 @@ fun EnhancedHomeScreen(navController: NavController) {
                     },
                     actions = {
                         IconButton(onClick = { navController.navigate("settings") }) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                            Icon(PhosphorIcons.Gear, contentDescription = "Settings")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -130,7 +125,7 @@ fun EnhancedHomeScreen(navController: NavController) {
                 onClick = { showCreateDialog = true },
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Library")
+                Icon(PhosphorIcons.Plus, contentDescription = "Add Library")
             }
         }
     ) { paddingValues ->
@@ -331,10 +326,10 @@ fun SettingsPlaceholder(navController: NavController) {
 
 private fun getIconForLibraryType(type: String): ImageVector {
     return when (type.uppercase()) {
-        "BOOK" -> Icons.Default.Book
-        "MOVIE" -> Icons.Default.Movie
-        "MUSIC" -> Icons.Default.MusicNote
-        else -> Icons.Default.Book
+        "BOOK" -> PhosphorIcons.Book
+        "MOVIE" -> PhosphorIcons.FilmStrip
+        "MUSIC" -> PhosphorIcons.MusicNote
+        else -> PhosphorIcons.Book
     }
 }
 
