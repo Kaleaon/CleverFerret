@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -430,12 +431,12 @@ private fun getLibraryGradientColors(type: String): List<Color> {
 
 private fun getLibraryIcon(type: String): ImageVector {
     return when (type.uppercase()) {
-        "BOOK", "EBOOK" -> Icons.Default.List
+        "BOOK", "EBOOK" -> Icons.AutoMirrored.Filled.List
         "MOVIE", "TV_SHOW" -> Icons.Default.PlayArrow
         "MUSIC_TRACK", "MUSIC_ALBUM" -> Icons.Default.PlayArrow
         "PODCAST_EPISODE" -> Icons.Default.PlayArrow
-        "DOCUMENT" -> Icons.Default.List
-        "COMIC" -> Icons.Default.List
+        "DOCUMENT" -> Icons.AutoMirrored.Filled.List
+        "COMIC" -> Icons.AutoMirrored.Filled.List
         else -> Icons.Default.Star
     }
 }

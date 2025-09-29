@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -72,7 +73,7 @@ fun EnhancedBookshelfScreen(
                         Icon(
                             when (viewMode) {
                                 ViewMode.GRID -> Icons.Default.GridView
-                                ViewMode.LIST -> Icons.Default.List
+                                ViewMode.LIST -> Icons.AutoMirrored.Filled.List
                                 ViewMode.COVER_FLOW -> Icons.Default.ViewCarousel
                             },
                             contentDescription = "View Mode"
@@ -99,7 +100,7 @@ fun EnhancedBookshelfScreen(
                     
                     // Sort
                     IconButton(onClick = { showSortMenu = true }) {
-                        Icon(Icons.Default.Sort, contentDescription = "Sort")
+                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
                     }
                     
                     DropdownMenu(
@@ -378,7 +379,7 @@ fun CoverFlowView(
 
 enum class ViewMode(val displayName: String, val icon: ImageVector) {
     GRID("Grid", Icons.Default.GridView),
-    LIST("List", Icons.Default.List),
+    LIST("List", Icons.AutoMirrored.Filled.List),
     COVER_FLOW("Cover Flow", Icons.Default.ViewCarousel)
 }
 
