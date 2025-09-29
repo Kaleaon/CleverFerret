@@ -2,7 +2,7 @@ package com.universalmedialibrary.di
 
 import android.content.Context
 import androidx.room.Room
-import com.universalmedialibrary.data.local.CleverFerretDatabase
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.MediaRepository
@@ -43,73 +43,78 @@ object AppModule {
     
     @Provides
     @Singleton
-    fun provideCleverFerretDatabase(
+    fun provideAppDatabase(
         @ApplicationContext context: Context
-    ): CleverFerretDatabase {
+    ): AppDatabase {
         return Room.databaseBuilder(
             context.applicationContext,
-            CleverFerretDatabase::class.java,
-            CleverFerretDatabase.DATABASE_NAME
+            AppDatabase::class.java,
+            AppDatabase.DATABASE_NAME
         )
-        // TODO: Add proper migration objects below to handle schema changes safely
-        // .addMigrations(MIGRATION_1_2, MIGRATION_2_3, ...) // Example usage
+        .addMigrations(
+            AppDatabase.MIGRATION_1_2,
+            AppDatabase.MIGRATION_2_3,
+            AppDatabase.MIGRATION_3_4,
+            AppDatabase.MIGRATION_4_5,
+            AppDatabase.MIGRATION_5_6
+        )
         .build()
     }
     
     // Legacy DAOs for existing content creation functionality
     @Provides
-    fun provideDownloadedStoryDao(database: CleverFerretDatabase): DownloadedStoryDao {
+    fun provideDownloadedStoryDao(database: AppDatabase): DownloadedStoryDao {
         return database.downloadedStoryDao()
     }
     
     @Provides
-    fun provideStoryUpdateDao(database: CleverFerretDatabase): StoryUpdateDao {
+    fun provideStoryUpdateDao(database: AppDatabase): StoryUpdateDao {
         return database.storyUpdateDao()
     }
     
     // Universal Media Library DAOs
     @Provides
-    fun provideLibraryDao(database: CleverFerretDatabase): LibraryDao {
+    fun provideLibraryDao(database: AppDatabase): LibraryDao {
         return database.libraryDao()
     }
     
     @Provides
-    fun provideMediaItemDao(database: CleverFerretDatabase): MediaItemDao {
+    fun provideMediaItemDao(database: AppDatabase): MediaItemDao {
         return database.mediaItemDao()
     }
     
     @Provides
-    fun provideMetadataDao(database: CleverFerretDatabase): MetadataDao {
+    fun provideMetadataDao(database: AppDatabase): MetadataDao {
         return database.metadataDao()
     }
     
     @Provides
-    fun provideAPIKeyDao(database: CleverFerretDatabase): APIKeyDao {
+    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
         return database.apiKeyDao()
     }
     
     @Provides
-    fun provideBookmarkDao(database: CleverFerretDatabase): BookmarkDao {
+    fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
         return database.bookmarkDao()
     }
     
     @Provides 
-    fun provideReaderSettingsDao(database: CleverFerretDatabase): ReaderSettingsDao {
+    fun provideReaderSettingsDao(database: AppDatabase): ReaderSettingsDao {
         return database.readerSettingsDao()
     }
     
     @Provides
-    fun provideAnnotationDao(database: CleverFerretDatabase): AnnotationDao {
+    fun provideAnnotationDao(database: AppDatabase): AnnotationDao {
         return database.annotationDao()
     }
     
     @Provides
-    fun provideSearchIndexDao(database: CleverFerretDatabase): SearchIndexDao {
+    fun provideSearchIndexDao(database: AppDatabase): SearchIndexDao {
         return database.searchIndexDao()
     }
     
     @Provides
-    fun provideReadingStatisticsDao(database: CleverFerretDatabase): ReadingStatisticsDao {
+    fun provideReadingStatisticsDao(database: AppDatabase): ReadingStatisticsDao {
         return database.readingStatisticsDao()
     }
     
@@ -262,7 +267,7 @@ object AppModule {
     @Singleton
     fun provideStoryUpdateManager(
         @ApplicationContext context: Context,
-        database: CleverFerretDatabase
+        database: AppDatabase
     ): StoryUpdateManager {
         return StoryUpdateManager(context, database)
     }
@@ -319,17 +324,17 @@ object AppModule {
 
     // Plex Integration Services
     @Provides
-    fun providePlexServerDao(database: CleverFerretDatabase): com.universalmedialibrary.data.local.dao.PlexServerDao {
+    fun providePlexServerDao(database: AppDatabase): com.universalmedialibrary.data.local.dao.PlexServerDao {
         return database.plexServerDao()
     }
     
     @Provides
-    fun providePlexMediaItemDao(database: CleverFerretDatabase): com.universalmedialibrary.data.local.dao.PlexMediaItemDao {
+    fun providePlexMediaItemDao(database: AppDatabase): com.universalmedialibrary.data.local.dao.PlexMediaItemDao {
         return database.plexMediaItemDao()
     }
     
     @Provides
-    fun providePlexSyncDao(database: CleverFerretDatabase): com.universalmedialibrary.data.local.dao.PlexSyncDao {
+    fun providePlexSyncDao(database: AppDatabase): com.universalmedialibrary.data.local.dao.PlexSyncDao {
         return database.plexSyncDao()
     }
     

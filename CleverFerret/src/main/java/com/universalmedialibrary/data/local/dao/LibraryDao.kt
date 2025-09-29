@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.model.Library
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -25,6 +25,6 @@ interface LibraryDao {
     @Query("DELETE FROM libraries WHERE libraryId = :libraryId")
     suspend fun deleteLibrary(libraryId: Long)
     
-    @Query("UPDATE libraries SET lastScanned = :date WHERE libraryId = :libraryId")
-    suspend fun updateLibraryLastScanned(libraryId: Long, date: Long)
+    @Query("UPDATE libraries SET dateModified = :date WHERE libraryId = :libraryId")
+    suspend fun updateLibraryModifiedDate(libraryId: Long, date: Long)
 }
