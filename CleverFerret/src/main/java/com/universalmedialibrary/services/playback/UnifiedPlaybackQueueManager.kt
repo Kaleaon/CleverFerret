@@ -2,7 +2,7 @@ package com.universalmedialibrary.services.playback
 
 import android.content.Context
 import androidx.media3.common.MediaItem as ExoMediaItem
-import com.universalmedialibrary.data.local.CleverFerretDatabase
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.PlaybackQueueDao
 import com.universalmedialibrary.data.local.dao.QueueItemDao
 import com.universalmedialibrary.data.local.dao.PlaybackSessionDao
@@ -41,7 +41,7 @@ import javax.inject.Singleton
 @Singleton
 class UnifiedPlaybackQueueManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val database: CleverFerretDatabase,
+    private val database: AppDatabase,
     private val exoPlayerService: ExoPlayerService
 ) {
     

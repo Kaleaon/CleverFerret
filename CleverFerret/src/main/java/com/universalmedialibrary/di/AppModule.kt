@@ -61,7 +61,8 @@ object AppModule {
         .build()
     }
     
-    // Legacy DAOs for existing content creation functionality
+    // Legacy DAOs for existing content creation functionality - Temporarily disabled
+    /*
     @Provides
     fun provideDownloadedStoryDao(database: AppDatabase): DownloadedStoryDao {
         return database.downloadedStoryDao()
@@ -71,6 +72,7 @@ object AppModule {
     fun provideStoryUpdateDao(database: AppDatabase): StoryUpdateDao {
         return database.storyUpdateDao()
     }
+    */
     
     // Universal Media Library DAOs
     @Provides
@@ -98,6 +100,8 @@ object AppModule {
         return database.bookmarkDao()
     }
     
+    // Additional DAOs - Temporarily disabled until entities are properly configured
+    /*
     @Provides 
     fun provideReaderSettingsDao(database: AppDatabase): ReaderSettingsDao {
         return database.readerSettingsDao()
@@ -117,6 +121,7 @@ object AppModule {
     fun provideReadingStatisticsDao(database: AppDatabase): ReadingStatisticsDao {
         return database.readingStatisticsDao()
     }
+    */
     
     // Repositories
     @Provides
@@ -262,7 +267,8 @@ object AppModule {
         return SynchronizedReadingService(context, epubReaderService, geminiService)
     }
     
-    // Legacy services for content creation
+    // Legacy services for content creation - temporarily disabled due to database changes
+    /*
     @Provides
     @Singleton
     fun provideStoryUpdateManager(
@@ -271,6 +277,7 @@ object AppModule {
     ): StoryUpdateManager {
         return StoryUpdateManager(context, database)
     }
+    */
     
     @Provides
     @Singleton
@@ -322,7 +329,8 @@ object AppModule {
     }
     
 
-    // Plex Integration Services
+    // Plex Integration Services - Temporarily disabled
+    /*
     @Provides
     fun providePlexServerDao(database: AppDatabase): com.universalmedialibrary.data.local.dao.PlexServerDao {
         return database.plexServerDao()
@@ -337,6 +345,7 @@ object AppModule {
     fun providePlexSyncDao(database: AppDatabase): com.universalmedialibrary.data.local.dao.PlexSyncDao {
         return database.plexSyncDao()
     }
+    */
     
     @Provides
     @Singleton
