@@ -41,6 +41,10 @@ import com.universalmedialibrary.ui.details.LibraryDetailsViewModel
 import com.universalmedialibrary.ui.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * The main and only activity of the application, serving as the entry point for the UI.
+ * It is annotated with [AndroidEntryPoint] to enable Hilt dependency injection.
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +55,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Sets up the navigation for the entire application using Jetpack Compose Navigation.
+ * It defines the navigation graph and the composable destinations.
+ */
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -64,6 +72,13 @@ fun AppNavigation() {
     }
 }
 
+/**
+ * The main screen of the application, displaying a list of media libraries.
+ * It handles user interactions for adding new libraries and initiating a Calibre import.
+ *
+ * @param navController The [NavController] for handling navigation events.
+ * @param viewModel The [MainViewModel] instance for this screen, provided by Hilt.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryListScreen(
@@ -76,6 +91,8 @@ fun LibraryListScreen(
     val context = LocalContext.current
     var dbFileUri by remember { mutableStateOf<Uri?>(null) }
 
+    // Launcher for picking the root folder of the Calibre library.
+    // This is triggered after the user selects the metadata.db file.
     val rootFolderPicker =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree(),
@@ -95,13 +112,14 @@ fun LibraryListScreen(
             },
         )
 
+    // Launcher for picking the Calibre `metadata.db` file.
     val dbFilePicker =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument(),
             onResult = { uri ->
                 if (uri != null) {
                     dbFileUri = uri
-                    rootFolderPicker.launch(null)
+                    rootFolderPicker.launch(null) // Chain the folder picker
                 }
             },
         )
@@ -122,7 +140,6 @@ fun LibraryListScreen(
                             text = { Text("Import Calibre Library") },
                             onClick = {
                                 showMenu = false
-                                // For now, let's just launch the DB file picker
                                 dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
                             },
                         )
@@ -157,6 +174,7 @@ fun LibraryListScreen(
             AddLibraryDialog(
                 onDismiss = { showDialog = false },
                 onAdd = { name ->
+                    // Note: Hardcoded type and path are used here.
                     viewModel.addLibrary(name, "BOOK", "/path/to/library")
                     showDialog = false
                 },
@@ -165,6 +183,11 @@ fun LibraryListScreen(
     }
 }
 
+/**
+ * A screen that displays the contents of a single library, showing a grid of books.
+ *
+ * @param viewModel The [LibraryDetailsViewModel] for this screen, provided by Hilt.
+ */
 @Composable
 fun LibraryDetailsScreen(viewModel: LibraryDetailsViewModel = hiltViewModel()) {
     val bookDetails by viewModel.bookDetails.collectAsState()
@@ -181,6 +204,11 @@ fun LibraryDetailsScreen(viewModel: LibraryDetailsViewModel = hiltViewModel()) {
     }
 }
 
+/**
+ * A composable that displays a single book as a card, showing its cover and title.
+ *
+ * @param book The [BookDetails] object containing the information to display.
+ */
 @Composable
 fun BookCard(book: BookDetails) {
     Card(
@@ -200,6 +228,13 @@ fun BookCard(book: BookDetails) {
     }
 }
 
+/**
+ * A composable that generates a placeholder book cover.
+ * It displays the title and author on a colored background, with the color determined by the title's hash code.
+ *
+ * @param title The title of the book.
+ * @param author The author of the book.
+ */
 @Composable
 fun PlaceholderCover(
     title: String,
@@ -243,6 +278,12 @@ fun PlaceholderCover(
     }
 }
 
+/**
+ * An [AlertDialog] for adding a new library.
+ *
+ * @param onDismiss Callback invoked when the dialog is dismissed.
+ * @param onAdd Callback invoked with the new library name when the "Add" button is clicked.
+ */
 @Composable
 fun AddLibraryDialog(
     onDismiss: () -> Unit,
@@ -276,6 +317,12 @@ fun AddLibraryDialog(
     )
 }
 
+/**
+ * A composable that displays a single library as a card, showing an icon and its name.
+ *
+ * @param library The [Library] object containing the information to display.
+ * @param onClick Callback invoked when the card is clicked.
+ */
 @Composable
 fun LibraryCard(
     library: Library,
@@ -307,6 +354,12 @@ fun LibraryCard(
     }
 }
 
+/**
+ * A helper function that returns an appropriate [ImageVector] icon for a given library type.
+ *
+ * @param type The type of the library (e.g., "BOOK", "MOVIE").
+ * @return An [ImageVector] corresponding to the library type.
+ */
 private fun getIconForLibraryType(type: String): ImageVector =
     when (type.uppercase()) {
         "BOOK" -> Icons.Default.Book

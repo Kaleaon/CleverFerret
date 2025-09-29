@@ -5,14 +5,23 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 
+/**
+ * Provides data access methods for [MediaItem] and related entities.
+ *
+ * This class handles all database operations for media items, such as creating, reading,
+ * and updating. It interacts directly with the [DatabaseHelper] to execute raw SQL queries.
+ *
+ * @param context The application context, used to initialize the [DatabaseHelper].
+ */
 class MediaItemDao(
     context: Context,
 ) {
     private val dbHelper = DatabaseHelper(context)
 
     /**
-     * Adds a new MediaItem to the database.
-     * @param item The MediaItem to add.
+     * Adds a new [MediaItem] to the database.
+     *
+     * @param item The [MediaItem] to add.
      * @return The ID of the newly inserted row, or -1 if an error occurred.
      */
     fun addMediaItem(item: MediaItem): Long {
@@ -32,9 +41,10 @@ class MediaItemDao(
     }
 
     /**
-     * Retrieves a single MediaItem from the database by its ID.
-     * @param id The ID of the MediaItem to retrieve.
-     * @return The MediaItem if found, otherwise null.
+     * Retrieves a single [MediaItem] from the database by its ID.
+     *
+     * @param id The ID of the [MediaItem] to retrieve.
+     * @return The [MediaItem] if found, otherwise null.
      */
     fun getMediaItem(id: Long): MediaItem? {
         val db = dbHelper.readableDatabase
@@ -60,8 +70,9 @@ class MediaItemDao(
     }
 
     /**
-     * Retrieves all MediaItems from the database.
-     * @return A list of all MediaItems.
+     * Retrieves all [MediaItem]s from the database, ordered by title.
+     *
+     * @return A list of all [MediaItem]s.
      */
     fun getAllMediaItems(): List<MediaItem> {
         val db = dbHelper.readableDatabase
@@ -79,6 +90,12 @@ class MediaItemDao(
         return items
     }
 
+    /**
+     * Maps a [Cursor] row to a [MediaItem] object.
+     *
+     * @param cursor The database cursor, positioned at the correct row.
+     * @return The parsed [MediaItem] object.
+     */
     private fun cursorToMediaItem(cursor: Cursor): MediaItem =
         MediaItem(
             id = cursor.getLong(cursor.getColumnIndexOrThrow("id")),
@@ -89,7 +106,14 @@ class MediaItemDao(
             dateModified = cursor.getLong(cursor.getColumnIndexOrThrow("date_modified")),
         )
 
-    // Gets an author's ID if they exist, otherwise creates them and returns the new ID.
+    /**
+     * Retrieves the ID of an author by name if they exist, otherwise creates a new author
+     * and returns the new ID.
+     *
+     * @param db The writable database instance.
+     * @param authorName The name of the author to find or create.
+     * @return The ID of the existing or newly created author.
+     */
     private fun getOrCreateAuthor(
         db: SQLiteDatabase,
         authorName: String,
@@ -111,12 +135,13 @@ class MediaItemDao(
     }
 
     /**
-     * Adds a complete book record, including its base MediaItem, book details,
+     * Adds a complete book record, including its base [MediaItem], book details,
      * and author information, within a single database transaction.
-     * @param mediaItem The base MediaItem object (must be of type BOOK).
-     * @param book The Book object with specific details.
-     * @param authors A list of Author objects.
-     * @return The ID of the newly created MediaItem, or -1 if an error occurred.
+     *
+     * @param mediaItem The base [MediaItem] object (must be of type [MediaType.BOOK]).
+     * @param book The [Book] object with specific details.
+     * @param authors A list of [Author] objects associated with the book.
+     * @return The ID of the newly created media item, or -1 if the transaction fails.
      */
     fun addBook(
         mediaItem: MediaItem,
