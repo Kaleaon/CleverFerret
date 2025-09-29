@@ -4,18 +4,25 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.universalmedialibrary.data.local.dao.*
-import com.universalmedialibrary.data.local.model.*
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.dao.APIKeyDao
+import com.universalmedialibrary.data.local.dao.BookmarkDao
+import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.model.APIKey
+import com.universalmedialibrary.data.local.model.Bookmark
+import com.universalmedialibrary.data.local.model.Library
+import com.universalmedialibrary.data.local.model.MediaItem
+import com.universalmedialibrary.data.local.model.MetadataCommon
 
 @Database(
     entities = [
         // Phase 2: Starting with essential entities only
-        com.universalmedialibrary.data.local.model.Library::class,
-        com.universalmedialibrary.data.local.model.MediaItem::class,
-        com.universalmedialibrary.data.local.model.MetadataCommon::class,
-        com.universalmedialibrary.data.local.model.APIKey::class,
-        com.universalmedialibrary.data.local.model.Bookmark::class
+        Library::class,
+        MediaItem::class,
+        MetadataCommon::class,
+        APIKey::class,
+        Bookmark::class
     ],
     version = 6,
     exportSchema = false

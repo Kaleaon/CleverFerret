@@ -26,38 +26,33 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             AppDatabase.DATABASE_NAME
-        ).addMigrations(
-            AppDatabase.MIGRATION_1_2,
-            AppDatabase.MIGRATION_2_3,
-            AppDatabase.MIGRATION_3_4,
-            AppDatabase.MIGRATION_4_5,
-            AppDatabase.MIGRATION_5_6
         )
+         .fallbackToDestructiveMigration() // Temporary fix for development
          .build()
     }
 
     @Provides
-    fun provideLibraryDao(appDatabase: AppDatabase): LibraryDao {
-        return appDatabase.libraryDao()
+    fun provideLibraryDao(database: AppDatabase): LibraryDao {
+        return database.libraryDao()
     }
 
     @Provides
-    fun provideMediaItemDao(appDatabase: AppDatabase): MediaItemDao {
-        return appDatabase.mediaItemDao()
+    fun provideMediaItemDao(database: AppDatabase): MediaItemDao {
+        return database.mediaItemDao()
     }
 
     @Provides
-    fun provideMetadataDao(appDatabase: AppDatabase): MetadataDao {
-        return appDatabase.metadataDao()
+    fun provideMetadataDao(database: AppDatabase): MetadataDao {
+        return database.metadataDao()
     }
     
     @Provides
-    fun provideBookmarkDao(appDatabase: AppDatabase): BookmarkDao {
-        return appDatabase.bookmarkDao()
+    fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
+        return database.bookmarkDao()
     }
     
     @Provides
-    fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
-        return appDatabase.apiKeyDao()
+    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
+        return database.apiKeyDao()
     }
 }

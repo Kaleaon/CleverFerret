@@ -19,61 +19,36 @@ import com.universalmedialibrary.data.local.entity.*
  */
 @Database(
     entities = [
-        // Legacy content creation entities
-        DownloadedStory::class,
-        StoryUpdate::class,
+        // Legacy entities (entity directory)
+        com.universalmedialibrary.data.local.entity.DownloadedStory::class,
+        com.universalmedialibrary.data.local.entity.Library::class,
+        com.universalmedialibrary.data.local.entity.MediaItem::class,
+        com.universalmedialibrary.data.local.entity.MetadataCommon::class,
+        com.universalmedialibrary.data.local.entity.MetadataBook::class,
+        com.universalmedialibrary.data.local.entity.MetadataMovie::class,
+        com.universalmedialibrary.data.local.entity.MetadataMusicTrack::class,
+        com.universalmedialibrary.data.local.entity.People::class,
+        com.universalmedialibrary.data.local.entity.Genre::class,
+        com.universalmedialibrary.data.local.entity.Series::class,
+        com.universalmedialibrary.data.local.entity.APIKey::class,
+        com.universalmedialibrary.data.local.entity.Bookmark::class,
         
-        // Core universal media library entities
-        Library::class,
-        MediaItem::class,
-        MetadataCommon::class,
-        MetadataBook::class,
-        MetadataMovie::class,
-        MetadataMusicTrack::class,
+        // Plex entities (entity directory)
+        com.universalmedialibrary.data.local.entity.PlexServer::class,
+        com.universalmedialibrary.data.local.entity.PlexMediaItem::class,
+        com.universalmedialibrary.data.local.entity.PlexProgress::class,
+        com.universalmedialibrary.data.local.entity.PlexRating::class,
+        com.universalmedialibrary.data.local.entity.PlexCollection::class,
+        com.universalmedialibrary.data.local.entity.PlexTag::class,
         
-        // Relational entities
-        People::class,
-        ItemPersonRole::class,
-        Genre::class,
-        ItemGenre::class,
-        Series::class,
-        Album::class,
-        
-        // System entities
-        APIKey::class,
-        Bookmark::class,
-        ReadingProgress::class,
-        ReadingSession::class,
-        
-        // Reader settings entities
-        ReaderSettingsEntity::class,
-        BookReaderSettingsEntity::class,
-        
-        // Annotation and search entities
-        TextAnnotation::class,
-        SearchIndex::class,
-        ReadingStatistics::class,
-        
-        // Plex integration entities
-        PlexServer::class,
-        PlexMediaItem::class,
-        PlexProgress::class,
-        PlexRating::class,
-        PlexCollection::class,
-        PlexCollectionItem::class,
-        PlexTag::class,
-        PlexMediaTag::class,
-
-        // Unified playback queue entities
-        PlaybackQueue::class,
-        QueueItem::class,
-        PlaybackSession::class
-
+        // Playback entities (entity directory)
+        com.universalmedialibrary.data.local.entity.PlaybackQueue::class,
+        com.universalmedialibrary.data.local.entity.QueueItem::class,
+        com.universalmedialibrary.data.local.entity.PlaybackSession::class
     ],
     version = 9,
     exportSchema = false
 )
-@TypeConverters(Converters::class)
 abstract class CleverFerretDatabase : RoomDatabase() {
     
     // Legacy DAOs
