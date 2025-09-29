@@ -2,9 +2,10 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 
-    id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    // Temporarily disabled to resolve build issues
+    // id("com.google.devtools.ksp")
+    // id("dagger.hilt.android.plugin")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
 
 }
 
@@ -36,19 +37,19 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlin {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
         }
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     
     lint {
@@ -98,25 +99,21 @@ dependencies {
     
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")  // Phase 2: Re-enabled
+    // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")  // Temporarily disabled
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     
-    // Hilt dependency injection - Phase 2: Re-enabled
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    ksp("com.google.dagger:hilt-compiler:2.51.1")
-    
+    // Hilt dependency injection - temporarily disabled due to KSP issues
+    // implementation("com.google.dagger:hilt-android:2.51.1")
+    // ksp("com.google.dagger:hilt-compiler:2.51.1")
 
-    // ViewModel and LiveData
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.1")
     
-    // Room database
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
+    // Room database - temporarily disabled due to KSP issues
+    // implementation("androidx.room:room-runtime:2.6.1")
+    // implementation("androidx.room:room-ktx:2.6.1")
+    // ksp("androidx.room:room-compiler:2.6.1")
 
     
     // Basic networking

@@ -8,6 +8,8 @@ import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.model.*
 import com.universalmedialibrary.data.local.entity.*
 
+// Temporarily disabled to resolve KSP build issues
+/*
 @Database(
     entities = [
         // Phase 2: Starting with minimal entities only for build fix
@@ -17,6 +19,7 @@ import com.universalmedialibrary.data.local.entity.*
     version = 6,
     exportSchema = false
 )
+*/
 abstract class AppDatabase : RoomDatabase() {
 
     // Legacy DAOs for content creation - Temporarily disabled
