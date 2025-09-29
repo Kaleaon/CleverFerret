@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LibraryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLibrary(library: Library)
+    suspend fun insertLibrary(library: Library): Long
 
     @Query("SELECT * FROM libraries ORDER BY name ASC")
     fun getAllLibraries(): Flow<List<Library>>
