@@ -1,8 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
-    id("dagger.hilt.android.plugin")
+    id("kotlin-kapt")  // Re-enable KAPT for Room only
+    // id("dagger.hilt.android.plugin")  // Keep Hilt disabled
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
@@ -97,18 +97,21 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     
-    // Hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    // Hilt dependency injection - temporarily disabled
+    // implementation("com.google.dagger:hilt-android:2.51.1")
+    // kapt("com.google.dagger:hilt-compiler:2.51.1")
     
     // ViewModel and LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.1")
     
-    // Room database
+    // Room database - annotation processing enabled for DAO generation
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
+    
+    // DataStore for settings
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
     
     // Basic networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

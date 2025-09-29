@@ -16,6 +16,8 @@ import com.universalmedialibrary.services.gemini.GeminiService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.audiobook.AudiobookService
 import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.services.media.MediaSessionManager
+import com.universalmedialibrary.services.media.MediaController
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -120,10 +122,28 @@ object AppModule {
     
     @Provides
     @Singleton
-    fun provideExoPlayerService(
+    fun provideMediaSessionManager(
         @ApplicationContext context: Context
+    ): MediaSessionManager {
+        return MediaSessionManager(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideMediaController(
+        @ApplicationContext context: Context,
+        mediaSessionManager: MediaSessionManager
+    ): MediaController {
+        return MediaController(context, mediaSessionManager)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideExoPlayerService(
+        @ApplicationContext context: Context,
+        mediaController: MediaController
     ): ExoPlayerService {
-        return ExoPlayerService(context)
+        return ExoPlayerService(context, mediaController)
     }
     
     @Provides
@@ -139,8 +159,9 @@ object AppModule {
     fun provideAudiobookService(
         @ApplicationContext context: Context,
         mediaRepository: MediaRepository,
-        exoPlayerService: ExoPlayerService
+        exoPlayerService: ExoPlayerService,
+        mediaController: MediaController
     ): AudiobookService {
-        return AudiobookService(context, mediaRepository, exoPlayerService)
+        return AudiobookService(context, mediaRepository, exoPlayerService, mediaController)
     }
 }

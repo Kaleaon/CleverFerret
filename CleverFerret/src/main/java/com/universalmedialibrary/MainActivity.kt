@@ -211,7 +211,7 @@ fun AppNavigation() {
             ReaderSettingsScreen(navController = navController, settingsType = settingsType)
         }
         composable("settings/security") {
-            SecuritySettingsScreenMain(navController = navController)
+            com.universalmedialibrary.ui.settings.SecuritySettingsScreen(navController = navController)
         }
         composable("settings/about") {
             AboutScreen(navController = navController)
@@ -240,13 +240,16 @@ fun AppNavigation() {
             )
         }
         
+        // Temporarily disabled EPUB reader due to ViewModel dependency
+        /*
         composable("epub_reader/{filePath}") { backStackEntry ->
             val filePath = backStackEntry.arguments?.getString("filePath") ?: ""
             EPUBReaderScreen(
-                epubFilePath = filePath,
-                onBack = { navController.navigateUp() }
+                navController = navController,
+                bookUri = filePath
             )
         }
+        */
         
         composable("pdf_reader/{filePath}") { backStackEntry ->
             val filePath = backStackEntry.arguments?.getString("filePath") ?: ""
