@@ -1,0 +1,191 @@
+package com.universalmedialibrary.di
+
+import android.content.Context
+import androidx.room.Room
+import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.dao.APIKeyDao
+import com.universalmedialibrary.data.local.dao.BookmarkDao
+import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.services.StorageAccessService
+import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.services.tts.CoquiTTSService
+import com.universalmedialibrary.services.metadata.MetadataApiService
+import com.universalmedialibrary.services.metadata.ComprehensiveMetadataService
+import com.universalmedialibrary.services.metadata.RealMetadataService
+import com.universalmedialibrary.services.integration.IntegrationManager
+import com.universalmedialibrary.services.integration.plex.PlexIntegrationService
+import com.universalmedialibrary.services.integration.calibre.CalibreIntegrationService
+import com.universalmedialibrary.services.integration.cloud.CloudStorageService
+import com.universalmedialibrary.services.integration.books.BookServicesIntegration
+import com.universalmedialibrary.services.analysis.SmartContentAnalyzer
+import com.universalmedialibrary.services.video.ComprehensiveVideoService
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object ServicesModule {
+
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            AppDatabase.DATABASE_NAME
+        )
+        .addMigrations(
+            AppDatabase.MIGRATION_1_2,
+            AppDatabase.MIGRATION_2_3,
+            AppDatabase.MIGRATION_3_4,
+            AppDatabase.MIGRATION_4_5
+        )
+        .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao = database.apiKeyDao()
+
+    @Provides
+    @Singleton
+    fun provideLibraryDao(database: AppDatabase): LibraryDao = database.libraryDao()
+
+    @Provides
+    @Singleton
+    fun provideMediaItemDao(database: AppDatabase): MediaItemDao = database.mediaItemDao()
+
+    @Provides
+    @Singleton
+    fun provideMetadataDao(database: AppDatabase): MetadataDao = database.metadataDao()
+    
+    @Provides
+    @Singleton
+    fun provideBookmarkDao(database: AppDatabase): BookmarkDao = database.bookmarkDao()
+    
+    @Provides
+    @Singleton
+    fun provideStorageAccessService(
+        libraryDao: LibraryDao,
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao
+    ): StorageAccessService = StorageAccessService(libraryDao, mediaItemDao, metadataDao)
+
+    @Provides
+    @Singleton
+    fun provideAPIKeyRepository(apiKeyDao: APIKeyDao): APIKeyRepository = APIKeyRepository(apiKeyDao)
+
+    @Provides
+    @Singleton
+    fun provideCoquiTTSService(@ApplicationContext context: Context): CoquiTTSService = CoquiTTSService(context)
+
+    @Provides
+    @Singleton
+    fun provideMetadataApiService(apiKeyRepository: APIKeyRepository): MetadataApiService = MetadataApiService(apiKeyRepository)
+
+    @Provides
+    @Singleton
+    fun provideComprehensiveMetadataService(apiKeyRepository: APIKeyRepository): ComprehensiveMetadataService = ComprehensiveMetadataService(apiKeyRepository)
+    
+    @Provides
+    @Singleton
+    fun provideRealMetadataService(apiKeyRepository: APIKeyRepository): RealMetadataService = RealMetadataService(apiKeyRepository)
+
+    @Provides
+    @Singleton
+    fun provideWebFictionService(): com.universalmedialibrary.services.webfiction.WebFictionService = com.universalmedialibrary.services.webfiction.WebFictionService()
+
+    @Provides
+    @Singleton
+    fun providePodcastService(@ApplicationContext context: Context): com.universalmedialibrary.services.podcast.PodcastService = com.universalmedialibrary.services.podcast.PodcastService(context)
+
+    // Smart Content Analysis Services
+    @Provides
+    @Singleton
+    fun provideOCRService(): com.universalmedialibrary.services.analysis.ocr.OCRService = com.universalmedialibrary.services.analysis.ocr.OCRService()
+
+    @Provides
+    @Singleton
+    fun provideMetadataExtractor(@ApplicationContext context: Context): com.universalmedialibrary.services.analysis.nlp.MetadataExtractor = com.universalmedialibrary.services.analysis.nlp.MetadataExtractor(context)
+
+    @Provides
+    @Singleton
+    fun provideContentFingerprinter(): com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter = com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter()
+
+    @Provides
+    @Singleton
+    fun provideContentClassifier(): com.universalmedialibrary.services.analysis.classification.ContentClassifier = com.universalmedialibrary.services.analysis.classification.ContentClassifier()
+
+    @Provides
+    @Singleton
+    fun provideArchiveComparator(comprehensiveMetadataService: ComprehensiveMetadataService): com.universalmedialibrary.services.analysis.comparison.ArchiveComparator = com.universalmedialibrary.services.analysis.comparison.ArchiveComparator(comprehensiveMetadataService)
+
+    @Provides
+    @Singleton
+    fun provideMediaViewerManager(): com.universalmedialibrary.ui.viewer.MediaViewerManager = com.universalmedialibrary.ui.viewer.MediaViewerManager()
+
+    @Provides
+    @Singleton
+    fun provideSmartContentAnalyzer(
+        @ApplicationContext context: Context,
+        mediaViewerManager: com.universalmedialibrary.ui.viewer.MediaViewerManager,
+        ocrService: com.universalmedialibrary.services.analysis.ocr.OCRService,
+        metadataExtractor: com.universalmedialibrary.services.analysis.nlp.MetadataExtractor,
+        contentFingerprinter: com.universalmedialibrary.services.analysis.fingerprint.ContentFingerprinter,
+        contentClassifier: com.universalmedialibrary.services.analysis.classification.ContentClassifier,
+        archiveComparator: com.universalmedialibrary.services.analysis.comparison.ArchiveComparator
+    ): SmartContentAnalyzer = SmartContentAnalyzer(
+        context, mediaViewerManager, ocrService, metadataExtractor, contentFingerprinter, contentClassifier, archiveComparator
+    )
+
+    // Integration Services
+    @Provides
+    @Singleton
+    fun providePlexIntegrationService(
+        @ApplicationContext context: Context,
+        contentAnalyzer: SmartContentAnalyzer
+    ): PlexIntegrationService = PlexIntegrationService(context, contentAnalyzer)
+
+    @Provides
+    @Singleton
+    fun provideCalibreIntegrationService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): CalibreIntegrationService = CalibreIntegrationService(context, apiKeyRepository)
+
+    @Provides
+    @Singleton
+    fun provideCloudStorageService(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): CloudStorageService = CloudStorageService(context, apiKeyRepository)
+
+    @Provides
+    @Singleton
+    fun provideBookServicesIntegration(
+        @ApplicationContext context: Context,
+        apiKeyRepository: APIKeyRepository
+    ): BookServicesIntegration = BookServicesIntegration(context, apiKeyRepository)
+
+    @Provides
+    @Singleton
+    fun provideIntegrationManager(
+        @ApplicationContext context: Context,
+        plexService: PlexIntegrationService,
+        calibreService: CalibreIntegrationService,
+        cloudService: CloudStorageService,
+        bookServices: BookServicesIntegration
+    ): IntegrationManager = IntegrationManager(context, plexService, calibreService, cloudService, bookServices)
+
+    @Provides
+    @Singleton
+    fun provideComprehensiveVideoService(
+        @ApplicationContext context: Context
+    ): ComprehensiveVideoService = ComprehensiveVideoService(context)
+}

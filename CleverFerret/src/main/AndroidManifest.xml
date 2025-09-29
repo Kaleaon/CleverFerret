@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Basic permissions -->
+    <!-- Network permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
-    <!-- Storage permissions for different Android versions -->
+    <!-- Storage permissions for older Android versions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
-        android:maxSdkVersion="32" />
+        android:maxSdkVersion="29" />
     
-    <!-- Android 13+ media permissions -->
+    <!-- Android 11+ Storage -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" 
+        tools:ignore="ScopedStorage" />
+    
+    <!-- Android 13+ Granular Media Permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    
+    <!-- Android 14+ Photo Picker Permission -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    
+    <!-- Document Access -->
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+    
+    <!-- Audio recording and playback -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     
     <!-- Notification permissions for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -27,63 +42,63 @@
     <application
         android:name=".CleverFerretApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@drawable/ic_app_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.UniversalMediaLibrary"
-        android:usesCleartextTraffic="true">
-        
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
+            <!-- File Type Associations for EPUB -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/epub+zip" />
+            </intent-filter>
+            
+            <!-- File Type Associations for PDF -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
         </activity>
-        
-        <!-- Service for background operations -->
         <service
             android:name=".services.CalibreImportForegroundService"
-            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        <service 
+            android:name=".services.audio.MusicPlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <service
+            android:name=".services.MediaScannerService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         
-        <!-- MediaSession service for media playback notifications -->
-        <service
-            android:name=".services.media.MediaNotificationService"
-            android:enabled="true"
+        <!-- File Provider for sharing files -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
-        
-        <!-- Broadcast receiver for media button events -->
-        <receiver
-            android:name=".services.media.MediaButtonReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter android:priority="1000">
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
-            
-        <!-- Media Playback Widget -->
-        <receiver 
-            android:name=".widgets.MediaPlaybackWidgetReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data 
-                android:name="android.appwidget.provider"
-                android:resource="@xml/media_playback_widget_info" />
-        </receiver>
-            
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

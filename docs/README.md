@@ -26,11 +26,6 @@ Build system, automation, and development workflow documentation.
 - [Dependency Fixes Summary](dev/DEPENDENCY_FIXES_SUMMARY.md) - Resolved dependency issues
 - [Final Dependency Resolution](dev/FINAL_DEPENDENCY_RESOLUTION_SUCCESS.md) - Latest dependency status
 
-**AI & Debugging:**
-- [AI Review System](../AI_REVIEW_SYSTEM.md) - AI-powered code review and build system
-- [Automated Debug System](../AUTOMATED_DEBUG_SYSTEM.md) - AI-powered debugging and issue filing
-- [GitHub Actions Auto-Build](../GITHUB-ACTIONS-AUTO-BUILD.md) - Automated build pipeline
-
 ### 🔍 Analysis Documentation (`/analysis/`)
 Code quality reports, database design, and technical analysis.
 
@@ -97,7 +92,7 @@ See **[🗺️ PROJECT ROADMAP](../PROJECT_ROADMAP.md)** for complete issue deta
 ### 🚨 Critical Issues
 1. **Build System Failures** - Project currently cannot compile due to:
    - Missing/unavailable media3-decoder dependencies  
-   - ✅ Tika/Lucene compatibility resolved (minSdk updated to 26)
+   - Tika/Lucene compatibility issues with Android minSdk 24
    - Kotlin compilation errors in core files
 
 2. **Immediate Action Required**:

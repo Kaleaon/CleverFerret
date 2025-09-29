@@ -1,0 +1,89 @@
+# CleverFerret Build Container - Permanent Fix Edition
+# This Dockerfile includes all permanent fixes for reliable Android builds
+
+FROM ubuntu:22.04
+
+# Prevent interactive prompts during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# PERMANENT FIX: Set optimal build environment variables
+ENV ANDROID_HOME=/opt/android-sdk
+ENV ANDROID_SDK_ROOT=/opt/android-sdk
+ENV BUILD_TOOLS_VERSION=33.0.2
+ENV COMPILE_SDK_VERSION=34
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# PERMANENT FIX: Optimized memory settings
+ENV GRADLE_OPTS="-Xmx6144m -XX:MaxMetaspaceSize=2g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError"
+ENV _JAVA_OPTIONS="-Xmx6144m -XX:MaxMetaspaceSize=2g"
+
+# Update PATH with Android tools
+ENV PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION:$ANDROID_HOME/platform-tools
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk \
+    wget \
+    unzip \
+    curl \
+    git \
+    build-essential \
+    libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Verify Java installation
+RUN java -version && echo "Java installation verified"
+
+# PERMANENT FIX: Install Android SDK with compatible tools
+RUN mkdir -p $ANDROID_HOME && \
+    cd $ANDROID_HOME && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
+    unzip commandlinetools-linux-9477386_latest.zip && \
+    rm commandlinetools-linux-9477386_latest.zip && \
+    mkdir -p cmdline-tools/latest && \
+    mv cmdline-tools/bin cmdline-tools/lib cmdline-tools/source.properties cmdline-tools/NOTICE.txt cmdline-tools/latest/
+
+# PERMANENT FIX: Install specific compatible versions
+RUN yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" --sdk_root=$ANDROID_HOME
+RUN yes | sdkmanager --install "build-tools;$BUILD_TOOLS_VERSION" --sdk_root=$ANDROID_HOME
+RUN yes | sdkmanager --install "platform-tools" --sdk_root=$ANDROID_HOME
+
+# PERMANENT FIX: Ensure AAPT2 and other tools are executable
+RUN chmod +x $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/* && \
+    chmod +x $ANDROID_HOME/platform-tools/*
+
+# Verify Android SDK installation
+RUN ls -la $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/ && \
+    $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/aapt2 version
+
+# Create application directory
+WORKDIR /app
+
+# PERMANENT FIX: Copy optimized gradle properties
+COPY gradle.properties.docker /app/gradle.properties
+
+# Create optimal local.properties
+RUN echo "sdk.dir=$ANDROID_HOME" > local.properties && \
+    echo "android.builder.sdkDownload=false" >> local.properties
+
+# PERMANENT FIX: Create debug keystore for signing
+RUN mkdir -p /root/.android && \
+    keytool -genkey -v -keystore /root/.android/debug.keystore -alias androiddebugkey \
+            -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android \
+            -dname "CN=CleverFerret Docker,O=Universal Media Library,C=US"
+
+# Copy build scripts
+COPY build_enhanced_permanent.sh /app/
+COPY CleverFerret/build.gradle.kts.minimal /app/CleverFerret/
+RUN chmod +x /app/build_enhanced_permanent.sh
+
+# Health check to verify build environment
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD java -version && $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/aapt2 version
+
+# Default build command
+CMD ["./build_enhanced_permanent.sh"]
+
+# Build instructions:
+# docker build -t cleverferret-builder -f Dockerfile.build .
+# docker run -v $(pwd):/app -it cleverferret-builder

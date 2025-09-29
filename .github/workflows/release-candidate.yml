@@ -1,0 +1,149 @@
+name: Release Candidate
+
+on:
+  push:
+    branches: [ release/* ]
+    tags: [ '*-rc*', '*-beta*', '*-alpha*' ]
+
+env:
+  JAVA_VERSION: '17'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  build-rc:
+    name: Build Release Candidate
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+        
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 34
+        build-tools: '34.0.0'
+        cmake-version: '3.22.1'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Run comprehensive tests
+      run: |
+        ./gradlew testDebugUnitTest
+        ./gradlew lintDebug
+        ./gradlew assembleDebug
+        ./gradlew assembleRelease
+        
+    - name: Extract version information
+      id: version
+      run: |
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          VERSION_NAME=${GITHUB_REF#refs/tags/}
+        else
+          BRANCH_NAME=${GITHUB_REF#refs/heads/release/}
+          VERSION_NAME="${BRANCH_NAME}-rc.$(date +'%Y%m%d.%H%M%S')"
+        fi
+        echo "version-name=$VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "Release Candidate Version: $VERSION_NAME"
+        
+    - name: Build and sign release candidate
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: |
+        # Update version in build.gradle.kts
+        sed -i "s/versionName .*/versionName \"${{ steps.version.outputs.version-name }}\"/" CleverFerret/build.gradle.kts
+        
+        # Build APK
+        ./gradlew assembleRelease
+        
+        # Sign if keystore is available
+        if [[ -n "$KEYSTORE_PASSWORD" && -n "$KEY_ALIAS" && -n "$KEY_PASSWORD" ]]; then
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release-keystore.jks
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore release-keystore.jks \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
+            CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
+            "$KEY_ALIAS"
+          $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
+            CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
+            CleverFerret/build/outputs/apk/release/CleverFerret-${{ steps.version.outputs.version-name }}.apk
+        else
+          mv CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
+             CleverFerret/build/outputs/apk/release/CleverFerret-${{ steps.version.outputs.version-name }}.apk
+        fi
+        
+    - name: Create release candidate release
+      uses: actions/create-release@v1
+      id: create_rc_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version-name }}
+        release_name: CleverFerret ${{ steps.version.outputs.version-name }}
+        body: |
+          # CleverFerret Release Candidate ${{ steps.version.outputs.version-name }}
+          
+          **🚀 This is a release candidate build for testing.**
+          
+          ## What's Changed
+          
+          - Enhanced Plex integration with AI-powered metadata enhancement
+          - Improved media viewers with advanced features
+          - Smart content analysis and auto-labeling
+          - Performance optimizations and bug fixes
+          
+          ## Testing Instructions
+          
+          1. Download the APK below
+          2. Install on your Android device (enable Unknown Sources)
+          3. Test the new features and report any issues
+          4. Provide feedback on the GitHub repository
+          
+          ## Known Issues
+          
+          - Please report any bugs or issues in the GitHub Issues section
+          
+          ## Installation
+          
+          - **Minimum Android Version**: 7.0 (API 24)
+          - **Recommended**: Android 10+ for best performance
+          - **Storage**: 100MB free space required
+        draft: false
+        prerelease: true
+        
+    - name: Upload RC APK to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_rc_release.outputs.upload_url }}
+        asset_path: CleverFerret/build/outputs/apk/release/CleverFerret-${{ steps.version.outputs.version-name }}.apk
+        asset_name: CleverFerret-${{ steps.version.outputs.version-name }}.apk
+        asset_content_type: application/vnd.android.package-archive
+        
+    - name: Upload RC APK as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-candidate-${{ steps.version.outputs.version-name }}
+        path: CleverFerret/build/outputs/apk/release/CleverFerret-${{ steps.version.outputs.version-name }}.apk
+        retention-days: 30

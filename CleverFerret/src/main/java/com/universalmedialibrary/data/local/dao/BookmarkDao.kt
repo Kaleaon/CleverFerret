@@ -1,65 +1,40 @@
 package com.universalmedialibrary.data.local.dao
 
 import androidx.room.*
-import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.model.Bookmark
+import com.universalmedialibrary.data.local.model.ReadingProgress
+import com.universalmedialibrary.data.local.model.ReadingSession
 import kotlinx.coroutines.flow.Flow
 
-/**
- * DAO for bookmark and reading progress operations
- */
 @Dao
 interface BookmarkDao {
     
-    // Bookmark operations
-    @Query("SELECT * FROM bookmarks WHERE itemId = :itemId AND isActive = 1 ORDER BY dateCreated DESC")
-    fun getBookmarksByItem(itemId: Long): Flow<List<Bookmark>>
-    
-    @Query("SELECT * FROM bookmarks WHERE bookmarkId = :bookmarkId")
-    suspend fun getBookmarkById(bookmarkId: Long): Bookmark?
-    
-    @Query("SELECT * FROM bookmarks WHERE bookmarkType = :type AND isActive = 1 ORDER BY dateCreated DESC")
-    fun getBookmarksByType(type: String): Flow<List<Bookmark>>
-    
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookmark(bookmark: Bookmark): Long
     
-    @Update
-    suspend fun updateBookmark(bookmark: Bookmark)
+    @Query("SELECT * FROM bookmarks WHERE mediaItemId = :mediaItemId ORDER BY timestamp DESC")
+    suspend fun getBookmarksByMediaItem(mediaItemId: Long): List<Bookmark>
     
-    @Delete
-    suspend fun deleteBookmark(bookmark: Bookmark)
+    @Query("DELETE FROM bookmarks WHERE bookmarkId = :bookmarkId")
+    suspend fun deleteBookmark(bookmarkId: Long)
     
-    @Query("UPDATE bookmarks SET isActive = :isActive WHERE bookmarkId = :bookmarkId")
-    suspend fun setBookmarkActive(bookmarkId: Long, isActive: Boolean)
-    
-    @Query("UPDATE bookmarks SET lastAccessed = :timestamp WHERE bookmarkId = :bookmarkId")
-    suspend fun updateBookmarkAccessed(bookmarkId: Long, timestamp: Long)
-    
-    // Reading progress operations
-    @Query("SELECT * FROM reading_progress WHERE itemId = :itemId")
-    suspend fun getReadingProgress(itemId: Long): ReadingProgress?
+    @Query("DELETE FROM bookmarks WHERE mediaItemId = :mediaItemId")
+    suspend fun deleteAllBookmarksForItem(mediaItemId: Long)
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReadingProgress(progress: ReadingProgress)
+    suspend fun insertOrUpdateReadingProgress(progress: ReadingProgress)
     
-    @Update
-    suspend fun updateReadingProgress(progress: ReadingProgress)
+    @Query("SELECT * FROM reading_progress WHERE mediaItemId = :mediaItemId")
+    suspend fun getReadingProgress(mediaItemId: Long): ReadingProgress?
     
-    @Query("UPDATE reading_progress SET currentPosition = :position, currentPage = :page, percentage = :percentage, lastUpdate = :timestamp WHERE itemId = :itemId")
-    suspend fun updateReadingPosition(itemId: Long, position: Long, page: Int, percentage: Float, timestamp: Long)
+    @Query("SELECT * FROM reading_progress ORDER BY lastReadTimestamp DESC")
+    fun getAllReadingProgress(): Flow<List<ReadingProgress>>
     
-    @Query("UPDATE reading_progress SET isCompleted = :isCompleted, completedDate = :date WHERE itemId = :itemId")
-    suspend fun markAsCompleted(itemId: Long, isCompleted: Boolean, date: Long?)
+    @Query("SELECT * FROM reading_progress WHERE percentComplete < 100 ORDER BY lastReadTimestamp DESC")
+    fun getInProgressReadings(): Flow<List<ReadingProgress>>
     
-    @Query("UPDATE reading_progress SET totalReadingTime = totalReadingTime + :duration WHERE itemId = :itemId")
-    suspend fun addReadingTime(itemId: Long, duration: Long)
-    
-    // Reading session operations
-    @Query("SELECT * FROM reading_sessions WHERE itemId = :itemId ORDER BY sessionStart DESC")
-    fun getReadingSessionsByItem(itemId: Long): Flow<List<ReadingSession>>
-    
-    @Query("SELECT * FROM reading_sessions WHERE sessionEnd IS NULL ORDER BY sessionStart DESC LIMIT 1")
-    suspend fun getActiveSession(): ReadingSession?
+    @Query("SELECT * FROM reading_progress WHERE percentComplete = 100 ORDER BY lastReadTimestamp DESC")
+    suspend fun getFinishedReadings(): List<ReadingProgress>
     
     @Insert
     suspend fun insertReadingSession(session: ReadingSession): Long
@@ -67,29 +42,38 @@ interface BookmarkDao {
     @Update
     suspend fun updateReadingSession(session: ReadingSession)
     
-    @Query("UPDATE reading_sessions SET sessionEnd = :endTime, duration = :duration WHERE sessionId = :sessionId")
-    suspend fun endReadingSession(sessionId: Long, endTime: Long, duration: Long)
+    @Query("SELECT * FROM reading_sessions WHERE sessionId = :sessionId")
+    suspend fun getReadingSession(sessionId: Long): ReadingSession?
     
-    // Statistics queries
+    @Query("SELECT * FROM reading_sessions WHERE mediaItemId = :mediaItemId ORDER BY startTime DESC")
+    suspend fun getReadingSessionsForItem(mediaItemId: Long): List<ReadingSession>
+    
+    @Query("SELECT COUNT(DISTINCT mediaItemId) FROM reading_progress WHERE percentComplete = 100")
+    suspend fun getTotalBooksRead(): Int
+    
+    @Query("SELECT SUM(pagesRead) FROM reading_progress")
+    suspend fun getTotalPagesRead(): Int
+    
     @Query("SELECT SUM(totalReadingTime) FROM reading_progress")
-    suspend fun getTotalReadingTime(): Long?
+    suspend fun getTotalReadingTime(): Long
     
-    @Query("SELECT COUNT(*) FROM reading_progress WHERE isCompleted = 1")
-    suspend fun getCompletedItemsCount(): Int
+    @Query("""
+        SELECT mediaItemId FROM reading_progress 
+        ORDER BY lastReadTimestamp DESC 
+        LIMIT :limit
+    """)
+    suspend fun getRecentlyReadItemIds(limit: Int): List<Long>
     
-    @Query("SELECT AVG(percentage) FROM reading_progress WHERE percentage > 0")
-    suspend fun getAverageReadingProgress(): Float?
+    @Query("""
+        UPDATE reading_progress 
+        SET percentComplete = 100, currentPosition = 'finished', lastReadTimestamp = :timestamp
+        WHERE mediaItemId = :mediaItemId
+    """)
+    suspend fun markAsFinished(mediaItemId: Long, timestamp: Long)
     
-    @Query("SELECT COUNT(DISTINCT itemId) FROM reading_sessions WHERE sessionStart >= :startTime")
-    suspend fun getActiveReadersCount(startTime: Long): Int
+    @Query("DELETE FROM reading_progress WHERE mediaItemId = :mediaItemId")
+    suspend fun deleteReadingProgress(mediaItemId: Long)
     
-    @Query("SELECT AVG(duration) FROM reading_sessions WHERE duration > 0")
-    suspend fun getAverageSessionDuration(): Long?
-    
-    // Cleanup operations
-    @Query("DELETE FROM bookmarks WHERE isActive = 0 AND dateCreated < :cutoffTime")
-    suspend fun cleanupOldBookmarks(cutoffTime: Long): Int
-    
-    @Query("DELETE FROM reading_sessions WHERE sessionStart < :cutoffTime")
-    suspend fun cleanupOldSessions(cutoffTime: Long): Int
+    @Query("DELETE FROM reading_sessions WHERE mediaItemId = :mediaItemId")
+    suspend fun deleteReadingSessionsForItem(mediaItemId: Long)
 }

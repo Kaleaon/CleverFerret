@@ -36,11 +36,10 @@ keytool -genkey -v -keystore release.keystore -alias androidreleasekey -keyalg R
 
 2. Set environment variables:
 ```bash
-# Replace the placeholder values below with your actual keystore information
-export KEYSTORE_FILE="/path/to/your/release.keystore"    # Replace with actual path to your keystore
-export KEYSTORE_PASSWORD="your_keystore_password"       # Replace with your actual keystore password
-export KEY_ALIAS="androidreleasekey"                     # Replace with your actual key alias
-export KEY_PASSWORD="your_key_password"                 # Replace with your actual key password
+export KEYSTORE_FILE="/path/to/your/release.keystore"
+export KEYSTORE_PASSWORD="your_keystore_password"
+export KEY_ALIAS="androidreleasekey"
+export KEY_PASSWORD="your_key_password"
 ```
 
 3. Build the release APK:
@@ -55,12 +54,10 @@ Configure these secrets in your GitHub repository settings:
 
 | Secret Name | Description | Example |
 |-------------|-------------|---------|
-| `KEYSTORE_BASE64` | Base64-encoded keystore file | `MIIEvgIBADANBgkqhkiG9w0BA...` (truncated) |
-| `KEYSTORE_PASSWORD` | Keystore password | `MySecurePassword123!` *(replace with your actual password)* |
-| `KEY_ALIAS` | Key alias in keystore | `androidreleasekey` *(or your chosen alias)* |
-| `KEY_PASSWORD` | Key password | `MyKeyPassword456!` *(replace with your actual key password)* |
-
-**⚠️ Important**: The password examples above are placeholders. You must replace them with your actual passwords when creating GitHub Secrets.
+| `KEYSTORE_BASE64` | Base64-encoded keystore file | `MIIEvgIBADANBgkqhkiG9w0BA...` |
+| `KEYSTORE_PASSWORD` | Keystore password | `your_secure_password_123!` |
+| `KEY_ALIAS` | Key alias in keystore | `androidreleasekey` |
+| `KEY_PASSWORD` | Key password | `your_key_password_456!` |
 
 ### Setting Up GitHub Secrets
 
@@ -84,25 +81,23 @@ base64 -i release.keystore | tr -d '\n' > keystore.base64.txt
 
 ```
 Keystore: release.keystore
-Created: [DATE]                    # Replace with actual creation date
-Validity: [YEARS] years            # Replace with actual validity period
+Created: [DATE]
+Validity: [YEARS] years
 Algorithm: RSA
 Key Size: 2048 bits
 
-Store Password: [SECURE_PASSWORD]  # Replace with your actual keystore password
+Store Password: [SECURE_PASSWORD]
 Key Alias: androidreleasekey
-Key Password: [SECURE_PASSWORD]    # Replace with your actual key password
+Key Password: [SECURE_PASSWORD]
 
-Backup Locations:                  # Replace with your actual backup locations
+Backup Locations:
 1. [SECURE_LOCATION_1]
 2. [SECURE_LOCATION_2]
 3. [SECURE_LOCATION_3]
 
-Created By: [NAME]                 # Replace with actual name
-Contact: [EMAIL]                   # Replace with actual email
+Created By: [NAME]
+Contact: [EMAIL]
 ```
-
-**Note**: All values in square brackets `[...]` are placeholders that should be replaced with your actual information.
 
 ## Build Configuration
 

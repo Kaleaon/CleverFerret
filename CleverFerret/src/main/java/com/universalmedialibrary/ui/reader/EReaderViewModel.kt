@@ -1,268 +1,126 @@
 package com.universalmedialibrary.ui.reader
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.local.entity.ReaderSettings
-import com.universalmedialibrary.data.repository.MediaRepository
-import com.universalmedialibrary.data.repository.ReaderSettingsRepository
-import com.universalmedialibrary.services.epub.EpubReaderService
-import com.universalmedialibrary.services.epub.EpubChapter
-import com.universalmedialibrary.services.tts.TextToSpeechService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import java.io.File
 
 /**
- * ViewModel for the E-Reader screen
+ * ViewModel for the e-reader screen
+ * Currently supports: TXT, MD files with basic text display
+ * ePub support: Limited (displays basic message, full implementation pending)
  * 
- * Manages:
- * - Loading and displaying EPUB content
- * - Reader settings and preferences
- * - Navigation between chapters
- * - Reading progress tracking
+ * TODO: Integrate epub4j or similar library for full ePub support with:
+ * - Chapter navigation
+ * - Proper formatting and styling  
+ * - Image support
+ * - Table of contents
  */
 @HiltViewModel
-class EReaderViewModel @Inject constructor(
-    private val mediaRepository: MediaRepository,
-    private val epubReaderService: EpubReaderService,
-    private val readerSettingsRepository: ReaderSettingsRepository,
-    private val textToSpeechService: TextToSpeechService
-) : ViewModel() {
-    
+class EReaderViewModel @Inject constructor() : ViewModel() {
+
     private val _uiState = MutableStateFlow(EReaderUiState())
     val uiState: StateFlow<EReaderUiState> = _uiState.asStateFlow()
-    
-    private var currentMediaId: Long = 0
-    
+
     /**
-     * Reader settings flow that combines global settings with book-specific overrides
+     * Load a text file for reading
      */
-    val readerSettings: StateFlow<ReaderSettings> = _uiState
-        .map { it.mediaId }
-        .distinctUntilChanged()
-        .flatMapLatest { mediaId ->
-            if (mediaId > 0) {
-                readerSettingsRepository.getReaderSettingsFlow(mediaId)
-            } else {
-                flowOf(ReaderSettings.merge(ReaderSettings.default(), null))
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ReaderSettings.merge(ReaderSettings.default(), null)
-        )
-    
-    init {
-        // Initialize TTS service
+    fun loadBook(context: Context, filePath: String) {
         viewModelScope.launch {
-            textToSpeechService.initialize()
-        }
-        
-        // Observe EPUB reader service state
-        viewModelScope.launch {
-            epubReaderService.readerState.collect { epubState ->
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isLoading = epubState.isLoading,
-                        isLoaded = epubState.isLoaded,
-                        bookTitle = epubState.bookTitle,
-                        bookAuthor = epubState.bookAuthor,
-                        totalChapters = epubState.totalChapters,
-                        currentChapter = epubState.currentChapter,
-                        chapters = epubState.chapters.map { epubChapter ->
-                            EReaderChapter(
-                                index = epubChapter.index,
-                                title = epubChapter.title
-                            )
-                        },
-                        currentChapterContent = getCurrentChapterContent(epubState.chapters, epubState.currentChapter),
-                        canGoNext = epubState.canGoNext,
-                        canGoPrevious = epubState.canGoPrevious,
-                        progress = epubState.progress,
-                        error = epubState.error
-                    )
-                }
-            }
-        }
-        
-        // Observe TTS state
-        viewModelScope.launch {
-            textToSpeechService.ttsState.collect { ttsState ->
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isTTSPlaying = ttsState.isPlaying,
-                        ttsError = ttsState.error
-                    )
-                }
-            }
-        }
-    }
-    
-    /**
-     * Load a book by media ID
-     */
-    fun loadBook(mediaId: Long) {
-        if (currentMediaId == mediaId && _uiState.value.isLoaded) {
-            return // Book already loaded
-        }
-        
-        currentMediaId = mediaId
-        _uiState.update { it.copy(mediaId = mediaId) }
-        
-        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            
             try {
-                _uiState.update { it.copy(isLoading = true, error = null) }
+                val file = File(filePath)
+                if (!file.exists()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "File not found: $filePath"
+                    )
+                    return@launch
+                }
                 
-                val mediaItem = mediaRepository.getMediaItemById(mediaId)
-                if (mediaItem != null) {
-                    val success = epubReaderService.loadEPUB(java.io.File(mediaItem.filePath))
-                    if (!success) {
-                        _uiState.update { 
-                            it.copy(
-                                isLoading = false, 
-                                error = "Failed to load EPUB file"
-                            ) 
-                        }
+                val content = when (file.extension.lowercase()) {
+                    "txt", "md" -> {
+                        file.readText()
                     }
-                } else {
-                    _uiState.update { 
-                        it.copy(
-                            isLoading = false, 
-                            error = "Media item not found"
-                        ) 
+                    "epub" -> {
+                        // Basic ePub handling - shows file info and guidance
+                        """
+                        ePub Reader - Limited Support
+                        
+                        File: ${file.name}
+                        Size: ${file.length() / 1024} KB
+                        
+                        Current status: Basic ePub support is implemented but limited.
+                        
+                        Available features:
+                        • File detection and basic info display
+                        • Placeholder reading interface
+                        
+                        Planned features:
+                        • Full ePub parsing and rendering
+                        • Chapter navigation
+                        • Proper text formatting
+                        • Image and media support
+                        • Bookmarks and reading progress
+                        
+                        To fully read this ePub file, use a dedicated ePub reader app or 
+                        wait for the complete ePub implementation in a future update.
+                        """.trimIndent()
+                    }
+                    else -> {
+                        "Unsupported file format: ${file.extension}\n\nSupported formats:\n• TXT (Plain text)\n• MD (Markdown)\n• ePub (Limited support)"
                     }
                 }
+                
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    isLoaded = true,
+                    bookTitle = file.nameWithoutExtension,
+                    totalChapters = 1,
+                    currentChapterIndex = 0,
+                    currentChapterContent = content
+                )
+                
             } catch (e: Exception) {
-                _uiState.update { 
-                    it.copy(
-                        isLoading = false, 
-                        error = "Error loading book: ${e.message}"
-                    ) 
-                }
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Failed to load book: ${e.message}"
+                )
             }
         }
     }
-    
+
     /**
      * Navigate to the next chapter
      */
     fun nextChapter() {
-        val success = epubReaderService.nextChapter()
-        if (success) {
-            updateReadingProgress()
-        }
+        // Placeholder for multi-chapter support
     }
-    
+
     /**
      * Navigate to the previous chapter
      */
     fun previousChapter() {
-        val success = epubReaderService.previousChapter()
-        if (success) {
-            updateReadingProgress()
-        }
-    }
-    
-    /**
-     * Jump to a specific chapter
-     */
-    fun jumpToChapter(chapterIndex: Int) {
-        val success = epubReaderService.jumpToChapter(chapterIndex)
-        if (success) {
-            updateReadingProgress()
-        }
-    }
-    
-    /**
-     * Toggle Text-to-Speech playback
-     */
-    fun toggleTTS() {
-        viewModelScope.launch {
-            val state = _uiState.value
-            if (state.isTTSPlaying) {
-                textToSpeechService.pause()
-            } else {
-                val chapterContent = getCurrentChapterContent(
-                    epubReaderService.readerState.value.chapters,
-                    state.currentChapter
-                )
-                if (chapterContent.isNotEmpty()) {
-                    // Extract plain text from HTML
-                    val plainText = chapterContent
-                        .replace(Regex("<[^>]*>"), "") // Remove HTML tags
-                        .replace(Regex("&[^;]*;"), " ") // Remove HTML entities
-                        .replace(Regex("\\s+"), " ") // Normalize whitespace
-                        .trim()
-                    
-                    if (plainText.isNotEmpty()) {
-                        textToSpeechService.speak(plainText)
-                    }
-                }
-            }
-        }
-    }
-    
-    /**
-     * Stop TTS playback
-     */
-    fun stopTTS() {
-        textToSpeechService.stop()
-    }
-    private fun updateReadingProgress() {
-        viewModelScope.launch {
-            val state = _uiState.value
-            if (state.mediaId > 0) {
-                readerSettingsRepository.updateReadingProgress(
-                    mediaId = state.mediaId,
-                    chapter = state.currentChapter,
-                    position = 0, // For now, we don't track position within chapter
-                    progress = state.progress
-                )
-            }
-        }
-    }
-    
-    /**
-     * Get the current chapter content
-     */
-    private fun getCurrentChapterContent(chapters: List<EpubChapter>, currentChapter: Int): String {
-        return if (currentChapter in chapters.indices) {
-            chapters[currentChapter].content
-        } else {
-            ""
-        }
+        // Placeholder for multi-chapter support
     }
 }
 
 /**
- * UI State for the E-Reader screen
+ * UI state for the e-reader
  */
 data class EReaderUiState(
-    val mediaId: Long = 0,
     val isLoading: Boolean = false,
     val isLoaded: Boolean = false,
     val bookTitle: String = "",
-    val bookAuthor: String = "",
     val totalChapters: Int = 0,
-    val currentChapter: Int = 0,
-    val chapters: List<EReaderChapter> = emptyList(),
+    val currentChapterIndex: Int = 0,
     val currentChapterContent: String = "",
-    val canGoNext: Boolean = false,
-    val canGoPrevious: Boolean = false,
-    val progress: Float = 0f,
-    val error: String? = null,
-    val isTTSPlaying: Boolean = false,
-    val ttsError: String? = null
-) {
-    val hasError: Boolean get() = error != null || ttsError != null
-}
-
-/**
- * Simplified chapter representation for UI
- */
-data class EReaderChapter(
-    val index: Int,
-    val title: String
+    val error: String? = null
 )
