@@ -33,7 +33,5 @@ data class MediaItem(
     val isAvailable: Boolean,
     val hasMetadata: Boolean,
     val hasThumbnail: Boolean,
-    val thumbnailPath: String?,
-    val lastAccessed: Long = System.currentTimeMillis(),
-    val playCount: Int = 0
+    val thumbnailPath: String?
 )
