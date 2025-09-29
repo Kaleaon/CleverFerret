@@ -10,12 +10,9 @@ import com.universalmedialibrary.data.local.entity.*
 
 @Database(
     entities = [
-        // Phase 2: Starting with essential entities only
+        // Phase 2: Starting with minimal entities only for build fix
         com.universalmedialibrary.data.local.model.Library::class,
-        com.universalmedialibrary.data.local.model.MediaItem::class,
-        com.universalmedialibrary.data.local.model.MetadataCommon::class,
-        com.universalmedialibrary.data.local.model.APIKey::class,
-        com.universalmedialibrary.data.local.model.Bookmark::class
+        com.universalmedialibrary.data.local.model.APIKey::class
     ],
     version = 6,
     exportSchema = false
@@ -26,12 +23,14 @@ abstract class AppDatabase : RoomDatabase() {
     // abstract fun downloadedStoryDao(): DownloadedStoryDao
     // abstract fun storyUpdateDao(): StoryUpdateDao
     
-    // Core DAOs
+    // Core DAOs - Minimized for build fix
     abstract fun libraryDao(): LibraryDao
-    abstract fun mediaItemDao(): MediaItemDao
-    abstract fun metadataDao(): MetadataDao
     abstract fun apiKeyDao(): APIKeyDao
-    abstract fun bookmarkDao(): BookmarkDao
+    
+    // Temporarily disabled until build is fixed
+    // abstract fun mediaItemDao(): MediaItemDao
+    // abstract fun metadataDao(): MetadataDao
+    // abstract fun bookmarkDao(): BookmarkDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
