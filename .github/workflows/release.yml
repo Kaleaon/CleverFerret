@@ -317,7 +317,7 @@ jobs:
           git push origin ${{ needs.version.outputs.version }} || echo "Tag push failed"
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.version.outputs.version }}
           name: CleverFerret Universal Media Library ${{ needs.version.outputs.version }}

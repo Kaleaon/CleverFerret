@@ -205,7 +205,7 @@ jobs:
         
     - name: Create Release (on main branch)
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: v1.1-enhanced-${{ github.run_number }}
         name: CleverFerret Enhanced v1.1 Build ${{ github.run_number }}
