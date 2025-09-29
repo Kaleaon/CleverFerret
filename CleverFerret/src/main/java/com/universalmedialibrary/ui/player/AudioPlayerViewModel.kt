@@ -63,11 +63,13 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
             if (isPlaying) startPositionUpdates() else stopPositionUpdates()
         }
 
-        override fun onPlayerError(error: PlaybackException) {
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                error = "Playback error: ${'$'}{error.message}"
-            )
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
+            error?.let {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Playback error: ${it.message}"
+                )
+            }
         }
 
         override fun onMediaMetadataChanged(mediaMetadata: androidx.media3.common.MediaMetadata) {

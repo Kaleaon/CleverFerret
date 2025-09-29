@@ -3,6 +3,7 @@ package com.universalmedialibrary.di
 import android.content.Context
 import androidx.room.Room
 import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.dao.APIKeyDao
 import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
@@ -53,5 +54,10 @@ object DatabaseModule {
     @Provides
     fun provideBookmarkDao(appDatabase: AppDatabase): BookmarkDao {
         return appDatabase.bookmarkDao()
+    }
+    
+    @Provides
+    fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
+        return appDatabase.apiKeyDao()
     }
 }
