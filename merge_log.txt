@@ -1,0 +1,427 @@
+
+=== BRANCH ANALYSIS STARTING ===
+Total branches to analyze: 60
+Current main commit: 793cd086f8b40aeba2735474be14d0fa9a497251
+
+Analyzing branch: Resolver
+  -> 0 commits, 293 files, status: REDUNDANT
+Analyzing branch: add-comprehensive-documentation
+  -> 0 commits, 273 files, status: REDUNDANT
+Analyzing branch: ci-copilot-auto-review
+  -> 58 commits, 404 files, status: SIGNIFICANT
+Analyzing branch: copilot/convert-react-app-to-pwa
+  -> 78 commits, 492 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-0bab4d25-6f56-473a-9fd3-9b11377dcf0f
+  -> 3 commits, 389 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-13ab833d-e438-4f36-9aee-9833106c1211
+  -> 34 commits, 500 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-180c2490-ead5-4bcc-a73a-a590b3b1b250
+  -> 51 commits, 491 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-28842264-a06b-4f3d-ae5d-2892a8bb518d
+  -> 0 commits, 529 files, status: REDUNDANT
+Analyzing branch: copilot/fix-317e7f52-2815-47a1-9596-148ff5d7949a
+  -> 0 commits, 323 files, status: REDUNDANT
+Analyzing branch: copilot/fix-35
+  -> 0 commits, 511 files, status: REDUNDANT
+Analyzing branch: copilot/fix-39230ef6-bffa-4da6-858f-0efe614895d1
+  -> 2 commits, 391 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-42a4aea8-b28f-4e4f-a22d-6d9a55ad2da3
+  -> 0 commits, 403 files, status: REDUNDANT
+Analyzing branch: copilot/fix-4b2c0e15-04ce-4a07-8cbc-74ed2690aaf2
+  -> 3 commits, 399 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-54ecc798-f8ac-4866-b2ea-b9eb87f82a07
+  -> 5 commits, 509 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-5c26a9a7-8f8a-4f69-9d02-609156e94a6e
+  -> 1 commits, 561 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-62
+  -> 0 commits, 314 files, status: REDUNDANT
+Analyzing branch: copilot/fix-67
+  -> 1 commits, 311 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-69
+  -> 1 commits, 310 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-69ae3880-1107-4ec5-bc0e-795863598734
+  -> 0 commits, 329 files, status: REDUNDANT
+Analyzing branch: copilot/fix-6c3b08dc-ce23-4c7c-a6bb-e136b9111440
+  -> 0 commits, 329 files, status: REDUNDANT
+Analyzing branch: copilot/fix-6d9c821e-ecf2-4241-87d2-203bef248240
+  -> 0 commits, 323 files, status: REDUNDANT
+Analyzing branch: copilot/fix-730b12ef-04fd-4cb0-90fd-eac956bb174a
+  -> 14 commits, 399 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-770e9495-ac58-4f05-b09c-ecfcb8281dea
+  -> 0 commits, 323 files, status: REDUNDANT
+Analyzing branch: copilot/fix-85869d94-7ea4-4aa1-b8c1-feb6e67b3542
+  -> 0 commits, 349 files, status: REDUNDANT
+Analyzing branch: copilot/fix-8c8697a0-f773-4a4d-b052-c0aeaf9469fb
+  -> 33 commits, 504 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-9572e99e-c192-4144-8827-0c19fe3cc105
+  -> 4 commits, 383 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-9599ef75-fe27-4c08-9aa1-91006d598b95
+  -> 2 commits, 385 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-95ef92aa-b8ef-4be3-a96e-062897a65e7e
+  -> 2 commits, 560 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-9a654436-1c30-493a-8a4d-b51f363cd770
+  -> 0 commits, 360 files, status: REDUNDANT
+Analyzing branch: copilot/fix-a26791e5-abb0-4191-b271-b3fdb973b230
+  -> 20 commits, 576 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-a89115ea-ab70-4624-914e-f1a62f88506c
+  -> 20 commits, 576 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-android-ci-package-error
+  -> 37 commits, 500 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-b709f379-2927-4a93-abd8-3c57a5acccd3
+  -> 0 commits, 380 files, status: REDUNDANT
+Analyzing branch: copilot/fix-bc683a20-7898-43c5-9eb1-c7ec7d15d312
+  -> 4 commits, 537 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-c539b2f5-36e5-43e0-a45f-a5d849f0247d
+  -> 0 commits, 323 files, status: REDUNDANT
+Analyzing branch: copilot/fix-d0d3a7b8-da82-4532-acf7-5b73ecd86fa4
+  -> 83 commits, 355 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-d7c87e9c-bc7a-46d4-9c2d-03d56fd32eef
+  -> 2 commits, 562 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-de790fc3-c5d1-42d2-ac3b-a3dcc189ebc6
+  -> 42 commits, 500 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-e2facd87-4d56-4f25-8380-3a179ef0e0e1
+  -> 0 commits, 332 files, status: REDUNDANT
+Analyzing branch: copilot/fix-e8c75d99-0096-42b9-94fe-eef2243a9e62
+  -> 0 commits, 392 files, status: REDUNDANT
+Analyzing branch: copilot/fix-ebd6ebba-8f9c-4d5b-bd02-a8eea77058f3
+  -> 2 commits, 596 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-f29b60dc-43a8-44b8-9880-2e64e4f7c467
+  -> 0 commits, 323 files, status: REDUNDANT
+Analyzing branch: copilot/fix-fa552a13-cce2-4566-a950-5f1a6773d59e
+  -> 2 commits, 320 files, status: SIGNIFICANT
+Analyzing branch: copilot/fix-fe8faf83-a800-46b3-bb29-5547cc68ee14
+  -> 0 commits, 323 files, status: REDUNDANT
+Analyzing branch: copilot/update-log-file-formatting
+  -> 78 commits, 500 files, status: SIGNIFICANT
+Analyzing branch: docs-and-readme-update
+  -> 3 commits, 590 files, status: SIGNIFICANT
+Analyzing branch: docs/update-resources-md
+  -> 2 commits, 560 files, status: SIGNIFICANT
+Analyzing branch: feat/modern-native-ui
+  -> 1 commits, 607 files, status: SIGNIFICANT
+Analyzing branch: feature/add-tests-for-comprehensive-metadata-service
+  -> 1 commits, 311 files, status: SIGNIFICANT
+Analyzing branch: feature/architecture-and-database-foundation
+  -> 0 commits, 589 files, status: REDUNDANT
+Analyzing branch: feature/create-development-issues
+  -> 5 commits, 595 files, status: SIGNIFICANT
+Analyzing branch: feature/improve-test-coverage
+  -> 0 commits, 589 files, status: REDUNDANT
+Analyzing branch: feature/project-plan
+  -> 0 commits, 594 files, status: REDUNDANT
+Analyzing branch: fix-author-name-parsing
+  -> 0 commits, 589 files, status: REDUNDANT
+Analyzing branch: fix/android_ci_install_sdk
+  -> 0 commits, 511 files, status: REDUNDANT
+Analyzing branch: fix/delete-library-bug
+  -> 0 commits, 304 files, status: REDUNDANT
+Analyzing branch: fix/github-actions-json-output
+  -> 1 commits, 311 files, status: SIGNIFICANT
+Analyzing branch: fix/orphan-metadata-bug
+  -> 0 commits, 559 files, status: REDUNDANT
+Analyzing branch: jules/fix-compilation-errors
+  -> 83 commits, 379 files, status: SIGNIFICANT
+Analyzing branch: organize-documentation
+  -> 20 commits, 374 files, status: SIGNIFICANT
+
+=== ANALYSIS COMPLETE ===
+=== BRANCH SUMMARY ===
+Redundant branches:
+Resolver
+add-comprehensive-documentation
+copilot/fix-28842264-a06b-4f3d-ae5d-2892a8bb518d
+copilot/fix-317e7f52-2815-47a1-9596-148ff5d7949a
+copilot/fix-35
+copilot/fix-42a4aea8-b28f-4e4f-a22d-6d9a55ad2da3
+copilot/fix-62
+copilot/fix-69ae3880-1107-4ec5-bc0e-795863598734
+copilot/fix-6c3b08dc-ce23-4c7c-a6bb-e136b9111440
+copilot/fix-6d9c821e-ecf2-4241-87d2-203bef248240
+copilot/fix-770e9495-ac58-4f05-b09c-ecfcb8281dea
+copilot/fix-85869d94-7ea4-4aa1-b8c1-feb6e67b3542
+copilot/fix-9a654436-1c30-493a-8a4d-b51f363cd770
+copilot/fix-b709f379-2927-4a93-abd8-3c57a5acccd3
+copilot/fix-c539b2f5-36e5-43e0-a45f-a5d849f0247d
+copilot/fix-e2facd87-4d56-4f25-8380-3a179ef0e0e1
+copilot/fix-e8c75d99-0096-42b9-94fe-eef2243a9e62
+copilot/fix-f29b60dc-43a8-44b8-9880-2e64e4f7c467
+copilot/fix-fe8faf83-a800-46b3-bb29-5547cc68ee14
+feature/architecture-and-database-foundation
+feature/improve-test-coverage
+feature/project-plan
+fix-author-name-parsing
+fix/android_ci_install_sdk
+fix/delete-library-bug
+fix/orphan-metadata-bug
+
+Trivial branches:
+
+Small branches:
+
+Significant branches:
+ci-copilot-auto-review
+copilot/convert-react-app-to-pwa
+copilot/fix-0bab4d25-6f56-473a-9fd3-9b11377dcf0f
+copilot/fix-13ab833d-e438-4f36-9aee-9833106c1211
+copilot/fix-180c2490-ead5-4bcc-a73a-a590b3b1b250
+copilot/fix-39230ef6-bffa-4da6-858f-0efe614895d1
+copilot/fix-4b2c0e15-04ce-4a07-8cbc-74ed2690aaf2
+copilot/fix-54ecc798-f8ac-4866-b2ea-b9eb87f82a07
+copilot/fix-5c26a9a7-8f8a-4f69-9d02-609156e94a6e
+copilot/fix-67
+copilot/fix-69
+copilot/fix-730b12ef-04fd-4cb0-90fd-eac956bb174a
+copilot/fix-8c8697a0-f773-4a4d-b052-c0aeaf9469fb
+copilot/fix-9572e99e-c192-4144-8827-0c19fe3cc105
+copilot/fix-9599ef75-fe27-4c08-9aa1-91006d598b95
+copilot/fix-95ef92aa-b8ef-4be3-a96e-062897a65e7e
+copilot/fix-a26791e5-abb0-4191-b271-b3fdb973b230
+copilot/fix-a89115ea-ab70-4624-914e-f1a62f88506c
+copilot/fix-android-ci-package-error
+copilot/fix-bc683a20-7898-43c5-9eb1-c7ec7d15d312
+copilot/fix-d0d3a7b8-da82-4532-acf7-5b73ecd86fa4
+copilot/fix-d7c87e9c-bc7a-46d4-9c2d-03d56fd32eef
+copilot/fix-de790fc3-c5d1-42d2-ac3b-a3dcc189ebc6
+copilot/fix-ebd6ebba-8f9c-4d5b-bd02-a8eea77058f3
+copilot/fix-fa552a13-cce2-4566-a950-5f1a6773d59e
+copilot/update-log-file-formatting
+docs-and-readme-update
+docs/update-resources-md
+feat/modern-native-ui
+feature/add-tests-for-comprehensive-metadata-service
+feature/create-development-issues
+fix/github-actions-json-output
+jules/fix-compilation-errors
+organize-documentation
+
+=== DETAILED ANALYSIS ===
+branch_name,commit_count,file_count,status,notes
+Resolver,0,293,REDUNDANT,No commits ahead of main
+add-comprehensive-documentation,0,273,REDUNDANT,No commits ahead of main
+ci-copilot-auto-review,58,404,SIGNIFICANT,Multiple commits or many files
+copilot/convert-react-app-to-pwa,78,492,SIGNIFICANT,Multiple commits or many files
+copilot/fix-0bab4d25-6f56-473a-9fd3-9b11377dcf0f,3,389,SIGNIFICANT,Multiple commits or many files
+copilot/fix-13ab833d-e438-4f36-9aee-9833106c1211,34,500,SIGNIFICANT,Multiple commits or many files
+copilot/fix-180c2490-ead5-4bcc-a73a-a590b3b1b250,51,491,SIGNIFICANT,Multiple commits or many files
+copilot/fix-28842264-a06b-4f3d-ae5d-2892a8bb518d,0,529,REDUNDANT,No commits ahead of main
+copilot/fix-317e7f52-2815-47a1-9596-148ff5d7949a,0,323,REDUNDANT,No commits ahead of main
+copilot/fix-35,0,511,REDUNDANT,No commits ahead of main
+copilot/fix-39230ef6-bffa-4da6-858f-0efe614895d1,2,391,SIGNIFICANT,Multiple commits or many files
+copilot/fix-42a4aea8-b28f-4e4f-a22d-6d9a55ad2da3,0,403,REDUNDANT,No commits ahead of main
+copilot/fix-4b2c0e15-04ce-4a07-8cbc-74ed2690aaf2,3,399,SIGNIFICANT,Multiple commits or many files
+copilot/fix-54ecc798-f8ac-4866-b2ea-b9eb87f82a07,5,509,SIGNIFICANT,Multiple commits or many files
+copilot/fix-5c26a9a7-8f8a-4f69-9d02-609156e94a6e,1,561,SIGNIFICANT,Multiple commits or many files
+copilot/fix-62,0,314,REDUNDANT,No commits ahead of main
+copilot/fix-67,1,311,SIGNIFICANT,Multiple commits or many files
+copilot/fix-69,1,310,SIGNIFICANT,Multiple commits or many files
+copilot/fix-69ae3880-1107-4ec5-bc0e-795863598734,0,329,REDUNDANT,No commits ahead of main
+copilot/fix-6c3b08dc-ce23-4c7c-a6bb-e136b9111440,0,329,REDUNDANT,No commits ahead of main
+copilot/fix-6d9c821e-ecf2-4241-87d2-203bef248240,0,323,REDUNDANT,No commits ahead of main
+copilot/fix-730b12ef-04fd-4cb0-90fd-eac956bb174a,14,399,SIGNIFICANT,Multiple commits or many files
+copilot/fix-770e9495-ac58-4f05-b09c-ecfcb8281dea,0,323,REDUNDANT,No commits ahead of main
+copilot/fix-85869d94-7ea4-4aa1-b8c1-feb6e67b3542,0,349,REDUNDANT,No commits ahead of main
+copilot/fix-8c8697a0-f773-4a4d-b052-c0aeaf9469fb,33,504,SIGNIFICANT,Multiple commits or many files
+copilot/fix-9572e99e-c192-4144-8827-0c19fe3cc105,4,383,SIGNIFICANT,Multiple commits or many files
+copilot/fix-9599ef75-fe27-4c08-9aa1-91006d598b95,2,385,SIGNIFICANT,Multiple commits or many files
+copilot/fix-95ef92aa-b8ef-4be3-a96e-062897a65e7e,2,560,SIGNIFICANT,Multiple commits or many files
+copilot/fix-9a654436-1c30-493a-8a4d-b51f363cd770,0,360,REDUNDANT,No commits ahead of main
+copilot/fix-a26791e5-abb0-4191-b271-b3fdb973b230,20,576,SIGNIFICANT,Multiple commits or many files
+copilot/fix-a89115ea-ab70-4624-914e-f1a62f88506c,20,576,SIGNIFICANT,Multiple commits or many files
+copilot/fix-android-ci-package-error,37,500,SIGNIFICANT,Multiple commits or many files
+copilot/fix-b709f379-2927-4a93-abd8-3c57a5acccd3,0,380,REDUNDANT,No commits ahead of main
+copilot/fix-bc683a20-7898-43c5-9eb1-c7ec7d15d312,4,537,SIGNIFICANT,Multiple commits or many files
+copilot/fix-c539b2f5-36e5-43e0-a45f-a5d849f0247d,0,323,REDUNDANT,No commits ahead of main
+copilot/fix-d0d3a7b8-da82-4532-acf7-5b73ecd86fa4,83,355,SIGNIFICANT,Multiple commits or many files
+copilot/fix-d7c87e9c-bc7a-46d4-9c2d-03d56fd32eef,2,562,SIGNIFICANT,Multiple commits or many files
+copilot/fix-de790fc3-c5d1-42d2-ac3b-a3dcc189ebc6,42,500,SIGNIFICANT,Multiple commits or many files
+copilot/fix-e2facd87-4d56-4f25-8380-3a179ef0e0e1,0,332,REDUNDANT,No commits ahead of main
+copilot/fix-e8c75d99-0096-42b9-94fe-eef2243a9e62,0,392,REDUNDANT,No commits ahead of main
+copilot/fix-ebd6ebba-8f9c-4d5b-bd02-a8eea77058f3,2,596,SIGNIFICANT,Multiple commits or many files
+copilot/fix-f29b60dc-43a8-44b8-9880-2e64e4f7c467,0,323,REDUNDANT,No commits ahead of main
+copilot/fix-fa552a13-cce2-4566-a950-5f1a6773d59e,2,320,SIGNIFICANT,Multiple commits or many files
+copilot/fix-fe8faf83-a800-46b3-bb29-5547cc68ee14,0,323,REDUNDANT,No commits ahead of main
+copilot/update-log-file-formatting,78,500,SIGNIFICANT,Multiple commits or many files
+docs-and-readme-update,3,590,SIGNIFICANT,Multiple commits or many files
+docs/update-resources-md,2,560,SIGNIFICANT,Multiple commits or many files
+feat/modern-native-ui,1,607,SIGNIFICANT,Multiple commits or many files
+feature/add-tests-for-comprehensive-metadata-service,1,311,SIGNIFICANT,Multiple commits or many files
+feature/architecture-and-database-foundation,0,589,REDUNDANT,No commits ahead of main
+feature/create-development-issues,5,595,SIGNIFICANT,Multiple commits or many files
+feature/improve-test-coverage,0,589,REDUNDANT,No commits ahead of main
+feature/project-plan,0,594,REDUNDANT,No commits ahead of main
+fix-author-name-parsing,0,589,REDUNDANT,No commits ahead of main
+fix/android_ci_install_sdk,0,511,REDUNDANT,No commits ahead of main
+fix/delete-library-bug,0,304,REDUNDANT,No commits ahead of main
+fix/github-actions-json-output,1,311,SIGNIFICANT,Multiple commits or many files
+fix/orphan-metadata-bug,0,559,REDUNDANT,No commits ahead of main
+jules/fix-compilation-errors,83,379,SIGNIFICANT,Multiple commits or many files
+organize-documentation,20,374,SIGNIFICANT,Multiple commits or many files
+=== EXAMINING SIGNIFICANT BRANCHES FOR UNIQUE VALUE ===
+
+=== Examining docs-and-readme-update ===
+Recent commits:
+5b5a238 This commit adds comprehensive KDoc documentation to the entire codebase and overhauls the README to be a more effective guide for new developers.
+7e6d728 Update app/src/main/java/com/universalmedialibrary/services/CalibreImportService.kt
+1990b14 Add comprehensive KDoc documentation to the entire codebase.
+Key files changed:
+.emergent/emergent.yml
+.emergent/summary.txt
+.gitconfig
+.github/BULLETPROOF-SYSTEM.md
+.github/ISSUE_TEMPLATE/bug_report.yml
+.github/ISSUE_TEMPLATE/feature_request.yml
+.github/copilot-instructions.md
+.github/dependabot.yml
+.github/workflows/Automated Merge Conflict Resolution.yml
+.github/workflows/ai-review.yml
+
+=== Examining organize-documentation ===
+Recent commits:
+294dd65 Organize and consolidate documentation
+7f3429f auto-commit for e818b1d0-571b-46b7-aa1b-7f7ba2e32848
+d426626 auto-commit for 348745e6-da2c-496c-8712-c889db5be41b
+c05fa68 auto-commit for 21cd6e22-7993-43e2-9e7b-94997da8c80f
+fd3f902 auto-commit for bbac932c-1e36-4014-bcb5-abc6fa64aff4
+Key files changed:
+"\001@\246\002@\370\355\r@8\v@\034\033\006\004@@@h\002h\002\b\003\004\250\002\250\002\250\002\025\025\001\001\004"
+"\001\200\035+@\260*"
+"\001\300}\023@0\311c@8\f@#!\006\004@@@\240\002\240\002\b\003\004\340\002\340\002\340\002\034\034\001\001\004\274m\023\274m\023\020\001\005\300m\023\300}\023\300}\0230\331:0\331:\020\001\006\360FN\360fN\360fN\360\223\001\360\223\001\020\001\006\340\332O\340"
+"\001\320"
+.ai-tools/ai-integration-status.md
+.ai-tools/codeium-config.json
+.ai-tools/copilot-config.json
+.ai-tools/firebase-ai-config.json
+.ai-tools/gemini-config.json
+.ai-tools/tabnine-config.json
+
+=== Examining feature/create-development-issues ===
+Recent commits:
+601584c Update app/src/main/java/com/universalmedialibrary/ui/main/ContentImportViewModel.kt
+39e054a Update app/src/test/java/com/universalmedialibrary/services/ContentServicesTest.kt
+fdecc22 feat: Implement Content-to-Epub feature
+Key files changed:
+.emergent/emergent.yml
+.emergent/summary.txt
+.gitconfig
+.github/BULLETPROOF-SYSTEM.md
+.github/ISSUE_TEMPLATE/bug_report.yml
+.github/ISSUE_TEMPLATE/feature_request.yml
+.github/copilot-instructions.md
+.github/dependabot.yml
+.github/workflows/Automated Merge Conflict Resolution.yml
+.github/workflows/ai-review.yml
+
+=== Examining fix/github-actions-json-output ===
+Recent commits:
+38630b0 Fix: Stringify JSON output in multi_device_testing workflow
+Key files changed:
+.emergent/emergent.yml
+.github/BULLETPROOF-SYSTEM.md
+.github/dependabot.yml
+.github/workflows/ai-review.yml
+.github/workflows/android-build.yml
+.github/workflows/android_ci.yml
+.github/workflows/auto-copilot-triage.yml
+.github/workflows/automated-build.yml
+.github/workflows/bulletproof-build.yml
+.github/workflows/debug-checkout.yml
+
+=== STARTING MERGE PROCESS ===
+Created cleanup branch: branch-cleanup-20250929-152245
+
+Attempting to merge docs-and-readme-update...
+✗ docs-and-readme-update has conflicts
+
+Attempting to merge organize-documentation...
+✗ organize-documentation has conflicts
+
+Attempting to merge feature/create-development-issues...
+✗ feature/create-development-issues has conflicts
+
+Attempting to merge fix/github-actions-json-output...
+✓ fix/github-actions-json-output merged successfully
+
+Successfully merged:  fix/github-actions-json-output
+Conflicts encountered:  docs-and-readme-update organize-documentation feature/create-development-issues
+=== RESOLVING CONFLICTS AND CONTINUING CLEANUP ===
+Attempting to merge docs/update-resources-md...
+✓ docs/update-resources-md merged successfully
+
+=== DELETING REDUNDANT BRANCHES ===
+Deleting redundant branch: Resolver
+✓ Deleted Resolver
+Deleting redundant branch: add-comprehensive-documentation
+✓ Deleted add-comprehensive-documentation
+Deleting redundant branch: copilot/fix-28842264-a06b-4f3d-ae5d-2892a8bb518d
+✓ Deleted copilot/fix-28842264-a06b-4f3d-ae5d-2892a8bb518d
+Deleting redundant branch: copilot/fix-317e7f52-2815-47a1-9596-148ff5d7949a
+✓ Deleted copilot/fix-317e7f52-2815-47a1-9596-148ff5d7949a
+Deleting redundant branch: copilot/fix-35
+✓ Deleted copilot/fix-35
+Deleting redundant branch: copilot/fix-42a4aea8-b28f-4e4f-a22d-6d9a55ad2da3
+✓ Deleted copilot/fix-42a4aea8-b28f-4e4f-a22d-6d9a55ad2da3
+Deleting redundant branch: copilot/fix-62
+✓ Deleted copilot/fix-62
+Deleting redundant branch: copilot/fix-69ae3880-1107-4ec5-bc0e-795863598734
+✓ Deleted copilot/fix-69ae3880-1107-4ec5-bc0e-795863598734
+Deleting redundant branch: copilot/fix-6c3b08dc-ce23-4c7c-a6bb-e136b9111440
+✓ Deleted copilot/fix-6c3b08dc-ce23-4c7c-a6bb-e136b9111440
+Deleting redundant branch: copilot/fix-6d9c821e-ecf2-4241-87d2-203bef248240
+✓ Deleted copilot/fix-6d9c821e-ecf2-4241-87d2-203bef248240
+Deleting redundant branch: copilot/fix-770e9495-ac58-4f05-b09c-ecfcb8281dea
+✓ Deleted copilot/fix-770e9495-ac58-4f05-b09c-ecfcb8281dea
+Deleting redundant branch: copilot/fix-85869d94-7ea4-4aa1-b8c1-feb6e67b3542
+✓ Deleted copilot/fix-85869d94-7ea4-4aa1-b8c1-feb6e67b3542
+Deleting redundant branch: copilot/fix-9a654436-1c30-493a-8a4d-b51f363cd770
+✓ Deleted copilot/fix-9a654436-1c30-493a-8a4d-b51f363cd770
+Deleting redundant branch: copilot/fix-b709f379-2927-4a93-abd8-3c57a5acccd3
+✓ Deleted copilot/fix-b709f379-2927-4a93-abd8-3c57a5acccd3
+Deleting redundant branch: copilot/fix-c539b2f5-36e5-43e0-a45f-a5d849f0247d
+✓ Deleted copilot/fix-c539b2f5-36e5-43e0-a45f-a5d849f0247d
+Deleting redundant branch: copilot/fix-e2facd87-4d56-4f25-8380-3a179ef0e0e1
+✓ Deleted copilot/fix-e2facd87-4d56-4f25-8380-3a179ef0e0e1
+Deleting redundant branch: copilot/fix-e8c75d99-0096-42b9-94fe-eef2243a9e62
+✓ Deleted copilot/fix-e8c75d99-0096-42b9-94fe-eef2243a9e62
+Deleting redundant branch: copilot/fix-f29b60dc-43a8-44b8-9880-2e64e4f7c467
+✓ Deleted copilot/fix-f29b60dc-43a8-44b8-9880-2e64e4f7c467
+Deleting redundant branch: copilot/fix-fe8faf83-a800-46b3-bb29-5547cc68ee14
+✓ Deleted copilot/fix-fe8faf83-a800-46b3-bb29-5547cc68ee14
+Deleting redundant branch: feature/architecture-and-database-foundation
+✓ Deleted feature/architecture-and-database-foundation
+Deleting redundant branch: feature/improve-test-coverage
+✓ Deleted feature/improve-test-coverage
+Deleting redundant branch: feature/project-plan
+✓ Deleted feature/project-plan
+Deleting redundant branch: fix-author-name-parsing
+✓ Deleted fix-author-name-parsing
+Deleting redundant branch: fix/android_ci_install_sdk
+✓ Deleted fix/android_ci_install_sdk
+Deleting redundant branch: fix/delete-library-bug
+✓ Deleted fix/delete-library-bug
+Deleting redundant branch: fix/orphan-metadata-bug
+✓ Deleted fix/orphan-metadata-bug
+
+Successfully deleted 26 redundant branches
+
+=== ATTEMPTING TO MERGE SMALLER SIGNIFICANT BRANCHES ===
+Attempting to merge copilot/fix-67...
+✓ copilot/fix-67 merged successfully
+Attempting to merge copilot/fix-69...
+✓ copilot/fix-69 merged successfully
+Attempting to merge feature/add-tests-for-comprehensive-metadata-service...
+✓ feature/add-tests-for-comprehensive-metadata-service merged successfully
+=== CONTINUING CLEANUP - DELETING MORE REDUNDANT COPILOT BRANCHES ===
+Deleting old copilot branch: copilot/fix-0bab4d25-6f56-473a-9fd3-9b11377dcf0f
+✓ Deleted copilot/fix-0bab4d25-6f56-473a-9fd3-9b11377dcf0f
+Deleting old copilot branch: copilot/fix-4b2c0e15-04ce-4a07-8cbc-74ed2690aaf2
+✓ Deleted copilot/fix-4b2c0e15-04ce-4a07-8cbc-74ed2690aaf2
+Deleting old copilot branch: copilot/fix-39230ef6-bffa-4da6-858f-0efe614895d1
+✓ Deleted copilot/fix-39230ef6-bffa-4da6-858f-0efe614895d1
+Deleting old copilot branch: copilot/fix-9572e99e-c192-4144-8827-0c19fe3cc105
+✓ Deleted copilot/fix-9572e99e-c192-4144-8827-0c19fe3cc105
+Deleting old copilot branch: copilot/fix-9599ef75-fe27-4c08-9aa1-91006d598b95
+✓ Deleted copilot/fix-9599ef75-fe27-4c08-9aa1-91006d598b95
+Deleting old copilot branch: copilot/fix-95ef92aa-b8ef-4be3-a96e-062897a65e7e
+✓ Deleted copilot/fix-95ef92aa-b8ef-4be3-a96e-062897a65e7e
+Deleting old copilot branch: copilot/fix-fa552a13-cce2-4566-a950-5f1a6773d59e
+✓ Deleted copilot/fix-fa552a13-cce2-4566-a950-5f1a6773d59e
