@@ -1,6 +1,15 @@
 package com.universalmedialibrary.data
 
+/**
+ * Defines the database schema for the application.
+ *
+ * This object contains the SQL `CREATE TABLE` statements for all tables in the database.
+ */
 object DatabaseSchema {
+    /**
+     * SQL statement to create the `media_items` table.
+     * This is the central table for all media library items.
+     */
     const val SQL_CREATE_MEDIA_ITEMS = """
         CREATE TABLE media_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,6 +21,10 @@ object DatabaseSchema {
         );
     """
 
+    /**
+     * SQL statement to create the `books` table.
+     * This table stores book-specific metadata.
+     */
     const val SQL_CREATE_BOOKS = """
         CREATE TABLE books (
             media_item_id INTEGER PRIMARY KEY,
@@ -23,6 +36,10 @@ object DatabaseSchema {
         );
     """
 
+    /**
+     * SQL statement to create the `authors` table.
+     * This table stores information about authors.
+     */
     const val SQL_CREATE_AUTHORS = """
         CREATE TABLE authors (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,6 +48,10 @@ object DatabaseSchema {
         );
     """
 
+    /**
+     * SQL statement to create the `tags` table.
+     * This table stores tags that can be associated with media items.
+     */
     const val SQL_CREATE_TAGS = """
         CREATE TABLE tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,6 +59,10 @@ object DatabaseSchema {
         );
     """
 
+    /**
+     * SQL statement to create the `media_item_author_join` table.
+     * This is a many-to-many join table between `media_items` and `authors`.
+     */
     const val SQL_CREATE_MEDIA_ITEM_AUTHOR_JOIN = """
         CREATE TABLE media_item_author_join (
             media_item_id INTEGER NOT NULL,
@@ -48,6 +73,10 @@ object DatabaseSchema {
         );
     """
 
+    /**
+     * SQL statement to create the `media_item_tag_join` table.
+     * This is a many-to-many join table between `media_items` and `tags`.
+     */
     const val SQL_CREATE_MEDIA_ITEM_TAG_JOIN = """
         CREATE TABLE media_item_tag_join (
             media_item_id INTEGER NOT NULL,

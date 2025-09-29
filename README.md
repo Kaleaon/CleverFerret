@@ -59,141 +59,60 @@ The project is currently in the early stages of development. The following featu
 
 The project is organized into the following main packages:
 
-*   `com.universalmedialibrary.data`: Contains all data-related classes, including Room entities, DAOs (Data Access Objects), and the database definition.
+*   `com.universalmedialibrary.data.local`: Contains all data-related classes for the Room database, including entities, DAOs, and the database definition.
 *   `com.universalmedialibrary.di`: Contains the Hilt dependency injection modules.
 *   `com.universalmedialibrary.services`: Contains services for background tasks, such as the Calibre import service.
 *   `com.universalmedialibrary.ui`: Contains the Jetpack Compose UI code and ViewModels.
 
 ---
 
-## 3. Research Summary & Final Architecture (REVISED)
+## 3. Architecture
 
-An extensive research and planning phase was conducted to determine the best architecture and components for this project. This section reflects the **revised architecture** based on our detailed investigation.
+The project follows a standard Android architecture pattern with a UI layer, a data layer, and a service layer.
 
-### Final Proposed Architecture (On-Device)
+### 3.1. Database Layer
 
-The project direction has been finalized. A **fully self-contained, on-device application is feasible**. This architecture does not require a separate computer or server.
+The database is built using the **Room Persistence Library**, which provides an abstraction layer over SQLite. This allows for compile-time query validation, easier migrations, and less boilerplate code. The database schema is designed to be extensible to support a wide variety of media types.
 
-1.  **Core Concept:** The application will be a native Android app that directly reads and manages a user's media library, which will be stored on the device's local storage.
+### 3.2. Architectural Concerns
 
-2.  **Database Layer:** A new data layer will be built in **Kotlin** using standard Android SQLite libraries. It will be responsible for all database operations based on a custom, extensible schema designed for multiple media types. This layer will also handle the **advanced import and data cleaning of Calibre `metadata.db` files**.
+During a recent code audit, a significant architectural issue was identified: the presence of two parallel database implementations.
+*   A modern Room-based implementation in `com.universalmedialibrary.data.local`.
+*   An older, manual `SQLiteOpenHelper`-based implementation in `com.universalmedialibrary.data`.
 
-3.  **Reader Component (epub4j):**
-    *   The app will use the **`epub4j`** library as its core engine for parsing and handling e-book files.
-    *   **License:** This library is licensed under the permissive **Apache 2.0 license**, which aligns with our project's FOSS goals without the restrictions of AGPL.
-    *   **Feature Benchmark:** The feature set of **Moon+ Reader** will still be used as a benchmark for the quality and customization options to be built for the reading experience.
-
-4.  **Audio Component (AntennaPod Model):**
-    *   A dedicated audio player for music and audiobooks will be built, using the architecture of the **AntennaPod** project as a blueprint.
-
-5.  **Video Component (ExoPlayer or libvlc):**
-    *   The app will use a robust video playback engine. The default choice is **AndroidX Media3 (ExoPlayer)**.
-
-6.  **UI/UX (Jetpack Compose & Material You):**
-    *   The UI will be a modern, native Android interface built with **Kotlin** and **Jetpack Compose**.
-    *   The design will be inspired by **`book-story`** (for its Material You aesthetic) and **`Plexoid`** (for its multi-library organizational concepts).
-
-### Advanced Metadata Strategy
-
-The application will feature a powerful, multi-layered strategy for metadata.
-
-1.  **Automated Metadata Correction:**
-    *   **OCR on Covers:** The app will use **Google's ML Kit Text Recognition** (Apache 2.0 license) to perform OCR on book covers to identify and correct titles and authors.
-    *   **Text Analysis:** The app will use the **Apache OpenNLP** library (Apache 2.0 license) to perform Named Entity Recognition (NER) on the first few pages of e-books to programmatically identify and correct metadata.
-
-2.  **Manual Metadata Editing:**
-    *   A dedicated UI will be built to allow users to manually edit all metadata fields. This screen will show a "before and after" comparison when automated corrections are applied, giving the user full control.
-
-3.  **External Metadata Sources:**
-    *   The app will enrich its library by fetching data from a wide range of sources:
-        *   **Books:** Open Library API, **Google Books API**, **Hardcover API**.
-        *   **Comics:** ComicVine API.
-        *   **Audiobooks:** OverDrive API.
-        *   **Movies/TV:** The Movie Database (TMDB) API, **OMDb API**.
-        *   **Music:** MusicBrainz API, **Spotify Web API**.
-
-4.  **Embedded Metadata Tooling:**
-    *   **Reading:** The app will prioritize using standard Android libraries like `MediaMetadataRetriever` (for audio/video) and `ExifInterface` (for images) for reading embedded tags.
-    *   **Writing:** For writing metadata, the app will use `ExifInterface` for images. For audio and video, specialized libraries will be chosen during implementation to ensure robust tag writing capabilities.
-
-### Content Creation Features
-
-The application will include features to create new content from external sources.
-
-*   **News-to-Epub:** A feature to download news from various sources and format it into a `.epub` file.
-*   **Fanfic-to-Epub:** A feature to download fanfiction from popular archives and format it into a `.epub` file.
+**It is strongly recommended to consolidate the codebase to use only the Room implementation.** The older implementation should be removed to avoid confusion and potential bugs. For a detailed breakdown of this and other issues, please see the [**BUGS_AND_ISSUES.md**](BUGS_AND_ISSUES.md) file.
 
 ---
 
-## 4. Development Plan (REVISED)
+## 4. Features
 
-### Phase 1: Foundational Research & Component Selection (COMPLETE)
-*   E-Reader Component Investigation (Completed: `epub4j`)
-*   Data Correction Technology Research (Completed: ML Kit & OpenNLP)
-*   Expanded Metadata Source Research (Completed: New APIs identified)
+### 4.1. Implemented Features
+*   **Library Management:** Users can create libraries to organize their media.
+*   **Calibre Import:** A robust import feature that allows users to import their existing book library from a Calibre `metadata.db` file. The import runs as a foreground service to handle large libraries without being killed by the OS.
+*   **Basic UI:** A functional UI built with Jetpack Compose that allows users to view their libraries and the books within them.
 
-### Phase 2: Architecture & Core Data Model (COMPLETE)
-1.  **System Architecture Design:** Update `README.md` and `RESOURCES.md` to reflect the new architecture.
-2.  **Advanced Database Schema and Import Logic:** Design the detailed SQLite schema and the logic for the Calibre import and data cleaning.
-3.  **Design Manual Metadata Editing UI:** Create mockups and specifications for the metadata editing screen.
+### 4.2. Planned Features
+The `README.md` previously contained a large section of planned features and architecture. While the high-level vision remains, the detailed plans are outdated. The following is a summary of the intended direction:
 
-### Phase 3: Implementation (IN PROGRESS)
-1.  **Implement Core Data Layer:** Build the database and the Calibre importer.
-2.  **Implement "Content-to-Epub" Features:** Build the news and fanfiction downloaders.
-3.  **Integrate Media Viewers & Players:** Integrate `epub4j` and build the audio/video players.
-4.  **Build the User Interface:** Build the main library screens and the manual metadata editor.
+*   **Expanded Media Support:** Add full support for movies, music, comics, and podcasts.
+*   **Advanced Metadata:** Implement automatic metadata fetching from online sources (e.g., TMDB, MusicBrainz) and tools for manual editing.
+*   **In-App Readers/Players:** Integrate media viewers and players (e.g., `epubj4`, `ExoPlayer`) for a seamless experience.
+*   **Content Creation:** Features to download and format content from external sources (e.g., news, fanfiction) into epub files.
 
-### Phase 4: Testing and Polish
-*   Perform end-to-end testing, paying special attention to the performance of `epub4j` and the accuracy of the data correction engine.
-*   Refine the UI and user experience.
+For more detailed planning, please refer to the project's issue tracker.
 
 ---
 
-## 5. Feature Roadmap (Inspired by Moon+ Reader)
+## 5. Documentation & Planning
 
-The following features, inspired by the best-in-class Moon+ Reader Pro, should be considered as a long-term guide for implementation to ensure a competitive and full-featured application.
-
-### Reading & Customization
-- **Deep Visual Controls:** Line space, font scale, bold, italic, shadow, alpha colors, fading edge.
-- **Theming:** Multiple embedded themes, including a Day/Night mode switcher.
-- **Advanced Paging:** Support for touch screen, volume keys, and other hardware keys. Highly customizable gestures and key mappings.
-- **Auto-Scroll:** Multiple modes (rolling blind, by pixel, by line, by page) with real-time speed control.
-- **Ergonomics:** Brightness control via screen edge gestures; "Keep your eyes health" options for long reading sessions.
-- **Page Effects:** Realistic page-turning animations.
-- **Layout:** Justified text alignment, hyphenation mode, and dual-page mode for landscape.
-- **EPUB3 Support:** Handle multimedia content (video and audio) embedded in ePub files.
-
-### Library & Data Management
-- **Bookshelf Design:** Advanced library organization with Favorites, Downloads, Authors, and Tags. Support for custom book covers.
-- **Cloud Sync:** Backup and restore settings, reading positions, highlights, and notes to cloud services (e.g., Dropbox, WebDav).
-- **Widgets:** Home screen widgets for displaying a "shelf" of favorite books.
-
-### In-Reader Tools
-- **Annotations:** Support for highlighting and annotating text.
-- **Dictionary:** Offline and online dictionary integration.
-- **Translation:** Integration with translation services.
-- **Sharing:** Ability to share snippets, highlights, and notes.
-- **Reading Ruler:** A tool to help focus reading on a specific line.
-
-### Pro-Tier Features
-- **Text-to-Speech (TTS):** "Shake to speak" or other easy-access TTS controls.
-- **Advanced PDF:** High-performance PDF rendering with annotation support.
-- **Security:** Option for password protection at startup.
-- **Shortcuts:** "Book to home screen" shortcut creation.
+*   **[BUGS_AND_ISSUES.md](BUGS_AND_ISSUES.md)**: A summary of identified bugs, architectural concerns, and potential improvements.
+*   **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)**: For development status and issue tracking.
+*   **[docs/README.md](docs/README.md)**: Complete documentation index.
+*   **[issues/](issues/)**: Structured development issues.
 
 ---
 
-## 📋 Project Documentation & Planning
+## 6. Current Build Status
 
-### 🗺️ Development Roadmap
-See **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)** for complete development status, organized issue tracking, and project timeline.
-
-### 📚 Documentation
-- **[docs/README.md](docs/README.md)** - Complete documentation index
-- **[issues/](issues/)** - Structured development issues (32 total)
-- **Core Documentation:** [INSTALL.md](INSTALL.md), [RELEASE.md](RELEASE.md), [RESOURCES.md](RESOURCES.md)
-
-### ⚠️ Current Status
-**BUILD STATUS**: 🚨 **Failing** - Critical dependency and compilation issues need resolution before development can continue.  
-See [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md#-known-issues) for details.
+**BUILD STATUS**: 🚨 **Failing** - As noted in the architectural concerns, the project has critical dependency and compilation issues that need resolution before development can continue. See [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md#-known-issues) for details.
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Kaleaon/CleverFerret?utm_source=oss&utm_medium=github&utm_campaign=Kaleaon%2FCleverFerret&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
