@@ -431,3 +431,4 @@ object AppModule {
         )
     }
 }
+}

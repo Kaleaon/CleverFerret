@@ -62,7 +62,7 @@ import com.universalmedialibrary.data.local.entity.*
         PlexCollection::class,
         PlexCollectionItem::class,
         PlexTag::class,
-        PlexMediaTag::class
+        PlexMediaTag::class,
 
         // Unified playback queue entities
         PlaybackQueue::class,

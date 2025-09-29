@@ -106,6 +106,9 @@
     <string name="audio_shuffle">Shuffle</string>
     <string name="audio_repeat">Repeat</string>
     
+    <!-- Widget descriptions -->
+    <string name="media_playback_widget_description">Controls media playback</string>
+    
     <!-- Error messages -->
     <string name="error_generic">An error occurred</string>
     <string name="error_network">Network error</string>
