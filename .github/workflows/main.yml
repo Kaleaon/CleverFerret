@@ -182,7 +182,7 @@ jobs:
     
     steps:
     - name: Download release APK
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: release-apk
         path: ./apk/
@@ -246,7 +246,7 @@ jobs:
     
     steps:
     - name: Download all APKs
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         path: apks
         
