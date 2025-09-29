@@ -3,9 +3,9 @@ package com.universalmedialibrary.services
 import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.Bookmark as BookmarkEntity
-import com.universalmedialibrary.data.local.model.ReadingProgress as ProgressEntity
-import com.universalmedialibrary.data.local.model.ReadingSession as SessionEntity
+import com.universalmedialibrary.data.local.entity.Bookmark as BookmarkEntity
+import com.universalmedialibrary.data.local.entity.ReadingProgress as ProgressEntity
+import com.universalmedialibrary.data.local.entity.ReadingSession as SessionEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

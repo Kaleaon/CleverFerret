@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.universalmedialibrary.data.local.model.MediaItem
+import com.universalmedialibrary.data.local.entity.MediaItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao

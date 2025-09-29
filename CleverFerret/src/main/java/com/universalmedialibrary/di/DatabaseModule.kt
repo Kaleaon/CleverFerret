@@ -3,8 +3,7 @@ package com.universalmedialibrary.di
 import android.content.Context
 import androidx.room.Room
 import com.universalmedialibrary.data.local.AppDatabase
-import com.universalmedialibrary.data.local.dao.LibraryDao
-import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,15 +18,10 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            AppDatabase.DATABASE_NAME
-        )
-         .fallbackToDestructiveMigration() // Temporary fix for development
-         .build()
+        return AppDatabase.getDatabase(context)
     }
 
+    // Core DAOs
     @Provides
     fun provideLibraryDao(database: AppDatabase): LibraryDao {
         return database.libraryDao()
@@ -38,19 +32,18 @@ object DatabaseModule {
         return database.mediaItemDao()
     }
 
-    // Temporarily disabled problematic DAOs
-    // @Provides
-    // fun provideMetadataDao(database: AppDatabase): MetadataDao {
-    //     return database.metadataDao()
-    // }
+    @Provides
+    fun provideMetadataDao(database: AppDatabase): MetadataDao {
+        return database.metadataDao()
+    }
     
-    // @Provides
-    // fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
-    //     return database.bookmarkDao()
-    // }
+    @Provides
+    fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
+        return database.bookmarkDao()
+    }
     
-    // @Provides
-    // fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
-    //     return database.apiKeyDao()
-    // }
+    @Provides
+    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
+        return database.apiKeyDao()
+    }
 }

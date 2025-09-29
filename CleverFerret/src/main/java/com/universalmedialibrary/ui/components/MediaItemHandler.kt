@@ -1,8 +1,8 @@
 package com.universalmedialibrary.ui.components
 
 import androidx.navigation.NavController
-import com.universalmedialibrary.data.local.model.MediaItem
-import com.universalmedialibrary.data.local.model.MediaType
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MediaType
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 

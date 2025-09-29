@@ -17,7 +17,7 @@ import androidx.core.app.NotificationCompat
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.*
+import com.universalmedialibrary.data.local.entity.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.File
