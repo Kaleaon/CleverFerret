@@ -23,6 +23,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
 import com.universalmedialibrary.ui.theme.PlexTheme
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 /**
  * Enhanced Video player screen using ExoPlayer with Plex-inspired UI
@@ -418,9 +419,9 @@ private fun formatTime(milliseconds: Long): String {
     val secs = seconds % 60
     
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, secs)
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs)
     } else {
-        String.format("%d:%02d", minutes, secs)
+        String.format(Locale.getDefault(), "%d:%02d", minutes, secs)
     }
 }
 

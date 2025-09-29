@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.data.local.entity.QueueItem
 import com.universalmedialibrary.services.playback.UnifiedPlaybackState
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import java.util.Locale
 
 /**
  * Unified Now Playing Screen
@@ -222,7 +223,7 @@ private fun CurrentPlayingItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Speed: ${String.format("%.1fx", playbackState.playbackSpeed)}",
+                        text = "Speed: ${String.format(Locale.getDefault(), "%.1fx", playbackState.playbackSpeed)}",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     
@@ -371,5 +372,5 @@ private fun formatTime(timeMs: Long): String {
     val totalSeconds = timeMs / 1000
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
-    return String.format("%d:%02d", minutes, seconds)
+    return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
 }
