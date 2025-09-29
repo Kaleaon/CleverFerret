@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -194,7 +195,7 @@ class NowPlayingViewModel @Inject constructor(
         val totalSeconds = timeMs / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
-        return String.format("%d:%02d", minutes, seconds)
+        return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
     
     override fun onCleared() {

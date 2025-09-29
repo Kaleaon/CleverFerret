@@ -110,7 +110,7 @@ fun EnhancedBookCard(
                 // Progress bar (placeholder - would need reading progress data)
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressIndicator(
-                    progress = 0.3f, // Placeholder progress
+                    progress = { 0.3f }, // Placeholder progress
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
@@ -235,7 +235,7 @@ fun ListBookItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     LinearProgressIndicator(
-                        progress = 0.3f, // Placeholder
+                        progress = { 0.3f }, // Placeholder
                         modifier = Modifier
                             .weight(1f)
                             .height(3.dp)

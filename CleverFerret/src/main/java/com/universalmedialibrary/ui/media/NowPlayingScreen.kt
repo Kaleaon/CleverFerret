@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import java.util.Locale
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.universalmedialibrary.R
@@ -157,7 +158,7 @@ private fun NowPlayingContent(
         // Progress indicator (basic for now)
         if (state.duration > 0) {
             LinearProgressIndicator(
-                progress = (state.position.toFloat() / state.duration.toFloat()).coerceIn(0f, 1f),
+                progress = { (state.position.toFloat() / state.duration.toFloat()).coerceIn(0f, 1f) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp)
@@ -263,9 +264,9 @@ private fun formatTime(milliseconds: Long): String {
     val hours = (milliseconds / (1000 * 60 * 60))
     
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format("%d:%02d", minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
 }
 

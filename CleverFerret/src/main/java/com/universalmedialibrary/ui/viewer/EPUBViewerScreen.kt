@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -164,7 +165,7 @@ fun EPUBViewerScreen(
                         Icon(Icons.Default.BookmarkAdd, contentDescription = "Add Bookmark")
                     }
                     IconButton(onClick = { viewModel.toggleTOC() }) {
-                        Icon(Icons.Default.List, contentDescription = "Table of Contents")
+                        Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Table of Contents")
                     }
                     IconButton(onClick = { viewModel.toggleSettings() }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")

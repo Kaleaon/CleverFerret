@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -164,7 +165,7 @@ fun CreateLibraryDialog(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Icon(Icons.Default.List, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(if (selectedPath.isEmpty()) "Choose Folder" else "Change Folder")
                         }
@@ -252,13 +253,13 @@ private data class MediaTypeInfo(
 
 private fun getMediaTypes(): List<MediaTypeInfo> {
     return listOf(
-        MediaTypeInfo("BOOK", "Books", Icons.Default.List),
+        MediaTypeInfo("BOOK", "Books", Icons.AutoMirrored.Filled.List),
         MediaTypeInfo("MOVIE", "Movies", Icons.Default.PlayArrow),
         MediaTypeInfo("MUSIC_TRACK", "Music", Icons.Default.PlayArrow),
         MediaTypeInfo("TV_SHOW", "TV Shows", Icons.Default.PlayArrow),
         MediaTypeInfo("PODCAST_EPISODE", "Podcasts", Icons.Default.PlayArrow),
-        MediaTypeInfo("DOCUMENT", "Documents", Icons.Default.List),
-        MediaTypeInfo("COMIC", "Comics", Icons.Default.List),
+        MediaTypeInfo("DOCUMENT", "Documents", Icons.AutoMirrored.Filled.List),
+        MediaTypeInfo("COMIC", "Comics", Icons.AutoMirrored.Filled.List),
         MediaTypeInfo("AUDIOBOOK", "Audiobooks", Icons.Default.PlayArrow)
     )
 }
