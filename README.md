@@ -126,8 +126,10 @@ For more detailed planning, please refer to the project's issue tracker.
 
 ## 5. Documentation & Planning
 
+*   **[CODE_QUALITY.md](CODE_QUALITY.md)**: Code formatting, linting, and quality standards.
 *   **[BUGS_AND_ISSUES.md](BUGS_AND_ISSUES.md)**: A summary of identified bugs, architectural concerns, and potential improvements.
 *   **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)**: For development status and issue tracking.
+*   **[CONTRIBUTING.md](CONTRIBUTING.md)**: Contribution guidelines and developer setup.
 *   **[docs/README.md](docs/README.md)**: Complete documentation index.
 *   **[issues/](issues/)**: Structured development issues.
 
