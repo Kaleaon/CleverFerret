@@ -21,7 +21,7 @@ import javax.inject.Singleton
 class NewsToEPUBConverter @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     data class NewsSource(
         val name: String,
         val url: String,
@@ -30,7 +30,7 @@ class NewsToEPUBConverter @Inject constructor(
         val authorSelector: String? = null,
         val dateSelector: String? = null
     )
-    
+
     data class Article(
         val title: String,
         val content: String,
@@ -38,7 +38,7 @@ class NewsToEPUBConverter @Inject constructor(
         val publishDate: String? = null,
         val url: String
     )
-    
+
     // Predefined news sources with their selectors
     private val newsSources = listOf(
         NewsSource(
@@ -66,7 +66,7 @@ class NewsToEPUBConverter @Inject constructor(
             dateSelector = "time.article__byline__date"
         )
     )
-    
+
     /**
      * Fetch and convert news articles to EPUB
      */
@@ -80,19 +80,19 @@ class NewsToEPUBConverter @Inject constructor(
             if (articles.isEmpty()) {
                 return@withContext null
             }
-            
+
             val fileName = outputFileName ?: "news_${System.currentTimeMillis()}.epub"
             val outputFile = File(context.filesDir, fileName)
-            
+
             createEPUB(articles, outputFile)
-            
+
             outputFile
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
-    
+
     /**
      * Fetch articles from a news source
      */
@@ -101,19 +101,19 @@ class NewsToEPUBConverter @Inject constructor(
         limit: Int
     ): List<Article> = withContext(Dispatchers.IO) {
         val articles = mutableListOf<Article>()
-        
+
         try {
             val doc = Jsoup.connect(sourceUrl)
                 .userAgent("Mozilla/5.0")
                 .timeout(10000)
                 .get()
-            
+
             // Find article links
             val articleLinks = doc.select("a[href*='/news/'], a[href*='/article/']")
                 .map { it.attr("abs:href") }
                 .distinct()
                 .take(limit)
-            
+
             // Fetch each article
             articleLinks.forEach { link ->
                 try {
@@ -128,10 +128,10 @@ class NewsToEPUBConverter @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        
+
         articles
     }
-    
+
     /**
      * Fetch a single article
      */
@@ -141,20 +141,20 @@ class NewsToEPUBConverter @Inject constructor(
                 .userAgent("Mozilla/5.0")
                 .timeout(10000)
                 .get()
-            
+
             // Extract title
             val title = doc.select("h1").first()?.text() ?: "Untitled"
-            
+
             // Extract main content
             val contentSelectors = listOf(
-                "article", 
-                "main", 
+                "article",
+                "main",
                 "[role='main']",
                 ".article-content",
                 ".post-content",
                 ".entry-content"
             )
-            
+
             var content = ""
             for (selector in contentSelectors) {
                 val element = doc.select(selector).first()
@@ -165,17 +165,17 @@ class NewsToEPUBConverter @Inject constructor(
                     break
                 }
             }
-            
+
             if (content.isEmpty()) {
                 content = doc.select("p").joinToString("\n\n") { it.text() }
             }
-            
+
             // Extract author
             val author = doc.select("[rel='author'], .author, .byline").first()?.text()
-            
+
             // Extract date
             val date = doc.select("time, .date, .published").first()?.text()
-            
+
             Article(
                 title = title,
                 content = content,
@@ -187,7 +187,7 @@ class NewsToEPUBConverter @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Create EPUB file from articles
      */
@@ -202,64 +202,64 @@ class NewsToEPUBConverter @Inject constructor(
             zip.putNextEntry(mimetypeEntry)
             zip.write("application/epub+zip".toByteArray())
             zip.closeEntry()
-            
+
             // Switch to compressed for other files
             zip.setMethod(ZipEntry.DEFLATED)
-            
+
             // Add META-INF/container.xml
             zip.putNextEntry(ZipEntry("META-INF/container.xml"))
             zip.write(createContainerXml().toByteArray())
             zip.closeEntry()
-            
+
             // Add content.opf
             zip.putNextEntry(ZipEntry("OEBPS/content.opf"))
             zip.write(createContentOPF(articles).toByteArray())
             zip.closeEntry()
-            
+
             // Add toc.ncx
             zip.putNextEntry(ZipEntry("OEBPS/toc.ncx"))
             zip.write(createTOC(articles).toByteArray())
             zip.closeEntry()
-            
+
             // Add cover page
             zip.putNextEntry(ZipEntry("OEBPS/cover.xhtml"))
             zip.write(createCoverPage().toByteArray())
             zip.closeEntry()
-            
+
             // Add each article as a chapter
             articles.forEachIndexed { index, article ->
                 zip.putNextEntry(ZipEntry("OEBPS/chapter${index + 1}.xhtml"))
                 zip.write(createChapterXHTML(article, index + 1).toByteArray())
                 zip.closeEntry()
             }
-            
+
             // Add stylesheet
             zip.putNextEntry(ZipEntry("OEBPS/style.css"))
             zip.write(createStylesheet().toByteArray())
             zip.closeEntry()
         }
     }
-    
+
     private fun createContainerXml(): String = """<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
     <rootfiles>
         <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
     </rootfiles>
 </container>"""
-    
+
     private fun createContentOPF(articles: List<Article>): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val date = dateFormat.format(Date())
-        
+
         val manifest = StringBuilder()
         val spine = StringBuilder()
-        
+
         manifest.append("""<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
         <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
         <item id="style" href="style.css" media-type="text/css"/>""")
-        
+
         spine.append("""<itemref idref="cover"/>""")
-        
+
         articles.forEachIndexed { index, _ ->
             val chapterId = "chapter${index + 1}"
             manifest.append("""
@@ -267,7 +267,7 @@ class NewsToEPUBConverter @Inject constructor(
             spine.append("""
         <itemref idref="$chapterId"/>""")
         }
-        
+
         return """<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uid" version="2.0">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
@@ -286,16 +286,16 @@ class NewsToEPUBConverter @Inject constructor(
     </spine>
 </package>"""
     }
-    
+
     private fun createTOC(articles: List<Article>): String {
         val navPoints = StringBuilder()
-        
+
         navPoints.append("""
         <navPoint id="navpoint-1" playOrder="1">
             <navLabel><text>Cover</text></navLabel>
             <content src="cover.xhtml"/>
         </navPoint>""")
-        
+
         articles.forEachIndexed { index, article ->
             navPoints.append("""
         <navPoint id="navpoint-${index + 2}" playOrder="${index + 2}">
@@ -303,7 +303,7 @@ class NewsToEPUBConverter @Inject constructor(
             <content src="chapter${index + 1}.xhtml"/>
         </navPoint>""")
         }
-        
+
         return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
@@ -321,11 +321,11 @@ class NewsToEPUBConverter @Inject constructor(
     </navMap>
 </ncx>"""
     }
-    
+
     private fun createCoverPage(): String {
         val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.US)
         val date = dateFormat.format(Date())
-        
+
         return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -342,13 +342,13 @@ class NewsToEPUBConverter @Inject constructor(
 </body>
 </html>"""
     }
-    
+
     private fun createChapterXHTML(article: Article, chapterNum: Int): String {
         val content = article.content
             .split("\n")
             .filter { it.isNotBlank() }
             .joinToString("") { "<p>$it</p>" }
-        
+
         return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -368,7 +368,7 @@ class NewsToEPUBConverter @Inject constructor(
 </body>
 </html>"""
     }
-    
+
     private fun createStylesheet(): String = """
 body {
     font-family: Georgia, serif;

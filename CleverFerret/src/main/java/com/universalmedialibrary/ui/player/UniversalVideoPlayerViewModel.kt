@@ -125,7 +125,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
             // Create VLCVideoLayout via reflection
             val layoutClass = Class.forName("org.videolan.libvlc.util.VLCVideoLayout")
             val layout = layoutClass.getConstructor(Context::class.java).newInstance(context)
-            
+
             // Attach views: player.attachViews(layout, null, false, false)
             safeInvoke(vlcPlayer, "attachViews", arrayOf(layoutClass, Any::class.java, Boolean::class.javaPrimitiveType, Boolean::class.javaPrimitiveType), layout, null, false, false)
 
@@ -259,7 +259,7 @@ class UniversalVideoPlayerViewModel @Inject constructor(
                     val currentPosition = player.currentPosition
                     val duration = player.duration.takeIf { it > 0 } ?: 1L
                     val progress = (currentPosition.toFloat() / duration).coerceIn(0f, 1f)
-                    
+
                     _playerState.value = _playerState.value.copy(
                         currentPosition = currentPosition,
                         duration = duration,

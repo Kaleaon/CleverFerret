@@ -11,17 +11,17 @@ import java.util.*
 
 /**
  * Simple EPUB creator for generating valid EPUB files
- * 
+ *
  * This creates minimal but valid EPUB files following the EPUB 3.0 specification
  */
 class SimpleEpubCreator {
-    
+
     data class Chapter(
         val title: String,
         val content: String,
         val id: String = title.replace(Regex("[^a-zA-Z0-9]"), "_").lowercase()
     )
-    
+
     data class EpubMetadata(
         val title: String,
         val author: String,
@@ -31,34 +31,34 @@ class SimpleEpubCreator {
         val date: String = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date()),
         val identifier: String = "urn:uuid:${UUID.randomUUID()}"
     )
-    
+
     fun createEpub(outputFile: File, metadata: EpubMetadata, chapters: List<Chapter>) {
         ZipOutputStream(FileOutputStream(outputFile)).use { zip ->
             // 1. Add mimetype (must be first and uncompressed)
             addMimetype(zip)
-            
+
             // 2. Add META-INF/container.xml
             addContainerXml(zip)
-            
+
             // 3. Add content.opf (package document)
             addContentOpf(zip, metadata, chapters)
-            
+
             // 4. Add toc.ncx (navigation)
             addTocNcx(zip, metadata, chapters)
-            
+
             // 5. Add toc.xhtml (EPUB 3 navigation)
             addTocXhtml(zip, chapters)
-            
+
             // 6. Add CSS stylesheet
             addStylesheet(zip)
-            
+
             // 7. Add chapters
             chapters.forEach { chapter ->
                 addChapter(zip, chapter)
             }
         }
     }
-    
+
     private fun addMimetype(zip: ZipOutputStream) {
         val entry = ZipEntry("mimetype")
         entry.method = ZipEntry.STORED
@@ -68,7 +68,7 @@ class SimpleEpubCreator {
         zip.write("application/epub+zip".toByteArray())
         zip.closeEntry()
     }
-    
+
     private fun addContainerXml(zip: ZipOutputStream) {
         val containerXml = """<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -76,21 +76,21 @@ class SimpleEpubCreator {
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
 </container>"""
-        
+
         zip.putNextEntry(ZipEntry("META-INF/container.xml"))
         zip.write(containerXml.toByteArray())
         zip.closeEntry()
     }
-    
+
     private fun addContentOpf(zip: ZipOutputStream, metadata: EpubMetadata, chapters: List<Chapter>) {
         val manifest = chapters.joinToString("\n    ") { chapter ->
             """<item id="${chapter.id}" href="${chapter.id}.xhtml" media-type="application/xhtml+xml"/>"""
         }
-        
+
         val spine = chapters.joinToString("\n    ") { chapter ->
             """<itemref idref="${chapter.id}"/>"""
         }
-        
+
         val contentOpf = """<?xml version="1.0" encoding="UTF-8"?>
 <package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="uid">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
@@ -117,12 +117,12 @@ class SimpleEpubCreator {
     <reference type="toc" title="Table of Contents" href="nav.xhtml"/>
   </guide>
 </package>"""
-        
+
         zip.putNextEntry(ZipEntry("OEBPS/content.opf"))
         zip.write(contentOpf.toByteArray())
         zip.closeEntry()
     }
-    
+
     private fun addTocNcx(zip: ZipOutputStream, metadata: EpubMetadata, chapters: List<Chapter>) {
         val navPoints = chapters.mapIndexed { index, chapter ->
             """
@@ -133,7 +133,7 @@ class SimpleEpubCreator {
       <content src="${chapter.id}.xhtml"/>
     </navPoint>"""
         }.joinToString("")
-        
+
         val tocNcx = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
 <ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
@@ -149,17 +149,17 @@ class SimpleEpubCreator {
   <navMap>$navPoints
   </navMap>
 </ncx>"""
-        
+
         zip.putNextEntry(ZipEntry("OEBPS/toc.ncx"))
         zip.write(tocNcx.toByteArray())
         zip.closeEntry()
     }
-    
+
     private fun addTocXhtml(zip: ZipOutputStream, chapters: List<Chapter>) {
         val tocItems = chapters.joinToString("\n        ") { chapter ->
             """<li><a href="${chapter.id}.xhtml">${escapeXml(chapter.title)}</a></li>"""
         }
-        
+
         val tocXhtml = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -177,12 +177,12 @@ class SimpleEpubCreator {
   </nav>
 </body>
 </html>"""
-        
+
         zip.putNextEntry(ZipEntry("OEBPS/nav.xhtml"))
         zip.write(tocXhtml.toByteArray())
         zip.closeEntry()
     }
-    
+
     private fun addStylesheet(zip: ZipOutputStream) {
         val css = """body {
   font-family: serif;
@@ -241,12 +241,12 @@ hr {
   padding-bottom: 0.5em;
   border-bottom: 2px solid #333;
 }"""
-        
+
         zip.putNextEntry(ZipEntry("OEBPS/stylesheet.css"))
         zip.write(css.toByteArray())
         zip.closeEntry()
     }
-    
+
     private fun addChapter(zip: ZipOutputStream, chapter: Chapter) {
         val chapterXhtml = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
@@ -261,12 +261,12 @@ hr {
   ${chapter.content}
 </body>
 </html>"""
-        
+
         zip.putNextEntry(ZipEntry("OEBPS/${chapter.id}.xhtml"))
         zip.write(chapterXhtml.toByteArray())
         zip.closeEntry()
     }
-    
+
     private fun escapeXml(text: String): String {
         return text
             .replace("&", "&amp;")

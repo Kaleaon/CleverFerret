@@ -32,11 +32,11 @@ fun ImportCalibreDialog(
     var selectedPath by remember { mutableStateOf("") }
     var libraryName by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    
+
     val context = LocalContext.current
-    
+
     if (!open) return
-    
+
     val folderPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -45,12 +45,12 @@ fun ImportCalibreDialog(
                 val path = uri.path ?: uri.toString()
                 selectedPath = path
                 // Auto-generate library name from path
-                libraryName = path.split("/").lastOrNull()?.takeIf { it.isNotBlank() } 
+                libraryName = path.split("/").lastOrNull()?.takeIf { it.isNotBlank() }
                     ?: "Imported Calibre Library"
             }
         }
     }
-    
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -71,7 +71,7 @@ fun ImportCalibreDialog(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 // Instructions
                 Card(
                     colors = CardDefaults.cardColors(
@@ -97,9 +97,9 @@ fun ImportCalibreDialog(
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         Text(
                             text = "Select your Calibre library folder. This should contain the 'metadata.db' file and your book files.",
                             style = MaterialTheme.typography.bodyMedium,
@@ -107,7 +107,7 @@ fun ImportCalibreDialog(
                         )
                     }
                 }
-                
+
                 // Library Name Input
                 OutlinedTextField(
                     value = libraryName,
@@ -119,7 +119,7 @@ fun ImportCalibreDialog(
                         Icon(Icons.Default.Edit, contentDescription = null)
                     }
                 )
-                
+
                 // Folder Selection
                 Card(
                     colors = CardDefaults.cardColors(
@@ -134,9 +134,9 @@ fun ImportCalibreDialog(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         if (selectedPath.isNotEmpty()) {
                             Text(
                                 text = "Selected: ${selectedPath.takeLast(60)}",
@@ -145,7 +145,7 @@ fun ImportCalibreDialog(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                         }
-                        
+
                         Button(
                             onClick = {
                                 try {
@@ -174,7 +174,7 @@ fun ImportCalibreDialog(
                         }
                     }
                 }
-                
+
                 // Import Options
                 Card(
                     colors = CardDefaults.cardColors(
@@ -190,18 +190,18 @@ fun ImportCalibreDialog(
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
-                        
+
                         Spacer(modifier = Modifier.height(12.dp))
-                        
+
                         val importFeatures = listOf(
                             "📚 Import all book metadata",
-                            "🏷️ Preserve tags and categories", 
+                            "🏷️ Preserve tags and categories",
                             "⭐ Import ratings and reviews",
                             "👥 Import author information",
                             "📖 Import reading progress",
                             "🎨 Import cover images"
                         )
-                        
+
                         importFeatures.forEach { feature ->
                             Text(
                                 text = feature,
@@ -212,7 +212,7 @@ fun ImportCalibreDialog(
                         }
                     }
                 }
-                
+
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -225,7 +225,7 @@ fun ImportCalibreDialog(
                     ) {
                         Text("Cancel")
                     }
-                    
+
                     Button(
                         onClick = {
                             if (selectedPath.isNotBlank() && libraryName.isNotBlank()) {
@@ -251,7 +251,7 @@ fun ImportCalibreDialog(
                         Text(if (isLoading) "Importing..." else "Import Library")
                     }
                 }
-                
+
                 if (selectedPath.isNotEmpty()) {
                     Text(
                         text = "Note: Import may take several minutes depending on library size.",

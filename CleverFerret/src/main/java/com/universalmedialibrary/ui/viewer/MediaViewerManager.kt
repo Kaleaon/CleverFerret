@@ -13,31 +13,31 @@ import javax.inject.Singleton
  */
 @Singleton
 class MediaViewerManager @Inject constructor() {
-    
+
     private val tika = Tika()
-    
+
     enum class MediaType {
         VIDEO,
-        AUDIO, 
+        AUDIO,
         EBOOK,
         DOCUMENT,
         COMIC,
         IMAGE,
         UNSUPPORTED
     }
-    
+
     enum class VideoFormat {
         MP4, MKV, AVI, MOV, WEBM, FLV, WMV, M4V, _3GP, TS, M2TS, UNSUPPORTED
     }
-    
+
     enum class DocumentFormat {
         PDF, EPUB, MOBI, AZW, TXT, HTML, RTF, DOC, DOCX, UNSUPPORTED
     }
-    
+
     enum class ComicFormat {
         CBZ, CBR, PDF_COMIC, IMAGE_FOLDER, UNSUPPORTED
     }
-    
+
     data class MediaInfo(
         val type: MediaType,
         val mimeType: String,
@@ -47,11 +47,11 @@ class MediaViewerManager @Inject constructor() {
         val comicFormat: ComicFormat? = null,
         val supportsAdvancedFeatures: Boolean = false
     )
-    
+
     fun analyzeMedia(context: Context, uri: Uri): MediaInfo {
         val mimeType = getMimeType(context, uri)
         val extension = getFileExtension(uri)
-        
+
         return when {
             isVideo(mimeType, extension) -> {
                 MediaInfo(
@@ -111,52 +111,52 @@ class MediaViewerManager @Inject constructor() {
             }
         }
     }
-    
+
     private fun getMimeType(context: Context, uri: Uri): String {
-        return context.contentResolver.getType(uri) 
+        return context.contentResolver.getType(uri)
             ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(getFileExtension(uri))
             ?: "application/octet-stream"
     }
-    
+
     private fun getFileExtension(uri: Uri): String {
         return uri.toString().substringAfterLast('.', "").lowercase()
     }
-    
+
     private fun isVideo(mimeType: String, extension: String): Boolean {
         return mimeType.startsWith("video/") || extension in listOf(
             "mp4", "mkv", "avi", "mov", "webm", "flv", "wmv", "m4v", "3gp", "ts", "m2ts"
         )
     }
-    
+
     private fun isAudio(mimeType: String, extension: String): Boolean {
         return mimeType.startsWith("audio/") || extension in listOf(
             "mp3", "aac", "ogg", "flac", "wav", "m4a", "wma", "opus"
         )
     }
-    
+
     private fun isEbook(mimeType: String, extension: String): Boolean {
         return extension in listOf("epub", "mobi", "azw", "azw3", "fb2") ||
                mimeType in listOf("application/epub+zip", "application/x-mobipocket-ebook")
     }
-    
+
     private fun isDocument(mimeType: String, extension: String): Boolean {
         return extension in listOf("pdf", "txt", "html", "htm", "rtf", "doc", "docx") ||
                mimeType.startsWith("text/") ||
-               mimeType in listOf("application/pdf", "application/msword", 
+               mimeType in listOf("application/pdf", "application/msword",
                                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     }
-    
+
     private fun isComic(mimeType: String, extension: String): Boolean {
         return extension in listOf("cbz", "cbr", "cb7") ||
                mimeType in listOf("application/vnd.comicbook+zip", "application/vnd.comicbook-rar")
     }
-    
+
     private fun isImage(mimeType: String, extension: String): Boolean {
         return mimeType.startsWith("image/") || extension in listOf(
             "jpg", "jpeg", "png", "gif", "bmp", "webp", "tiff", "svg"
         )
     }
-    
+
     private fun getVideoFormat(extension: String): VideoFormat {
         return when (extension) {
             "mp4" -> VideoFormat.MP4
@@ -173,7 +173,7 @@ class MediaViewerManager @Inject constructor() {
             else -> VideoFormat.UNSUPPORTED
         }
     }
-    
+
     private fun getDocumentFormat(extension: String): DocumentFormat {
         return when (extension) {
             "pdf" -> DocumentFormat.PDF
@@ -188,7 +188,7 @@ class MediaViewerManager @Inject constructor() {
             else -> DocumentFormat.UNSUPPORTED
         }
     }
-    
+
     private fun getComicFormat(extension: String): ComicFormat {
         return when (extension) {
             "cbz" -> ComicFormat.CBZ
@@ -197,11 +197,11 @@ class MediaViewerManager @Inject constructor() {
             else -> ComicFormat.UNSUPPORTED
         }
     }
-    
+
     private fun supportsAdvancedVideoFeatures(extension: String): Boolean {
         return extension in listOf("mp4", "mkv", "webm", "mov", "m4v")
     }
-    
+
     private fun supportsAdvancedDocumentFeatures(extension: String): Boolean {
         return extension in listOf("pdf", "epub")
     }

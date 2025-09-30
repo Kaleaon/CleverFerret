@@ -37,11 +37,11 @@ fun SearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
-    
+
     LaunchedEffect(mediaId) {
         viewModel.setMediaId(mediaId)
     }
-    
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -61,7 +61,7 @@ fun SearchScreen(
                 }
             }
         )
-        
+
         // Search Input
         OutlinedTextField(
             value = uiState.query,
@@ -91,7 +91,7 @@ fun SearchScreen(
                 .fillMaxWidth()
                 .padding(16.dp)
         )
-        
+
         // Search Options
         Row(
             modifier = Modifier
@@ -115,7 +115,7 @@ fun SearchScreen(
                 label = { Text("Whole Words") }
             )
         }
-        
+
         when {
             uiState.isSearching -> {
                 Box(
@@ -171,7 +171,7 @@ private fun SearchResults(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-        
+
         items(results) { result ->
             SearchResultItem(
                 result = result,
@@ -203,9 +203,9 @@ private fun SearchResultItem(
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             // Matched text with highlighting
             Text(
                 text = result.matchedText,
@@ -236,7 +236,7 @@ private fun SearchHistory(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-        
+
         items(history) { query ->
             Row(
                 modifier = Modifier
@@ -251,15 +251,15 @@ private fun SearchHistory(
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 Text(
                     text = query,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 IconButton(
                     onClick = { onDeleteHistoryItem(query) }
                 ) {
@@ -292,17 +292,17 @@ private fun NoResultsMessage(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "No results found for \"$query\"",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Try different keywords or check spelling",
                 style = MaterialTheme.typography.bodyMedium,

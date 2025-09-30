@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 /**
  * Entity representing a media library in the Universal Media Library system
- * 
+ *
  * Each library represents a collection of media items of a specific type
  * (books, movies, music, etc.) stored in a particular file system location.
  */
@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
 data class Library(
     @PrimaryKey(autoGenerate = true)
     val libraryId: Long = 0,
-    
+
     val name: String,
     val type: String, // BOOK, MOVIE, TV_SHOW, MUSIC, COMIC, PODCAST, etc.
     val path: String,

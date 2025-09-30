@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Placeholder Book Cover Drawable
-  ~ 
+  ~
   ~ A vector drawable that serves as the default placeholder for book covers
   ~ when actual cover images are not available or still loading.
-  ~ 
+  ~
   ~ Design Considerations:
   ~ - Material Design 3 compliant colors
   ~ - Accessible contrast ratios
@@ -16,17 +16,17 @@
     android:height="180dp"
     android:viewportWidth="120"
     android:viewportHeight="180">
-    
+
     <!-- Background rectangle representing book cover -->
     <path
         android:fillColor="#FF6B73"
         android:pathData="M10,10 L110,10 L110,170 L10,170 Z" />
-    
+
     <!-- Book spine highlight -->
     <path
         android:fillColor="#FF8E95"
         android:pathData="M10,10 L20,10 L20,170 L10,170 Z" />
-    
+
     <!-- Book icon in center -->
     <group
         android:translateX="60"
@@ -40,10 +40,10 @@
             android:strokeWidth="1"
             android:strokeColor="#FF6B73" />
     </group>
-    
+
     <!-- Corner fold effect -->
     <path
         android:fillColor="#FF4A54"
         android:pathData="M95,10 L110,10 L110,25 Z" />
-        
+
 </vector>

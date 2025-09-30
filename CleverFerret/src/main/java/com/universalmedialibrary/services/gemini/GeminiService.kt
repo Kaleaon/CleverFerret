@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 /**
  * Gemini AI Service for OCR, book identification, and automated debugging
- * 
+ *
  * This service provides:
  * - Visual OCR of book pages (images) to extract text
  * - Book metadata identification from covers and content
@@ -28,9 +28,9 @@ class GeminiService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private var generativeModel: GenerativeModel? = null
-    
+
     /**
      * Check if Gemini service is configured with a valid API key
      */
@@ -38,11 +38,11 @@ class GeminiService @Inject constructor(
         if (!FeatureFlags.ENABLE_GEMINI) {
             return@withContext false
         }
-        
+
         val apiKey = apiKeyRepository.getGeminiApiKey()
         return@withContext !apiKey.isNullOrBlank() && generativeModel != null
     }
-    
+
     /**
      * Initialize the Gemini service with API key
      */
@@ -50,13 +50,13 @@ class GeminiService @Inject constructor(
         if (!FeatureFlags.ENABLE_GEMINI) {
             return@withContext false
         }
-        
+
         try {
             val apiKey = apiKeyRepository.getGeminiApiKey()
             if (apiKey.isNullOrBlank()) {
                 return@withContext false
             }
-            
+
             generativeModel = GenerativeModel(
                 modelName = "gemini-2.5-flash",
                 apiKey = apiKey
@@ -66,7 +66,7 @@ class GeminiService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Identify book metadata from cover images
      */
@@ -77,7 +77,7 @@ class GeminiService @Inject constructor(
                 error = "Gemini integration is disabled"
             )
         }
-        
+
         val model = generativeModel
         if (model == null) {
             return@withContext BookIdentificationResult(
@@ -85,7 +85,7 @@ class GeminiService @Inject constructor(
                 error = "Gemini service not initialized"
             )
         }
-        
+
         try {
             val prompt = """
                 Analyze these book cover/page images and extract the following information in JSON format:
@@ -99,23 +99,23 @@ class GeminiService @Inject constructor(
                     "language": "detected language code (e.g., 'en', 'es')",
                     "confidence": 0.95
                 }
-                
+
                 If you can't identify the book with high confidence, set confidence to a value between 0.0 and 1.0.
                 Extract only what is clearly visible or identifiable from the images.
             """.trimIndent()
-            
+
             val content = content {
                 text(prompt)
                 images.forEach { bitmap ->
                     image(bitmap)
                 }
             }
-            
+
             val response = model.generateContent(content)
             val responseText = response.text ?: ""
-            
+
             parseBookIdentificationResponse(responseText)
-            
+
         } catch (e: Exception) {
             BookIdentificationResult(
                 success = false,
@@ -123,7 +123,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Extract text from book page images using OCR
      */
@@ -134,7 +134,7 @@ class GeminiService @Inject constructor(
                 error = "Gemini integration is disabled"
             )
         }
-        
+
         val model = generativeModel
         if (model == null) {
             return@withContext TextExtractionResult(
@@ -142,31 +142,31 @@ class GeminiService @Inject constructor(
                 error = "Gemini service not initialized"
             )
         }
-        
+
         try {
             val prompt = """
-                Extract all readable text from these book page images. 
+                Extract all readable text from these book page images.
                 Preserve the original formatting, paragraph breaks, and structure as much as possible.
                 Return only the extracted text without any additional commentary.
                 If there are multiple pages, clearly separate them with "--- PAGE BREAK ---".
             """.trimIndent()
-            
+
             val content = content {
                 text(prompt)
                 images.forEach { bitmap ->
                     image(bitmap)
                 }
             }
-            
+
             val response = model.generateContent(content)
             val extractedText = response.text ?: ""
-            
+
             TextExtractionResult(
                 success = true,
                 extractedText = extractedText.trim(),
                 pageCount = images.size
             )
-            
+
         } catch (e: Exception) {
             TextExtractionResult(
                 success = false,
@@ -174,7 +174,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Enhance book metadata with additional information
      */
@@ -189,7 +189,7 @@ class GeminiService @Inject constructor(
                 error = "AI metadata enhancement is disabled"
             )
         }
-        
+
         val model = generativeModel
         if (model == null) {
             return@withContext BookEnhancementResult(
@@ -197,20 +197,20 @@ class GeminiService @Inject constructor(
                 error = "Gemini service not initialized"
             )
         }
-        
+
         try {
             val textInfo = if (existingText?.isNotBlank() == true) {
                 "Here is some text from the book:\n${existingText.take(1000)}..."
             } else {
                 ""
             }
-            
+
             val prompt = """
                 Based on the book title "$title" by "$author", provide enhanced metadata in JSON format:
                 {
                     "genre": "primary genre",
                     "subgenres": ["subgenre1", "subgenre2"],
-                    "publicationYear": "estimated year if known", 
+                    "publicationYear": "estimated year if known",
                     "series": "series name if part of a series",
                     "seriesNumber": "number in series if applicable",
                     "description": "comprehensive description",
@@ -219,17 +219,17 @@ class GeminiService @Inject constructor(
                     "language": "language code",
                     "tags": ["tag1", "tag2", "tag3"]
                 }
-                
+
                 $textInfo
-                
+
                 Provide accurate information based on your knowledge. If uncertain about any field, use null or leave it empty.
             """.trimIndent()
-            
+
             val response = model.generateContent(prompt)
             val responseText = response.text ?: ""
-            
+
             parseBookEnhancementResponse(responseText)
-            
+
         } catch (e: Exception) {
             BookEnhancementResult(
                 success = false,
@@ -237,12 +237,12 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Check if the service is properly initialized
      */
     fun isInitialized(): Boolean = generativeModel != null && FeatureFlags.ENABLE_GEMINI
-    
+
     /**
      * Analyze application errors and suggest fixes
      */
@@ -257,7 +257,7 @@ class GeminiService @Inject constructor(
                 error = "Gemini integration is disabled"
             )
         }
-        
+
         val model = generativeModel
         if (model == null) {
             return@withContext ErrorAnalysisResult(
@@ -265,15 +265,15 @@ class GeminiService @Inject constructor(
                 error = "Gemini service not initialized"
             )
         }
-        
+
         try {
             val prompt = """
                 Analyze this Android/Kotlin application error and provide debugging insights in JSON format:
-                
+
                 Error Message: $errorMessage
                 Stack Trace: $stackTrace
                 Context: $contextInfo
-                
+
                 Please provide your analysis in this JSON format:
                 {
                     "errorType": "classification of error (e.g., NullPointerException, NetworkError, etc.)",
@@ -287,15 +287,15 @@ class GeminiService @Inject constructor(
                     "debuggingSteps": ["step1", "step2", "step3"],
                     "affectedComponents": ["component1", "component2"]
                 }
-                
+
                 Focus on practical, actionable solutions for Android/Kotlin development.
             """.trimIndent()
-            
+
             val response = model.generateContent(prompt)
             val responseText = response.text ?: ""
-            
+
             parseErrorAnalysisResponse(responseText)
-            
+
         } catch (e: Exception) {
             ErrorAnalysisResult(
                 success = false,
@@ -303,7 +303,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Generate automated issue report for GitHub
      */
@@ -320,7 +320,7 @@ class GeminiService @Inject constructor(
                 error = "Gemini integration is disabled"
             )
         }
-        
+
         val model = generativeModel
         if (model == null) {
             return@withContext IssueReportResult(
@@ -328,17 +328,17 @@ class GeminiService @Inject constructor(
                 error = "Gemini service not initialized"
             )
         }
-        
+
         try {
             val prompt = """
                 Create a comprehensive GitHub issue report for CleverFerret Universal Media Library based on this information:
-                
+
                 Title: $title
                 Description: $description
                 Error Logs: $errorLogs
                 Device Info: $deviceInfo
                 Steps to Reproduce: $stepsToReproduce
-                
+
                 Generate a professional GitHub issue in markdown format with these sections:
                 - **Summary**: Brief description of the issue
                 - **Expected Behavior**: What should happen
@@ -349,20 +349,20 @@ class GeminiService @Inject constructor(
                 - **Possible Causes**: Technical analysis
                 - **Suggested Labels**: Appropriate GitHub labels
                 - **Priority**: Assessment of issue priority
-                
+
                 Make it professional, clear, and actionable for developers.
             """.trimIndent()
-            
+
             val response = model.generateContent(prompt)
             val issueReport = response.text ?: ""
-            
+
             IssueReportResult(
                 success = true,
                 issueReport = issueReport,
                 suggestedLabels = extractSuggestedLabels(issueReport),
                 priority = extractPriority(issueReport)
             )
-            
+
         } catch (e: Exception) {
             IssueReportResult(
                 success = false,
@@ -370,7 +370,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Analyze code quality and suggest improvements
      */
@@ -385,7 +385,7 @@ class GeminiService @Inject constructor(
                 error = "Gemini integration is disabled"
             )
         }
-        
+
         val model = generativeModel
         if (model == null) {
             return@withContext CodeAnalysisResult(
@@ -393,17 +393,17 @@ class GeminiService @Inject constructor(
                 error = "Gemini service not initialized"
             )
         }
-        
+
         try {
             val prompt = """
                 Analyze this $language code snippet and provide quality assessment and suggestions:
-                
+
                 File: $fileName
                 Code:
                 ```$language
                 $codeSnippet
                 ```
-                
+
                 Provide analysis in JSON format:
                 {
                     "qualityScore": 8.5,
@@ -422,15 +422,15 @@ class GeminiService @Inject constructor(
                     "maintainability": "POOR|FAIR|GOOD|EXCELLENT",
                     "bestPractices": ["practice 1", "practice 2"]
                 }
-                
+
                 Focus on Android/Kotlin best practices, performance, and maintainability.
             """.trimIndent()
-            
+
             val response = model.generateContent(prompt)
             val responseText = response.text ?: ""
-            
+
             parseCodeAnalysisResponse(responseText)
-            
+
         } catch (e: Exception) {
             CodeAnalysisResult(
                 success = false,
@@ -438,7 +438,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Automated system health check and diagnostics
      */
@@ -453,7 +453,7 @@ class GeminiService @Inject constructor(
                 error = "Gemini integration is disabled"
             )
         }
-        
+
         val model = generativeModel
         if (model == null) {
             return@withContext DiagnosticsResult(
@@ -461,15 +461,15 @@ class GeminiService @Inject constructor(
                 error = "Gemini service not initialized"
             )
         }
-        
+
         try {
             val prompt = """
                 Perform comprehensive system diagnostics for CleverFerret app:
-                
+
                 System Info: $systemInfo
                 Recent Errors: ${recentErrors.joinToString("\n")}
                 Performance Metrics: $performanceMetrics
-                
+
                 Provide diagnostic results in JSON format:
                 {
                     "overallHealth": "EXCELLENT|GOOD|FAIR|POOR",
@@ -488,15 +488,15 @@ class GeminiService @Inject constructor(
                     "preventiveMeasures": ["measure1", "measure2"],
                     "monitoringPoints": ["metric1", "metric2"]
                 }
-                
+
                 Focus on Android app performance, stability, and user experience.
             """.trimIndent()
-            
+
             val response = model.generateContent(prompt)
             val responseText = response.text ?: ""
-            
+
             parseDiagnosticsResponse(responseText)
-            
+
         } catch (e: Exception) {
             DiagnosticsResult(
                 success = false,
@@ -504,7 +504,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Parse book identification response from Gemini
      */
@@ -513,7 +513,7 @@ class GeminiService @Inject constructor(
             // Simple JSON parsing - in a real implementation, use a proper JSON parser
             val jsonStart = responseText.indexOf("{")
             val jsonEnd = responseText.lastIndexOf("}") + 1
-            
+
             if (jsonStart >= 0 && jsonEnd > jsonStart) {
                 val jsonText = responseText.substring(jsonStart, jsonEnd)
                 // For now, return a basic result with the raw response
@@ -544,7 +544,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Parse book enhancement response from Gemini
      */
@@ -553,7 +553,7 @@ class GeminiService @Inject constructor(
             // Simple parsing - in a real implementation, use proper JSON parsing
             val jsonStart = responseText.indexOf("{")
             val jsonEnd = responseText.lastIndexOf("}") + 1
-            
+
             if (jsonStart >= 0 && jsonEnd > jsonStart) {
                 val jsonText = responseText.substring(jsonStart, jsonEnd)
                 BookEnhancementResult(
@@ -580,7 +580,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Simple JSON value extraction (for demonstration - use proper JSON parser in production)
      */
@@ -589,7 +589,7 @@ class GeminiService @Inject constructor(
         val regex = Regex(pattern)
         return regex.find(json)?.groupValues?.get(1)
     }
-    
+
     /**
      * Parse error analysis response from Gemini
      */
@@ -597,7 +597,7 @@ class GeminiService @Inject constructor(
         return try {
             val jsonStart = responseText.indexOf("{")
             val jsonEnd = responseText.lastIndexOf("}") + 1
-            
+
             if (jsonStart >= 0 && jsonEnd > jsonStart) {
                 val jsonText = responseText.substring(jsonStart, jsonEnd)
                 ErrorAnalysisResult(
@@ -621,7 +621,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Parse code analysis response from Gemini
      */
@@ -629,7 +629,7 @@ class GeminiService @Inject constructor(
         return try {
             val jsonStart = responseText.indexOf("{")
             val jsonEnd = responseText.lastIndexOf("}") + 1
-            
+
             if (jsonStart >= 0 && jsonEnd > jsonStart) {
                 val jsonText = responseText.substring(jsonStart, jsonEnd)
                 CodeAnalysisResult(
@@ -652,7 +652,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Parse diagnostics response from Gemini
      */
@@ -660,7 +660,7 @@ class GeminiService @Inject constructor(
         return try {
             val jsonStart = responseText.indexOf("{")
             val jsonEnd = responseText.lastIndexOf("}") + 1
-            
+
             if (jsonStart >= 0 && jsonEnd > jsonStart) {
                 val jsonText = responseText.substring(jsonStart, jsonEnd)
                 DiagnosticsResult(
@@ -684,7 +684,7 @@ class GeminiService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Extract suggested labels from issue report
      */
@@ -693,7 +693,7 @@ class GeminiService @Inject constructor(
         val match = labelPattern.find(issueReport)
         return match?.groupValues?.get(1)?.split(",")?.map { it.trim() } ?: emptyList()
     }
-    
+
     /**
      * Extract priority from issue report
      */
@@ -702,7 +702,7 @@ class GeminiService @Inject constructor(
         val match = priorityPattern.find(issueReport)
         return match?.groupValues?.get(1)?.trim() ?: "MEDIUM"
     }
-    
+
     /**
      * Extract JSON array values (simple implementation)
      */
@@ -710,8 +710,8 @@ class GeminiService @Inject constructor(
         val pattern = "\"$key\"\\s*:\\s*\\[([^\\]]+)\\]".toRegex()
         val match = pattern.find(json) ?: return emptyList()
         val arrayContent = match.groupValues[1]
-        return arrayContent.split(",").map { 
-            it.trim().removeSurrounding("\"") 
+        return arrayContent.split(",").map {
+            it.trim().removeSurrounding("\"")
         }.filter { it.isNotBlank() }
     }
 }

@@ -40,19 +40,19 @@ fun EPUBReaderScreen(
     // val readerState by viewModel.readerState.collectAsState()
     // val uiSettings by viewModel.uiSettings.collectAsState()
     val scope = rememberCoroutineScope()
-    
+
     var showToc by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-    
+
     // WebView reference for JavaScript interaction
     var webView by remember { mutableStateOf<WebView?>(null) }
-    
+
     LaunchedEffect(bookUri) {
         viewModel.loadEPUB(context, Uri.parse(bookUri))
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -90,7 +90,7 @@ fun EPUBReaderScreen(
                     }
                     IconButton(onClick = { viewModel.toggleBookmark() }) {
                         Icon(
-                            if (readerState.isBookmarked) Icons.Default.Bookmark 
+                            if (readerState.isBookmarked) Icons.Default.Bookmark
                             else Icons.Default.BookmarkBorder,
                             contentDescription = "Bookmark"
                         )
@@ -114,7 +114,7 @@ fun EPUBReaderScreen(
                         ) {
                             Icon(Icons.Default.SkipPrevious, contentDescription = "Previous Chapter")
                         }
-                        
+
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.weight(1f)
@@ -124,7 +124,7 @@ fun EPUBReaderScreen(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             LinearProgressIndicator(
-                                progress = { 
+                                progress = {
                                     if (readerState.totalChapters > 0) {
                                         (readerState.currentChapter + 1).toFloat() / readerState.totalChapters
                                     } else 0f
@@ -134,7 +134,7 @@ fun EPUBReaderScreen(
                                     .padding(horizontal = 16.dp, vertical = 4.dp)
                             )
                         }
-                        
+
                         IconButton(
                             onClick = { viewModel.nextChapter() },
                             enabled = readerState.currentChapter < readerState.totalChapters - 1
@@ -174,7 +174,7 @@ fun EPUBReaderScreen(
                                     allowFileAccessFromFileURLs = false
                                     allowUniversalAccessFromFileURLs = false
                                     allowContentAccess = false
-                                    
+
                                     // Display settings
                                     domStorageEnabled = false
                                     setSupportZoom(true)
@@ -182,7 +182,7 @@ fun EPUBReaderScreen(
                                     displayZoomControls = false
                                     loadWithOverviewMode = true
                                     useWideViewPort = true
-                                    
+
                                     // Additional security
                                     mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
                                     safeBrowsingEnabled = true
@@ -210,7 +210,7 @@ fun EPUBReaderScreen(
             }
         }
     }
-    
+
     // Table of Contents Dialog
     if (showToc) {
         TableOfContentsDialog(
@@ -223,7 +223,7 @@ fun EPUBReaderScreen(
             onDismiss = { showToc = false }
         )
     }
-    
+
     // Settings Dialog
     if (showSettings) {
         ReaderSettingsDialog(
@@ -232,7 +232,7 @@ fun EPUBReaderScreen(
             onDismiss = { showSettings = false }
         )
     }
-    
+
     // Search Dialog
     if (showSearch) {
         SearchDialog(
@@ -312,12 +312,12 @@ private fun TableOfContentsDialog(
             LazyColumn {
                 itemsIndexed(chapters) { index, chapter ->
                     ListItem(
-                        headlineContent = { 
+                        headlineContent = {
                             Text(
                                 chapter.title,
-                                color = if (index == currentChapter) 
-                                    MaterialTheme.colorScheme.primary 
-                                else 
+                                color = if (index == currentChapter)
+                                    MaterialTheme.colorScheme.primary
+                                else
                                     MaterialTheme.colorScheme.onSurface
                             )
                         },
@@ -349,24 +349,24 @@ private fun ReaderSettingsDialog(
                 Text("Font Size")
                 Slider(
                     value = settings.fontSize.toFloat(),
-                    onValueChange = { 
+                    onValueChange = {
                         onSettingsChanged(settings.copy(fontSize = it.toInt()))
                     },
                     valueRange = 12f..32f,
                     steps = 19
                 )
-                
+
                 // Line Height
                 Text("Line Height")
                 Slider(
                     value = settings.lineHeight,
-                    onValueChange = { 
+                    onValueChange = {
                         onSettingsChanged(settings.copy(lineHeight = it))
                     },
                     valueRange = 1.0f..2.0f,
                     steps = 9
                 )
-                
+
                 // Theme
                 Text("Theme")
                 Row {
@@ -445,13 +445,13 @@ private fun buildHTMLContent(
         "sepia" -> "#f4ecd8"
         else -> "#ffffff"
     }
-    
+
     val textColor = when (settings.theme) {
         "dark" -> "#e0e0e0"
         "sepia" -> "#5c4b37"
         else -> "#000000"
     }
-    
+
     return """
         <!DOCTYPE html>
         <html>

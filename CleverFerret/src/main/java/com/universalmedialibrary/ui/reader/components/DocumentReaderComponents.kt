@@ -201,7 +201,7 @@ fun BottomReaderControls(
                     modifier = Modifier.width(40.dp),
                     textAlign = TextAlign.Center
                 )
-                
+
                 Slider(
                     value = currentPage.toFloat(),
                     onValueChange = { onPageSeek(it.toInt()) },
@@ -213,7 +213,7 @@ fun BottomReaderControls(
                         inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                     )
                 )
-                
+
                 Text(
                     text = totalPages.toString(),
                     color = Color.White,
@@ -308,7 +308,7 @@ fun DocumentReaderSettingsSheet(
                         Text("Brightness: ${(settings.brightness * 100).toInt()}%")
                         Slider(
                             value = settings.brightness,
-                            onValueChange = { 
+                            onValueChange = {
                                 onSettingsChanged(settings.copy(brightness = it))
                             },
                             valueRange = 0.1f..1f
@@ -323,7 +323,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Night Mode")
                             Switch(
                                 checked = settings.nightMode,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     val newSettings = if (it) {
                                         settings.copy(
                                             nightMode = true,
@@ -351,7 +351,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Blue Light Filter")
                             Switch(
                                 checked = settings.blueLightFilter,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(blueLightFilter = it))
                                 }
                             )
@@ -366,7 +366,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Keep Screen On")
                             Switch(
                                 checked = settings.keepScreenOn,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(keepScreenOn = it))
                                 }
                             )
@@ -386,7 +386,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Font Size: ${settings.fontSize.toInt()}sp")
                             Slider(
                                 value = settings.fontSize,
-                                onValueChange = { 
+                                onValueChange = {
                                     onSettingsChanged(settings.copy(fontSize = it))
                                 },
                                 valueRange = 10f..36f,
@@ -397,7 +397,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Line Spacing: ${(settings.lineSpacing * 100).toInt()}%")
                             Slider(
                                 value = settings.lineSpacing,
-                                onValueChange = { 
+                                onValueChange = {
                                     onSettingsChanged(settings.copy(lineSpacing = it))
                                 },
                                 valueRange = 1.0f..3.0f,
@@ -411,28 +411,28 @@ fun DocumentReaderSettingsSheet(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 FilterChip(
-                                    onClick = { 
+                                    onClick = {
                                         onSettingsChanged(settings.copy(fontFamily = FontFamily.Default))
                                     },
                                     label = { Text("Default") },
                                     selected = settings.fontFamily == FontFamily.Default
                                 )
                                 FilterChip(
-                                    onClick = { 
+                                    onClick = {
                                         onSettingsChanged(settings.copy(fontFamily = FontFamily.Serif))
                                     },
                                     label = { Text("Serif") },
                                     selected = settings.fontFamily == FontFamily.Serif
                                 )
                                 FilterChip(
-                                    onClick = { 
+                                    onClick = {
                                         onSettingsChanged(settings.copy(fontFamily = FontFamily.SansSerif))
                                     },
                                     label = { Text("Sans Serif") },
                                     selected = settings.fontFamily == FontFamily.SansSerif
                                 )
                                 FilterChip(
-                                    onClick = { 
+                                    onClick = {
                                         onSettingsChanged(settings.copy(fontFamily = FontFamily.Monospace))
                                     },
                                     label = { Text("Mono") },
@@ -447,21 +447,21 @@ fun DocumentReaderSettingsSheet(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 FilterChip(
-                                    onClick = { 
+                                    onClick = {
                                         onSettingsChanged(settings.copy(textAlignment = TextAlignment.LEFT))
                                     },
                                     label = { Text("Left") },
                                     selected = settings.textAlignment == TextAlignment.LEFT
                                 )
                                 FilterChip(
-                                    onClick = { 
+                                    onClick = {
                                         onSettingsChanged(settings.copy(textAlignment = TextAlignment.CENTER))
                                     },
                                     label = { Text("Center") },
                                     selected = settings.textAlignment == TextAlignment.CENTER
                                 )
                                 FilterChip(
-                                    onClick = { 
+                                    onClick = {
                                         onSettingsChanged(settings.copy(textAlignment = TextAlignment.JUSTIFY))
                                     },
                                     label = { Text("Justify") },
@@ -473,7 +473,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Horizontal Margin: ${settings.marginHorizontal.toInt()}dp")
                             Slider(
                                 value = settings.marginHorizontal,
-                                onValueChange = { 
+                                onValueChange = {
                                     onSettingsChanged(settings.copy(marginHorizontal = it))
                                 },
                                 valueRange = 8f..48f,
@@ -497,21 +497,21 @@ fun DocumentReaderSettingsSheet(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             FilterChip(
-                                onClick = { 
+                                onClick = {
                                     onSettingsChanged(settings.copy(readingMode = ReadingMode.SINGLE_PAGE))
                                 },
                                 label = { Text("Single") },
                                 selected = settings.readingMode == ReadingMode.SINGLE_PAGE
                             )
                             FilterChip(
-                                onClick = { 
+                                onClick = {
                                     onSettingsChanged(settings.copy(readingMode = ReadingMode.DOUBLE_PAGE))
                                 },
                                 label = { Text("Double") },
                                 selected = settings.readingMode == ReadingMode.DOUBLE_PAGE
                             )
                             FilterChip(
-                                onClick = { 
+                                onClick = {
                                     onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_SCROLL))
                                 },
                                 label = { Text("Scroll") },
@@ -526,14 +526,14 @@ fun DocumentReaderSettingsSheet(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             FilterChip(
-                                onClick = { 
+                                onClick = {
                                     onSettingsChanged(settings.copy(readingDirection = ReadingDirection.LEFT_TO_RIGHT))
                                 },
                                 label = { Text("L → R") },
                                 selected = settings.readingDirection == ReadingDirection.LEFT_TO_RIGHT
                             )
                             FilterChip(
-                                onClick = { 
+                                onClick = {
                                     onSettingsChanged(settings.copy(readingDirection = ReadingDirection.RIGHT_TO_LEFT))
                                 },
                                 label = { Text("R → L") },
@@ -550,7 +550,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Volume Keys Navigation")
                             Switch(
                                 checked = settings.volumeKeysForNavigation,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(volumeKeysForNavigation = it))
                                 }
                             )
@@ -565,7 +565,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Auto Bookmarks")
                             Switch(
                                 checked = settings.autoBookmarks,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(autoBookmarks = it))
                                 }
                             )
@@ -580,7 +580,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Reading Analytics")
                             Switch(
                                 checked = settings.readingAnalytics,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(readingAnalytics = it))
                                 }
                             )
@@ -603,7 +603,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Double Tap to Zoom")
                             Switch(
                                 checked = settings.doubleTapToZoom,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(doubleTapToZoom = it))
                                 }
                             )
@@ -617,7 +617,7 @@ fun DocumentReaderSettingsSheet(
                             Text("Pinch to Zoom")
                             Switch(
                                 checked = settings.pinchToZoom,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(pinchToZoom = it))
                                 }
                             )
@@ -744,10 +744,10 @@ fun SearchDialog(
                         if (searchResults.size > 1) {
                             Row {
                                 IconButton(
-                                    onClick = { 
-                                        val newIndex = if (currentSearchIndex > 0) 
-                                            currentSearchIndex - 1 
-                                        else 
+                                    onClick = {
+                                        val newIndex = if (currentSearchIndex > 0)
+                                            currentSearchIndex - 1
+                                        else
                                             searchResults.size - 1
                                         onNavigateToResult(newIndex)
                                     }
@@ -760,10 +760,10 @@ fun SearchDialog(
                                     modifier = Modifier.align(Alignment.CenterVertically)
                                 )
                                 IconButton(
-                                    onClick = { 
-                                        val newIndex = if (currentSearchIndex < searchResults.size - 1) 
-                                            currentSearchIndex + 1 
-                                        else 
+                                    onClick = {
+                                        val newIndex = if (currentSearchIndex < searchResults.size - 1)
+                                            currentSearchIndex + 1
+                                        else
                                             0
                                         onNavigateToResult(newIndex)
                                     }
@@ -803,9 +803,9 @@ private fun SearchResultItem(
             .padding(vertical = 4.dp)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) 
-                MaterialTheme.colorScheme.primaryContainer 
-            else 
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.primaryContainer
+            else
                 MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
@@ -956,7 +956,7 @@ private fun BookmarkItem(
                     }
                 }
             }
-            
+
             IconButton(
                 onClick = { onBookmarkDeleted(bookmark) }
             ) {
@@ -1045,16 +1045,16 @@ private fun TableOfContentsItem(
     onChapterSelected: (TableOfContentsItem) -> Unit
 ) {
     val isCurrentChapter = currentChapter == chapter.title
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp)
             .clickable { onChapterSelected(chapter) },
         colors = CardDefaults.cardColors(
-            containerColor = if (isCurrentChapter) 
-                MaterialTheme.colorScheme.primaryContainer 
-            else 
+            containerColor = if (isCurrentChapter)
+                MaterialTheme.colorScheme.primaryContainer
+            else
                 MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
@@ -1077,19 +1077,19 @@ private fun TableOfContentsItem(
                     fontWeight = if (isCurrentChapter) FontWeight.SemiBold else FontWeight.Normal,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = if (isCurrentChapter) 
-                        MaterialTheme.colorScheme.onPrimaryContainer 
-                    else 
+                    color = if (isCurrentChapter)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Text(
                 text = chapter.page.toString(),
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isCurrentChapter) 
+                color = if (isCurrentChapter)
                     MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                else 
+                else
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         }

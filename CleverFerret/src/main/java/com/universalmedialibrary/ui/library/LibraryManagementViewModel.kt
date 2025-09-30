@@ -17,10 +17,10 @@ import javax.inject.Inject
 class LibraryManagementViewModel @Inject constructor(
     private val libraryRepository: LibraryRepository
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow<LibraryManagementUiState>(LibraryManagementUiState.Success)
     val uiState: StateFlow<LibraryManagementUiState> = _uiState.asStateFlow()
-    
+
     val libraries: StateFlow<List<Library>> = libraryRepository.getAllActiveLibraries()
         .catch { throwable ->
             _uiState.value = LibraryManagementUiState.Error(
@@ -32,7 +32,7 @@ class LibraryManagementViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-    
+
     /**
      * Creates a new library with the specified parameters
      */
@@ -40,7 +40,7 @@ class LibraryManagementViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = LibraryManagementUiState.Loading
-                
+
                 val library = Library(
                     name = name,
                     type = type,
@@ -50,10 +50,10 @@ class LibraryManagementViewModel @Inject constructor(
                     lastScanned = 0,
                     description = "Created on ${java.text.SimpleDateFormat("MMM dd, yyyy").format(java.util.Date())}"
                 )
-                
+
                 libraryRepository.createLibrary(library)
                 _uiState.value = LibraryManagementUiState.Success
-                
+
             } catch (e: Exception) {
                 _uiState.value = LibraryManagementUiState.Error(
                     "Failed to create library: ${e.message}"
@@ -61,7 +61,7 @@ class LibraryManagementViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Updates an existing library
      */
@@ -78,7 +78,7 @@ class LibraryManagementViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Deletes a library
      */
@@ -95,7 +95,7 @@ class LibraryManagementViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Activates or deactivates a library
      */
@@ -110,7 +110,7 @@ class LibraryManagementViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Scans a library for media files
      */
@@ -118,11 +118,11 @@ class LibraryManagementViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = LibraryManagementUiState.Loading
-                
+
                 // TODO: Implement actual media scanning
                 // For now, just update the last scanned timestamp
                 libraryRepository.updateLastScanned(libraryId, System.currentTimeMillis())
-                
+
                 _uiState.value = LibraryManagementUiState.Success
             } catch (e: Exception) {
                 _uiState.value = LibraryManagementUiState.Error(
@@ -131,7 +131,7 @@ class LibraryManagementViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Imports a Calibre library from the specified path
      */
@@ -139,7 +139,7 @@ class LibraryManagementViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = LibraryManagementUiState.Loading
-                
+
                 val library = Library(
                     name = libraryName,
                     type = "BOOK",
@@ -149,18 +149,18 @@ class LibraryManagementViewModel @Inject constructor(
                     lastScanned = 0,
                     description = "Imported from Calibre library at $path"
                 )
-                
+
                 libraryRepository.createLibrary(library)
-                
+
                 // TODO: Implement actual Calibre database parsing and import
                 // This would involve:
                 // 1. Reading the metadata.db file from the Calibre library
                 // 2. Parsing book metadata, authors, tags, etc.
                 // 3. Creating MediaItem entries for each book
                 // 4. Copying or linking to book files
-                
+
                 _uiState.value = LibraryManagementUiState.Success
-                
+
             } catch (e: Exception) {
                 _uiState.value = LibraryManagementUiState.Error(
                     "Failed to import Calibre library: ${e.message}"
@@ -168,7 +168,7 @@ class LibraryManagementViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Clears any error state
      */

@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 /**
  * PDF Reader Engine using Android's PdfRenderer.
- * 
+ *
  * Features:
  * - Basic PDF rendering with page-by-page view
  * - Zoom and pan support
@@ -28,20 +28,20 @@ import javax.inject.Inject
  * - Progress tracking by page number
  */
 class PdfReaderEngine @Inject constructor() : ReaderEngine {
-    
+
     override val bookId: String get() = currentBookId
-    
+
     private var currentBookId: String = ""
     private var pdfRenderer: PdfRenderer? = null
     private var parcelFileDescriptor: ParcelFileDescriptor? = null
     private var currentPageIndex: Int = 0
     private var totalPages: Int = 0
-    
+
     private val _currentLocator = MutableStateFlow(
         Locator(href = "", locations = emptyMap())
     )
     override val currentLocator: Flow<Locator> = _currentLocator.asStateFlow()
-    
+
     override suspend fun open(context: Context, source: BookSource): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
@@ -52,7 +52,7 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
                             "content" -> {
                                 // Copy content URI to temp file
                                 val tempFile = File(
-                                    context.cacheDir, 
+                                    context.cacheDir,
                                     "temp_pdf_${System.currentTimeMillis()}.pdf"
                                 )
                                 context.contentResolver.openInputStream(source.uri)?.use { input ->
@@ -74,26 +74,26 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
                         )
                     }
                 }
-                
+
                 if (!file.exists()) {
                     return@withContext Result.failure(
                         IllegalArgumentException("PDF file not found")
                     )
                 }
-                
+
                 // Open PDF with PdfRenderer
                 parcelFileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
                 pdfRenderer = PdfRenderer(parcelFileDescriptor!!)
-                
+
                 totalPages = pdfRenderer!!.pageCount
                 currentBookId = file.absolutePath
                 currentPageIndex = 0
-                
+
                 // Initialize locator to first page
                 updateCurrentLocator(0)
-                
+
                 Result.success(Unit)
-                
+
             } catch (e: Exception) {
                 // Clean up on error
                 close()
@@ -101,11 +101,11 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
             }
         }
     }
-    
+
     override suspend fun goTo(locator: Locator): Result<Unit> {
         return try {
             val pageIndex = locator.locations["pageIndex"] as? Int ?: 0
-            
+
             if (pageIndex in 0 until totalPages) {
                 currentPageIndex = pageIndex
                 updateCurrentLocator(pageIndex)
@@ -117,7 +117,7 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
             Result.failure(e)
         }
     }
-    
+
     override suspend fun next(): Boolean {
         return if (currentPageIndex < totalPages - 1) {
             currentPageIndex++
@@ -127,7 +127,7 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
             false
         }
     }
-    
+
     override suspend fun previous(): Boolean {
         return if (currentPageIndex > 0) {
             currentPageIndex--
@@ -137,14 +137,14 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
             false
         }
     }
-    
+
     override suspend fun search(query: String): List<Locator> {
         // Basic PDF text search is limited without OCR or advanced PDF libraries
         // For now, return empty list as Android's PdfRenderer doesn't provide text extraction
         // TODO: Implement text search using a PDF library like PdfBox or implement OCR
         return emptyList()
     }
-    
+
     override suspend fun close() {
         pdfRenderer?.close()
         parcelFileDescriptor?.close()
@@ -154,7 +154,7 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
         currentPageIndex = 0
         totalPages = 0
     }
-    
+
     /**
      * Render a specific page as bitmap
      */
@@ -166,32 +166,32 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
     ): Bitmap? {
         return withContext(Dispatchers.IO) {
             val renderer = pdfRenderer ?: return@withContext null
-            
+
             if (pageIndex !in 0 until totalPages) {
                 return@withContext null
             }
-            
+
             try {
                 val page = renderer.openPage(pageIndex)
                 val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                
+
                 page.render(bitmap, null, transform, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 page.close()
-                
+
                 bitmap
             } catch (e: Exception) {
                 null
             }
         }
     }
-    
+
     /**
      * Get current page as bitmap
      */
     suspend fun getCurrentPageBitmap(width: Int, height: Int): Bitmap? {
         return renderPage(currentPageIndex, width, height)
     }
-    
+
     /**
      * Navigate to specific page
      */
@@ -204,13 +204,13 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
             false
         }
     }
-    
+
     /**
      * Get current page information
      */
     fun getCurrentPageInfo(): PdfPageInfo? {
         val renderer = pdfRenderer ?: return null
-        
+
         return try {
             val page = renderer.openPage(currentPageIndex)
             val info = PdfPageInfo(
@@ -226,7 +226,7 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
             null
         }
     }
-    
+
     /**
      * Get progress information
      */
@@ -234,25 +234,25 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
         val progressPercentage = if (totalPages > 0) {
             ((currentPageIndex + 1).toFloat() / totalPages.toFloat()) * 100f
         } else 0f
-        
+
         return PdfProgress(
             currentPage = currentPageIndex + 1,
             totalPages = totalPages,
             progressPercentage = progressPercentage
         )
     }
-    
+
     /**
      * Get page dimensions
      */
     suspend fun getPageDimensions(pageIndex: Int): Pair<Int, Int>? {
         return withContext(Dispatchers.IO) {
             val renderer = pdfRenderer ?: return@withContext null
-            
+
             if (pageIndex !in 0 until totalPages) {
                 return@withContext null
             }
-            
+
             try {
                 val page = renderer.openPage(pageIndex)
                 val dimensions = Pair(page.width, page.height)
@@ -263,7 +263,7 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
             }
         }
     }
-    
+
     private fun updateCurrentLocator(pageIndex: Int) {
         _currentLocator.value = Locator(
             href = "page_$pageIndex",

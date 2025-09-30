@@ -49,7 +49,7 @@ fun MediaItem(
 
     Card(
         modifier = modifier
-            .fillMaxWidth()  
+            .fillMaxWidth()
             .height(350.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
@@ -67,7 +67,7 @@ fun MediaItem(
                     .background(
                         color = when (item.type) {
                             MediaType.BOOK -> Color(0xFF2C5F2D)
-                            MediaType.MOVIE -> Color(0xFF1565C0) 
+                            MediaType.MOVIE -> Color(0xFF1565C0)
                             MediaType.MUSIC -> Color(0xFF7B1FA2)
                             MediaType.PODCAST -> Color(0xFFEF6C00)
                             MediaType.MAGAZINE -> Color(0xFFD32F2F)
@@ -90,7 +90,7 @@ fun MediaItem(
                     modifier = Modifier.size(50.dp),
                     tint = Color.White.copy(alpha = 0.7f)
                 )
-                
+
                 // Rating badge
                 Box(
                     modifier = Modifier
@@ -120,7 +120,7 @@ fun MediaItem(
                         )
                     }
                 }
-                
+
                 // Overlay with action button (simplified, no animation for now)
                 if (isHovered) {
                     Box(
@@ -159,7 +159,7 @@ fun MediaItem(
                                         MediaType.MOVIE -> "Watch"
                                         MediaType.MUSIC -> "Play"
                                         MediaType.PODCAST -> "Play"
-                                        MediaType.MAGAZINE -> "Read" 
+                                        MediaType.MAGAZINE -> "Read"
                                         MediaType.DOCUMENT -> "Open"
                                     },
                                     fontWeight = FontWeight.SemiBold,
@@ -170,7 +170,7 @@ fun MediaItem(
                     }
                 }
             }
-            
+
             // Content area
             Column(
                 modifier = Modifier
@@ -185,9 +185,9 @@ fun MediaItem(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Text(
                     text = "${item.author} • ${item.year}",
                     style = MaterialTheme.typography.bodySmall,
@@ -195,9 +195,9 @@ fun MediaItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // Genre chip
                 Surface(
                     modifier = Modifier.clip(RoundedCornerShape(12.dp)),
@@ -211,9 +211,9 @@ fun MediaItem(
                         fontSize = 10.sp
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // Metadata action buttons
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -245,7 +245,7 @@ fun MediaItem(
                             )
                         }
                     }
-                    
+
                     // Manual Edit button
                     Surface(
                         modifier = Modifier

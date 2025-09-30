@@ -33,10 +33,10 @@ import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.theme.PlexTheme
 
 class MainActivity : ComponentActivity() {
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         setContent {
             PlexTheme {
                 Surface(
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    
+
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -73,14 +73,14 @@ fun AppNavigation() {
 fun EnhancedHomeScreen(navController: NavController) {
     var showCreateDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
-    
+
     // Sample libraries for demonstration - showing restored functionality
     val sampleLibraries = listOf(
         SampleLibrary("My Books", "BOOK", 1),
         SampleLibrary("Music Collection", "MUSIC", 2),
         SampleLibrary("Movie Library", "MOVIE", 3)
     )
-    
+
     val mediaTabs = listOf(
         "Books" to Icons.Default.Book,
         "Music" to Icons.Default.MusicNote,
@@ -91,12 +91,12 @@ fun EnhancedHomeScreen(navController: NavController) {
         topBar = {
             Column {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "CleverFerret - Advanced Features Restored! 🚀",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
-                        ) 
+                        )
                     },
                     actions = {
                         IconButton(onClick = { navController.navigate("settings") }) {
@@ -109,7 +109,7 @@ fun EnhancedHomeScreen(navController: NavController) {
                         actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 )
-                
+
                 TabRow(
                     selectedTabIndex = selectedTab,
                     containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -175,7 +175,7 @@ fun EnhancedHomeScreen(navController: NavController) {
                     }
                 }
             }
-            
+
             items(sampleLibraries) { library ->
                 LibraryCard(
                     library = library,
@@ -185,7 +185,7 @@ fun EnhancedHomeScreen(navController: NavController) {
                 )
             }
         }
-        
+
         if (showCreateDialog) {
             CreateLibraryDialog(
                 onDismiss = { showCreateDialog = false },
@@ -233,7 +233,7 @@ fun LibraryCard(library: SampleLibrary, onClick: () -> Unit) {
                     tint = Color.White
                 )
             }
-            
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

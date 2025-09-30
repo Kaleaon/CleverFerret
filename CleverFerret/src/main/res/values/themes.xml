@@ -5,12 +5,12 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_container</item>
         <item name="colorAccent">@color/secondary</item>
-        
+
         <!-- Background colors -->
         <item name="android:colorBackground">@color/background</item>
         <item name="android:windowBackground">@color/background</item>
     </style>
-    
+
     <!-- Legacy theme name for compatibility -->
     <style name="Theme.UniversalMediaLibrary" parent="Theme.CleverFerretMediaLibrary" />
 </resources>

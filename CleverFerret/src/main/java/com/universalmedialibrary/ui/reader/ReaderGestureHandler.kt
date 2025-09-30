@@ -25,17 +25,17 @@ class ReaderGestureHandler(
     private val onShowMenu: () -> Unit,
     private val onTextSelection: (startX: Float, startY: Float, endX: Float, endY: Float) -> Unit
 ) {
-    
+
     private var isSelecting = false
     private var selectionStartX = 0f
     private var selectionStartY = 0f
-    
+
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        
+
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             val screenWidth = context.resources.displayMetrics.widthPixels
             val x = e.x
-            
+
             when {
                 x < screenWidth * 0.3f -> onPreviousPage()
                 x > screenWidth * 0.7f -> onNextPage()
@@ -43,19 +43,19 @@ class ReaderGestureHandler(
             }
             return true
         }
-        
+
         override fun onDoubleTap(e: MotionEvent): Boolean {
             onShowMenu()
             return true
         }
-        
+
         override fun onLongPress(e: MotionEvent) {
             // Start text selection
             isSelecting = true
             selectionStartX = e.x
             selectionStartY = e.y
         }
-        
+
         override fun onFling(
             e1: MotionEvent?,
             e2: MotionEvent,
@@ -63,10 +63,10 @@ class ReaderGestureHandler(
             velocityY: Float
         ): Boolean {
             if (e1 == null) return false
-            
+
             val diffX = e2.x - e1.x
             val diffY = e2.y - e1.y
-            
+
             if (abs(diffX) > abs(diffY)) {
                 if (abs(diffX) > 100 && abs(velocityX) > 100) {
                     if (diffX > 0) {
@@ -80,7 +80,7 @@ class ReaderGestureHandler(
             return false
         }
     })
-    
+
     fun handleTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_UP -> {
@@ -109,7 +109,7 @@ fun ReaderGestureOverlay(
     val context = LocalContext.current
     var isSelecting by remember { mutableStateOf(false) }
     var selectionStart by remember { mutableStateOf(Pair(0f, 0f)) }
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -133,7 +133,7 @@ fun ReaderGestureOverlay(
     ) {
         // Overlay content can be added here
     }
-    
+
     // Handle selection end
     LaunchedEffect(isSelecting) {
         if (isSelecting) {

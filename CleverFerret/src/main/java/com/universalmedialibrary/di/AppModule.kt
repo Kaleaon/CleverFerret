@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-    
+
     // Phase 2: Start with basic context provision
     @Provides
     @Singleton

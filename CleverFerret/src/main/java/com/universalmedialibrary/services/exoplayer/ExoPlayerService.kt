@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 /**
  * ExoPlayer service for advanced media playback
- * 
+ *
  * Provides superior audio and video playback capabilities compared to
  * the basic Android MediaPlayer, with support for:
  * - Multiple audio/video formats
@@ -29,12 +29,12 @@ class ExoPlayerService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaController: MediaController
 ) {
-    
+
     private var exoPlayer: ExoPlayer? = null
-    
+
     private val _playerState = MutableStateFlow(ExoPlayerState())
     val playerState: StateFlow<ExoPlayerState> = _playerState.asStateFlow()
-    
+
     /**
      * Initialize ExoPlayer
      */
@@ -42,7 +42,7 @@ class ExoPlayerService @Inject constructor(
         if (!FeatureFlags.ENABLE_EXOPLAYER) {
             return
         }
-        
+
         if (exoPlayer == null) {
             exoPlayer = ExoPlayer.Builder(context).build().apply {
                 addListener(object : Player.Listener {
@@ -53,7 +53,7 @@ class ExoPlayerService @Inject constructor(
                             isBuffering = playbackState == Player.STATE_BUFFERING,
                             hasEnded = playbackState == Player.STATE_ENDED
                         )
-                        
+
                         // Update MediaController state
                         mediaController.updatePlaybackState(
                             isPlaying = isPlaying,
@@ -61,11 +61,11 @@ class ExoPlayerService @Inject constructor(
                             duration = duration.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
                         )
                     }
-                    
+
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                         updatePlayerState(error = error.message)
                     }
-                    
+
                     override fun onPositionDiscontinuity(
                         oldPosition: Player.PositionInfo,
                         newPosition: Player.PositionInfo,
@@ -80,7 +80,7 @@ class ExoPlayerService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Load and prepare media for playback with MediaSession integration
      */
@@ -96,14 +96,14 @@ class ExoPlayerService @Inject constructor(
             updatePlayerState(error = "ExoPlayer is disabled")
             return
         }
-        
+
         initialize()
-        
+
         val mediaItem = MediaItem.fromUri(mediaPath)
         exoPlayer?.apply {
             setMediaItem(mediaItem)
             prepare()
-            
+
             // Start MediaSession with metadata
             mediaController.startPlayback(
                 player = this,
@@ -115,7 +115,7 @@ class ExoPlayerService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Load and prepare media for playback
      */
@@ -124,16 +124,16 @@ class ExoPlayerService @Inject constructor(
             updatePlayerState(error = "ExoPlayer is disabled")
             return
         }
-        
+
         initialize()
-        
+
         val mediaItem = MediaItem.fromUri(mediaPath)
         exoPlayer?.apply {
             setMediaItem(mediaItem)
             prepare()
         }
     }
-    
+
     /**
      * Prepare a single media item for playback
      */
@@ -142,9 +142,9 @@ class ExoPlayerService @Inject constructor(
             updatePlayerState(error = "ExoPlayer is disabled")
             return false
         }
-        
+
         initialize()
-        
+
         return try {
             exoPlayer?.apply {
                 setMediaItem(mediaItem)
@@ -156,7 +156,7 @@ class ExoPlayerService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Prepare a playlist for playback
      */
@@ -165,9 +165,9 @@ class ExoPlayerService @Inject constructor(
             updatePlayerState(error = "ExoPlayer is disabled")
             return false
         }
-        
+
         initialize()
-        
+
         return try {
             exoPlayer?.apply {
                 setMediaItems(mediaItems, startIndex, 0)
@@ -179,49 +179,49 @@ class ExoPlayerService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Seek to specific media item in playlist
      */
     fun seekToMediaItem(mediaItemIndex: Int) {
         exoPlayer?.seekTo(mediaItemIndex, 0)
     }
-    
+
     /**
      * Get current position in milliseconds
      */
     fun getCurrentPosition(): Long {
         return exoPlayer?.currentPosition ?: 0
     }
-    
+
     /**
      * Get duration in milliseconds
      */
     fun getDuration(): Long {
         return exoPlayer?.duration?.takeIf { it != androidx.media3.common.C.TIME_UNSET } ?: 0
     }
-    
+
     /**
      * Enable/disable skip silence
      */
     fun setSkipSilence(enabled: Boolean) {
         exoPlayer?.skipSilenceEnabled = enabled
     }
-    
+
     /**
      * Start playback
      */
     fun play() {
         exoPlayer?.play()
     }
-    
+
     /**
      * Pause playback
      */
     fun pause() {
         exoPlayer?.pause()
     }
-    
+
     /**
      * Stop playback
      */
@@ -232,18 +232,18 @@ class ExoPlayerService @Inject constructor(
             currentPosition = 0,
             duration = 0
         )
-        
+
         // Stop MediaSession
         mediaController.stopPlayback()
     }
-    
+
     /**
      * Seek to specific position
      */
     fun seekTo(positionMs: Long) {
         exoPlayer?.seekTo(positionMs)
     }
-    
+
     /**
      * Set playback speed
      */
@@ -251,7 +251,7 @@ class ExoPlayerService @Inject constructor(
         exoPlayer?.setPlaybackSpeed(speed)
         updatePlayerState(playbackSpeed = speed)
     }
-    
+
     /**
      * Set volume (0.0 to 1.0)
      */
@@ -259,17 +259,17 @@ class ExoPlayerService @Inject constructor(
         exoPlayer?.volume = volume.coerceIn(0f, 1f)
         updatePlayerState(volume = volume.coerceIn(0f, 1f))
     }
-    
+
     /**
      * Get the ExoPlayer instance for advanced use cases
      */
     fun getPlayer(): ExoPlayer? = exoPlayer
-    
+
     /**
      * Check if ExoPlayer is available
      */
     fun isAvailable(): Boolean = FeatureFlags.ENABLE_EXOPLAYER
-    
+
     /**
      * Release resources
      */
@@ -278,7 +278,7 @@ class ExoPlayerService @Inject constructor(
         exoPlayer = null
         _playerState.value = ExoPlayerState()
     }
-    
+
     private fun updatePlayerState(
         isPlaying: Boolean = _playerState.value.isPlaying,
         isBuffering: Boolean = _playerState.value.isBuffering,

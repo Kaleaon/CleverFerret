@@ -44,7 +44,7 @@ fun EnhancedBookshelfScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedGenre by viewModel.selectedGenre.collectAsState()
     val showFilters by viewModel.showFilters.collectAsState()
-    
+
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewModeMenu by remember { mutableStateOf(false) }
 
@@ -55,7 +55,7 @@ fun EnhancedBookshelfScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         "Bookshelf",
                         style = MaterialTheme.typography.headlineSmall,
@@ -67,7 +67,7 @@ fun EnhancedBookshelfScreen(
                     IconButton(onClick = { viewModel.toggleSearch() }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
                     }
-                    
+
                     // View Mode
                     IconButton(onClick = { showViewModeMenu = true }) {
                         Icon(
@@ -79,7 +79,7 @@ fun EnhancedBookshelfScreen(
                             contentDescription = "View Mode"
                         )
                     }
-                    
+
                     DropdownMenu(
                         expanded = showViewModeMenu,
                         onDismissRequest = { showViewModeMenu = false }
@@ -97,12 +97,12 @@ fun EnhancedBookshelfScreen(
                             )
                         }
                     }
-                    
+
                     // Sort
                     IconButton(onClick = { showSortMenu = true }) {
                         Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showSortMenu,
                         onDismissRequest = { showSortMenu = false }
@@ -120,13 +120,13 @@ fun EnhancedBookshelfScreen(
                             )
                         }
                     }
-                    
+
                     // Filter
                     IconButton(onClick = { viewModel.toggleFilters() }) {
                         Icon(
                             Icons.Default.FilterList,
                             contentDescription = "Filter",
-                            tint = if (showFilters) MaterialTheme.colorScheme.primary 
+                            tint = if (showFilters) MaterialTheme.colorScheme.primary
                                   else MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -150,7 +150,7 @@ fun EnhancedBookshelfScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
-            
+
             // Filters
             AnimatedVisibility(visible = showFilters) {
                 FiltersRow(
@@ -159,7 +159,7 @@ fun EnhancedBookshelfScreen(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
             }
-            
+
             // Favorites Section (if any)
             if (favorites.isNotEmpty()) {
                 FavoritesSection(
@@ -170,7 +170,7 @@ fun EnhancedBookshelfScreen(
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
-            
+
             // Main Content
             when (viewMode) {
                 ViewMode.GRID -> {
@@ -251,7 +251,7 @@ fun FiltersRow(
                 selected = selectedGenre == null
             )
         }
-        
+
         // Sample genres - in real implementation, these would come from the database
         items(listOf("Fiction", "Non-Fiction", "Mystery", "Romance", "Sci-Fi", "Fantasy")) { genre ->
             FilterChip(
@@ -289,9 +289,9 @@ fun FavoritesSection(
                 fontWeight = FontWeight.Medium
             )
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -303,7 +303,7 @@ fun FavoritesSection(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
     }

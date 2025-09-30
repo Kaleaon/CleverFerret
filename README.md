@@ -55,6 +55,27 @@ The project is currently in the early stages of development. The following featu
         ```
 4.  **Run the application on an emulator or a physical device.**
 
+### Code Quality and Formatting
+
+The project uses **Spotless** with **ktlint** for code formatting and style enforcement.
+
+**Run formatting checks:**
+```bash
+./gradlew spotlessCheck
+```
+
+**Auto-format code:**
+```bash
+./gradlew spotlessApply
+```
+
+**Run Android Lint:**
+```bash
+./gradlew lint
+```
+
+**Note:** Spotless checks will fail the build if code is not properly formatted. Always run `spotlessApply` before committing code.
+
 ### Project Structure
 
 The project is organized into the following main packages:

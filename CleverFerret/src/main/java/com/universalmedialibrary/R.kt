@@ -14,13 +14,13 @@ object R {
         const val ic_import_export = 0x7f020006
         const val placeholder_book_cover = 0x7f020007
     }
-    
+
     object string {
         const val app_name = 0x7f030001
         const val loading = 0x7f030002
         const val error_generic = 0x7f030003
     }
-    
+
     object color {
         const val primary = 0x7f040001
         const val background = 0x7f040002

@@ -42,11 +42,11 @@ fun BookmarkScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(pageCount = { 3 })
     val scope = rememberCoroutineScope()
-    
+
     LaunchedEffect(mediaId) {
         viewModel.loadBookmarks(mediaId)
     }
-    
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -67,7 +67,7 @@ fun BookmarkScreen(
                         contentDescription = if (uiState.isSelectionMode) "Cancel Selection" else "Select Items"
                     )
                 }
-                
+
                 if (uiState.isSelectionMode && uiState.selectedItems.isNotEmpty()) {
                     IconButton(
                         onClick = { viewModel.deleteSelectedItems() }
@@ -77,7 +77,7 @@ fun BookmarkScreen(
                 }
             }
         )
-        
+
         // Tab Row
         TabRow(
             selectedTabIndex = pagerState.currentPage
@@ -94,7 +94,7 @@ fun BookmarkScreen(
                 )
             }
         }
-        
+
         // Content Pager
         HorizontalPager(
             state = pagerState,
@@ -260,23 +260,23 @@ private fun BookmarkItem(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
-            
+
             Icon(
                 PhosphorIcons.Bookmark,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = bookmark.chapterTitle ?: "Chapter ${bookmark.chapterIndex + 1}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 if (bookmark.selectedText.isNotEmpty()) {
                     Text(
                         text = bookmark.selectedText,
@@ -319,7 +319,7 @@ private fun HighlightItem(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
-            
+
             // Color indicator
             Box(
                 modifier = Modifier
@@ -327,16 +327,16 @@ private fun HighlightItem(
                     .clip(CircleShape)
                     .background(Color(android.graphics.Color.parseColor(highlight.highlightColor)))
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = highlight.chapterTitle ?: "Chapter ${highlight.chapterIndex + 1}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 Text(
                     text = highlight.selectedText,
                     style = MaterialTheme.typography.bodyMedium,
@@ -379,25 +379,25 @@ private fun NoteItem(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                
+
                 Icon(
                     PhosphorIcons.Note,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(20.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.width(8.dp))
-                
+
                 Text(
                     text = note.chapterTitle ?: "Chapter ${note.chapterIndex + 1}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             // Selected text
             Text(
                 text = "\"${note.selectedText}\"",
@@ -410,7 +410,7 @@ private fun NoteItem(
                     )
                     .padding(8.dp)
             )
-            
+
             // Note text
             note.noteText?.let { noteText ->
                 Spacer(modifier = Modifier.height(8.dp))
@@ -444,17 +444,17 @@ private fun EmptyState(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,

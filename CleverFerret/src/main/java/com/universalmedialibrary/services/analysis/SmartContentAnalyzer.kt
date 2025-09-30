@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Smart Content Analyzer - The brain of CleverFerret's intelligent media library
- * 
+ *
  * Capabilities:
  * - OCR text extraction from first few pages
  * - NLP-powered metadata extraction
@@ -45,9 +45,9 @@ class SmartContentAnalyzer @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val mediaInfo = mediaViewerManager.analyzeMedia(context, uri)
-                
+
                 when (mediaInfo.type) {
-                    MediaViewerManager.MediaType.EBOOK, 
+                    MediaViewerManager.MediaType.EBOOK,
                     MediaViewerManager.MediaType.DOCUMENT -> {
                         analyzeDocument(uri, mediaInfo)
                     }
@@ -71,11 +71,11 @@ class SmartContentAnalyzer @Inject constructor(
     }
 
     private suspend fun analyzeDocument(
-        uri: Uri, 
+        uri: Uri,
         mediaInfo: MediaViewerManager.MediaInfo
     ): ContentAnalysisResult {
         val analysisSteps = mutableListOf<String>()
-        
+
         // Step 1: Extract text from first few pages
         analysisSteps.add("Extracting text content...")
         val extractedText = when (mediaInfo.documentFormat) {
@@ -135,23 +135,23 @@ class SmartContentAnalyzer @Inject constructor(
         mediaInfo: MediaViewerManager.MediaInfo
     ): ContentAnalysisResult {
         val analysisSteps = mutableListOf<String>()
-        
+
         // Step 1: Extract video metadata
         analysisSteps.add("Extracting video metadata...")
         val videoMetadata = metadataExtractor.extractVideoMetadata(context, uri)
-        
+
         // Step 2: Create video fingerprint
         analysisSteps.add("Creating video fingerprint...")
         val fingerprint = contentFingerprinter.generateVideoFingerprint(context, uri)
-        
+
         // Step 3: Classify video content
         analysisSteps.add("Classifying video content...")
         val classification = contentClassifier.classifyVideo(videoMetadata)
-        
+
         // Step 4: Compare against video databases
         analysisSteps.add("Comparing with video databases...")
         val archiveMatches = archiveComparator.findVideoMatches(videoMetadata)
-        
+
         return ContentAnalysisResult(
             uri = uri.toString(),
             mediaType = mediaInfo.type,
@@ -172,23 +172,23 @@ class SmartContentAnalyzer @Inject constructor(
         mediaInfo: MediaViewerManager.MediaInfo
     ): ContentAnalysisResult {
         val analysisSteps = mutableListOf<String>()
-        
+
         // Step 1: Extract audio metadata
         analysisSteps.add("Extracting audio metadata...")
         val audioMetadata = metadataExtractor.extractAudioMetadata(context, uri)
-        
+
         // Step 2: Create audio fingerprint
         analysisSteps.add("Creating audio fingerprint...")
         val fingerprint = contentFingerprinter.generateAudioFingerprint(context, uri)
-        
+
         // Step 3: Classify audio content
         analysisSteps.add("Classifying audio content...")
         val classification = contentClassifier.classifyAudio(audioMetadata)
-        
+
         // Step 4: Compare against music databases
         analysisSteps.add("Comparing with music databases...")
         val archiveMatches = archiveComparator.findAudioMatches(audioMetadata)
-        
+
         return ContentAnalysisResult(
             uri = uri.toString(),
             mediaType = mediaInfo.type,
@@ -209,23 +209,23 @@ class SmartContentAnalyzer @Inject constructor(
         mediaInfo: MediaViewerManager.MediaInfo
     ): ContentAnalysisResult {
         val analysisSteps = mutableListOf<String>()
-        
+
         // Step 1: Extract comic metadata
         analysisSteps.add("Extracting comic metadata...")
         val comicMetadata = metadataExtractor.extractComicMetadata(context, uri)
-        
+
         // Step 2: Analyze cover and first pages
         analysisSteps.add("Analyzing cover and content...")
         val coverAnalysis = contentClassifier.analyzeComicCover(context, uri)
-        
+
         // Step 3: Create comic fingerprint
         analysisSteps.add("Creating comic fingerprint...")
         val fingerprint = contentFingerprinter.generateComicFingerprint(context, uri)
-        
+
         // Step 4: Compare against comic databases
         analysisSteps.add("Comparing with comic databases...")
         val archiveMatches = archiveComparator.findComicMatches(comicMetadata)
-        
+
         return ContentAnalysisResult(
             uri = uri.toString(),
             mediaType = mediaInfo.type,
@@ -246,20 +246,20 @@ class SmartContentAnalyzer @Inject constructor(
         archiveMatches: List<ArchiveMatch>
     ): Float {
         var confidence = 0.0f
-        
+
         // Base confidence from extracted metadata quality
         if (metadata.title.isNotEmpty()) confidence += 0.3f
         if (metadata.author.isNotEmpty()) confidence += 0.2f
         if (metadata.isbn != null) confidence += 0.2f
         if (metadata.publishedDate != null) confidence += 0.1f
         if (metadata.publisher.isNotEmpty()) confidence += 0.1f
-        
+
         // Boost confidence with archive matches
         if (archiveMatches.isNotEmpty()) {
             val bestMatch = archiveMatches.maxByOrNull { it.confidence }
             bestMatch?.let { confidence = (confidence + it.confidence) / 2 }
         }
-        
+
         return confidence.coerceIn(0.0f, 1.0f)
     }
 
@@ -269,35 +269,35 @@ class SmartContentAnalyzer @Inject constructor(
         duplicates: List<String>
     ): List<RecommendedAction> {
         val actions = mutableListOf<RecommendedAction>()
-        
+
         // Metadata improvement suggestions
         if (metadata.title.isEmpty()) {
             actions.add(RecommendedAction.EXTRACT_TITLE_FROM_FILENAME)
         }
-        
+
         if (metadata.author.isEmpty() && archiveMatches.isNotEmpty()) {
             actions.add(RecommendedAction.USE_ARCHIVE_AUTHOR)
         }
-        
+
         if (metadata.coverImageUrl.isEmpty() && archiveMatches.isNotEmpty()) {
             actions.add(RecommendedAction.DOWNLOAD_COVER_IMAGE)
         }
-        
+
         // Duplicate handling
         if (duplicates.isNotEmpty()) {
             actions.add(RecommendedAction.MERGE_DUPLICATES)
         }
-        
+
         // Series detection
         if (archiveMatches.any { it.seriesName.isNotEmpty() }) {
             actions.add(RecommendedAction.CREATE_SERIES_COLLECTION)
         }
-        
+
         // Genre classification
         if (metadata.genres.isEmpty() && archiveMatches.isNotEmpty()) {
             actions.add(RecommendedAction.AUTO_CLASSIFY_GENRE)
         }
-        
+
         return actions
     }
 
@@ -306,16 +306,16 @@ class SmartContentAnalyzer @Inject constructor(
         archiveMatches: List<ArchiveMatch>
     ): List<RecommendedAction> {
         val actions = mutableListOf<RecommendedAction>()
-        
+
         if (metadata.title.isEmpty()) {
             actions.add(RecommendedAction.EXTRACT_TITLE_FROM_FILENAME)
         }
-        
+
         if (archiveMatches.isNotEmpty()) {
             actions.add(RecommendedAction.DOWNLOAD_POSTER_IMAGE)
             actions.add(RecommendedAction.AUTO_CLASSIFY_GENRE)
         }
-        
+
         return actions
     }
 
@@ -324,15 +324,15 @@ class SmartContentAnalyzer @Inject constructor(
         archiveMatches: List<ArchiveMatch>
     ): List<RecommendedAction> {
         val actions = mutableListOf<RecommendedAction>()
-        
+
         if (metadata.title.isEmpty()) {
             actions.add(RecommendedAction.EXTRACT_TITLE_FROM_FILENAME)
         }
-        
+
         if (metadata.albumArt.isEmpty() && archiveMatches.isNotEmpty()) {
             actions.add(RecommendedAction.DOWNLOAD_ALBUM_ART)
         }
-        
+
         return actions
     }
 
@@ -341,16 +341,16 @@ class SmartContentAnalyzer @Inject constructor(
         archiveMatches: List<ArchiveMatch>
     ): List<RecommendedAction> {
         val actions = mutableListOf<RecommendedAction>()
-        
+
         if (metadata.title.isEmpty()) {
             actions.add(RecommendedAction.EXTRACT_TITLE_FROM_FILENAME)
         }
-        
+
         if (archiveMatches.isNotEmpty()) {
             actions.add(RecommendedAction.CREATE_SERIES_COLLECTION)
             actions.add(RecommendedAction.AUTO_CLASSIFY_GENRE)
         }
-        
+
         return actions
     }
 
@@ -363,7 +363,7 @@ class SmartContentAnalyzer @Inject constructor(
     ): ContentAnalysisResult {
         return withContext(Dispatchers.IO) {
             var updatedResult = result
-            
+
             for (action in actions) {
                 updatedResult = when (action) {
                     RecommendedAction.USE_ARCHIVE_AUTHOR -> {
@@ -376,7 +376,7 @@ class SmartContentAnalyzer @Inject constructor(
                             )
                         } else updatedResult
                     }
-                    
+
                     RecommendedAction.DOWNLOAD_COVER_IMAGE -> {
                         val bestMatch = result.archiveMatches.maxByOrNull { it.confidence }
                         if (bestMatch?.coverImageUrl?.isNotEmpty() == true) {
@@ -387,7 +387,7 @@ class SmartContentAnalyzer @Inject constructor(
                             )
                         } else updatedResult
                     }
-                    
+
                     RecommendedAction.AUTO_CLASSIFY_GENRE -> {
                         val genres = result.archiveMatches.flatMap { it.genres }.distinct()
                         updatedResult.copy(
@@ -396,11 +396,11 @@ class SmartContentAnalyzer @Inject constructor(
                             )
                         )
                     }
-                    
+
                     else -> updatedResult
                 }
             }
-            
+
             updatedResult
         }
     }
@@ -432,7 +432,7 @@ data class ContentAnalysisResult(
             success = false,
             error = error
         )
-        
+
         fun unsupported(uri: String) = ContentAnalysisResult(
             uri = uri,
             mediaType = MediaViewerManager.MediaType.UNSUPPORTED,
@@ -460,21 +460,21 @@ data class ExtractedMetadata(
     val coverImageUrl: String = "",
     val contentRating: String = "",
     val readingLevel: String = "",
-    
+
     // Audio-specific
     val artist: String = "",
     val album: String = "",
     val trackNumber: Int? = null,
     val duration: Long? = null,
     val albumArt: String = "",
-    
+
     // Video-specific
     val director: String = "",
     val cast: List<String> = emptyList(),
     val releaseYear: Int? = null,
     val runtime: Long? = null,
     val imdbId: String? = null,
-    
+
     // Comic-specific
     val issue: String = "",
     val volume: String = "",

@@ -23,7 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * API Settings Screen for managing external API keys
- * 
+ *
  * Allows users to securely input and manage API keys for:
  * - Google Gemini AI (for OCR and book identification)
  * - Cloud TTS services
@@ -37,15 +37,15 @@ fun APISettingsScreen(
     viewModel: APISettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     var showGeminiKey by remember { mutableStateOf(false) }
     var geminiKey by remember { mutableStateOf("") }
-    
+
     LaunchedEffect(Unit) {
         viewModel.loadSettings()
         geminiKey = uiState.geminiApiKey ?: ""
     }
-    
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -58,7 +58,7 @@ fun APISettingsScreen(
                 }
             }
         )
-        
+
         // Settings Content
         Column(
             modifier = Modifier
@@ -69,7 +69,7 @@ fun APISettingsScreen(
         ) {
             // Security Notice
             SecurityNoticeCard()
-            
+
             // Gemini AI Section
             GeminiAPISection(
                 apiKey = geminiKey,
@@ -81,13 +81,13 @@ fun APISettingsScreen(
                 isLoading = uiState.isLoading,
                 testResult = uiState.geminiTestResult
             )
-            
+
             // Cloud TTS Section
             CloudTTSSection(
                 isEnabled = uiState.cloudTTSEnabled,
                 onEnabledChanged = { viewModel.setCloudTTSEnabled(it) }
             )
-            
+
             // Feature Flags Section
             FeatureFlagsSection(
                 geminiEnabled = uiState.geminiEnabled,
@@ -97,7 +97,7 @@ fun APISettingsScreen(
                 onExoPlayerToggle = { viewModel.setExoPlayerEnabled(it) },
                 onPodcastsToggle = { viewModel.setPodcastsEnabled(it) }
             )
-            
+
             // Status Section
             uiState.statusMessage?.let { message ->
                 StatusMessageCard(
@@ -160,18 +160,18 @@ private fun GeminiAPISection(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Enable OCR, book identification, and AI-powered metadata enhancement. " +
                         "Get your API key from Google AI Studio.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // API Key Input
             OutlinedTextField(
                 value = apiKey,
@@ -191,9 +191,9 @@ private fun GeminiAPISection(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Action Buttons
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -212,7 +212,7 @@ private fun GeminiAPISection(
                         Text("Save Key")
                     }
                 }
-                
+
                 OutlinedButton(
                     onClick = onTestKey,
                     enabled = !isLoading && apiKey.isNotBlank(),
@@ -221,7 +221,7 @@ private fun GeminiAPISection(
                     Text("Test Key")
                 }
             }
-            
+
             // Test Result
             if (testResult != null) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -296,9 +296,9 @@ private fun FeatureFlagsSection(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Gemini Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -321,9 +321,9 @@ private fun FeatureFlagsSection(
                     onCheckedChange = onGeminiToggle
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // ExoPlayer Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -346,9 +346,9 @@ private fun FeatureFlagsSection(
                     onCheckedChange = onExoPlayerToggle
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Podcasts Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),

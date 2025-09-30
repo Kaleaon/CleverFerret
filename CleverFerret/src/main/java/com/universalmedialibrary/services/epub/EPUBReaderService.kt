@@ -74,7 +74,7 @@ class EPUBReaderService @Inject constructor(
             }
 
             val zipFile = ZipFile(tempFile)
-            
+
             // Parse container.xml to find content.opf
             val containerEntry = zipFile.getEntry("META-INF/container.xml")
             val containerXml = zipFile.getInputStream(containerEntry).bufferedReader().readText()
@@ -90,17 +90,17 @@ class EPUBReaderService @Inject constructor(
             // Build chapters from spine
             val chapters = mutableListOf<Chapter>()
             val baseDir = opfPath.substringBeforeLast("/")
-            
+
             spine.forEachIndexed { index, itemRef ->
                 val href = manifest[itemRef] ?: return@forEachIndexed
                 val fullPath = if (baseDir.isNotEmpty()) "$baseDir/$href" else href
-                
+
                 val entry = zipFile.getEntry(fullPath)
                 if (entry != null) {
                     val content = zipFile.getInputStream(entry).bufferedReader().readText()
                     val cleanContent = parseHTMLContent(content)
                     val title = extractChapterTitle(content) ?: "Chapter ${index + 1}"
-                    
+
                     chapters.add(Chapter(
                         index = index,
                         title = title,
@@ -182,7 +182,7 @@ class EPUBReaderService @Inject constructor(
     private fun parseOPF(xml: String): EPUBMetadata {
         val doc = Jsoup.parse(xml, "", org.jsoup.parser.Parser.xmlParser())
         val metadata = doc.select("metadata").first()
-        
+
         return EPUBMetadata(
             title = metadata?.select("dc|title, title")?.text() ?: "Unknown Title",
             author = metadata?.select("dc|creator, creator")?.text() ?: "Unknown Author",
@@ -200,9 +200,9 @@ class EPUBReaderService @Inject constructor(
     private fun parseSpine(xml: String): List<String> {
         val doc = Jsoup.parse(xml, "", org.jsoup.parser.Parser.xmlParser())
         val spine = doc.select("spine").first()
-        
-        return spine?.select("itemref")?.map { 
-            it.attr("idref") 
+
+        return spine?.select("itemref")?.map {
+            it.attr("idref")
         } ?: emptyList()
     }
 
@@ -212,7 +212,7 @@ class EPUBReaderService @Inject constructor(
     private fun parseManifest(xml: String): Map<String, String> {
         val doc = Jsoup.parse(xml, "", org.jsoup.parser.Parser.xmlParser())
         val manifest = doc.select("manifest").first()
-        
+
         val items = mutableMapOf<String, String>()
         manifest?.select("item")?.forEach { item ->
             val id = item.attr("id")
@@ -221,7 +221,7 @@ class EPUBReaderService @Inject constructor(
                 items[id] = href
             }
         }
-        
+
         return items
     }
 
@@ -230,10 +230,10 @@ class EPUBReaderService @Inject constructor(
      */
     private fun parseHTMLContent(html: String): String {
         val doc = Jsoup.parse(html)
-        
+
         // Remove script and style elements
         doc.select("script, style").remove()
-        
+
         // Get text content
         val body = doc.body()
         if (body != null) {
@@ -242,7 +242,7 @@ class EPUBReaderService @Inject constructor(
             body.select("p").prepend("\\n\\n")
             return body.text().replace("\\n", "\n")
         }
-        
+
         return doc.text()
     }
 
@@ -251,13 +251,13 @@ class EPUBReaderService @Inject constructor(
      */
     private fun extractChapterTitle(html: String): String? {
         val doc = Jsoup.parse(html)
-        
+
         // Try to find title in order of preference
         doc.select("h1").firstOrNull()?.text()?.let { return it }
         doc.select("h2").firstOrNull()?.text()?.let { return it }
         doc.select("h3").firstOrNull()?.text()?.let { return it }
         doc.select("title").firstOrNull()?.text()?.let { return it }
-        
+
         return null
     }
 
@@ -267,31 +267,31 @@ class EPUBReaderService @Inject constructor(
     suspend fun searchInBook(query: String): List<SearchResult> = withContext(Dispatchers.IO) {
         val results = mutableListOf<SearchResult>()
         val state = _readerState.value
-        
+
         if (!state.isLoaded) return@withContext results
-        
+
         state.chapters.forEach { chapter ->
             val content = chapter.content.lowercase()
             val searchQuery = query.lowercase()
-            
+
             var index = content.indexOf(searchQuery)
             while (index >= 0) {
                 // Get context around the match
                 val start = maxOf(0, index - 50)
                 val end = minOf(content.length, index + query.length + 50)
                 val context = "..." + content.substring(start, end) + "..."
-                
+
                 results.add(SearchResult(
                     chapterIndex = chapter.index,
                     chapterTitle = chapter.title,
                     context = context,
                     position = index
                 ))
-                
+
                 index = content.indexOf(searchQuery, index + 1)
             }
         }
-        
+
         results
     }
 

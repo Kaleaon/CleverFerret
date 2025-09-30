@@ -23,7 +23,7 @@ import javax.inject.Singleton
 
 /**
  * EPUB Reader Service using a custom EPUB parser
- * 
+ *
  * This service handles:
  * - Loading EPUB files from URI or File
  * - Parsing table of contents (TOC) and spine order
@@ -35,20 +35,20 @@ import javax.inject.Singleton
 class EpubReaderService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     private val _readerState = MutableStateFlow(EpubReaderState())
     val readerState: StateFlow<EpubReaderState> = _readerState.asStateFlow()
-    
+
     private var currentEpub: EpubBook? = null
     private var currentChapters: List<EpubChapter> = emptyList()
-    
+
     /**
      * Load an EPUB file from a URI
      */
     suspend fun loadEPUB(uri: Uri): Boolean = withContext(Dispatchers.IO) {
         try {
             updateReaderState(isLoading = true)
-            
+
             val file = when (uri.scheme) {
                 "file" -> File(uri.path!!)
                 "content" -> {
@@ -63,17 +63,17 @@ class EpubReaderService @Inject constructor(
                 }
                 else -> throw IllegalArgumentException("Unsupported URI scheme: ${uri.scheme}")
             }
-            
+
             if (!file.exists()) {
                 updateReaderState(error = "File not found")
                 return@withContext false
             }
-            
+
             val epub = parseEpubFile(file)
             if (epub != null) {
                 currentEpub = epub
                 currentChapters = epub.chapters
-                
+
                 updateReaderState(
                     isLoading = false,
                     isLoaded = true,
@@ -88,18 +88,18 @@ class EpubReaderService @Inject constructor(
                 updateReaderState(error = "Failed to parse EPUB file")
                 false
             }
-            
+
         } catch (e: Exception) {
             updateReaderState(error = "Failed to load EPUB: ${e.message}")
             false
         }
     }
-    
+
     /**
      * Load an EPUB file from a File
      */
     suspend fun loadEPUB(file: File): Boolean = loadEPUB(Uri.fromFile(file))
-    
+
     /**
      * Parse an EPUB file
      */
@@ -108,18 +108,18 @@ class EpubReaderService @Inject constructor(
             ZipFile(file).use { zipFile ->
                 // Parse metadata first
                 val metadata = parseMetadata(zipFile)
-                
+
                 // Parse manifest and spine
                 val contentOpf = findContentOpf(zipFile) ?: return null
                 val manifestItems = parseManifest(zipFile, contentOpf)
                 val spineItems = parseSpine(zipFile, contentOpf)
-                
+
                 // Parse table of contents
                 val tocItems = parseToc(zipFile, manifestItems)
-                
+
                 // Extract chapters
                 val chapters = extractChapters(zipFile, spineItems, manifestItems, tocItems)
-                
+
                 EpubBook(
                     metadata = metadata,
                     chapters = chapters
@@ -129,7 +129,7 @@ class EpubReaderService @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Find the content.opf file
      */
@@ -144,13 +144,13 @@ class EpubReaderService @Inject constructor(
                 return zipFile.getEntry(rootfilePath)
             }
         }
-        
+
         // Fallback: look for common names
-        return zipFile.getEntry("content.opf") 
+        return zipFile.getEntry("content.opf")
             ?: zipFile.getEntry("OEBPS/content.opf")
             ?: zipFile.getEntry("OPS/content.opf")
     }
-    
+
     /**
      * Parse metadata from content.opf
      */
@@ -159,14 +159,14 @@ class EpubReaderService @Inject constructor(
         if (contentOpf != null) {
             val opfContent = zipFile.getInputStream(contentOpf).bufferedReader().readText()
             val opfDoc = Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser())
-            
+
             val title = opfDoc.select("metadata title").text().ifEmpty { "Unknown Title" }
             val authors = opfDoc.select("metadata creator").map { it.text() }
             val description = opfDoc.select("metadata description").text()
             val language = opfDoc.select("metadata language").text().ifEmpty { "en" }
             val publisher = opfDoc.select("metadata publisher").text()
             val isbn = opfDoc.select("metadata identifier[scheme=ISBN]").text()
-            
+
             return EpubMetadata(
                 title = title,
                 authors = authors,
@@ -178,7 +178,7 @@ class EpubReaderService @Inject constructor(
                 coverImageData = null
             )
         }
-        
+
         return EpubMetadata(
             title = "Unknown Title",
             authors = emptyList(),
@@ -190,7 +190,7 @@ class EpubReaderService @Inject constructor(
             coverImageData = null
         )
     }
-    
+
     /**
      * Parse manifest items from content.opf
      */
@@ -198,45 +198,45 @@ class EpubReaderService @Inject constructor(
         val opfContent = zipFile.getInputStream(contentOpf).bufferedReader().readText()
         val opfDoc = Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser())
         val manifest = mutableMapOf<String, ManifestItem>()
-        
+
         opfDoc.select("manifest item").forEach { item ->
             val id = item.attr("id")
             val href = item.attr("href")
             val mediaType = item.attr("media-type")
-            
+
             if (id.isNotEmpty() && href.isNotEmpty()) {
                 manifest[id] = ManifestItem(id, href, mediaType)
             }
         }
-        
+
         return manifest
     }
-    
+
     /**
      * Parse spine order from content.opf
      */
     private fun parseSpine(zipFile: ZipFile, contentOpf: ZipEntry): List<String> {
         val opfContent = zipFile.getInputStream(contentOpf).bufferedReader().readText()
         val opfDoc = Jsoup.parse(opfContent, "", org.jsoup.parser.Parser.xmlParser())
-        
+
         return opfDoc.select("spine itemref").map { it.attr("idref") }
     }
-    
+
     /**
      * Parse table of contents
      */
     private fun parseToc(zipFile: ZipFile, manifestItems: Map<String, ManifestItem>): List<TocItem> {
         // Find TOC file (usually toc.ncx)
-        val tocManifest = manifestItems.values.find { 
-            it.mediaType == "application/x-dtbncx+xml" || it.href.endsWith("toc.ncx") 
+        val tocManifest = manifestItems.values.find {
+            it.mediaType == "application/x-dtbncx+xml" || it.href.endsWith("toc.ncx")
         }
-        
+
         if (tocManifest != null) {
             val tocEntry = zipFile.getEntry(tocManifest.href)
             if (tocEntry != null) {
                 val tocContent = zipFile.getInputStream(tocEntry).bufferedReader().readText()
                 val tocDoc = Jsoup.parse(tocContent, "", org.jsoup.parser.Parser.xmlParser())
-                
+
                 return tocDoc.select("navMap navPoint").map { navPoint ->
                     val title = navPoint.select("navLabel text").text()
                     val src = navPoint.select("content").attr("src")
@@ -244,10 +244,10 @@ class EpubReaderService @Inject constructor(
                 }
             }
         }
-        
+
         return emptyList()
     }
-    
+
     /**
      * Extract chapters from EPUB
      */
@@ -259,18 +259,18 @@ class EpubReaderService @Inject constructor(
     ): List<EpubChapter> {
         val chapters = mutableListOf<EpubChapter>()
         val opfDir = findContentOpf(zipFile)?.name?.substringBeforeLast("/") ?: ""
-        
+
         spineItems.forEachIndexed { index, itemRef ->
             val manifestItem = manifestItems[itemRef]
             if (manifestItem != null) {
                 val fullPath = if (opfDir.isNotEmpty()) "$opfDir/${manifestItem.href}" else manifestItem.href
                 val entry = zipFile.getEntry(fullPath) ?: zipFile.getEntry(manifestItem.href)
-                
+
                 if (entry != null) {
                     val content = zipFile.getInputStream(entry).bufferedReader().readText()
-                    val title = tocItems.find { it.src.contains(manifestItem.href) }?.title 
+                    val title = tocItems.find { it.src.contains(manifestItem.href) }?.title
                         ?: "Chapter ${index + 1}"
-                    
+
                     chapters.add(
                         EpubChapter(
                             index = index,
@@ -282,17 +282,17 @@ class EpubReaderService @Inject constructor(
                 }
             }
         }
-        
+
         return chapters
     }
-    
-    
+
+
     /**
      * Get the DocumentContent representation for compatibility with UniversalReaderService
      */
     fun getDocumentContent(): DocumentContent? {
         val epub = currentEpub ?: return null
-        
+
         val pages = currentChapters.mapIndexed { index, chapter ->
             DocumentPage(
                 pageNumber = index + 1,
@@ -300,14 +300,14 @@ class EpubReaderService @Inject constructor(
                 title = chapter.title
             )
         }
-        
+
         return DocumentContent(
             type = DocumentType.EPUB,
             pages = pages,
             title = epub.metadata.title
         )
     }
-    
+
     /**
      * Navigate to the next chapter
      */
@@ -319,7 +319,7 @@ class EpubReaderService @Inject constructor(
         }
         return false
     }
-    
+
     /**
      * Navigate to the previous chapter
      */
@@ -331,7 +331,7 @@ class EpubReaderService @Inject constructor(
         }
         return false
     }
-    
+
     /**
      * Jump to a specific chapter
      */
@@ -343,7 +343,7 @@ class EpubReaderService @Inject constructor(
         }
         return false
     }
-    
+
     /**
      * Get the current chapter content
      */
@@ -353,19 +353,19 @@ class EpubReaderService @Inject constructor(
             currentChapters[state.currentChapter].content
         } else null
     }
-    
+
     /**
      * Get chapter by index
      */
     fun getChapter(index: Int): EpubChapter? {
         return if (index in currentChapters.indices) currentChapters[index] else null
     }
-    
+
     /**
      * Extract book metadata
      */
     fun getBookMetadata(): EpubMetadata? = currentEpub?.metadata
-    
+
     private fun updateReaderState(
         isLoading: Boolean = _readerState.value.isLoading,
         isLoaded: Boolean = _readerState.value.isLoaded,

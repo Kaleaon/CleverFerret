@@ -36,19 +36,19 @@ fun LibraryManagementScreen(
     var showCreateDialog by remember { mutableStateOf(false) }
     var showImportDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
-    
+
     val libraries by viewModel.libraries.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         "CleverFerret",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -66,7 +66,7 @@ fun LibraryManagementScreen(
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Settings") },
-                                onClick = { 
+                                onClick = {
                                     showMenu = false
                                     // TODO: Navigate to settings
                                 },
@@ -76,7 +76,7 @@ fun LibraryManagementScreen(
                             )
                             DropdownMenuItem(
                                 text = { Text("Import Calibre Library") },
-                                onClick = { 
+                                onClick = {
                                     showMenu = false
                                     showImportDialog = true
                                 },
@@ -115,14 +115,14 @@ fun LibraryManagementScreen(
             } else {
                 LibraryListContent(
                     libraries = libraries,
-                    onLibraryClick = { library -> 
+                    onLibraryClick = { library ->
                         // TODO: Navigate to library contents
                     }
                 )
             }
         }
     }
-    
+
     if (showCreateDialog) {
         CreateLibraryDialog(
             open = showCreateDialog,
@@ -133,7 +133,7 @@ fun LibraryManagementScreen(
             }
         )
     }
-    
+
     if (showImportDialog) {
         ImportCalibreDialog(
             open = showImportDialog,
@@ -144,7 +144,7 @@ fun LibraryManagementScreen(
             }
         )
     }
-    
+
     // Show loading or error states
     when (uiState) {
         is LibraryManagementUiState.Loading -> {
@@ -185,25 +185,25 @@ private fun WelcomeScreen(
             modifier = Modifier.size(120.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
             text = "Welcome to CleverFerret",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         Text(
             text = "Your universal media library organizer",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(48.dp))
-        
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -219,17 +219,17 @@ private fun WelcomeScreen(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = "Create your first media library to start organizing your books, movies, music, and more.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -245,7 +245,7 @@ private fun WelcomeScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Create Library")
                     }
-                    
+
                     OutlinedButton(
                         onClick = onImportLibrary,
                         modifier = Modifier.weight(1f)
@@ -257,9 +257,9 @@ private fun WelcomeScreen(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Features overview
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -276,18 +276,18 @@ private fun WelcomeScreen(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 val mediaTypes = listOf(
                     "📚 Books: EPUB, PDF, TXT, MOBI",
-                    "🎵 Music: MP3, FLAC, OGG, M4A", 
+                    "🎵 Music: MP3, FLAC, OGG, M4A",
                     "🎬 Movies: MP4, MKV, AVI, MOV",
                     "📺 TV Shows: Episode & season tracking",
                     "🎧 Podcasts: RSS feed management",
                     "📄 Documents: Advanced text processing"
                 )
-                
+
                 mediaTypes.forEach { type ->
                     Text(
                         text = type,
@@ -319,7 +319,7 @@ private fun LibraryListContent(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-        
+
         items(libraries) { library ->
             LibraryCard(
                 library = library,
@@ -335,7 +335,7 @@ private fun LibraryCard(
     onClick: () -> Unit
 ) {
     val gradientColors = getLibraryGradientColors(library.type)
-    
+
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -368,9 +368,9 @@ private fun LibraryCard(
                     modifier = Modifier.size(48.dp),
                     tint = Color.White
                 )
-                
+
                 Spacer(modifier = Modifier.width(16.dp))
-                
+
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -380,13 +380,13 @@ private fun LibraryCard(
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
-                    
+
                     Text(
                         text = getLibraryTypeDisplayName(library.type),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.8f)
                     )
-                    
+
                     if (library.description?.isNotEmpty() == true) {
                         Text(
                             text = library.description,
@@ -396,7 +396,7 @@ private fun LibraryCard(
                         )
                     }
                 }
-                
+
                 // TODO: Add item count and stats
                 Column(
                     horizontalAlignment = Alignment.End

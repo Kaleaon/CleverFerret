@@ -21,35 +21,35 @@ data class Locator(
 interface ReaderEngine {
     val bookId: String
     val currentLocator: Flow<Locator>
-    
+
     /**
      * Open a book from the specified source
      */
     suspend fun open(context: Context, source: BookSource): Result<Unit>
-    
+
     /**
      * Navigate to a specific location in the book
      */
     suspend fun goTo(locator: Locator): Result<Unit>
-    
+
     /**
      * Move to the next page/section
      * @return true if successful, false if at end of book
      */
     suspend fun next(): Boolean
-    
+
     /**
-     * Move to the previous page/section  
+     * Move to the previous page/section
      * @return true if successful, false if at beginning of book
      */
     suspend fun previous(): Boolean
-    
+
     /**
      * Search for text within the book
      * @return list of locations where the query was found
      */
     suspend fun search(query: String): List<Locator>
-    
+
     /**
      * Close the book and release resources
      */

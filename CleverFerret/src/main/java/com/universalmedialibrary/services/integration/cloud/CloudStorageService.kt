@@ -21,27 +21,27 @@ class CloudStorageService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val _cloudState = MutableStateFlow(CloudStorageState())
     val cloudState: StateFlow<CloudStorageState> = _cloudState.asStateFlow()
-    
+
     private val connectedServices = mutableSetOf<CloudProvider>()
-    
+
     /**
      * Connect to Dropbox
      */
     suspend fun connectDropbox(accessToken: String): CloudConnectionResult = withContext(Dispatchers.IO) {
         try {
             _cloudState.value = _cloudState.value.copy(isConnecting = true)
-            
+
             // Test Dropbox connection
             // This would use Dropbox SDK to verify the token
-            
+
             connectedServices.add(CloudProvider.DROPBOX)
             updateCloudState()
-            
+
             CloudConnectionResult.Success("Dropbox connected successfully")
-            
+
         } catch (e: Exception) {
             _cloudState.value = _cloudState.value.copy(
                 isConnecting = false,
@@ -50,22 +50,22 @@ class CloudStorageService @Inject constructor(
             CloudConnectionResult.Error(e.message ?: "Connection failed")
         }
     }
-    
+
     /**
      * Connect to Google Drive
      */
     suspend fun connectGoogleDrive(credentials: String): CloudConnectionResult = withContext(Dispatchers.IO) {
         try {
             _cloudState.value = _cloudState.value.copy(isConnecting = true)
-            
+
             // Test Google Drive connection
             // This would use Google Drive API to verify credentials
-            
+
             connectedServices.add(CloudProvider.GOOGLE_DRIVE)
             updateCloudState()
-            
+
             CloudConnectionResult.Success("Google Drive connected successfully")
-            
+
         } catch (e: Exception) {
             _cloudState.value = _cloudState.value.copy(
                 isConnecting = false,
@@ -74,16 +74,16 @@ class CloudStorageService @Inject constructor(
             CloudConnectionResult.Error(e.message ?: "Connection failed")
         }
     }
-    
+
     /**
      * Sync data to cloud storage
      */
     suspend fun syncToCloud(): CloudSyncResult = withContext(Dispatchers.IO) {
         try {
             _cloudState.value = _cloudState.value.copy(isSyncing = true)
-            
+
             var totalFiles = 0
-            
+
             for (provider in connectedServices) {
                 when (provider) {
                     CloudProvider.DROPBOX -> {
@@ -100,14 +100,14 @@ class CloudStorageService @Inject constructor(
                     }
                 }
             }
-            
+
             _cloudState.value = _cloudState.value.copy(
                 isSyncing = false,
                 lastSyncTime = System.currentTimeMillis()
             )
-            
+
             CloudSyncResult(true, totalFiles)
-            
+
         } catch (e: Exception) {
             _cloudState.value = _cloudState.value.copy(
                 isSyncing = false,
@@ -116,7 +116,7 @@ class CloudStorageService @Inject constructor(
             CloudSyncResult(false, 0)
         }
     }
-    
+
     /**
      * Get total storage used across all providers
      */
@@ -124,7 +124,7 @@ class CloudStorageService @Inject constructor(
         // Mock data - would aggregate real usage from each provider
         return connectedServices.size * 1024L * 1024L * 1024L // 1GB per connected service
     }
-    
+
     /**
      * Check all cloud connections
      */
@@ -136,7 +136,7 @@ class CloudStorageService @Inject constructor(
             hasActiveConnections = connectedServices.isNotEmpty()
         )
     }
-    
+
     private fun updateCloudState() {
         _cloudState.value = _cloudState.value.copy(
             isConnecting = false,
