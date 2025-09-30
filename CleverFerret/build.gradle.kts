@@ -14,12 +14,12 @@ plugins {
 
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -54,9 +54,8 @@ android {
 
 
     composeOptions {
-        kotlinCompilerExtensionVersion ========
-
-    
+        kotlinCompilerExtensionVersion = "1.5.11"
+    }
 
     lint {
         abortOnError = false
