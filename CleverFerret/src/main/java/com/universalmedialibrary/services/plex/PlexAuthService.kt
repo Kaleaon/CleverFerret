@@ -167,7 +167,7 @@ class PlexAuthService @Inject constructor(
     /**
      * Discover available Plex servers for the authenticated user
      */
-    suspend fun discoverServers(): Result<List<PlexServerInfo>> {
+    suspend fun discoverServers(): Result<List<PlexDiscoveredServer>> {
         return try {
             val token = tokenStorage.getAuthToken()
             if (token.isNullOrEmpty()) {
@@ -182,7 +182,7 @@ class PlexAuthService @Inject constructor(
                 val servers = response.body()!!
                     .filter { it.provides.contains("server") }
                     .map { resource ->
-                        PlexServerInfo(
+                        PlexDiscoveredServer(
                             name = resource.name,
                             clientIdentifier = resource.clientIdentifier,
                             owned = resource.owned,
@@ -269,7 +269,7 @@ data class PlexAuthResult(
 /**
  * Server information from discovery
  */
-data class PlexServerInfo(
+data class PlexDiscoveredServer(
     val name: String,
     val clientIdentifier: String,
     val owned: Boolean,

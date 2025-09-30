@@ -23,8 +23,8 @@ class PlexAuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<PlexAuthUiState>(PlexAuthUiState.Idle)
     val authState: StateFlow<PlexAuthUiState> = _authState.asStateFlow()
     
-    private val _discoveredServers = MutableStateFlow<List<PlexServerInfo>>(emptyList())
-    val discoveredServers: StateFlow<List<PlexServerInfo>> = _discoveredServers.asStateFlow()
+    private val _discoveredServers = MutableStateFlow<List<PlexDiscoveredServer>>(emptyList())
+    val discoveredServers: StateFlow<List<PlexDiscoveredServer>> = _discoveredServers.asStateFlow()
     
     private var pollingJob: Job? = null
     
@@ -101,7 +101,7 @@ class PlexAuthViewModel @Inject constructor(
     /**
      * Select a Plex server to sync
      */
-    fun selectServer(server: PlexServerInfo) {
+    fun selectServer(server: PlexDiscoveredServer) {
         viewModelScope.launch {
             // Find the best connection (prefer local, then remote)
             val connection = server.connections.firstOrNull { it.local }

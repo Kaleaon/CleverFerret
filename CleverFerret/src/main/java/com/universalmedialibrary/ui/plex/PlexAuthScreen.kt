@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.services.plex.PlexDiscoveredServer
 
 /**
  * Screen for Plex PIN authentication flow
@@ -314,8 +315,8 @@ private fun SuccessContent(
 
 @Composable
 private fun ServersContent(
-    servers: List<PlexServerInfo>,
-    onServerSelected: (PlexServerInfo) -> Unit
+    servers: List<PlexDiscoveredServer>,
+    onServerSelected: (PlexDiscoveredServer) -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -350,7 +351,7 @@ private fun ServersContent(
 
 @Composable
 private fun ServerListItem(
-    server: PlexServerInfo,
+    server: PlexDiscoveredServer,
     onClick: () -> Unit
 ) {
     Card(
