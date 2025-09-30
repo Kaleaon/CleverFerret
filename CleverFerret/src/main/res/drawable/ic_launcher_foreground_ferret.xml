@@ -4,7 +4,7 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
+
     <!-- Use the uploaded color ferret icon as foreground -->
     <group android:translateX="54" android:translateY="54">
         <!-- Scale and center the ferret icon within the safe zone -->

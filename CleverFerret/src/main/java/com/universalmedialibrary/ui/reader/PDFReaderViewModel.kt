@@ -42,11 +42,11 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
     fun loadPDF(filePath: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             try {
                 // Simulate loading a PDF - in real implementation, this would use a PDF library
                 kotlinx.coroutines.delay(1500) // Simulate loading time
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isLoaded = true,
@@ -144,7 +144,7 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
                     position = androidx.compose.ui.geometry.Offset(200f, 400f)
                 )
             )
-            
+
             _uiState.value = _uiState.value.copy(searchResults = mockResults)
         }
     }
@@ -168,55 +168,55 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
     private fun generateSamplePDFContent(pageNumber: Int): String {
         return """
             Page $pageNumber Content
-            
+
             This is a sample PDF page with various types of content that demonstrates the advanced PDF reader capabilities:
-            
+
             Enhanced PDF Reading Features:
-            
+
             1. Annotation Support
                • Highlighting text passages
                • Adding text notes and comments
                • Drawing freehand annotations
                • Strikethrough text
                • Color-coded annotations
-            
+
             2. Advanced Navigation
                • Page-by-page navigation
                • Jump to specific page numbers
                • Bookmark important pages
                • Table of contents navigation
                • Thumbnail page preview
-            
+
             3. Search Capabilities
                • Full-text search across the document
                • Search result highlighting
                • Navigate between search results
                • Case-sensitive search options
                • Regular expression support
-            
+
             4. Display Options
                • Zoom controls (fit width, fit page, custom zoom)
                • Night mode for comfortable reading
                • Adjustable brightness
                • Rotation support
                • Single/continuous page view
-            
+
             5. Text Selection and Export
                • Select and copy text
                • Export annotations
                • Share selected content
                • Print pages or selections
-            
+
             Sample Content for Page $pageNumber:
-            
+
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            
+
             Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            
+
             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-            
+
             Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-            
+
             This PDF reader supports modern PDF features including:
             - Interactive forms
             - Embedded multimedia
@@ -224,7 +224,7 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
             - Digital signatures
             - Password protection
             - Accessibility features
-            
+
             [End of Page $pageNumber]
         """.trimIndent()
     }

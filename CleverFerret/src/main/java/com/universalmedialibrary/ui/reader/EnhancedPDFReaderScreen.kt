@@ -53,7 +53,7 @@ fun EnhancedPDFReaderScreen(
     val annotationMode by viewModel.annotationMode.collectAsState()
     val selectedAnnotationTool by viewModel.selectedAnnotationTool.collectAsState()
     val annotations by viewModel.annotations.collectAsState()
-    
+
     var showAnnotationMenu by remember { mutableStateOf(false) }
     var showPageMenu by remember { mutableStateOf(false) }
 
@@ -64,7 +64,7 @@ fun EnhancedPDFReaderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = uiState.documentTitle,
                         maxLines = 1
@@ -86,7 +86,7 @@ fun EnhancedPDFReaderScreen(
                             tint = if (annotationMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                     }
-                    
+
                     // Annotation tools
                     if (annotationMode) {
                         IconButton(onClick = { showAnnotationMenu = true }) {
@@ -100,7 +100,7 @@ fun EnhancedPDFReaderScreen(
                                 contentDescription = "Annotation Tools"
                             )
                         }
-                        
+
                         DropdownMenu(
                             expanded = showAnnotationMenu,
                             onDismissRequest = { showAnnotationMenu = false }
@@ -119,56 +119,56 @@ fun EnhancedPDFReaderScreen(
                             }
                         }
                     }
-                    
+
                     // Search
                     IconButton(onClick = { viewModel.toggleSearch() }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
                     }
-                    
+
                     // Page navigation
                     IconButton(onClick = { showPageMenu = true }) {
                         Icon(Icons.Default.MenuBook, contentDescription = "Page Navigation")
                     }
-                    
+
                     DropdownMenu(
                         expanded = showPageMenu,
                         onDismissRequest = { showPageMenu = false }
                     ) {
                         DropdownMenuItem(
                             text = { Text("Go to Page...") },
-                            onClick = { 
+                            onClick = {
                                 viewModel.showPageSelector()
-                                showPageMenu = false 
+                                showPageMenu = false
                             },
                             leadingIcon = {
                                 Icon(Icons.Default.Pages, contentDescription = null)
                             }
                         )
-                        
+
                         DropdownMenuItem(
                             text = { Text("Bookmarks") },
-                            onClick = { 
+                            onClick = {
                                 viewModel.showBookmarks()
-                                showPageMenu = false 
+                                showPageMenu = false
                             },
                             leadingIcon = {
                                 Icon(Icons.Default.Bookmark, contentDescription = null)
                             }
                         )
-                        
+
                         DropdownMenuItem(
                             text = { Text("Zoom Fit Width") },
-                            onClick = { 
+                            onClick = {
                                 viewModel.setZoomMode(ZoomMode.FIT_WIDTH)
-                                showPageMenu = false 
+                                showPageMenu = false
                             }
                         )
-                        
+
                         DropdownMenuItem(
                             text = { Text("Zoom Fit Page") },
-                            onClick = { 
+                            onClick = {
                                 viewModel.setZoomMode(ZoomMode.FIT_PAGE)
-                                showPageMenu = false 
+                                showPageMenu = false
                             }
                         )
                     }
@@ -187,7 +187,7 @@ fun EnhancedPDFReaderScreen(
                         searchResults = uiState.searchResults
                     )
                 }
-                
+
                 // Page navigation
                 if (uiState.isLoaded && !uiState.isLoading) {
                     BottomAppBar {
@@ -202,13 +202,13 @@ fun EnhancedPDFReaderScreen(
                             ) {
                                 Icon(Icons.Default.NavigateBefore, contentDescription = "Previous Page")
                             }
-                            
+
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = "Page ${uiState.currentPage} of ${uiState.totalPages}",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
-                                
+
                                 LinearProgressIndicator(
                                     progress = { uiState.currentPage.toFloat() / uiState.totalPages.coerceAtLeast(1) },
                                     modifier = Modifier
@@ -216,7 +216,7 @@ fun EnhancedPDFReaderScreen(
                                         .padding(top = 4.dp),
                                 )
                             }
-                            
+
                             IconButton(
                                 onClick = { viewModel.nextPage() },
                                 enabled = uiState.currentPage < uiState.totalPages
@@ -240,7 +240,7 @@ fun EnhancedPDFReaderScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
+
                 uiState.error != null -> {
                     Column(
                         modifier = Modifier
@@ -261,7 +261,7 @@ fun EnhancedPDFReaderScreen(
                         )
                     }
                 }
-                
+
                 uiState.isLoaded -> {
                     PDFPageView(
                         pageContent = uiState.currentPageContent,
@@ -272,7 +272,7 @@ fun EnhancedPDFReaderScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                
+
                 else -> {
                     Text(
                         text = "No PDF loaded",
@@ -281,12 +281,12 @@ fun EnhancedPDFReaderScreen(
                     )
                 }
             }
-            
+
             // Floating annotation panel
             if (annotationMode && annotations.isNotEmpty()) {
                 FloatingAnnotationPanel(
                     annotations = annotations.filter { it.pageNumber == uiState.currentPage },
-                    onAnnotationClick = { annotation -> 
+                    onAnnotationClick = { annotation ->
                         // Handle annotation click
                     },
                     onAnnotationDelete = viewModel::deleteAnnotation,
@@ -330,14 +330,14 @@ fun SearchBar(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             if (searchResults.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     "${searchResults.size} results found",
                     style = MaterialTheme.typography.bodySmall
                 )
-                
+
                 // Show first few results
                 searchResults.take(3).forEach { result ->
                     Spacer(modifier = Modifier.height(4.dp))
@@ -345,7 +345,7 @@ fun SearchBar(
                         "Page ${result.pageNumber}: ${result.context}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.clickable { 
+                        modifier = Modifier.clickable {
                             // Navigate to search result
                         }
                     )
@@ -366,7 +366,7 @@ fun PDFPageView(
 ) {
     var drawingPath by remember { mutableStateOf<Path?>(null) }
     var currentPath by remember { mutableStateOf(Path()) }
-    
+
     Box(
         modifier = modifier
             .background(Color.White)
@@ -380,16 +380,16 @@ fun PDFPageView(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = pageContent,
                 style = MaterialTheme.typography.bodyLarge,
                 lineHeight = 24.sp
             )
         }
-        
+
         // Annotation overlay
         if (annotationMode) {
             Canvas(
@@ -460,7 +460,7 @@ fun PDFPageView(
                         }
                     }
                 }
-                
+
                 // Draw current drawing
                 drawingPath?.let { path ->
                     drawPath(
@@ -493,9 +493,9 @@ fun FloatingAnnotationPanel(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             annotations.forEach { annotation ->
                 Row(
                     modifier = Modifier
@@ -514,15 +514,15 @@ fun FloatingAnnotationPanel(
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
-                    
+
                     Spacer(modifier = Modifier.width(8.dp))
-                    
+
                     Text(
                         text = annotation.content.take(20) + if (annotation.content.length > 20) "..." else "",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.weight(1f)
                     )
-                    
+
                     IconButton(
                         onClick = { onAnnotationDelete(annotation.id) },
                         modifier = Modifier.size(24.dp)

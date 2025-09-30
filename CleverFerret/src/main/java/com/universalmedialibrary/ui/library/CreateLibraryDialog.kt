@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,9 +38,9 @@ fun CreateLibraryDialog(
     var selectedType by remember { mutableStateOf("BOOK") }
     var selectedPath by remember { mutableStateOf("") }
     var showTypeSelection by remember { mutableStateOf(false) }
-    
+
     val context = LocalContext.current
-    
+
     val folderPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -49,9 +50,9 @@ fun CreateLibraryDialog(
             }
         }
     }
-    
+
     if (!open) return
-    
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -72,7 +73,7 @@ fun CreateLibraryDialog(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 // Library Name Input
                 OutlinedTextField(
                     value = libraryName,
@@ -84,7 +85,7 @@ fun CreateLibraryDialog(
                         Icon(Icons.Default.Edit, contentDescription = null)
                     }
                 )
-                
+
                 // Media Type Selection
                 Card(
                     colors = CardDefaults.cardColors(
@@ -99,9 +100,9 @@ fun CreateLibraryDialog(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
-                        
+
                         Spacer(modifier = Modifier.height(12.dp))
-                        
+
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(2),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -118,7 +119,7 @@ fun CreateLibraryDialog(
                         }
                     }
                 }
-                
+
                 // Folder Selection
                 Card(
                     colors = CardDefaults.cardColors(
@@ -133,9 +134,9 @@ fun CreateLibraryDialog(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         if (selectedPath.isNotEmpty()) {
                             Text(
                                 text = "Selected: ${selectedPath.takeLast(50)}",
@@ -144,7 +145,7 @@ fun CreateLibraryDialog(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                         }
-                        
+
                         Button(
                             onClick = {
                                 try {
@@ -164,11 +165,11 @@ fun CreateLibraryDialog(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
-                            Icon(Icons.Default.List, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.List, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(if (selectedPath.isEmpty()) "Choose Folder" else "Change Folder")
                         }
-                        
+
                         Text(
                             text = "Optional: Select a folder containing your media files",
                             style = MaterialTheme.typography.bodySmall,
@@ -176,7 +177,7 @@ fun CreateLibraryDialog(
                         )
                     }
                 }
-                
+
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -188,11 +189,11 @@ fun CreateLibraryDialog(
                     ) {
                         Text("Cancel")
                     }
-                    
+
                     Button(
                         onClick = {
                             if (libraryName.isNotBlank()) {
-                                val finalPath = selectedPath.ifEmpty { 
+                                val finalPath = selectedPath.ifEmpty {
                                     context.getExternalFilesDir(getMediaTypeDisplayName(selectedType))?.absolutePath ?: ""
                                 }
                                 onConfirm(libraryName.trim(), selectedType, finalPath)
@@ -252,13 +253,13 @@ private data class MediaTypeInfo(
 
 private fun getMediaTypes(): List<MediaTypeInfo> {
     return listOf(
-        MediaTypeInfo("BOOK", "Books", Icons.Default.List),
+        MediaTypeInfo("BOOK", "Books", Icons.AutoMirrored.Filled.List),
         MediaTypeInfo("MOVIE", "Movies", Icons.Default.PlayArrow),
         MediaTypeInfo("MUSIC_TRACK", "Music", Icons.Default.PlayArrow),
         MediaTypeInfo("TV_SHOW", "TV Shows", Icons.Default.PlayArrow),
         MediaTypeInfo("PODCAST_EPISODE", "Podcasts", Icons.Default.PlayArrow),
-        MediaTypeInfo("DOCUMENT", "Documents", Icons.Default.List),
-        MediaTypeInfo("COMIC", "Comics", Icons.Default.List),
+        MediaTypeInfo("DOCUMENT", "Documents", Icons.AutoMirrored.Filled.List),
+        MediaTypeInfo("COMIC", "Comics", Icons.AutoMirrored.Filled.List),
         MediaTypeInfo("AUDIOBOOK", "Audiobooks", Icons.Default.PlayArrow)
     )
 }

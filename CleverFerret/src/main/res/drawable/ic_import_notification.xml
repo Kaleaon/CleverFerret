@@ -5,10 +5,10 @@
     android:viewportWidth="24"
     android:viewportHeight="24"
     android:tint="?attr/colorOnPrimary">
-    
+
     <!-- Import/Download arrow icon optimized for notifications -->
     <path
         android:fillColor="@android:color/white"
         android:pathData="M5,20h14v-2H5V20zM19,9h-4V3H9v6H5l7,7L19,9z"/>
-        
+
 </vector>

@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 /**
  * Service for converting news articles to EPUB format
- * 
+ *
  * This service handles:
  * - Web scraping of news articles
  * - Content extraction and cleaning
@@ -48,30 +48,30 @@ class NewsToEpubConverter @Inject constructor(
         try {
             // Download and parse the webpage
             val document = Jsoup.connect(url).get()
-            
+
             // Extract article content
             val title = extractTitle(document)
             val author = extractAuthor(document)
             val content = extractContent(document)
             val publishDate = extractPublishDate(document)
-            
+
             if (content.isNullOrBlank()) {
                 return@withContext ConversionResult(
                     success = false,
                     errorMessage = "Could not extract content from the article"
                 )
             }
-            
+
             // Create EPUB
             val epubPath = createEpubFile(title, author, content, url, publishDate)
-            
+
             ConversionResult(
                 success = true,
                 filePath = epubPath,
                 title = title,
                 author = author
             )
-            
+
         } catch (e: Exception) {
             ConversionResult(
                 success = false,
@@ -79,7 +79,7 @@ class NewsToEpubConverter @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Extract the main title from the document
      */
@@ -89,7 +89,7 @@ class NewsToEpubConverter @Inject constructor(
             ?: document.select("[property=og:title]").attr("content")
             ?: "Unknown Article"
     }
-    
+
     /**
      * Extract the author from the document
      */
@@ -100,7 +100,7 @@ class NewsToEpubConverter @Inject constructor(
             ?: document.select("[name=author]").attr("content")
             ?: "Unknown Author"
     }
-    
+
     /**
      * Extract the main content from the document
      */
@@ -109,13 +109,13 @@ class NewsToEpubConverter @Inject constructor(
         val contentSelectors = listOf(
             "article",
             ".article-content",
-            ".post-content", 
+            ".post-content",
             ".entry-content",
             ".content",
             "[property=articleBody]",
             "main"
         )
-        
+
         for (selector in contentSelectors) {
             val element = document.select(selector).first()
             if (element != null && element.text().length > 200) {
@@ -124,16 +124,16 @@ class NewsToEpubConverter @Inject constructor(
                 return element.html()
             }
         }
-        
+
         // Fallback: get all paragraphs
         val paragraphs = document.select("p")
         if (paragraphs.size > 3) {
             return paragraphs.joinToString("<br><br>") { it.html() }
         }
-        
+
         return null
     }
-    
+
     /**
      * Extract publish date from the document
      */
@@ -145,14 +145,14 @@ class NewsToEpubConverter @Inject constructor(
             ".date",
             "time[datetime]"
         )
-        
+
         for (selector in dateSelectors) {
             val element = document.select(selector).first()
             if (element != null) {
                 val dateStr = element.attr("content").takeIf { it.isNotEmpty() }
                     ?: element.attr("datetime").takeIf { it.isNotEmpty() }
                     ?: element.text()
-                
+
                 try {
                     // Try parsing common date formats
                     val formats = listOf(
@@ -161,7 +161,7 @@ class NewsToEpubConverter @Inject constructor(
                         "MMM dd, yyyy",
                         "MMMM dd, yyyy"
                     )
-                    
+
                     for (format in formats) {
                         try {
                             return SimpleDateFormat(format, Locale.US).parse(dateStr) ?: Date()
@@ -174,10 +174,10 @@ class NewsToEpubConverter @Inject constructor(
                 }
             }
         }
-        
+
         return Date() // Fallback to current date
     }
-    
+
     /**
      * Create the EPUB file from the extracted content
      */
@@ -193,11 +193,11 @@ class NewsToEpubConverter @Inject constructor(
         if (!outputDir.exists()) {
             outputDir.mkdirs()
         }
-        
+
         val safeFileName = title.replace(Regex("[^a-zA-Z0-9\\s]"), "").replace("\\s+".toRegex(), "_")
         val fileName = "${safeFileName}_${System.currentTimeMillis()}.epub"
         val outputFile = File(outputDir, fileName)
-        
+
         // Create metadata
         val metadata = SimpleEpubCreator.EpubMetadata(
             title = title,
@@ -206,7 +206,7 @@ class NewsToEpubConverter @Inject constructor(
             publisher = "CleverFerret News Reader",
             date = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(publishDate)
         )
-        
+
         // Create content with source information
         val contentWithSource = """
             <div class="source-info">
@@ -217,16 +217,16 @@ class NewsToEpubConverter @Inject constructor(
                 $content
             </div>
         """.trimIndent()
-        
+
         // Create chapter
         val chapter = SimpleEpubCreator.Chapter(
             title = title,
             content = contentWithSource
         )
-        
+
         // Generate EPUB
         epubCreator.createEpub(outputFile, metadata, listOf(chapter))
-        
+
         return outputFile.absolutePath
     }
 }

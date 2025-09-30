@@ -31,17 +31,17 @@ fun UniversalVideoPlayerScreen(
 ) {
     val context = LocalContext.current
     val playerState by viewModel.playerState.collectAsState()
-    
+
     LaunchedEffect(videoUri) {
         viewModel.initializePlayer(context, videoUri)
     }
-    
+
     DisposableEffect(Unit) {
         onDispose {
             viewModel.releasePlayer()
         }
     }
-    
+
     PlexTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -69,7 +69,7 @@ fun UniversalVideoPlayerScreen(
                         )
                     }
                 }
-                
+
                 // Player info overlay (top)
                 PlayerInfoOverlay(
                     playerState = playerState,
@@ -77,7 +77,7 @@ fun UniversalVideoPlayerScreen(
                         .align(Alignment.TopStart)
                         .padding(16.dp)
                 )
-                
+
                 // Enhanced controls overlay (bottom)
                 EnhancedVideoControls(
                     playerState = playerState,
@@ -93,7 +93,7 @@ fun UniversalVideoPlayerScreen(
                         .align(Alignment.BottomCenter)
                         .padding(16.dp)
                 )
-                
+
                 // Loading indicator
                 if (playerState.isLoading) {
                     Box(
@@ -123,7 +123,7 @@ fun UniversalVideoPlayerScreen(
                         }
                     }
                 }
-                
+
                 // Error overlay
                 playerState.error?.let { error ->
                     ErrorOverlay(
@@ -152,11 +152,11 @@ private fun ExoPlayerView(
 @Composable
 private fun VLCPlayerView(
     vlcVideoLayout: Any?, // VLCVideoLayout?,
-    modifier: Modifier = Modifier  
+    modifier: Modifier = Modifier
 ) {
     if (vlcVideoLayout != null) {
         AndroidView(
-            factory = { 
+            factory = {
                 try {
                     vlcVideoLayout as android.view.View
                 } catch (e: Exception) {
@@ -221,7 +221,7 @@ private fun PlayerInfoOverlay(
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             playerState.videoMetadata?.let { metadata ->
                 Text(
                     text = "${metadata.width}x${metadata.height}",
@@ -293,7 +293,7 @@ private fun EnhancedVideoControls(
                         modifier = Modifier.size(32.dp)
                     )
                 }
-                
+
                 // Progress slider
                 Slider(
                     value = playerState.progress,
@@ -308,7 +308,7 @@ private fun EnhancedVideoControls(
                         inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                     )
                 )
-                
+
                 // Fullscreen toggle
                 IconButton(onClick = onFullscreenToggle) {
                     Icon(
@@ -318,7 +318,7 @@ private fun EnhancedVideoControls(
                     )
                 }
             }
-            
+
             // Secondary controls row
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -333,7 +333,7 @@ private fun EnhancedVideoControls(
                         tint = if (playerState.subtitlesEnabled) MaterialTheme.colorScheme.primary else Color.White
                     )
                 }
-                
+
                 // Volume control
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -356,10 +356,10 @@ private fun EnhancedVideoControls(
                         )
                     )
                 }
-                
+
                 // Speed control
                 TextButton(
-                    onClick = { 
+                    onClick = {
                         val speeds = listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
                         val currentIndex = speeds.indexOf(playerState.playbackSpeed)
                         val nextSpeed = speeds[(currentIndex + 1) % speeds.size]
@@ -372,7 +372,7 @@ private fun EnhancedVideoControls(
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
-                
+
                 // Player switcher
                 TextButton(
                     onClick = {
@@ -391,7 +391,7 @@ private fun EnhancedVideoControls(
                     )
                 }
             }
-            
+
             // Time display
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -436,20 +436,20 @@ private fun ErrorOverlay(
                 tint = MaterialTheme.colorScheme.onErrorContainer,
                 modifier = Modifier.size(48.dp)
             )
-            
+
             Text(
                 text = "Playback Error",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -468,7 +468,7 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = milliseconds / 1000
     val minutes = seconds / 60
     val hours = minutes / 60
-    
+
     return if (hours > 0) {
         "%d:%02d:%02d".format(hours, minutes % 60, seconds % 60)
     } else {

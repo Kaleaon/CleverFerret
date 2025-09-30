@@ -26,14 +26,14 @@ class WebFictionViewModel @Inject constructor(
     fun addStoryFromUrl(url: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             try {
                 val story = webFictionService.extractStoryFromUrl(url)
                 if (story != null) {
                     // Download all chapters
                     val chapters = webFictionService.downloadAllChapters(story)
                     val completeStory = story.copy(chapters = chapters)
-                    
+
                     // Add to local storage (in real app, save to database)
                     val updatedStories = _uiState.value.stories + completeStory
                     _uiState.value = _uiState.value.copy(
@@ -58,16 +58,16 @@ class WebFictionViewModel @Inject constructor(
     fun checkForUpdates(story: WebFictionStory) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isCheckingUpdates = true)
-            
+
             try {
                 val newChapters = webFictionService.checkForUpdates(story)
                 if (newChapters.isNotEmpty()) {
                     val updatedStory = story.copy(chapters = story.chapters + newChapters)
-                    val updatedStories = _uiState.value.stories.map { 
-                        if (it.id == story.id) updatedStory else it 
+                    val updatedStories = _uiState.value.stories.map {
+                        if (it.id == story.id) updatedStory else it
                     }
                     val updatedStoriesWithUpdates = _uiState.value.storiesWithUpdates + updatedStory
-                    
+
                     _uiState.value = _uiState.value.copy(
                         stories = updatedStories,
                         storiesWithUpdates = updatedStoriesWithUpdates,
@@ -88,10 +88,10 @@ class WebFictionViewModel @Inject constructor(
     fun checkAllForUpdates() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isCheckingUpdates = true)
-            
+
             val updatesFound = mutableListOf<WebFictionStory>()
             val updatedStories = mutableListOf<WebFictionStory>()
-            
+
             try {
                 _uiState.value.stories.forEach { story ->
                     val newChapters = webFictionService.checkForUpdates(story)
@@ -103,7 +103,7 @@ class WebFictionViewModel @Inject constructor(
                         updatedStories.add(story)
                     }
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     stories = updatedStories,
                     storiesWithUpdates = updatesFound,
@@ -121,14 +121,14 @@ class WebFictionViewModel @Inject constructor(
     fun downloadStory(story: WebFictionStory) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 val chapters = webFictionService.downloadAllChapters(story)
                 val updatedStory = story.copy(chapters = chapters)
-                val updatedStories = _uiState.value.stories.map { 
-                    if (it.id == story.id) updatedStory else it 
+                val updatedStories = _uiState.value.stories.map {
+                    if (it.id == story.id) updatedStory else it
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     stories = updatedStories,
                     isLoading = false
@@ -145,10 +145,10 @@ class WebFictionViewModel @Inject constructor(
     fun downloadAllUpdates() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 val updatedStories = _uiState.value.stories.toMutableList()
-                
+
                 _uiState.value.storiesWithUpdates.forEach { storyWithUpdate ->
                     val index = updatedStories.indexOfFirst { it.id == storyWithUpdate.id }
                     if (index != -1) {
@@ -156,7 +156,7 @@ class WebFictionViewModel @Inject constructor(
                         updatedStories[index] = storyWithUpdate.copy(chapters = chapters)
                     }
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     stories = updatedStories,
                     storiesWithUpdates = emptyList(),
@@ -174,7 +174,7 @@ class WebFictionViewModel @Inject constructor(
     fun removeStory(story: WebFictionStory) {
         val updatedStories = _uiState.value.stories.filter { it.id != story.id }
         val updatedStoriesWithUpdates = _uiState.value.storiesWithUpdates.filter { it.id != story.id }
-        
+
         _uiState.value = _uiState.value.copy(
             stories = updatedStories,
             storiesWithUpdates = updatedStoriesWithUpdates
@@ -188,7 +188,7 @@ class WebFictionViewModel @Inject constructor(
     private fun loadStories() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 // In a real app, load from database
                 // For now, create some demo data

@@ -84,7 +84,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                 isFavorite = false,
                 progress = 0.23f
             ),
-            
+
             // Movies
             MediaItemWithMetadata(
                 itemId = 3L,
@@ -104,7 +104,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                 isFavorite = false,
                 progress = 0.45f
             ),
-            
+
             // Music
             MediaItemWithMetadata(
                 itemId = 5L,
@@ -124,7 +124,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                 isFavorite = true,
                 progress = 0.8f
             ),
-            
+
             // Podcasts
             MediaItemWithMetadata(
                 itemId = 7L,
@@ -135,7 +135,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                 isFavorite = false,
                 progress = 0.33f
             ),
-            
+
             // Magazines
             MediaItemWithMetadata(
                 itemId = 8L,
@@ -146,7 +146,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                 isFavorite = false,
                 progress = 0.15f
             ),
-            
+
             // Documents
             MediaItemWithMetadata(
                 itemId = 9L,
@@ -157,7 +157,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                 isFavorite = false,
                 progress = 0.95f
             ),
-            
+
             // Academic Papers
             MediaItemWithMetadata(
                 itemId = 10L,

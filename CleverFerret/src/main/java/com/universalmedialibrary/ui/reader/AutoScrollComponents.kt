@@ -43,7 +43,7 @@ fun AutoScrollController(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
-                    
+
                     IconButton(onClick = onToggle) {
                         Icon(
                             imageVector = Icons.Default.Stop,
@@ -52,9 +52,9 @@ fun AutoScrollController(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -77,7 +77,7 @@ fun AutoScrollController(
                         modifier = Modifier.width(30.dp)
                     )
                 }
-                
+
                 Text(
                     text = "Mode: ${'$'}{settings.autoScrollMode.name}",
                     style = MaterialTheme.typography.bodySmall

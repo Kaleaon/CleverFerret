@@ -38,31 +38,31 @@ enum class MetadataSource {
     FICTION_DB,
     LIBRARY_THING,
     WORLDCAT_OCLC,
-    
+
     // Comic/Manga sources
     COMICVINE,
     MANGA_UPDATES,
-    
+
     // Movie/TV sources
     TMDB,
     OMDB,
     IMDB,
     TVDB,
-    
+
     // Music sources
     MUSICBRAINZ,
     SPOTIFY,
     DISCOGS,
     LAST_FM,
-    
+
     // Audiobook sources
     AUDIBLE,
     LIBRIVOX,
-    
+
     // General ISBN databases
     ISBN_DB,
     WORLD_CAT,
-    
+
     // Fanfiction sources (covered in WebFictionService)
     ARCHIVE_OF_OUR_OWN,
     FANFICTION_NET,
@@ -194,7 +194,7 @@ interface MusicBrainzApi {
 class MetadataApiService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val googleBooksApi: GoogleBooksApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.googleapis.com/books/v1/")
@@ -229,7 +229,7 @@ class MetadataApiService @Inject constructor(
 
     suspend fun searchBooks(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         try {
             // Google Books API
             val googleBooks = googleBooksApi.searchBooks(query)
@@ -279,10 +279,10 @@ class MetadataApiService @Inject constructor(
 
     suspend fun searchMovies(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         // Get TMDB API key from repository
         val tmdbApiKey = apiKeyRepository.getAPIKeyValue("tmdb")
-        
+
         if (tmdbApiKey.isNullOrEmpty()) {
             // Return demo data if no API key
             return createDemoMovieResults(query)
@@ -295,7 +295,7 @@ class MetadataApiService @Inject constructor(
                     UnifiedMetadataSearchResult(
                         id = movie.id.toString(),
                         title = movie.title ?: movie.name ?: "Unknown Title",
-                        year = movie.release_date?.take(4)?.toIntOrNull() 
+                        year = movie.release_date?.take(4)?.toIntOrNull()
                             ?: movie.first_air_date?.take(4)?.toIntOrNull(),
                         coverUrl = movie.poster_path?.let { "https://image.tmdb.org/t/p/w500$it" },
                         description = movie.overview,
@@ -313,7 +313,7 @@ class MetadataApiService @Inject constructor(
 
     suspend fun searchMusic(query: String): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         try {
             val music = musicBrainzApi.searchMusic(query)
             music.releases?.forEach { release ->

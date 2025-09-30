@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.viewer.common.VideoSettings
+import java.util.Locale
 
 @Composable
 fun TopControlsBar(
@@ -158,7 +159,7 @@ fun BottomControlsBar(
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.width(60.dp)
                 )
-                
+
                 Slider(
                     value = currentPosition.toFloat(),
                     onValueChange = { onSeek(it.toLong()) },
@@ -170,7 +171,7 @@ fun BottomControlsBar(
                         inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                     )
                 )
-                
+
                 Text(
                     text = formatTime(duration),
                     color = Color.White,
@@ -298,6 +299,6 @@ private fun formatTime(ms: Long): String {
     val seconds = totalSeconds % 60
     val minutes = (totalSeconds / 60) % 60
     val hours = totalSeconds / 3600
-    return if (hours > 0) String.format("%d:%02d:%02d", hours, minutes, seconds)
-    else String.format("%02d:%02d", minutes, seconds)
+    return if (hours > 0) String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
+    else String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 }

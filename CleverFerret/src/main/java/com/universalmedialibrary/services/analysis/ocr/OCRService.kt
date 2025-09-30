@@ -32,14 +32,14 @@ class OCRService @Inject constructor() {
      * Extract text from PDF document (first few pages)
      */
     suspend fun extractTextFromPDF(
-        context: Context, 
-        uri: Uri, 
+        context: Context,
+        uri: Uri,
         maxPages: Int = 5
     ): String = withContext(Dispatchers.IO) {
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             val tempFile = File.createTempFile("pdf_temp", ".pdf", context.cacheDir)
-            
+
             inputStream?.use { input ->
                 FileOutputStream(tempFile).use { output ->
                     input.copyTo(output)
@@ -48,38 +48,38 @@ class OCRService @Inject constructor() {
 
             val fileDescriptor = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
             val pdfRenderer = PdfRenderer(fileDescriptor)
-            
+
             val extractedText = StringBuilder()
             val pagesToProcess = minOf(maxPages, pdfRenderer.pageCount)
-            
+
             for (pageIndex in 0 until pagesToProcess) {
                 val page = pdfRenderer.openPage(pageIndex)
-                
+
                 // Create bitmap for the page
                 val bitmap = Bitmap.createBitmap(
                     page.width * 2, // Higher resolution for better OCR
                     page.height * 2,
                     Bitmap.Config.ARGB_8888
                 )
-                
+
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                
+
                 // Extract text using OCR
                 val pageText = extractTextFromBitmap(bitmap)
                 extractedText.append("--- Page ${pageIndex + 1} ---\n")
                 extractedText.append(pageText)
                 extractedText.append("\n\n")
-                
+
                 page.close()
                 bitmap.recycle()
             }
-            
+
             pdfRenderer.close()
             fileDescriptor.close()
             tempFile.delete()
-            
+
             extractedText.toString()
-            
+
         } catch (e: Exception) {
             "Error extracting text from PDF: ${e.message}"
         }
@@ -92,33 +92,33 @@ class OCRService @Inject constructor() {
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             val extractedText = StringBuilder()
-            
+
             inputStream?.use { stream ->
                 ZipArchiveInputStream(stream).use { zipStream ->
                     var entry = zipStream.nextZipEntry
                     var textFilesProcessed = 0
-                    
+
                     while (entry != null && textFilesProcessed < 10) { // Process first 10 text files
-                        if (entry.name.endsWith(".html") || 
-                            entry.name.endsWith(".xhtml") || 
+                        if (entry.name.endsWith(".html") ||
+                            entry.name.endsWith(".xhtml") ||
                             entry.name.endsWith(".xml")) {
-                            
+
                             val content = zipStream.readBytes().toString(Charsets.UTF_8)
                             val plainText = stripHtmlTags(content)
-                            
+
                             extractedText.append("--- ${entry.name} ---\n")
                             extractedText.append(plainText.take(2000)) // First 2000 chars per file
                             extractedText.append("\n\n")
-                            
+
                             textFilesProcessed++
                         }
                         entry = zipStream.nextZipEntry
                     }
                 }
             }
-            
+
             extractedText.toString()
-            
+
         } catch (e: Exception) {
             "Error extracting text from EPUB: ${e.message}"
         }
@@ -131,15 +131,15 @@ class OCRService @Inject constructor() {
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             val content = inputStream?.bufferedReader()?.use { it.readText() } ?: ""
-            
+
             // For HTML documents, strip tags
-            if (uri.toString().contains(".html", ignoreCase = true) || 
+            if (uri.toString().contains(".html", ignoreCase = true) ||
                 uri.toString().contains(".htm", ignoreCase = true)) {
                 stripHtmlTags(content)
             } else {
                 content.take(10000) // First 10,000 characters
             }
-            
+
         } catch (e: Exception) {
             "Error extracting text from document: ${e.message}"
         }
@@ -152,16 +152,16 @@ class OCRService @Inject constructor() {
         try {
             val image = InputImage.fromBitmap(bitmap, 0)
             val result = textRecognizer.process(image).await()
-            
+
             val extractedText = StringBuilder()
-            
+
             for (block in result.textBlocks) {
                 extractedText.append(block.text)
                 extractedText.append("\n")
             }
-            
+
             extractedText.toString()
-            
+
         } catch (e: Exception) {
             "Error during OCR: ${e.message}"
         }
@@ -174,7 +174,7 @@ class OCRService @Inject constructor() {
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             val bitmap = BitmapFactory.decodeStream(inputStream)
-            
+
             if (bitmap != null) {
                 val text = extractTextFromBitmap(bitmap)
                 bitmap.recycle()
@@ -182,7 +182,7 @@ class OCRService @Inject constructor() {
             } else {
                 "Unable to decode image"
             }
-            
+
         } catch (e: Exception) {
             "Error extracting text from image: ${e.message}"
         }
@@ -192,8 +192,8 @@ class OCRService @Inject constructor() {
      * Extract text content from comic archive (first few pages)
      */
     suspend fun extractTextFromComic(
-        context: Context, 
-        uri: Uri, 
+        context: Context,
+        uri: Uri,
         maxPages: Int = 3
     ): String = withContext(Dispatchers.IO) {
         try {
@@ -201,12 +201,12 @@ class OCRService @Inject constructor() {
             val extractedText = StringBuilder()
             val tempDir = File(context.cacheDir, "comic_ocr_${UUID.randomUUID()}")
             tempDir.mkdirs()
-            
+
             inputStream?.use { stream ->
                 ZipArchiveInputStream(stream).use { zipStream ->
                     var entry = zipStream.nextZipEntry
                     val imageFiles = mutableListOf<String>()
-                    
+
                     // Extract image files
                     while (entry != null && imageFiles.size < maxPages) {
                         if (!entry.isDirectory && isImageFile(entry.name)) {
@@ -218,10 +218,10 @@ class OCRService @Inject constructor() {
                         }
                         entry = zipStream.nextZipEntry
                     }
-                    
+
                     // Sort files naturally and process
                     imageFiles.sortWith(compareBy { naturalSort(it) })
-                    
+
                     for ((index, imagePath) in imageFiles.withIndex()) {
                         val bitmap = BitmapFactory.decodeFile(imagePath)
                         if (bitmap != null) {
@@ -236,12 +236,12 @@ class OCRService @Inject constructor() {
                     }
                 }
             }
-            
+
             // Cleanup temp files
             tempDir.deleteRecursively()
-            
+
             extractedText.toString()
-            
+
         } catch (e: Exception) {
             "Error extracting text from comic: ${e.message}"
         }
@@ -263,7 +263,7 @@ class OCRService @Inject constructor() {
                     }
                     else -> null
                 }
-                
+
                 if (bitmap != null) {
                     val text = extractTextFromBitmap(bitmap)
                     val analysis = analyzeFirstPageText(text)
@@ -272,7 +272,7 @@ class OCRService @Inject constructor() {
                 } else {
                     FirstPageAnalysis.empty()
                 }
-                
+
             } catch (e: Exception) {
                 FirstPageAnalysis.error(e.message ?: "Analysis failed")
             }
@@ -280,14 +280,14 @@ class OCRService @Inject constructor() {
     }
 
     private suspend fun extractPDFPageAsBitmap(
-        context: Context, 
-        uri: Uri, 
+        context: Context,
+        uri: Uri,
         pageIndex: Int
     ): Bitmap? {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri)
             val tempFile = File.createTempFile("pdf_page", ".pdf", context.cacheDir)
-            
+
             inputStream?.use { input ->
                 FileOutputStream(tempFile).use { output ->
                     input.copyTo(output)
@@ -296,7 +296,7 @@ class OCRService @Inject constructor() {
 
             val fileDescriptor = ParcelFileDescriptor.open(tempFile, ParcelFileDescriptor.MODE_READ_ONLY)
             val pdfRenderer = PdfRenderer(fileDescriptor)
-            
+
             if (pageIndex < pdfRenderer.pageCount) {
                 val page = pdfRenderer.openPage(pageIndex)
                 val bitmap = Bitmap.createBitmap(
@@ -306,11 +306,11 @@ class OCRService @Inject constructor() {
                 )
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 page.close()
-                
+
                 pdfRenderer.close()
                 fileDescriptor.close()
                 tempFile.delete()
-                
+
                 bitmap
             } else {
                 pdfRenderer.close()
@@ -318,7 +318,7 @@ class OCRService @Inject constructor() {
                 tempFile.delete()
                 null
             }
-            
+
         } catch (e: Exception) {
             null
         }
@@ -326,34 +326,34 @@ class OCRService @Inject constructor() {
 
     private fun analyzeFirstPageText(text: String): FirstPageAnalysis {
         val lines = text.lines().map { it.trim() }.filter { it.isNotEmpty() }
-        
+
         var title = ""
         var author = ""
         var publisher = ""
         var isbn = ""
-        
+
         // Look for patterns in the first few lines
         for ((index, line) in lines.take(20).withIndex()) {
             // Title is often in the first few lines, larger text
-            if (title.isEmpty() && line.length > 5 && !line.contains("©") && 
+            if (title.isEmpty() && line.length > 5 && !line.contains("©") &&
                 !line.contains("ISBN", ignoreCase = true)) {
                 title = line
             }
-            
+
             // Author patterns
-            if (author.isEmpty() && (line.contains("by ", ignoreCase = true) || 
+            if (author.isEmpty() && (line.contains("by ", ignoreCase = true) ||
                 line.matches(Regex("^[A-Z][a-z]+ [A-Z][a-z]+$")))) {
                 author = line.replace("by ", "", ignoreCase = true).trim()
             }
-            
+
             // Publisher patterns
-            if (publisher.isEmpty() && index > 2 && line.length > 3 && 
+            if (publisher.isEmpty() && index > 2 && line.length > 3 &&
                 !line.contains("ISBN", ignoreCase = true)) {
                 if (line.matches(Regex("^[A-Z][a-zA-Z\\s]+$"))) {
                     publisher = line
                 }
             }
-            
+
             // ISBN extraction
             if (isbn.isEmpty()) {
                 val isbnPattern = Regex("ISBN[:\\s-]*([0-9X-]{10,17})", RegexOption.IGNORE_CASE)
@@ -363,7 +363,7 @@ class OCRService @Inject constructor() {
                 }
             }
         }
-        
+
         return FirstPageAnalysis(
             title = title,
             author = author,
@@ -375,18 +375,18 @@ class OCRService @Inject constructor() {
     }
 
     private fun calculateFirstPageConfidence(
-        title: String, 
-        author: String, 
-        publisher: String, 
+        title: String,
+        author: String,
+        publisher: String,
         isbn: String
     ): Float {
         var confidence = 0.0f
-        
+
         if (title.isNotEmpty()) confidence += 0.4f
         if (author.isNotEmpty()) confidence += 0.3f
         if (publisher.isNotEmpty()) confidence += 0.2f
         if (isbn.isNotEmpty()) confidence += 0.1f
-        
+
         return confidence
     }
 

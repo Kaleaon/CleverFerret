@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 /**
  * Service for scanning and indexing media files in libraries
- * 
+ *
  * Handles detection, indexing, and metadata extraction for all supported media types:
  * - Books: EPUB, PDF, TXT, MOBI, AZW, CBZ, CBR
  * - Music: MP3, FLAC, OGG, M4A, WAV, AAC
@@ -30,7 +30,7 @@ class MediaScanningService @Inject constructor(
     private val libraryRepository: LibraryRepository,
     private val mediaRepository: MediaRepository
 ) {
-    
+
     companion object {
         // Supported file extensions by media type
         val BOOK_EXTENSIONS = setOf("epub", "pdf", "txt", "mobi", "azw", "azw3", "cbz", "cbr", "fb2")
@@ -39,17 +39,17 @@ class MediaScanningService @Inject constructor(
         val DOCUMENT_EXTENSIONS = setOf("doc", "docx", "rtf", "odt", "pages")
         val IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "tiff", "svg")
         val PODCAST_EXTENSIONS = setOf("mp3", "m4a", "ogg", "wav")
-        
+
         private const val MIN_FILE_SIZE = 1024 // 1KB minimum
         private const val MAX_BATCH_SIZE = 50
     }
-    
+
     /**
      * Scan all active libraries for media files
      */
     suspend fun scanAllLibraries(): ScanResult = withContext(Dispatchers.IO) {
         val scanResult = ScanResult()
-        
+
         try {
             libraryRepository.getAllActiveLibraries().collect { libraries ->
                 for (library in libraries) {
@@ -60,25 +60,25 @@ class MediaScanningService @Inject constructor(
         } catch (e: Exception) {
             scanResult.errors.add("Failed to scan libraries: ${e.message}")
         }
-        
+
         scanResult
     }
-    
+
     /**
      * Scan a specific library for media files
      */
     suspend fun scanLibrary(library: Library): ScanResult = withContext(Dispatchers.IO) {
         val scanResult = ScanResult()
-        
+
         try {
             val rootDir = File(library.path)
             if (!rootDir.exists() || !rootDir.isDirectory) {
                 scanResult.errors.add("Library path does not exist or is not a directory: ${library.path}")
                 return@withContext scanResult
             }
-            
+
             val mediaItems = collectMediaFiles(rootDir, library, scanResult)
-            
+
             // Save media items in batches
             val batches = mediaItems.chunked(MAX_BATCH_SIZE)
             for (batch in batches) {
@@ -89,47 +89,47 @@ class MediaScanningService @Inject constructor(
                     scanResult.errors.add("Failed to save batch: ${e.message}")
                 }
             }
-            
+
             // Update library last scanned timestamp
             libraryRepository.updateLastScanned(library.libraryId)
-            
+
         } catch (e: Exception) {
             scanResult.errors.add("Failed to scan library ${library.name}: ${e.message}")
         }
-        
+
         scanResult
     }
-    
+
     private suspend fun collectMediaFiles(
         directory: File,
-        library: Library, 
+        library: Library,
         scanResult: ScanResult
     ): List<MediaItem> {
         val mediaItems = mutableListOf<MediaItem>()
         val filesToProcess = mutableListOf<File>()
-        
+
         // First collect all files recursively
         collectFilesRecursively(directory, filesToProcess)
-        
+
         // Then process each file
         for (file in filesToProcess) {
             try {
                 scanResult.filesProcessed++
-                
+
                 // Skip if file is too small
                 if (file.length() < MIN_FILE_SIZE) {
                     scanResult.skippedFiles++
                     continue
                 }
-                
+
                 val extension = file.extension.lowercase()
                 val mediaType = determineMediaType(extension, library.type)
-                
+
                 if (mediaType == null) {
                     scanResult.skippedFiles++
                     continue
                 }
-                
+
                 // Check if file already exists in database
                 val existingItem = mediaRepository.getMediaItemByPath(file.absolutePath)
                 if (existingItem != null) {
@@ -146,7 +146,7 @@ class MediaScanningService @Inject constructor(
                     }
                     continue
                 }
-                
+
                 // Create new media item
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
@@ -160,21 +160,21 @@ class MediaScanningService @Inject constructor(
                     lastModified = file.lastModified(),
                     isAvailable = true
                 )
-                
+
                 mediaItems.add(mediaItem)
-                
+
             } catch (e: Exception) {
                 scanResult.errors.add("Error processing file ${file.path}: ${e.message}")
             }
         }
-        
+
         return mediaItems
     }
-    
+
     private fun collectFilesRecursively(directory: File, files: MutableList<File>) {
         try {
             val directoryFiles = directory.listFiles() ?: return
-            
+
             for (file in directoryFiles) {
                 when {
                     file.isDirectory -> {
@@ -189,15 +189,15 @@ class MediaScanningService @Inject constructor(
             // Skip directories that can't be read
         }
     }
-    
+
     // Remove the processFile function since we've inlined it above
-    
+
     private fun determineMediaType(extension: String, libraryType: String): String? {
         return when {
             extension in BOOK_EXTENSIONS -> "BOOK"
             extension in MUSIC_EXTENSIONS -> when (libraryType) {
                 "MUSIC" -> "MUSIC_TRACK"
-                "PODCAST" -> "PODCAST_EPISODE"  
+                "PODCAST" -> "PODCAST_EPISODE"
                 else -> "MUSIC_TRACK"
             }
             extension in MOVIE_EXTENSIONS -> "MOVIE"
@@ -206,11 +206,11 @@ class MediaScanningService @Inject constructor(
             else -> null
         }
     }
-    
+
     private fun getMimeType(file: File): String? {
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension.lowercase())
     }
-    
+
     private fun generateFileHash(file: File): String? {
         return try {
             val digest = MessageDigest.getInstance("MD5")
@@ -245,7 +245,7 @@ data class ScanResult(
         skippedFiles += other.skippedFiles
         errors.addAll(other.errors)
     }
-    
+
     val totalItems: Int get() = itemsAdded + itemsUpdated
     val hasErrors: Boolean get() = errors.isNotEmpty()
 }

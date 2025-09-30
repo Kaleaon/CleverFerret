@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel for Reader Settings Screen
- * 
+ *
  * Manages:
  * - Loading and saving reader settings (global or per-book)
  * - Real-time preview updates
@@ -21,12 +21,12 @@ import javax.inject.Inject
 class ReaderSettingsViewModel @Inject constructor(
     private val readerSettingsRepository: ReaderSettingsRepository
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(ReaderSettingsUiState())
     val uiState: StateFlow<ReaderSettingsUiState> = _uiState.asStateFlow()
-    
+
     private val _currentMediaId = MutableStateFlow<Long?>(null)
-    
+
     /**
      * Reader settings flow that updates based on current media ID
      */
@@ -45,7 +45,7 @@ class ReaderSettingsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = ReaderSettings.merge(ReaderSettings.default(), null)
         )
-    
+
     /**
      * Load settings for a specific media ID (null for global settings)
      */
@@ -53,7 +53,7 @@ class ReaderSettingsViewModel @Inject constructor(
         _currentMediaId.value = mediaId
         _uiState.update { it.copy(mediaId = mediaId, isLoading = false) }
     }
-    
+
     /**
      * Update theme setting
      */
@@ -62,18 +62,18 @@ class ReaderSettingsViewModel @Inject constructor(
             try {
                 val mediaId = _currentMediaId.value
                 readerSettingsRepository.updateTheme(mediaId, theme)
-                
+
                 // Apply preset colors based on theme
                 val (backgroundColor, textColor) = getThemeColors(theme)
                 updateBackgroundColorInternal(mediaId, backgroundColor)
                 updateTextColorInternal(mediaId, textColor)
-                
+
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to update theme: ${e.message}") }
             }
         }
     }
-    
+
     /**
      * Update background color
      */
@@ -86,7 +86,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update text color
      */
@@ -99,7 +99,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update font family
      */
@@ -112,7 +112,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update font size
      */
@@ -125,7 +125,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update line spacing
      */
@@ -138,7 +138,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update margins
      */
@@ -170,7 +170,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update text alignment
      */
@@ -183,7 +183,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update brightness
      */
@@ -207,7 +207,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update keep screen on setting
      */
@@ -231,7 +231,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update background color setting
      */
@@ -248,7 +248,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update text color setting
      */
@@ -265,7 +265,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update font family setting
      */
@@ -282,7 +282,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Reset book settings to global defaults
      */
@@ -298,7 +298,7 @@ class ReaderSettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get theme colors based on theme name
      */

@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 /**
  * Factory for creating appropriate reader engines based on book format.
- * 
+ *
  * This factory provides a unified entry point for creating reader engines
  * that implement the ReaderEngine interface, ensuring consistent behavior
  * across different book formats.
@@ -19,7 +19,7 @@ class ReaderEngineFactory @Inject constructor(
     private val pdfReaderEngine: PdfReaderEngine,
     private val comicReaderEngine: ComicReaderEngine
 ) {
-    
+
     /**
      * Create a reader engine for the specified book format
      */
@@ -31,13 +31,13 @@ class ReaderEngineFactory @Inject constructor(
             BookFormat.UNKNOWN -> throw IllegalArgumentException("Cannot create reader for unknown format")
         }
     }
-    
+
     /**
      * Determine book format from file extension
      */
     fun detectBookFormat(filename: String): BookFormat {
         val extension = filename.substringAfterLast(".", "").lowercase()
-        
+
         return when (extension) {
             "epub" -> BookFormat.EPUB
             "pdf" -> BookFormat.PDF
@@ -46,7 +46,7 @@ class ReaderEngineFactory @Inject constructor(
             else -> BookFormat.UNKNOWN
         }
     }
-    
+
     /**
      * Check if format is supported
      */
@@ -57,14 +57,14 @@ class ReaderEngineFactory @Inject constructor(
             BookFormat.UNKNOWN -> false
         }
     }
-    
+
     /**
      * Get supported file extensions
      */
     fun getSupportedExtensions(): Set<String> {
         return setOf("epub", "pdf", "cbz")
     }
-    
+
     /**
      * Get format display name
      */

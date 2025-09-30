@@ -36,11 +36,15 @@ There are two files named `MediaItemDao.kt`, one in each of the database impleme
 
 ## 3. UI and Feature Implementation Gaps
 
-### 3.1. Hardcoded Values in UI
-- **Add Library Dialog:** In `MainActivity.kt`, the `AddLibraryDialog` uses hardcoded values for the new library's type (`"BOOK"`) and path (`"/path/to/library"`).
-- **Calibre Import:** The Calibre import process initiated from `LibraryListScreen` uses a hardcoded placeholder `libraryId` of `1L`.
+### 3.1. Hardcoded Values in UI - ✅ RESOLVED
+- ~~**Add Library Dialog:** In `MainActivity.kt`, the `AddLibraryDialog` uses hardcoded values for the new library's type (`"BOOK"`) and path (`"/path/to/library"`).~~
+- ~~**Calibre Import:** The Calibre import process initiated from `LibraryListScreen` uses a hardcoded placeholder `libraryId` of `1L`.~~
 
-**Recommendation:** These placeholder implementations should be replaced with functional UI components that allow the user to select the library type, path, and target library for imports.
+**Status:** RESOLVED - Issue #158
+- MainActivity now uses `CreateLibraryDialog` which provides full media type selection and folder picker functionality
+- Calibre import now requires user to select target library from Room database via `LibrarySelectionDialog`
+- All data flows through Room-backed data layer with proper Hilt dependency injection
+- No hardcoded values remain in the UI flows
 
 ### 3.2. Incomplete Foreign Key Definition
 - In `app/src/main/java/com/universalmedialibrary/data/local/model/MetadataBook.kt`, the entity had a `seriesId` property but was missing the corresponding `ForeignKey` definition in the `@Entity` annotation. I have corrected this, but it highlights a potential gap in the development process.

@@ -107,7 +107,7 @@ fun APIKeysManagerScreen(
                     category = APICategory.BOOKS,
                     setupInstructions = "1. Create ISBNdb account\\n2. Choose a plan\\n3. Get your API key"
                 ),
-                
+
                 // Comic/Manga APIs
                 APIKeyConfig(
                     key = "comicvine",
@@ -119,7 +119,7 @@ fun APIKeysManagerScreen(
                     isRequired = true,
                     setupInstructions = "1. Create GameSpot account\\n2. Request API access\\n3. Get your API key"
                 ),
-                
+
                 // Podcast APIs
                 APIKeyConfig(
                     key = "listen_notes",
@@ -157,7 +157,7 @@ fun APIKeysManagerScreen(
                     category = APICategory.PODCASTS,
                     setupInstructions = "1. Sign up for Taddy\\n2. Choose a plan\\n3. Get API key"
                 ),
-                
+
                 // Movie/TV APIs
                 APIKeyConfig(
                     key = "tmdb",
@@ -186,7 +186,7 @@ fun APIKeysManagerScreen(
                     category = APICategory.MOVIES_TV,
                     setupInstructions = "1. Create TVDB account\\n2. Subscribe to API\\n3. Get your API key"
                 ),
-                
+
                 // Music APIs
                 APIKeyConfig(
                     key = "lastfm",
@@ -212,7 +212,7 @@ fun APIKeysManagerScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "API Keys Manager",
                             fontWeight = FontWeight.Medium
@@ -291,18 +291,18 @@ fun APIKeysManagerScreen(
                     // Category headers and items
                     APICategory.values().forEach { category ->
                         val categoryApis = apiConfigs.filter { it.category == category }
-                        
+
                         if (categoryApis.isNotEmpty()) {
                             item {
                                 CategoryHeader(
                                     category = category,
                                     isExpanded = selectedCategory == category,
-                                    onToggle = { 
+                                    onToggle = {
                                         selectedCategory = if (selectedCategory == category) null else category
                                     }
                                 )
                             }
-                            
+
                             if (selectedCategory == category) {
                                 items(categoryApis) { apiConfig ->
                                     APIKeyCard(
@@ -312,7 +312,7 @@ fun APIKeysManagerScreen(
                                         onValueChange = { newValue ->
                                             viewModel.updateApiKey(apiConfig.key, newValue)
                                         },
-                                        onTestKey = { 
+                                        onTestKey = {
                                             viewModel.testApiKey(apiConfig.key, uiState.apiKeys[apiConfig.key] ?: "")
                                         },
                                         onShowInstructions = { showInstructions = apiConfig }
@@ -329,7 +329,7 @@ fun APIKeysManagerScreen(
         showInstructions?.let { config ->
             AlertDialog(
                 onDismissRequest = { showInstructions = null },
-                title = { 
+                title = {
                     Text(
                         "${config.displayName} Setup",
                         fontWeight = FontWeight.Medium
@@ -341,11 +341,11 @@ fun APIKeysManagerScreen(
                             text = config.setupInstructions.replace("\\n", "\n"),
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         Button(
-                            onClick = { 
+                            onClick = {
                                 // Open website URL
                                 // In a real app, use Intent to open browser
                             },
@@ -410,7 +410,7 @@ fun CategoryHeader(
                     fontWeight = FontWeight.Medium
                 )
             }
-            
+
             IconButton(onClick = onToggle) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -455,9 +455,9 @@ fun APIKeyCard(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
-                        
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        
+
                         if (config.isFree) {
                             Surface(
                                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -471,7 +471,7 @@ fun APIKeyCard(
                                 )
                             }
                         }
-                        
+
                         if (config.isRequired) {
                             Surface(
                                 color = MaterialTheme.colorScheme.errorContainer,
@@ -486,7 +486,7 @@ fun APIKeyCard(
                             }
                         }
                     }
-                    
+
                     Text(
                         text = config.description,
                         style = MaterialTheme.typography.bodyMedium,
@@ -494,7 +494,7 @@ fun APIKeyCard(
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -505,7 +505,7 @@ fun APIKeyCard(
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    
+
                     if (currentValue.isNotEmpty()) {
                         IconButton(onClick = onTestKey) {
                             Icon(
@@ -517,9 +517,9 @@ fun APIKeyCard(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             OutlinedTextField(
                 value = currentValue,
                 onValueChange = onValueChange,
@@ -556,7 +556,7 @@ fun APIKeyCard(
                                 Text("Configured")
                             }
                         }
-                        
+
                         // Show test result if available
                         testResult?.let { result ->
                             Spacer(modifier = Modifier.height(4.dp))

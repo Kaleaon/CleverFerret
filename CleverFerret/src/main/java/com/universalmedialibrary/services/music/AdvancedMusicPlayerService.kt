@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Advanced Music Player Service with ExoPlayer integration
- * 
+ *
  * Features:
  * - High-quality audio playback with ExoPlayer
  * - Queue management and shuffle/repeat modes
@@ -34,22 +34,22 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val musicMetadataService: MusicMetadataService,
     private val mediaController: MediaController
 ) {
-    
+
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
     val playbackState: StateFlow<AdvancedPlaybackState> = _playbackState.asStateFlow()
-    
+
     private val _currentTrack = MutableStateFlow<TrackInfo?>(null)
     val currentTrack: StateFlow<TrackInfo?> = _currentTrack.asStateFlow()
-    
+
     private val _queue = MutableStateFlow<List<TrackInfo>>(emptyList())
     val queue: StateFlow<List<TrackInfo>> = _queue.asStateFlow()
-    
+
     private val _playlistMode = MutableStateFlow(PlaylistMode.NORMAL)
     val playlistMode: StateFlow<PlaylistMode> = _playlistMode.asStateFlow()
-    
+
     private var currentQueueIndex = 0
     private var originalQueue: List<TrackInfo> = emptyList()
-    
+
     /**
      * Load and play a single track
      */
@@ -58,18 +58,18 @@ class AdvancedMusicPlayerService @Inject constructor(
             updatePlaybackState(error = "Advanced music player is disabled")
             return
         }
-        
+
         try {
             updatePlaybackState(isLoading = true)
-            
+
             // Create track info with metadata enhancement
             val trackInfo = createTrackInfo(mediaItem)
-            
+
             // Set single track queue
             _queue.value = listOf(trackInfo)
             _currentTrack.value = trackInfo
             currentQueueIndex = 0
-            
+
             // Use the MediaSession-integrated method
             exoPlayerService.loadMediaWithSession(
                 mediaPath = mediaItem.filePath,
@@ -79,14 +79,14 @@ class AdvancedMusicPlayerService @Inject constructor(
                 artwork = null, // TODO: Load artwork from albumArtUrl
                 serviceType = MediaServiceType.MUSIC
             )
-            
+
             exoPlayerService.play()
             updatePlaybackState(isPlaying = true, isLoading = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Error playing track: ${e.message}")
         }
     }
-    
+
     /**
      * Load and play a queue of tracks
      */
@@ -95,20 +95,20 @@ class AdvancedMusicPlayerService @Inject constructor(
             updatePlaybackState(error = "Advanced music player is disabled")
             return
         }
-        
+
         try {
             updatePlaybackState(isLoading = true)
-            
+
             // Create track infos with metadata enhancement
             val trackInfos = mediaItems.mapIndexed { index, item ->
                 createTrackInfo(item, index)
             }
-            
+
             _queue.value = trackInfos
             originalQueue = trackInfos
             currentQueueIndex = startIndex.coerceIn(0, trackInfos.size - 1)
             _currentTrack.value = trackInfos.getOrNull(currentQueueIndex)
-            
+
             // Prepare ExoPlayer with queue
             val exoMediaItems = trackInfos.map { MediaItem.fromUri(it.filePath) }
             if (exoPlayerService.preparePlaylist(exoMediaItems, startIndex)) {
@@ -121,7 +121,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             updatePlaybackState(error = "Error playing queue: ${e.message}")
         }
     }
-    
+
     /**
      * Play/pause toggle
      */
@@ -132,7 +132,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             play()
         }
     }
-    
+
     /**
      * Start playback
      */
@@ -140,7 +140,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         exoPlayerService.play()
         updatePlaybackState(isPlaying = true)
     }
-    
+
     /**
      * Pause playback
      */
@@ -148,7 +148,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         exoPlayerService.pause()
         updatePlaybackState(isPlaying = false)
     }
-    
+
     /**
      * Stop playback and clear queue
      */
@@ -159,14 +159,14 @@ class AdvancedMusicPlayerService @Inject constructor(
         currentQueueIndex = 0
         updatePlaybackState(isPlaying = false)
     }
-    
+
     /**
      * Skip to next track
      */
     fun skipToNext() {
         val queue = _queue.value
         if (queue.isEmpty()) return
-        
+
         when (_playlistMode.value) {
             PlaylistMode.REPEAT_ONE -> {
                 // Restart current track
@@ -192,23 +192,23 @@ class AdvancedMusicPlayerService @Inject constructor(
                 }
             }
         }
-        
+
         playCurrentTrack()
     }
-    
+
     /**
      * Skip to previous track
      */
     fun skipToPrevious() {
         val queue = _queue.value
         if (queue.isEmpty()) return
-        
+
         // If more than 3 seconds played, restart current track
         if (getCurrentPosition() > 3000) {
             seekTo(0)
             return
         }
-        
+
         when (_playlistMode.value) {
             PlaylistMode.SHUFFLE -> {
                 skipToPreviousShuffled()
@@ -227,37 +227,37 @@ class AdvancedMusicPlayerService @Inject constructor(
                 }
             }
         }
-        
+
         playCurrentTrack()
     }
-    
+
     /**
      * Seek to position in milliseconds
      */
     fun seekTo(positionMs: Long) {
         exoPlayerService.seekTo(positionMs)
     }
-    
+
     /**
      * Get current playback position
      */
     fun getCurrentPosition(): Long {
         return exoPlayerService.getCurrentPosition()
     }
-    
+
     /**
      * Get current track duration
      */
     fun getDuration(): Long {
         return exoPlayerService.getDuration()
     }
-    
+
     /**
      * Set playlist mode (normal, repeat all, repeat one, shuffle)
      */
     fun setPlaylistMode(mode: PlaylistMode) {
         _playlistMode.value = mode
-        
+
         when (mode) {
             PlaylistMode.SHUFFLE -> {
                 if (_queue.value != originalQueue) {
@@ -275,7 +275,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Add track to current queue
      */
@@ -284,23 +284,23 @@ class AdvancedMusicPlayerService @Inject constructor(
         val currentQueue = _queue.value.toMutableList()
         currentQueue.add(trackInfo)
         _queue.value = currentQueue
-        
+
         if (originalQueue.isNotEmpty()) {
             originalQueue = originalQueue + trackInfo
         }
     }
-    
+
     /**
      * Remove track from queue
      */
     fun removeFromQueue(trackId: String) {
         val currentQueue = _queue.value.toMutableList()
         val removedIndex = currentQueue.indexOfFirst { it.id == trackId }
-        
+
         if (removedIndex >= 0) {
             currentQueue.removeAt(removedIndex)
             _queue.value = currentQueue
-            
+
             // Adjust current index if needed
             if (removedIndex < currentQueueIndex) {
                 currentQueueIndex--
@@ -317,14 +317,14 @@ class AdvancedMusicPlayerService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Clear the entire queue
      */
     fun clearQueue() {
         stop()
     }
-    
+
     /**
      * Set crossfade duration
      */
@@ -332,7 +332,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         // Implementation would depend on ExoPlayer configuration
         // This is a placeholder for crossfade functionality
     }
-    
+
     /**
      * Enable/disable gapless playback
      */
@@ -340,7 +340,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         // Implementation would depend on ExoPlayer configuration
         // This is a placeholder for gapless functionality
     }
-    
+
     private fun createTrackInfo(mediaItem: LocalMediaItem, queuePosition: Int = 0): TrackInfo {
         return TrackInfo(
             id = mediaItem.itemId.toString(),
@@ -353,23 +353,23 @@ class AdvancedMusicPlayerService @Inject constructor(
             queuePosition = queuePosition
         )
     }
-    
+
     private fun extractArtistFromMetadata(mediaItem: LocalMediaItem): String? {
         // Extract artist from metadata or filename
         // This is a simplified version - would use actual metadata extraction
         return "Unknown Artist"
     }
-    
+
     private fun extractAlbumFromMetadata(mediaItem: LocalMediaItem): String? {
         // Extract album from metadata or filename
         // This is a simplified version - would use actual metadata extraction
         return "Unknown Album"
     }
-    
+
     private fun playCurrentTrack() {
         val queue = _queue.value
         val currentTrack = queue.getOrNull(currentQueueIndex)
-        
+
         if (currentTrack != null) {
             _currentTrack.value = currentTrack
             exoPlayerService.seekToMediaItem(currentQueueIndex)
@@ -378,11 +378,11 @@ class AdvancedMusicPlayerService @Inject constructor(
             }
         }
     }
-    
+
     private fun shuffleQueue() {
         val currentTrack = _currentTrack.value
         val shuffledQueue = originalQueue.shuffled()
-        
+
         // Ensure current track is first in shuffled queue
         if (currentTrack != null) {
             val mutableQueue = shuffledQueue.toMutableList()
@@ -394,12 +394,12 @@ class AdvancedMusicPlayerService @Inject constructor(
             _queue.value = shuffledQueue
         }
     }
-    
+
     private fun skipToNextShuffled() {
         // Simple shuffle implementation - could be made more sophisticated
         val queue = _queue.value
         if (queue.size <= 1) return
-        
+
         val remainingTracks = queue.drop(currentQueueIndex + 1)
         if (remainingTracks.isNotEmpty()) {
             currentQueueIndex++
@@ -413,17 +413,17 @@ class AdvancedMusicPlayerService @Inject constructor(
                 return
             }
         }
-        
+
         playCurrentTrack()
     }
-    
+
     private fun skipToPreviousShuffled() {
         if (currentQueueIndex > 0) {
             currentQueueIndex--
             playCurrentTrack()
         }
     }
-    
+
     private fun updatePlaybackState(
         isPlaying: Boolean = _playbackState.value.isPlaying,
         isLoading: Boolean = false,
@@ -435,7 +435,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             error = error
         )
     }
-    
+
     /**
      * Release all resources
      */

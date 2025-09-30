@@ -24,7 +24,7 @@ fun SecuritySettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val securitySettings by viewModel.securitySettings.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -69,7 +69,7 @@ fun AboutScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val generalSettings by viewModel.generalSettings.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -92,7 +92,7 @@ fun AboutScreen(
             item {
                 AboutSection()
             }
-            
+
             item {
                 PreferencesSection(
                     settings = generalSettings,
@@ -109,7 +109,7 @@ fun SecurityOptionsSection(
     onSettingsChange: (SecuritySettings) -> Unit
 ) {
     var showPasswordDialog by remember { mutableStateOf(false) }
-    
+
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -126,7 +126,7 @@ fun SecurityOptionsSection(
                     }
                 }
             )
-            
+
             if (settings.passwordProtectionEnabled) {
                 SwitchSetting(
                     title = "Biometric Authentication",
@@ -134,7 +134,7 @@ fun SecurityOptionsSection(
                     checked = settings.biometricEnabled,
                     onCheckedChange = { onSettingsChange(settings.copy(biometricEnabled = it)) }
                 )
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -159,7 +159,7 @@ fun SecurityOptionsSection(
                 }
             }
         }
-        
+
         SettingsGroupCard("Privacy") {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -196,7 +196,7 @@ fun SecurityOptionsSection(
             }
         }
     }
-    
+
     if (showPasswordDialog) {
         PasswordSetupDialog(
             onDismiss = { showPasswordDialog = false },
@@ -259,14 +259,14 @@ fun PreferencesSection(
             checked = settings.crashReportingEnabled,
             onCheckedChange = { onSettingsChange(settings.copy(crashReportingEnabled = it)) }
         )
-        
+
         SwitchSetting(
             title = "Notifications",
             subtitle = "Reading reminders and updates",
             checked = settings.notificationsEnabled,
             onCheckedChange = { onSettingsChange(settings.copy(notificationsEnabled = it)) }
         )
-        
+
         SwitchSetting(
             title = "Import on Startup",
             subtitle = "Automatically check for new media files",
@@ -285,7 +285,7 @@ fun PasswordSetupDialog(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Set Password") },
@@ -293,7 +293,7 @@ fun PasswordSetupDialog(
             Column {
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { 
+                    onValueChange = {
                         password = it
                         errorMessage = ""
                     },
@@ -304,7 +304,7 @@ fun PasswordSetupDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = confirmPassword,
-                    onValueChange = { 
+                    onValueChange = {
                         confirmPassword = it
                         errorMessage = ""
                     },
