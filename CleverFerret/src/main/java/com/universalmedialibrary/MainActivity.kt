@@ -83,8 +83,7 @@ fun AppNavigation() {
         startDestination = "home"
     ) {
         composable("home") {
-            EnhancedHomeScreen(navController = navController)
-
+            LibraryListScreen(navController = navController)
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
@@ -159,32 +158,11 @@ fun LibraryListScreen(
             },
         )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Libraries") },
-                actions = {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Import Calibre Library") },
-                            onClick = {
-                                showMenu = false
-                                dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
-                            },
-                            enabled = libraries.isNotEmpty()
-
     var selectedTab by remember { mutableStateOf(0) }
 
     // Sample libraries for demonstration - showing restored functionality
     val sampleLibraries = listOf(
         SampleLibrary("My Books", "BOOK", 1),
-
         SampleLibrary("Music Collection", "MUSIC", 2),
         SampleLibrary("Movie Library", "MOVIE", 3)
     )
@@ -227,12 +205,11 @@ fun LibraryListScreen(
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
-                            text = { Text(title) },
-                           
+                            text = { Text(title) }
                         )
                     }
-                },
-            )
+                }
+            }
         },
         floatingActionButton = {
 
@@ -307,7 +284,8 @@ fun LibraryListScreen(
                 },
             )
         }
-
+    }
+}
 
 @Composable
 fun LibraryCard(library: SampleLibrary, onClick: () -> Unit) {
@@ -483,5 +461,5 @@ private fun getIconForLibraryType(type: String): ImageVector {
         "MOVIE" -> PhosphorIcons.FilmStrip
         "MUSIC" -> PhosphorIcons.MusicNote
         else -> PhosphorIcons.Book
-
     }
+}

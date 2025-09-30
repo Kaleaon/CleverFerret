@@ -34,7 +34,6 @@ import com.universalmedialibrary.data.local.entity.*
     version = 10,
     exportSchema = false
 )
-*/
 abstract class AppDatabase : RoomDatabase() {
 
 
