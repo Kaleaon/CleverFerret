@@ -3,7 +3,7 @@ package com.universalmedialibrary.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.LibraryDao
-import com.universalmedialibrary.data.local.model.Library
+import com.universalmedialibrary.data.local.entity.Library
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

@@ -23,7 +23,8 @@ class LibraryRepository @Inject constructor(
     
     suspend fun getLibraryByPath(path: String): Library? = libraryDao.getLibraryByPath(path)
     
-    fun getLibrariesByType(type: String): Flow<List<Library>> = libraryDao.getLibrariesByType(type)
+    fun getLibrariesByType(type: String): Flow<List<Library>> = 
+        libraryDao.getLibrariesByTypeFlow(type)
     
     suspend fun createLibrary(library: Library): Long = libraryDao.insertLibrary(library)
     
@@ -32,7 +33,7 @@ class LibraryRepository @Inject constructor(
     suspend fun deleteLibrary(library: Library) = libraryDao.deleteLibrary(library)
     
     suspend fun toggleLibraryActive(libraryId: Long, isActive: Boolean) = 
-        libraryDao.setLibraryActive(libraryId, isActive)
+        libraryDao.setLibraryActive(libraryId, System.currentTimeMillis())
     
     suspend fun updateLastScanned(libraryId: Long, timestamp: Long = System.currentTimeMillis()) = 
         libraryDao.updateLastScanned(libraryId, timestamp)

@@ -50,13 +50,15 @@ class MediaRepository @Inject constructor(
         metadataDao.insertCommonMetadata(metadata)
     
     suspend fun updateCommonMetadata(metadata: MetadataCommon) = 
-        metadataDao.updateCommonMetadata(metadata)
+        metadataDao.updateCommonMetadata(metadata.itemId, metadata.title, metadata.summary)
     
     suspend fun searchByTitle(query: String, limit: Int = 50): List<MetadataCommon> = 
-        metadataDao.searchByTitle(query, limit)
+        metadataDao.searchByTitle(query)
     
-    suspend fun createMediaItems(mediaItems: List<MediaItem>): List<Long> = 
+    suspend fun createMediaItems(mediaItems: List<MediaItem>): List<Long> {
         mediaItemDao.insertMediaItems(mediaItems)
+        return mediaItems.map { it.itemId } // Return the IDs
+    }
     
     suspend fun getMediaItemWithMetadata(itemId: Long): Pair<MediaItem?, MetadataCommon?> {
         val mediaItem = getMediaItemById(itemId)

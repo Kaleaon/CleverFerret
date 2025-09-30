@@ -24,8 +24,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+
 import com.universalmedialibrary.data.local.model.BookDetails
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)

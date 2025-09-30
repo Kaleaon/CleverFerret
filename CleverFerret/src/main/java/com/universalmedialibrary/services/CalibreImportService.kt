@@ -2,7 +2,7 @@ package com.universalmedialibrary.services
 
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.*
+import com.universalmedialibrary.data.local.entity.*
 import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
