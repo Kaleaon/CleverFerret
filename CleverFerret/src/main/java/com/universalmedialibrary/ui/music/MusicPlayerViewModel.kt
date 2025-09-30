@@ -18,54 +18,54 @@ class MusicPlayerViewModel @Inject constructor(
     private val musicPlayerService: AdvancedMusicPlayerService,
     private val musicMetadataService: MusicMetadataService
 ) : ViewModel() {
-    
-    val playbackState: StateFlow<com.universalmedialibrary.services.music.AdvancedPlaybackState> = 
+
+    val playbackState: StateFlow<com.universalmedialibrary.services.music.AdvancedPlaybackState> =
         musicPlayerService.playbackState
-    
-    val currentTrack: StateFlow<com.universalmedialibrary.services.music.TrackInfo?> = 
+
+    val currentTrack: StateFlow<com.universalmedialibrary.services.music.TrackInfo?> =
         musicPlayerService.currentTrack
-    
-    val queue: StateFlow<List<com.universalmedialibrary.services.music.TrackInfo>> = 
+
+    val queue: StateFlow<List<com.universalmedialibrary.services.music.TrackInfo>> =
         musicPlayerService.queue
-    
-    val playlistMode: StateFlow<PlaylistMode> = 
+
+    val playlistMode: StateFlow<PlaylistMode> =
         musicPlayerService.playlistMode
-    
+
     /**
      * Toggle play/pause
      */
     fun togglePlayPause() {
         musicPlayerService.togglePlayPause()
     }
-    
+
     /**
      * Skip to previous track
      */
     fun skipToPrevious() {
         musicPlayerService.skipToPrevious()
     }
-    
+
     /**
      * Skip to next track
      */
     fun skipToNext() {
         musicPlayerService.skipToNext()
     }
-    
+
     /**
      * Seek to specific position
      */
     fun seekTo(positionMs: Long) {
         musicPlayerService.seekTo(positionMs)
     }
-    
+
     /**
      * Get current playback position
      */
     fun getCurrentPosition(): Long {
         return musicPlayerService.getCurrentPosition()
     }
-    
+
     /**
      * Toggle playlist mode (normal -> repeat all -> repeat one -> shuffle -> normal)
      */
@@ -79,42 +79,42 @@ class MusicPlayerViewModel @Inject constructor(
         }
         musicPlayerService.setPlaylistMode(nextMode)
     }
-    
+
     /**
      * Add track to queue
      */
     fun addToQueue(mediaItem: com.universalmedialibrary.data.local.entity.MediaItem) {
         musicPlayerService.addToQueue(mediaItem)
     }
-    
+
     /**
      * Remove track from queue
      */
     fun removeFromQueue(trackId: String) {
         musicPlayerService.removeFromQueue(trackId)
     }
-    
+
     /**
      * Clear the entire queue
      */
     fun clearQueue() {
         musicPlayerService.clearQueue()
     }
-    
+
     /**
      * Set crossfade duration
      */
     fun setCrossfadeDuration(durationMs: Int) {
         musicPlayerService.setCrossfadeDuration(durationMs)
     }
-    
+
     /**
      * Enable/disable gapless playback
      */
     fun setGaplessPlayback(enabled: Boolean) {
         musicPlayerService.setGaplessPlayback(enabled)
     }
-    
+
     /**
      * Enhance current track metadata
      */
@@ -128,7 +128,7 @@ class MusicPlayerViewModel @Inject constructor(
                         title = track.title,
                         album = track.album
                     )
-                    
+
                     if (enhancedMetadata.success) {
                         // TODO: Update track metadata in database and UI
                         // This would require updating the track info and notifying the UI
@@ -139,7 +139,7 @@ class MusicPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get similar artists for current track
      */
@@ -156,7 +156,7 @@ class MusicPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get top tracks for current artist
      */
@@ -173,7 +173,7 @@ class MusicPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         // Don't release the service here as it should continue playing in background

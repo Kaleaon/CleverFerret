@@ -17,7 +17,7 @@ class PlexIntegrationViewModel @Inject constructor(
     private val plexService: PlexIntegrationService
 ) : ViewModel() {
 
-    val plexState: StateFlow<com.universalmedialibrary.services.integration.plex.PlexIntegrationState> = 
+    val plexState: StateFlow<com.universalmedialibrary.services.integration.plex.PlexIntegrationState> =
         plexService.plexState
 
     /**

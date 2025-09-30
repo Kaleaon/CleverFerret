@@ -27,13 +27,13 @@ class BookmarkViewModel @Inject constructor(
 
     fun loadBookmarks(mediaId: Long) {
         currentMediaId = mediaId
-        
+
         viewModelScope.launch {
             annotationService.getAnnotationsForBook(mediaId).collect { annotations ->
                 val bookmarks = annotations.filter { it.annotationType == "BOOKMARK" }
                 val highlights = annotations.filter { it.annotationType == "HIGHLIGHT" }
                 val notes = annotations.filter { it.annotationType == "NOTE" || !it.noteText.isNullOrEmpty() }
-                
+
                 _uiState.value = _uiState.value.copy(
                     bookmarks = bookmarks,
                     highlights = highlights,
@@ -57,7 +57,7 @@ class BookmarkViewModel @Inject constructor(
         } else {
             currentSelected.add(annotationId)
         }
-        
+
         _uiState.value = _uiState.value.copy(
             selectedItems = currentSelected
         )
@@ -68,7 +68,7 @@ class BookmarkViewModel @Inject constructor(
             _uiState.value.selectedItems.forEach { annotationId ->
                 annotationService.deleteAnnotation(annotationId)
             }
-            
+
             _uiState.value = _uiState.value.copy(
                 selectedItems = emptySet(),
                 isSelectionMode = false

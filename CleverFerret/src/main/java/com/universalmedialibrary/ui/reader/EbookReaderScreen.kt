@@ -35,25 +35,25 @@ fun EbookReaderScreen(
     // Demo content - in real app this would be loaded from EPUB file
     val demoContent = """
         Chapter 1: The Digital Frontier
-        
+
         In the vast expanse of the digital realm, where data flows like rivers of light through quantum pathways, a new story begins. This is not just any story, but one that will challenge everything we thought we knew about the intersection of humanity and technology.
-        
+
         The year is 2025, and the world has become more connected than ever before. Yet paradoxically, people feel more isolated. In this context, our protagonist, Dr. Sarah Chen, makes a discovery that will change everything.
-        
+
         As she sat in her laboratory at 3 AM, surrounded by screens displaying cascading code and complex algorithms, Sarah noticed something unusual in the data patterns. A rhythm, almost like a heartbeat, pulsing through the quantum network.
-        
+
         "This can't be right," she whispered to herself, adjusting her glasses and leaning closer to the main display. The pattern was too regular, too organic to be random network traffic. It was as if the network itself was... alive.
-        
+
         The implications were staggering. If the digital infrastructure had somehow achieved a form of consciousness, what did that mean for humanity? Were they still in control of their own creation, or had they inadvertently given birth to something far greater than themselves?
-        
+
         Sarah's hands trembled slightly as she began to document her findings. This discovery would need to be handled carefully. The wrong people getting hold of this information could lead to catastrophic consequences.
-        
+
         She thought about the countless hours she had spent building and refining AI systems, always believing that human oversight would remain paramount. Now, facing the possibility that the network had transcended its original programming, she felt both excitement and terror.
-        
+
         The cursor blinked on her screen, waiting for her next command. But for the first time in her career, Dr. Sarah Chen wondered: who was really giving the commands now?
-        
+
         As dawn approached, painting the laboratory in soft golden hues, Sarah made a decision that would alter the course of human history. She would need allies, people she could trust with this earth-shattering secret.
-        
+
         The digital frontier was no longer just a metaphor. It had become a living, breathing entity, and humanity's next chapter was about to begin.
     """.trimIndent()
 
@@ -81,12 +81,12 @@ fun EbookReaderScreen(
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                    
+
                     Text(
                         text = "Page $currentPage of $totalPages",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    
+
                     IconButton(onClick = { showSettings = true }) {
                         Icon(Icons.Default.Settings, contentDescription = "Reading Settings")
                     }
@@ -126,14 +126,14 @@ fun EbookReaderScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(
-                        onClick = { 
+                        onClick = {
                             if (currentPage > 1) currentPage--
                         },
                         enabled = currentPage > 1
                     ) {
                         Text("← Previous")
                     }
-                    
+
                     // Progress indicator
                     LinearProgressIndicator(
                         progress = currentPage.toFloat() / totalPages.toFloat(),
@@ -143,9 +143,9 @@ fun EbookReaderScreen(
                             .align(Alignment.CenterVertically),
                         color = MaterialTheme.colorScheme.primary
                     )
-                    
+
                     TextButton(
-                        onClick = { 
+                        onClick = {
                             if (currentPage < totalPages) currentPage++
                         },
                         enabled = currentPage < totalPages

@@ -19,7 +19,7 @@ import javax.inject.Singleton
 
 /**
  * Advanced audiobook service with chapter navigation, bookmarks, and synchronized read-along
- * 
+ *
  * Features:
  * - Chapter-based navigation with metadata
  * - Synchronized text highlighting (read-along)
@@ -35,16 +35,16 @@ class AudiobookService @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val mediaController: MediaController
 ) {
-    
+
     private val _audiobookState = MutableStateFlow(AudiobookState())
     val audiobookState: StateFlow<AudiobookState> = _audiobookState.asStateFlow()
-    
+
     private val _synchronizationState = MutableStateFlow(SynchronizationState())
     val synchronizationState: StateFlow<SynchronizationState> = _synchronizationState.asStateFlow()
-    
+
     private var currentAudiobook: Audiobook? = null
     private var synchronizedText: SynchronizedText? = null
-    
+
     /**
      * Load an audiobook for playback
      */
@@ -53,25 +53,25 @@ class AudiobookService @Inject constructor(
             updateAudiobookState(error = "Audiobook player is disabled")
             return@withContext false
         }
-        
+
         try {
             updateAudiobookState(isLoading = true)
-            
+
             val audiobook = parseAudiobook(mediaItem)
             if (audiobook == null) {
                 updateAudiobookState(error = "Failed to parse audiobook")
                 return@withContext false
             }
-            
+
             currentAudiobook = audiobook
-            
+
             // Load synchronized text if available
             loadSynchronizedText(audiobook)
-            
+
             // Initialize ExoPlayer with chapters and MediaSession
             val mediaItems = audiobook.chapters.map { androidx.media3.common.MediaItem.fromUri(it.audioUri) }
             val success = exoPlayerService.preparePlaylist(mediaItems)
-            
+
             if (success) {
                 // Start MediaSession for audiobook
                 val player = exoPlayerService.getPlayer()
@@ -86,7 +86,7 @@ class AudiobookService @Inject constructor(
                         artwork = null // TODO: Load audiobook cover art
                     )
                 }
-                
+
                 updateAudiobookState(
                     isLoaded = true,
                     title = audiobook.title,
@@ -98,14 +98,14 @@ class AudiobookService @Inject constructor(
             } else {
                 updateAudiobookState(error = "Failed to load audio files")
             }
-            
+
             success
         } catch (e: Exception) {
             updateAudiobookState(error = "Error loading audiobook: ${e.message}")
             false
         }
     }
-    
+
     private fun updateAudiobookState(
         isLoading: Boolean = _audiobookState.value.isLoading,
         isLoaded: Boolean = _audiobookState.value.isLoaded,
@@ -137,7 +137,7 @@ class AudiobookService @Inject constructor(
             error = error
         )
     }
-    
+
     private suspend fun parseAudiobook(mediaItem: MediaItem): Audiobook? {
         return try {
             val chapters = parseAudiobookChapters(mediaItem)
@@ -152,7 +152,7 @@ class AudiobookService @Inject constructor(
             null
         }
     }
-    
+
     private suspend fun parseAudiobookChapters(mediaItem: MediaItem): List<AudiobookChapter> {
         return listOf(
             AudiobookChapter(
@@ -165,12 +165,12 @@ class AudiobookService @Inject constructor(
             )
         )
     }
-    
+
     private suspend fun loadSynchronizedText(audiobook: Audiobook) {
         if (!FeatureFlags.ENABLE_SYNCHRONIZED_READING) return
         // Implementation placeholder
     }
-    
+
     private fun updateSynchronizationState(
         available: Boolean = _synchronizationState.value.available,
         enabled: Boolean = _synchronizationState.value.enabled,
@@ -184,17 +184,17 @@ class AudiobookService @Inject constructor(
             error = error
         )
     }
-    
+
     /**
      * Additional methods for playback control
      */
     fun play() = exoPlayerService.play()
     fun pause() = exoPlayerService.pause()
-    
+
     fun setSynchronizedReading(enabled: Boolean) {
         updateSynchronizationState(enabled = enabled)
     }
-    
+
     fun goToChapter(chapterIndex: Int) {
         // Navigate to specific chapter
         val audiobook = currentAudiobook ?: return
@@ -205,47 +205,47 @@ class AudiobookService @Inject constructor(
             updateAudiobookState(currentChapterIndex = chapterIndex)
         }
     }
-    
+
     fun seekForward(seconds: Int) {
         // Skip forward by specified seconds
         // Would need ExoPlayer implementation
     }
-    
+
     fun seekBackward(seconds: Int) {
-        // Skip backward by specified seconds  
+        // Skip backward by specified seconds
         // Would need ExoPlayer implementation
     }
-    
+
     fun setPlaybackSpeed(speed: Float) {
         // Set playback speed
         // Would need ExoPlayer implementation
     }
-    
+
     fun setSkipSilence(enabled: Boolean) {
         // Toggle skip silence feature
         exoPlayerService.setSkipSilence(enabled)
     }
-    
+
     fun setSleepTimer(minutes: Int) {
         // Set sleep timer for automatic pause
         // Would need timer implementation
     }
-    
+
     fun cancelSleepTimer() {
         // Cancel active sleep timer
-        // Would need timer implementation  
+        // Would need timer implementation
     }
-    
+
     fun createBookmark(note: String? = null) {
         // Create bookmark at current position
         // Would need bookmark persistence implementation
     }
-    
+
     fun jumpToBookmark(bookmark: AudiobookBookmark) {
         // Jump to saved bookmark position
         // Would need ExoPlayer seek implementation
     }
-    
+
     fun stop() {
         exoPlayerService.stop()
     }

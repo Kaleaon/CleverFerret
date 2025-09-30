@@ -14,11 +14,11 @@ import javax.inject.Inject
 class PlexSyncViewModel @Inject constructor(
     private val plexSyncService: PlexSyncService
 ) : ViewModel() {
-    
+
     // UI State
     private val _uiState = MutableStateFlow(PlexSyncUiState())
     val uiState: StateFlow<PlexSyncUiState> = _uiState.asStateFlow()
-    
+
     // Plex servers
     val servers: StateFlow<List<PlexServer>> = plexSyncService.getAllServers()
         .stateIn(
@@ -26,7 +26,7 @@ class PlexSyncViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-    
+
     // Sync status
     val syncStatus: StateFlow<PlexSyncStatus> = plexSyncService.syncStatus
         .stateIn(
@@ -34,7 +34,7 @@ class PlexSyncViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = PlexSyncStatus.Idle
         )
-    
+
     init {
         // Auto-refresh sync status
         viewModelScope.launch {
@@ -47,14 +47,14 @@ class PlexSyncViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Add a new Plex server
      */
     fun addServer(name: String, host: String, port: Int, token: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            
+
             plexSyncService.addServer(name, host, port, token)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(
@@ -71,7 +71,7 @@ class PlexSyncViewModel @Inject constructor(
                 }
         }
     }
-    
+
     /**
      * Sync all servers
      */
@@ -80,7 +80,7 @@ class PlexSyncViewModel @Inject constructor(
             plexSyncService.syncAllServers()
         }
     }
-    
+
     /**
      * Sync specific server
      */
@@ -89,21 +89,21 @@ class PlexSyncViewModel @Inject constructor(
             plexSyncService.syncServer(server)
         }
     }
-    
+
     /**
      * Show add server dialog
      */
     fun showAddServerDialog() {
         _uiState.value = _uiState.value.copy(showAddServerDialog = true)
     }
-    
+
     /**
      * Hide add server dialog
      */
     fun hideAddServerDialog() {
         _uiState.value = _uiState.value.copy(showAddServerDialog = false)
     }
-    
+
     /**
      * Clear messages
      */

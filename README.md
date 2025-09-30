@@ -55,6 +55,27 @@ The project is currently in the early stages of development. The following featu
         ```
 4.  **Run the application on an emulator or a physical device.**
 
+### Code Quality and Formatting
+
+The project uses **Spotless** with **ktlint** for code formatting and style enforcement.
+
+**Run formatting checks:**
+```bash
+./gradlew spotlessCheck
+```
+
+**Auto-format code:**
+```bash
+./gradlew spotlessApply
+```
+
+**Run Android Lint:**
+```bash
+./gradlew lint
+```
+
+**Note:** Spotless checks will fail the build if code is not properly formatted. Always run `spotlessApply` before committing code.
+
 ### Project Structure
 
 The project is organized into the following main packages:
@@ -105,8 +126,10 @@ For more detailed planning, please refer to the project's issue tracker.
 
 ## 5. Documentation & Planning
 
+*   **[CODE_QUALITY.md](CODE_QUALITY.md)**: Code formatting, linting, and quality standards.
 *   **[BUGS_AND_ISSUES.md](BUGS_AND_ISSUES.md)**: A summary of identified bugs, architectural concerns, and potential improvements.
 *   **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)**: For development status and issue tracking.
+*   **[CONTRIBUTING.md](CONTRIBUTING.md)**: Contribution guidelines and developer setup.
 *   **[docs/README.md](docs/README.md)**: Complete documentation index.
 *   **[issues/](issues/)**: Structured development issues.
 

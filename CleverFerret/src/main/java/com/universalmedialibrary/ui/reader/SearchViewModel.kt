@@ -121,13 +121,13 @@ class SearchViewModel @Inject constructor(
 
     private fun addToSearchHistory(query: String) {
         val currentHistory = _uiState.value.searchHistory.toMutableList()
-        
+
         // Remove if already exists
         currentHistory.remove(query)
-        
+
         // Add to beginning
         currentHistory.add(0, query)
-        
+
         // Keep only last 10 searches
         if (currentHistory.size > 10) {
             currentHistory.removeAt(currentHistory.size - 1)

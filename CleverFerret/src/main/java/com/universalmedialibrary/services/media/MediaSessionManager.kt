@@ -16,13 +16,13 @@ import javax.inject.Singleton
 
 /**
  * Centralized MediaSession manager for CleverFerret
- * 
+ *
  * Provides unified media session management across all media services:
  * - Music playback with AdvancedMusicPlayerService
  * - Audiobook playback with AudiobookService
  * - Text-to-Speech with TTS services
  * - Universal media with UniversalMediaPlayerService
- * 
+ *
  * Features:
  * - Single active MediaSession to prevent conflicts
  * - Rich metadata display with artwork
@@ -34,13 +34,13 @@ import javax.inject.Singleton
 class MediaSessionManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     private var mediaSession: MediaSession? = null
     private var currentPlayer: Player? = null
-    
+
     private val _sessionState = MutableStateFlow(MediaSessionState())
     val sessionState: StateFlow<MediaSessionState> = _sessionState.asStateFlow()
-    
+
     /**
      * Initialize or update the MediaSession with a new player
      */
@@ -49,17 +49,17 @@ class MediaSessionManager @Inject constructor(
         if (currentPlayer != player) {
             releaseSession()
         }
-        
+
         currentPlayer = player
-        
+
         if (mediaSession == null) {
             mediaSession = MediaSession.Builder(context, player)
                 .build()
         }
-        
+
         updateSessionState(isActive = true, serviceClass = serviceClass.simpleName)
     }
-    
+
     /**
      * Update the current media metadata displayed in notifications
      */
@@ -73,33 +73,33 @@ class MediaSessionManager @Inject constructor(
         val metadataBuilder = MediaMetadata.Builder()
             .setTitle(title)
             .setDisplayTitle(title)
-            
+
         artist?.let {
             metadataBuilder.setArtist(it)
         }
-        
+
         album?.let {
             metadataBuilder.setAlbumTitle(it)
         }
-        
+
         artwork?.let {
             // Convert Bitmap to ByteArray for MediaMetadata
             val stream = java.io.ByteArrayOutputStream()
             it.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
             metadataBuilder.setArtworkData(stream.toByteArray(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
         }
-        
+
         if (duration > 0) {
             // TODO: Set duration for MediaMetadata - need to check Media3 API
             // Media3 might handle duration differently than the old MediaMetadata API
         }
-        
+
         val mediaItem = MediaItem.Builder()
             .setMediaMetadata(metadataBuilder.build())
             .build()
-            
+
         currentPlayer?.setMediaItem(mediaItem)
-        
+
         updateSessionState(
             currentTitle = title,
             currentArtist = artist,
@@ -107,17 +107,17 @@ class MediaSessionManager @Inject constructor(
             duration = duration
         )
     }
-    
+
     /**
      * Get the current MediaSession instance
      */
     fun getMediaSession(): MediaSession? = mediaSession
-    
+
     /**
      * Check if a MediaSession is currently active
      */
     fun isSessionActive(): Boolean = mediaSession != null && currentPlayer != null
-    
+
     /**
      * Release the current MediaSession
      */
@@ -127,7 +127,7 @@ class MediaSessionManager @Inject constructor(
         currentPlayer = null
         updateSessionState(isActive = false)
     }
-    
+
     private fun updateSessionState(
         isActive: Boolean = _sessionState.value.isActive,
         serviceClass: String = _sessionState.value.activeServiceClass,

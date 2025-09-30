@@ -31,7 +31,7 @@ interface GoodreadsApi {
         @Query("key") apiKey: String,
         @Query("q") query: String
     ): GoodreadsSearchResponse
-    
+
     @GET("book/show/{id}.xml")
     suspend fun getBookDetails(
         @Path("id") bookId: String,
@@ -46,7 +46,7 @@ interface HardcoverApi {
         @Query("q") query: String,
         @Query("limit") limit: Int = 20
     ): HardcoverSearchResponse
-    
+
     @GET("books/{id}")
     suspend fun getBookDetails(@Path("id") bookId: String): HardcoverBook
 }
@@ -55,7 +55,7 @@ interface HardcoverApi {
 interface ISFDBApi {
     @GET("cgi-bin/rest/getAuthors.cgi")
     suspend fun getAuthors(@Query("author") author: String): ISFDBAuthorsResponse
-    
+
     @GET("cgi-bin/rest/getTitle.cgi")
     suspend fun getTitle(@Query("title") title: String): ISFDBTitleResponse
 }
@@ -69,7 +69,7 @@ interface ComicVineApi {
         @Query("resources") resources: String = "volume",
         @Query("format") format: String = "json"
     ): ComicVineSearchResponse
-    
+
     @GET("volume/{id}/")
     suspend fun getComicDetails(
         @Path("id") comicId: String,
@@ -82,7 +82,7 @@ interface ComicVineApi {
 interface TVDBApi {
     @POST("login")
     suspend fun login(@Body credentials: TVDBCredentials): TVDBLoginResponse
-    
+
     @GET("search/series")
     suspend fun searchSeries(
         @Query("name") name: String,
@@ -127,7 +127,7 @@ interface ISBNDbApi {
         @Path("isbn") isbn: String,
         @Header("Authorization") apiKey: String
     ): ISBNDbResponse
-    
+
     @GET("books")
     suspend fun searchBooks(
         @Query("title") title: String,
@@ -155,7 +155,7 @@ interface FantasticFictionApi {
     ): String // Returns HTML, needs parsing
 }
 
-// FictionDB API  
+// FictionDB API
 interface FictionDBApi {
     @GET("search/searchbook.php")
     suspend fun searchBooks(
@@ -336,7 +336,7 @@ data class TVDBSeries(
 class ComprehensiveMetadataService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     // Initialize all API clients
     private val amazonApi: AmazonProductApi by lazy {
         Retrofit.Builder()
@@ -345,7 +345,7 @@ class ComprehensiveMetadataService @Inject constructor(
             .build()
             .create(AmazonProductApi::class.java)
     }
-    
+
     private val goodreadsApi: GoodreadsApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.goodreads.com/")
@@ -353,7 +353,7 @@ class ComprehensiveMetadataService @Inject constructor(
             .build()
             .create(GoodreadsApi::class.java)
     }
-    
+
     private val hardcoverApi: HardcoverApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://hardcover.app/api/v1/")
@@ -361,7 +361,7 @@ class ComprehensiveMetadataService @Inject constructor(
             .build()
             .create(HardcoverApi::class.java)
     }
-    
+
     private val comicVineApi: ComicVineApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://comicvine.gamespot.com/api/")
@@ -369,7 +369,7 @@ class ComprehensiveMetadataService @Inject constructor(
             .build()
             .create(ComicVineApi::class.java)
     }
-    
+
     private val isbnDbApi: ISBNDbApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.isbn.dk/")
@@ -377,7 +377,7 @@ class ComprehensiveMetadataService @Inject constructor(
             .build()
             .create(ISBNDbApi::class.java)
     }
-    
+
     private val mangaUpdatesApi: MangaUpdatesApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.mangaupdates.com/")
@@ -395,10 +395,10 @@ class ComprehensiveMetadataService @Inject constructor(
         isbn: String? = null
     ): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         // Get API keys from repository
         val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
-        
+
         // Google Books (free, no key required)
         try {
             val googleBooks = searchGoogleBooks(query)
@@ -406,7 +406,7 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         // Open Library (free, no key required)
         try {
             val openLibrary = searchOpenLibrary(query)
@@ -414,7 +414,7 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         // Hardcover (free, no key required)
         try {
             val hardcover = searchHardcover(query)
@@ -422,7 +422,7 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         // ISBN databases if ISBN provided
         if (isbn != null) {
             try {
@@ -434,7 +434,7 @@ class ComprehensiveMetadataService @Inject constructor(
                 // Continue with other sources
             }
         }
-        
+
         // Goodreads (requires API key)
         try {
             apiKeys["goodreads"]?.let { key ->
@@ -444,10 +444,10 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         // Amazon Product Advertising (requires affiliate registration)
         try {
-            if (apiKeys.containsKey("amazon_access_key") && 
+            if (apiKeys.containsKey("amazon_access_key") &&
                 apiKeys.containsKey("amazon_secret_key")) {
                 val amazon = searchAmazon(query, apiKeys)
                 results.addAll(amazon)
@@ -455,10 +455,10 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         return results.distinctBy { it.id } // Remove duplicates
     }
-    
+
     /**
      * Search comic/manga sources
      */
@@ -466,10 +466,10 @@ class ComprehensiveMetadataService @Inject constructor(
         query: String
     ): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         // Get API keys from repository
         val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
-        
+
         // ComicVine (requires API key)
         try {
             apiKeys["comicvine"]?.let { key ->
@@ -479,7 +479,7 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         // MangaUpdates (free but limited)
         try {
             val mangaUpdates = searchMangaUpdates(query)
@@ -487,10 +487,10 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         return results
     }
-    
+
     /**
      * Search audiobook sources
      */
@@ -498,7 +498,7 @@ class ComprehensiveMetadataService @Inject constructor(
         query: String
     ): List<UnifiedMetadataSearchResult> {
         val results = mutableListOf<UnifiedMetadataSearchResult>()
-        
+
         // LibriVox (free audiobooks)
         try {
             val librivox = searchLibriVox(query)
@@ -506,10 +506,10 @@ class ComprehensiveMetadataService @Inject constructor(
         } catch (e: Exception) {
             // Continue with other sources
         }
-        
+
         // Audible would require authentication and scraping
         // as they don't provide a public API
-        
+
         return results
     }
 
@@ -518,12 +518,12 @@ class ComprehensiveMetadataService @Inject constructor(
         // Implementation similar to existing GoogleBooksAPI
         return emptyList() // Placeholder
     }
-    
+
     private suspend fun searchOpenLibrary(query: String): List<UnifiedMetadataSearchResult> {
         // Implementation similar to existing OpenLibraryAPI
         return emptyList() // Placeholder
     }
-    
+
     private suspend fun searchHardcover(query: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = hardcoverApi.searchBooks(query)
@@ -543,7 +543,7 @@ class ComprehensiveMetadataService @Inject constructor(
             return emptyList()
         }
     }
-    
+
     private suspend fun searchISBNDb(isbn: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = isbnDbApi.getBookByISBN(isbn, "Bearer $apiKey")
@@ -562,19 +562,19 @@ class ComprehensiveMetadataService @Inject constructor(
             return emptyList()
         }
     }
-    
+
     private suspend fun searchGoodreads(query: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         // Goodreads API implementation
         // Note: Goodreads has limited their API access
         return emptyList() // Placeholder - would need XML parsing
     }
-    
+
     private suspend fun searchAmazon(query: String, apiKeys: Map<String, String>): List<UnifiedMetadataSearchResult> {
         // Amazon Product Advertising API implementation
         // Requires complex authentication with AWS signatures
         return emptyList() // Placeholder
     }
-    
+
     private suspend fun searchComicVine(query: String, apiKey: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = comicVineApi.searchComics(apiKey, query)
@@ -593,7 +593,7 @@ class ComprehensiveMetadataService @Inject constructor(
             return emptyList()
         }
     }
-    
+
     private suspend fun searchMangaUpdates(query: String): List<UnifiedMetadataSearchResult> {
         try {
             val response = mangaUpdatesApi.searchManga(query)
@@ -612,7 +612,7 @@ class ComprehensiveMetadataService @Inject constructor(
             return emptyList()
         }
     }
-    
+
     private suspend fun searchLibriVox(query: String): List<UnifiedMetadataSearchResult> {
         // LibriVox API implementation for free audiobooks
         return emptyList() // Placeholder

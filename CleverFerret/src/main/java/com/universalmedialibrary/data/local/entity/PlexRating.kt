@@ -25,16 +25,16 @@ import androidx.room.Index
 data class PlexRating(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     val plexMediaItemId: Long,
-    
+
     // Rating information
     val localRating: Float? = null, // Rating in local system (0-10)
     val plexRating: Float? = null, // Rating from Plex (0-10)
-    
-    // Sync status  
+
+    // Sync status
     val needsSync: Boolean = false,
     val lastSyncedAt: Long = 0,
-    
+
     val updatedAt: Long = System.currentTimeMillis()
 )

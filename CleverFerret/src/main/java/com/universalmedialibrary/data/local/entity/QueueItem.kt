@@ -7,7 +7,7 @@ import androidx.room.Index
 
 /**
  * Entity representing an item in a playback queue
- * 
+ *
  * Links MediaItems to PlaybackQueues with position and metadata.
  * Supports all media types with type-specific metadata.
  */
@@ -37,32 +37,32 @@ import androidx.room.Index
 data class QueueItem(
     @PrimaryKey(autoGenerate = true)
     val queueItemId: Long = 0,
-    
+
     val queueId: Long,
     val mediaItemId: Long,
     val queuePosition: Int, // Order in queue (0-based)
-    
+
     val isCurrentlyPlaying: Boolean = false,
     val playbackPositionMs: Long = 0, // Current position in media
     val durationMs: Long = 0, // Total duration (cached)
-    
+
     // Media type-specific data
     val mediaType: String, // "MUSIC", "AUDIOBOOK", "TTS", "VIDEO", "PODCAST"
     val chapterIndex: Int? = null, // For audiobooks/podcasts
     val chapterTitle: String? = null,
     val playbackSpeed: Float = 1.0f,
-    
+
     // Metadata cache for quick access
     val title: String = "",
     val artist: String? = null,
     val album: String? = null,
     val coverArtUrl: String? = null,
-    
+
     // Queue management
     val addedToQueue: Long = System.currentTimeMillis(),
     val lastPlayed: Long? = null,
     val playCount: Int = 0,
-    
+
     // Playback settings
     val skipSilence: Boolean = false,
     val crossfadeEnabled: Boolean = false

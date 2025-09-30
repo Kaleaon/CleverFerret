@@ -10,13 +10,25 @@ import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
 
 
-// Temporarily disabled to resolve KSP build issues
-/*
+/**
+ * CleverFerret Universal Media Library Database
+ *
+ * Modern Room database implementation supporting all media types with metadata,
+ * progress tracking, bookmarks, and external service integration.
+ */
 @Database(
     entities = [
-        // Phase 2: Starting with minimal entities only for build fix
-        com.universalmedialibrary.data.local.model.Library::class,
-        com.universalmedialibrary.data.local.model.APIKey::class
+        // Core entities only for now
+        Library::class,
+        MediaItem::class,
+        MetadataCommon::class,
+        MetadataBook::class,
+        MetadataMovie::class,
+        MetadataMusicTrack::class,
+
+        // Essential system entities
+        APIKey::class,
+        Bookmark::class
 
     ],
     version = 10,
@@ -24,8 +36,10 @@ import com.universalmedialibrary.data.local.entity.*
 )
 */
 abstract class AppDatabase : RoomDatabase() {
-    
-    // Core DAOs - Minimized for build fix
+
+
+    // Core DAOs
+
     abstract fun libraryDao(): LibraryDao
     abstract fun apiKeyDao(): APIKeyDao
 
@@ -54,10 +68,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
-        
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
-        
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

@@ -97,7 +97,7 @@ private fun TabletLayout(
                     .padding(bottom = 16.dp)
             )
         }
-        
+
         // Right column - Scrollable fields
         Column(
             modifier = Modifier
@@ -135,7 +135,7 @@ private fun PhoneLayout(
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 16.dp)
         )
-        
+
         // Metadata fields
         MetadataFields(
             metadata = uiState.metadata,
@@ -161,9 +161,9 @@ private fun MetadataFields(
         originalValue = originalMetadata?.title,
         onValueChange = { onMetadataChange(MetadataField.Title(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(8.dp))
-    
+
     // Subtitle
     MetadataTextField(
         label = "Subtitle",
@@ -171,9 +171,9 @@ private fun MetadataFields(
         originalValue = originalMetadata?.subtitle,
         onValueChange = { onMetadataChange(MetadataField.Subtitle(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(8.dp))
-    
+
     // Sort Title
     MetadataTextField(
         label = "Sort Title",
@@ -181,9 +181,9 @@ private fun MetadataFields(
         originalValue = originalMetadata?.sortTitle,
         onValueChange = { onMetadataChange(MetadataField.SortTitle(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(8.dp))
-    
+
     // Summary
     MetadataTextField(
         label = "Summary",
@@ -193,18 +193,18 @@ private fun MetadataFields(
         singleLine = false,
         minLines = 3
     )
-    
+
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     // Authors (chip-based input)
     AuthorsChipInput(
         authors = metadata.authors,
         originalAuthors = originalMetadata?.authors,
         onAuthorsChange = { onMetadataChange(MetadataField.Authors(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     // Series
     MetadataTextField(
         label = "Series",
@@ -212,32 +212,32 @@ private fun MetadataFields(
         originalValue = originalMetadata?.series,
         onValueChange = { onMetadataChange(MetadataField.Series(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(8.dp))
-    
+
     // Series Index
     MetadataTextField(
         label = "Series Index",
         value = metadata.seriesIndex?.toString() ?: "",
         originalValue = originalMetadata?.seriesIndex?.toString(),
-        onValueChange = { 
+        onValueChange = {
             val index = it.toIntOrNull()
             onMetadataChange(MetadataField.SeriesIndex(index))
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
-    
+
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     // Rating
     RatingInput(
         rating = metadata.rating,
         originalRating = originalMetadata?.rating,
         onRatingChange = { onMetadataChange(MetadataField.Rating(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     // Publisher
     MetadataTextField(
         label = "Publisher",
@@ -245,9 +245,9 @@ private fun MetadataFields(
         originalValue = originalMetadata?.publisher,
         onValueChange = { onMetadataChange(MetadataField.Publisher(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(8.dp))
-    
+
     // ISBN
     MetadataTextField(
         label = "ISBN",
@@ -255,9 +255,9 @@ private fun MetadataFields(
         originalValue = originalMetadata?.isbn,
         onValueChange = { onMetadataChange(MetadataField.ISBN(it)) }
     )
-    
+
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     // Genres/Tags (chip-based input)
     GenresChipInput(
         genres = metadata.genres,
@@ -289,7 +289,7 @@ private fun MetadataTextField(
             keyboardOptions = keyboardOptions,
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         // Show original value if different
         if (originalValue != null && originalValue != value && originalValue.isNotBlank()) {
             Text(
@@ -345,7 +345,7 @@ private fun RatingInput(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         Row {
             repeat(5) { index ->
                 val starRating = index + 1
@@ -371,7 +371,7 @@ private fun RatingInput(
                 }
             }
         }
-        
+
         // Show original rating if different
         if (originalRating != null && originalRating != rating) {
             Text(

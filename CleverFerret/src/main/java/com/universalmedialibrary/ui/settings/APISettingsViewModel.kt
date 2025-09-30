@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 /**
  * ViewModel for API Settings Screen
- * 
+ *
  * Manages:
  * - API key storage and validation
  * - Feature flag management
@@ -25,10 +25,10 @@ class APISettingsViewModel @Inject constructor(
     private val apiKeyRepository: APIKeyRepository,
     private val geminiService: GeminiService
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(APISettingsUiState())
     val uiState: StateFlow<APISettingsUiState> = _uiState.asStateFlow()
-    
+
     /**
      * Load current settings
      */
@@ -36,9 +36,9 @@ class APISettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val geminiKey = apiKeyRepository.getGeminiApiKey()
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiApiKey = geminiKey,
@@ -56,7 +56,7 @@ class APISettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Save Gemini API key
      */
@@ -64,9 +64,9 @@ class APISettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 apiKeyRepository.setGeminiApiKey(apiKey)
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiApiKey = apiKey,
@@ -82,7 +82,7 @@ class APISettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Test Gemini API key
      */
@@ -90,25 +90,25 @@ class APISettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 // Save key temporarily for testing
                 val originalKey = apiKeyRepository.getGeminiApiKey()
                 apiKeyRepository.setGeminiApiKey(apiKey)
-                
+
                 // Initialize and test the service
                 val initialized = geminiService.initialize()
-                
+
                 val testResult = if (initialized) {
                     "API key test successful! Gemini service is ready."
                 } else {
                     "API key test failed. Please check your key and try again."
                 }
-                
+
                 // Restore original key if test failed
                 if (!initialized && originalKey != null) {
                     apiKeyRepository.setGeminiApiKey(originalKey)
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiTestResult = testResult
@@ -121,7 +121,7 @@ class APISettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Toggle Gemini feature
      */
@@ -136,7 +136,7 @@ class APISettingsViewModel @Inject constructor(
             hasError = false
         )
     }
-    
+
     /**
      * Toggle ExoPlayer feature
      */
@@ -151,7 +151,7 @@ class APISettingsViewModel @Inject constructor(
             hasError = false
         )
     }
-    
+
     /**
      * Toggle Podcasts feature
      */
@@ -166,7 +166,7 @@ class APISettingsViewModel @Inject constructor(
             hasError = false
         )
     }
-    
+
     /**
      * Toggle Cloud TTS feature
      */

@@ -48,7 +48,7 @@ fun LibraryDetailsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor) 
+            .background(backgroundColor)
     ) {
         Column {
             // App Bar
@@ -83,7 +83,7 @@ fun LibraryDetailsScreen(
                     titleContentColor = Color.White
                 )
             )
-            
+
             // Main content
             Column(
                 modifier = Modifier
@@ -97,9 +97,9 @@ fun LibraryDetailsScreen(
                     fontWeight = FontWeight.Light,
                     color = Color.White
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 val itemCount = uiState.mediaItems.size
                 val libraryType = uiState.library?.type?.lowercase() ?: "mixed"
                 Text(
@@ -107,9 +107,9 @@ fun LibraryDetailsScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFFB3B3B3)
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Metadata management actions
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -140,8 +140,8 @@ fun LibraryDetailsScreen(
                             )
                         }
                     }
-                    
-                    // Bulk Edit button  
+
+                    // Bulk Edit button
                     Surface(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
@@ -167,9 +167,9 @@ fun LibraryDetailsScreen(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Error handling
                 uiState.error?.let { error ->
                     Card(
@@ -186,7 +186,7 @@ fun LibraryDetailsScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-                
+
                 // Loading state
                 if (uiState.isLoading) {
                     Box(

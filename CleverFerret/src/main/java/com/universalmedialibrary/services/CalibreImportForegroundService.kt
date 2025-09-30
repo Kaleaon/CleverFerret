@@ -68,10 +68,10 @@ class CalibreImportForegroundService : Service() {
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .build()
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        
+
         // Check for POST_NOTIFICATIONS permission for Android 13 and higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) 
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                 == PackageManager.PERMISSION_GRANTED) {
                 notificationManager.notify(NOTIFICATION_ID, notification)
             }

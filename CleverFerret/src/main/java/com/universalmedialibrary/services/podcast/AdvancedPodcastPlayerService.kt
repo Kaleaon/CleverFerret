@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Advanced Podcast Player Service with ExoPlayer integration
- * 
+ *
  * Features:
  * - High-quality audio playback with ExoPlayer
  * - Chapter navigation and bookmarks
@@ -35,26 +35,26 @@ class AdvancedPodcastPlayerService @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val podcastService: PodcastService
 ) {
-    
+
     private val _playbackState = MutableStateFlow(PodcastPlaybackState())
     val playbackState: StateFlow<PodcastPlaybackState> = _playbackState.asStateFlow()
-    
+
     private val _currentEpisode = MutableStateFlow<EpisodePlaybackInfo?>(null)
     val currentEpisode: StateFlow<EpisodePlaybackInfo?> = _currentEpisode.asStateFlow()
-    
+
     private val _episodeQueue = MutableStateFlow<List<EpisodePlaybackInfo>>(emptyList())
     val episodeQueue: StateFlow<List<EpisodePlaybackInfo>> = _episodeQueue.asStateFlow()
-    
+
     private val _playbackSettings = MutableStateFlow(PodcastPlaybackSettings())
     val playbackSettings: StateFlow<PodcastPlaybackSettings> = _playbackSettings.asStateFlow()
-    
+
     private val _chapters = MutableStateFlow<List<PodcastChapter>>(emptyList())
     val chapters: StateFlow<List<PodcastChapter>> = _chapters.asStateFlow()
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
+
     private var currentQueueIndex = 0
-    
+
     /**
      * Load and play a podcast episode
      */
@@ -63,34 +63,34 @@ class AdvancedPodcastPlayerService @Inject constructor(
             updatePlaybackState(error = "Podcast features are disabled")
             return
         }
-        
+
         try {
             updatePlaybackState(isLoading = true)
-            
+
             // Create episode playback info
             val episodeInfo = EpisodePlaybackInfo(
                 episode = episode,
                 savedPosition = startPosition,
                 lastPlayedAt = System.currentTimeMillis()
             )
-            
+
             _currentEpisode.value = episodeInfo
             _episodeQueue.value = listOf(episodeInfo)
             currentQueueIndex = 0
-            
+
             // Load chapters if available
             loadEpisodeChapters(episode)
-            
+
             // Prepare ExoPlayer
             val mediaItem = MediaItem.fromUri(episode.audioUrl)
             if (exoPlayerService.prepareMedia(mediaItem)) {
                 if (startPosition > 0) {
                     exoPlayerService.seekTo(startPosition)
                 }
-                
+
                 // Apply playback settings
                 applyPlaybackSettings()
-                
+
                 exoPlayerService.play()
                 updatePlaybackState(isPlaying = true, isLoading = false)
             } else {
@@ -100,7 +100,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
             updatePlaybackState(error = "Error playing episode: ${e.message}")
         }
     }
-    
+
     /**
      * Load and play episode queue
      */
@@ -109,10 +109,10 @@ class AdvancedPodcastPlayerService @Inject constructor(
             updatePlaybackState(error = "Podcast features are disabled")
             return
         }
-        
+
         try {
             updatePlaybackState(isLoading = true)
-            
+
             val episodeInfos = episodes.map { episode ->
                 EpisodePlaybackInfo(
                     episode = episode,
@@ -120,14 +120,14 @@ class AdvancedPodcastPlayerService @Inject constructor(
                     lastPlayedAt = System.currentTimeMillis()
                 )
             }
-            
+
             _episodeQueue.value = episodeInfos
             currentQueueIndex = startIndex.coerceIn(0, episodeInfos.size - 1)
             _currentEpisode.value = episodeInfos.getOrNull(currentQueueIndex)
-            
+
             // Load chapters for current episode
             _currentEpisode.value?.let { loadEpisodeChapters(it.episode) }
-            
+
             // Prepare ExoPlayer with queue
             val mediaItems = episodes.map { MediaItem.fromUri(it.audioUrl) }
             if (exoPlayerService.preparePlaylist(mediaItems, startIndex)) {
@@ -141,7 +141,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
             updatePlaybackState(error = "Error playing episode queue: ${e.message}")
         }
     }
-    
+
     /**
      * Toggle play/pause
      */
@@ -152,7 +152,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
             play()
         }
     }
-    
+
     /**
      * Start playback
      */
@@ -160,18 +160,18 @@ class AdvancedPodcastPlayerService @Inject constructor(
         exoPlayerService.play()
         updatePlaybackState(isPlaying = true)
     }
-    
+
     /**
      * Pause playback
      */
     fun pause() {
         exoPlayerService.pause()
         updatePlaybackState(isPlaying = false)
-        
+
         // Save current position
         saveCurrentPosition()
     }
-    
+
     /**
      * Stop playback
      */
@@ -183,7 +183,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
         _chapters.value = emptyList()
         updatePlaybackState(isPlaying = false)
     }
-    
+
     /**
      * Skip to next episode
      */
@@ -194,12 +194,12 @@ class AdvancedPodcastPlayerService @Inject constructor(
             stop()
             return
         }
-        
+
         saveCurrentPosition()
         currentQueueIndex++
         playCurrentEpisode()
     }
-    
+
     /**
      * Skip to previous episode
      */
@@ -210,12 +210,12 @@ class AdvancedPodcastPlayerService @Inject constructor(
             seekTo(0)
             return
         }
-        
+
         saveCurrentPosition()
         currentQueueIndex--
         playCurrentEpisode()
     }
-    
+
     /**
      * Skip forward by specified seconds
      */
@@ -225,7 +225,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
         val newPos = (currentPos + seconds * 1000).coerceAtMost(duration)
         seekTo(newPos)
     }
-    
+
     /**
      * Skip backward by specified seconds
      */
@@ -234,14 +234,14 @@ class AdvancedPodcastPlayerService @Inject constructor(
         val newPos = (currentPos - seconds * 1000).coerceAtLeast(0)
         seekTo(newPos)
     }
-    
+
     /**
      * Seek to specific position
      */
     fun seekTo(positionMs: Long) {
         exoPlayerService.seekTo(positionMs)
     }
-    
+
     /**
      * Jump to specific chapter
      */
@@ -252,28 +252,28 @@ class AdvancedPodcastPlayerService @Inject constructor(
             seekTo(chapter.startTime)
         }
     }
-    
+
     /**
      * Set playback speed
      */
     fun setPlaybackSpeed(speed: Float) {
         val clampedSpeed = speed.coerceIn(0.5f, 3.0f)
         exoPlayerService.setPlaybackSpeed(clampedSpeed)
-        
+
         val currentSettings = _playbackSettings.value
         _playbackSettings.value = currentSettings.copy(playbackSpeed = clampedSpeed)
     }
-    
+
     /**
      * Enable/disable skip silence
      */
     fun setSkipSilence(enabled: Boolean) {
         exoPlayerService.setSkipSilence(enabled)
-        
+
         val currentSettings = _playbackSettings.value
         _playbackSettings.value = currentSettings.copy(skipSilence = enabled)
     }
-    
+
     /**
      * Set sleep timer
      */
@@ -283,10 +283,10 @@ class AdvancedPodcastPlayerService @Inject constructor(
             sleepTimerMinutes = minutes,
             sleepTimerStartTime = if (minutes > 0) System.currentTimeMillis() else 0
         )
-        
+
         // TODO: Implement actual sleep timer countdown
     }
-    
+
     /**
      * Add episode to queue
      */
@@ -296,23 +296,23 @@ class AdvancedPodcastPlayerService @Inject constructor(
             savedPosition = 0,
             lastPlayedAt = System.currentTimeMillis()
         )
-        
+
         val currentQueue = _episodeQueue.value.toMutableList()
         currentQueue.add(episodeInfo)
         _episodeQueue.value = currentQueue
     }
-    
+
     /**
      * Remove episode from queue
      */
     fun removeFromQueue(episodeId: String) {
         val currentQueue = _episodeQueue.value.toMutableList()
         val removedIndex = currentQueue.indexOfFirst { it.episode.id == episodeId }
-        
+
         if (removedIndex >= 0) {
             currentQueue.removeAt(removedIndex)
             _episodeQueue.value = currentQueue
-            
+
             // Adjust current index if needed
             if (removedIndex < currentQueueIndex) {
                 currentQueueIndex--
@@ -329,21 +329,21 @@ class AdvancedPodcastPlayerService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get current playback position
      */
     fun getCurrentPosition(): Long {
         return exoPlayerService.getCurrentPosition()
     }
-    
+
     /**
      * Get current episode duration
      */
     fun getDuration(): Long {
         return exoPlayerService.getDuration()
     }
-    
+
     /**
      * Get remaining sleep timer time
      */
@@ -352,12 +352,12 @@ class AdvancedPodcastPlayerService @Inject constructor(
         if (settings.sleepTimerMinutes <= 0 || settings.sleepTimerStartTime <= 0) {
             return 0
         }
-        
+
         val elapsed = System.currentTimeMillis() - settings.sleepTimerStartTime
         val totalTime = settings.sleepTimerMinutes * 60 * 1000
         return (totalTime - elapsed).coerceAtLeast(0)
     }
-    
+
     private suspend fun loadEpisodeChapters(episode: PodcastEpisode) = withContext(Dispatchers.IO) {
         try {
             // Load chapters from episode metadata or external source
@@ -379,67 +379,67 @@ class AdvancedPodcastPlayerService @Inject constructor(
                     endTime = episode.duration
                 )
             )
-            
+
             _chapters.value = chapters
         } catch (e: Exception) {
             _chapters.value = emptyList()
         }
     }
-    
+
     private fun playCurrentEpisode() {
         val queue = _episodeQueue.value
         val currentEpisode = queue.getOrNull(currentQueueIndex)
-        
+
         if (currentEpisode != null) {
             _currentEpisode.value = currentEpisode
             exoPlayerService.seekToMediaItem(currentQueueIndex)
-            
+
             // Restore saved position
             if (currentEpisode.savedPosition > 0) {
                 exoPlayerService.seekTo(currentEpisode.savedPosition)
             }
-            
+
             // Launch coroutine to load episode chapters
             serviceScope.launch {
                 loadEpisodeChapters(currentEpisode.episode)
             }
-            
+
             if (!_playbackState.value.isPlaying) {
                 play()
             }
         }
     }
-    
+
     private fun applyPlaybackSettings() {
         val settings = _playbackSettings.value
         exoPlayerService.setPlaybackSpeed(settings.playbackSpeed)
         exoPlayerService.setSkipSilence(settings.skipSilence)
     }
-    
+
     private fun saveCurrentPosition() {
         val currentEpisode = _currentEpisode.value
         if (currentEpisode != null) {
             val currentPosition = getCurrentPosition()
-            
+
             // Update the episode in queue with saved position
             val updatedEpisode = currentEpisode.copy(
                 savedPosition = currentPosition,
                 lastPlayedAt = System.currentTimeMillis()
             )
-            
+
             val updatedQueue = _episodeQueue.value.toMutableList()
             val index = updatedQueue.indexOfFirst { it.episode.id == currentEpisode.episode.id }
             if (index >= 0) {
                 updatedQueue[index] = updatedEpisode
                 _episodeQueue.value = updatedQueue
             }
-            
+
             _currentEpisode.value = updatedEpisode
-            
+
             // TODO: Persist to database for cross-session resume
         }
     }
-    
+
     private fun updatePlaybackState(
         isPlaying: Boolean = _playbackState.value.isPlaying,
         isLoading: Boolean = false,
@@ -451,7 +451,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
             error = error
         )
     }
-    
+
     /**
      * Release all resources
      */

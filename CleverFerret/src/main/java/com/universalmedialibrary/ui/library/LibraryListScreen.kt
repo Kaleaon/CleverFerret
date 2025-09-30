@@ -73,7 +73,7 @@ fun LibraryListScreen(
                                 )
                             }
                         }
-                        
+
                         Text(
                             text = "CleverFerret",
                             style = MaterialTheme.typography.headlineSmall,
@@ -103,7 +103,7 @@ fun LibraryListScreen(
                     titleContentColor = Color.White
                 )
             )
-            
+
             // Main content
             Column(
                 modifier = Modifier
@@ -117,17 +117,17 @@ fun LibraryListScreen(
                     fontWeight = FontWeight.Light,
                     color = Color.White
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Text(
                     text = "${uiState.libraries.size} libraries",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color(0xFFB3B3B3)
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Error handling
                 uiState.error?.let { error ->
                     Card(
@@ -144,7 +144,7 @@ fun LibraryListScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-                
+
                 // Loading state
                 if (uiState.isLoading) {
                     Box(
@@ -180,7 +180,7 @@ fun LibraryListScreen(
                 }
             }
         }
-        
+
         // Floating Action Button for adding new libraries
         FloatingActionButton(
             onClick = onCreateLibrary,

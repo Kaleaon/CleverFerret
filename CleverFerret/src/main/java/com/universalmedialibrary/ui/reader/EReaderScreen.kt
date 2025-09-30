@@ -38,7 +38,7 @@ fun EReaderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = uiState.bookTitle,
                         maxLines = 1
@@ -65,12 +65,12 @@ fun EReaderScreen(
                         ) {
                             Icon(Icons.Default.NavigateBefore, contentDescription = "Previous Chapter")
                         }
-                        
+
                         Text(
                             text = "Chapter ${uiState.currentChapterIndex + 1} of ${uiState.totalChapters}",
                             style = MaterialTheme.typography.bodyMedium
                         )
-                        
+
                         IconButton(
                             onClick = { viewModel.nextChapter() },
                             enabled = uiState.currentChapterIndex < uiState.totalChapters - 1
@@ -93,7 +93,7 @@ fun EReaderScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
+
                 uiState.error != null -> {
                     Column(
                         modifier = Modifier
@@ -114,14 +114,14 @@ fun EReaderScreen(
                         )
                     }
                 }
-                
+
                 uiState.isLoaded -> {
                     ReaderContent(
                         content = uiState.currentChapterContent,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                
+
                 else -> {
                     Text(
                         text = "No book loaded",

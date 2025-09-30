@@ -15,10 +15,10 @@ import java.io.File
  * ViewModel for the e-reader screen
  * Currently supports: TXT, MD files with basic text display
  * ePub support: Limited (displays basic message, full implementation pending)
- * 
+ *
  * TODO: Integrate epub4j or similar library for full ePub support with:
  * - Chapter navigation
- * - Proper formatting and styling  
+ * - Proper formatting and styling
  * - Image support
  * - Table of contents
  */
@@ -34,7 +34,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
     fun loadBook(context: Context, filePath: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             try {
                 val file = File(filePath)
                 if (!file.exists()) {
@@ -44,7 +44,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                     )
                     return@launch
                 }
-                
+
                 val content = when (file.extension.lowercase()) {
                     "txt", "md" -> {
                         file.readText()
@@ -53,24 +53,24 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                         // Basic ePub handling - shows file info and guidance
                         """
                         ePub Reader - Limited Support
-                        
+
                         File: ${file.name}
                         Size: ${file.length() / 1024} KB
-                        
+
                         Current status: Basic ePub support is implemented but limited.
-                        
+
                         Available features:
                         • File detection and basic info display
                         • Placeholder reading interface
-                        
+
                         Planned features:
                         • Full ePub parsing and rendering
                         • Chapter navigation
                         • Proper text formatting
                         • Image and media support
                         • Bookmarks and reading progress
-                        
-                        To fully read this ePub file, use a dedicated ePub reader app or 
+
+                        To fully read this ePub file, use a dedicated ePub reader app or
                         wait for the complete ePub implementation in a future update.
                         """.trimIndent()
                     }
@@ -78,7 +78,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                         "Unsupported file format: ${file.extension}\n\nSupported formats:\n• TXT (Plain text)\n• MD (Markdown)\n• ePub (Limited support)"
                     }
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isLoaded = true,
@@ -87,7 +87,7 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
                     currentChapterIndex = 0,
                     currentChapterContent = content
                 )
-                
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,

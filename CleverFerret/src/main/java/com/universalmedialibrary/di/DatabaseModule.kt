@@ -45,12 +45,16 @@ object DatabaseModule {
     fun provideMetadataDao(database: AppDatabase): MetadataDao {
         return database.metadataDao()
     }
-    
+
     @Provides
     fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
         return database.bookmarkDao()
     }
 
-    */
+
+    @Provides
+    fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
+        return database.apiKeyDao()
+    }
 
 }

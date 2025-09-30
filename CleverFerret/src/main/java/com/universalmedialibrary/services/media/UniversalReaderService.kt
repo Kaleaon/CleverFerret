@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 /**
  * Universal reader service for documents and books
- * 
+ *
  * Supports reading:
  * - EPUB files with navigation and text extraction
  * - PDF files with page-based reading
@@ -32,28 +32,28 @@ class UniversalReaderService @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val epubReaderService: EpubReaderService
 ) {
-    
+
     private val _readerState = MutableStateFlow(ReaderState())
     val readerState: StateFlow<ReaderState> = _readerState.asStateFlow()
-    
+
     private val _currentDocument = MutableStateFlow<MediaItem?>(null)
     val currentDocument: StateFlow<MediaItem?> = _currentDocument.asStateFlow()
-    
+
     private var documentContent: DocumentContent? = null
-    
+
     /**
      * Open a document for reading
      */
     suspend fun openDocument(mediaItem: MediaItem): Boolean = withContext(Dispatchers.IO) {
         try {
             updateReaderState(isLoading = true)
-            
+
             val file = File(mediaItem.filePath)
             if (!file.exists()) {
                 updateReaderState(error = "File not found: ${mediaItem.filePath}")
                 return@withContext false
             }
-            
+
             val content = when (mediaItem.fileExtension.lowercase()) {
                 "epub" -> loadEpubContentWithService(file)
                 "pdf" -> loadPdfContent(file)
@@ -65,7 +65,7 @@ class UniversalReaderService @Inject constructor(
                     return@withContext false
                 }
             }
-            
+
             if (content != null) {
                 documentContent = content
                 _currentDocument.value = mediaItem
@@ -80,13 +80,13 @@ class UniversalReaderService @Inject constructor(
                 updateReaderState(error = "Failed to load document content")
                 false
             }
-            
+
         } catch (e: Exception) {
             updateReaderState(error = "Failed to open document: ${e.message}")
             false
         }
     }
-    
+
     private suspend fun loadEpubContentWithService(file: File): DocumentContent? {
         return try {
             val success = epubReaderService.loadEPUB(file)
@@ -101,19 +101,19 @@ class UniversalReaderService @Inject constructor(
             loadEpubContent(file)
         }
     }
-    
+
     private fun loadEpubContent(file: File): DocumentContent? {
         return try {
             ZipFile(file).use { zipFile ->
                 val entries = zipFile.entries().toList()
-                val htmlEntries = entries.filter { 
-                    it.name.endsWith(".html") || it.name.endsWith(".xhtml") 
+                val htmlEntries = entries.filter {
+                    it.name.endsWith(".html") || it.name.endsWith(".xhtml")
                 }.sortedBy { it.name }
-                
+
                 if (htmlEntries.isEmpty()) {
                     return null
                 }
-                
+
                 val pages = htmlEntries.mapIndexed { index, entry ->
                     val content = zipFile.getInputStream(entry).bufferedReader().readText()
                     DocumentPage(
@@ -122,7 +122,7 @@ class UniversalReaderService @Inject constructor(
                         title = "Chapter ${index + 1}"
                     )
                 }
-                
+
                 DocumentContent(
                     type = DocumentType.EPUB,
                     pages = pages,
@@ -133,7 +133,7 @@ class UniversalReaderService @Inject constructor(
             null
         }
     }
-    
+
     private fun loadPdfContent(file: File): DocumentContent? {
         // For now, create a placeholder PDF content
         // In a real implementation, you'd use a PDF library like PdfRenderer
@@ -149,12 +149,12 @@ class UniversalReaderService @Inject constructor(
             title = file.nameWithoutExtension
         )
     }
-    
+
     private fun loadTextContent(file: File): DocumentContent? {
         return try {
             val content = file.readText()
             val chapters = detectChapters(content)
-            
+
             val pages = if (chapters.isNotEmpty()) {
                 chapters.mapIndexed { index, chapter ->
                     DocumentPage(
@@ -167,7 +167,7 @@ class UniversalReaderService @Inject constructor(
                 // Split content into manageable pages
                 val pageSize = 5000 // characters per page
                 val pageCount = (content.length / pageSize) + 1
-                
+
                 (0 until pageCount).map { pageIndex ->
                     val start = pageIndex * pageSize
                     val end = minOf(start + pageSize, content.length)
@@ -178,7 +178,7 @@ class UniversalReaderService @Inject constructor(
                     )
                 }
             }
-            
+
             DocumentContent(
                 type = DocumentType.TEXT,
                 pages = pages,
@@ -188,7 +188,7 @@ class UniversalReaderService @Inject constructor(
             null
         }
     }
-    
+
     private fun loadHtmlContent(file: File): DocumentContent? {
         return try {
             val content = file.readText()
@@ -207,19 +207,19 @@ class UniversalReaderService @Inject constructor(
             null
         }
     }
-    
+
     private fun loadComicContent(file: File): DocumentContent? {
         return try {
             ZipFile(file).use { zipFile ->
                 val imageEntries = zipFile.entries().toList()
                     .filter { entry ->
                         val name = entry.name.lowercase()
-                        name.endsWith(".jpg") || name.endsWith(".jpeg") || 
+                        name.endsWith(".jpg") || name.endsWith(".jpeg") ||
                         name.endsWith(".png") || name.endsWith(".gif") ||
                         name.endsWith(".bmp") || name.endsWith(".webp")
                     }
                     .sortedBy { it.name }
-                
+
                 val pages = imageEntries.mapIndexed { index, entry ->
                     DocumentPage(
                         pageNumber = index + 1,
@@ -227,7 +227,7 @@ class UniversalReaderService @Inject constructor(
                         title = "Page ${index + 1}"
                     )
                 }
-                
+
                 DocumentContent(
                     type = DocumentType.COMIC,
                     pages = pages,
@@ -238,27 +238,27 @@ class UniversalReaderService @Inject constructor(
             null
         }
     }
-    
+
     private fun detectChapters(content: String): List<Chapter> {
         val chapters = mutableListOf<Chapter>()
         val lines = content.lines()
         var currentChapter: StringBuilder? = null
         var currentTitle = ""
-        
+
         for (line in lines) {
             val trimmedLine = line.trim()
-            
+
             // Simple chapter detection
             if (trimmedLine.matches(Regex("^(Chapter|CHAPTER)\\s+\\d+.*")) ||
                 trimmedLine.matches(Regex("^\\d+\\.\\s+.*")) ||
-                (trimmedLine.length < 100 && trimmedLine.isNotEmpty() && 
+                (trimmedLine.length < 100 && trimmedLine.isNotEmpty() &&
                  !trimmedLine.contains('.') && trimmedLine == trimmedLine.uppercase())) {
-                
+
                 // Save previous chapter
                 if (currentChapter != null && currentTitle.isNotEmpty()) {
                     chapters.add(Chapter(currentTitle, currentChapter.toString()))
                 }
-                
+
                 // Start new chapter
                 currentTitle = trimmedLine
                 currentChapter = StringBuilder()
@@ -273,66 +273,66 @@ class UniversalReaderService @Inject constructor(
                 currentChapter.append(line).append("\n")
             }
         }
-        
+
         // Save last chapter
         if (currentChapter != null && currentTitle.isNotEmpty()) {
             chapters.add(Chapter(currentTitle, currentChapter.toString()))
         }
-        
+
         return chapters
     }
-    
+
     /**
      * Navigate to a specific page
      */
     fun goToPage(pageNumber: Int) {
         val content = documentContent ?: return
-        
+
         if (pageNumber in 1..content.pageCount) {
             updateReaderState(currentPage = pageNumber)
         }
     }
-    
+
     /**
      * Go to next page
      */
     fun nextPage() {
         val currentPage = _readerState.value.currentPage
         val totalPages = _readerState.value.totalPages
-        
+
         if (currentPage < totalPages) {
             goToPage(currentPage + 1)
         }
     }
-    
+
     /**
      * Go to previous page
      */
     fun previousPage() {
         val currentPage = _readerState.value.currentPage
-        
+
         if (currentPage > 1) {
             goToPage(currentPage - 1)
         }
     }
-    
+
     /**
      * Get current page content
      */
     fun getCurrentPageContent(): String? {
         val content = documentContent ?: return null
         val currentPage = _readerState.value.currentPage
-        
+
         return content.pages.find { it.pageNumber == currentPage }?.content
     }
-    
+
     /**
      * Search for text in the document
      */
     fun searchText(query: String): List<SearchResult> {
         val content = documentContent ?: return emptyList()
         val results = mutableListOf<SearchResult>()
-        
+
         content.pages.forEach { page ->
             val matches = findTextMatches(page.content, query)
             matches.forEach { match ->
@@ -346,28 +346,28 @@ class UniversalReaderService @Inject constructor(
                 )
             }
         }
-        
+
         return results
     }
-    
+
     private fun findTextMatches(content: String, query: String): List<Pair<Int, String>> {
         val results = mutableListOf<Pair<Int, String>>()
         val lowerContent = content.lowercase()
         val lowerQuery = query.lowercase()
-        
+
         var index = lowerContent.indexOf(lowerQuery)
         while (index != -1) {
             val contextStart = maxOf(0, index - 50)
             val contextEnd = minOf(content.length, index + query.length + 50)
             val context = content.substring(contextStart, contextEnd)
-            
+
             results.add(Pair(index, context))
             index = lowerContent.indexOf(lowerQuery, index + 1)
         }
-        
+
         return results
     }
-    
+
     /**
      * Close the current document
      */
@@ -376,7 +376,7 @@ class UniversalReaderService @Inject constructor(
         _currentDocument.value = null
         updateReaderState()
     }
-    
+
     private fun updateReaderState(
         isLoading: Boolean = false,
         currentPage: Int = 1,

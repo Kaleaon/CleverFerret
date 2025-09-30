@@ -10,46 +10,46 @@ import javax.inject.Inject
 
 /**
  * BroadcastReceiver for handling hardware media button events
- * 
+ *
  * Handles media buttons from:
  * - Bluetooth headsets and speakers
  * - Wired headphones with inline controls
  * - Android Auto steering wheel controls
  * - Physical volume/media keys on devices
  * - External keyboards and remote controls
- * 
+ *
  * Routes all media button events through the MediaSessionManager
  * to ensure consistent behavior across all media services.
  */
 @AndroidEntryPoint
 class MediaButtonReceiver : BroadcastReceiver() {
-    
+
     @Inject
     lateinit var mediaSessionManager: MediaSessionManager
-    
+
     companion object {
         // Intent action for media button events
         const val ACTION_MEDIA_BUTTON = "android.intent.action.MEDIA_BUTTON"
     }
-    
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_MEDIA_BUTTON) {
             return
         }
-        
+
         val keyEvent = intent.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
         if (keyEvent?.action != KeyEvent.ACTION_DOWN) {
             return
         }
-        
+
         // Only handle if we have an active media session
         if (!mediaSessionManager.isSessionActive()) {
             return
         }
-        
+
         val mediaSession = mediaSessionManager.getMediaSession() ?: return
         val player = mediaSession.player
-        
+
         when (keyEvent.keyCode) {
             KeyEvent.KEYCODE_MEDIA_PLAY -> {
                 player.play()

@@ -13,14 +13,14 @@ import androidx.room.Index
     indices = [
         Index(value = ["name"]),
         Index(value = ["imdbId"], unique = true),
-        Index(value = ["tmdbId"], unique = true),  
+        Index(value = ["tmdbId"], unique = true),
         Index(value = ["musicBrainzId"], unique = true)
     ]
 )
 data class People(
     @PrimaryKey(autoGenerate = true)
     val personId: Long = 0,
-    
+
     val name: String,
     val sortName: String? = null,
     val biography: String? = null,
@@ -28,15 +28,15 @@ data class People(
     val deathDate: Long? = null,
     val birthPlace: String? = null,
     val nationality: String? = null,
-    
+
     val photoPath: String? = null,
     val imdbId: String? = null,
     val tmdbId: String? = null,
     val musicBrainzId: String? = null,
-    
+
     val website: String? = null,
     val socialMedia: String? = null, // JSON with social media links
-    
+
     val lastUpdated: Long = System.currentTimeMillis()
 )
 
@@ -70,7 +70,7 @@ data class ItemPersonRole(
     val itemId: Long,
     val personId: Long,
     val role: String, // AUTHOR, DIRECTOR, ACTOR, ARTIST, COMPOSER, etc.
-    
+
     val characterName: String? = null, // For actors
     val roleOrder: Int? = null, // For ordering in credits
     val department: String? = null, // For crew roles

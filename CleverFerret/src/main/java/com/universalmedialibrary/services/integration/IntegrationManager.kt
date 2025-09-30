@@ -33,20 +33,20 @@ class IntegrationManager @Inject constructor(
      */
     suspend fun initializeIntegrations() {
         _integrationState.value = _integrationState.value.copy(isInitializing = true)
-        
+
         try {
             // Check Plex connections
             val plexStatus = plexService.checkAllConnections()
-            
-            // Check Calibre connections  
+
+            // Check Calibre connections
             val calibreStatus = calibreService.checkConnections()
-            
+
             // Check cloud storage
             val cloudStatus = cloudService.checkAllConnections()
-            
+
             // Check book services
             val bookStatus = bookServices.checkServices()
-            
+
             _integrationState.value = _integrationState.value.copy(
                 isInitializing = false,
                 plexStatus = plexStatus,
@@ -55,7 +55,7 @@ class IntegrationManager @Inject constructor(
                 bookServicesStatus = bookStatus,
                 lastSyncTime = System.currentTimeMillis()
             )
-            
+
         } catch (e: Exception) {
             _integrationState.value = _integrationState.value.copy(
                 isInitializing = false,
@@ -69,34 +69,34 @@ class IntegrationManager @Inject constructor(
      */
     suspend fun syncAllServices() {
         _integrationState.value = _integrationState.value.copy(isSyncing = true)
-        
+
         try {
             val syncResults = mutableListOf<SyncResult>()
-            
+
             // Sync Plex libraries
             if (_integrationState.value.plexStatus.hasActiveConnections) {
                 val plexSync = plexService.syncAllLibraries()
                 syncResults.add(SyncResult("Plex", plexSync.successful, plexSync.itemsProcessed))
             }
-            
+
             // Sync Calibre libraries
             if (_integrationState.value.calibreStatus.isConnected) {
                 val calibreSync = calibreService.syncLibraries()
                 syncResults.add(SyncResult("Calibre", calibreSync.successful, calibreSync.itemsProcessed))
             }
-            
+
             // Sync to cloud storage
             if (_integrationState.value.cloudStatus.hasActiveConnections) {
                 val cloudSync = cloudService.syncToCloud()
                 syncResults.add(SyncResult("Cloud Storage", cloudSync.successful, cloudSync.itemsProcessed))
             }
-            
+
             _integrationState.value = _integrationState.value.copy(
                 isSyncing = false,
                 lastSyncResults = syncResults,
                 lastSyncTime = System.currentTimeMillis()
             )
-            
+
         } catch (e: Exception) {
             _integrationState.value = _integrationState.value.copy(
                 isSyncing = false,
@@ -112,11 +112,11 @@ class IntegrationManager @Inject constructor(
         val plexStats = if (_integrationState.value.plexStatus.hasActiveConnections) {
             plexService.getLibraryStats()
         } else null
-        
+
         val calibreStats = if (_integrationState.value.calibreStatus.isConnected) {
             calibreService.getLibraryStats()
         } else null
-        
+
         return UnifiedLibraryStats(
             totalMovies = (plexStats?.movies ?: 0),
             totalTVShows = (plexStats?.tvShows ?: 0),

@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 /**
  * Automated Debug Service for CleverFerret
- * 
+ *
  * This service provides:
  * - Automatic error detection and analysis
  * - AI-powered debugging suggestions
@@ -27,15 +27,15 @@ class AutomatedDebugService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val geminiService: GeminiService
 ) {
-    
+
     companion object {
         private const val TAG = "AutomatedDebugService"
         private const val MAX_ERROR_HISTORY = 50
     }
-    
+
     private val errorHistory = mutableListOf<ErrorRecord>()
     private var isMonitoring = false
-    
+
     /**
      * Initialize the automated debug service
      */
@@ -43,7 +43,7 @@ class AutomatedDebugService @Inject constructor(
         if (!FeatureFlags.ENABLE_GEMINI) {
             return@withContext false
         }
-        
+
         try {
             val geminiInitialized = geminiService.initialize()
             if (geminiInitialized) {
@@ -55,7 +55,7 @@ class AutomatedDebugService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Report an error for automated analysis
      */
@@ -71,17 +71,17 @@ class AutomatedDebugService @Inject constructor(
             userId = userId,
             deviceInfo = getDeviceInfo()
         )
-        
+
         // Add to history
         addToErrorHistory(errorRecord)
-        
+
         // Analyze with Gemini AI
         val analysisResult = geminiService.analyzeError(
             errorMessage = exception.message ?: "Unknown error",
             stackTrace = getStackTraceString(exception),
             contextInfo = buildContextInfo(context, errorRecord.deviceInfo)
         )
-        
+
         ErrorAnalysisReport(
             errorRecord = errorRecord,
             analysisResult = analysisResult,
@@ -93,7 +93,7 @@ class AutomatedDebugService @Inject constructor(
             }
         )
     }
-    
+
     /**
      * Perform automated system diagnostics
      */
@@ -101,13 +101,13 @@ class AutomatedDebugService @Inject constructor(
         val systemInfo = gatherSystemInfo()
         val recentErrors = getRecentErrors()
         val performanceMetrics = gatherPerformanceMetrics()
-        
+
         val diagnosticsResult = geminiService.performSystemDiagnostics(
             systemInfo = systemInfo,
             recentErrors = recentErrors.map { "${it.exception.javaClass.simpleName}: ${it.exception.message}" },
             performanceMetrics = performanceMetrics
         )
-        
+
         SystemDiagnosticsReport(
             timestamp = System.currentTimeMillis(),
             systemInfo = systemInfo,
@@ -120,7 +120,7 @@ class AutomatedDebugService @Inject constructor(
             }
         )
     }
-    
+
     /**
      * Generate automated issue report for GitHub
      */
@@ -131,7 +131,7 @@ class AutomatedDebugService @Inject constructor(
     ): AutomatedIssueReport = withContext(Dispatchers.IO) {
         val deviceInfo = errorRecord?.deviceInfo ?: getDeviceInfo()
         val errorLogs = errorRecord?.let { getStackTraceString(it.exception) } ?: ""
-        
+
         val issueResult = geminiService.generateIssueReport(
             title = title,
             description = description,
@@ -139,7 +139,7 @@ class AutomatedDebugService @Inject constructor(
             deviceInfo = deviceInfo,
             stepsToReproduce = errorRecord?.context ?: ""
         )
-        
+
         AutomatedIssueReport(
             title = title,
             description = description,
@@ -149,7 +149,7 @@ class AutomatedDebugService @Inject constructor(
             estimatedSeverity = estimateIssueSeverity(errorRecord, issueResult)
         )
     }
-    
+
     /**
      * Analyze code quality for a given file
      */
@@ -162,7 +162,7 @@ class AutomatedDebugService @Inject constructor(
             fileName = filePath,
             language = getLanguageFromFilePath(filePath)
         )
-        
+
         CodeQualityReport(
             filePath = filePath,
             analysisResult = analysisResult,
@@ -174,7 +174,7 @@ class AutomatedDebugService @Inject constructor(
             }
         )
     }
-    
+
     /**
      * Start continuous system health monitoring
      */
@@ -183,7 +183,7 @@ class AutomatedDebugService @Inject constructor(
         // For now, we'll just set up the monitoring flag
         isMonitoring = true
     }
-    
+
     /**
      * Add error to history with size limit
      */
@@ -195,7 +195,7 @@ class AutomatedDebugService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get recent errors for analysis
      */
@@ -203,7 +203,7 @@ class AutomatedDebugService @Inject constructor(
         val cutoffTime = System.currentTimeMillis() - (24 * 60 * 60 * 1000) // Last 24 hours
         return errorHistory.filter { it.timestamp >= cutoffTime }
     }
-    
+
     /**
      * Get device information for debugging
      */
@@ -217,7 +217,7 @@ class AutomatedDebugService @Inject constructor(
             append("Free Storage: ${getFreeStorage()}\n")
         }
     }
-    
+
     /**
      * Get stack trace as string
      */
@@ -227,7 +227,7 @@ class AutomatedDebugService @Inject constructor(
         exception.printStackTrace(printWriter)
         return stringWriter.toString()
     }
-    
+
     /**
      * Build context information for analysis
      */
@@ -238,33 +238,33 @@ class AutomatedDebugService @Inject constructor(
             append("Recent Errors: ${getRecentErrors().size}\n")
         }
     }
-    
+
     /**
      * Determine if issue should be automatically filed
      */
     private fun shouldAutoFileIssue(analysisResult: com.universalmedialibrary.services.gemini.ErrorAnalysisResult): Boolean {
         if (!analysisResult.success) return false
-        
+
         return when (analysisResult.severity) {
             "CRITICAL" -> true
             "HIGH" -> analysisResult.confidence > 0.8f
             else -> false
         }
     }
-    
+
     /**
      * Determine if issue should be automatically submitted
      */
     private fun shouldAutoSubmitIssue(issueResult: com.universalmedialibrary.services.gemini.IssueReportResult): Boolean {
         if (!issueResult.success) return false
-        
+
         return when (issueResult.priority) {
             "CRITICAL" -> true
             "HIGH" -> true
             else -> false
         }
     }
-    
+
     /**
      * Estimate issue severity
      */
@@ -275,7 +275,7 @@ class AutomatedDebugService @Inject constructor(
         if (issueResult.success) {
             return issueResult.priority
         }
-        
+
         return when (errorRecord?.exception) {
             is NullPointerException -> "HIGH"
             is OutOfMemoryError -> "CRITICAL"
@@ -283,7 +283,7 @@ class AutomatedDebugService @Inject constructor(
             else -> "MEDIUM"
         }
     }
-    
+
     /**
      * Get basic debugging suggestions when AI is not available
      */
@@ -311,7 +311,7 @@ class AutomatedDebugService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Get basic system recommendations
      */
@@ -324,7 +324,7 @@ class AutomatedDebugService @Inject constructor(
             "Test on various device configurations"
         )
     }
-    
+
     /**
      * Get basic code recommendations
      */
@@ -337,7 +337,7 @@ class AutomatedDebugService @Inject constructor(
             "Use meaningful variable and function names"
         )
     }
-    
+
     /**
      * Gather system information
      */
@@ -351,7 +351,7 @@ class AutomatedDebugService @Inject constructor(
             append("Recent Errors: ${getRecentErrors().size}\n")
         }
     }
-    
+
     /**
      * Gather performance metrics
      */
@@ -363,7 +363,7 @@ class AutomatedDebugService @Inject constructor(
             append("CPU Usage: ${getCpuUsage()}\n")
         }
     }
-    
+
     /**
      * Get language from file path
      */
@@ -376,7 +376,7 @@ class AutomatedDebugService @Inject constructor(
             else -> "text"
         }
     }
-    
+
     // Helper methods for system metrics (would need proper implementation)
     private fun getAvailableMemory(): String = "Unknown"
     private fun getFreeStorage(): String = "Unknown"
