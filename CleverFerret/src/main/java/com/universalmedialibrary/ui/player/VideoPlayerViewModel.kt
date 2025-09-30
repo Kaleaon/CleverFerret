@@ -65,35 +65,35 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                
+
                 // Release any existing player
                 exoPlayer?.release()
-                
+
                 // Create new ExoPlayer
                 val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(context)
                 .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
             exoPlayer = ExoPlayer.Builder(context, renderersFactory).build().apply {
                     addListener(playerListener)
                 }
-                
+
                 // Extract basic metadata from file
                 val file = File(filePath)
                 val fileName = file.nameWithoutExtension
-                
+
                 // Create MediaItem
                 val mediaItem = MediaItem.fromUri(file.toURI().toString())
-                
+
                 exoPlayer?.apply {
                     setMediaItem(mediaItem)
                     prepare()
                     playWhenReady = true // Auto-start video
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     title = fileName,
                     isLoaded = true
                 )
-                
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,

@@ -46,12 +46,12 @@ fun PodcastPlayerScreen(
     val playbackSettings by viewModel.playbackSettings.collectAsStateWithLifecycle()
     val chapters by viewModel.chapters.collectAsStateWithLifecycle()
     val queue by viewModel.episodeQueue.collectAsStateWithLifecycle()
-    
+
     var currentPosition by remember { mutableLongStateOf(0L) }
     var isDragging by remember { mutableStateOf(false) }
     var showChapters by remember { mutableStateOf(false) }
     var showSpeedControls by remember { mutableStateOf(false) }
-    
+
     // Update position periodically when playing
     LaunchedEffect(playbackState.isPlaying) {
         if (playbackState.isPlaying) {
@@ -63,11 +63,11 @@ fun PodcastPlayerScreen(
             }
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = "Podcast Player",
                         style = MaterialTheme.typography.titleMedium
@@ -82,7 +82,7 @@ fun PodcastPlayerScreen(
                     // Sleep Timer
                     IconButton(onClick = { viewModel.toggleSleepTimer() }) {
                         Badge(
-                            containerColor = if (playbackSettings.sleepTimerMinutes > 0) 
+                            containerColor = if (playbackSettings.sleepTimerMinutes > 0)
                                 MaterialTheme.colorScheme.primary else Color.Transparent
                         ) {
                             if (playbackSettings.sleepTimerMinutes > 0) {
@@ -91,7 +91,7 @@ fun PodcastPlayerScreen(
                         }
                         Icon(PhosphorIcons.Timer, contentDescription = "Sleep Timer")
                     }
-                    
+
                     // More Options
                     IconButton(onClick = { /* TODO: Show more options */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
@@ -103,7 +103,7 @@ fun PodcastPlayerScreen(
             )
         }
     ) { paddingValues ->
-        
+
         if (currentEpisode != null) {
             Column(
                 modifier = Modifier
@@ -118,7 +118,7 @@ fun PodcastPlayerScreen(
                         )
                     )
             ) {
-                
+
                 // Episode Cover Section
                 currentEpisode?.let { episode ->
                     EpisodeCoverSection(
@@ -128,9 +128,9 @@ fun PodcastPlayerScreen(
                         }
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Episode Information
                 currentEpisode?.let { episode ->
                     EpisodeInfoSection(
@@ -138,9 +138,9 @@ fun PodcastPlayerScreen(
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Progress Section
                 PodcastProgressSection(
                     currentPosition = currentPosition,
@@ -153,9 +153,9 @@ fun PodcastPlayerScreen(
                     onDragEnd = { isDragging = false },
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Podcast Control Buttons
                 PodcastControlButtonsSection(
                     isPlaying = playbackState.isPlaying,
@@ -171,9 +171,9 @@ fun PodcastPlayerScreen(
                     onSpeedClick = { showSpeedControls = !showSpeedControls },
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Speed Controls (when visible)
                 if (showSpeedControls) {
                     SpeedControlsSection(
@@ -185,7 +185,7 @@ fun PodcastPlayerScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-                
+
                 // Chapters Section
                 if (chapters.isNotEmpty()) {
                     ChaptersSection(
@@ -234,7 +234,7 @@ fun PodcastPlayerScreen(
                 }
             }
         }
-        
+
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
@@ -295,9 +295,9 @@ private fun EpisodeInfoSection(
             maxLines = 3,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Podcast Name", // Would come from subscription data
             style = MaterialTheme.typography.titleMedium,
@@ -306,9 +306,9 @@ private fun EpisodeInfoSection(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         Text(
             text = episode.episode.publishDate,
             style = MaterialTheme.typography.bodyMedium,
@@ -329,7 +329,7 @@ private fun PodcastProgressSection(
 ) {
     Column(modifier = modifier) {
         val progress = if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f
-        
+
         Slider(
             value = progress,
             onValueChange = { newProgress ->
@@ -339,7 +339,7 @@ private fun PodcastProgressSection(
             onValueChangeFinished = { onDragEnd() },
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -390,7 +390,7 @@ private fun PodcastControlButtonsSection(
                 modifier = Modifier.size(24.dp)
             )
         }
-        
+
         // Skip Backward 15s
         IconButton(
             onClick = onSkipBackward,
@@ -402,7 +402,7 @@ private fun PodcastControlButtonsSection(
                 modifier = Modifier.size(24.dp)
             )
         }
-        
+
         // Play/Pause
         FilledIconButton(
             onClick = onPlayPause,
@@ -414,7 +414,7 @@ private fun PodcastControlButtonsSection(
                 modifier = Modifier.size(32.dp)
             )
         }
-        
+
         // Skip Forward 30s
         IconButton(
             onClick = onSkipForward,
@@ -426,7 +426,7 @@ private fun PodcastControlButtonsSection(
                 modifier = Modifier.size(24.dp)
             )
         }
-        
+
         // Next Episode
         IconButton(
             onClick = onSkipNext,
@@ -440,7 +440,7 @@ private fun PodcastControlButtonsSection(
             )
         }
     }
-    
+
     // Secondary controls row
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -450,7 +450,7 @@ private fun PodcastControlButtonsSection(
         TextButton(onClick = onSpeedClick) {
             Text("${playbackSpeed}x")
         }
-        
+
         // Skip Silence Indicator
         if (skipSilence) {
             Icon(
@@ -485,9 +485,9 @@ private fun SpeedControlsSection(
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // Speed buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -502,9 +502,9 @@ private fun SpeedControlsSection(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // Skip Silence toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -550,7 +550,7 @@ private fun ChaptersSection(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 IconButton(onClick = onToggleExpanded) {
                     Icon(
                         if (expanded) PhosphorIcons.CaretUp else PhosphorIcons.CaretDown,
@@ -558,33 +558,33 @@ private fun ChaptersSection(
                     )
                 }
             }
-            
+
             // Chapters list
             if (expanded) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(chapters.withIndex().toList()) { (index, chapter) ->
-                        val isActive = currentPosition >= chapter.startTime && 
+                        val isActive = currentPosition >= chapter.startTime &&
                                       currentPosition < chapter.endTime
-                        
+
                         ListItem(
-                            headlineContent = { 
+                            headlineContent = {
                                 Text(
                                     text = chapter.title,
                                     fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isActive) MaterialTheme.colorScheme.primary 
+                                    color = if (isActive) MaterialTheme.colorScheme.primary
                                            else MaterialTheme.colorScheme.onSurface
                                 )
                             },
-                            supportingContent = { 
-                                Text(formatTime(chapter.startTime)) 
+                            supportingContent = {
+                                Text(formatTime(chapter.startTime))
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { onChapterClick(index) },
                             colors = ListItemDefaults.colors(
-                                containerColor = if (isActive) 
+                                containerColor = if (isActive)
                                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                     else Color.Transparent
                             )
@@ -600,7 +600,7 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = (milliseconds / 1000).toInt()
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
-    
+
     return if (minutes >= 60) {
         val hours = minutes / 60
         val remainingMinutes = minutes % 60

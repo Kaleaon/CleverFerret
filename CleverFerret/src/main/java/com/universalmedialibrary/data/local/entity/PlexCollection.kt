@@ -26,18 +26,18 @@ import androidx.room.Index
 data class PlexCollection(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     val serverId: Long,
     val plexRatingKey: String, // Plex's unique identifier for the collection
-    
+
     val title: String,
     val type: String, // collection, playlist
     val summary: String? = null,
     val itemCount: Int = 0,
-    
+
     val thumb: String? = null,
     val art: String? = null,
-    
+
     val lastSynced: Long = System.currentTimeMillis()
 )
 
@@ -68,7 +68,7 @@ data class PlexCollection(
 data class PlexCollectionItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     val collectionId: Long,
     val plexMediaItemId: Long,
     val sortOrder: Int = 0

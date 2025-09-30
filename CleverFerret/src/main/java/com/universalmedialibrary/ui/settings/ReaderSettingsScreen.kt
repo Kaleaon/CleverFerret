@@ -27,7 +27,7 @@ fun ReaderSettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val readerSettings by viewModel.readerSettings.collectAsState()
-    
+
     val (title, description) = when (settingsType) {
         "visual" -> "Visual Controls" to "Customize fonts, margins, and layout"
         "theme" -> "Theming" to "Light/Dark/Other modes"
@@ -118,7 +118,7 @@ fun VisualControlsSection(
                 onValueChange = { onSettingsChange(settings.copy(fontSize = it)) },
                 valueDisplay = "${'$'}{settings.fontSize.toInt()}sp"
             )
-            
+
             // Line Spacing
             SliderSetting(
                 title = "Line Spacing",
@@ -128,7 +128,7 @@ fun VisualControlsSection(
                 valueDisplay = "${'$'}{String.format(Locale.getDefault(), \"%.1f\", settings.lineSpacing)}x"
             )
         }
-        
+
         SettingsGroupCard("Margins") {
             SliderSetting(
                 title = "Horizontal Margin",
@@ -145,7 +145,7 @@ fun VisualControlsSection(
                 valueDisplay = "${'$'}{settings.marginVertical.toInt()}dp"
             )
         }
-        
+
         SettingsGroupCard("Display") {
             SwitchSetting(
                 title = "Keep Screen On",
@@ -239,7 +239,7 @@ fun PagingSection(
                 onCheckedChange = { onSettingsChange(settings.copy(enableGestures = it)) }
             )
         }
-        
+
         SettingsGroupCard("Page Turn Animation") {
             val animations = PageAnimation.values()
             Column {
@@ -279,7 +279,7 @@ fun AutoScrollSection(
                 onValueChange = { onSettingsChange(settings.copy(autoScrollSpeed = it)) },
                 valueDisplay = "${'$'}{settings.autoScrollSpeed.toInt()} px/s"
             )
-            
+
             // Scroll Mode
             Column {
                 Text(

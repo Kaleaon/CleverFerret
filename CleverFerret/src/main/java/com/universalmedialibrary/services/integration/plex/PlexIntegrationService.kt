@@ -20,7 +20,7 @@ import javax.inject.Singleton
 
 /**
  * Comprehensive Plex Integration Service
- * 
+ *
  * Features:
  * - Remote Plex server management
  * - Advanced metadata correction using CleverFerret's AI
@@ -52,20 +52,20 @@ class PlexIntegrationService @Inject constructor(
     ): PlexConnectionResult = withContext(Dispatchers.IO) {
         try {
             _plexState.value = _plexState.value.copy(isConnecting = true)
-            
+
             val retrofit = Retrofit.Builder()
                 .baseUrl(serverUrl.ensureTrailingSlash())
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(createOkHttpClient(token))
                 .build()
-            
+
             val api = retrofit.create(PlexApi::class.java)
-            
+
             // Test connection and get server info
             val serverInfo = api.getServerInfo()
             val libraries = api.getLibraries()
-            
+
             val connection = PlexServerConnection(
                 name = serverName,
                 url = serverUrl,
@@ -82,19 +82,19 @@ class PlexIntegrationService @Inject constructor(
                     )
                 }
             )
-            
+
             connectedServers[serverName] = connection
             plexApis[serverName] = api
-            
+
             updateConnectionStatus()
-            
+
             _plexState.value = _plexState.value.copy(
                 isConnecting = false,
                 lastConnectionResult = "Successfully connected to $serverName"
             )
-            
+
             PlexConnectionResult.Success(connection)
-            
+
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
                 isConnecting = false,
@@ -113,13 +113,13 @@ class PlexIntegrationService @Inject constructor(
     ): MetadataEnhancementResult = withContext(Dispatchers.IO) {
         try {
             val api = plexApis[serverName] ?: return@withContext MetadataEnhancementResult.Error("Server not connected")
-            
+
             _plexState.value = _plexState.value.copy(isEnhancingMetadata = true)
-            
+
             // Get all items in the library
             val libraryItems = api.getLibraryItems(libraryKey)
             val enhancementResults = mutableListOf<ItemEnhancementResult>()
-            
+
             // Process items in parallel batches
             libraryItems.media.chunked(10).forEach { batch ->
                 val batchResults = batch.map { item ->
@@ -127,20 +127,20 @@ class PlexIntegrationService @Inject constructor(
                         enhanceItemMetadata(api, item)
                     }
                 }.awaitAll()
-                
+
                 enhancementResults.addAll(batchResults)
             }
-            
+
             val successful = enhancementResults.count { it.successful }
             val failed = enhancementResults.count { !it.successful }
-            
+
             _plexState.value = _plexState.value.copy(
                 isEnhancingMetadata = false,
                 lastEnhancementResult = "Enhanced $successful items, $failed failed"
             )
-            
+
             MetadataEnhancementResult.Success(successful, failed, enhancementResults)
-            
+
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
                 isEnhancingMetadata = false,
@@ -157,11 +157,11 @@ class PlexIntegrationService @Inject constructor(
         try {
             val api = plexApis[serverName] ?: return@withContext DuplicateAnalysisResult.Error("Server not connected")
             val connection = connectedServers[serverName] ?: return@withContext DuplicateAnalysisResult.Error("Connection not found")
-            
+
             _plexState.value = _plexState.value.copy(isAnalyzingDuplicates = true)
-            
+
             val allItems = mutableListOf<PlexMediaItem>()
-            
+
             // Collect all media items from all libraries
             for (library in connection.libraries) {
                 try {
@@ -171,17 +171,17 @@ class PlexIntegrationService @Inject constructor(
                     // Continue with other libraries if one fails
                 }
             }
-            
+
             // Find duplicates using content analysis
             val duplicateGroups = findDuplicateGroups(allItems)
-            
+
             _plexState.value = _plexState.value.copy(
                 isAnalyzingDuplicates = false,
                 duplicatesFound = duplicateGroups.size
             )
-            
+
             DuplicateAnalysisResult.Success(duplicateGroups)
-            
+
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
                 isAnalyzingDuplicates = false,
@@ -200,18 +200,18 @@ class PlexIntegrationService @Inject constructor(
     ): SmartCollectionResult = withContext(Dispatchers.IO) {
         try {
             val api = plexApis[serverName] ?: return@withContext SmartCollectionResult.Error("Server not connected")
-            
+
             _plexState.value = _plexState.value.copy(isCreatingCollections = true)
-            
+
             val libraryItems = api.getLibraryItems(libraryKey)
             val collections = mutableListOf<SmartCollection>()
-            
+
             // Group by genre with AI enhancement
             val genreGroups = libraryItems.media.groupBy { item ->
                 // Use AI to improve genre classification
                 item.genre?.firstOrNull() ?: "Unknown"
             }
-            
+
             for ((genre, items) in genreGroups) {
                 if (items.size >= 3) { // Only create collections with 3+ items
                     val collection = SmartCollection(
@@ -221,23 +221,23 @@ class PlexIntegrationService @Inject constructor(
                         description = "AI-curated $genre collection"
                     )
                     collections.add(collection)
-                    
+
                     // Create the collection on Plex server
                     api.createCollection(libraryKey, collection.name, collection.items)
                 }
             }
-            
+
             // Create collections based on AI-detected themes
             val themeCollections = createThemeBasedCollections(libraryItems.media)
             collections.addAll(themeCollections)
-            
+
             _plexState.value = _plexState.value.copy(
                 isCreatingCollections = false,
                 collectionsCreated = collections.size
             )
-            
+
             SmartCollectionResult.Success(collections)
-            
+
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
                 isCreatingCollections = false,
@@ -254,21 +254,21 @@ class PlexIntegrationService @Inject constructor(
         try {
             val api = plexApis[serverName] ?: return@withContext PlexLibraryAnalytics.empty()
             val connection = connectedServers[serverName] ?: return@withContext PlexLibraryAnalytics.empty()
-            
+
             val analytics = PlexLibraryAnalytics(
                 serverName = serverName,
                 totalLibraries = connection.libraries.size,
-                libraryBreakdown = connection.libraries.associate { 
-                    it.title to it.itemCount 
+                libraryBreakdown = connection.libraries.associate {
+                    it.title to it.itemCount
                 },
                 totalItems = connection.libraries.sumOf { it.itemCount },
                 duplicatesFound = _plexState.value.duplicatesFound,
                 collectionsCreated = _plexState.value.collectionsCreated,
                 lastAnalyzed = System.currentTimeMillis()
             )
-            
+
             analytics
-            
+
         } catch (e: Exception) {
             PlexLibraryAnalytics.empty()
         }
@@ -280,10 +280,10 @@ class PlexIntegrationService @Inject constructor(
     suspend fun syncAllLibraries(): PlexSyncResult = withContext(Dispatchers.IO) {
         try {
             _plexState.value = _plexState.value.copy(isSyncing = true)
-            
+
             var totalProcessed = 0
             val syncResults = mutableListOf<String>()
-            
+
             for ((serverName, connection) in connectedServers) {
                 val api = plexApis[serverName]
                 if (api != null) {
@@ -298,14 +298,14 @@ class PlexIntegrationService @Inject constructor(
                     }
                 }
             }
-            
+
             _plexState.value = _plexState.value.copy(
                 isSyncing = false,
                 lastSyncTime = System.currentTimeMillis()
             )
-            
+
             PlexSyncResult(true, totalProcessed, syncResults)
-            
+
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
                 isSyncing = false,
@@ -318,7 +318,7 @@ class PlexIntegrationService @Inject constructor(
     suspend fun checkAllConnections(): PlexConnectionStatus {
         val activeConnections = connectedServers.keys.toList()
         val totalLibraries = connectedServers.values.sumOf { it.libraries.size }
-        
+
         return PlexConnectionStatus(
             connectedServers = activeConnections,
             hasActiveConnections = activeConnections.isNotEmpty(),
@@ -332,7 +332,7 @@ class PlexIntegrationService @Inject constructor(
         val tvLibraries = connectedServers.values.flatMap { it.libraries }.filter { it.type == "show" }
         val musicLibraries = connectedServers.values.flatMap { it.libraries }.filter { it.type == "artist" }
         val photoLibraries = connectedServers.values.flatMap { it.libraries }.filter { it.type == "photo" }
-        
+
         return PlexLibraryStats(
             movies = movieLibraries.sumOf { it.itemCount },
             tvShows = tvLibraries.sumOf { it.itemCount },
@@ -346,12 +346,12 @@ class PlexIntegrationService @Inject constructor(
         return try {
             // Use CleverFerret's AI to analyze and improve metadata
             // This would involve analyzing the item's current metadata and suggesting improvements
-            
+
             // For demonstration, we'll show the concept
             val enhancedTitle = item.title // Could be improved by AI
             val enhancedSummary = item.summary // Could be enhanced by AI
             val enhancedGenres = item.genre // Could be reclassified by AI
-            
+
             // Update the item on Plex server
             api.updateItemMetadata(
                 item.ratingKey,
@@ -359,9 +359,9 @@ class PlexIntegrationService @Inject constructor(
                 enhancedSummary,
                 enhancedGenres?.joinToString(",")
             )
-            
+
             ItemEnhancementResult(item.ratingKey, true, "Enhanced metadata")
-            
+
         } catch (e: Exception) {
             ItemEnhancementResult(item.ratingKey, false, e.message ?: "Enhancement failed")
         }
@@ -369,10 +369,10 @@ class PlexIntegrationService @Inject constructor(
 
     private fun findDuplicateGroups(items: List<PlexMediaItem>): List<DuplicateGroup> {
         val duplicateGroups = mutableListOf<DuplicateGroup>()
-        
+
         // Group by title similarity
         val titleGroups = items.groupBy { it.title.lowercase().trim() }
-        
+
         for ((title, groupItems) in titleGroups) {
             if (groupItems.size > 1) {
                 duplicateGroups.add(
@@ -386,7 +386,7 @@ class PlexIntegrationService @Inject constructor(
                 )
             }
         }
-        
+
         return duplicateGroups
     }
 

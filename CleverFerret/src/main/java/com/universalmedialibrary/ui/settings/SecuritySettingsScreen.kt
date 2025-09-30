@@ -22,7 +22,7 @@ fun SecuritySettingsScreen(
     viewModel: SecuritySettingsViewModel = hiltViewModel()
 ) {
     val securitySettings by viewModel.securitySettings.collectAsState()
-    
+
     PlexTheme {
         Scaffold(
             topBar = {
@@ -52,7 +52,7 @@ fun SecuritySettingsScreen(
                         onToggle = { viewModel.togglePinLock() }
                     )
                 }
-                
+
                 item {
                     SecurityOptionCard(
                         title = "Biometric Lock",
@@ -62,7 +62,7 @@ fun SecuritySettingsScreen(
                         onToggle = { viewModel.toggleBiometric() }
                     )
                 }
-                
+
                 item {
                     SecurityOptionCard(
                         title = "Hide in Recents",
@@ -100,9 +100,9 @@ private fun SecurityOptionCard(
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -115,7 +115,7 @@ private fun SecurityOptionCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Switch(
                 checked = enabled,
                 onCheckedChange = { onToggle() }

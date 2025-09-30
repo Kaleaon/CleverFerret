@@ -16,16 +16,16 @@ import androidx.room.Index
 data class Series(
     @PrimaryKey(autoGenerate = true)
     val seriesId: Long = 0,
-    
+
     val name: String,
     val description: String? = null,
     val totalItems: Int? = null,
     val mediaType: String, // BOOK, TV_SHOW, etc.
-    
+
     val startYear: Int? = null,
     val endYear: Int? = null,
     val status: String? = null, // ONGOING, COMPLETED, CANCELLED
-    
+
     val coverImagePath: String? = null,
     val externalId: String? = null,
     val lastUpdated: Long = System.currentTimeMillis()
@@ -46,24 +46,24 @@ data class Series(
 data class Album(
     @PrimaryKey(autoGenerate = true)
     val albumId: Long = 0,
-    
+
     val title: String,
     val albumArtistId: Long? = null, // Reference to People table
     val releaseYear: Int? = null,
     val releaseDate: Long? = null,
-    
+
     val albumArtPath: String? = null,
     val totalTracks: Int? = null,
     val totalDiscs: Int? = null,
     val duration: Long? = null, // Total duration in milliseconds
-    
+
     val recordLabel: String? = null,
     val catalogNumber: String? = null,
     val barcode: String? = null,
-    
+
     val musicBrainzAlbumId: String? = null,
     val spotifyAlbumId: String? = null,
     val lastFmAlbumId: String? = null,
-    
+
     val lastUpdated: Long = System.currentTimeMillis()
 )

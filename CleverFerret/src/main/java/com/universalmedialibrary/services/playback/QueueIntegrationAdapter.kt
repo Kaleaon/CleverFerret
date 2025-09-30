@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * Integration adapter for existing media services with unified queue
- * 
+ *
  * Provides a bridge between the new UnifiedPlaybackQueueManager and
  * existing service implementations, allowing gradual migration while
  * maintaining compatibility.
@@ -24,9 +24,9 @@ class QueueIntegrationAdapter @Inject constructor(
     private val musicPlayerService: AdvancedMusicPlayerService,
     private val audiobookService: AudiobookService
 ) {
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
+
     /**
      * Migrate music tracks from AdvancedMusicPlayerService to unified queue
      */
@@ -34,17 +34,17 @@ class QueueIntegrationAdapter @Inject constructor(
         // Create or switch to music queue
         val musicQueue = unifiedQueueManager.createOrSwitchToQueue(
             queueName = "MUSIC_QUEUE",
-            queueType = "MUSIC", 
+            queueType = "MUSIC",
             displayName = "Music"
         )
-        
+
         // Add items to unified queue
         unifiedQueueManager.enqueueItems(mediaItems)
     }
-    
+
     /**
      * Migrate audiobook from AudiobookService to unified queue
-     */  
+     */
     suspend fun migrateAudiobookToUnifiedQueue(mediaItem: MediaItem) {
         // Create or switch to audiobook queue
         val audiobookQueue = unifiedQueueManager.createOrSwitchToQueue(
@@ -52,11 +52,11 @@ class QueueIntegrationAdapter @Inject constructor(
             queueType = "AUDIOBOOK",
             displayName = "Audiobook"
         )
-        
+
         // Add audiobook to unified queue
         unifiedQueueManager.enqueueItems(listOf(mediaItem))
     }
-    
+
     /**
      * Convert TrackInfo from music service to MediaItem for unified queue
      */
@@ -72,7 +72,7 @@ class QueueIntegrationAdapter @Inject constructor(
             mimeType = "audio/*"
         )
     }
-    
+
     /**
      * Sync playback state from unified queue to music service
      */
@@ -87,9 +87,9 @@ class QueueIntegrationAdapter @Inject constructor(
             }
         }
     }
-    
+
     /**
-     * Sync playback state from unified queue to audiobook service  
+     * Sync playback state from unified queue to audiobook service
      */
     private fun syncToAudiobookService() {
         serviceScope.launch {
@@ -101,7 +101,7 @@ class QueueIntegrationAdapter @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Handle queue type switching
      */
@@ -118,18 +118,18 @@ class QueueIntegrationAdapter @Inject constructor(
             }
         }
     }
-    
+
     // Helper methods to get queue IDs (would be cached or looked up)
     private suspend fun getMusicQueueId(): Long {
         val queue = unifiedQueueManager.createOrSwitchToQueue("MUSIC_QUEUE", "MUSIC", "Music")
         return queue.queueId
     }
-    
+
     private suspend fun getAudiobookQueueId(): Long {
         val queue = unifiedQueueManager.createOrSwitchToQueue("AUDIOBOOK_QUEUE", "AUDIOBOOK", "Audiobook")
         return queue.queueId
     }
-    
+
     private suspend fun getTtsQueueId(): Long {
         val queue = unifiedQueueManager.createOrSwitchToQueue("TTS_QUEUE", "TTS", "Text-to-Speech")
         return queue.queueId

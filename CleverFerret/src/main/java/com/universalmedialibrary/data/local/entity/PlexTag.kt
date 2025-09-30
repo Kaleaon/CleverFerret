@@ -26,11 +26,11 @@ import androidx.room.Index
 data class PlexTag(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     val serverId: Long,
     val tag: String,
     val type: String, // genre, director, actor, etc.
-    
+
     val lastSynced: Long = System.currentTimeMillis()
 )
 
@@ -61,7 +61,7 @@ data class PlexTag(
 data class PlexMediaTag(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     val plexMediaItemId: Long,
     val tagId: Long
 )

@@ -28,7 +28,7 @@ fun PlexSyncScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val servers by viewModel.servers.collectAsStateWithLifecycle()
     val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
-    
+
     // Show add server dialog
     if (uiState.showAddServerDialog) {
         AddPlexServerDialog(
@@ -38,7 +38,7 @@ fun PlexSyncScreen(
             }
         )
     }
-    
+
     // Show messages
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
@@ -46,14 +46,14 @@ fun PlexSyncScreen(
             viewModel.clearMessages()
         }
     }
-    
+
     LaunchedEffect(uiState.successMessage) {
         uiState.successMessage?.let {
-            // In a real app, you'd show a snackbar here  
+            // In a real app, you'd show a snackbar here
             viewModel.clearMessages()
         }
     }
-    
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -70,7 +70,7 @@ fun PlexSyncScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Row {
                 IconButton(onClick = { viewModel.syncAllServers() }) {
                     Icon(
@@ -86,17 +86,17 @@ fun PlexSyncScreen(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Sync Status Card
         SyncStatusCard(
             syncStatus = syncStatus,
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Server List
         if (servers.isEmpty()) {
             EmptyStateCard(
@@ -209,7 +209,7 @@ private fun PlexServerCard(
                         )
                     }
                 }
-                
+
                 IconButton(onClick = onSync) {
                     Icon(
                         imageVector = PhosphorIcons.Sync,
@@ -217,7 +217,7 @@ private fun PlexServerCard(
                     )
                 }
             }
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -228,7 +228,7 @@ private fun PlexServerCard(
                 )
                 AssistChip(
                     onClick = { },
-                    label = { 
+                    label = {
                         Text(
                             text = if (server.isActive) "Active" else "Inactive",
                             color = if (server.isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
@@ -293,7 +293,7 @@ private fun AddPlexServerDialog(
     var host by remember { mutableStateOf("") }
     var port by remember { mutableStateOf("32400") }
     var token by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Plex Server") },

@@ -24,13 +24,13 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class EPUBTestActivity : ComponentActivity() {
-    
+
     @Inject
     lateinit var epubReaderService: EPUBReaderService
-    
+
     private var selectedEpubUri by mutableStateOf<Uri?>(null)
     private var testResults by mutableStateOf("")
-    
+
     private val epubPickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -39,10 +39,10 @@ class EPUBTestActivity : ComponentActivity() {
             testEPUBReading(it)
         }
     }
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         setContent {
             CleverFerretTheme {
                 EPUBTestScreen(
@@ -64,29 +64,29 @@ class EPUBTestActivity : ComponentActivity() {
             }
         }
     }
-    
+
     private fun testEPUBReading(uri: Uri) {
         lifecycleScope.launch {
             try {
                 testResults = "Loading EPUB...\n"
-                
+
                 val success = epubReaderService.loadEPUB(uri)
                 if (success) {
                     val state = epubReaderService.readerState.value
-                    
+
                     testResults += "✅ EPUB loaded successfully!\n"
                     testResults += "📚 Title: ${state.bookTitle}\n"
                     testResults += "✍️ Author: ${state.bookAuthor}\n"
                     testResults += "📖 Chapters: ${state.totalChapters}\n"
                     testResults += "\nChapter List:\n"
-                    
+
                     state.chapters.forEachIndexed { index, chapter ->
                         testResults += "${index + 1}. ${chapter.title}\n"
                     }
-                    
+
                     testResults += "\n📄 Current Chapter Content (first 500 chars):\n"
                     testResults += state.currentContent.take(500) + "...\n"
-                    
+
                 } else {
                     testResults += "❌ Failed to load EPUB\n"
                 }
@@ -96,7 +96,7 @@ class EPUBTestActivity : ComponentActivity() {
             }
         }
     }
-    
+
     private fun testChapterNavigation() {
         lifecycleScope.launch {
             try {
@@ -105,30 +105,30 @@ class EPUBTestActivity : ComponentActivity() {
                     testResults += "\n❌ No EPUB loaded for navigation test\n"
                     return@launch
                 }
-                
+
                 testResults += "\n🧭 Testing Chapter Navigation:\n"
-                
+
                 // Test next chapter
                 val initialChapter = state.currentChapter
                 epubReaderService.nextChapter()
                 val afterNext = epubReaderService.readerState.value.currentChapter
-                
+
                 if (afterNext == initialChapter + 1) {
                     testResults += "✅ Next chapter navigation works\n"
                 } else {
                     testResults += "❌ Next chapter navigation failed\n"
                 }
-                
+
                 // Test previous chapter
                 epubReaderService.previousChapter()
                 val afterPrev = epubReaderService.readerState.value.currentChapter
-                
+
                 if (afterPrev == initialChapter) {
                     testResults += "✅ Previous chapter navigation works\n"
                 } else {
                     testResults += "❌ Previous chapter navigation failed\n"
                 }
-                
+
                 // Test go to specific chapter
                 if (state.totalChapters > 2) {
                     epubReaderService.goToChapter(2)
@@ -139,13 +139,13 @@ class EPUBTestActivity : ComponentActivity() {
                         testResults += "❌ Go to chapter failed\n"
                     }
                 }
-                
+
             } catch (e: Exception) {
                 testResults += "❌ Navigation test error: ${e.message}\n"
             }
         }
     }
-    
+
     private fun testSearch(query: String) {
         lifecycleScope.launch {
             try {
@@ -154,11 +154,11 @@ class EPUBTestActivity : ComponentActivity() {
                     testResults += "\n❌ No EPUB loaded for search test\n"
                     return@launch
                 }
-                
+
                 testResults += "\n🔍 Testing Search for '$query':\n"
-                
+
                 val results = epubReaderService.searchInBook(query)
-                
+
                 if (results.isNotEmpty()) {
                     testResults += "✅ Found ${results.size} matches\n"
                     results.take(3).forEach { result ->
@@ -167,13 +167,13 @@ class EPUBTestActivity : ComponentActivity() {
                 } else {
                     testResults += "ℹ️ No matches found\n"
                 }
-                
+
             } catch (e: Exception) {
                 testResults += "❌ Search test error: ${e.message}\n"
             }
         }
     }
-    
+
     private fun testBookmarkFunctionality() {
         testResults += "\n🔖 Testing Bookmark Functionality:\n"
         testResults += "✅ Bookmark save simulation successful\n"
@@ -193,7 +193,7 @@ fun EPUBTestScreen(
     onTestBookmark: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("the") }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -219,20 +219,20 @@ fun EPUBTestScreen(
                         text = "EPUB Testing Controls",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    
+
                     Button(
                         onClick = onSelectEpub,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Select EPUB File")
                     }
-                    
+
                     if (selectedUri != null) {
                         Text(
                             text = "Selected: ${selectedUri.lastPathSegment}",
                             style = MaterialTheme.typography.bodySmall
                         )
-                        
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -243,7 +243,7 @@ fun EPUBTestScreen(
                             ) {
                                 Text("Test Navigation")
                             }
-                            
+
                             Button(
                                 onClick = onTestBookmark,
                                 modifier = Modifier.weight(1f)
@@ -251,7 +251,7 @@ fun EPUBTestScreen(
                                 Text("Test Bookmarks")
                             }
                         }
-                        
+
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
@@ -266,7 +266,7 @@ fun EPUBTestScreen(
                     }
                 }
             }
-            
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

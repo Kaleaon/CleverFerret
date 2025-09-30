@@ -33,18 +33,18 @@ import androidx.room.Index
 data class PlexMediaItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     val serverId: Long,
     val plexRatingKey: String, // Plex's unique identifier for the item
     val localMediaItemId: Long? = null, // Link to local MediaItem if matched
-    
+
     val title: String,
     val type: String, // movie, episode, track, etc.
     val year: Int? = null,
     val duration: Long? = null, // in milliseconds
-    
+
     val libraryName: String,
     val librarySectionId: String,
-    
+
     val lastSynced: Long = System.currentTimeMillis()
 )

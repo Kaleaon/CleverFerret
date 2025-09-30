@@ -5,10 +5,10 @@
     android:viewportWidth="24"
     android:viewportHeight="24"
     android:tint="?attr/colorOnPrimary">
-    
+
     <!-- Pause button icon for media controls -->
     <path
         android:fillColor="@android:color/white"
         android:pathData="M6,19h4V5H6v14zM14,5v14h4V5h-4z"/>
-        
+
 </vector>

@@ -97,7 +97,7 @@ fun VideoPlayerScreen(
                         }
                     }
                 }
-                
+
                 uiState.error != null -> {
                     // Error state with Plex styling
                     Card(
@@ -143,7 +143,7 @@ fun VideoPlayerScreen(
                         }
                     }
                 }
-                
+
                 uiState.isLoaded -> {
                     // Video player view
                     AndroidView(
@@ -187,7 +187,7 @@ fun VideoPlayerScreen(
                     }
                 }
             }
-            
+
             // Top controls bar with gradient background
             if (showControls && uiState.isLoaded) {
                 Box(
@@ -292,10 +292,10 @@ fun VideoPlayerScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.width(60.dp)
                             )
-                            
+
                             Slider(
                                 value = currentPosition.toFloat(),
-                                onValueChange = { 
+                                onValueChange = {
                                     currentPosition = it.toLong()
                                     viewModel.seekTo(it.toLong())
                                 },
@@ -307,7 +307,7 @@ fun VideoPlayerScreen(
                                     inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                                 )
                             )
-                            
+
                             Text(
                                 text = formatTime(uiState.duration),
                                 color = Color.White,
@@ -325,7 +325,7 @@ fun VideoPlayerScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Rewind
-                            IconButton(onClick = { 
+                            IconButton(onClick = {
                                 val newPosition = maxOf(0, currentPosition - 10000)
                                 viewModel.seekTo(newPosition)
                             }) {
@@ -358,7 +358,7 @@ fun VideoPlayerScreen(
                             }
 
                             // Forward
-                            IconButton(onClick = { 
+                            IconButton(onClick = {
                                 val newPosition = minOf(uiState.duration, currentPosition + 10000)
                                 viewModel.seekTo(newPosition)
                             }) {
@@ -417,7 +417,7 @@ private fun formatTime(milliseconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60
-    
+
     return if (hours > 0) {
         String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs)
     } else {
@@ -427,11 +427,11 @@ private fun formatTime(milliseconds: Long): String {
 
 private fun formatVideoDuration(milliseconds: Long): String {
     if (milliseconds <= 0) return "Unknown duration"
-    
+
     val totalMinutes = milliseconds / 60000
     val hours = totalMinutes / 60
     val minutes = totalMinutes % 60
-    
+
     return if (hours > 0) {
         "${hours}h ${minutes}m"
     } else {

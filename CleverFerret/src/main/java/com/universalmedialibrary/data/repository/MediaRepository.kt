@@ -16,59 +16,59 @@ class MediaRepository @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) {
-    
+
     // Media Item operations
-    fun getMediaItemsByLibrary(libraryId: Long): Flow<List<MediaItem>> = 
+    fun getMediaItemsByLibrary(libraryId: Long): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByLibrary(libraryId)
-    
-    suspend fun getMediaItemById(itemId: Long): MediaItem? = 
+
+    suspend fun getMediaItemById(itemId: Long): MediaItem? =
         mediaItemDao.getMediaItemById(itemId)
-    
-    suspend fun getMediaItemByPath(filePath: String): MediaItem? = 
+
+    suspend fun getMediaItemByPath(filePath: String): MediaItem? =
         mediaItemDao.getMediaItemByPath(filePath)
-    
-    fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>> = 
+
+    fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(mediaType)
-    
-    suspend fun createMediaItem(mediaItem: MediaItem): Long = 
+
+    suspend fun createMediaItem(mediaItem: MediaItem): Long =
         mediaItemDao.insertMediaItem(mediaItem)
-    
-    suspend fun updateMediaItem(mediaItem: MediaItem) = 
+
+    suspend fun updateMediaItem(mediaItem: MediaItem) =
         mediaItemDao.updateMediaItem(mediaItem)
-    
-    suspend fun deleteMediaItem(mediaItem: MediaItem) = 
+
+    suspend fun deleteMediaItem(mediaItem: MediaItem) =
         mediaItemDao.deleteMediaItem(mediaItem)
-    
-    suspend fun searchMediaItems(query: String, limit: Int = 50): List<MediaItem> = 
+
+    suspend fun searchMediaItems(query: String, limit: Int = 50): List<MediaItem> =
         mediaItemDao.searchMediaItems(query, limit)
-    
+
     // Metadata operations
-    suspend fun getCommonMetadata(itemId: Long): MetadataCommon? = 
+    suspend fun getCommonMetadata(itemId: Long): MetadataCommon? =
         metadataDao.getCommonMetadata(itemId)
-    
-    suspend fun saveCommonMetadata(metadata: MetadataCommon) = 
+
+    suspend fun saveCommonMetadata(metadata: MetadataCommon) =
         metadataDao.insertCommonMetadata(metadata)
-    
-    suspend fun updateCommonMetadata(metadata: MetadataCommon) = 
+
+    suspend fun updateCommonMetadata(metadata: MetadataCommon) =
         metadataDao.updateCommonMetadata(metadata.itemId, metadata.title, metadata.summary)
-    
-    suspend fun searchByTitle(query: String, limit: Int = 50): List<MetadataCommon> = 
+
+    suspend fun searchByTitle(query: String, limit: Int = 50): List<MetadataCommon> =
         metadataDao.searchByTitle(query)
-    
+
     suspend fun createMediaItems(mediaItems: List<MediaItem>): List<Long> {
         mediaItemDao.insertMediaItems(mediaItems)
         return mediaItems.map { it.itemId } // Return the IDs
     }
-    
+
     suspend fun getMediaItemWithMetadata(itemId: Long): Pair<MediaItem?, MetadataCommon?> {
         val mediaItem = getMediaItemById(itemId)
         val metadata = getCommonMetadata(itemId)
         return Pair(mediaItem, metadata)
     }
-    
-    suspend fun getItemCountByLibrary(libraryId: Long): Int = 
+
+    suspend fun getItemCountByLibrary(libraryId: Long): Int =
         mediaItemDao.getItemCountByLibrary(libraryId)
-    
-    suspend fun getItemCountByType(mediaType: String): Int = 
+
+    suspend fun getItemCountByType(mediaType: String): Int =
         mediaItemDao.getItemCountByType(mediaType)
 }

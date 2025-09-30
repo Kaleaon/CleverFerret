@@ -24,7 +24,7 @@ class CoquiTTSService @Inject constructor(
         private val VOICE_MODEL_KEY = stringPreferencesKey("voice_model")
         private val EMOTION_STYLE_KEY = stringPreferencesKey("emotion_style")
         private val VOICE_PITCH_KEY = floatPreferencesKey("voice_pitch")
-        
+
         // Default values
         const val DEFAULT_SPEECH_RATE = 1.0f
         const val DEFAULT_VOICE_MODEL = "neural_voice_v1"
@@ -89,10 +89,10 @@ class CoquiTTSService @Inject constructor(
         textToSpeech?.let { tts ->
             // Apply settings from flow (would need to be properly handled)
             tts.setSpeechRate(DEFAULT_SPEECH_RATE)
-            
+
             // For Android TTS, we don't have real-time progress, so simulate it
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "utteranceId")
-            
+
             // Simulate progress (this would be improved with actual TTS callbacks)
             onProgress?.invoke(1.0f)
             onComplete?.invoke()

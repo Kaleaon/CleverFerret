@@ -42,7 +42,7 @@ fun NowPlayingScreen(
     viewModel: NowPlayingViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -102,9 +102,9 @@ private fun NowPlayingContent(
                 .clip(RoundedCornerShape(16.dp)),
             contentScale = ContentScale.Crop
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Track information
         Text(
             text = state.currentTrack,
@@ -113,7 +113,7 @@ private fun NowPlayingContent(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         if (state.currentArtist != null) {
             Text(
                 text = state.currentArtist,
@@ -125,7 +125,7 @@ private fun NowPlayingContent(
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
-        
+
         if (state.currentAlbum != null) {
             Text(
                 text = state.currentAlbum,
@@ -137,7 +137,7 @@ private fun NowPlayingContent(
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
-        
+
         // Service type indicator
         Text(
             text = when (state.serviceType) {
@@ -152,9 +152,9 @@ private fun NowPlayingContent(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 8.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(48.dp))
-        
+
         // Progress indicator (basic for now)
         if (state.duration > 0) {
             LinearProgressIndicator(
@@ -163,7 +163,7 @@ private fun NowPlayingContent(
                     .fillMaxWidth()
                     .padding(horizontal = 32.dp)
             )
-            
+
             // Time indicators
             Row(
                 modifier = Modifier
@@ -183,9 +183,9 @@ private fun NowPlayingContent(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Playback controls
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -201,7 +201,7 @@ private fun NowPlayingContent(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             FloatingActionButton(
                 onClick = onPlayPause,
                 modifier = Modifier.size(64.dp)
@@ -216,7 +216,7 @@ private fun NowPlayingContent(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             IconButton(
                 onClick = onNext,
                 modifier = Modifier.size(48.dp)
@@ -246,9 +246,9 @@ private fun EmptyNowPlayingContent(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = stringResource(R.string.now_playing_empty),
             style = MaterialTheme.typography.bodyLarge,
@@ -262,7 +262,7 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = (milliseconds / 1000) % 60
     val minutes = (milliseconds / (1000 * 60)) % 60
     val hours = (milliseconds / (1000 * 60 * 60))
-    
+
     return if (hours > 0) {
         String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
@@ -277,10 +277,10 @@ private fun formatTime(milliseconds: Long): String {
 class NowPlayingViewModel @Inject constructor(
     private val mediaController: MediaController
 ) : ViewModel() {
-    
+
     private val _state = MutableStateFlow(NowPlayingState())
     val state: StateFlow<NowPlayingState> = _state.asStateFlow()
-    
+
     init {
         // Observe MediaController state changes
         viewModelScope.launch {
@@ -298,17 +298,17 @@ class NowPlayingViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun togglePlayPause() {
         // MediaSession handles play/pause through hardware controls
         // This would need to communicate back to the active service
         // For now, we just demonstrate the UI
     }
-    
+
     fun skipNext() {
         // Similar to play/pause, this would communicate to the active service
     }
-    
+
     fun skipPrevious() {
         // Similar to play/pause, this would communicate to the active service
     }

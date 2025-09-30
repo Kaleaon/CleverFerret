@@ -48,14 +48,14 @@ fun LibraryCard(
     modifier: Modifier = Modifier
 ) {
     var isHovered by remember { mutableStateOf(false) }
-    
+
     // Animation for hover effect (simplified for touch devices)
     val scale by animateFloatAsState(
         targetValue = if (isHovered) 1.02f else 1f,
         animationSpec = tween(300),
         label = "card_scale"
     )
-    
+
     val elevation by animateFloatAsState(
         targetValue = if (isHovered) 12f else 2f,
         animationSpec = tween(300),
@@ -74,7 +74,7 @@ fun LibraryCard(
             containerColor = Color(0xFF1F2326)
         ),
         border = BorderStroke(
-            1.dp, 
+            1.dp,
             if (isHovered) Color(0xFFE5A00D) else Color(0xFF2D3136)
         )
     ) {
@@ -96,7 +96,7 @@ fun LibraryCard(
                     modifier = Modifier.size(40.dp),
                     tint = Color.White
                 )
-                
+
                 // Item count chip
                 Box(
                     modifier = Modifier
@@ -114,7 +114,7 @@ fun LibraryCard(
                         color = Color.White
                     )
                 }
-                
+
                 // Active indicator
                 if (library.isActive) {
                     Box(
@@ -126,7 +126,7 @@ fun LibraryCard(
                     )
                 }
             }
-            
+
             // Content area
             Column(
                 modifier = Modifier
@@ -139,17 +139,17 @@ fun LibraryCard(
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Text(
                     text = "${library.type.name.lowercase()} library",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFFB3B3B3)
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text(
                     text = library.lastSyncTime,
                     style = MaterialTheme.typography.labelSmall,

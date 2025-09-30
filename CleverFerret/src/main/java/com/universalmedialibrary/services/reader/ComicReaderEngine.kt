@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 /**
  * Comic Book Archive Reader Engine for CBZ and CBR formats.
- * 
+ *
  * Features:
  * - Page-by-page image rendering
  * - Support for CBZ (ZIP) and CBR (RAR) archives
@@ -27,21 +27,21 @@ import javax.inject.Inject
  * - Support for various image formats (JPEG, PNG, WebP, etc.)
  */
 class ComicReaderEngine @Inject constructor() : ReaderEngine {
-    
+
     override val bookId: String get() = currentBookId
-    
+
     private var currentBookId: String = ""
     private var archiveFile: File? = null
     private var zipFile: ZipFile? = null
     private var pageEntries: List<ComicPage> = emptyList()
     private var currentPageIndex: Int = 0
     private var isRarFormat: Boolean = false
-    
+
     private val _currentLocator = MutableStateFlow(
         Locator(href = "", locations = emptyMap())
     )
     override val currentLocator: Flow<Locator> = _currentLocator.asStateFlow()
-    
+
     override suspend fun open(context: Context, source: BookSource): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
@@ -53,7 +53,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                                 // Copy content URI to temp file
                                 val extension = source.uri.toString().substringAfterLast(".")
                                 val tempFile = File(
-                                    context.cacheDir, 
+                                    context.cacheDir,
                                     "temp_comic_${System.currentTimeMillis()}.$extension"
                                 )
                                 context.contentResolver.openInputStream(source.uri)?.use { input ->
@@ -75,16 +75,16 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                         )
                     }
                 }
-                
+
                 if (!file.exists()) {
                     return@withContext Result.failure(
                         IllegalArgumentException("Comic archive file not found")
                     )
                 }
-                
+
                 // Determine format and parse archive
                 isRarFormat = file.extension.lowercase() == "cbr"
-                
+
                 if (isRarFormat) {
                     // CBR support would require a RAR library (e.g., junrar)
                     // For now, we'll return an error
@@ -96,22 +96,22 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                     zipFile = ZipFile(file)
                     pageEntries = extractImageEntries(zipFile!!)
                 }
-                
+
                 if (pageEntries.isEmpty()) {
                     return@withContext Result.failure(
                         RuntimeException("No valid image pages found in comic archive")
                     )
                 }
-                
+
                 archiveFile = file
                 currentBookId = file.absolutePath
                 currentPageIndex = 0
-                
+
                 // Initialize locator to first page
                 updateCurrentLocator(0)
-                
+
                 Result.success(Unit)
-                
+
             } catch (e: Exception) {
                 // Clean up on error
                 close()
@@ -119,11 +119,11 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             }
         }
     }
-    
+
     override suspend fun goTo(locator: Locator): Result<Unit> {
         return try {
             val pageIndex = locator.locations["pageIndex"] as? Int ?: 0
-            
+
             if (pageIndex in pageEntries.indices) {
                 currentPageIndex = pageIndex
                 updateCurrentLocator(pageIndex)
@@ -135,7 +135,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             Result.failure(e)
         }
     }
-    
+
     override suspend fun next(): Boolean {
         return if (currentPageIndex < pageEntries.size - 1) {
             currentPageIndex++
@@ -145,7 +145,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             false
         }
     }
-    
+
     override suspend fun previous(): Boolean {
         return if (currentPageIndex > 0) {
             currentPageIndex--
@@ -155,13 +155,13 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             false
         }
     }
-    
+
     override suspend fun search(query: String): List<Locator> {
         // Comic books typically don't have searchable text content
         // Could potentially implement OCR-based search in the future
         return emptyList()
     }
-    
+
     override suspend fun close() {
         zipFile?.close()
         zipFile = null
@@ -170,24 +170,24 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
         currentBookId = ""
         currentPageIndex = 0
     }
-    
+
     /**
      * Get current page as bitmap
      */
     suspend fun getCurrentPageBitmap(): Bitmap? {
         return getPageBitmap(currentPageIndex)
     }
-    
+
     /**
      * Get specific page as bitmap
      */
     suspend fun getPageBitmap(pageIndex: Int): Bitmap? {
         return withContext(Dispatchers.IO) {
             if (pageIndex !in pageEntries.indices) return@withContext null
-            
+
             val page = pageEntries[pageIndex]
             val zip = zipFile ?: return@withContext null
-            
+
             try {
                 val entry = zip.getEntry(page.entryName)
                 val inputStream = zip.getInputStream(entry)
@@ -197,7 +197,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             }
         }
     }
-    
+
     /**
      * Navigate to specific page
      */
@@ -210,7 +210,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             false
         }
     }
-    
+
     /**
      * Get current page information
      */
@@ -226,7 +226,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             )
         } else null
     }
-    
+
     /**
      * Get progress information
      */
@@ -234,28 +234,28 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
         val progressPercentage = if (pageEntries.isNotEmpty()) {
             ((currentPageIndex + 1).toFloat() / pageEntries.size.toFloat()) * 100f
         } else 0f
-        
+
         return ComicProgress(
             currentPage = currentPageIndex + 1,
             totalPages = pageEntries.size,
             progressPercentage = progressPercentage
         )
     }
-    
+
     /**
      * Get all pages information
      */
     fun getAllPages(): List<ComicPage> {
         return pageEntries
     }
-    
+
     private fun extractImageEntries(zipFile: ZipFile): List<ComicPage> {
         val imageExtensions = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp")
         val pages = mutableListOf<ComicPage>()
-        
+
         zipFile.entries().asSequence()
             .filter { entry ->
-                !entry.isDirectory && 
+                !entry.isDirectory &&
                 imageExtensions.contains(entry.name.substringAfterLast(".").lowercase()) &&
                 !entry.name.contains("__MACOSX") && // Exclude macOS metadata
                 !entry.name.startsWith(".") // Exclude hidden files
@@ -271,13 +271,13 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                     )
                 )
             }
-        
+
         return pages
     }
-    
+
     private fun updateCurrentLocator(pageIndex: Int) {
         val page = if (pageIndex in pageEntries.indices) pageEntries[pageIndex] else null
-        
+
         _currentLocator.value = Locator(
             href = page?.entryName ?: "",
             locations = mapOf(

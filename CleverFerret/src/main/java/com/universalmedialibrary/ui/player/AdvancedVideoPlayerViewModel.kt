@@ -84,8 +84,8 @@ class AdvancedVideoPlayerViewModel @Inject constructor() : ViewModel() {
                         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                             mediaItem?.let {
                                 _uiState.value = _uiState.value.copy(
-                                    title = it.mediaMetadata.title?.toString() 
-                                        ?: videoUri.lastPathSegment 
+                                    title = it.mediaMetadata.title?.toString()
+                                        ?: videoUri.lastPathSegment
                                         ?: "Unknown Video"
                                 )
                             }
@@ -148,7 +148,7 @@ class AdvancedVideoPlayerViewModel @Inject constructor() : ViewModel() {
             val trackType = trackGroup.getFormat(0).sampleMimeType
 
             when {
-                trackType?.startsWith("text/") == true || 
+                trackType?.startsWith("text/") == true ||
                 trackType?.startsWith("application/") == true -> {
                     // Subtitle tracks
                     for (i in 0 until trackGroup.length) {
@@ -262,17 +262,17 @@ data class AdvancedVideoPlayerUiState(
     val bufferedPosition: Long = 0L,
     val playbackSpeed: Float = 1.0f,
     val volume: Float = 0.8f,
-    
+
     // Tracks
     val subtitleTracks: List<SubtitleTrack> = emptyList(),
     val audioTracks: List<AudioTrack> = emptyList(),
     val selectedSubtitleTrack: Int = -1,
     val selectedAudioTrack: Int = 0,
-    
+
     // Chapters
     val chapters: List<Chapter> = emptyList(),
     val currentChapter: String? = null,
-    
+
     // Settings
     val settings: VideoSettings = VideoSettings()
 )
