@@ -9,10 +9,10 @@ import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.Library
-import com.universalmedialibrary.data.local.model.MediaItem
-import com.universalmedialibrary.data.local.model.MediaType
-import com.universalmedialibrary.data.local.model.MetadataCommon
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MediaType
+import com.universalmedialibrary.data.local.entity.MetadataCommon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date

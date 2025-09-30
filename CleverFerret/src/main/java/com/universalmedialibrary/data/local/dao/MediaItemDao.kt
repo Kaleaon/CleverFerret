@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.universalmedialibrary.data.local.model.MediaItem
+import androidx.room.Update
+import androidx.room.Delete
+import com.universalmedialibrary.data.local.entity.MediaItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,81 +23,38 @@ interface MediaItemDao {
 
     @Query("SELECT * FROM media_items WHERE filePath = :filePath")
     suspend fun getMediaItemByFilePath(filePath: String): MediaItem?
-
-    // TODO: Fix BookDetails model schema alignment
-    // Temporarily commented out to allow successful build
-    /*
-    @Query(
-        """
-        SELECT
-            mi.itemId as media_itemId,
-            mi.libraryId as media_libraryId,
-            mi.filePath as media_filePath,
-            mi.dateAdded as media_dateAdded,
-            mi.lastScanned as media_lastScanned,
-            mi.fileHash as media_fileHash,
-            mi.lastAccessed as media_lastAccessed,
-            mi.playCount as media_playCount,
-            mc.itemId as meta_itemId,
-            mc.title as meta_title,
-            mc.sortTitle as meta_sortTitle,
-            mc.year as meta_year,
-            mc.releaseDate as meta_releaseDate,
-            mc.rating as meta_rating,
-            mc.summary as meta_summary,
-            mc.coverImagePath as meta_coverImagePath,
-            mc.isFavorite as meta_isFavorite,
-            mc.isDownloaded as meta_isDownloaded,
-            p.name as authorName
-        FROM media_items mi
-        JOIN metadata_common mc ON mi.itemId = mc.itemId
-        LEFT JOIN item_person_role ipr ON mi.itemId = ipr.itemId AND ipr.role = 'AUTHOR'
-        LEFT JOIN people p ON ipr.personId = p.personId
-        WHERE mi.libraryId = :libraryId
-    """
-    )
-    fun getBookDetailsForLibrary(libraryId: Long): Flow<List<BookDetails>>
-
-    @Query(
-        """
-        SELECT
-            mi.itemId as media_itemId,
-            mi.libraryId as media_libraryId,
-            mi.filePath as media_filePath,
-            mi.dateAdded as media_dateAdded,
-            mi.lastScanned as media_lastScanned,
-            mi.fileHash as media_fileHash,
-            mi.lastAccessed as media_lastAccessed,
-            mi.playCount as media_playCount,
-            mc.itemId as meta_itemId,
-            mc.title as meta_title,
-            mc.sortTitle as meta_sortTitle,
-            mc.year as meta_year,
-            mc.releaseDate as meta_releaseDate,
-            mc.rating as meta_rating,
-            mc.summary as meta_summary,
-            mc.coverImagePath as meta_coverImagePath,
-            mc.isFavorite as meta_isFavorite,
-            mc.isDownloaded as meta_isDownloaded,
-            p.name as authorName
-        FROM media_items mi
-        JOIN metadata_common mc ON mi.itemId = mc.itemId
-        LEFT JOIN item_person_role ipr ON mi.itemId = ipr.itemId AND ipr.role = 'AUTHOR'
-        LEFT JOIN people p ON ipr.personId = p.personId
-        WHERE mi.itemId = :itemId
-        LIMIT 1
-    """
-    )
-    suspend fun getBookDetailsById(itemId: Long): BookDetails?
-    */
     
     @Query("SELECT * FROM media_items WHERE filePath = :path LIMIT 1")
     suspend fun getItemByPath(path: String): MediaItem?
     
-    // TODO: Add lastAccessed and playCount columns to database first
-    // @Query("UPDATE media_items SET lastAccessed = :date, playCount = playCount + 1 WHERE itemId = :itemId")
-    // suspend fun updateLastAccessed(itemId: Long, date: Long)
-    
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountForLibrary(libraryId: Long): Int
+
+    // Additional methods needed by MediaRepository
+    @Query("SELECT * FROM media_items WHERE libraryId = :libraryId ORDER BY dateAdded DESC")
+    fun getMediaItemsByLibrary(libraryId: Long): Flow<List<MediaItem>>
+    
+    @Query("SELECT * FROM media_items WHERE filePath = :filePath LIMIT 1")
+    suspend fun getMediaItemByPath(filePath: String): MediaItem?
+    
+    @Query("SELECT * FROM media_items WHERE mediaType = :mediaType ORDER BY dateAdded DESC")
+    fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>>
+    
+    @Update
+    suspend fun updateMediaItem(mediaItem: MediaItem)
+    
+    @Delete
+    suspend fun deleteMediaItem(mediaItem: MediaItem)
+    
+    @Query("SELECT * FROM media_items WHERE fileName LIKE '%' || :query || '%' OR filePath LIKE '%' || :query || '%' LIMIT :limit")
+    suspend fun searchMediaItems(query: String, limit: Int): List<MediaItem>
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMediaItems(mediaItems: List<MediaItem>)
+    
+    @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
+    suspend fun getItemCountByLibrary(libraryId: Long): Int
+    
+    @Query("SELECT COUNT(*) FROM media_items WHERE mediaType = :mediaType")
+    suspend fun getItemCountByType(mediaType: String): Int
 }

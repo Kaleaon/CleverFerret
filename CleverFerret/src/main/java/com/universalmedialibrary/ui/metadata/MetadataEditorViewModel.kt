@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.Genre
-import com.universalmedialibrary.data.local.model.ItemGenre
-import com.universalmedialibrary.data.local.model.ItemPersonRole
-import com.universalmedialibrary.data.local.model.People
-import com.universalmedialibrary.data.local.model.Series
+import com.universalmedialibrary.data.local.entity.Genre
+import com.universalmedialibrary.data.local.entity.ItemGenre
+import com.universalmedialibrary.data.local.entity.ItemPersonRole
+import com.universalmedialibrary.data.local.entity.People
+import com.universalmedialibrary.data.local.entity.Series
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
