@@ -3,7 +3,7 @@ package com.universalmedialibrary.ui.viewer
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
-import org.apache.tika.Tika
+// import org.apache.tika.Tika  // TODO: Add Tika dependency if needed for content type detection
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Singleton
 class MediaViewerManager @Inject constructor() {
 
-    private val tika = Tika()
+    // private val tika = Tika()  // TODO: Enable when Tika dependency is added
 
     enum class MediaType {
         VIDEO,
