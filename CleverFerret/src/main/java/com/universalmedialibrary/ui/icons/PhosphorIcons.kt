@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
  * These icons provide better semantic meaning than generic Material icons
  */
 object PhosphorIcons {
-    
+
     val Book: ImageVector
         get() {
             if (_book != null) {
@@ -50,7 +50,7 @@ object PhosphorIcons {
             }
             return _book!!
         }
-    
+
     val FilmStrip: ImageVector
         get() {
             if (_filmStrip != null) {
@@ -102,7 +102,7 @@ object PhosphorIcons {
             }
             return _filmStrip!!
         }
-    
+
     val MusicNote: ImageVector
         get() {
             if (_musicNote != null) {
@@ -126,7 +126,7 @@ object PhosphorIcons {
             }
             return _musicNote!!
         }
-    
+
     val Microphone: ImageVector
         get() {
             if (_microphone != null) {
@@ -157,7 +157,7 @@ object PhosphorIcons {
             }
             return _microphone!!
         }
-    
+
     val Newspaper: ImageVector
         get() {
             if (_newspaper != null) {
@@ -208,7 +208,7 @@ object PhosphorIcons {
             }
             return _newspaper!!
         }
-    
+
     val FileText: ImageVector
         get() {
             if (_fileText != null) {
@@ -250,7 +250,7 @@ object PhosphorIcons {
             }
             return _fileText!!
         }
-    
+
     val ArrowClockwise: ImageVector
         get() {
             if (_arrowClockwise != null) {
@@ -277,7 +277,7 @@ object PhosphorIcons {
             }
             return _arrowClockwise!!
         }
-    
+
     val Gear: ImageVector
         get() {
             if (_gear != null) {
@@ -335,7 +335,7 @@ object PhosphorIcons {
             }
             return _gear!!
         }
-    
+
     val Plus: ImageVector
         get() {
             if (_plus != null) {
@@ -361,7 +361,7 @@ object PhosphorIcons {
             }
             return _plus!!
         }
-    
+
     val ArrowLeft: ImageVector
         get() {
             if (_arrowLeft != null) {
@@ -384,7 +384,7 @@ object PhosphorIcons {
             }
             return _arrowLeft!!
         }
-    
+
     val Play: ImageVector
         get() {
             if (_play != null) {
@@ -401,7 +401,7 @@ object PhosphorIcons {
             }
             return _play!!
         }
-    
+
     val Star: ImageVector
         get() {
             if (_star != null) {
@@ -425,7 +425,7 @@ object PhosphorIcons {
             }
             return _star!!
         }
-    
+
     val FolderOpen: ImageVector
         get() {
             if (_folderOpen != null) {
@@ -455,7 +455,7 @@ object PhosphorIcons {
             }
             return _folderOpen!!
         }
-    
+
     val Warning: ImageVector
         get() {
             if (_warning != null) {
@@ -484,7 +484,7 @@ object PhosphorIcons {
             }
             return _warning!!
         }
-    
+
     val House: ImageVector
         get() {
             if (_house != null) {
@@ -509,7 +509,7 @@ object PhosphorIcons {
             }
             return _house!!
         }
-    
+
     val PencilSimple: ImageVector
         get() {
             if (_pencilSimple != null) {

@@ -33,7 +33,7 @@ fun AuthorsChipInput(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         // Authors chips
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -59,7 +59,7 @@ fun AuthorsChipInput(
                     }
                 )
             }
-            
+
             // Add button
             item {
                 AssistChip(
@@ -75,12 +75,12 @@ fun AuthorsChipInput(
                 )
             }
         }
-        
+
         // Show original authors if different
         if (originalAuthors != null && originalAuthors != authors) {
             val removedAuthors = originalAuthors.filter { it !in authors }
             val addedAuthors = authors.filter { it !in originalAuthors }
-            
+
             if (removedAuthors.isNotEmpty()) {
                 Text(
                     text = "Removed: ${removedAuthors.joinToString(", ")}",
@@ -90,7 +90,7 @@ fun AuthorsChipInput(
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            
+
             if (addedAuthors.isNotEmpty()) {
                 Text(
                     text = "Added: ${addedAuthors.joinToString(", ")}",
@@ -101,7 +101,7 @@ fun AuthorsChipInput(
             }
         }
     }
-    
+
     // Add author dialog
     if (showAddDialog) {
         AlertDialog(
@@ -129,7 +129,7 @@ fun AuthorsChipInput(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { 
+                TextButton(onClick = {
                     showAddDialog = false
                     newAuthorText = ""
                 }) {
@@ -159,7 +159,7 @@ fun GenresChipInput(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         // Genres chips
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -185,7 +185,7 @@ fun GenresChipInput(
                     }
                 )
             }
-            
+
             // Add button
             item {
                 AssistChip(
@@ -201,12 +201,12 @@ fun GenresChipInput(
                 )
             }
         }
-        
+
         // Show original genres if different
         if (originalGenres != null && originalGenres != genres) {
             val removedGenres = originalGenres.filter { it !in genres }
             val addedGenres = genres.filter { it !in originalGenres }
-            
+
             if (removedGenres.isNotEmpty()) {
                 Text(
                     text = "Removed: ${removedGenres.joinToString(", ")}",
@@ -216,7 +216,7 @@ fun GenresChipInput(
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            
+
             if (addedGenres.isNotEmpty()) {
                 Text(
                     text = "Added: ${addedGenres.joinToString(", ")}",
@@ -227,7 +227,7 @@ fun GenresChipInput(
             }
         }
     }
-    
+
     // Add genre dialog
     if (showAddDialog) {
         AlertDialog(
@@ -255,7 +255,7 @@ fun GenresChipInput(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { 
+                TextButton(onClick = {
                     showAddDialog = false
                     newGenreText = ""
                 }) {

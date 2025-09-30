@@ -30,7 +30,7 @@ fun ContentCreationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +72,7 @@ fun ContentCreationScreen(
                 )
             }
         }
-        
+
         // URL Input
         Card(
             modifier = Modifier.fillMaxWidth()
@@ -86,7 +86,7 @@ fun ContentCreationScreen(
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 OutlinedTextField(
                     value = uiState.inputUrl,
                     onValueChange = viewModel::updateInputUrl,
@@ -102,9 +102,9 @@ fun ContentCreationScreen(
                     ),
                     enabled = !uiState.isConverting
                 )
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -117,7 +117,7 @@ fun ContentCreationScreen(
                     ) {
                         Text("📰 News Article")
                     }
-                    
+
                     // Convert as Fanfiction
                     Button(
                         onClick = { viewModel.convertFanfiction() },
@@ -129,7 +129,7 @@ fun ContentCreationScreen(
                 }
             }
         }
-        
+
         // Conversion Status
         if (uiState.isConverting) {
             Card(
@@ -159,7 +159,7 @@ fun ContentCreationScreen(
                 }
             }
         }
-        
+
         // Conversion Result
         uiState.lastResult?.let { result ->
             Card(
@@ -185,9 +185,9 @@ fun ContentCreationScreen(
                             MaterialTheme.colorScheme.onErrorContainer
                         }
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     if (result.success && result.title != null) {
                         Text(
                             text = "Title: ${result.title}",
@@ -240,7 +240,7 @@ fun ContentCreationScreen(
                 }
             }
         }
-        
+
         // Supported Sites Information
         Card(
             modifier = Modifier.fillMaxWidth()
@@ -254,7 +254,7 @@ fun ContentCreationScreen(
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text(
                     text = "📰 News Articles: Most major news sites with article content",
                     style = MaterialTheme.typography.bodySmall
@@ -285,7 +285,7 @@ fun ContentCreationScreen(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
     }
 }

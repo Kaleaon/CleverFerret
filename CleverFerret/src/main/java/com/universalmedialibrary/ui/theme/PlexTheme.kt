@@ -21,26 +21,26 @@ private val PlexDarkColorScheme = darkColorScheme(
     onPrimary = Color.Black,
     primaryContainer = PlexGoldDark,
     onPrimaryContainer = Color.Black,
-    
+
     secondary = PlexDarkSurfaceVariant,
     onSecondary = PlexTextPrimary,
     secondaryContainer = PlexDarkSurfaceVariant,
     onSecondaryContainer = PlexTextPrimary,
-    
+
     tertiary = PlexGoldLight,
     onTertiary = Color.Black,
-    
+
     background = PlexDarkBackground,
     onBackground = PlexTextPrimary,
-    
+
     surface = PlexDarkSurface,
     onSurface = PlexTextPrimary,
     surfaceVariant = PlexDarkSurfaceVariant,
     onSurfaceVariant = PlexTextSecondary,
-    
+
     error = Color(0xFFDC3545),
     onError = Color.White,
-    
+
     outline = PlexDarkSurfaceVariant,
     outlineVariant = Color(0xFF3A3F44),
 )
@@ -51,20 +51,20 @@ private val PlexLightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     primaryContainer = PlexGoldLight,
     onPrimaryContainer = Color.Black,
-    
+
     secondary = Color(0xFF6C757D),
     onSecondary = Color.White,
     secondaryContainer = Color(0xFFE9ECEF),
     onSecondaryContainer = Color(0xFF495057),
-    
+
     background = Color(0xFFFFFBFE),
     onBackground = Color(0xFF1C1B1F),
-    
+
     surface = Color(0xFFFFFBFE),
     onSurface = Color(0xFF1C1B1F),
     surfaceVariant = Color(0xFFE7E0EC),
     onSurfaceVariant = Color(0xFF49454F),
-    
+
     error = Color(0xFFBA1A1A),
     onError = Color.White,
 )

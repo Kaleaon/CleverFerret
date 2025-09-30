@@ -7,7 +7,7 @@ import javax.inject.Singleton
 
 /**
  * MediaSession Manager for Android integration
- * 
+ *
  * Simplified implementation for unified playback queue.
  * TODO: Add full MediaSession integration with proper dependencies
  */
@@ -15,10 +15,10 @@ import javax.inject.Singleton
 class MediaSessionManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     // Callback for handling media session events
     private var playbackCallback: PlaybackCallback? = null
-    
+
     /**
      * Initialize MediaSession
      */
@@ -26,7 +26,7 @@ class MediaSessionManager @Inject constructor(
         this.playbackCallback = callback
         // TODO: Implement full MediaSession integration
     }
-    
+
     /**
      * Update playback state
      */
@@ -38,7 +38,7 @@ class MediaSessionManager @Inject constructor(
     ) {
         // TODO: Implement MediaSession state updates
     }
-    
+
     /**
      * Update media metadata
      */
@@ -51,33 +51,33 @@ class MediaSessionManager @Inject constructor(
     ) {
         // TODO: Implement MediaSession metadata updates
     }
-    
+
     /**
      * Update repeat mode
      */
     fun setRepeatMode(repeatMode: RepeatMode) {
         // TODO: Implement repeat mode updates
     }
-    
+
     /**
      * Update shuffle mode
      */
     fun setShuffleMode(shuffleEnabled: Boolean) {
         // TODO: Implement shuffle mode updates
     }
-    
+
     /**
      * Get MediaSession token for service binding
      */
     fun getSessionToken(): String? = null
-    
+
     /**
      * Release resources
      */
     fun release() {
         playbackCallback = null
     }
-    
+
     /**
      * Callback interface for MediaSession events
      */

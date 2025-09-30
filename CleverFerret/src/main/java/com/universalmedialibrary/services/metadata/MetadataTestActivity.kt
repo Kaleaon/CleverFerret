@@ -23,17 +23,17 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MetadataTestActivity : ComponentActivity() {
-    
+
     @Inject
     lateinit var apiKeyRepository: APIKeyRepository
-    
+
     private lateinit var realMetadataService: RealMetadataService
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         realMetadataService = RealMetadataService(apiKeyRepository)
-        
+
         setContent {
             MetadataTestScreen(
                 onTestBooks = { query ->
@@ -48,7 +48,7 @@ class MetadataTestActivity : ComponentActivity() {
             )
         }
     }
-    
+
     private fun testBookMetadata(query: String) {
         lifecycleScope.launch {
             try {
@@ -71,7 +71,7 @@ class MetadataTestActivity : ComponentActivity() {
             }
         }
     }
-    
+
     private fun testMovieMetadata(query: String) {
         lifecycleScope.launch {
             try {
@@ -93,7 +93,7 @@ class MetadataTestActivity : ComponentActivity() {
             }
         }
     }
-    
+
     private fun testMusicMetadata(query: String) {
         lifecycleScope.launch {
             try {
@@ -124,7 +124,7 @@ fun MetadataTestScreen(
 ) {
     var query by remember { mutableStateOf("") }
     var results by remember { mutableStateOf(listOf<String>()) }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -145,7 +145,7 @@ fun MetadataTestScreen(
                 label = { Text("Search Query") },
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -156,14 +156,14 @@ fun MetadataTestScreen(
                 ) {
                     Text("Test Books")
                 }
-                
+
                 Button(
                     onClick = { onTestMovies(query) },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Test Movies")
                 }
-                
+
                 Button(
                     onClick = { onTestMusic(query) },
                     modifier = Modifier.weight(1f)
@@ -171,12 +171,12 @@ fun MetadataTestScreen(
                     Text("Test Music")
                 }
             }
-            
+
             Text(
                 text = "Test Examples:",
                 style = MaterialTheme.typography.titleMedium
             )
-            
+
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -189,7 +189,7 @@ fun MetadataTestScreen(
                     Text("Music: 'The Beatles', 'Pink Floyd', 'Radiohead'")
                 }
             }
-            
+
             if (results.isNotEmpty()) {
                 LazyColumn {
                     items(results) { result ->

@@ -21,45 +21,45 @@ class BookServicesIntegration @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val _bookServicesState = MutableStateFlow(BookServicesState())
     val bookServicesState: StateFlow<BookServicesState> = _bookServicesState.asStateFlow()
-    
+
     private val connectedServices = mutableSetOf<BookServiceProvider>()
-    
+
     /**
      * Initialize all book service connections using stored API keys
      */
     suspend fun initializeServices(): BookServicesInitResult = withContext(Dispatchers.IO) {
         try {
             _bookServicesState.value = _bookServicesState.value.copy(isInitializing = true)
-            
+
             val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
-            
+
             // Check Google Books API
             if (apiKeys.containsKey("google_books")) {
                 connectedServices.add(BookServiceProvider.GOOGLE_BOOKS)
             }
-            
+
             // Check Amazon Product Advertising API
             if (apiKeys.containsKey("amazon_access_key") && apiKeys.containsKey("amazon_secret_key")) {
                 connectedServices.add(BookServiceProvider.AMAZON_BOOKS)
             }
-            
+
             // Check Goodreads API
             if (apiKeys.containsKey("goodreads")) {
                 connectedServices.add(BookServiceProvider.GOODREADS)
             }
-            
+
             // Check Hardcover API
             if (apiKeys.containsKey("hardcover")) {
                 connectedServices.add(BookServiceProvider.HARDCOVER)
             }
-            
+
             updateBookServicesState()
-            
+
             BookServicesInitResult.Success(connectedServices.size)
-            
+
         } catch (e: Exception) {
             _bookServicesState.value = _bookServicesState.value.copy(
                 isInitializing = false,
@@ -68,14 +68,14 @@ class BookServicesIntegration @Inject constructor(
             BookServicesInitResult.Error(e.message ?: "Initialization failed")
         }
     }
-    
+
     /**
      * Test connection to a specific book service
      */
     suspend fun testServiceConnection(provider: BookServiceProvider): BookServiceTestResult = withContext(Dispatchers.IO) {
         try {
             val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
-            
+
             when (provider) {
                 BookServiceProvider.GOOGLE_BOOKS -> {
                     val apiKey = apiKeys["google_books"]
@@ -85,7 +85,7 @@ class BookServicesIntegration @Inject constructor(
                     // Test Google Books API
                     BookServiceTestResult.Success("Google Books API is accessible")
                 }
-                
+
                 BookServiceProvider.AMAZON_BOOKS -> {
                     val accessKey = apiKeys["amazon_access_key"]
                     val secretKey = apiKeys["amazon_secret_key"]
@@ -95,7 +95,7 @@ class BookServicesIntegration @Inject constructor(
                     // Test Amazon API
                     BookServiceTestResult.Success("Amazon Books API is accessible")
                 }
-                
+
                 BookServiceProvider.GOODREADS -> {
                     val apiKey = apiKeys["goodreads"]
                     if (apiKey.isNullOrEmpty()) {
@@ -104,7 +104,7 @@ class BookServicesIntegration @Inject constructor(
                     // Test Goodreads API
                     BookServiceTestResult.Success("Goodreads API is accessible")
                 }
-                
+
                 BookServiceProvider.HARDCOVER -> {
                     val apiKey = apiKeys["hardcover"]
                     if (apiKey.isNullOrEmpty()) {
@@ -114,33 +114,33 @@ class BookServicesIntegration @Inject constructor(
                     BookServiceTestResult.Success("Hardcover API is accessible")
                 }
             }
-            
+
         } catch (e: Exception) {
             BookServiceTestResult.Error("Connection test failed: ${e.message}")
         }
     }
-    
+
     /**
      * Check status of all book services
      */
     suspend fun checkServices(): BookServicesStatus {
         val apiKeys = apiKeyRepository.getActiveAPIKeysMap()
-        
-        val amazonConnected = apiKeys.containsKey("amazon_access_key") && 
+
+        val amazonConnected = apiKeys.containsKey("amazon_access_key") &&
                               apiKeys.containsKey("amazon_secret_key") &&
                               !apiKeys["amazon_access_key"].isNullOrEmpty() &&
                               !apiKeys["amazon_secret_key"].isNullOrEmpty()
-        
-        val googleBooksConnected = apiKeys.containsKey("google_books") && 
+
+        val googleBooksConnected = apiKeys.containsKey("google_books") &&
                                    !apiKeys["google_books"].isNullOrEmpty()
-        
+
         return BookServicesStatus(
             amazonConnected = amazonConnected,
             googleBooksConnected = googleBooksConnected,
             hasActiveConnections = amazonConnected || googleBooksConnected
         )
     }
-    
+
     /**
      * Get service statistics
      */
@@ -151,7 +151,7 @@ class BookServicesIntegration @Inject constructor(
             serviceNames = connectedServices.map { it.displayName }
         )
     }
-    
+
     private fun updateBookServicesState() {
         _bookServicesState.value = _bookServicesState.value.copy(
             isInitializing = false,

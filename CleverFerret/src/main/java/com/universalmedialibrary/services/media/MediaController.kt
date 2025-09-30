@@ -13,10 +13,10 @@ import javax.inject.Singleton
 
 /**
  * Universal Media Controller for CleverFerret
- * 
+ *
  * Provides a unified interface for controlling media playback across
  * all media services while maintaining MediaSession integration.
- * 
+ *
  * Features:
  * - Unified playback control for all media types
  * - Automatic MediaSession management
@@ -29,13 +29,13 @@ class MediaController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaSessionManager: MediaSessionManager
 ) {
-    
+
     private val _controllerState = MutableStateFlow(MediaControllerState())
     val controllerState: StateFlow<MediaControllerState> = _controllerState.asStateFlow()
-    
+
     private var activeServiceType: MediaServiceType = MediaServiceType.NONE
     private var mediaNotificationService: MediaNotificationService? = null
-    
+
     /**
      * Start media playback with MediaSession integration
      */
@@ -50,7 +50,7 @@ class MediaController @Inject constructor(
     ) {
         // Set up MediaSession with the new player
         mediaSessionManager.setPlayer(player, MediaNotificationService::class.java)
-        
+
         // Update metadata
         mediaSessionManager.updateMetadata(
             title = title,
@@ -59,10 +59,10 @@ class MediaController @Inject constructor(
             artwork = artwork,
             duration = player.duration
         )
-        
+
         // Start notification service
         MediaNotificationService.start(context, player)
-        
+
         // Update controller state
         activeServiceType = serviceType
         updateControllerState(
@@ -73,7 +73,7 @@ class MediaController @Inject constructor(
             serviceType = serviceType
         )
     }
-    
+
     /**
      * Update the current track metadata and notification
      */
@@ -92,7 +92,7 @@ class MediaController @Inject constructor(
             artwork = artwork,
             duration = duration
         )
-        
+
         // Update notification if service is running
         mediaNotificationService?.updateNotification(
             title = title,
@@ -101,14 +101,14 @@ class MediaController @Inject constructor(
             artwork = artwork,
             isPlaying = _controllerState.value.isPlaying
         )
-        
+
         updateControllerState(
             currentTrack = title,
             currentArtist = artist,
             currentAlbum = album
         )
     }
-    
+
     /**
      * Update playback state
      */
@@ -122,7 +122,7 @@ class MediaController @Inject constructor(
             position = position,
             duration = duration
         )
-        
+
         // Update notification with current playing state
         val state = _controllerState.value
         mediaNotificationService?.updateNotification(
@@ -132,31 +132,31 @@ class MediaController @Inject constructor(
             isPlaying = isPlaying
         )
     }
-    
+
     /**
      * Stop media playback and clean up MediaSession
      */
     fun stopPlayback() {
         MediaNotificationService.stop(context)
         mediaSessionManager.releaseSession()
-        
+
         activeServiceType = MediaServiceType.NONE
         updateControllerState(
             isPlaying = false,
             serviceType = MediaServiceType.NONE
         )
     }
-    
+
     /**
      * Check if media is currently being controlled
      */
     fun isActive(): Boolean = mediaSessionManager.isSessionActive()
-    
+
     /**
      * Get the current active service type
      */
     fun getActiveServiceType(): MediaServiceType = activeServiceType
-    
+
     private fun updateControllerState(
         isPlaying: Boolean = _controllerState.value.isPlaying,
         currentTrack: String = _controllerState.value.currentTrack,

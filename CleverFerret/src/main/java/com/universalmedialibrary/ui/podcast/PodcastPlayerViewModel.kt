@@ -17,85 +17,85 @@ class PodcastPlayerViewModel @Inject constructor(
     private val podcastPlayerService: AdvancedPodcastPlayerService,
     private val podcastService: PodcastService
 ) : ViewModel() {
-    
-    val playbackState: StateFlow<com.universalmedialibrary.services.podcast.PodcastPlaybackState> = 
+
+    val playbackState: StateFlow<com.universalmedialibrary.services.podcast.PodcastPlaybackState> =
         podcastPlayerService.playbackState
-    
-    val currentEpisode: StateFlow<com.universalmedialibrary.services.podcast.EpisodePlaybackInfo?> = 
+
+    val currentEpisode: StateFlow<com.universalmedialibrary.services.podcast.EpisodePlaybackInfo?> =
         podcastPlayerService.currentEpisode
-    
-    val episodeQueue: StateFlow<List<com.universalmedialibrary.services.podcast.EpisodePlaybackInfo>> = 
+
+    val episodeQueue: StateFlow<List<com.universalmedialibrary.services.podcast.EpisodePlaybackInfo>> =
         podcastPlayerService.episodeQueue
-    
-    val playbackSettings: StateFlow<com.universalmedialibrary.services.podcast.PodcastPlaybackSettings> = 
+
+    val playbackSettings: StateFlow<com.universalmedialibrary.services.podcast.PodcastPlaybackSettings> =
         podcastPlayerService.playbackSettings
-    
-    val chapters: StateFlow<List<com.universalmedialibrary.services.podcast.PodcastChapter>> = 
+
+    val chapters: StateFlow<List<com.universalmedialibrary.services.podcast.PodcastChapter>> =
         podcastPlayerService.chapters
-    
+
     /**
      * Toggle play/pause
      */
     fun togglePlayPause() {
         podcastPlayerService.togglePlayPause()
     }
-    
+
     /**
      * Skip to previous episode
      */
     fun skipToPreviousEpisode() {
         podcastPlayerService.skipToPreviousEpisode()
     }
-    
+
     /**
      * Skip to next episode
      */
     fun skipToNextEpisode() {
         podcastPlayerService.skipToNextEpisode()
     }
-    
+
     /**
      * Skip forward by seconds
      */
     fun skipForward(seconds: Int) {
         podcastPlayerService.skipForward(seconds)
     }
-    
+
     /**
      * Skip backward by seconds
      */
     fun skipBackward(seconds: Int) {
         podcastPlayerService.skipBackward(seconds)
     }
-    
+
     /**
      * Seek to specific position
      */
     fun seekTo(positionMs: Long) {
         podcastPlayerService.seekTo(positionMs)
     }
-    
+
     /**
      * Jump to specific chapter
      */
     fun jumpToChapter(chapterIndex: Int) {
         podcastPlayerService.jumpToChapter(chapterIndex)
     }
-    
+
     /**
      * Get current playback position
      */
     fun getCurrentPosition(): Long {
         return podcastPlayerService.getCurrentPosition()
     }
-    
+
     /**
      * Set playback speed
      */
     fun setPlaybackSpeed(speed: Float) {
         podcastPlayerService.setPlaybackSpeed(speed)
     }
-    
+
     /**
      * Toggle skip silence
      */
@@ -103,7 +103,7 @@ class PodcastPlayerViewModel @Inject constructor(
         val currentSettings = playbackSettings.value
         podcastPlayerService.setSkipSilence(!currentSettings.skipSilence)
     }
-    
+
     /**
      * Toggle sleep timer (cycles through common durations)
      */
@@ -118,35 +118,35 @@ class PodcastPlayerViewModel @Inject constructor(
         }
         podcastPlayerService.setSleepTimer(nextMinutes)
     }
-    
+
     /**
      * Set specific sleep timer duration
      */
     fun setSleepTimer(minutes: Int) {
         podcastPlayerService.setSleepTimer(minutes)
     }
-    
+
     /**
      * Add episode to queue
      */
     fun addEpisodeToQueue(episode: com.universalmedialibrary.services.podcast.PodcastEpisode) {
         podcastPlayerService.addToQueue(episode)
     }
-    
+
     /**
      * Remove episode from queue
      */
     fun removeEpisodeFromQueue(episodeId: String) {
         podcastPlayerService.removeFromQueue(episodeId)
     }
-    
+
     /**
      * Get remaining sleep timer time
      */
     fun getSleepTimerRemaining(): Long {
         return podcastPlayerService.getSleepTimerRemaining()
     }
-    
+
     /**
      * Mark current episode as completed
      */
@@ -156,7 +156,7 @@ class PodcastPlayerViewModel @Inject constructor(
             // Update episode completion status in database
         }
     }
-    
+
     /**
      * Download episode for offline listening
      */
@@ -174,7 +174,7 @@ class PodcastPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Subscribe to podcast show
      */
@@ -192,7 +192,7 @@ class PodcastPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get episodes for current podcast
      */
@@ -209,7 +209,7 @@ class PodcastPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         // Don't release the service here as it should continue playing in background

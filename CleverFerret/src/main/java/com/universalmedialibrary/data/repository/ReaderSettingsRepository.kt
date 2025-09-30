@@ -17,7 +17,7 @@ import javax.inject.Singleton
 class ReaderSettingsRepository @Inject constructor(
     private val readerSettingsDao: ReaderSettingsDao
 ) {
-    
+
     /**
      * Get combined reader settings for a book (global + book overrides)
      */
@@ -26,7 +26,7 @@ class ReaderSettingsRepository @Inject constructor(
         val book = readerSettingsDao.getBookSettings(mediaId)
         return ReaderSettings.merge(global, book)
     }
-    
+
     /**
      * Get combined reader settings as Flow for reactive updates
      */
@@ -38,14 +38,14 @@ class ReaderSettingsRepository @Inject constructor(
             ReaderSettings.merge(global, book)
         }
     }
-    
+
     /**
      * Get global reader settings
      */
     suspend fun getGlobalSettings(): ReaderSettingsEntity {
         return readerSettingsDao.getGlobalSettings() ?: ReaderSettings.default()
     }
-    
+
     /**
      * Get global reader settings as Flow
      */
@@ -56,7 +56,7 @@ class ReaderSettingsRepository @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update global reader settings
      */
@@ -65,7 +65,7 @@ class ReaderSettingsRepository @Inject constructor(
             settings.copy(lastModified = System.currentTimeMillis())
         )
     }
-    
+
     /**
      * Update specific global setting
      */
@@ -74,14 +74,14 @@ class ReaderSettingsRepository @Inject constructor(
         val updated = update(current).copy(lastModified = System.currentTimeMillis())
         readerSettingsDao.insertOrUpdateGlobalSettings(updated)
     }
-    
+
     /**
      * Get book-specific settings (without global merge)
      */
     suspend fun getBookSettings(mediaId: Long): BookReaderSettingsEntity? {
         return readerSettingsDao.getBookSettings(mediaId)
     }
-    
+
     /**
      * Update book-specific settings
      */
@@ -93,7 +93,7 @@ class ReaderSettingsRepository @Inject constructor(
             )
         )
     }
-    
+
     /**
      * Update specific book setting
      */
@@ -108,14 +108,14 @@ class ReaderSettingsRepository @Inject constructor(
         )
         readerSettingsDao.insertOrUpdateBookSettings(updated)
     }
-    
+
     /**
      * Remove book-specific settings (will fall back to global)
      */
     suspend fun removeBookSettings(mediaId: Long) {
         readerSettingsDao.deleteBookSettingsById(mediaId)
     }
-    
+
     /**
      * Update reading progress for a book
      */
@@ -139,35 +139,35 @@ class ReaderSettingsRepository @Inject constructor(
             readerSettingsDao.updateReadingProgress(mediaId, chapter, position, progress)
         }
     }
-    
+
     /**
      * Get reading progress for a book
      */
     suspend fun getReadingProgress(mediaId: Long): ReadingProgressData? {
         return readerSettingsDao.getReadingProgress(mediaId)
     }
-    
+
     /**
      * Get all books with custom settings
      */
     suspend fun getAllBooksWithCustomSettings(): List<BookReaderSettingsEntity> {
         return readerSettingsDao.getAllBookSettings()
     }
-    
+
     /**
      * Reset all settings to defaults
      */
     suspend fun resetToDefaults() {
         readerSettingsDao.insertOrUpdateGlobalSettings(ReaderSettings.default())
     }
-    
+
     /**
      * Clean up orphaned book settings
      */
     suspend fun cleanupOrphanedSettings() {
         readerSettingsDao.cleanupOrphanedBookSettings()
     }
-    
+
     /**
      * Get statistics
      */
@@ -177,9 +177,9 @@ class ReaderSettingsRepository @Inject constructor(
             averageReadingProgress = readerSettingsDao.getAverageReadingProgress() ?: 0f
         )
     }
-    
+
     // Convenience methods for common setting updates
-    
+
     suspend fun updateTheme(mediaId: Long?, theme: String) {
         if (mediaId != null) {
             updateBookSetting(mediaId) { current ->
@@ -189,7 +189,7 @@ class ReaderSettingsRepository @Inject constructor(
             updateGlobalSetting { it.copy(theme = theme) }
         }
     }
-    
+
     suspend fun updateFontSize(mediaId: Long?, fontSize: Int) {
         if (mediaId != null) {
             updateBookSetting(mediaId) { current ->
@@ -199,7 +199,7 @@ class ReaderSettingsRepository @Inject constructor(
             updateGlobalSetting { it.copy(fontSize = fontSize) }
         }
     }
-    
+
     suspend fun updateLineSpacing(mediaId: Long?, lineSpacing: Float) {
         if (mediaId != null) {
             updateBookSetting(mediaId) { current ->
@@ -209,7 +209,7 @@ class ReaderSettingsRepository @Inject constructor(
             updateGlobalSetting { it.copy(lineSpacing = lineSpacing) }
         }
     }
-    
+
     suspend fun updateTextAlignment(mediaId: Long?, alignment: String) {
         if (mediaId != null) {
             updateBookSetting(mediaId) { current ->

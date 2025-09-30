@@ -44,7 +44,7 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 )
 
                 val mediaInfo = mediaViewerManager.analyzeMedia(context, documentUri)
-                
+
                 when (mediaInfo.documentFormat) {
                     MediaViewerManager.DocumentFormat.PDF -> {
                         loadPDFDocument(context, documentUri)
@@ -84,7 +84,7 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 // For PDF documents, we'll rely on the PDFView component
                 // but we still need to set up the basic state
                 val fileName = documentUri.lastPathSegment ?: "Unknown Document"
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoaded = true,
                     isLoading = false,
@@ -106,13 +106,13 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 // For now, we'll treat it as HTML content
                 val inputStream = context.contentResolver.openInputStream(documentUri)
                 val content = inputStream?.bufferedReader()?.use { it.readText() } ?: ""
-                
+
                 documentContent = content
                 documentPages = paginateContent(content)
-                
+
                 val fileName = documentUri.lastPathSegment ?: "Unknown EPUB"
                 val tableOfContents = extractTableOfContents(content)
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoaded = true,
                     isLoading = false,
@@ -134,13 +134,13 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
             try {
                 val inputStream = context.contentResolver.openInputStream(documentUri)
                 val content = inputStream?.bufferedReader()?.use { it.readText() } ?: ""
-                
+
                 documentContent = content
                 documentPages = paginateContent(content)
-                
+
                 val fileName = documentUri.lastPathSegment ?: "Unknown Document"
                 val tableOfContents = extractTableOfContents(content)
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoaded = true,
                     isLoading = false,
@@ -162,7 +162,7 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
             try {
                 val inputStream = context.contentResolver.openInputStream(documentUri)
                 val content = inputStream?.bufferedReader()?.use { it.readText() } ?: ""
-                
+
                 // Strip HTML tags for reading
                 val plainText = content.replace(Regex("<[^>]*>"), "")
                     .replace("&nbsp;", " ")
@@ -170,13 +170,13 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                     .replace("<", "<")
                     .replace(">", ">")
                     .trim()
-                
+
                 documentContent = plainText
                 documentPages = paginateContent(plainText)
-                
+
                 val fileName = documentUri.lastPathSegment ?: "Unknown HTML"
                 val tableOfContents = extractTableOfContents(plainText)
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoaded = true,
                     isLoading = false,
@@ -196,34 +196,34 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
     private fun paginateContent(content: String, wordsPerPage: Int = 300): List<String> {
         val words = content.split("\\s+".toRegex())
         val pages = mutableListOf<String>()
-        
+
         for (i in words.indices step wordsPerPage) {
             val endIndex = (i + wordsPerPage).coerceAtMost(words.size)
             val page = words.subList(i, endIndex).joinToString(" ")
             pages.add(page)
         }
-        
+
         return pages
     }
 
     private fun extractTableOfContents(content: String): List<TableOfContentsItem> {
         val chapters = mutableListOf<TableOfContentsItem>()
         val lines = content.split("\n")
-        
+
         // Simple heuristic: look for lines that might be chapter titles
         // (lines that are shorter than average and might start with numbers or "Chapter")
         val averageLineLength = lines.map { it.length }.average()
-        
+
         lines.forEachIndexed { index, line ->
             val trimmedLine = line.trim()
-            if (trimmedLine.isNotEmpty() && 
+            if (trimmedLine.isNotEmpty() &&
                 (trimmedLine.length < averageLineLength * 0.7) &&
                 (trimmedLine.matches(Regex("^(Chapter|CHAPTER).*")) ||
                  trimmedLine.matches(Regex("^\\d+\\..*")) ||
                  trimmedLine.matches(Regex("^[A-Z][A-Z\\s]{10,}$")))) {
-                
+
                 val pageNumber = (index * documentPages.size / lines.size).coerceAtLeast(1)
-                
+
                 chapters.add(
                     TableOfContentsItem(
                         id = UUID.randomUUID().toString(),
@@ -234,31 +234,31 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 )
             }
         }
-        
+
         return chapters
     }
 
     fun setCurrentPage(page: Int) {
         val clampedPage = page.coerceIn(1, _uiState.value.totalPages)
-        
+
         if (clampedPage != _uiState.value.currentPage) {
             updateWordsRead(clampedPage)
-            
+
             val content = if (documentPages.isNotEmpty() && clampedPage <= documentPages.size) {
                 documentPages[clampedPage - 1]
             } else {
                 documentContent
             }
-            
+
             val progress = clampedPage.toFloat() / _uiState.value.totalPages.toFloat()
-            
+
             _uiState.value = _uiState.value.copy(
                 currentPage = clampedPage,
                 content = content,
                 readingProgress = progress,
                 currentChapter = findCurrentChapter(clampedPage)
             )
-            
+
             // Auto-bookmark if enabled
             if (_uiState.value.settings.autoBookmarks) {
                 addAutoBookmark(clampedPage)
@@ -294,14 +294,14 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
             withContext(Dispatchers.IO) {
                 val results = mutableListOf<SearchResult>()
                 val searchRegex = Regex(query, RegexOption.IGNORE_CASE)
-                
+
                 documentPages.forEachIndexed { pageIndex, pageContent ->
                     val matches = searchRegex.findAll(pageContent)
                     matches.forEach { match ->
                         val contextStart = (match.range.first - 50).coerceAtLeast(0)
                         val contextEnd = (match.range.last + 50).coerceAtMost(pageContent.length)
                         val context = pageContent.substring(contextStart, contextEnd)
-                        
+
                         results.add(
                             SearchResult(
                                 page = pageIndex + 1,
@@ -312,7 +312,7 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                         )
                     }
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     searchQuery = query,
                     searchResults = results,
@@ -340,7 +340,7 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
             createdAt = System.currentTimeMillis(),
             note = note
         )
-        
+
         val updatedBookmarks = _uiState.value.bookmarks + bookmark
         _uiState.value = _uiState.value.copy(bookmarks = updatedBookmarks)
     }
@@ -356,7 +356,7 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 createdAt = System.currentTimeMillis(),
                 note = "Automatically created bookmark"
             )
-            
+
             val updatedBookmarks = _uiState.value.bookmarks + autoBookmark
             _uiState.value = _uiState.value.copy(bookmarks = updatedBookmarks)
         }
@@ -377,14 +377,14 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
 
     fun updateSettings(settings: ViewerSettings) {
         _uiState.value = _uiState.value.copy(settings = settings)
-        
+
         // Re-paginate content if reading mode changed
         if (documentContent.isNotEmpty()) {
             documentPages = paginateContent(documentContent)
             val newTotalPages = documentPages.size.coerceAtLeast(1)
             val newCurrentPage = (_uiState.value.currentPage * newTotalPages / _uiState.value.totalPages)
                 .coerceIn(1, newTotalPages)
-            
+
             _uiState.value = _uiState.value.copy(
                 totalPages = newTotalPages,
                 currentPage = newCurrentPage,
@@ -410,20 +410,20 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
         val currentTime = System.currentTimeMillis()
         val sessionDuration = currentTime - sessionStartTime
         val readingDuration = currentTime - readingStartTime
-        
+
         val wordsPerMinute = if (readingDuration > 0) {
             (wordsRead * 60000f) / readingDuration
         } else {
             0f
         }
-        
+
         val stats = ReadingStats(
             timeSpent = sessionDuration,
             pagesRead = _uiState.value.currentPage,
             wordsPerMinute = wordsPerMinute,
             sessionStartTime = sessionStartTime
         )
-        
+
         _uiState.value = _uiState.value.copy(readingStats = stats)
     }
 
@@ -450,27 +450,27 @@ data class AdvancedDocumentReaderUiState(
     val title: String = "",
     val content: String = "",
     val documentType: MediaViewerManager.DocumentFormat = MediaViewerManager.DocumentFormat.TXT,
-    
+
     // Page navigation
     val currentPage: Int = 1,
     val totalPages: Int = 1,
     val readingProgress: Float = 0f,
-    
+
     // Table of contents and chapters
     val tableOfContents: List<TableOfContentsItem> = emptyList(),
     val currentChapter: String? = null,
-    
+
     // Search functionality
     val searchQuery: String = "",
     val searchResults: List<SearchResult> = emptyList(),
     val currentSearchIndex: Int = -1,
-    
+
     // Bookmarks
     val bookmarks: List<Bookmark> = emptyList(),
-    
+
     // Reading statistics
     val readingStats: ReadingStats = ReadingStats(0, 0, 0f, 0),
-    
+
     // Settings
     val settings: ViewerSettings = ViewerSettings()
 )

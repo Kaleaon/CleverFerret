@@ -159,7 +159,7 @@ fun BottomControlsBar(
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.width(60.dp)
                 )
-                
+
                 Slider(
                     value = currentPosition.toFloat(),
                     onValueChange = { onSeek(it.toLong()) },
@@ -171,7 +171,7 @@ fun BottomControlsBar(
                         inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                     )
                 )
-                
+
                 Text(
                     text = formatTime(duration),
                     color = Color.White,

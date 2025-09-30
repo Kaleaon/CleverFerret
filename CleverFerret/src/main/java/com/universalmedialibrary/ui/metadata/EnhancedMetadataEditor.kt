@@ -45,13 +45,13 @@ fun EnhancedMetadataEditorScreen(
         var rating by remember { mutableFloatStateOf(0f) }
         var coverUrl by remember { mutableStateOf("") }
         var isbn by remember { mutableStateOf("") }
-        
+
         var searchQuery by remember { mutableStateOf("") }
         var searchResults by remember { mutableStateOf<List<UnifiedMetadataSearchResult>>(emptyList()) }
         var isSearching by remember { mutableStateOf(false) }
         var showSearchDialog by remember { mutableStateOf(false) }
         var mediaType by remember { mutableStateOf("BOOK") }
-        
+
         val coroutineScope = rememberCoroutineScope()
 
         // Load existing metadata on start
@@ -69,7 +69,7 @@ fun EnhancedMetadataEditorScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Edit Metadata",
                             style = MaterialTheme.typography.titleLarge,
@@ -130,7 +130,7 @@ fun EnhancedMetadataEditorScreen(
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            
+
                             OutlinedTextField(
                                 value = searchQuery,
                                 onValueChange = { searchQuery = it },
@@ -171,9 +171,9 @@ fun EnhancedMetadataEditorScreen(
                                     }
                                 }
                             )
-                            
+
                             Spacer(modifier = Modifier.height(8.dp))
-                            
+
                             // Media type selector
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -242,7 +242,7 @@ fun EnhancedMetadataEditorScreen(
                             OutlinedTextField(
                                 value = author,
                                 onValueChange = { author = it },
-                                label = { 
+                                label = {
                                     Text(when (mediaType) {
                                         "BOOK" -> "Author"
                                         "MOVIE" -> "Director"
@@ -291,7 +291,7 @@ fun EnhancedMetadataEditorScreen(
                                 style = MaterialTheme.typography.titleSmall
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            
+
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
@@ -306,7 +306,7 @@ fun EnhancedMetadataEditorScreen(
                                     )
                                 }
                             }
-                            
+
                             Slider(
                                 value = rating,
                                 onValueChange = { rating = it },
@@ -348,7 +348,7 @@ fun EnhancedMetadataEditorScreen(
         if (showSearchDialog) {
             AlertDialog(
                 onDismissRequest = { showSearchDialog = false },
-                title = { 
+                title = {
                     Text(
                         "Search Results for \"$searchQuery\"",
                         style = MaterialTheme.typography.titleMedium
@@ -390,7 +390,7 @@ fun EnhancedMetadataEditorScreen(
                                             .clip(MaterialTheme.shapes.small),
                                         contentScale = ContentScale.Crop
                                     )
-                                    
+
                                     Column(
                                         modifier = Modifier.weight(1f)
                                     ) {
@@ -422,7 +422,7 @@ fun EnhancedMetadataEditorScreen(
                                 }
                             }
                         }
-                        
+
                         if (searchResults.isEmpty() && !isSearching) {
                             item {
                                 Card(

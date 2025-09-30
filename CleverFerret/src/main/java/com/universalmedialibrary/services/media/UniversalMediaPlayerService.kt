@@ -14,11 +14,11 @@ import javax.inject.Singleton
 
 /**
  * Universal media player service supporting multiple media types
- * 
+ *
  * Provides unified playback interface for:
  * - Audio files (MP3, FLAC, OGG, M4A, WAV)
  * - Video files (MP4, MKV, AVI, MOV, WMV)
- * 
+ *
  * Currently uses MediaPlayer as primary engine
  * TODO: Add ExoPlayer support when dependencies are available
  */
@@ -26,57 +26,57 @@ import javax.inject.Singleton
 class UniversalMediaPlayerService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     private var mediaPlayer: MediaPlayer? = null
-    
+
     private val _playbackState = MutableStateFlow(PlaybackState())
     val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
-    
+
     private val _currentMedia = MutableStateFlow<MediaItem?>(null)
     val currentMedia: StateFlow<MediaItem?> = _currentMedia.asStateFlow()
-    
+
     /**
      * Initialize player with media item
      */
     fun prepareMedia(mediaItem: MediaItem): Boolean {
         try {
             releaseCurrentPlayer()
-            
+
             val file = File(mediaItem.filePath)
             if (!file.exists()) {
                 updatePlaybackState(error = "File not found: ${mediaItem.filePath}")
                 return false
             }
-            
+
             // Initialize MediaPlayer
             if (initializeMediaPlayer(mediaItem)) {
                 _currentMedia.value = mediaItem
                 return true
             }
-            
+
             updatePlaybackState(error = "Unable to play media: ${mediaItem.fileName}")
             return false
-            
+
         } catch (e: Exception) {
             updatePlaybackState(error = "Failed to prepare media: ${e.message}")
             return false
         }
     }
-    
+
     private fun initializeMediaPlayer(mediaItem: MediaItem): Boolean {
         return try {
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(mediaItem.filePath)
                 prepare()
-                
+
                 setOnPreparedListener {
                     updatePlaybackState(isPlaying = false, isLoading = false)
                 }
-                
+
                 setOnCompletionListener {
                     updatePlaybackState(isPlaying = false)
                 }
-                
+
                 setOnErrorListener { _, what, extra ->
                     updatePlaybackState(error = "MediaPlayer error: $what, $extra")
                     true
@@ -89,7 +89,7 @@ class UniversalMediaPlayerService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Start playback
      */
@@ -101,7 +101,7 @@ class UniversalMediaPlayerService @Inject constructor(
             updatePlaybackState(error = "Failed to start playback: ${e.message}")
         }
     }
-    
+
     /**
      * Pause playback
      */
@@ -113,7 +113,7 @@ class UniversalMediaPlayerService @Inject constructor(
             updatePlaybackState(error = "Failed to pause playback: ${e.message}")
         }
     }
-    
+
     /**
      * Stop playback
      */
@@ -125,7 +125,7 @@ class UniversalMediaPlayerService @Inject constructor(
             updatePlaybackState(error = "Failed to stop playback: ${e.message}")
         }
     }
-    
+
     /**
      * Seek to position (in milliseconds)
      */
@@ -136,7 +136,7 @@ class UniversalMediaPlayerService @Inject constructor(
             updatePlaybackState(error = "Failed to seek: ${e.message}")
         }
     }
-    
+
     /**
      * Get current playback position
      */
@@ -147,7 +147,7 @@ class UniversalMediaPlayerService @Inject constructor(
             0L
         }
     }
-    
+
     /**
      * Get media duration
      */
@@ -158,7 +158,7 @@ class UniversalMediaPlayerService @Inject constructor(
             0L
         }
     }
-    
+
     /**
      * Release all resources
      */
@@ -167,7 +167,7 @@ class UniversalMediaPlayerService @Inject constructor(
         _currentMedia.value = null
         updatePlaybackState()
     }
-    
+
     private fun releaseCurrentPlayer() {
         try {
             mediaPlayer?.release()
@@ -176,7 +176,7 @@ class UniversalMediaPlayerService @Inject constructor(
             // Ignore release errors
         }
     }
-    
+
     private fun updatePlaybackState(
         isPlaying: Boolean = false,
         isLoading: Boolean = false,

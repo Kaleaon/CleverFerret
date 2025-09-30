@@ -4,11 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,10 +15,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * API Settings Screen for managing external API keys
- * 
+ *
  * Allows users to securely input and manage API keys for:
  * - Google Gemini AI (for OCR and book identification)
  * - Cloud TTS services
@@ -37,15 +33,15 @@ fun APISettingsScreen(
     viewModel: APISettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     var showGeminiKey by remember { mutableStateOf(false) }
     var geminiKey by remember { mutableStateOf("") }
-    
+
     LaunchedEffect(Unit) {
         viewModel.loadSettings()
         geminiKey = uiState.geminiApiKey ?: ""
     }
-    
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -54,11 +50,11 @@ fun APISettingsScreen(
             title = { Text("API Settings") },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(PhosphorIcons.ArrowLeft, contentDescription = "Back")
                 }
             }
         )
-        
+
         // Settings Content
         Column(
             modifier = Modifier
@@ -69,7 +65,7 @@ fun APISettingsScreen(
         ) {
             // Security Notice
             SecurityNoticeCard()
-            
+
             // Gemini AI Section
             GeminiAPISection(
                 apiKey = geminiKey,
@@ -81,13 +77,13 @@ fun APISettingsScreen(
                 isLoading = uiState.isLoading,
                 testResult = uiState.geminiTestResult
             )
-            
+
             // Cloud TTS Section
             CloudTTSSection(
                 isEnabled = uiState.cloudTTSEnabled,
                 onEnabledChanged = { viewModel.setCloudTTSEnabled(it) }
             )
-            
+
             // Feature Flags Section
             FeatureFlagsSection(
                 geminiEnabled = uiState.geminiEnabled,
@@ -97,7 +93,7 @@ fun APISettingsScreen(
                 onExoPlayerToggle = { viewModel.setExoPlayerEnabled(it) },
                 onPodcastsToggle = { viewModel.setPodcastsEnabled(it) }
             )
-            
+
             // Status Section
             uiState.statusMessage?.let { message ->
                 StatusMessageCard(
@@ -160,18 +156,18 @@ private fun GeminiAPISection(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Enable OCR, book identification, and AI-powered metadata enhancement. " +
                         "Get your API key from Google AI Studio.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // API Key Input
             OutlinedTextField(
                 value = apiKey,
@@ -182,7 +178,7 @@ private fun GeminiAPISection(
                 trailingIcon = {
                     IconButton(onClick = onShowKeyToggle) {
                         Icon(
-                            imageVector = if (showKey) Icons.Default.Lock else Icons.Default.Star,
+                            imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
                             contentDescription = if (showKey) "Hide key" else "Show key"
                         )
                     }
@@ -191,9 +187,9 @@ private fun GeminiAPISection(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Action Buttons
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -212,7 +208,7 @@ private fun GeminiAPISection(
                         Text("Save Key")
                     }
                 }
-                
+
                 OutlinedButton(
                     onClick = onTestKey,
                     enabled = !isLoading && apiKey.isNotBlank(),
@@ -221,7 +217,7 @@ private fun GeminiAPISection(
                     Text("Test Key")
                 }
             }
-            
+
             // Test Result
             if (testResult != null) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -296,9 +292,9 @@ private fun FeatureFlagsSection(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Gemini Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -321,9 +317,9 @@ private fun FeatureFlagsSection(
                     onCheckedChange = onGeminiToggle
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // ExoPlayer Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -346,9 +342,9 @@ private fun FeatureFlagsSection(
                     onCheckedChange = onExoPlayerToggle
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Podcasts Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),

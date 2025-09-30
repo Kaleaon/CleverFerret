@@ -35,7 +35,7 @@ class BookshelfViewModel @Inject constructor(
     val searchActive = _searchActive.asStateFlow()
 
     private val _allBooks = MutableStateFlow<List<BookDetails>>(emptyList())
-    
+
     // Filtered and sorted books
     val books = combine(
         _allBooks,
@@ -44,7 +44,7 @@ class BookshelfViewModel @Inject constructor(
         _sortOption
     ) { allBooks, query, genre, sort ->
         var filteredBooks = allBooks
-        
+
         // Apply search filter
         if (query.isNotEmpty()) {
             filteredBooks = filteredBooks.filter { book ->
@@ -52,17 +52,17 @@ class BookshelfViewModel @Inject constructor(
                 book.authorName?.contains(query, ignoreCase = true) == true
             }
         }
-        
+
         // Apply genre filter
         if (genre != null) {
             // In a real implementation, you'd filter by actual genre data
             // For now, this is a placeholder
-            filteredBooks = filteredBooks.filter { 
+            filteredBooks = filteredBooks.filter {
                 // Placeholder genre filtering logic
-                true 
+                true
             }
         }
-        
+
         // Apply sorting
         when (sort) {
             SortOption.TITLE -> filteredBooks.sortedBy { it.metadata.title }
@@ -135,7 +135,7 @@ class BookshelfViewModel @Inject constructor(
                     isFavorite = !book.metadata.isFavorite
                 )
                 metadataDao.updateMetadata(metadataCommon = updatedMetadata)
-                
+
                 // Update local state immediately for better UX
                 val updatedBooks = _allBooks.value.map { existingBook ->
                     if (existingBook.metadata.itemId == book.metadata.itemId) {
