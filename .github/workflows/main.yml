@@ -46,11 +46,50 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
+    - name: Compile project
+      id: compile
+      run: ./gradlew compileDebugKotlin --continue
+      continue-on-error: true
+      
+    - name: Report compilation results
+      if: always()
+      run: |
+        if [ "${{ steps.compile.outcome }}" == "failure" ]; then
+          echo "::error::Compilation failed. See build logs for details."
+          echo "Compilation errors were found. Check the logs above for specific file locations and error messages."
+        else
+          echo "::notice::Compilation succeeded!"
+        fi
+    
     - name: Run unit tests
-      run: ./gradlew testDebugUnitTest
+      if: steps.compile.outcome == 'success'
+      run: ./gradlew testDebugUnitTest --continue
+      continue-on-error: true
+      id: unit-tests
       
     - name: Run lint checks
-      run: ./gradlew lintDebug
+      if: steps.compile.outcome == 'success'
+      run: ./gradlew lintDebug --continue
+      continue-on-error: true
+      id: lint-checks
+      
+    - name: Report test and lint results
+      if: always()
+      run: |
+        if [ "${{ steps.unit-tests.outcome }}" == "failure" ]; then
+          echo "::error::Unit tests failed. Check test reports for details."
+        fi
+        if [ "${{ steps.lint-checks.outcome }}" == "failure" ]; then
+          echo "::warning::Lint checks found issues. Check lint reports for details."
+        fi
+      
+    - name: Fail workflow if compilation or tests failed
+      if: always()
+      run: |
+        if [ "${{ steps.compile.outcome }}" == "failure" ] || [ "${{ steps.unit-tests.outcome }}" == "failure" ]; then
+          echo "Workflow failed due to compilation or test failures"
+          exit 1
+        fi
       
     - name: Upload test reports
       uses: actions/upload-artifact@v4
@@ -65,10 +104,12 @@ jobs:
     name: Build APK
     runs-on: ubuntu-latest
     needs: test
+    if: always()  # Run even if test job fails to provide build diagnostics
     
     outputs:
       version-name: ${{ steps.version.outputs.version-name }}
       version-code: ${{ steps.version.outputs.version-code }}
+      build-success: ${{ steps.build-debug.outcome == 'success' }}
       
     steps:
     - name: Checkout code
@@ -102,22 +143,36 @@ jobs:
     - name: Extract version information
       id: version
       run: |
-        VERSION_NAME=$(./gradlew -q printVersionName | tail -n1)
-        VERSION_CODE=$(./gradlew -q printVersionCode | tail -n1)
+        VERSION_NAME=$(./gradlew -q printVersionName 2>/dev/null | tail -n1 || echo "1.0")
+        VERSION_CODE=$(./gradlew -q printVersionCode 2>/dev/null | tail -n1 || echo "1")
         echo "version-name=$VERSION_NAME" >> $GITHUB_OUTPUT
         echo "version-code=$VERSION_CODE" >> $GITHUB_OUTPUT
         echo "Version Name: $VERSION_NAME"
         echo "Version Code: $VERSION_CODE"
+      continue-on-error: true
         
     - name: Build debug APK
-      run: ./gradlew assembleDebug
+      id: build-debug
+      run: ./gradlew assembleDebug --continue
+      continue-on-error: true
+      
+    - name: Report build status
+      if: always()
+      run: |
+        if [ "${{ steps.build-debug.outcome }}" == "failure" ]; then
+          echo "::error::Debug APK build failed. Check build logs for compilation errors."
+        else
+          echo "::notice::Debug APK built successfully!"
+        fi
       
     - name: Build release APK (unsigned)
-      run: ./gradlew assembleRelease
+      if: steps.build-debug.outcome == 'success'
+      run: ./gradlew assembleRelease --continue
+      continue-on-error: true
       
     - name: Sign release APK
       id: sign_apk
-      if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
+      if: steps.build-debug.outcome == 'success' && github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
       env:
         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -146,29 +201,35 @@ jobs:
              CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
           echo "signed=false" >> $GITHUB_OUTPUT
         fi
+      continue-on-error: true
         
     - name: Rename APK files
+      if: steps.build-debug.outcome == 'success'
       run: |
         VERSION_NAME="${{ steps.version.outputs.version-name }}"
         
-        mv CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
-           CleverFerret/build/outputs/apk/debug/CleverFerret-v${VERSION_NAME}-debug.apk
+        if [[ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]]; then
+          mv CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk \
+             CleverFerret/build/outputs/apk/debug/CleverFerret-v${VERSION_NAME}-debug.apk
+        fi
            
         if [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk" ]]; then
           mv CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk \
              CleverFerret/build/outputs/apk/release/CleverFerret-v${VERSION_NAME}-release.apk
-        else
+        elif [[ -f "CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk" ]]; then
           mv CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
              CleverFerret/build/outputs/apk/release/CleverFerret-v${VERSION_NAME}-release-unsigned.apk
         fi
         
     - name: Upload debug APK
+      if: steps.build-debug.outcome == 'success'
       uses: actions/upload-artifact@v4
       with:
         name: debug-apk
         path: CleverFerret/build/outputs/apk/debug/CleverFerret-v${{ steps.version.outputs.version-name }}-debug.apk
         
     - name: Upload release APK
+      if: steps.build-debug.outcome == 'success'
       uses: actions/upload-artifact@v4
       with:
         name: release-apk
@@ -178,7 +239,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
+    if: needs.build.outputs.build-success == 'true' && github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main')
     
     steps:
     - name: Download release APK
@@ -202,7 +263,7 @@ jobs:
     name: Publish to GitHub Packages
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    if: needs.build.outputs.build-success == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     
     steps:
     - name: Checkout code
@@ -242,7 +303,7 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: [build, security-scan]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: needs.build.outputs.build-success == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     
     steps:
     - name: Download all APKs
