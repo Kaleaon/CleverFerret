@@ -19,19 +19,20 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 **Dependencies**: ViewModel classes, data models
 
 #### Main UI Screens
-- [ ] `ui/main/MainViewModel.kt.disabled` - Core app navigation (stub exists, needs full implementation)
+- [x] `ui/main/MainViewModel.kt` - ✅ Re-enabled (upgraded from stub to full implementation)
 - [x] `ui/library/LibraryDetailsViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/bookshelf/BookshelfScreen.kt.disabled`
 - [x] `ui/bookshelf/BookshelfViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/bookshelf/BookshelfComponents.kt.disabled`
 - [x] `ui/bookshelf/EnhancedBookshelfScreen.kt` - ✅ Re-enabled
+- [x] `ui/details/BookDetailsScreen.kt` - ✅ Re-enabled
 
 #### Reader Components
-- [ ] `ui/reader/EReaderScreen.kt.disabled`
+- [x] `ui/reader/EReaderScreen.kt` - ✅ Re-enabled
 - [x] `ui/reader/EReaderViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/reader/EnhancedEReaderScreen.kt.disabled`
 - [ ] `ui/reader/EPUBReaderScreen.kt.disabled`
-- [ ] `ui/reader/PDFReaderViewModel.kt.disabled`
+- [x] `ui/reader/PDFReaderViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/reader/EnhancedPDFReaderScreen.kt.disabled`
 - [ ] `ui/reader/components/DocumentReaderComponents.kt.disabled`
 - [ ] `ui/reader/components/ComicReaderComponents.kt.disabled`
@@ -41,41 +42,54 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 - [x] `ui/reader/AdvancedDocumentReader.kt` - ✅ Re-enabled
 - [x] `ui/reader/BookmarkViewModel.kt` - ✅ Re-enabled
 - [x] `ui/reader/AutoScrollComponents.kt` - ✅ Re-enabled
+- [x] `ui/reader/ReaderGestureHandler.kt` - ✅ Re-enabled
+- [x] `ui/reader/SearchViewModel.kt` - ✅ Re-enabled
+- [x] `ui/reader/EbookReaderScreen.kt` - ✅ Re-enabled
+- [x] `ui/reader/ReadingStatisticsScreen.kt` - ✅ Re-enabled
 
 #### Media Players
 - [ ] `ui/player/AdvancedVideoPlayerScreen.kt.disabled`
 - [ ] `ui/player/UniversalVideoPlayerScreen.kt.disabled`
 - [ ] `ui/player/UniversalVideoPlayerViewModel.kt.disabled`
 - [ ] `ui/audiobook/AudiobookPlayerScreen.kt.disabled`
-- [ ] `ui/audiobook/AudiobookPlayerViewModel.kt.disabled`
+- [x] `ui/audiobook/AudiobookPlayerViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/music/MusicPlayerScreen.kt.disabled`
-- [ ] `ui/music/MusicPlayerViewModel.kt.disabled`
+- [x] `ui/music/MusicPlayerViewModel.kt` - ✅ Re-enabled
 - [x] `ui/player/QueueScreen.kt` - ✅ Re-enabled
 - [x] `ui/player/VideoPlayerViewModel.kt` - ✅ Re-enabled
 - [x] `ui/player/components/PlayerModels.kt` - ✅ Re-enabled
 - [x] `ui/music/MusicLibraryScreen.kt` - ✅ Re-enabled
 - [x] `ui/music/MusicLibraryViewModel.kt` - ✅ Re-enabled
+- [x] `ui/player/AudioPlayerScreen.kt` - ✅ Re-enabled
+- [x] `ui/player/AdvancedVideoPlayerViewModel.kt` - ✅ Re-enabled
+- [x] `ui/playback/NowPlayingViewModel.kt` - ✅ Re-enabled
+- [x] `ui/podcast/PodcastPlayerViewModel.kt` - ✅ Re-enabled
 
 #### Metadata Editors
 - [ ] `ui/metadata/MetadataEditorScreen.kt.disabled`
-- [ ] `ui/metadata/MetadataEditorViewModel.kt.disabled`
+- [x] `ui/metadata/MetadataEditorViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/metadata/EnhancedMetadataEditor.kt.disabled`
 - [x] `ui/metadata/EnhancedMetadataViewModel.kt` - ✅ Re-enabled
 - [x] `ui/metadata/MetadataEditorModels.kt` - ✅ Re-enabled
-- [ ] `ui/metadata/ChipInputs.kt.disabled`
+- [x] `ui/metadata/ChipInputs.kt` - ✅ Re-enabled
 
 #### Settings
-- [ ] `ui/settings/SettingsScreen.kt.disabled`
+- [x] `ui/settings/SettingsScreen.kt` - ✅ Re-enabled
 - [ ] `ui/settings/SecurityAndAboutScreens.kt.disabled`
 - [ ] `ui/settings/ReaderSettingsScreen.kt.disabled`
 - [ ] `ui/settings/APISettingsScreen.kt.disabled`
 - [ ] `ui/settings/ApiSettingsScreen.kt.disabled`
 - [x] `ui/settings/SecuritySettingsViewModel.kt` - ✅ Re-enabled
 - [x] `ui/settings/SecuritySettingsScreen.kt` - ✅ Re-enabled
+- [x] `ui/settings/APISettingsViewModel.kt` - ✅ Re-enabled
 
 #### Web Fiction
-- [ ] `ui/webfiction/WebFictionViewModel.kt.disabled`
+- [x] `ui/webfiction/WebFictionViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/webfiction/WebFictionManagerScreen.kt.disabled`
+
+#### Content Creation
+- [x] `ui/contentcreation/ContentCreationScreen.kt` - ✅ Re-enabled
+- [x] `ui/contentcreation/ContentCreationViewModel.kt` - ✅ Re-enabled
 
 #### Podcast
 - [ ] `ui/podcast/PodcastScreen.kt.disabled`
@@ -93,7 +107,30 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 
 ### 2. Services & Integration (Priority: MEDIUM)
 **Count**: ~20 files
-**Status**: Not Started
+**Status**: In Progress
+
+#### Analysis Services
+- [ ] `services/analysis/SmartContentAnalyzer.kt.disabled`
+- [x] `services/analysis/AnalysisModels.kt` - ✅ Re-enabled
+- [ ] `services/analysis/GemmaLLMService.kt.disabled`
+- [x] `services/analysis/classification/ContentClassifier.kt` - ✅ Re-enabled
+- [x] `services/analysis/comparison/ArchiveComparator.kt` - ✅ Re-enabled
+- [ ] `services/analysis/fingerprint/ContentFingerprinter.kt.disabled`
+- [x] `services/analysis/nlp/MetadataExtractor.kt` - ✅ Re-enabled
+- [ ] `services/analysis/ocr/OCRService.kt.disabled`
+
+#### Integration Services
+- [x] `services/integration/IntegrationManager.kt` - ✅ Re-enabled
+- [x] `services/integration/PlexServiceResults.kt` - ✅ Re-enabled
+- [x] `services/integration/books/BookServicesIntegration.kt` - ✅ Re-enabled
+- [x] `services/integration/calibre/CalibreIntegrationService.kt` - ✅ Re-enabled
+- [x] `services/integration/cloud/CloudStorageService.kt` - ✅ Re-enabled
+- [ ] `services/integration/plex/PlexIntegrationService.kt.disabled`
+- [ ] `services/integration/plex/PlexApi.kt.disabled`
+- [x] `services/integration/plex/PlexServiceResults.kt` - ✅ Re-enabled
+
+#### Data Layer
+- [x] `data/local/CleverFerretDatabase.kt` - ✅ Re-enabled
 **Dependencies**: External libraries, API models
 
 #### Analysis Services
@@ -226,31 +263,59 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 
 ### Statistics
 - **Total Disabled Files**: 104
-- **Files Repaired**: 29 (4 from Phase 2-3, 25 new)
+- **Files Repaired**: 59 (4 Phase 2-3, 25 Batch 1, 30 Batch 2)
 - **Files In Progress**: 0
-- **Files Remaining**: 75
-- **Completion**: 28%
+- **Files Remaining**: 45
+- **Completion**: 57%
 
-### Recent Repairs (Batch 1 - 25 files)
+### Recent Repairs (Batch 2 - 30 files)
 
-**Model Files (5 files):**
-1. ✅ ReadingStats.kt - Reading statistics data model
-2. ✅ ReaderModels.kt - Bookmark, SearchResult, TableOfContents models
-3. ✅ MetadataEditorModels.kt - Metadata editing models
-4. ✅ PlayerModels.kt - Player component models
-5. ✅ ViewerSettings.kt - Viewer configuration models
+**Core ViewModels (7 files):**
+1. ✅ MainViewModel.kt - Upgraded from stub to full implementation with LibraryDao
+2. ✅ MetadataEditorViewModel.kt - Metadata editing state
+3. ✅ MusicPlayerViewModel.kt - Music playback state
+4. ✅ ContentCreationViewModel.kt - Content creation state
+5. ✅ APISettingsViewModel.kt - API configuration
+6. ✅ AudiobookPlayerViewModel.kt - Audiobook playback
+7. ✅ WebFictionViewModel.kt - Web fiction management
 
-**ViewModels (11 files):**
-6. ✅ LibraryDetailsViewModel.kt - Library details state management
-7. ✅ BookDetailsViewModel.kt - Book details state management
-8. ✅ ReadingStatisticsViewModel.kt - Reading stats tracking
-9. ✅ MusicLibraryViewModel.kt - Music library state
-10. ✅ BookmarkViewModel.kt - Bookmark management
-11. ✅ EReaderViewModel.kt - E-reader state management
-12. ✅ SecuritySettingsViewModel.kt - Security settings
-13. ✅ EnhancedMetadataViewModel.kt - Enhanced metadata editing
-14. ✅ VideoPlayerViewModel.kt - Video playback state
-15. ✅ PlexSyncViewModel.kt - Plex sync state
+**Reader Screens & ViewModels (8 files):**
+8. ✅ EReaderScreen.kt - E-reader UI
+9. ✅ PDFReaderViewModel.kt - PDF reading state
+10. ✅ SearchViewModel.kt - Search functionality
+11. ✅ EbookReaderScreen.kt - Ebook reading UI
+12. ✅ ReadingStatisticsScreen.kt - Reading stats UI
+13. ✅ ReaderGestureHandler.kt - Gesture controls
+14. ✅ BookDetailsScreen.kt - Book details UI
+
+**Player Components (4 files):**
+15. ✅ AudioPlayerScreen.kt - Audio player UI
+16. ✅ AdvancedVideoPlayerViewModel.kt - Video playback state
+17. ✅ NowPlayingViewModel.kt - Now playing state
+18. ✅ PodcastPlayerViewModel.kt - Podcast playback
+
+**UI Components (4 files):**
+19. ✅ ContentCreationScreen.kt - Content creation UI
+20. ✅ SettingsScreen.kt - Settings UI
+21. ✅ ChipInputs.kt - Tag/chip input components
+
+**Services & Integration (7 files):**
+22. ✅ AnalysisModels.kt - Analysis data models
+23. ✅ ArchiveComparator.kt - Archive comparison service
+24. ✅ ContentClassifier.kt - Content classification
+25. ✅ MetadataExtractor.kt - Metadata extraction
+26. ✅ IntegrationManager.kt - Integration orchestration
+27. ✅ BookServicesIntegration.kt - Book service APIs
+28. ✅ CalibreIntegrationService.kt - Calibre integration
+29. ✅ CloudStorageService.kt - Cloud storage integration
+30. ✅ PlexServiceResults.kt (2 files) - Plex service models
+31. ✅ CleverFerretDatabase.kt - Alternative database implementation
+
+**Summary:**
+- All 30 files compile successfully
+- Modern Kotlin 2.1.0 patterns throughout
+- Proper database integration
+- Full ViewModel implementations with proper DAOs
 16. ✅ PlexAuthViewModel.kt - Plex authentication
 
 **Screens & Components (9 files):**
