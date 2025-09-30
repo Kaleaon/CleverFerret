@@ -40,6 +40,10 @@ class CalibreImportService @Inject constructor(
             val mediaItem = MediaItem(
                 libraryId = libraryId,
                 filePath = fullPath,
+                fileName = bookRecord.path,
+                fileExtension = bookRecord.format.lowercase(),
+                fileSize = 0L, // Unknown size
+                mediaType = "BOOK",
                 dateAdded = System.currentTimeMillis(),
                 lastScanned = System.currentTimeMillis(),
                 fileHash = calculateMD5(file)
@@ -65,7 +69,8 @@ class CalibreImportService @Inject constructor(
                 publisher = rawBook.publisher,
                 isbn = rawBook.isbn,
                 pageCount = null, // Not available from Calibre easily
-                seriesId = null // Will be handled next
+                series = null, // Will be set separately if series exists
+                seriesIndex = null
             )
             metadataDao.insertMetadataBook(metadataBook)
 
