@@ -31,9 +31,20 @@ import javax.inject.Singleton
  * - Support for both MediaItem and PlexMediaItem
  * - Async loading with coroutines
  * 
- * TODO: Add disk cache for network-loaded artwork
- * TODO: Add configurable cache size
- * TODO: Add artwork extraction from media files (EPUB, MP3 ID3 tags)
+ * Current TODOs:
+ * TODO: Add disk cache for network-loaded artwork (see docs/unified-model/overview.md)
+ * TODO: Add configurable cache size via settings/preferences
+ * TODO: Add artwork extraction from media files:
+ *       - EPUB: Extract cover from OPF manifest or common paths
+ *       - MP3: Extract APIC frame from ID3v2 tags
+ *       - MP4: Extract 'covr' atom from metadata
+ *       - PDF: Extract first page or embedded thumbnail
+ * TODO: Add context-aware scaling presets (notification, widget, now playing)
+ * TODO: Add background preloader for upcoming queue items
+ * TODO: Add artwork provider interface for external metadata APIs
+ * TODO: Add artwork URL validation and retry logic
+ * TODO: Add support for animated artwork (GIF, WebP)
+ * TODO: Add support for vector artwork (SVG)
  */
 @Singleton
 class ArtworkLoader @Inject constructor(

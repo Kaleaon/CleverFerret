@@ -3,6 +3,7 @@ package com.universalmedialibrary.widgets
 import android.content.Context
 import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.artwork.ArtworkLoader
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -65,13 +66,19 @@ class MediaPlaybackWidgetService @Inject constructor(
                 queueManager.playbackState
             ) { currentItem, queueItems, playbackState ->
                 
+
+                // TODO: Uncomment when MediaItemDao is available
                 // Load media item if we have a current queue item
+                /*
+
                 val mediaItem = currentItem?.let { queueItem ->
                     database.mediaItemDao().getMediaItemById(queueItem.mediaItemId)
                 }
+                */
+                val mediaItem: com.universalmedialibrary.data.local.entity.MediaItem? = null
                 
                 // Build widget state
-                val state = if (mediaItem != null && currentItem != null) {
+                val state = if (currentItem != null) {
                     MediaPlaybackWidgetState(
                         currentMedia = mediaItem,
                         title = currentItem.title,
@@ -92,10 +99,13 @@ class MediaPlaybackWidgetService @Inject constructor(
                 
                 _widgetState.value = state
                 
+                // TODO: Uncomment when MediaItemDao is available
                 // Load artwork asynchronously
+                /*
                 if (mediaItem != null) {
                     loadArtworkForCurrentItem(mediaItem)
                 }
+                */
                 
                 // TODO: Trigger actual widget update via Glance or RemoteViews
                 Log.d(TAG, "Widget state updated: ${state.displayTitle}")

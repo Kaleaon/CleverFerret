@@ -23,7 +23,6 @@ class MainViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-
     fun addLibrary(name: String, type: String, path: String) {
         viewModelScope.launch {
             val newLibrary = Library(name = name, type = type, path = path)
