@@ -65,10 +65,14 @@ class MediaPlaybackWidgetService @Inject constructor(
                 queueManager.playbackState
             ) { currentItem, queueItems, playbackState ->
                 
+                // TODO: Uncomment when MediaItemDao is available
                 // Load media item if we have a current queue item
+                /*
                 val mediaItem = currentItem?.let { queueItem ->
                     database.mediaItemDao().getMediaItemById(queueItem.mediaItemId)
                 }
+                */
+                val mediaItem: com.universalmedialibrary.data.local.entity.MediaItem? = null
                 
                 // Build widget state
                 val state = if (mediaItem != null && currentItem != null) {
@@ -92,10 +96,13 @@ class MediaPlaybackWidgetService @Inject constructor(
                 
                 _widgetState.value = state
                 
+                // TODO: Uncomment when MediaItemDao is available
                 // Load artwork asynchronously
+                /*
                 if (mediaItem != null) {
                     loadArtworkForCurrentItem(mediaItem)
                 }
+                */
                 
                 // TODO: Trigger actual widget update via Glance or RemoteViews
                 Log.d(TAG, "Widget state updated: ${state.displayTitle}")
