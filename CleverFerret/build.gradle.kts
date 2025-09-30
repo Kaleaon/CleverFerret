@@ -54,9 +54,11 @@ android {
 
 
 
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.11"
     }
+
 
     lint {
         abortOnError = false
@@ -149,6 +151,10 @@ dependencies {
 
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")
+
+    // Glance for widgets
+    implementation("androidx.glance:glance-appwidget:1.1.1")
+    implementation("androidx.glance:glance-material3:1.1.1")
 
     // Serialization - Already updated above
 

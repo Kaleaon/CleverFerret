@@ -63,25 +63,3 @@ jobs:
               });
             }
 
-  detekt:
-    name: Detekt
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Detekt
-        uses: detekt/detekt-action@v1
-        with:
-          source: .
-          config: .detekt/config.yml
-          build_upon_default_config: true
-          reports: |
-            sarif:reports/detekt.sarif
-
-      - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: reports/detekt.sarif

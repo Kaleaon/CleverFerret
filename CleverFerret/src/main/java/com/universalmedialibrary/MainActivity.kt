@@ -7,21 +7,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.QuestionMark
-
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -45,8 +37,8 @@ import com.universalmedialibrary.ui.library.CreateLibraryDialog
 import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.PlexTheme
-
 import dagger.hilt.android.AndroidEntryPoint
+
 
 // Sample library data class for demonstration
 data class SampleLibrary(
@@ -60,18 +52,18 @@ data class SampleLibrary(
  * The main and only activity of the application, serving as the entry point for the UI.
  * It is annotated with [AndroidEntryPoint] to enable Hilt dependency injection.
  */
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             PlexTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+
                     AppNavigation()
                 }
             }
@@ -193,23 +185,6 @@ fun LibraryListScreen(
                 }
             )
         }
-
-    var selectedTab by remember { mutableStateOf(0) }
-
-    // Sample libraries for demonstration - showing restored functionality
-    val sampleLibraries = listOf(
-        SampleLibrary("My Books", "BOOK", 1),
-        SampleLibrary("Music Collection", "MUSIC", 2),
-        SampleLibrary("Movie Library", "MOVIE", 3)
-    )
-
-    val mediaTabs = listOf(
-        "Books" to Icons.Default.Book,
-        "Music" to Icons.Default.MusicNote,
-        "Movies" to Icons.Default.Movie
-    )
-
-    
     ) { paddingValues ->
         // Sample libraries for demonstration - showing restored functionality
         val sampleLibraries = listOf(
@@ -463,4 +438,5 @@ private fun getIconForLibraryType(type: String): ImageVector {
         else -> Icons.Default.Book
     }
 }
+
 
