@@ -19,23 +19,28 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 **Dependencies**: ViewModel classes, data models
 
 #### Main UI Screens
-- [ ] `ui/main/MainViewModel.kt.disabled` - Core app navigation
-- [ ] `ui/library/LibraryDetailsViewModel.kt.disabled`
+- [ ] `ui/main/MainViewModel.kt.disabled` - Core app navigation (stub exists, needs full implementation)
+- [x] `ui/library/LibraryDetailsViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/bookshelf/BookshelfScreen.kt.disabled`
-- [ ] `ui/bookshelf/BookshelfViewModel.kt.disabled`
+- [x] `ui/bookshelf/BookshelfViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/bookshelf/BookshelfComponents.kt.disabled`
-- [ ] `ui/bookshelf/EnhancedBookshelfScreen.kt.disabled`
+- [x] `ui/bookshelf/EnhancedBookshelfScreen.kt` - ✅ Re-enabled
 
 #### Reader Components
 - [ ] `ui/reader/EReaderScreen.kt.disabled`
-- [ ] `ui/reader/EReaderViewModel.kt.disabled`
+- [x] `ui/reader/EReaderViewModel.kt` - ✅ Re-enabled
 - [ ] `ui/reader/EnhancedEReaderScreen.kt.disabled`
 - [ ] `ui/reader/EPUBReaderScreen.kt.disabled`
 - [ ] `ui/reader/PDFReaderViewModel.kt.disabled`
 - [ ] `ui/reader/EnhancedPDFReaderScreen.kt.disabled`
 - [ ] `ui/reader/components/DocumentReaderComponents.kt.disabled`
 - [ ] `ui/reader/components/ComicReaderComponents.kt.disabled`
-- [ ] `ui/reader/components/ReaderModels.kt.disabled`
+- [x] `ui/reader/components/ReaderModels.kt` - ✅ Re-enabled
+- [x] `ui/reader/ReadingStats.kt` - ✅ Re-enabled
+- [x] `ui/reader/ReadingStatisticsViewModel.kt` - ✅ Re-enabled
+- [x] `ui/reader/AdvancedDocumentReader.kt` - ✅ Re-enabled
+- [x] `ui/reader/BookmarkViewModel.kt` - ✅ Re-enabled
+- [x] `ui/reader/AutoScrollComponents.kt` - ✅ Re-enabled
 
 #### Media Players
 - [ ] `ui/player/AdvancedVideoPlayerScreen.kt.disabled`
@@ -45,13 +50,18 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 - [ ] `ui/audiobook/AudiobookPlayerViewModel.kt.disabled`
 - [ ] `ui/music/MusicPlayerScreen.kt.disabled`
 - [ ] `ui/music/MusicPlayerViewModel.kt.disabled`
+- [x] `ui/player/QueueScreen.kt` - ✅ Re-enabled
+- [x] `ui/player/VideoPlayerViewModel.kt` - ✅ Re-enabled
+- [x] `ui/player/components/PlayerModels.kt` - ✅ Re-enabled
+- [x] `ui/music/MusicLibraryScreen.kt` - ✅ Re-enabled
+- [x] `ui/music/MusicLibraryViewModel.kt` - ✅ Re-enabled
 
 #### Metadata Editors
 - [ ] `ui/metadata/MetadataEditorScreen.kt.disabled`
 - [ ] `ui/metadata/MetadataEditorViewModel.kt.disabled`
 - [ ] `ui/metadata/EnhancedMetadataEditor.kt.disabled`
-- [ ] `ui/metadata/EnhancedMetadataViewModel.kt.disabled`
-- [ ] `ui/metadata/MetadataEditorModels.kt.disabled`
+- [x] `ui/metadata/EnhancedMetadataViewModel.kt` - ✅ Re-enabled
+- [x] `ui/metadata/MetadataEditorModels.kt` - ✅ Re-enabled
 - [ ] `ui/metadata/ChipInputs.kt.disabled`
 
 #### Settings
@@ -60,6 +70,8 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 - [ ] `ui/settings/ReaderSettingsScreen.kt.disabled`
 - [ ] `ui/settings/APISettingsScreen.kt.disabled`
 - [ ] `ui/settings/ApiSettingsScreen.kt.disabled`
+- [x] `ui/settings/SecuritySettingsViewModel.kt` - ✅ Re-enabled
+- [x] `ui/settings/SecuritySettingsScreen.kt` - ✅ Re-enabled
 
 #### Web Fiction
 - [ ] `ui/webfiction/WebFictionViewModel.kt.disabled`
@@ -72,6 +84,12 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 #### Plex Integration
 - [ ] `ui/plex/PlexIntegrationScreen.kt.disabled`
 - [ ] `ui/plex/PlexIntegrationViewModel.kt.disabled`
+- [x] `ui/plex/PlexSyncViewModel.kt` - ✅ Re-enabled
+- [x] `ui/plex/PlexAuthViewModel.kt` - ✅ Re-enabled
+- [x] `ui/integration/PlexIntegrationViewModel.kt` - ✅ Re-enabled
+
+#### Viewer Components
+- [x] `ui/viewer/common/ViewerSettings.kt` - ✅ Re-enabled
 
 ### 2. Services & Integration (Priority: MEDIUM)
 **Count**: ~20 files
@@ -208,17 +226,47 @@ This document tracks the systematic repair of 104 disabled files in the CleverFe
 
 ### Statistics
 - **Total Disabled Files**: 104
-- **Files Repaired**: 4
+- **Files Repaired**: 29 (4 from Phase 2-3, 25 new)
 - **Files In Progress**: 0
-- **Files Remaining**: 100
-- **Completion**: 4%
+- **Files Remaining**: 75
+- **Completion**: 28%
 
-### Recent Repairs
-1. ✅ PhosphorIcons.kt (commit b869cd1) - Icon library with 1601 lines
-2. ✅ MediaItemHandler.kt - Media navigation and type handling
-3. ✅ MediaViewerManager.kt - Media type detection and format handling
-4. ✅ Database Layer (AppDatabase.kt, DatabaseModule.kt) - Enabled mediaItemDao, metadataDao, bookmarkDao
-5. ✅ MediaPlaybackWidgetService.kt - Updated to use real database access
+### Recent Repairs (Batch 1 - 25 files)
+
+**Model Files (5 files):**
+1. ✅ ReadingStats.kt - Reading statistics data model
+2. ✅ ReaderModels.kt - Bookmark, SearchResult, TableOfContents models
+3. ✅ MetadataEditorModels.kt - Metadata editing models
+4. ✅ PlayerModels.kt - Player component models
+5. ✅ ViewerSettings.kt - Viewer configuration models
+
+**ViewModels (11 files):**
+6. ✅ LibraryDetailsViewModel.kt - Library details state management
+7. ✅ BookDetailsViewModel.kt - Book details state management
+8. ✅ ReadingStatisticsViewModel.kt - Reading stats tracking
+9. ✅ MusicLibraryViewModel.kt - Music library state
+10. ✅ BookmarkViewModel.kt - Bookmark management
+11. ✅ EReaderViewModel.kt - E-reader state management
+12. ✅ SecuritySettingsViewModel.kt - Security settings
+13. ✅ EnhancedMetadataViewModel.kt - Enhanced metadata editing
+14. ✅ VideoPlayerViewModel.kt - Video playback state
+15. ✅ PlexSyncViewModel.kt - Plex sync state
+16. ✅ PlexAuthViewModel.kt - Plex authentication
+
+**Screens & Components (9 files):**
+17. ✅ QueueScreen.kt - Playback queue UI
+18. ✅ AdvancedDocumentReader.kt - Advanced document reading
+19. ✅ MusicLibraryScreen.kt - Music library UI
+20. ✅ AutoScrollComponents.kt - Auto-scroll functionality
+21. ✅ EnhancedBookshelfScreen.kt - Enhanced bookshelf UI
+22. ✅ SecuritySettingsScreen.kt - Security settings UI
+23. ✅ BookshelfViewModel.kt - Bookshelf state
+24. ✅ PlexIntegrationViewModel.kt - Plex integration state
+
+**Summary:**
+- Model files: Simple data classes, no dependencies - all working
+- ViewModels: Database access enabled, all compile successfully
+- Screens: UI components with standard Compose patterns
 
 ## Next Steps
 
