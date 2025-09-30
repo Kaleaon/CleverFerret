@@ -66,14 +66,15 @@ class MediaPlaybackWidgetService @Inject constructor(
                 queueManager.playbackState
             ) { currentItem, queueItems, playbackState ->
                 
-                // TODO: Load media item from database when mediaItemDao is enabled
-                // For now, create minimal state from queue item data only
-                val mediaItem: MediaItem? = null  // Placeholder until mediaItemDao is available
+                // Load media item from database if we have a current queue item
+                val mediaItem = currentItem?.let { queueItem ->
+                    database.mediaItemDao().getMediaItemById(queueItem.mediaItemId)
+                }
                 
                 // Build widget state
                 val state = if (currentItem != null) {
                     MediaPlaybackWidgetState(
-                        currentMedia = mediaItem,  // TODO: Load from database
+                        currentMedia = mediaItem,
                         title = currentItem.title,
                         subtitle = currentItem.artist ?: "",
                         isPlaying = playbackState.isPlaying,

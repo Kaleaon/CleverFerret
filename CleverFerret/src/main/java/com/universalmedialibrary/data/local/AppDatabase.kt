@@ -41,12 +41,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun libraryDao(): LibraryDao
     abstract fun apiKeyDao(): APIKeyDao
-
-    
-    // Temporarily disabled until build is fixed
-    // abstract fun mediaItemDao(): MediaItemDao
-    // abstract fun metadataDao(): MetadataDao
-    // abstract fun bookmarkDao(): BookmarkDao
+    abstract fun mediaItemDao(): MediaItemDao
+    abstract fun metadataDao(): MetadataDao
+    abstract fun bookmarkDao(): BookmarkDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
