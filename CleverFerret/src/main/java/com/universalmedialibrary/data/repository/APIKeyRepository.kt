@@ -29,19 +29,18 @@ class APIKeyRepository @Inject constructor(
             // Update existing key
             val updatedKey = existingKey.copy(
                 keyValue = keyValue,
-                updatedAt = System.currentTimeMillis(),
-                validationStatus = if (keyValue.isBlank()) "untested" else null // Reset validation status
+                lastUsed = System.currentTimeMillis(),
+                validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "UNKNOWN" // Reset validation status
             )
             apiKeyDao.updateAPIKey(updatedKey)
         } else {
             // Create new key
             val newKey = APIKey(
-                keyName = getDisplayNameForProvider(provider),
+                displayName = getDisplayNameForProvider(provider),
                 keyValue = keyValue,
                 provider = provider,
                 category = category,
-                isRequired = isRequired,
-                validationStatus = if (keyValue.isBlank()) "untested" else null
+                validationStatus = if (keyValue.isBlank()) "UNKNOWN" else "UNKNOWN"
             )
             apiKeyDao.insertAPIKey(newKey)
         }
@@ -100,12 +99,11 @@ class APIKeyRepository @Inject constructor(
             val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
             if (existingKey == null) {
                 val apiKey = APIKey(
-                    keyName = getDisplayNameForProvider(provider),
+                    displayName = getDisplayNameForProvider(provider),
                     keyValue = "",
                     provider = provider,
                     category = category,
-                    isRequired = isRequired,
-                    validationStatus = "untested"
+                    validationStatus = "UNKNOWN"
                 )
                 apiKeyDao.insertAPIKey(apiKey)
             }

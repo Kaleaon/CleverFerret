@@ -43,4 +43,15 @@ interface MetadataDao {
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCommonMetadata(metadata: MetadataCommon)
+
+    // Additional methods expected by MediaRepository
+    @Query("SELECT * FROM metadata_common WHERE itemId = :itemId")
+    suspend fun getCommonMetadata(itemId: Long): MetadataCommon?
+    
+    @Query("SELECT * FROM metadata_common WHERE title LIKE '%' || :query || '%' OR summary LIKE '%' || :query || '%'")
+    suspend fun searchByTitle(query: String): List<MetadataCommon>
+    
+    // Additional method for MediaRepository
+    @Query("UPDATE metadata_common SET title = :title, summary = :summary WHERE itemId = :itemId")
+    suspend fun updateCommonMetadata(itemId: Long, title: String, summary: String?)
 }
