@@ -463,3 +463,12 @@ private fun getIconForLibraryType(type: String): ImageVector {
         else -> PhosphorIcons.Book
     }
 }
+
+/**
+ * Data class representing a sample library for demonstration
+ */
+data class SampleLibrary(
+    val name: String,
+    val type: String,
+    val libraryId: Int
+)

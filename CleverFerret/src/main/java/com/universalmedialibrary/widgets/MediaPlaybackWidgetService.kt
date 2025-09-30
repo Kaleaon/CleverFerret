@@ -3,6 +3,7 @@ package com.universalmedialibrary.widgets
 import android.content.Context
 import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.artwork.ArtworkLoader
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
