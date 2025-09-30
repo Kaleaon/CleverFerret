@@ -168,6 +168,7 @@ fun LibraryListScreen(
             },
         )
 
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -192,6 +193,23 @@ fun LibraryListScreen(
                 }
             )
         }
+
+    var selectedTab by remember { mutableStateOf(0) }
+
+    // Sample libraries for demonstration - showing restored functionality
+    val sampleLibraries = listOf(
+        SampleLibrary("My Books", "BOOK", 1),
+        SampleLibrary("Music Collection", "MUSIC", 2),
+        SampleLibrary("Movie Library", "MOVIE", 3)
+    )
+
+    val mediaTabs = listOf(
+        "Books" to Icons.Default.Book,
+        "Music" to Icons.Default.MusicNote,
+        "Movies" to Icons.Default.Movie
+    )
+
+    
     ) { paddingValues ->
         // Sample libraries for demonstration - showing restored functionality
         val sampleLibraries = listOf(
@@ -438,9 +456,11 @@ fun LibraryCard(
 
 private fun getIconForLibraryType(type: String): ImageVector {
     return when (type.uppercase()) {
+
         "BOOK" -> Icons.Default.Book
         "MOVIE" -> Icons.Default.Movie
         "MUSIC" -> Icons.Default.MusicNote
         else -> Icons.Default.Book
     }
 }
+

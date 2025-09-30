@@ -111,6 +111,8 @@ fun SettingsScreen(
         }
 
         // Error handling
+        // TODO: Fix error handling - properties don't exist on uiState
+        /*
         uiState.error?.let { error ->
             LaunchedEffect(error) {
                 // Show snackbar or toast
@@ -118,6 +120,7 @@ fun SettingsScreen(
                 viewModel.clearError()
             }
         }
+        */
     }
 }
 
