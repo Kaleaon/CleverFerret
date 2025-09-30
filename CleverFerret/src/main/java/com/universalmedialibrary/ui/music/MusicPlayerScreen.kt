@@ -45,10 +45,10 @@ fun MusicPlayerScreen(
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val playlistMode by viewModel.playlistMode.collectAsStateWithLifecycle()
     val queue by viewModel.queue.collectAsStateWithLifecycle()
-    
+
     var currentPosition by remember { mutableLongStateOf(0L) }
     var isDragging by remember { mutableStateOf(false) }
-    
+
     // Update position periodically when playing
     LaunchedEffect(playbackState.isPlaying) {
         if (playbackState.isPlaying) {
@@ -60,11 +60,11 @@ fun MusicPlayerScreen(
             }
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = "Now Playing",
                         style = MaterialTheme.typography.titleMedium
@@ -94,7 +94,7 @@ fun MusicPlayerScreen(
             )
         }
     ) { paddingValues ->
-        
+
         if (currentTrack != null) {
             Column(
                 modifier = Modifier
@@ -109,7 +109,7 @@ fun MusicPlayerScreen(
                         )
                     )
             ) {
-                
+
                 // Album Art Section
                 currentTrack?.let { track ->
                     AlbumArtSection(
@@ -122,9 +122,9 @@ fun MusicPlayerScreen(
                         }
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
-                
+
                 // Track Information
                 currentTrack?.let { track ->
                     TrackInfoSection(
@@ -132,9 +132,9 @@ fun MusicPlayerScreen(
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Progress Section
                 ProgressSection(
                     currentPosition = currentPosition,
@@ -147,9 +147,9 @@ fun MusicPlayerScreen(
                     onDragEnd = { isDragging = false },
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
-                
+
                 // Control Buttons
                 ControlButtonsSection(
                     isPlaying = playbackState.isPlaying,
@@ -162,9 +162,9 @@ fun MusicPlayerScreen(
                     onToggleMode = viewModel::togglePlaylistMode,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Secondary Controls
                 SecondaryControlsSection(
                     onVolumeClick = { /* TODO: Show volume slider */ },
@@ -172,7 +172,7 @@ fun MusicPlayerScreen(
                     onShareClick = { /* TODO: Share track */ },
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.weight(1f))
             }
         } else {
@@ -206,7 +206,7 @@ fun MusicPlayerScreen(
                 }
             }
         }
-        
+
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
@@ -227,7 +227,7 @@ private fun AlbumArtSection(
         animationSpec = tween(durationMillis = 10000),
         label = "album_rotation"
     )
-    
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -253,7 +253,7 @@ private fun AlbumArtSection(
                 contentScale = ContentScale.Crop
             )
         }
-        
+
         // Vinyl record effect
         if (isPlaying) {
             Box(
@@ -286,9 +286,9 @@ private fun TrackInfoSection(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = track.artist ?: "Unknown Artist",
             style = MaterialTheme.typography.titleMedium,
@@ -297,7 +297,7 @@ private fun TrackInfoSection(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        
+
         if (track.album != null) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -323,7 +323,7 @@ private fun ProgressSection(
 ) {
     Column(modifier = modifier) {
         val progress = if (duration > 0) currentPosition.toFloat() / duration.toFloat() else 0f
-        
+
         Slider(
             value = progress,
             onValueChange = { newProgress ->
@@ -333,7 +333,7 @@ private fun ProgressSection(
             onValueChangeFinished = { onDragEnd() },
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -382,7 +382,7 @@ private fun ControlButtonsSection(
             }
             Icon(icon, contentDescription = "Playlist Mode", tint = tint)
         }
-        
+
         // Previous Track
         IconButton(
             onClick = onSkipPrevious,
@@ -395,7 +395,7 @@ private fun ControlButtonsSection(
                 modifier = Modifier.size(32.dp)
             )
         }
-        
+
         // Play/Pause
         FilledIconButton(
             onClick = onPlayPause,
@@ -407,7 +407,7 @@ private fun ControlButtonsSection(
                 modifier = Modifier.size(36.dp)
             )
         }
-        
+
         // Next Track
         IconButton(
             onClick = onSkipNext,
@@ -420,7 +420,7 @@ private fun ControlButtonsSection(
                 modifier = Modifier.size(32.dp)
             )
         }
-        
+
         // Add to Favorites
         IconButton(
             onClick = { /* TODO: Toggle favorite */ },
@@ -449,11 +449,11 @@ private fun SecondaryControlsSection(
         IconButton(onClick = onVolumeClick) {
             Icon(PhosphorIcons.VolumeUp, contentDescription = "Volume")
         }
-        
+
         IconButton(onClick = onEqualizerClick) {
             Icon(PhosphorIcons.Equalizer, contentDescription = "Equalizer")
         }
-        
+
         IconButton(onClick = onShareClick) {
             Icon(Icons.Default.Share, contentDescription = "Share")
         }

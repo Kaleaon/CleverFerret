@@ -21,12 +21,12 @@ class CalibreIntegrationService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val _calibreState = MutableStateFlow(CalibreState())
     val calibreState: StateFlow<CalibreState> = _calibreState.asStateFlow()
-    
+
     private val connectedServers = mutableMapOf<String, CalibreConnection>()
-    
+
     /**
      * Connect to a Calibre server
      */
@@ -38,7 +38,7 @@ class CalibreIntegrationService @Inject constructor(
     ): CalibreConnectionResult = withContext(Dispatchers.IO) {
         try {
             _calibreState.value = _calibreState.value.copy(isConnecting = true)
-            
+
             // Test connection to Calibre server
             val connection = CalibreConnection(
                 name = serverName,
@@ -48,17 +48,17 @@ class CalibreIntegrationService @Inject constructor(
                 isConnected = true,
                 libraryCount = 0 // Would be populated by actual connection test
             )
-            
+
             connectedServers[serverName] = connection
-            
+
             _calibreState.value = _calibreState.value.copy(
                 isConnecting = false,
                 connectedServers = connectedServers.keys.toList(),
                 isConnected = connectedServers.isNotEmpty()
             )
-            
+
             CalibreConnectionResult.Success(connection)
-            
+
         } catch (e: Exception) {
             _calibreState.value = _calibreState.value.copy(
                 isConnecting = false,
@@ -67,27 +67,27 @@ class CalibreIntegrationService @Inject constructor(
             CalibreConnectionResult.Error(e.message ?: "Connection failed")
         }
     }
-    
+
     /**
      * Sync libraries from connected Calibre servers
      */
     suspend fun syncLibraries(): CalibreSyncResult = withContext(Dispatchers.IO) {
         try {
             _calibreState.value = _calibreState.value.copy(isSyncing = true)
-            
+
             var totalBooks = 0
             for ((serverName, connection) in connectedServers) {
                 // Placeholder for actual sync logic
                 totalBooks += 100 // Mock data
             }
-            
+
             _calibreState.value = _calibreState.value.copy(
                 isSyncing = false,
                 lastSyncTime = System.currentTimeMillis()
             )
-            
+
             CalibreSyncResult(true, totalBooks)
-            
+
         } catch (e: Exception) {
             _calibreState.value = _calibreState.value.copy(
                 isSyncing = false,
@@ -96,13 +96,13 @@ class CalibreIntegrationService @Inject constructor(
             CalibreSyncResult(false, 0)
         }
     }
-    
+
     /**
      * Get library statistics
      */
     fun getLibraryStats(): CalibreLibraryStats? {
         if (connectedServers.isEmpty()) return null
-        
+
         return CalibreLibraryStats(
             books = 1000, // Mock data - would come from actual Calibre connection
             authors = 500,
@@ -110,7 +110,7 @@ class CalibreIntegrationService @Inject constructor(
             tags = 150
         )
     }
-    
+
     /**
      * Check all connections
      */

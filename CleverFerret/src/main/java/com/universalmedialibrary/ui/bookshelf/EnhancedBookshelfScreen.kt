@@ -27,7 +27,7 @@ fun EnhancedBookshelfScreen(
 ) {
     LaunchedEffect(libraryId) { viewModel.loadBooks(libraryId) }
     val uiState by viewModel.uiState.collectAsState()
-    
+
     PlexTheme {
         Scaffold(
             topBar = {
@@ -63,7 +63,7 @@ fun EnhancedBookshelfScreen(
                 items(uiState.books) { book ->
                     BookCard(
                         book = book,
-                        onClick = { 
+                        onClick = {
                             // CRITICAL FIX: Open appropriate media player instead of details
                             MediaItemHandler.openMediaItem(navController, book.mediaItem)
                         }
@@ -105,7 +105,7 @@ private fun BookCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             // Book info
             Column {
                 Text(

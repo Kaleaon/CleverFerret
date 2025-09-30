@@ -122,7 +122,7 @@ class AnnotationService @Inject constructor(
     }
 
     /**
-     * Search within a specific book  
+     * Search within a specific book
      */
     suspend fun searchInBook(itemId: Long, query: String): List<SearchResult> = withContext(Dispatchers.IO) {
         val results = searchIndexDao.searchInBook(itemId, query.lowercase())
@@ -168,20 +168,20 @@ class AnnotationService @Inject constructor(
     ) = withContext(Dispatchers.IO) {
         // Clear existing index for this chapter
         searchIndexDao.deleteSearchIndexForBook(itemId)
-        
+
         // Process content into searchable chunks
         val words = content.split(Regex("\\s+"))
         val searchIndexes = mutableListOf<SearchIndex>()
-        
+
         // Create overlapping text chunks for better search results
         val chunkSize = 50 // words per chunk
         val overlap = 10   // overlapping words
-        
+
         for (i in words.indices step (chunkSize - overlap)) {
             val endIndex = minOf(i + chunkSize, words.size)
             val chunk = words.subList(i, endIndex)
             val chunkText = chunk.joinToString(" ")
-            
+
             searchIndexes.add(
                 SearchIndex(
                     itemId = itemId,
@@ -194,7 +194,7 @@ class AnnotationService @Inject constructor(
                 )
             )
         }
-        
+
         searchIndexDao.insertSearchIndexes(searchIndexes)
     }
 
@@ -212,7 +212,7 @@ class AnnotationService @Inject constructor(
     ) = withContext(Dispatchers.IO) {
         val today = System.currentTimeMillis() / (24 * 60 * 60 * 1000) * (24 * 60 * 60 * 1000)
         val existing = readingStatisticsDao.getStatisticsForBookAndDate(itemId, today)
-        
+
         if (existing != null) {
             // Update existing statistics
             val updated = existing.copy(
@@ -286,7 +286,7 @@ data class SearchResult(
 object HighlightColors {
     const val YELLOW = "#FFFF00"
     const val GREEN = "#90EE90"
-    const val BLUE = "#ADD8E6" 
+    const val BLUE = "#ADD8E6"
     const val PINK = "#FFB6C1"
     const val ORANGE = "#FFA500"
     const val PURPLE = "#DDA0DD"

@@ -1,4 +1,4 @@
-name: Static Analysis
+name: Code Quality Checks
 
 on:
   push:
@@ -8,13 +8,68 @@ on:
   workflow_dispatch:
 
 jobs:
+  code-quality:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck --no-daemon --stacktrace
+        continue-on-error: false
+
+      - name: Run Android Lint
+        run: ./gradlew lint --no-daemon --stacktrace
+        continue-on-error: true
+
+      - name: Upload Lint Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lint-results
+          path: |
+            CleverFerret/build/reports/lint-results-*.html
+            CleverFerret/build/reports/lint-results-*.xml
+
+      - name: Comment Lint Results on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const lintResultsPath = 'CleverFerret/build/reports/lint-results-debug.xml';
+            if (fs.existsSync(lintResultsPath)) {
+              const lintResults = fs.readFileSync(lintResultsPath, 'utf8');
+              const issueCount = (lintResults.match(/<issue/g) || []).length;
+              const body = `### 🔍 Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.`;
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
+
   detekt:
     name: Detekt
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Run Detekt
         uses: detekt/detekt-action@v1
@@ -26,6 +81,7 @@ jobs:
             sarif:reports/detekt.sarif
 
       - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
         with:
           sarif_file: reports/detekt.sarif

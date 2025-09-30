@@ -1,0 +1,21 @@
+# EditorConfig for CleverFerret
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+indent_size = 4
+continuation_indent_size = 4
+max_line_length = 150
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+
+# Disable some ktlint rules that conflict with existing code style
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_property-naming = disabled
+ktlint_standard_max-line-length = disabled
+ktlint_standard_import-ordering = disabled

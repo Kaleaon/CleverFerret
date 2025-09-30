@@ -25,11 +25,11 @@ import javax.inject.Singleton
 
 /**
  * Unified Playback Queue Manager
- * 
+ *
  * Central service managing all media playback across different media types.
- * Provides a single interface for queue management, session state, and 
+ * Provides a single interface for queue management, session state, and
  * cross-media playback capabilities.
- * 
+ *
  * Features:
  * - Universal queue supporting music, audiobooks, TTS, podcasts, video
  * - Persistent playback state and position tracking
@@ -44,29 +44,29 @@ class UnifiedPlaybackQueueManager @Inject constructor(
     private val database: AppDatabase,
     private val exoPlayerService: ExoPlayerService
 ) {
-    
+
     private val queueDao: PlaybackQueueDao = database.playbackQueueDao()
     private val queueItemDao: QueueItemDao = database.queueItemDao()
     private val sessionDao: PlaybackSessionDao = database.playbackSessionDao()
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
+
     // State management
     private val _currentSession = MutableStateFlow<PlaybackSession?>(null)
     val currentSession: StateFlow<PlaybackSession?> = _currentSession.asStateFlow()
-    
+
     private val _currentQueue = MutableStateFlow<PlaybackQueue?>(null)
     val currentQueue: StateFlow<PlaybackQueue?> = _currentQueue.asStateFlow()
-    
+
     private val _queueItems = MutableStateFlow<List<QueueItem>>(emptyList())
     val queueItems: StateFlow<List<QueueItem>> = _queueItems.asStateFlow()
-    
+
     private val _currentItem = MutableStateFlow<QueueItem?>(null)
     val currentItem: StateFlow<QueueItem?> = _currentItem.asStateFlow()
-    
+
     private val _playbackState = MutableStateFlow(UnifiedPlaybackState())
     val playbackState: StateFlow<UnifiedPlaybackState> = _playbackState.asStateFlow()
-    
+
     init {
         // Initialize with default session
         serviceScope.launch {
@@ -74,13 +74,13 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             observePlaybackState()
         }
     }
-    
+
     /**
      * Initialize or restore the default playback session
      */
     private suspend fun initializeDefaultSession() = withContext(Dispatchers.IO) {
         var session = sessionDao.getSessionByName("DEFAULT")
-        
+
         if (session == null) {
             // Create default session
             val sessionId = sessionDao.insertSession(
@@ -96,23 +96,23 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             sessionDao.deactivateAllSessions()
             sessionDao.activateSession(session.sessionId)
         }
-        
+
         session?.let { activeSession ->
             _currentSession.value = activeSession
-            
+
             // Restore active queue if it exists
             activeSession.activeQueueId?.let { queueId ->
                 val queue = queueDao.getQueueById(queueId)
                 _currentQueue.value = queue
-                
+
                 // Load queue items
                 val items = queueItemDao.getQueueItems(queueId)
                 _queueItems.value = items
-                
+
                 // Find current item
                 val currentItem = items.find { it.isCurrentlyPlaying }
                 _currentItem.value = currentItem
-                
+
                 // Update playback state
                 updatePlaybackState(
                     isPlaying = activeSession.isPlaying,
@@ -123,7 +123,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Observe ExoPlayer state and sync with our state
      */
@@ -138,7 +138,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
                     isBuffering = exoState.isBuffering,
                     hasEnded = exoState.hasEnded
                 )
-                
+
                 // Save position periodically
                 if (exoState.isPlaying) {
                     saveCurrentPosition(exoState.currentPosition)
@@ -146,7 +146,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Create or switch to a queue for specific media type
      */
@@ -155,9 +155,9 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         queueType: String,
         displayName: String = queueName
     ): PlaybackQueue = withContext(Dispatchers.IO) {
-        
+
         var queue = queueDao.getQueueByName(queueName)
-        
+
         if (queue == null) {
             // Create new queue
             val queueId = queueDao.insertQueue(
@@ -171,40 +171,40 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             )
             queue = queueDao.getQueueById(queueId)!!
         }
-        
+
         // Switch to this queue
         switchToQueue(queue.queueId)
-        
+
         queue
     }
-    
+
     /**
      * Switch to a different queue
      */
     suspend fun switchToQueue(queueId: Long) = withContext(Dispatchers.IO) {
         // Save current state first
         saveCurrentState()
-        
+
         // Deactivate all queues
         queueDao.deactivateAllQueues()
-        
+
         // Activate new queue
         queueDao.activateQueue(queueId)
         queueDao.updateLastUsed(queueId)
-        
+
         // Load new queue
         val queue = queueDao.getQueueById(queueId)
         _currentQueue.value = queue
-        
+
         // Load queue items
         val items = queueItemDao.getQueueItems(queueId)
         _queueItems.value = items
-        
+
         // Update session
         _currentSession.value?.let { session ->
             sessionDao.updateActiveQueue(session.sessionId, queueId)
         }
-        
+
         // Find current item and prepare player
         val currentItem = items.find { it.isCurrentlyPlaying }
         if (currentItem != null) {
@@ -212,7 +212,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             preparePlayerForCurrentItem()
         }
     }
-    
+
     /**
      * Add media items to the current queue
      */
@@ -220,12 +220,12 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         mediaItems: List<MediaItem>,
         insertAtCurrent: Boolean = false
     ) = withContext(Dispatchers.IO) {
-        
+
         val currentQueue = _currentQueue.value ?: run {
             // Create main queue if none exists
             createOrSwitchToQueue("MAIN_QUEUE", "MAIN", "Now Playing")
         }
-        
+
         val currentItems = _queueItems.value
         val insertPosition = if (insertAtCurrent) {
             val currentIndex = currentItems.indexOfFirst { it.isCurrentlyPlaying }
@@ -233,7 +233,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         } else {
             currentItems.size
         }
-        
+
         // Create queue items
         val queueItems = mediaItems.mapIndexed { index, mediaItem ->
             QueueItem(
@@ -245,46 +245,46 @@ class UnifiedPlaybackQueueManager @Inject constructor(
                 durationMs = 0 // Will be filled when loaded
             )
         }
-        
+
         // Shift existing items if inserting
         if (insertAtCurrent && insertPosition < currentItems.size) {
             queueItemDao.shiftPositionsUp(currentQueue.queueId, insertPosition)
         }
-        
+
         // Insert new items
         queueItemDao.insertQueueItems(queueItems)
-        
+
         // Refresh queue items
         val updatedItems = queueItemDao.getQueueItems(currentQueue.queueId)
         _queueItems.value = updatedItems
-        
+
         // Update queue timestamp
         queueDao.updateLastUsed(currentQueue.queueId)
     }
-    
+
     // Playback control methods
     fun play() {
         exoPlayerService.play()
         updatePlaybackSessionState(isPlaying = true, isPaused = false)
     }
-    
+
     fun pause() {
         exoPlayerService.pause()
         updatePlaybackSessionState(isPlaying = false, isPaused = true)
     }
-    
+
     fun stop() {
         exoPlayerService.stop()
         updatePlaybackSessionState(isPlaying = false, isPaused = false)
     }
-    
+
     fun seekTo(positionMs: Long) {
         exoPlayerService.seekTo(positionMs)
         serviceScope.launch {
             saveCurrentPosition(positionMs)
         }
     }
-    
+
     fun setPlaybackSpeed(speed: Float) {
         exoPlayerService.setPlaybackSpeed(speed)
         serviceScope.launch {
@@ -293,12 +293,12 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             }
         }
     }
-    
+
     // Private helper methods
     private suspend fun preparePlayerForCurrentItem() {
         val currentItem = _currentItem.value ?: return
         val mediaItem = database.mediaItemDao().getMediaItemById(currentItem.mediaItemId) ?: return
-        
+
         val exoMediaItem = ExoMediaItem.fromUri(mediaItem.filePath)
         if (exoPlayerService.prepareMedia(exoMediaItem)) {
             // Seek to saved position
@@ -307,7 +307,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             }
         }
     }
-    
+
     private fun determineMediaType(mediaType: String): String {
         return when (mediaType.uppercase()) {
             "MUSIC_TRACK" -> "MUSIC"
@@ -317,26 +317,26 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             else -> "UNKNOWN"
         }
     }
-    
+
     private suspend fun saveCurrentPosition(positionMs: Long) {
         _currentItem.value?.let { currentItem ->
             queueItemDao.updatePlaybackPosition(currentItem.queueItemId, positionMs)
         }
-        
+
         _currentSession.value?.let { session ->
             sessionDao.updateCurrentPosition(session.sessionId, positionMs)
         }
     }
-    
+
     private suspend fun saveCurrentState() = withContext(Dispatchers.IO) {
         val currentPosition = exoPlayerService.getCurrentPosition()
         saveCurrentPosition(currentPosition)
-        
+
         _currentSession.value?.let { session ->
             sessionDao.updateLastUsed(session.sessionId)
         }
     }
-    
+
     private fun updatePlaybackSessionState(
         isPlaying: Boolean? = null,
         isPaused: Boolean? = null
@@ -349,7 +349,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             }
         }
     }
-    
+
     private fun updatePlaybackState(
         isPlaying: Boolean = _playbackState.value.isPlaying,
         isPaused: Boolean = _playbackState.value.isPaused,
@@ -371,7 +371,7 @@ class UnifiedPlaybackQueueManager @Inject constructor(
             error = error
         )
     }
-    
+
     /**
      * Release resources and save state
      */

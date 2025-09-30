@@ -27,16 +27,16 @@ class PlexSyncService @Inject constructor(
     private val libraryDao: LibraryDao,
     private val authService: PlexAuthService
 ) {
-    
+
     companion object {
         private const val TAG = "PlexSyncService"
     }
-    
+
     private val _syncStatus = MutableStateFlow<PlexSyncStatus>(PlexSyncStatus.Idle)
     val syncStatus: Flow<PlexSyncStatus> = _syncStatus.asStateFlow()
-    
+
     private val retrofitInstances = mutableMapOf<String, PlexApi>()
-    
+
     /**
      * Add a new Plex server
      */
@@ -49,7 +49,7 @@ class PlexSyncService @Inject constructor(
         return try {
             val api = getPlexApi(host, port)
             val serverInfo = api.getServerInfo(token)
-            
+
             if (serverInfo.isSuccessful && serverInfo.body() != null) {
                 val info = serverInfo.body()!!
                 val server = PlexServer(
@@ -61,7 +61,7 @@ class PlexSyncService @Inject constructor(
                     version = info.version,
                     lastConnected = System.currentTimeMillis()
                 )
-                
+
                 val serverId = plexServerDao.insertServer(server)
                 Result.success(server.copy(serverId = serverId))
             } else {
@@ -72,20 +72,20 @@ class PlexSyncService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Sync all active servers
      */
     suspend fun syncAllServers(): Result<Unit> {
         return try {
             _syncStatus.value = PlexSyncStatus.Syncing("Starting sync...")
-            
+
             plexServerDao.getAllActiveServers().collect { servers ->
                 for (server in servers) {
                     syncServer(server)
                 }
             }
-            
+
             _syncStatus.value = PlexSyncStatus.Success("Sync completed successfully")
             Result.success(Unit)
         } catch (e: Exception) {
@@ -94,54 +94,54 @@ class PlexSyncService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Sync a specific server
      */
     suspend fun syncServer(server: PlexServer): Result<Unit> {
         return try {
             _syncStatus.value = PlexSyncStatus.Syncing("Syncing ${server.name}...")
-            
+
             val api = getPlexApi(server.host, server.port)
-            
+
             // Test connection
             val serverInfo = api.getServerInfo(server.token)
             if (!serverInfo.isSuccessful) {
                 throw Exception("Cannot connect to ${server.name}")
             }
-            
+
             // Update last connected
             plexServerDao.updateLastConnected(server.serverId, System.currentTimeMillis())
-            
+
             // Sync libraries and media items
             syncMediaItems(server, api)
-            
+
             // Sync progress
             syncProgress(server, api)
-            
+
             // Sync ratings
             syncRatings(server, api)
-            
+
             // Sync collections
             syncCollections(server, api)
-            
+
             // Update last synced
             plexServerDao.updateLastSynced(server.serverId, System.currentTimeMillis())
-            
+
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Error syncing server ${server.name}", e)
             Result.failure(e)
         }
     }
-    
+
     /**
      * Sync media items from Plex and map to unified model
      */
     private suspend fun syncMediaItems(server: PlexServer, api: PlexApi) {
         val libraries = api.getLibraries(server.token)
         if (!libraries.isSuccessful || libraries.body() == null) return
-        
+
         for (library in libraries.body()!!.mediaContainer.directories) {
             // Create or get a unified library for this Plex library
             val unifiedLibrary = getOrCreateUnifiedLibrary(server, library)
@@ -167,7 +167,7 @@ class PlexSyncService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Get or create a unified library for a Plex library section
      */
@@ -241,7 +241,7 @@ class PlexSyncService @Inject constructor(
     private suspend fun syncProgress(server: PlexServer, api: PlexApi) {
         // Get items that need progress sync
         val progressItems = plexSyncDao.getProgressNeedingSync()
-        
+
         for (progressItem in progressItems) {
             try {
                 val plexItem = plexMediaItemDao.getMediaItemByRatingKey(progressItem.plexMediaItemId.toString())
@@ -256,7 +256,7 @@ class PlexSyncService @Inject constructor(
                             key = "/library/metadata/${plexItem.plexRatingKey}"
                         )
                     }
-                    
+
                     // Mark as synced
                     plexSyncDao.markProgressSynced(progressItem.id, System.currentTimeMillis())
                 }
@@ -265,13 +265,13 @@ class PlexSyncService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Sync ratings
      */
     private suspend fun syncRatings(server: PlexServer, api: PlexApi) {
         val ratingItems = plexSyncDao.getRatingsNeedingSync()
-        
+
         for (ratingItem in ratingItems) {
             try {
                 val plexItem = plexMediaItemDao.getMediaItemByRatingKey(ratingItem.plexMediaItemId.toString())
@@ -282,7 +282,7 @@ class PlexSyncService @Inject constructor(
                         token = server.token,
                         rating = ratingItem.localRating
                     )
-                    
+
                     // Mark as synced
                     plexSyncDao.markRatingSynced(ratingItem.id, System.currentTimeMillis())
                 }
@@ -291,7 +291,7 @@ class PlexSyncService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Sync collections
      */
@@ -307,15 +307,15 @@ class PlexSyncService @Inject constructor(
                     summary = collectionData.summary,
                     itemCount = collectionData.childCount
                 )
-                
+
                 val collectionId = plexSyncDao.insertCollection(collection)
-                
+
                 // Get collection items
                 val collectionItems = api.getCollectionItems(collectionData.ratingKey, server.token)
                 if (collectionItems.isSuccessful && collectionItems.body()?.mediaContainer?.metadata != null) {
                     // Clear existing items
                     plexSyncDao.deleteCollectionItems(collectionId)
-                    
+
                     // Add new items
                     val items = collectionItems.body()!!.mediaContainer.metadata!!.mapIndexedNotNull { index, metadata ->
                         val plexItem = plexMediaItemDao.getMediaItemByRatingKey(metadata.ratingKey)
@@ -332,7 +332,7 @@ class PlexSyncService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update local progress and mark for sync
      */
@@ -360,7 +360,7 @@ class PlexSyncService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Update local rating and mark for sync
      */
@@ -388,21 +388,21 @@ class PlexSyncService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Get all active servers
      */
     fun getAllServers(): Flow<List<PlexServer>> {
         return plexServerDao.getAllActiveServers()
     }
-    
+
     /**
      * Get Plex API instance for server
      */
     private fun getPlexApi(host: String, port: Int): PlexApi {
         val baseUrl = "http://$host:$port"
         val key = "$host:$port"
-        
+
         return retrofitInstances.getOrPut(key) {
             Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -419,6 +419,6 @@ class PlexSyncService @Inject constructor(
 sealed class PlexSyncStatus {
     object Idle : PlexSyncStatus()
     data class Syncing(val message: String) : PlexSyncStatus()
-    data class Success(val message: String) : PlexSyncStatus() 
+    data class Success(val message: String) : PlexSyncStatus()
     data class Error(val message: String) : PlexSyncStatus()
 }

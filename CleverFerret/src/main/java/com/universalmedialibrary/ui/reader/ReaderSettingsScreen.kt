@@ -20,7 +20,7 @@ import java.util.Locale
 
 /**
  * Reader Settings Screen
- * 
+ *
  * Allows users to customize reading experience:
  * - Theme (light/dark/sepia)
  * - Typography (font family, size, spacing)
@@ -37,20 +37,20 @@ fun ReaderSettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val readerSettings by viewModel.readerSettings.collectAsStateWithLifecycle()
-    
+
     LaunchedEffect(mediaId) {
         viewModel.loadSettings(mediaId)
     }
-    
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
         // Top App Bar
         TopAppBar(
-            title = { 
+            title = {
                 Text(
                     text = if (mediaId != null) "Book Settings" else "Reader Settings"
-                ) 
+                )
             },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
@@ -58,7 +58,7 @@ fun ReaderSettingsScreen(
                 }
             }
         )
-        
+
         // Settings Content
         Column(
             modifier = Modifier
@@ -69,7 +69,7 @@ fun ReaderSettingsScreen(
         ) {
             // Preview Section
             PreviewSection(readerSettings = readerSettings)
-            
+
             // Theme Section
             ThemeSection(
                 readerSettings = readerSettings,
@@ -77,7 +77,7 @@ fun ReaderSettingsScreen(
                 onBackgroundColorChanged = { color -> viewModel.updateBackgroundColor(color) },
                 onTextColorChanged = { color -> viewModel.updateTextColor(color) }
             )
-            
+
             // Typography Section
             TypographySection(
                 readerSettings = readerSettings,
@@ -85,21 +85,21 @@ fun ReaderSettingsScreen(
                 onFontSizeChanged = { size -> viewModel.updateFontSize(size) },
                 onLineSpacingChanged = { spacing -> viewModel.updateLineSpacing(spacing) }
             )
-            
+
             // Layout Section
             LayoutSection(
                 readerSettings = readerSettings,
                 onMarginChanged = { margins -> viewModel.updateMargins(margins) },
                 onTextAlignmentChanged = { alignment -> viewModel.updateTextAlignment(alignment) }
             )
-            
+
             // Advanced Section
             AdvancedSection(
                 readerSettings = readerSettings,
                 onBrightnessChanged = { brightness -> viewModel.updateBrightness(brightness) },
                 onKeepScreenOnChanged = { keepOn -> viewModel.updateKeepScreenOn(keepOn) }
             )
-            
+
             // Reset to Defaults
             if (mediaId != null) {
                 Button(
@@ -127,7 +127,7 @@ private fun PreviewSection(readerSettings: ReaderSettings) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            
+
             // Preview box
             Box(
                 modifier = Modifier
@@ -172,7 +172,7 @@ private fun ThemeSection(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            
+
             // Theme selector
             val themes = listOf("LIGHT", "DARK", "SEPIA", "SYSTEM")
             themes.forEach { theme ->
@@ -215,14 +215,14 @@ private fun TypographySection(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            
+
             // Font family
             Text(
                 text = "Font Family",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             val fontFamilies = listOf("DEFAULT", "SERIF", "SANS_SERIF", "MONOSPACE")
             fontFamilies.forEach { family ->
                 Row(
@@ -241,32 +241,32 @@ private fun TypographySection(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Font size
             Text(
                 text = "Font Size: ${readerSettings.fontSize}sp",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             Slider(
                 value = readerSettings.fontSize.toFloat(),
                 onValueChange = { onFontSizeChanged(it.toInt()) },
                 valueRange = 12f..24f,
                 steps = 11
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Line spacing
             Text(
                 text = "Line Spacing: ${String.format(Locale.getDefault(), "%.1f", readerSettings.lineSpacing)}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             Slider(
                 value = readerSettings.lineSpacing,
                 onValueChange = onLineSpacingChanged,
@@ -295,14 +295,14 @@ private fun LayoutSection(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            
+
             // Margins
             Text(
                 text = "Margins: ${readerSettings.marginLeft}dp",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             Slider(
                 value = readerSettings.marginLeft.toFloat(),
                 onValueChange = { margin ->
@@ -318,16 +318,16 @@ private fun LayoutSection(
                 valueRange = 8f..32f,
                 steps = 11
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Text alignment
             Text(
                 text = "Text Alignment",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             val alignments = listOf("LEFT", "CENTER", "RIGHT", "JUSTIFY")
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -363,22 +363,22 @@ private fun AdvancedSection(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-            
+
             // Brightness
             Text(
                 text = "Brightness: ${(readerSettings.brightness * 100).toInt()}%",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             Slider(
                 value = readerSettings.brightness,
                 onValueChange = onBrightnessChanged,
                 valueRange = 0.1f..1.0f
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Keep screen on
             Row(
                 modifier = Modifier.fillMaxWidth(),

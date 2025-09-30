@@ -31,11 +31,11 @@ fun ReadingStatisticsScreen(
     viewModel: ReadingStatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     LaunchedEffect(mediaId) {
         viewModel.loadStatistics(mediaId)
     }
-    
+
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -48,7 +48,7 @@ fun ReadingStatisticsScreen(
                 }
             }
         )
-        
+
         LazyColumn(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -62,14 +62,14 @@ fun ReadingStatisticsScreen(
                     averageSessionTime = uiState.averageSessionTime
                 )
             }
-            
+
             // Reading Progress Chart
             item {
                 ReadingProgressChart(
                     statistics = uiState.statistics
                 )
             }
-            
+
             // Daily Statistics
             item {
                 Text(
@@ -78,7 +78,7 @@ fun ReadingStatisticsScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
-            
+
             items(uiState.statistics) { statistic ->
                 DailyStatisticItem(statistic = statistic)
             }
@@ -105,9 +105,9 @@ private fun StatisticsSummary(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -117,19 +117,19 @@ private fun StatisticsSummary(
                     label = "Total Time",
                     value = "${totalReadingTime}m"
                 )
-                
+
                 StatisticItem(
                     icon = PhosphorIcons.MenuBook,
                     label = "Pages Read",
                     value = totalPages.toString()
                 )
-                
+
                 StatisticItem(
                     icon = Icons.Default.PlayArrow,
                     label = "Sessions",
                     value = totalSessions.toString()
                 )
-                
+
                 StatisticItem(
                     icon = PhosphorIcons.AccessTime,
                     label = "Avg Session",
@@ -155,15 +155,15 @@ private fun StatisticItem(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         Text(
             text = value,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
-        
+
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
@@ -188,9 +188,9 @@ private fun ReadingProgressChart(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Simple progress visualization
             // In a real implementation, you'd use a charting library
             Box(
@@ -214,7 +214,7 @@ private fun DailyStatisticItem(
     statistic: ReadingStatistics
 ) {
     val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-    
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -229,14 +229,14 @@ private fun DailyStatisticItem(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 Text(
                     text = "${statistic.readingTimeMinutes} minutes • ${statistic.sessionCount} sessions",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Column(
                 horizontalAlignment = Alignment.End
             ) {
@@ -246,7 +246,7 @@ private fun DailyStatisticItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                
+
                 LinearProgressIndicator(
                     progress = { statistic.endProgress },
                     modifier = Modifier.width(60.dp)

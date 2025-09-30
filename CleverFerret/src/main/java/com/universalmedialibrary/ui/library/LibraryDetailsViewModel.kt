@@ -45,7 +45,7 @@ class LibraryDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                
+
                 // Load library info
                 val library = libraryDao.getLibraryById(libraryId)
                 if (library == null) {
@@ -89,7 +89,7 @@ class LibraryDetailsViewModel @Inject constructor(
             try {
                 val library = libraryDao.getLibraryById(libraryId) ?: return@launch
                 val existingCount = mediaItemDao.getItemCountByLibrary(libraryId)
-                
+
                 if (existingCount == 0) {
                     // Create sample media items based on library type
                     val sampleItems = when (library.type) {
@@ -101,15 +101,15 @@ class LibraryDetailsViewModel @Inject constructor(
                         "DOCUMENT" -> createSampleDocuments(libraryId)
                         else -> emptyList()
                     }
-                    
+
                     // Insert media items and get their IDs
                     val insertedIds = mediaItemDao.insertMediaItems(sampleItems)
-                    
+
                     // Create sample metadata for each item
                     val sampleMetadata = sampleItems.zip(insertedIds) { item, itemId ->
                         createSampleMetadata(itemId, item, library.type)
                     }
-                    
+
                     metadataDao.insertCommonMetadataBatch(sampleMetadata)
                 }
             } catch (e: Exception) {
@@ -325,7 +325,7 @@ fun LibraryDetailsViewModel.MediaItemWithMetadata.toMediaItemData(): MediaItemDa
         "MAGAZINE" -> "Publisher"
         else -> "Unknown"
     }
-    
+
     return MediaItemData(
         id = mediaItem.itemId.toInt(),
         title = title,

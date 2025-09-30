@@ -56,7 +56,7 @@ fun PlexIntegrationScreen(
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                         )
                     }
-                    
+
                     Button(
                         onClick = { showAddServerDialog = true },
                         modifier = Modifier.padding(start = 16.dp)
@@ -297,9 +297,9 @@ private fun ServerActionCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -320,7 +320,7 @@ private fun ServerActionCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Enhance", style = MaterialTheme.typography.labelSmall)
                 }
-                
+
                 // Find Duplicates
                 OutlinedButton(
                     onClick = onFindDuplicates,
@@ -338,7 +338,7 @@ private fun ServerActionCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Duplicates", style = MaterialTheme.typography.labelSmall)
                 }
-                
+
                 // Create Collections
                 OutlinedButton(
                     onClick = onCreateCollections,

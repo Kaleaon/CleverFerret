@@ -23,38 +23,38 @@ interface MediaItemDao {
 
     @Query("SELECT * FROM media_items WHERE filePath = :filePath")
     suspend fun getMediaItemByFilePath(filePath: String): MediaItem?
-    
+
     @Query("SELECT * FROM media_items WHERE filePath = :path LIMIT 1")
     suspend fun getItemByPath(path: String): MediaItem?
-    
+
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountForLibrary(libraryId: Long): Int
 
     // Additional methods needed by MediaRepository
     @Query("SELECT * FROM media_items WHERE libraryId = :libraryId ORDER BY dateAdded DESC")
     fun getMediaItemsByLibrary(libraryId: Long): Flow<List<MediaItem>>
-    
+
     @Query("SELECT * FROM media_items WHERE filePath = :filePath LIMIT 1")
     suspend fun getMediaItemByPath(filePath: String): MediaItem?
-    
+
     @Query("SELECT * FROM media_items WHERE mediaType = :mediaType ORDER BY dateAdded DESC")
     fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>>
-    
+
     @Update
     suspend fun updateMediaItem(mediaItem: MediaItem)
-    
+
     @Delete
     suspend fun deleteMediaItem(mediaItem: MediaItem)
-    
+
     @Query("SELECT * FROM media_items WHERE fileName LIKE '%' || :query || '%' OR filePath LIKE '%' || :query || '%' LIMIT :limit")
     suspend fun searchMediaItems(query: String, limit: Int): List<MediaItem>
-    
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMediaItems(mediaItems: List<MediaItem>)
-    
+
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountByLibrary(libraryId: Long): Int
-    
+
     @Query("SELECT COUNT(*) FROM media_items WHERE mediaType = :mediaType")
     suspend fun getItemCountByType(mediaType: String): Int
 }

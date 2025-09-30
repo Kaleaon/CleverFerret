@@ -171,7 +171,7 @@ fun BottomComicControls(
                         modifier = Modifier.width(40.dp),
                         textAlign = TextAlign.Center
                     )
-                    
+
                     Slider(
                         value = currentPage.toFloat(),
                         onValueChange = { onPageSeek(it.toInt()) },
@@ -183,7 +183,7 @@ fun BottomComicControls(
                             inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                         )
                     )
-                    
+
                     Text(
                         text = totalPages.toString(),
                         color = Color.White,
@@ -192,7 +192,7 @@ fun BottomComicControls(
                         textAlign = TextAlign.Center
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -208,7 +208,7 @@ fun BottomComicControls(
                 } else {
                     onPreviousPage
                 }
-                
+
                 IconButton(
                     onClick = previousAction,
                     enabled = canGoPrevious
@@ -230,9 +230,9 @@ fun BottomComicControls(
                     FilledTonalButton(
                         onClick = onTogglePanelMode,
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = if (panelByPanelMode) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            containerColor = if (panelByPanelMode)
+                                MaterialTheme.colorScheme.primary
+                            else
                                 Color.White.copy(alpha = 0.2f)
                         )
                     ) {
@@ -282,7 +282,7 @@ fun BottomComicControls(
                 } else {
                     onNextPage
                 }
-                
+
                 IconButton(
                     onClick = nextAction,
                     enabled = canGoNext
@@ -341,7 +341,7 @@ fun ComicReaderSettingsSheet(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             FilterChip(
-                                onClick = { 
+                                onClick = {
                                     onSettingsChanged(settings.copy(readingMode = ReadingMode.SINGLE_PAGE))
                                 },
                                 label = { Text("Single Page") },
@@ -349,7 +349,7 @@ fun ComicReaderSettingsSheet(
                                 modifier = Modifier.weight(1f)
                             )
                             FilterChip(
-                                onClick = { 
+                                onClick = {
                                     onSettingsChanged(settings.copy(readingMode = ReadingMode.DOUBLE_PAGE))
                                 },
                                 label = { Text("Double Page") },
@@ -358,7 +358,7 @@ fun ComicReaderSettingsSheet(
                             )
                         }
                         FilterChip(
-                            onClick = { 
+                            onClick = {
                                 onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_SCROLL))
                                 onComicSettingsChanged(comicSettings.copy(webtoonMode = true))
                             },
@@ -378,7 +378,7 @@ fun ComicReaderSettingsSheet(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         FilterChip(
-                            onClick = { 
+                            onClick = {
                                 onSettingsChanged(settings.copy(readingDirection = ReadingDirection.LEFT_TO_RIGHT))
                             },
                             label = { Text("Left to Right") },
@@ -386,7 +386,7 @@ fun ComicReaderSettingsSheet(
                             modifier = Modifier.weight(1f)
                         )
                         FilterChip(
-                            onClick = { 
+                            onClick = {
                                 onSettingsChanged(settings.copy(readingDirection = ReadingDirection.RIGHT_TO_LEFT))
                             },
                             label = { Text("Right to Left") },
@@ -411,7 +411,7 @@ fun ComicReaderSettingsSheet(
                             Text("Panel-by-Panel Mode")
                             Switch(
                                 checked = comicSettings.panelByPanelMode,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onComicSettingsChanged(comicSettings.copy(panelByPanelMode = it))
                                 }
                             )
@@ -425,7 +425,7 @@ fun ComicReaderSettingsSheet(
                             Text("Smart Panel Detection")
                             Switch(
                                 checked = comicSettings.smartPanelDetection,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onComicSettingsChanged(comicSettings.copy(smartPanelDetection = it))
                                 }
                             )
@@ -439,7 +439,7 @@ fun ComicReaderSettingsSheet(
                             Text("Zoom on Panel Focus")
                             Switch(
                                 checked = comicSettings.zoomOnPanelFocus,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onComicSettingsChanged(comicSettings.copy(zoomOnPanelFocus = it))
                                 }
                             )
@@ -453,7 +453,7 @@ fun ComicReaderSettingsSheet(
                             Text("Show Panel Borders")
                             Switch(
                                 checked = comicSettings.showPanelBorders,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onComicSettingsChanged(comicSettings.copy(showPanelBorders = it))
                                 }
                             )
@@ -467,7 +467,7 @@ fun ComicReaderSettingsSheet(
                             Text("Panel Navigation Hints")
                             Switch(
                                 checked = comicSettings.panelNavigationHints,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onComicSettingsChanged(comicSettings.copy(panelNavigationHints = it))
                                 }
                             )
@@ -477,7 +477,7 @@ fun ComicReaderSettingsSheet(
                         Text("Panel Transition: ${comicSettings.panelTransitionDuration}ms")
                         Slider(
                             value = comicSettings.panelTransitionDuration.toFloat(),
-                            onValueChange = { 
+                            onValueChange = {
                                 onComicSettingsChanged(comicSettings.copy(panelTransitionDuration = it.toLong()))
                             },
                             valueRange = 100f..1000f,
@@ -501,7 +501,7 @@ fun ComicReaderSettingsSheet(
                             Text("Crop White Space")
                             Switch(
                                 checked = comicSettings.cropWhiteSpace,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onComicSettingsChanged(comicSettings.copy(cropWhiteSpace = it))
                                 }
                             )
@@ -515,7 +515,7 @@ fun ComicReaderSettingsSheet(
                             Text("Keep Screen On")
                             Switch(
                                 checked = settings.keepScreenOn,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(keepScreenOn = it))
                                 }
                             )
@@ -525,7 +525,7 @@ fun ComicReaderSettingsSheet(
                         Text("Brightness: ${(settings.brightness * 100).toInt()}%")
                         Slider(
                             value = settings.brightness,
-                            onValueChange = { 
+                            onValueChange = {
                                 onSettingsChanged(settings.copy(brightness = it))
                             },
                             valueRange = 0.1f..1f
@@ -548,7 +548,7 @@ fun ComicReaderSettingsSheet(
                             Text("Double Tap to Zoom")
                             Switch(
                                 checked = settings.doubleTapToZoom,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(doubleTapToZoom = it))
                                 }
                             )
@@ -562,7 +562,7 @@ fun ComicReaderSettingsSheet(
                             Text("Pinch to Zoom")
                             Switch(
                                 checked = settings.pinchToZoom,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(pinchToZoom = it))
                                 }
                             )
@@ -576,7 +576,7 @@ fun ComicReaderSettingsSheet(
                             Text("Volume Keys Navigation")
                             Switch(
                                 checked = settings.volumeKeysForNavigation,
-                                onCheckedChange = { 
+                                onCheckedChange = {
                                     onSettingsChanged(settings.copy(volumeKeysForNavigation = it))
                                 }
                             )
@@ -619,14 +619,14 @@ fun PanelBrowserSheet(
             items(pages.withIndex().toList()) { (pageIndex, pageUri) ->
                 val pageNumber = pageIndex + 1
                 val pagePanels = panels[pageNumber] ?: emptyList()
-                
+
                 PageBrowserItem(
                     pageNumber = pageNumber,
                     pageUri = pageUri,
                     panels = pagePanels,
                     isCurrentPage = pageNumber == currentPage,
                     onPageSelected = onPageSelected,
-                    onPanelSelected = { panelIndex -> 
+                    onPanelSelected = { panelIndex ->
                         onPanelSelected(pageNumber, panelIndex)
                     }
                 )
@@ -649,9 +649,9 @@ private fun PageBrowserItem(
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isCurrentPage) 
-                MaterialTheme.colorScheme.primaryContainer 
-            else 
+            containerColor = if (isCurrentPage)
+                MaterialTheme.colorScheme.primaryContainer
+            else
                 MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
@@ -668,7 +668,7 @@ private fun PageBrowserItem(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 if (panels.isNotEmpty()) {
                     Text(
                         text = "${panels.size} panels",
@@ -698,7 +698,7 @@ private fun PageBrowserItem(
             // Panel thumbnails
             if (panels.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {

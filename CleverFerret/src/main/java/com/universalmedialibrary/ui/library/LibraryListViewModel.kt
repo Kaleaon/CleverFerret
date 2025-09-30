@@ -45,7 +45,7 @@ class LibraryListViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                
+
                 libraryDao.getAllActiveLibraries().collect { libraries ->
                     // Get item counts for each library
                     val librariesWithCounts = libraries.map { library ->
@@ -86,7 +86,7 @@ class LibraryListViewModel @Inject constructor(
                         ),
                         Library(
                             name = "Movies & TV",
-                            type = "MOVIE", 
+                            type = "MOVIE",
                             path = "/storage/emulated/0/Movies",
                             description = "Movie and TV show collection"
                         ),
@@ -115,7 +115,7 @@ class LibraryListViewModel @Inject constructor(
                             description = "Important documents"
                         )
                     )
-                    
+
                     sampleLibraries.forEach { library ->
                         libraryDao.insertLibrary(library)
                     }
