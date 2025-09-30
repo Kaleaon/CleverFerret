@@ -2,7 +2,7 @@ package com.universalmedialibrary.services
 
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.*
+import com.universalmedialibrary.data.local.entity.*
 import java.io.File
 import java.io.FileInputStream
 import java.security.MessageDigest
@@ -99,16 +99,16 @@ class CalibreImportService @Inject constructor(
         if (file.isDirectory) {
             // File format preference order as specified in IMPORT_LOGIC.md
             val preferredExtensions = listOf("epub", "mobi", "azw3", "pdf", "cbz", "cbr")
-            
+
             for (extension in preferredExtensions) {
-                val matchingFile = file.listFiles()?.firstOrNull { 
+                val matchingFile = file.listFiles()?.firstOrNull {
                     it.extension.equals(extension, ignoreCase = true)
                 }
                 if (matchingFile != null) {
                     return matchingFile.absolutePath
                 }
             }
-            
+
             // Fallback: return any e-book file if no preferred format found
             return file.listFiles()
                 ?.firstOrNull { it.extension.lowercase() in listOf("epub", "pdf", "mobi", "azw3", "cbz", "cbr", "txt") }

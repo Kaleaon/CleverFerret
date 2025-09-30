@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class RealMetadataService @Inject constructor(
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
@@ -30,7 +30,7 @@ class RealMetadataService @Inject constructor(
             level = HttpLoggingInterceptor.Level.BASIC
         })
         .build()
-    
+
     // Google Books API (no key required for basic searches)
     private val googleBooksApi = Retrofit.Builder()
         .baseUrl("https://www.googleapis.com/books/v1/")
@@ -38,7 +38,7 @@ class RealMetadataService @Inject constructor(
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(GoogleBooksApi::class.java)
-    
+
     // Open Library API (completely free, no key required)
     private val openLibraryApi = Retrofit.Builder()
         .baseUrl("https://openlibrary.org/")
@@ -46,7 +46,7 @@ class RealMetadataService @Inject constructor(
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(OpenLibraryApi::class.java)
-    
+
     // TMDB API
     private val tmdbApi = Retrofit.Builder()
         .baseUrl("https://api.themoviedb.org/3/")
@@ -54,7 +54,7 @@ class RealMetadataService @Inject constructor(
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(TMDBApi::class.java)
-    
+
     // OMDb API
     private val omdbApi = Retrofit.Builder()
         .baseUrl("https://www.omdbapi.com/")
@@ -62,7 +62,7 @@ class RealMetadataService @Inject constructor(
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(OMDbApi::class.java)
-    
+
     // MusicBrainz API (no key required)
     private val musicBrainzApi = Retrofit.Builder()
         .baseUrl("https://musicbrainz.org/ws/2/")
@@ -70,7 +70,7 @@ class RealMetadataService @Inject constructor(
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(MusicBrainzApi::class.java)
-    
+
     /**
      * Search for book metadata from multiple sources
      */
@@ -81,10 +81,10 @@ class RealMetadataService @Inject constructor(
         author: String? = null
     ): BookMetadataResult = withContext(Dispatchers.IO) {
         val results = mutableListOf<BookMetadata>()
-        
+
         coroutineScope {
             val jobs = mutableListOf<kotlinx.coroutines.Deferred<List<BookMetadata>>>()
-            
+
             // Build search query
             val searchQuery = when {
                 !isbn.isNullOrBlank() -> "isbn:$isbn"
@@ -94,7 +94,7 @@ class RealMetadataService @Inject constructor(
                 !author.isNullOrBlank() -> "inauthor:$author"
                 else -> return@coroutineScope
             }
-            
+
             // Search Google Books
             jobs.add(async {
                 try {
@@ -103,7 +103,7 @@ class RealMetadataService @Inject constructor(
                     emptyList()
                 }
             })
-            
+
             // Search Open Library
             jobs.add(async {
                 try {
@@ -112,20 +112,20 @@ class RealMetadataService @Inject constructor(
                     emptyList()
                 }
             })
-            
+
             // Collect all results
             jobs.awaitAll().forEach { results.addAll(it) }
         }
-        
+
         // Merge and deduplicate results
         val mergedMetadata = mergeBookMetadata(results)
-        
+
         BookMetadataResult(
             metadata = mergedMetadata,
             sources = results.map { it.source }.distinct()
         )
     }
-    
+
     private suspend fun searchGoogleBooks(query: String): List<BookMetadata> {
         val response = googleBooksApi.searchBooks(query)
         return response.items?.map { item ->
@@ -147,7 +147,7 @@ class RealMetadataService @Inject constructor(
             )
         } ?: emptyList()
     }
-    
+
     private suspend fun searchOpenLibrary(query: String): List<BookMetadata> {
         val response = openLibraryApi.searchBooks(query)
         return response.docs?.map { doc ->
@@ -165,7 +165,7 @@ class RealMetadataService @Inject constructor(
             )
         } ?: emptyList()
     }
-    
+
     /**
      * Search for movie/TV metadata
      */
@@ -175,10 +175,10 @@ class RealMetadataService @Inject constructor(
         imdbId: String? = null
     ): MovieMetadataResult = withContext(Dispatchers.IO) {
         val results = mutableListOf<MovieMetadata>()
-        
+
         coroutineScope {
             val jobs = mutableListOf<kotlinx.coroutines.Deferred<MovieMetadata?>>()
-            
+
             // Search TMDB if API key available
             val tmdbKey = apiKeyRepository.getAPIKeyValue("tmdb")
             if (!tmdbKey.isNullOrEmpty()) {
@@ -190,7 +190,7 @@ class RealMetadataService @Inject constructor(
                     }
                 })
             }
-            
+
             // Search OMDb if API key available
             val omdbKey = apiKeyRepository.getAPIKeyValue("omdb")
             if (!omdbKey.isNullOrEmpty()) {
@@ -202,26 +202,26 @@ class RealMetadataService @Inject constructor(
                     }
                 })
             }
-            
+
             // Collect results
             jobs.awaitAll().forEach { it?.let { results.add(it) } }
         }
-        
+
         // Merge results
         val mergedMetadata = mergeMovieMetadata(results)
-        
+
         MovieMetadataResult(
             metadata = mergedMetadata,
             sources = results.map { it.source }.distinct()
         )
     }
-    
+
     private suspend fun searchTMDB(title: String, year: Int?, apiKey: String): MovieMetadata? {
         val response = tmdbApi.searchMovies(apiKey, title)
-        val movie = response.results?.firstOrNull { 
-            year == null || it.release_date?.startsWith(year.toString()) == true 
+        val movie = response.results?.firstOrNull {
+            year == null || it.release_date?.startsWith(year.toString()) == true
         } ?: response.results?.firstOrNull()
-        
+
         return movie?.let {
             MovieMetadata(
                 title = it.title ?: "",
@@ -235,14 +235,14 @@ class RealMetadataService @Inject constructor(
             )
         }
     }
-    
+
     private suspend fun searchOMDb(title: String, year: Int?, imdbId: String?, apiKey: String): MovieMetadata? {
         val response = when {
             !imdbId.isNullOrEmpty() -> omdbApi.getByImdbId(apiKey, imdbId)
             year != null -> omdbApi.searchByTitleAndYear(apiKey, title, year.toString())
             else -> omdbApi.searchByTitle(apiKey, title)
         }
-        
+
         return if (response.Response == "True") {
             MovieMetadata(
                 title = response.Title ?: "",
@@ -259,7 +259,7 @@ class RealMetadataService @Inject constructor(
             )
         } else null
     }
-    
+
     /**
      * Search for music metadata
      */
@@ -278,11 +278,11 @@ class RealMetadataService @Inject constructor(
             !track.isNullOrBlank() -> "recording:$track"
             else -> return@withContext MusicMetadataResult(null, emptyList())
         }
-        
+
         try {
             val response = musicBrainzApi.searchReleases(searchQuery)
             val release = response.releases?.firstOrNull()
-            
+
             val metadata = release?.let {
                 MusicMetadata(
                     title = it.title ?: "",
@@ -292,20 +292,20 @@ class RealMetadataService @Inject constructor(
                     source = "MusicBrainz"
                 )
             }
-            
+
             MusicMetadataResult(metadata, if (metadata != null) listOf("MusicBrainz") else emptyList())
         } catch (e: Exception) {
             MusicMetadataResult(null, emptyList())
         }
     }
-    
+
     private fun mergeBookMetadata(results: List<BookMetadata>): BookMetadata? {
         if (results.isEmpty()) return null
-        
+
         // Prioritize results with ISBN
         val withIsbn = results.filter { !it.isbn13.isNullOrEmpty() || !it.isbn10.isNullOrEmpty() }
         val primary = withIsbn.firstOrNull() ?: results.first()
-        
+
         // Merge data from all sources
         return primary.copy(
             description = primary.description ?: results.firstNotNullOfOrNull { it.description },
@@ -316,12 +316,12 @@ class RealMetadataService @Inject constructor(
             averageRating = results.mapNotNull { it.averageRating }.maxOrNull()
         )
     }
-    
+
     private fun mergeMovieMetadata(results: List<MovieMetadata>): MovieMetadata? {
         if (results.isEmpty()) return null
-        
+
         val primary = results.firstOrNull { !it.imdbId.isNullOrEmpty() } ?: results.first()
-        
+
         return primary.copy(
             overview = primary.overview ?: results.firstNotNullOfOrNull { it.overview },
             posterUrl = primary.posterUrl ?: results.firstNotNullOfOrNull { it.posterUrl },
@@ -516,14 +516,14 @@ interface OMDbApi {
         @Query("apikey") apiKey: String,
         @Query("t") title: String
     ): OMDbResponse
-    
+
     @GET("/")
     suspend fun searchByTitleAndYear(
         @Query("apikey") apiKey: String,
         @Query("t") title: String,
         @Query("y") year: String
     ): OMDbResponse
-    
+
     @GET("/")
     suspend fun getByImdbId(
         @Query("apikey") apiKey: String,

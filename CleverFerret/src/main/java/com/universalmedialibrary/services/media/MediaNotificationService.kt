@@ -15,14 +15,20 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.R
+import com.universalmedialibrary.services.artwork.ArtworkLoader
+import com.universalmedialibrary.data.local.entity.MediaItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * Foreground service for media playback notifications
- * 
+ *
  * Provides persistent media controls in the notification shade and lockscreen.
  * Integrates with MediaSessionManager for unified media session handling.
- * 
+ *
  * Features:
  * - Rich media notifications with MediaStyle
  * - Lockscreen controls integration
@@ -32,20 +38,22 @@ import javax.inject.Inject
  * - Smart notification management
  */
 class MediaNotificationService : MediaSessionService() {
-    
+
+
     private var mediaSession: MediaSession? = null
-    
+
+
     companion object {
         const val NOTIFICATION_ID = 1001
         const val CHANNEL_ID = "media_playback_channel"
-        
+
         // Intent actions for media controls
         const val ACTION_PLAY = "com.universalmedialibrary.ACTION_PLAY"
         const val ACTION_PAUSE = "com.universalmedialibrary.ACTION_PAUSE"
         const val ACTION_NEXT = "com.universalmedialibrary.ACTION_NEXT"
         const val ACTION_PREVIOUS = "com.universalmedialibrary.ACTION_PREVIOUS"
         const val ACTION_STOP = "com.universalmedialibrary.ACTION_STOP"
-        
+
         /**
          * Start the media notification service
          */
@@ -57,7 +65,7 @@ class MediaNotificationService : MediaSessionService() {
                 context.startService(intent)
             }
         }
-        
+
         /**
          * Stop the media notification service
          */
@@ -66,14 +74,14 @@ class MediaNotificationService : MediaSessionService() {
             context.stopService(intent)
         }
     }
-    
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        
+
         // TODO: Get MediaSession from proper source
         // mediaSession = mediaSessionManager.getMediaSession()
-        
+
         // Start as foreground service with initial notification
         val notification = createMediaNotification(
             title = getString(R.string.media_notification_title),
@@ -82,14 +90,14 @@ class MediaNotificationService : MediaSessionService() {
         )
         startForeground(NOTIFICATION_ID, notification)
     }
-    
+
     override fun onGetSession(controllerInfo: androidx.media3.session.MediaSession.ControllerInfo): MediaSession? {
         return mediaSession
     }
-    
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        
+
         // Handle media control actions
         when (intent?.action) {
             ACTION_PLAY -> mediaSession?.player?.play()
@@ -102,16 +110,16 @@ class MediaNotificationService : MediaSessionService() {
                 stopSelf()
             }
         }
-        
+
         return START_NOT_STICKY
     }
-    
+
     override fun onDestroy() {
         mediaSession?.release()
         mediaSession = null
         super.onDestroy()
     }
-    
+
     /**
      * Update the media notification with current track information
      */
@@ -129,11 +137,45 @@ class MediaNotificationService : MediaSessionService() {
             artwork = artwork,
             isPlaying = isPlaying
         )
-        
+
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
+
     
+    /**
+     * Update notification with artwork loading from MediaItem
+     * 
+     * TODO: This is a scaffolding method that will load artwork via ArtworkLoader
+     * and update the notification. Currently not fully wired up.
+     */
+    fun updateNotificationWithArtwork(
+        mediaItem: MediaItem,
+        title: String,
+        artist: String? = null,
+        album: String? = null,
+        isPlaying: Boolean = false
+    ) {
+        serviceScope.launch {
+            // Load artwork with notification-appropriate size (512x512)
+            val artwork = artworkLoader.loadArtwork(
+                mediaItem = mediaItem,
+                maxWidth = 512,
+                maxHeight = 512
+            )
+            
+            // Update notification with loaded artwork
+            updateNotification(
+                title = title,
+                artist = artist,
+                album = album,
+                artwork = artwork,
+                isPlaying = isPlaying
+            )
+        }
+    }
+    
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -147,12 +189,12 @@ class MediaNotificationService : MediaSessionService() {
                 enableVibration(false)
                 setSound(null, null)
             }
-            
+
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
-    
+
     private fun createMediaNotification(
         title: String,
         artist: String,
@@ -160,7 +202,7 @@ class MediaNotificationService : MediaSessionService() {
         artwork: Bitmap? = null,
         isPlaying: Boolean = false
     ): Notification {
-        
+
         // Create pending intent for opening the app
         val contentIntent = PendingIntent.getActivity(
             this,
@@ -168,7 +210,7 @@ class MediaNotificationService : MediaSessionService() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        
+
         // Create media control actions
         val playPauseAction = if (isPlaying) {
             NotificationCompat.Action.Builder(
@@ -183,25 +225,25 @@ class MediaNotificationService : MediaSessionService() {
                 createActionPendingIntent(ACTION_PLAY)
             ).build()
         }
-        
+
         val previousAction = NotificationCompat.Action.Builder(
             R.drawable.ic_skip_previous,
             getString(R.string.media_skip_previous),
             createActionPendingIntent(ACTION_PREVIOUS)
         ).build()
-        
+
         val nextAction = NotificationCompat.Action.Builder(
             R.drawable.ic_skip_next,
             getString(R.string.media_skip_next),
             createActionPendingIntent(ACTION_NEXT)
         ).build()
-        
+
         val stopAction = NotificationCompat.Action.Builder(
             R.drawable.ic_pause, // Using pause icon for stop
             getString(R.string.media_stop),
             createActionPendingIntent(ACTION_STOP)
         ).build()
-        
+
         // Build the notification with MediaStyle
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
@@ -219,23 +261,23 @@ class MediaNotificationService : MediaSessionService() {
             .addAction(playPauseAction)
             .addAction(nextAction)
             .addAction(stopAction)
-        
+
         // Add MediaStyle with show actions in compact view
         val mediaStyle = MediaNotificationCompat.MediaStyle()
             .setShowActionsInCompactView(0, 1, 2) // Previous, Play/Pause, Next
             .setShowCancelButton(true)
             .setCancelButtonIntent(createActionPendingIntent(ACTION_STOP))
-        
+
         // Set MediaSession token if available
         mediaSession?.let { session ->
             mediaStyle.setMediaSession(session.sessionCompatToken)
         }
-        
+
         builder.setStyle(mediaStyle)
-        
+
         return builder.build()
     }
-    
+
     private fun createActionPendingIntent(action: String): PendingIntent {
         val intent = Intent(this, MediaNotificationService::class.java).apply {
             this.action = action

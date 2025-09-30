@@ -5,10 +5,10 @@
     android:viewportWidth="24"
     android:viewportHeight="24"
     android:tint="?attr/colorOnPrimary">
-    
+
     <!-- Play button icon for media controls -->
     <path
         android:fillColor="@android:color/white"
         android:pathData="M8,5v14l11,-7z"/>
-        
+
 </vector>

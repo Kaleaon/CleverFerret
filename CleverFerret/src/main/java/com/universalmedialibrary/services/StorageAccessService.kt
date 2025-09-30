@@ -9,10 +9,10 @@ import androidx.documentfile.provider.DocumentFile
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.Library
-import com.universalmedialibrary.data.local.model.MediaItem
-import com.universalmedialibrary.data.local.model.MediaType
-import com.universalmedialibrary.data.local.model.MetadataCommon
+import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MediaType
+import com.universalmedialibrary.data.local.entity.MetadataCommon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -29,18 +29,18 @@ class StorageAccessService @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao
 ) {
-    
+
     companion object {
         const val REQUEST_CODE_OPEN_DIRECTORY = 1001
         const val PREF_PERSISTED_URIS = "persisted_uris"
-        
+
         // Supported file extensions
         val BOOK_EXTENSIONS = setOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx")
         val AUDIO_EXTENSIONS = setOf("mp3", "m4a", "m4b", "aac", "ogg", "opus", "flac", "wav", "wma")
         val VIDEO_EXTENSIONS = setOf("mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg")
         val COMIC_EXTENSIONS = setOf("cbz", "cbr", "cb7", "cbt")
     }
-    
+
     /**
      * Create intent for directory selection
      */
@@ -50,7 +50,7 @@ class StorageAccessService @Inject constructor(
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
     }
-    
+
     /**
      * Persist URI permission for future access
      */
@@ -58,7 +58,7 @@ class StorageAccessService @Inject constructor(
         try {
             val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             context.contentResolver.takePersistableUriPermission(uri, takeFlags)
-            
+
             // Save to preferences
             val prefs = context.getSharedPreferences(PREF_PERSISTED_URIS, Context.MODE_PRIVATE)
             val uris = prefs.getStringSet("uris", mutableSetOf()) ?: mutableSetOf()
@@ -68,7 +68,7 @@ class StorageAccessService @Inject constructor(
             e.printStackTrace()
         }
     }
-    
+
     /**
      * Get all persisted URI permissions
      */
@@ -77,7 +77,7 @@ class StorageAccessService @Inject constructor(
         val uriStrings = prefs.getStringSet("uris", emptySet()) ?: emptySet()
         return uriStrings.mapNotNull { Uri.parse(it) }
     }
-    
+
     /**
      * Scan a directory using SAF
      */
@@ -88,23 +88,23 @@ class StorageAccessService @Inject constructor(
         progressCallback: (String) -> Unit = {}
     ): Int = withContext(Dispatchers.IO) {
         var itemsFound = 0
-        
+
         try {
             val documentFile = DocumentFile.fromTreeUri(context, treeUri) ?: return@withContext 0
-            
+
             // Create or get library
             val library = getOrCreateLibrary(documentFile.name ?: libraryName ?: "Media Library", treeUri.toString())
-            
+
             // Recursively scan directory
             itemsFound = scanDocumentFile(context, documentFile, library, progressCallback)
-            
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        
+
         itemsFound
     }
-    
+
     private suspend fun scanDocumentFile(
         context: Context,
         documentFile: DocumentFile,
@@ -112,7 +112,7 @@ class StorageAccessService @Inject constructor(
         progressCallback: (String) -> Unit
     ): Int {
         var itemsFound = 0
-        
+
         if (documentFile.isDirectory) {
             documentFile.listFiles().forEach { child ->
                 itemsFound += scanDocumentFile(context, child, library, progressCallback)
@@ -124,10 +124,10 @@ class StorageAccessService @Inject constructor(
                 itemsFound++
             }
         }
-        
+
         return itemsFound
     }
-    
+
     private suspend fun processMediaFile(
         context: Context,
         documentFile: DocumentFile,
@@ -138,15 +138,15 @@ class StorageAccessService @Inject constructor(
         try {
             val uri = documentFile.uri
             val name = documentFile.name ?: "Unknown"
-            
+
             progressCallback("Processing: $name")
-            
+
             // Check if already exists
             val existingItem = mediaItemDao.getItemByPath(uri.toString())
             if (existingItem != null) {
                 return
             }
-            
+
             // Create media item
             val mediaItem = MediaItem(
                 libraryId = library.libraryId,
@@ -160,9 +160,9 @@ class StorageAccessService @Inject constructor(
                 playCount = 0,
                 isLocal = true
             )
-            
+
             val itemId = mediaItemDao.insertMediaItem(mediaItem)
-            
+
             // Create basic metadata
             val metadata = MetadataCommon(
                 itemId = itemId,
@@ -175,12 +175,12 @@ class StorageAccessService @Inject constructor(
                 isDownloaded = true
             )
             metadataDao.insertCommonMetadata(metadata)
-            
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-    
+
     private suspend fun getOrCreateLibrary(name: String, path: String): Library {
         var library = libraryDao.getLibrariesByType(name).firstOrNull()
         if (library == null) {
@@ -196,7 +196,7 @@ class StorageAccessService @Inject constructor(
         }
         return library
     }
-    
+
     private fun determineMediaType(fileName: String): MediaType? {
         val extension = fileName.substringAfterLast('.', "").lowercase()
         return when {
@@ -207,7 +207,7 @@ class StorageAccessService @Inject constructor(
             else -> null
         }
     }
-    
+
     /**
      * Open a media file using SAF
      */
@@ -224,13 +224,13 @@ class StorageAccessService @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Get input stream for a media file
      */
-    fun getInputStream(context: Context, uri: String) = 
+    fun getInputStream(context: Context, uri: String) =
         context.contentResolver.openInputStream(Uri.parse(uri))
-    
+
     /**
      * Check if we have read permission for a URI
      */
@@ -243,7 +243,7 @@ class StorageAccessService @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Release URI permission
      */
@@ -253,7 +253,7 @@ class StorageAccessService @Inject constructor(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
-            
+
             // Remove from preferences
             val prefs = context.getSharedPreferences(PREF_PERSISTED_URIS, Context.MODE_PRIVATE)
             val uris = prefs.getStringSet("uris", mutableSetOf()) ?: mutableSetOf()

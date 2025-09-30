@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 /**
  * Advanced Music Metadata Service using multiple APIs
- * 
+ *
  * Integrates with:
  * - Last.fm API for comprehensive music metadata
  * - MusicBrainz API for music database information
@@ -26,9 +26,9 @@ class MusicMetadataService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository
 ) {
-    
+
     private val httpClient = OkHttpClient()
-    
+
     /**
      * Enhance track metadata using multiple APIs
      */
@@ -43,7 +43,7 @@ class MusicMetadataService @Inject constructor(
                 originalTitle = title,
                 originalAlbum = album
             )
-            
+
             // Try Last.fm first for basic metadata
             val lastFmData = getLastFmTrackInfo(artist, title)
             if (lastFmData != null) {
@@ -58,7 +58,7 @@ class MusicMetadataService @Inject constructor(
                     albumArtUrl = lastFmData.albumArtUrl
                 )
             }
-            
+
             // Enhance with MusicBrainz for authoritative data
             val musicBrainzData = getMusicBrainzTrackInfo(artist, title, album)
             if (musicBrainzData != null) {
@@ -69,7 +69,7 @@ class MusicMetadataService @Inject constructor(
                     isrc = musicBrainzData.isrc
                 )
             }
-            
+
             // Get artist information from AudioDB
             val artistInfo = getAudioDbArtistInfo(enhancedMetadata.correctedArtist ?: artist)
             if (artistInfo != null) {
@@ -80,9 +80,9 @@ class MusicMetadataService @Inject constructor(
                     formedYear = artistInfo.formedYear
                 )
             }
-            
+
             enhancedMetadata.copy(success = true)
-            
+
         } catch (e: Exception) {
             EnhancedTrackMetadata(
                 originalArtist = artist,
@@ -93,7 +93,7 @@ class MusicMetadataService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Get album information with track listing
      */
@@ -103,14 +103,14 @@ class MusicMetadataService @Inject constructor(
             if (lastFmAlbum != null) {
                 return@withContext lastFmAlbum
             }
-            
+
             // Fallback to MusicBrainz
             getMusicBrainzAlbumInfo(artist, album)
         } catch (e: Exception) {
             null
         }
     }
-    
+
     /**
      * Search for similar artists using Last.fm
      */
@@ -120,14 +120,14 @@ class MusicMetadataService @Inject constructor(
             if (lastFmKey.isNullOrEmpty()) {
                 return@withContext emptyList()
             }
-            
+
             val encodedArtist = URLEncoder.encode(artist, "UTF-8")
             val url = "https://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=$encodedArtist&api_key=$lastFmKey&format=json&limit=$limit"
-            
+
             val request = Request.Builder().url(url).build()
             val response = httpClient.newCall(request).execute()
             val responseBody = response.body?.string()
-            
+
             if (response.isSuccessful && responseBody != null) {
                 parseLastFmSimilarArtists(responseBody)
             } else {
@@ -137,7 +137,7 @@ class MusicMetadataService @Inject constructor(
             emptyList()
         }
     }
-    
+
     /**
      * Get top tracks for an artist
      */
@@ -147,14 +147,14 @@ class MusicMetadataService @Inject constructor(
             if (lastFmKey.isNullOrEmpty()) {
                 return@withContext emptyList()
             }
-            
+
             val encodedArtist = URLEncoder.encode(artist, "UTF-8")
             val url = "https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=$encodedArtist&api_key=$lastFmKey&format=json&limit=$limit"
-            
+
             val request = Request.Builder().url(url).build()
             val response = httpClient.newCall(request).execute()
             val responseBody = response.body?.string()
-            
+
             if (response.isSuccessful && responseBody != null) {
                 parseLastFmTopTracks(responseBody)
             } else {
@@ -164,22 +164,22 @@ class MusicMetadataService @Inject constructor(
             emptyList()
         }
     }
-    
+
     private suspend fun getLastFmTrackInfo(artist: String, title: String): LastFmTrackInfo? {
         return try {
             val lastFmKey = apiKeyRepository.getLastFmApiKey()
             if (lastFmKey.isNullOrEmpty()) {
                 return null
             }
-            
+
             val encodedArtist = URLEncoder.encode(artist, "UTF-8")
             val encodedTitle = URLEncoder.encode(title, "UTF-8")
             val url = "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=$lastFmKey&artist=$encodedArtist&track=$encodedTitle&format=json"
-            
+
             val request = Request.Builder().url(url).build()
             val response = httpClient.newCall(request).execute()
             val responseBody = response.body?.string()
-            
+
             if (response.isSuccessful && responseBody != null) {
                 parseLastFmTrackResponse(responseBody)
             } else {
@@ -189,7 +189,7 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private suspend fun getMusicBrainzTrackInfo(artist: String, title: String, album: String?): MusicBrainzTrackInfo? {
         return try {
             val query = buildString {
@@ -200,15 +200,15 @@ class MusicMetadataService @Inject constructor(
             }
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             val url = "https://musicbrainz.org/ws/2/recording/?query=$encodedQuery&fmt=json&limit=1"
-            
+
             val request = Request.Builder()
                 .url(url)
                 .header("User-Agent", "CleverFerret/1.0 (contact@example.com)")
                 .build()
-            
+
             val response = httpClient.newCall(request).execute()
             val responseBody = response.body?.string()
-            
+
             if (response.isSuccessful && responseBody != null) {
                 parseMusicBrainzTrackResponse(responseBody)
             } else {
@@ -218,16 +218,16 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private suspend fun getAudioDbArtistInfo(artist: String): AudioDbArtistInfo? {
         return try {
             val encodedArtist = URLEncoder.encode(artist, "UTF-8")
             val url = "https://www.theaudiodb.com/api/v1/json/2/search.php?s=$encodedArtist"
-            
+
             val request = Request.Builder().url(url).build()
             val response = httpClient.newCall(request).execute()
             val responseBody = response.body?.string()
-            
+
             if (response.isSuccessful && responseBody != null) {
                 parseAudioDbArtistResponse(responseBody)
             } else {
@@ -237,22 +237,22 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private suspend fun getLastFmAlbumInfo(artist: String, album: String): AlbumInfo? {
         return try {
             val lastFmKey = apiKeyRepository.getLastFmApiKey()
             if (lastFmKey.isNullOrEmpty()) {
                 return null
             }
-            
+
             val encodedArtist = URLEncoder.encode(artist, "UTF-8")
             val encodedAlbum = URLEncoder.encode(album, "UTF-8")
             val url = "https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=$lastFmKey&artist=$encodedArtist&album=$encodedAlbum&format=json"
-            
+
             val request = Request.Builder().url(url).build()
             val response = httpClient.newCall(request).execute()
             val responseBody = response.body?.string()
-            
+
             if (response.isSuccessful && responseBody != null) {
                 parseLastFmAlbumResponse(responseBody)
             } else {
@@ -262,21 +262,21 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private suspend fun getMusicBrainzAlbumInfo(artist: String, album: String): AlbumInfo? {
         return try {
             val query = "artist:\"$artist\" AND release:\"$album\""
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             val url = "https://musicbrainz.org/ws/2/release/?query=$encodedQuery&fmt=json&limit=1&inc=recordings"
-            
+
             val request = Request.Builder()
                 .url(url)
                 .header("User-Agent", "CleverFerret/1.0 (contact@example.com)")
                 .build()
-            
+
             val response = httpClient.newCall(request).execute()
             val responseBody = response.body?.string()
-            
+
             if (response.isSuccessful && responseBody != null) {
                 parseMusicBrainzAlbumResponse(responseBody)
             } else {
@@ -286,17 +286,17 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     // Response parsing methods
     private fun parseLastFmTrackResponse(response: String): LastFmTrackInfo? {
         return try {
             val json = JSONObject(response)
             val track = json.getJSONObject("track")
-            
+
             val artist = track.getJSONObject("artist").getString("name")
             val title = track.getString("name")
             val album = track.optJSONObject("album")?.getString("title")
-            
+
             val tags = mutableListOf<String>()
             val tagsArray = track.optJSONObject("toptags")?.optJSONArray("tag")
             if (tagsArray != null) {
@@ -304,7 +304,7 @@ class MusicMetadataService @Inject constructor(
                     tags.add(tagsArray.getJSONObject(i).getString("name"))
                 }
             }
-            
+
             val images = track.optJSONArray("image")
             var albumArtUrl: String? = null
             if (images != null) {
@@ -316,7 +316,7 @@ class MusicMetadataService @Inject constructor(
                     }
                 }
             }
-            
+
             LastFmTrackInfo(
                 artist = artist,
                 title = title,
@@ -331,15 +331,15 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private fun parseMusicBrainzTrackResponse(response: String): MusicBrainzTrackInfo? {
         return try {
             val json = JSONObject(response)
             val recordings = json.getJSONArray("recordings")
-            
+
             if (recordings.length() > 0) {
                 val recording = recordings.getJSONObject(0)
-                
+
                 MusicBrainzTrackInfo(
                     mbid = recording.getString("id"),
                     duration = recording.optLong("length"),
@@ -361,15 +361,15 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private fun parseAudioDbArtistResponse(response: String): AudioDbArtistInfo? {
         return try {
             val json = JSONObject(response)
             val artists = json.optJSONArray("artists")
-            
+
             if (artists != null && artists.length() > 0) {
                 val artist = artists.getJSONObject(0)
-                
+
                 AudioDbArtistInfo(
                     biography = artist.optString("strBiographyEN"),
                     imageUrl = artist.optString("strArtistThumb"),
@@ -383,12 +383,12 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private fun parseLastFmAlbumResponse(response: String): AlbumInfo? {
         return try {
             val json = JSONObject(response)
             val album = json.getJSONObject("album")
-            
+
             val tracks = mutableListOf<AlbumTrack>()
             val tracksArray = album.optJSONObject("tracks")?.optJSONArray("track")
             if (tracksArray != null) {
@@ -403,7 +403,7 @@ class MusicMetadataService @Inject constructor(
                     )
                 }
             }
-            
+
             AlbumInfo(
                 name = album.getString("name"),
                 artist = album.getString("artist"),
@@ -423,18 +423,18 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private fun parseMusicBrainzAlbumResponse(response: String): AlbumInfo? {
         return try {
             val json = JSONObject(response)
             val releases = json.getJSONArray("releases")
-            
+
             if (releases.length() > 0) {
                 val release = releases.getJSONObject(0)
-                
+
                 val tracks = mutableListOf<AlbumTrack>()
                 // MusicBrainz album parsing would be more complex in practice
-                
+
                 AlbumInfo(
                     name = release.getString("title"),
                     artist = release.optJSONArray("artist-credit")?.getJSONObject(0)?.getString("name") ?: "",
@@ -449,13 +449,13 @@ class MusicMetadataService @Inject constructor(
             null
         }
     }
-    
+
     private fun parseLastFmSimilarArtists(response: String): List<SimilarArtist> {
         return try {
             val json = JSONObject(response)
             val similarArtists = json.getJSONObject("similarartists").getJSONArray("artist")
             val result = mutableListOf<SimilarArtist>()
-            
+
             for (i in 0 until similarArtists.length()) {
                 val artist = similarArtists.getJSONObject(i)
                 result.add(
@@ -474,19 +474,19 @@ class MusicMetadataService @Inject constructor(
                     )
                 )
             }
-            
+
             result
         } catch (e: Exception) {
             emptyList()
         }
     }
-    
+
     private fun parseLastFmTopTracks(response: String): List<TopTrack> {
         return try {
             val json = JSONObject(response)
             val topTracks = json.getJSONObject("toptracks").getJSONArray("track")
             val result = mutableListOf<TopTrack>()
-            
+
             for (i in 0 until topTracks.length()) {
                 val track = topTracks.getJSONObject(i)
                 result.add(
@@ -506,7 +506,7 @@ class MusicMetadataService @Inject constructor(
                     )
                 )
             }
-            
+
             result
         } catch (e: Exception) {
             emptyList()

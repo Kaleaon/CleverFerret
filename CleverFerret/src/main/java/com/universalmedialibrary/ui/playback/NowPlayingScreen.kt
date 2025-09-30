@@ -16,10 +16,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.data.local.entity.QueueItem
 import com.universalmedialibrary.services.playback.UnifiedPlaybackState
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import java.util.Locale
 
 /**
  * Unified Now Playing Screen
- * 
+ *
  * Displays the current playing item and queue for all media types.
  * Supports music, audiobooks, TTS, podcasts, and video with
  * unified controls and queue management.
@@ -34,11 +35,11 @@ fun NowPlayingScreen(
     val currentItem by viewModel.currentItem.collectAsState()
     val queueItems by viewModel.queueItems.collectAsState()
     val currentQueue by viewModel.currentQueue.collectAsState()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         text = currentQueue?.displayName ?: "Now Playing",
                         fontWeight = FontWeight.Medium
@@ -74,9 +75,9 @@ fun NowPlayingScreen(
                     onSpeedChange = viewModel::setPlaybackSpeed
                 )
             }
-            
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            
+
             // Queue display
             QueueDisplay(
                 queueItems = queueItems,
@@ -117,7 +118,7 @@ private fun CurrentPlayingItem(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            
+
             item.artist?.let { artist ->
                 Text(
                     text = artist,
@@ -126,7 +127,7 @@ private fun CurrentPlayingItem(
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            
+
             item.album?.let { album ->
                 Text(
                     text = album,
@@ -135,14 +136,14 @@ private fun CurrentPlayingItem(
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
-            
+
             // Progress bar
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             val progress = if (playbackState.duration > 0) {
                 playbackState.currentPositionMs.toFloat() / playbackState.duration.toFloat()
             } else 0f
-            
+
             Slider(
                 value = progress,
                 onValueChange = { newProgress ->
@@ -151,7 +152,7 @@ private fun CurrentPlayingItem(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             // Time display
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -168,9 +169,9 @@ private fun CurrentPlayingItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Playback controls
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -184,11 +185,11 @@ private fun CurrentPlayingItem(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 IconButton(onClick = onSkipPrevious) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Previous")
                 }
-                
+
                 FloatingActionButton(
                     onClick = onPlayPause,
                     containerColor = MaterialTheme.colorScheme.primary
@@ -198,11 +199,11 @@ private fun CurrentPlayingItem(
                         contentDescription = if (playbackState.isPlaying) "Pause" else "Play"
                     )
                 }
-                
+
                 IconButton(onClick = onSkipNext) {
                     Icon(Icons.Default.ArrowForward, contentDescription = "Next")
                 }
-                
+
                 IconButton(onClick = { /* repeat toggle */ }) {
                     Icon(
                         PhosphorIcons.Repeat,
@@ -211,21 +212,21 @@ private fun CurrentPlayingItem(
                     )
                 }
             }
-            
+
             // Playback speed control for audiobooks and TTS
             if (item.mediaType in listOf("AUDIOBOOK", "TTS", "PODCAST")) {
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Speed: ${String.format("%.1fx", playbackState.playbackSpeed)}",
+                        text = "Speed: ${String.format(Locale.getDefault(), "%.1fx", playbackState.playbackSpeed)}",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    
+
                     Row {
                         TextButton(onClick = { onSpeedChange(0.75f) }) {
                             Text("0.75x")
@@ -265,7 +266,7 @@ private fun QueueDisplay(
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
-        
+
         LazyColumn {
             itemsIndexed(queueItems) { index, item ->
                 QueueItemCard(
@@ -293,7 +294,7 @@ private fun QueueItemCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isCurrentlyPlaying) 
+            containerColor = if (isCurrentlyPlaying)
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
             else MaterialTheme.colorScheme.surface
         ),
@@ -311,9 +312,9 @@ private fun QueueItemCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.width(24.dp)
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -324,7 +325,7 @@ private fun QueueItemCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 item.artist?.let { artist ->
                     Text(
                         text = artist,
@@ -335,7 +336,7 @@ private fun QueueItemCard(
                     )
                 }
             }
-            
+
             // Media type indicator
             val mediaTypeIcon = when (item.mediaType) {
                 "MUSIC" -> Icons.Default.PlayArrow
@@ -345,14 +346,14 @@ private fun QueueItemCard(
                 "VIDEO" -> Icons.Default.PlayArrow
                 else -> Icons.Default.PlayArrow
             }
-            
+
             Icon(
                 imageVector = mediaTypeIcon,
                 contentDescription = item.mediaType,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
-            
+
             IconButton(onClick = onRemove) {
                 Icon(
                     Icons.Default.Close,
@@ -371,5 +372,5 @@ private fun formatTime(timeMs: Long): String {
     val totalSeconds = timeMs / 1000
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
-    return String.format("%d:%02d", minutes, seconds)
+    return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
 }

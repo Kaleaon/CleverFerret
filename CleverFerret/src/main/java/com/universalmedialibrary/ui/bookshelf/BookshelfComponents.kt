@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.universalmedialibrary.data.local.model.BookDetails
+import com.universalmedialibrary.data.local.entity.BookDetails
 import kotlin.math.absoluteValue
 
 @Composable
@@ -39,7 +39,7 @@ fun EnhancedBookCard(
                     title = book.metadata.title,
                     author = book.authorName
                 )
-                
+
                 // Favorite button overlay
                 IconButton(
                     onClick = onFavoriteToggle,
@@ -59,7 +59,7 @@ fun EnhancedBookCard(
                             .padding(4.dp)
                     )
                 }
-                
+
                 // Download status indicator
                 if (book.metadata.isDownloaded) {
                     Icon(
@@ -78,7 +78,7 @@ fun EnhancedBookCard(
                     )
                 }
             }
-            
+
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = book.metadata.title,
@@ -87,7 +87,7 @@ fun EnhancedBookCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (book.authorName != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -98,7 +98,7 @@ fun EnhancedBookCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 if (book.metadata.rating != null) {
                     Spacer(modifier = Modifier.height(6.dp))
                     RatingStars(
@@ -106,11 +106,11 @@ fun EnhancedBookCard(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                
+
                 // Progress bar (placeholder - would need reading progress data)
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressIndicator(
-                    progress = 0.3f, // Placeholder progress
+                    progress = { 0.3f }, // Placeholder progress
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(3.dp)
@@ -118,7 +118,7 @@ fun EnhancedBookCard(
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "30% complete", // Placeholder
@@ -149,7 +149,7 @@ fun CompactBookCard(
                 author = book.authorName,
                 modifier = Modifier.height(160.dp)
             )
-            
+
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
                     text = book.metadata.title,
@@ -157,7 +157,7 @@ fun CompactBookCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (book.authorName != null) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -200,9 +200,9 @@ fun ListBookItem(
                     .height(80.dp)
                     .clip(RoundedCornerShape(6.dp))
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             // Book info
             Column(
                 modifier = Modifier.weight(1f)
@@ -214,7 +214,7 @@ fun ListBookItem(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (book.authorName != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -223,19 +223,19 @@ fun ListBookItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 if (book.metadata.rating != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     RatingStars(rating = book.metadata.rating)
                 }
-                
+
                 // Progress indicator
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     LinearProgressIndicator(
-                        progress = 0.3f, // Placeholder
+                        progress = { 0.3f }, // Placeholder
                         modifier = Modifier
                             .weight(1f)
                             .height(3.dp)
@@ -251,7 +251,7 @@ fun ListBookItem(
                     )
                 }
             }
-            
+
             // Action buttons
             Column {
                 IconButton(onClick = onFavoriteToggle) {
@@ -261,7 +261,7 @@ fun ListBookItem(
                         tint = if (book.metadata.isFavorite) Color(0xFFE91E63) else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 if (book.metadata.isDownloaded) {
                     Icon(
                         Icons.Default.CloudDone,
@@ -296,7 +296,7 @@ fun CoverFlowCard(
                     author = book.authorName,
                     modifier = Modifier.height(280.dp)
                 )
-                
+
                 // Favorite overlay
                 IconButton(
                     onClick = onFavoriteToggle,
@@ -317,7 +317,7 @@ fun CoverFlowCard(
                     )
                 }
             }
-            
+
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = book.metadata.title,
@@ -328,7 +328,7 @@ fun CoverFlowCard(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 if (book.authorName != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -341,7 +341,7 @@ fun CoverFlowCard(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                
+
                 if (book.metadata.rating != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     RatingStars(
@@ -370,10 +370,10 @@ fun EnhancedPlaceholderCover(
         Color(0xFFFECEA8),
         Color(0xFFFF9999)
     )
-    
+
     val color = colors[title.hashCode().absoluteValue % colors.size]
     val contentColor = Color.White
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -391,9 +391,9 @@ fun EnhancedPlaceholderCover(
                 modifier = Modifier.size(40.dp),
                 tint = contentColor.copy(alpha = 0.8f)
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
@@ -403,7 +403,7 @@ fun EnhancedPlaceholderCover(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             if (author != null) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(

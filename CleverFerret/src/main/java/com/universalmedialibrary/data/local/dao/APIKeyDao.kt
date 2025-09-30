@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.universalmedialibrary.data.local.model.APIKey
+import com.universalmedialibrary.data.local.entity.APIKey
 import kotlinx.coroutines.flow.Flow
 
 data class ProviderKeyPair(
@@ -22,7 +22,7 @@ interface APIKeyDao {
     @Update
     suspend fun updateAPIKey(apiKey: APIKey)
 
-    @Query("SELECT * FROM api_keys WHERE isActive = 1 ORDER BY category, keyName")
+    @Query("SELECT * FROM api_keys WHERE isActive = 1 ORDER BY category, displayName")
     fun getAllActiveAPIKeys(): Flow<List<APIKey>>
 
     @Query("SELECT * FROM api_keys WHERE provider = :provider AND isActive = 1 LIMIT 1")
@@ -31,11 +31,11 @@ interface APIKeyDao {
     @Query("SELECT * FROM api_keys WHERE category = :category AND isActive = 1")
     suspend fun getAPIKeysByCategory(category: String): List<APIKey>
 
-    @Query("SELECT * FROM api_keys ORDER BY category, keyName")
+    @Query("SELECT * FROM api_keys ORDER BY category, displayName")
     fun getAllAPIKeys(): Flow<List<APIKey>>
 
-    @Query("UPDATE api_keys SET keyValue = :keyValue, updatedAt = :updatedAt WHERE provider = :provider")
-    suspend fun updateAPIKeyValue(provider: String, keyValue: String, updatedAt: Long = System.currentTimeMillis())
+    @Query("UPDATE api_keys SET keyValue = :keyValue, lastUsed = :timestamp WHERE provider = :provider")
+    suspend fun updateAPIKeyValue(provider: String, keyValue: String, timestamp: Long = System.currentTimeMillis())
 
     @Query("UPDATE api_keys SET validationStatus = :status, lastValidated = :timestamp WHERE provider = :provider")
     suspend fun updateValidationStatus(provider: String, status: String, timestamp: Long = System.currentTimeMillis())

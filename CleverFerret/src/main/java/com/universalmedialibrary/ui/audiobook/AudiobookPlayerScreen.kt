@@ -39,7 +39,7 @@ import kotlinx.coroutines.delay
 
 /**
  * Professional audiobook player screen with synchronized read-along functionality
- * 
+ *
  * Features:
  * - Beautiful album art with dynamic backgrounds
  * - Chapter navigation with synchronized text highlighting
@@ -57,16 +57,16 @@ fun AudiobookPlayerScreen(
     val audiobookState by viewModel.audiobookState.collectAsState()
     val synchronizationState by viewModel.synchronizationState.collectAsState()
     val highlightedText by viewModel.highlightedText.collectAsState()
-    
+
     var showChapterList by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
     var showSleepTimer by remember { mutableStateOf(false) }
     var showSynchronizedText by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(audiobookId) {
         viewModel.loadAudiobook(audiobookId)
     }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -89,13 +89,13 @@ fun AudiobookPlayerScreen(
                 onNavigateBack = onNavigateBack,
                 onShowChapters = { showChapterList = true },
                 onShowBookmarks = { showBookmarks = true },
-                onToggleSynchronizedText = { 
+                onToggleSynchronizedText = {
                     showSynchronizedText = !showSynchronizedText
                     viewModel.toggleSynchronizedReading()
                 },
                 synchronizedTextEnabled = synchronizationState.enabled
             )
-            
+
             if (audiobookState.isLoading) {
                 AudiobookLoadingState()
             } else if (audiobookState.hasError) {
@@ -111,7 +111,7 @@ fun AudiobookPlayerScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    
+
                     // Album Art and Info Section
                     AudiobookArtSection(
                         title = audiobookState.title,
@@ -119,7 +119,7 @@ fun AudiobookPlayerScreen(
                         currentChapter = audiobookState.currentChapter,
                         modifier = Modifier.weight(1f)
                     )
-                    
+
                     // Synchronized Text Display
                     if (showSynchronizedText && synchronizationState.enabled) {
                         SynchronizedTextDisplay(
@@ -129,7 +129,7 @@ fun AudiobookPlayerScreen(
                                 .padding(vertical = 16.dp)
                         )
                     }
-                    
+
                     // Progress Section
                     AudiobookProgressSection(
                         currentPosition = audiobookState.currentPositionMs,
@@ -137,7 +137,7 @@ fun AudiobookPlayerScreen(
                         currentChapter = audiobookState.currentChapter,
                         onSeek = viewModel::seekTo
                     )
-                    
+
                     // Playback Controls
                     AudiobookPlaybackControls(
                         isPlaying = viewModel.isPlaying.collectAsState().value,
@@ -155,7 +155,7 @@ fun AudiobookPlayerScreen(
                 }
             }
         }
-        
+
         // Modal Sheets
         if (showChapterList) {
             ChapterListBottomSheet(
@@ -168,7 +168,7 @@ fun AudiobookPlayerScreen(
                 onDismiss = { showChapterList = false }
             )
         }
-        
+
         if (showBookmarks) {
             BookmarksBottomSheet(
                 bookmarks = audiobookState.bookmarks,
@@ -183,7 +183,7 @@ fun AudiobookPlayerScreen(
                 onDismiss = { showBookmarks = false }
             )
         }
-        
+
         if (showSleepTimer) {
             SleepTimerDialog(
                 currentTimer = audiobookState.sleepTimerEndTime,
@@ -330,9 +330,9 @@ private fun AudiobookArtSection(
                 contentScale = ContentScale.Crop
             )
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Current Chapter Info
         currentChapter?.let { chapter ->
             Card(
@@ -394,9 +394,9 @@ private fun SynchronizedTextDisplay(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             if (highlightedText != null) {
                 Text(
                     text = highlightedText.text,
@@ -404,7 +404,7 @@ private fun SynchronizedTextDisplay(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 // Confidence indicator
                 if (highlightedText.confidence < 0.8f) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -437,7 +437,7 @@ private fun AudiobookProgressSection(
         val progress = if (totalDuration > 0) {
             (currentPosition.toFloat() / totalDuration).coerceIn(0f, 1f)
         } else 0f
-        
+
         Slider(
             value = progress,
             onValueChange = { newProgress ->
@@ -446,7 +446,7 @@ private fun AudiobookProgressSection(
             },
             modifier = Modifier.fillMaxWidth()
         )
-        
+
         // Time Labels
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -500,7 +500,7 @@ private fun AudiobookPlaybackControls(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             // Skip Backward
             IconButton(
                 onClick = onSkipBackward,
@@ -512,7 +512,7 @@ private fun AudiobookPlaybackControls(
                     modifier = Modifier.size(28.dp)
                 )
             }
-            
+
             // Play/Pause
             FilledIconButton(
                 onClick = onPlayPause,
@@ -524,7 +524,7 @@ private fun AudiobookPlaybackControls(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            
+
             // Skip Forward
             IconButton(
                 onClick = onSkipForward,
@@ -536,7 +536,7 @@ private fun AudiobookPlaybackControls(
                     modifier = Modifier.size(28.dp)
                 )
             }
-            
+
             // Next Chapter
             IconButton(
                 onClick = onNextChapter,
@@ -549,7 +549,7 @@ private fun AudiobookPlaybackControls(
                 )
             }
         }
-        
+
         // Secondary Controls
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -573,7 +573,7 @@ private fun AudiobookPlaybackControls(
             ) {
                 Text("${playbackSpeed}x")
             }
-            
+
             // Skip Silence
             IconButton(
                 onClick = onToggleSkipSilence
@@ -584,7 +584,7 @@ private fun AudiobookPlaybackControls(
                     tint = if (skipSilenceEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             // Sleep Timer
             IconButton(onClick = onShowSleepTimer) {
                 Icon(PhosphorIcons.Timer, contentDescription = "Sleep Timer")
@@ -657,7 +657,7 @@ private fun formatTime(milliseconds: Long): String {
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
     val seconds = totalSeconds % 60
-    
+
     return if (hours > 0) {
         String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {

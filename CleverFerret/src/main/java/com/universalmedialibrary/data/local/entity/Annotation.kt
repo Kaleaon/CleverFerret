@@ -27,25 +27,25 @@ import androidx.room.Index
 data class TextAnnotation( // Renamed from Annotation to avoid Kotlin conflicts
     @PrimaryKey(autoGenerate = true)
     val annotationId: Long = 0,
-    
+
     val itemId: Long,
     val chapterIndex: Int,
     val chapterTitle: String?,
-    
+
     // Text selection information
     val startOffset: Int,
     val endOffset: Int,
     val selectedText: String,
-    
+
     // Annotation details
     val highlightColor: String = "#FFFF00", // Yellow default
     val annotationType: String = "HIGHLIGHT", // HIGHLIGHT, NOTE, BOOKMARK
     val noteText: String? = null,
-    
+
     // Context for better positioning
     val contextBefore: String? = null,
     val contextAfter: String? = null,
-    
+
     // Metadata
     val dateCreated: Long = System.currentTimeMillis(),
     val dateModified: Long = System.currentTimeMillis(),
@@ -74,19 +74,19 @@ data class TextAnnotation( // Renamed from Annotation to avoid Kotlin conflicts
 data class SearchIndex(
     @PrimaryKey(autoGenerate = true)
     val indexId: Long = 0,
-    
+
     val itemId: Long,
     val chapterIndex: Int,
     val chapterTitle: String?,
-    
+
     // Searchable content
     val searchText: String, // Processed text for search
     val originalText: String, // Original text content
-    
+
     // Position information
     val startOffset: Int,
     val endOffset: Int,
-    
+
     // Metadata
     val dateIndexed: Long = System.currentTimeMillis()
 )
@@ -112,20 +112,20 @@ data class SearchIndex(
 data class ReadingStatistics(
     @PrimaryKey(autoGenerate = true)
     val statisticsId: Long = 0,
-    
+
     val itemId: Long,
     val date: Long, // Date as timestamp (day granularity)
-    
+
     // Reading metrics
     val readingTimeMinutes: Int = 0,
     val pagesRead: Int = 0,
     val chaptersCompleted: Int = 0,
     val wordsRead: Int = 0,
-    
+
     // Progress tracking
     val startProgress: Float = 0f,  // Progress at start of session
     val endProgress: Float = 0f,    // Progress at end of session
-    
+
     // Metadata
     val sessionCount: Int = 1,
     val lastUpdated: Long = System.currentTimeMillis()

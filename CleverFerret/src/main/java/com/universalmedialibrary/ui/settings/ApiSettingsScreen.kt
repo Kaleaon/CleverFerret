@@ -27,7 +27,7 @@ fun ApiSettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val apiSettings by viewModel.apiSettings.collectAsState()
-    
+
     val (title, description, providers) = when (mediaType) {
         "books" -> Triple(
             "Books APIs",
@@ -35,7 +35,7 @@ fun ApiSettingsScreen(
             getBooksProviders(apiSettings.bookApis)
         )
         "comics" -> Triple(
-            "Comics APIs", 
+            "Comics APIs",
             "Configure metadata sources for comics and graphic novels",
             getComicsProviders(apiSettings.comicApis)
         )
@@ -46,7 +46,7 @@ fun ApiSettingsScreen(
         )
         "movies" -> Triple(
             "Movies & TV APIs",
-            "Configure metadata sources for movies and TV shows", 
+            "Configure metadata sources for movies and TV shows",
             getMoviesProviders(apiSettings.movieTvApis)
         )
         "music" -> Triple(
@@ -145,7 +145,7 @@ fun ApiProviderCard(
 ) {
     var showApiKey by remember { mutableStateOf(false) }
     var apiKeyText by remember { mutableStateOf(provider.apiKey) }
-    
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -170,18 +170,18 @@ fun ApiProviderCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                
+
                 Switch(
                     checked = provider.isEnabled,
                     onCheckedChange = onToggle
                 )
             }
-            
+
             if (provider.requiresApiKey && provider.isEnabled) {
                 Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = apiKeyText,
-                    onValueChange = { 
+                    onValueChange = {
                         apiKeyText = it
                         onApiKeyChange(it)
                     },
@@ -200,7 +200,7 @@ fun ApiProviderCard(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     singleLine = true
                 )
-                
+
                 if (provider.website.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(
@@ -288,7 +288,7 @@ private fun getBooksProviders(settings: BookApiSettings): List<ApiProvider> = li
         mediaType = MediaType.BOOKS
     ),
     ApiProvider(
-        name = "Hardcover", 
+        name = "Hardcover",
         description = "Modern Goodreads alternative",
         requiresApiKey = false,
         isEnabled = settings.hardcoverEnabled,

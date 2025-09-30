@@ -1,8 +1,8 @@
 package com.universalmedialibrary.ui.components
 
 import androidx.navigation.NavController
-import com.universalmedialibrary.data.local.model.MediaItem
-import com.universalmedialibrary.data.local.model.MediaType
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MediaType
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -10,14 +10,14 @@ import java.nio.charset.StandardCharsets
  * Handles navigation to appropriate media players based on file type
  */
 object MediaItemHandler {
-    
+
     /**
      * Navigate to appropriate player/reader based on media type and file extension
      */
     fun openMediaItem(navController: NavController, mediaItem: MediaItem) {
         val filePath = mediaItem.filePath
         val encodedPath = URLEncoder.encode(filePath, StandardCharsets.UTF_8.toString())
-        
+
         when (mediaItem.type) {
             MediaType.BOOK -> {
                 val extension = filePath.substringAfterLast('.', "").lowercase()
@@ -43,7 +43,7 @@ object MediaItemHandler {
             }
         }
     }
-    
+
     /**
      * Get appropriate icon for media type
      */
@@ -56,14 +56,14 @@ object MediaItemHandler {
             else -> androidx.compose.material.icons.Icons.Default.Help
         }
     }
-    
+
     /**
      * Get file extension from path
      */
     fun getFileExtension(filePath: String): String {
         return filePath.substringAfterLast('.', "").lowercase()
     }
-    
+
     /**
      * Check if file is supported
      */

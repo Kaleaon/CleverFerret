@@ -58,9 +58,9 @@ class GemmaLLMService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 _modelState.value = _modelState.value.copy(isLoading = true)
-                
+
                 val modelFile = File(context.filesDir, modelPath)
-                
+
                 if (!modelFile.exists()) {
                     // In production, download model from CDN
                     _modelState.value = _modelState.value.copy(
@@ -117,9 +117,9 @@ class GemmaLLMService @Inject constructor(
         try {
             val prompt = buildOCRPrompt(text, context)
             val response = llmInference?.generateResponse(prompt) ?: ""
-            
+
             val metadata = parseMetadataResponse(response)
-            
+
             OCRResult(
                 text = text,
                 confidence = 0.85f,
@@ -147,15 +147,15 @@ class GemmaLLMService @Inject constructor(
         try {
             val prompt = """
                 Extract book metadata from the following OCR text from a book cover:
-                
+
                 OCR Text: "$ocrText"
-                
+
                 Please extract and format as JSON:
                 - title: The book title
                 - author: The author name(s)
                 - publisher: The publisher if visible
                 - genre: Likely genre based on title/cover
-                
+
                 Return ONLY valid JSON, no explanation.
             """.trimIndent()
 
@@ -178,13 +178,13 @@ class GemmaLLMService @Inject constructor(
 
         try {
             val combinedText = pageTexts.take(3).joinToString("\n---PAGE BREAK---\n")
-            
+
             val prompt = """
                 Analyze the following text from the first pages of a book and extract metadata:
-                
+
                 Text:
                 $combinedText
-                
+
                 Extract:
                 - title: The book title
                 - author: The author name(s)
@@ -194,7 +194,7 @@ class GemmaLLMService @Inject constructor(
                 - genre: Book genre/category
                 - language: Language of the text
                 - summary: Brief 2-3 sentence summary
-                
+
                 Return as JSON format only.
             """.trimIndent()
 
@@ -220,16 +220,16 @@ class GemmaLLMService @Inject constructor(
             val prompt = """
                 Correct the following OCR text which may contain errors.
                 Context: $context
-                
+
                 Raw OCR text:
                 "$rawText"
-                
+
                 Please provide the corrected text only, fixing:
                 - Spelling errors
                 - Character recognition errors (like 0 vs O, 1 vs l)
                 - Formatting issues
                 - Missing spaces or incorrect word breaks
-                
+
                 Corrected text:
             """.trimIndent()
 
@@ -253,9 +253,9 @@ class GemmaLLMService @Inject constructor(
         try {
             val prompt = """
                 Summarize the following book content in $maxLength words or less:
-                
+
                 $text
-                
+
                 Summary:
             """.trimIndent()
 
@@ -268,14 +268,14 @@ class GemmaLLMService @Inject constructor(
     private fun buildOCRPrompt(text: String, context: String): String {
         return """
             You are analyzing OCR text from a $context.
-            
+
             OCR Text: "$text"
-            
+
             Tasks:
             1. Correct any OCR errors
             2. Extract metadata (title, author, etc.)
             3. Identify the type of content
-            
+
             Provide structured output.
         """.trimIndent()
     }
@@ -321,7 +321,7 @@ class GemmaLLMService @Inject constructor(
     private fun extractJsonArray(json: String, key: String): List<String> {
         val pattern = """"$key"\s*:\s*\[([^\]]*)\]""".toRegex()
         val match = pattern.find(json)?.groupValues?.get(1) ?: return emptyList()
-        
+
         return match.split(",")
             .map { it.trim().removeSurrounding("\"") }
             .filter { it.isNotBlank() }

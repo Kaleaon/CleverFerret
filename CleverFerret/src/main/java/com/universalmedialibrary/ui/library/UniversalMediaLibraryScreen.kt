@@ -14,6 +14,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,13 +45,13 @@ fun UniversalMediaLibraryScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedMediaType by viewModel.selectedMediaType.collectAsState()
     val showFilters by viewModel.showFilters.collectAsState()
-    
+
     var showSortMenu by remember { mutableStateOf(false) }
     var showViewModeMenu by remember { mutableStateOf(false) }
-    
+
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { MediaType.values().size })
-    
+
     LaunchedEffect(libraryId) {
         viewModel.loadMediaItems(libraryId)
     }
@@ -62,19 +63,19 @@ fun UniversalMediaLibraryScreen(
     ) {
         // Top App Bar
         TopAppBar(
-            title = { 
+            title = {
                 Text(
-                    "Universal Media Library", 
+                    "Universal Media Library",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
-                ) 
+                )
             },
             actions = {
                 // Search
                 IconButton(onClick = { /* Open search */ }) {
                     Icon(Icons.Default.Search, contentDescription = "Search")
                 }
-                
+
                 // View Mode Toggle
                 IconButton(onClick = { showViewModeMenu = true }) {
                     Icon(
@@ -86,7 +87,7 @@ fun UniversalMediaLibraryScreen(
                         contentDescription = "View Mode"
                     )
                 }
-                
+
                 DropdownMenu(
                     expanded = showViewModeMenu,
                     onDismissRequest = { showViewModeMenu = false }
@@ -111,12 +112,12 @@ fun UniversalMediaLibraryScreen(
                         )
                     }
                 }
-                
+
                 // Sort Menu
                 IconButton(onClick = { showSortMenu = true }) {
-                    Icon(Icons.Default.Sort, contentDescription = "Sort")
+                    Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
                 }
-                
+
                 DropdownMenu(
                     expanded = showSortMenu,
                     onDismissRequest = { showSortMenu = false }
@@ -134,7 +135,7 @@ fun UniversalMediaLibraryScreen(
                         )
                     }
                 }
-                
+
                 // Filters
                 IconButton(onClick = { viewModel.toggleFilters() }) {
                     Icon(
@@ -162,19 +163,19 @@ fun UniversalMediaLibraryScreen(
                         }
                         viewModel.setSelectedMediaType(mediaType)
                     },
-                    text = { 
+                    text = {
                         Text(
                             mediaType.displayName(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
-                        ) 
+                        )
                     },
-                    icon = { 
+                    icon = {
                         Icon(
                             mediaType.getIcon(),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
-                        ) 
+                        )
                     }
                 )
             }
@@ -195,7 +196,7 @@ fun UniversalMediaLibraryScreen(
         ) { page ->
             val mediaType = MediaType.values()[page]
             val filteredItems = mediaItems.filter { it.mediaType == mediaType }
-            
+
             MediaTypeContent(
                 mediaType = mediaType,
                 items = filteredItems,
@@ -203,19 +204,19 @@ fun UniversalMediaLibraryScreen(
                 onItemClick = { item ->
                     // Navigate to appropriate viewer based on media type
                     when (item.mediaType) {
-                        MediaType.BOOK, MediaType.EBOOK -> 
+                        MediaType.BOOK, MediaType.EBOOK ->
                             navController.navigate("ereader/${item.itemId}")
-                        MediaType.AUDIOBOOK -> 
+                        MediaType.AUDIOBOOK ->
                             navController.navigate("audioplayer/${item.itemId}")
-                        MediaType.MOVIE, MediaType.TV_SHOW, MediaType.DOCUMENTARY -> 
+                        MediaType.MOVIE, MediaType.TV_SHOW, MediaType.DOCUMENTARY ->
                             navController.navigate("videoplayer/${item.itemId}")
-                        MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM -> 
+                        MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM ->
                             navController.navigate("musicplayer/${item.itemId}")
-                        MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES -> 
+                        MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES ->
                             navController.navigate("podcastplayer/${item.itemId}")
-                        MediaType.MAGAZINE, MediaType.NEWSPAPER -> 
+                        MediaType.MAGAZINE, MediaType.NEWSPAPER ->
                             navController.navigate("magazinereader/${item.itemId}")
-                        else -> 
+                        else ->
                             navController.navigate("documentviewer/${item.itemId}")
                     }
                 }
@@ -241,7 +242,7 @@ fun FilterRow(
                 leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(16.dp)) }
             )
         }
-        
+
         item {
             FilterChip(
                 onClick = { /* Show recent */ },
@@ -250,7 +251,7 @@ fun FilterRow(
                 leadingIcon = { Icon(Icons.Default.AccessTime, contentDescription = null, modifier = Modifier.size(16.dp)) }
             )
         }
-        
+
         item {
             FilterChip(
                 onClick = { /* Show downloaded */ },
@@ -285,7 +286,7 @@ fun MediaTypeContent(
                 }
             }
         }
-        
+
         ViewMode.LIST -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
@@ -299,7 +300,7 @@ fun MediaTypeContent(
                 }
             }
         }
-        
+
         ViewMode.COVER_FLOW -> {
             // Implement cover flow view
             LazyRow(
@@ -447,9 +448,9 @@ fun MediaItemCard(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.bodyMedium,
@@ -457,7 +458,7 @@ fun MediaItemCard(
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Medium
             )
-            
+
             if (item.author != null) {
                 Text(
                     text = item.author,
@@ -496,9 +497,9 @@ fun MediaItemListItem(
                 modifier = Modifier.size(40.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             // Content
             Column(
                 modifier = Modifier.weight(1f)
@@ -510,7 +511,7 @@ fun MediaItemListItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 if (item.author != null) {
                     Text(
                         text = item.author,
@@ -520,14 +521,14 @@ fun MediaItemListItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 Text(
                     text = item.mediaType.displayName(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             // Favorite and Actions
             if (item.isFavorite) {
                 Icon(

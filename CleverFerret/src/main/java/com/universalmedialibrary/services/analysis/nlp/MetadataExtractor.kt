@@ -20,9 +20,9 @@ import javax.inject.Singleton
 class MetadataExtractor @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    
+
     /**
      * Extract metadata from text content
      */
@@ -40,10 +40,10 @@ class MetadataExtractor @Inject constructor(
             confidence = 0.7f,
             extractionMethod = "NLP Text Analysis"
         )
-        
+
         metadata
     }
-    
+
     /**
      * Extract metadata from file content
      */
@@ -54,14 +54,14 @@ class MetadataExtractor @Inject constructor(
             "epub" -> extractTextFromEPUB(file)
             else -> file.name
         }
-        
+
         extractFromText(text)
     }
-    
+
     private fun extractTitle(text: String): String? {
         // Look for title patterns in the first few lines
         val lines = text.lines().take(10)
-        
+
         // Pattern 1: Look for "Title:" or similar
         for (line in lines) {
             val titleMatch = Pattern.compile("(?i)title:?\\s*(.+)").matcher(line.trim())
@@ -69,7 +69,7 @@ class MetadataExtractor @Inject constructor(
                 return titleMatch.group(1)?.trim()
             }
         }
-        
+
         // Pattern 2: First non-empty line that's not too long
         for (line in lines) {
             val trimmed = line.trim()
@@ -77,55 +77,55 @@ class MetadataExtractor @Inject constructor(
                 return trimmed
             }
         }
-        
+
         return null
     }
-    
+
     private fun extractAuthor(text: String): String? {
         val lines = text.lines().take(20)
-        
+
         // Pattern 1: Look for "by Author" or "Author:"
         for (line in lines) {
             val byMatch = Pattern.compile("(?i)by\\s+([a-zA-Z\\s.]+)").matcher(line)
             if (byMatch.find()) {
                 return byMatch.group(1)?.trim()
             }
-            
+
             val authorMatch = Pattern.compile("(?i)author:?\\s*(.+)").matcher(line.trim())
             if (authorMatch.find()) {
                 return authorMatch.group(1)?.trim()
             }
         }
-        
+
         return null
     }
-    
+
     private fun extractDescription(text: String): String? {
         // Look for description in the first paragraph after title/author
         val lines = text.lines()
         var foundTitleAuthor = false
         val descriptionLines = mutableListOf<String>()
-        
+
         for (line in lines) {
             val trimmed = line.trim()
             if (trimmed.isEmpty()) continue
-            
+
             if (!foundTitleAuthor && (trimmed.contains("title", true) || trimmed.contains("author", true))) {
                 foundTitleAuthor = true
                 continue
             }
-            
+
             if (foundTitleAuthor && trimmed.length > 50) {
                 descriptionLines.add(trimmed)
                 if (descriptionLines.size >= 3) break
             }
         }
-        
+
         return if (descriptionLines.isNotEmpty()) {
             descriptionLines.joinToString(" ").take(500)
         } else null
     }
-    
+
     private fun extractPublishDate(text: String): String? {
         // Look for year patterns (1900-2099)
         val yearMatch = Pattern.compile("\\b(19|20)\\d{2}\\b").matcher(text)
@@ -134,27 +134,27 @@ class MetadataExtractor @Inject constructor(
         }
         return null
     }
-    
+
     private fun extractGenre(text: String): String? {
         val genres = listOf(
             "fiction", "non-fiction", "mystery", "romance", "science fiction",
             "fantasy", "thriller", "biography", "history", "self-help"
         )
-        
+
         val lowerText = text.lowercase()
         return genres.firstOrNull { lowerText.contains(it) }
     }
-    
+
     private fun detectLanguage(text: String): String? {
         // Simple language detection based on common words
         val englishWords = setOf("the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by")
         val words = text.lowercase().split("\\s+".toRegex()).take(100)
-        
+
         val englishCount = words.count { it in englishWords }
-        
+
         return if (englishCount > words.size * 0.1) "en" else null
     }
-    
+
     private fun extractISBN(text: String): String? {
         // ISBN-10 or ISBN-13 pattern
         val isbnMatch = Pattern.compile("ISBN[-\\s]*(\\d{1,5}[-\\s]*\\d{1,7}[-\\s]*\\d{1,7}[-\\s]*[\\dX])").matcher(text)
@@ -163,33 +163,33 @@ class MetadataExtractor @Inject constructor(
         }
         return null
     }
-    
+
     private fun extractPublisher(text: String): String? {
         val lines = text.lines().take(30)
-        
+
         for (line in lines) {
             val publisherMatch = Pattern.compile("(?i)publisher:?\\s*(.+)").matcher(line.trim())
             if (publisherMatch.find()) {
                 return publisherMatch.group(1)?.trim()
             }
         }
-        
+
         return null
     }
-    
+
     private fun extractPageCount(text: String): Int? {
         val pageMatch = Pattern.compile("(?i)pages?:?\\s*(\\d+)").matcher(text)
         return if (pageMatch.find()) {
             pageMatch.group(1)?.toIntOrNull()
         } else null
     }
-    
+
     private fun extractTextFromPDF(file: File): String {
         // For actual PDF extraction, use OCRService
         // This is a simplified version for compilation
         return file.nameWithoutExtension
     }
-    
+
     private fun extractTextFromEPUB(file: File): String {
         // For actual EPUB extraction, use EPUBReaderService
         // This is a simplified version for compilation

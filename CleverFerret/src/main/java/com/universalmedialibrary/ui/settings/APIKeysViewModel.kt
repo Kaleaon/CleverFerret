@@ -46,10 +46,10 @@ class APIKeysViewModel @Inject constructor(
             try {
                 apiKeyRepository.getAllAPIKeys().collectLatest { apiKeys ->
                     val keyMap = apiKeys.associate { it.provider to it.keyValue }
-                    val testResults = apiKeys.associate { 
+                    val testResults = apiKeys.associate {
                         it.provider to (it.validationStatus ?: "untested")
                     }
-                    
+
                     _uiState.value = _uiState.value.copy(
                         apiKeys = keyMap,
                         testResults = testResults,
@@ -68,7 +68,7 @@ class APIKeysViewModel @Inject constructor(
     fun updateApiKey(key: String, value: String) {
         val currentKeys = _uiState.value.apiKeys.toMutableMap()
         currentKeys[key] = value
-        
+
         _uiState.value = _uiState.value.copy(
             apiKeys = currentKeys,
             hasUnsavedChanges = true
@@ -79,16 +79,16 @@ class APIKeysViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isSaving = true)
-                
+
                 val apiKeys = _uiState.value.apiKeys
-                
+
                 // Save each API key
                 apiKeys.forEach { (provider, keyValue) ->
                     val category = getCategoryForProvider(provider)
                     val isRequired = getIsRequiredForProvider(provider)
                     apiKeyRepository.saveAPIKey(provider, keyValue, category, isRequired)
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     hasUnsavedChanges = false,
@@ -116,7 +116,7 @@ class APIKeysViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     testResults = _uiState.value.testResults + (key to "🔄 Testing...")
                 )
-                
+
                 val result = when (key) {
                     "google_books" -> testGoogleBooksKey(value)
                     "tmdb" -> testTMDbKey(value)
@@ -130,17 +130,17 @@ class APIKeysViewModel @Inject constructor(
                     "isbn_db" -> testISBNDbKey(value)
                     else -> "⚠️ Test not implemented"
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     testResults = _uiState.value.testResults + (key to result)
                 )
-                
+
                 // Update validation status in database
-                val status = if (result.startsWith("✅")) "valid" 
-                           else if (result.startsWith("❌")) "invalid" 
+                val status = if (result.startsWith("✅")) "valid"
+                           else if (result.startsWith("❌")) "invalid"
                            else "untested"
                 apiKeyRepository.updateValidationStatus(key, status)
-                
+
             } catch (e: Exception) {
                 val errorResult = "❌ Test failed: ${e.message}"
                 _uiState.value = _uiState.value.copy(
@@ -175,10 +175,10 @@ class APIKeysViewModel @Inject constructor(
         return try {
             // Test with a simple movie search - save key temporarily for testing
             val originalKey = apiKeyRepository.getAPIKeyValue("tmdb")
-            
+
             // Temporarily save the test key
             apiKeyRepository.saveAPIKey("tmdb", apiKey, "MOVIES_TV")
-            
+
             try {
                 // Test the API
                 metadataApiService.searchMovies("test")

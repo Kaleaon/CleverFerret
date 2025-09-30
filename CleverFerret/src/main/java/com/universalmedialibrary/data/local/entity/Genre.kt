@@ -18,12 +18,12 @@ import androidx.room.Index
 data class Genre(
     @PrimaryKey(autoGenerate = true)
     val genreId: Long = 0,
-    
+
     val name: String,
     val description: String? = null,
     val mediaType: String? = null, // Optional: BOOK, MOVIE, MUSIC, etc.
     val parentGenreId: Long? = null, // For hierarchical genres
-    
+
     val externalId: String? = null, // ID in external database
     val lastUpdated: Long = System.currentTimeMillis()
 )

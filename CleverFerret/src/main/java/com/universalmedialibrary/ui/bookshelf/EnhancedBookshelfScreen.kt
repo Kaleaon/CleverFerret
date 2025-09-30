@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.universalmedialibrary.data.local.model.BookDetails
+import com.universalmedialibrary.data.local.entity.BookDetails
 import com.universalmedialibrary.ui.theme.PlexTheme
 import com.universalmedialibrary.ui.components.MediaItemHandler
 
@@ -27,7 +27,7 @@ fun EnhancedBookshelfScreen(
 ) {
     LaunchedEffect(libraryId) { viewModel.loadBooks(libraryId) }
     val uiState by viewModel.uiState.collectAsState()
-    
+
     PlexTheme {
         Scaffold(
             topBar = {
@@ -63,7 +63,7 @@ fun EnhancedBookshelfScreen(
                 items(uiState.books) { book ->
                     BookCard(
                         book = book,
-                        onClick = { 
+                        onClick = {
                             // CRITICAL FIX: Open appropriate media player instead of details
                             MediaItemHandler.openMediaItem(navController, book.mediaItem)
                         }
@@ -105,7 +105,7 @@ private fun BookCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             // Book info
             Column {
                 Text(

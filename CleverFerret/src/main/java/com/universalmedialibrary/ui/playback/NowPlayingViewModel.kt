@@ -5,11 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 /**
  * ViewModel for the unified Now Playing screen
- * 
+ *
  * Manages playback state and queue operations through the
  * UnifiedPlaybackQueueManager service.
  */
@@ -17,14 +18,14 @@ import javax.inject.Inject
 class NowPlayingViewModel @Inject constructor(
     private val playbackQueueManager: UnifiedPlaybackQueueManager
 ) : ViewModel() {
-    
+
     // Expose state flows from the queue manager
     val playbackState = playbackQueueManager.playbackState
     val currentItem = playbackQueueManager.currentItem
     val queueItems = playbackQueueManager.queueItems
     val currentQueue = playbackQueueManager.currentQueue
     val currentSession = playbackQueueManager.currentSession
-    
+
     /**
      * Toggle play/pause
      */
@@ -35,7 +36,7 @@ class NowPlayingViewModel @Inject constructor(
             playbackQueueManager.play()
         }
     }
-    
+
     /**
      * Skip to next item in queue
      */
@@ -45,7 +46,7 @@ class NowPlayingViewModel @Inject constructor(
             // playbackQueueManager.skipToNext()
         }
     }
-    
+
     /**
      * Skip to previous item in queue
      */
@@ -55,21 +56,21 @@ class NowPlayingViewModel @Inject constructor(
             // playbackQueueManager.skipToPrevious()
         }
     }
-    
+
     /**
      * Seek to specific position in current item
      */
     fun seekTo(positionMs: Long) {
         playbackQueueManager.seekTo(positionMs)
     }
-    
+
     /**
      * Set playback speed
      */
     fun setPlaybackSpeed(speed: Float) {
         playbackQueueManager.setPlaybackSpeed(speed)
     }
-    
+
     /**
      * Play specific item from queue
      */
@@ -79,7 +80,7 @@ class NowPlayingViewModel @Inject constructor(
             // playbackQueueManager.playQueueItem(queueItemId)
         }
     }
-    
+
     /**
      * Remove item from queue
      */
@@ -89,14 +90,14 @@ class NowPlayingViewModel @Inject constructor(
             // playbackQueueManager.removeFromQueue(queueItemId)
         }
     }
-    
+
     /**
      * Toggle queue visibility (for future implementation)
      */
     fun toggleQueue() {
         // TODO: Implement queue toggle functionality
     }
-    
+
     /**
      * Toggle repeat mode
      */
@@ -114,7 +115,7 @@ class NowPlayingViewModel @Inject constructor(
             // playbackQueueManager.setRepeatMode(nextMode)
         }
     }
-    
+
     /**
      * Toggle shuffle mode
      */
@@ -125,7 +126,7 @@ class NowPlayingViewModel @Inject constructor(
             // playbackQueueManager.setShuffleMode(!currentShuffle)
         }
     }
-    
+
     /**
      * Switch to different queue type
      */
@@ -138,7 +139,7 @@ class NowPlayingViewModel @Inject constructor(
                 "PODCAST" -> "PODCAST_QUEUE"
                 else -> "MAIN_QUEUE"
             }
-            
+
             playbackQueueManager.createOrSwitchToQueue(
                 queueName = queueName,
                 queueType = queueType.uppercase(),
@@ -146,7 +147,7 @@ class NowPlayingViewModel @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Get formatted playback position
      */
@@ -154,15 +155,15 @@ class NowPlayingViewModel @Inject constructor(
         val positionMs = playbackState.value.currentPositionMs
         return formatTime(positionMs)
     }
-    
+
     /**
-     * Get formatted duration 
+     * Get formatted duration
      */
     fun getFormattedDuration(): String {
         val durationMs = playbackState.value.duration
         return formatTime(durationMs)
     }
-    
+
     /**
      * Get playback progress as percentage (0.0 to 1.0)
      */
@@ -172,7 +173,7 @@ class NowPlayingViewModel @Inject constructor(
             state.currentPositionMs.toFloat() / state.duration.toFloat()
         } else 0f
     }
-    
+
     /**
      * Check if current media supports speed control
      */
@@ -180,7 +181,7 @@ class NowPlayingViewModel @Inject constructor(
         val mediaType = currentItem.value?.mediaType
         return mediaType in listOf("AUDIOBOOK", "TTS", "PODCAST")
     }
-    
+
     /**
      * Check if current media supports chapter navigation
      */
@@ -189,14 +190,14 @@ class NowPlayingViewModel @Inject constructor(
         val hasChapter = currentItem.value?.chapterIndex != null
         return mediaType in listOf("AUDIOBOOK", "PODCAST") && hasChapter
     }
-    
+
     private fun formatTime(timeMs: Long): String {
         val totalSeconds = timeMs / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
-        return String.format("%d:%02d", minutes, seconds)
+        return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         // ViewModel cleanup is handled by the queue manager

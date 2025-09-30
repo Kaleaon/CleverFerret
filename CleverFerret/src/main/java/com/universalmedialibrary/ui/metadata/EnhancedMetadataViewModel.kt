@@ -22,7 +22,7 @@ class EnhancedMetadataViewModel @Inject constructor(
     fun searchMetadata(query: String, mediaType: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSearching = true)
-            
+
             try {
                 val results = when (mediaType.uppercase()) {
                     "BOOK" -> metadataApiService.searchBooks(query)
@@ -30,7 +30,7 @@ class EnhancedMetadataViewModel @Inject constructor(
                     "MUSIC" -> metadataApiService.searchMusic(query)
                     else -> metadataApiService.searchBooks(query)
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     isSearching = false,
                     searchResults = results,
@@ -89,12 +89,12 @@ class EnhancedMetadataViewModel @Inject constructor(
     fun saveMetadata(itemId: Long) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSaving = true)
-            
+
             try {
                 // In a real app, save to database
                 // For now, just simulate delay
                 kotlinx.coroutines.delay(1000)
-                
+
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     isSaved = true
