@@ -137,6 +137,11 @@ dependencies {
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.media3:media3-exoplayer:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("androidx.media3:media3-session:1.4.1")
+    
+    // Glance for widgets - TODO: Enable when ready for full widget implementation
+    // implementation("androidx.glance:glance-appwidget:1.1.0")
+    // implementation("androidx.glance:glance-material3:1.1.0")
     
     // File handling
     implementation("androidx.documentfile:documentfile:1.0.1")
