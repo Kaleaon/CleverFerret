@@ -29,8 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -44,6 +47,13 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.PlexTheme
 
 import dagger.hilt.android.AndroidEntryPoint
+
+// Sample library data class for demonstration
+data class SampleLibrary(
+    val name: String,
+    val type: String,
+    val libraryId: Long
+)
 
 
 /**
@@ -158,6 +168,32 @@ fun LibraryListScreen(
             },
         )
 
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Libraries") },
+                actions = {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Import Calibre Library") },
+                            onClick = {
+                                showMenu = false
+                                dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
+                            },
+                            enabled = libraries.isNotEmpty()
+                        )
+                    }
+                }
+            )
+        }
+
     var selectedTab by remember { mutableStateOf(0) }
 
     // Sample libraries for demonstration - showing restored functionality
@@ -173,52 +209,15 @@ fun LibraryListScreen(
         "Movies" to Icons.Default.Movie
     )
 
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-
-                        Text(
-                            "CleverFerret - Advanced Features Restored! 🚀",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    actions = {
-                        IconButton(onClick = { navController.navigate("settings") }) {
-                            Icon(PhosphorIcons.Gear, contentDescription = "Settings")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                )
-
-                TabRow(
-                    selectedTabIndex = selectedTab,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                ) {
-                    mediaTabs.forEachIndexed { index, (title, icon) ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = { Text(title) }
-                        )
-                    }
-                }
-            }
-        },
-        floatingActionButton = {
-
-            FloatingActionButton(onClick = { showCreateDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Library")
-
-            }
-        },
+    
     ) { paddingValues ->
+        // Sample libraries for demonstration - showing restored functionality
+        val sampleLibraries = listOf(
+            SampleLibrary("My Books", "BOOK", 1),
+            SampleLibrary("Music Collection", "MUSIC", 2),
+            SampleLibrary("Movie Library", "MOVIE", 3)
+        )
+
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp),
             modifier = Modifier.padding(paddingValues),
@@ -457,18 +456,11 @@ fun LibraryCard(
 
 private fun getIconForLibraryType(type: String): ImageVector {
     return when (type.uppercase()) {
-        "BOOK" -> PhosphorIcons.Book
-        "MOVIE" -> PhosphorIcons.FilmStrip
-        "MUSIC" -> PhosphorIcons.MusicNote
-        else -> PhosphorIcons.Book
+
+        "BOOK" -> Icons.Default.Book
+        "MOVIE" -> Icons.Default.Movie
+        "MUSIC" -> Icons.Default.MusicNote
+        else -> Icons.Default.Book
     }
 }
 
-/**
- * Data class representing a sample library for demonstration
- */
-data class SampleLibrary(
-    val name: String,
-    val type: String,
-    val libraryId: Int
-)

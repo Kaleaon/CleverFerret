@@ -46,4 +46,7 @@ object DatabaseModule {
     fun provideBookmarkDao(database: AppDatabase): BookmarkDao {
         return database.bookmarkDao()
     }
+
+    */
+
 }
