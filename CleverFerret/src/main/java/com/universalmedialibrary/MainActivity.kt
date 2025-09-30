@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Book
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.QuestionMark
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,7 +42,9 @@ import com.universalmedialibrary.ui.library.CreateLibraryDialog
 import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.PlexTheme
+
 import dagger.hilt.android.AndroidEntryPoint
+
 
 /**
  * The main and only activity of the application, serving as the entry point for the UI.
@@ -101,6 +105,7 @@ fun LibraryListScreen(
 ) {
     val libraries by viewModel.libraries.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
+
     var showImportDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var showLibrarySelectionDialog by remember { mutableStateOf(false) }
@@ -166,14 +171,52 @@ fun LibraryListScreen(
                                 dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
                             },
                             enabled = libraries.isNotEmpty()
+
+    var selectedTab by remember { mutableStateOf(0) }
+    
+    // Sample libraries for demonstration - showing restored functionality
+    val sampleLibraries = listOf(
+        SampleLibrary("My Books", "BOOK", 1),
+TopAppBar(
+                    title = { 
+                        Text(
+                            "CleverFerret - Advanced Features Restored! 🚀",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        ) 
+                    },
+                    actions = {
+                        IconButton(onClick = { navController.navigate("settings") }) {
+                            Icon(PhosphorIcons.Gear, contentDescription = "Settings")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+                
+                TabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ) {
+                    mediaTabs.forEachIndexed { index, (title, icon) ->
+                        Tab(
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            text = { Text(title) },
+                           
                         )
                     }
                 },
             )
         },
         floatingActionButton = {
+
             FloatingActionButton(onClick = { showCreateDialog = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Add Library")
+
             }
         },
     ) { paddingValues ->
@@ -330,16 +373,12 @@ fun LibraryCard(
     }
 }
 
-/**
- * A helper function that returns an appropriate [ImageVector] icon for a given library type.
- *
- * @param type The type of the library (e.g., "BOOK", "MOVIE").
- * @return An [ImageVector] corresponding to the library type.
- */
-private fun getIconForLibraryType(type: String): ImageVector =
-    when (type.uppercase()) {
-        "BOOK" -> Icons.Default.Book
-        "MOVIE" -> Icons.Default.Movie
-        "MUSIC", "MUSIC_TRACK" -> Icons.Default.MusicNote
-        else -> Icons.Default.QuestionMark
+
+private fun getIconForLibraryType(type: String): ImageVector {
+    return when (type.uppercase()) {
+        "BOOK" -> PhosphorIcons.Book
+        "MOVIE" -> PhosphorIcons.FilmStrip
+        "MUSIC" -> PhosphorIcons.MusicNote
+        else -> PhosphorIcons.Book
+
     }

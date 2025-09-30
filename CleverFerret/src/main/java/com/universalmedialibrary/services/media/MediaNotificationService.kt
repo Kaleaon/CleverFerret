@@ -15,6 +15,12 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.R
+import com.universalmedialibrary.services.artwork.ArtworkLoader
+import com.universalmedialibrary.data.local.entity.MediaItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -33,7 +39,11 @@ import javax.inject.Inject
  */
 class MediaNotificationService : MediaSessionService() {
     
+    @Inject
+    lateinit var artworkLoader: ArtworkLoader
+    
     private var mediaSession: MediaSession? = null
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     
     companion object {
         const val NOTIFICATION_ID = 1001
@@ -132,6 +142,38 @@ class MediaNotificationService : MediaSessionService() {
         
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, notification)
+    }
+    
+    /**
+     * Update notification with artwork loading from MediaItem
+     * 
+     * TODO: This is a scaffolding method that will load artwork via ArtworkLoader
+     * and update the notification. Currently not fully wired up.
+     */
+    fun updateNotificationWithArtwork(
+        mediaItem: MediaItem,
+        title: String,
+        artist: String? = null,
+        album: String? = null,
+        isPlaying: Boolean = false
+    ) {
+        serviceScope.launch {
+            // Load artwork with notification-appropriate size (512x512)
+            val artwork = artworkLoader.loadArtwork(
+                mediaItem = mediaItem,
+                maxWidth = 512,
+                maxHeight = 512
+            )
+            
+            // Update notification with loaded artwork
+            updateNotification(
+                title = title,
+                artist = artist,
+                album = album,
+                artwork = artwork,
+                isPlaying = isPlaying
+            )
+        }
     }
     
     private fun createNotificationChannel() {

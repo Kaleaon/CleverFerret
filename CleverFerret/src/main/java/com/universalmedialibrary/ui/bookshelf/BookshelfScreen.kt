@@ -11,9 +11,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +24,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.universalmedialibrary.data.local.entity.BookDetails
+
+import com.universalmedialibrary.data.local.model.BookDetails
+import com.universalmedialibrary.ui.icons.PhosphorIcons
+
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +65,7 @@ fun EnhancedBookshelfScreen(
                 actions = {
                     // Search
                     IconButton(onClick = { viewModel.toggleSearch() }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
+                        Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search")
                     }
                     
                     // View Mode
@@ -124,7 +124,7 @@ fun EnhancedBookshelfScreen(
                     // Filter
                     IconButton(onClick = { viewModel.toggleFilters() }) {
                         Icon(
-                            Icons.Default.FilterList,
+                            PhosphorIcons.Warning,
                             contentDescription = "Filter",
                             tint = if (showFilters) MaterialTheme.colorScheme.primary 
                                   else MaterialTheme.colorScheme.onSurface
@@ -220,7 +220,7 @@ fun SearchTextField(
         onValueChange = onQueryChange,
         placeholder = { Text("Search books...") },
         leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = "Search")
+            Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search")
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
