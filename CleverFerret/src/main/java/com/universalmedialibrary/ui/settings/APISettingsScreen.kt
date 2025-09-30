@@ -4,11 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +15,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * API Settings Screen for managing external API keys
@@ -54,7 +50,7 @@ fun APISettingsScreen(
             title = { Text("API Settings") },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(PhosphorIcons.ArrowLeft, contentDescription = "Back")
                 }
             }
         )
@@ -182,7 +178,7 @@ private fun GeminiAPISection(
                 trailingIcon = {
                     IconButton(onClick = onShowKeyToggle) {
                         Icon(
-                            imageVector = if (showKey) Icons.Default.Lock else Icons.Default.Star,
+                            imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
                             contentDescription = if (showKey) "Hide key" else "Show key"
                         )
                     }

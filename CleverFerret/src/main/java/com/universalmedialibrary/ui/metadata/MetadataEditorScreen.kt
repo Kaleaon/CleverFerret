@@ -4,11 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +14,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
  * Main metadata editor screen that adapts to different screen sizes
@@ -361,7 +357,7 @@ private fun RatingInput(
                 ) {
                     Icon(
                         imageVector = if (rating != null && starRating <= rating) {
-                            Icons.Filled.Star
+                            PhosphorIcons.Star
                         } else {
                             Icons.Outlined.Star
                         },

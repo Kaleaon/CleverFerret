@@ -28,8 +28,17 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideMediaItemDao(database: AppDatabase): MediaItemDao {
-        return database.mediaItemDao()
+
+    fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
+        return appDatabase.apiKeyDao()
+    }
+    
+    // Temporarily disabled until build is fixed
+    /*
+    @Provides
+    fun provideMediaItemDao(appDatabase: AppDatabase): MediaItemDao {
+        return appDatabase.mediaItemDao()
+
     }
 
     @Provides
@@ -42,8 +51,10 @@ object DatabaseModule {
         return database.bookmarkDao()
     }
 
+
     @Provides
     fun provideAPIKeyDao(database: AppDatabase): APIKeyDao {
         return database.apiKeyDao()
     }
+
 }
