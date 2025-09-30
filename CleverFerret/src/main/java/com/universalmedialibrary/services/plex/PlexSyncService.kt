@@ -15,13 +15,17 @@ import javax.inject.Singleton
 
 /**
  * Service for syncing progress, ratings, collections and tags with Plex Media Server
+ * Also handles mapping Plex items to the unified MediaItem model
  */
 @Singleton
 class PlexSyncService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val plexServerDao: PlexServerDao,
     private val plexMediaItemDao: PlexMediaItemDao,
-    private val plexSyncDao: PlexSyncDao
+    private val plexSyncDao: PlexSyncDao,
+    private val mediaItemDao: MediaItemDao,
+    private val libraryDao: LibraryDao,
+    private val authService: PlexAuthService
 ) {
 
     companion object {
@@ -132,13 +136,16 @@ class PlexSyncService @Inject constructor(
     }
 
     /**
-     * Sync media items from Plex
+     * Sync media items from Plex and map to unified model
      */
     private suspend fun syncMediaItems(server: PlexServer, api: PlexApi) {
         val libraries = api.getLibraries(server.token)
         if (!libraries.isSuccessful || libraries.body() == null) return
 
         for (library in libraries.body()!!.mediaContainer.directories) {
+            // Create or get a unified library for this Plex library
+            val unifiedLibrary = getOrCreateUnifiedLibrary(server, library)
+            
             val items = api.getLibraryItems(library.key, server.token)
             if (items.isSuccessful && items.body()?.mediaContainer?.metadata != null) {
                 val plexItems = items.body()!!.mediaContainer.metadata!!.map { metadata ->
@@ -154,10 +161,80 @@ class PlexSyncService @Inject constructor(
                     )
                 }
                 plexMediaItemDao.insertMediaItems(plexItems)
+                
+                // Map to unified MediaItem model (stub entries)
+                mapPlexItemsToUnifiedModel(items.body()!!.mediaContainer.metadata!!, unifiedLibrary.libraryId, server)
             }
         }
     }
 
+    /**
+     * Get or create a unified library for a Plex library section
+     */
+    private suspend fun getOrCreateUnifiedLibrary(server: PlexServer, plexLibrary: PlexLibrary): Library {
+        val libraryName = "${server.name} - ${plexLibrary.title}"
+        val existingLibrary = libraryDao.getLibraryByName(libraryName)
+        
+        return if (existingLibrary != null) {
+            existingLibrary
+        } else {
+            val mediaType = mapPlexTypeToMediaType(plexLibrary.type)
+            val library = Library(
+                name = libraryName,
+                path = "plex://${server.machineIdentifier}/${plexLibrary.key}",
+                type = mediaType
+            )
+            val libraryId = libraryDao.insertLibrary(library)
+            library.copy(libraryId = libraryId)
+        }
+    }
+    
+    /**
+     * Map Plex items to unified MediaItem model (stub entries)
+     */
+    private suspend fun mapPlexItemsToUnifiedModel(
+        plexMetadata: List<PlexMetadata>,
+        libraryId: Long,
+        server: PlexServer
+    ) {
+        for (metadata in plexMetadata) {
+            val existingItem = mediaItemDao.getMediaItemByPath(
+                "plex://${server.machineIdentifier}/${metadata.ratingKey}"
+            )
+            
+            if (existingItem == null) {
+                // Create stub entry in unified model
+                val mediaItem = MediaItem(
+                    libraryId = libraryId,
+                    filePath = "plex://${server.machineIdentifier}/${metadata.ratingKey}",
+                    fileName = metadata.title,
+                    fileExtension = "", // Plex items don't have extensions
+                    fileSize = 0L, // Size not available from Plex metadata
+                    fileHash = metadata.ratingKey, // Use rating key as unique identifier
+                    mediaType = mapPlexTypeToMediaType(metadata.type),
+                    mimeType = null,
+                    isAvailable = true,
+                    hasMetadata = true,
+                    hasThumbnail = !metadata.thumb.isNullOrEmpty(),
+                    thumbnailPath = metadata.thumb
+                )
+                mediaItemDao.insertMediaItem(mediaItem)
+            }
+        }
+    }
+    
+    /**
+     * Map Plex media type to unified media type
+     */
+    private fun mapPlexTypeToMediaType(plexType: String): String {
+        return when (plexType.lowercase()) {
+            "movie" -> "MOVIE"
+            "show", "season", "episode" -> "TV_SHOW"
+            "artist", "album", "track" -> "MUSIC_TRACK"
+            else -> "OTHER"
+        }
+    }
+    
     /**
      * Sync playback progress
      */

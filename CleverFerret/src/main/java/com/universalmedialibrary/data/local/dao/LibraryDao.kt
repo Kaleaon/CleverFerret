@@ -46,6 +46,11 @@ interface LibraryDao {
     @Query("SELECT * FROM libraries WHERE path = :path LIMIT 1")
     suspend fun getLibraryByPath(path: String): Library?
 
+    
+    @Query("SELECT * FROM libraries WHERE name = :name LIMIT 1")
+    suspend fun getLibraryByName(name: String): Library?
+    
+
     @Query("UPDATE libraries SET dateModified = :timestamp WHERE libraryId = :libraryId")
     suspend fun updateLastScanned(libraryId: Long, timestamp: Long)
 
