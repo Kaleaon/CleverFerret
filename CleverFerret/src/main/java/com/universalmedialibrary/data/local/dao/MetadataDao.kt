@@ -54,4 +54,34 @@ interface MetadataDao {
     // Additional method for MediaRepository
     @Query("UPDATE metadata_common SET title = :title, summary = :summary WHERE itemId = :itemId")
     suspend fun updateCommonMetadata(itemId: Long, title: String, summary: String?)
+
+    // Person operations
+    @Query("SELECT personId FROM people WHERE name = :name LIMIT 1")
+    suspend fun findPersonByName(name: String): Long?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPerson(person: People): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertItemPersonRole(itemPersonRole: ItemPersonRole)
+
+    // Series operations
+    @Query("SELECT seriesId FROM series WHERE name = :name LIMIT 1")
+    suspend fun findSeriesByName(name: String): Long?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSeries(series: Series): Long
+
+    @Query("UPDATE metadata_book SET series = :seriesId WHERE itemId = :itemId")
+    suspend fun updateBookWithSeries(itemId: Long, seriesId: Long)
+
+    // Genre operations
+    @Query("SELECT genreId FROM genre WHERE name = :name LIMIT 1")
+    suspend fun findGenreByName(name: String): Long?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGenre(genre: Genre): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertItemGenre(itemGenre: ItemGenre)
 }

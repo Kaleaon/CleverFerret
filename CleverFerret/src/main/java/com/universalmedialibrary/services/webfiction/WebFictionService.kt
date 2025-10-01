@@ -13,53 +13,6 @@ import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Data models for web fiction
-data class WebFictionStory(
-    val id: String,
-    val title: String,
-    val author: String,
-    val description: String,
-    val url: String,
-    val site: WebFictionSite,
-    val chapters: List<WebFictionChapter> = emptyList(),
-    val totalChapters: Int = 0,
-    val lastUpdated: String? = null,
-    val status: String = "Unknown", // Complete, In-Progress, Hiatus
-    val rating: String? = null,
-    val tags: List<String> = emptyList(),
-    val coverUrl: String? = null,
-    val wordCount: Long = 0
-)
-
-data class WebFictionChapter(
-    val id: String,
-    val title: String,
-    val url: String,
-    val content: String,
-    val chapterNumber: Int,
-    val publishDate: String? = null,
-    val wordCount: Int = 0
-)
-
-enum class WebFictionSite(
-    val displayName: String,
-    val baseUrl: String,
-    val supportsUpdate: Boolean = true
-) {
-    ARCHIVE_OF_OUR_OWN("Archive of Our Own", "https://archiveofourown.org", true),
-    FANFICTION_NET("FanFiction.Net", "https://www.fanfiction.net", true),
-    ROYAL_ROAD("Royal Road", "https://www.royalroad.com", true),
-    WEBNOVEL("WebNovel", "https://www.webnovel.com", true),
-    WATTPAD("Wattpad", "https://www.wattpad.com", true),
-    SCRIBBLE_HUB("Scribble Hub", "https://www.scribblehub.com", true),
-    SPACEBATTLES("SpaceBattles", "https://forums.spacebattles.com", true),
-    SUFFICIENT_VELOCITY("Sufficient Velocity", "https://forums.sufficientvelocity.com", true),
-    QUESTIONABLE_QUESTING("Questionable Questing", "https://forum.questionablequesting.com", true),
-    FIMFICTION("FimFiction", "https://www.fimfiction.net", true),
-    LITEROTICA("Literotica", "https://www.literotica.com", false), // Adult content
-    GENERIC("Generic Web Fiction", "", true) // For custom/unsupported sites
-}
-
 // API interfaces for sites that have them
 interface RoyalRoadApi {
     @GET("fiction/{fictionId}")

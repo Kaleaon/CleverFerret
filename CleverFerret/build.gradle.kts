@@ -135,6 +135,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // HTML parsing for web scraping
+    implementation("org.jsoup:jsoup:1.17.2")
     
     // Security for encrypted token storage
     implementation("androidx.security:security-crypto:1.1.0-alpha06")

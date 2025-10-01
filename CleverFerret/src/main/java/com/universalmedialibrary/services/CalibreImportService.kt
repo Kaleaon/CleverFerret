@@ -36,13 +36,14 @@ class CalibreImportService @Inject constructor(
 
             val cleanedTitle = cleanTitle(rawBook.title)
             val sortTitle = createSortTitle(cleanedTitle)
+            val fileExtension = file.extension.lowercase()
 
             val mediaItem = MediaItem(
                 libraryId = libraryId,
                 filePath = fullPath,
-                fileName = bookRecord.path,
-                fileExtension = bookRecord.format.lowercase(),
-                fileSize = 0L, // Unknown size
+                fileName = file.name,
+                fileExtension = fileExtension,
+                fileSize = file.length(),
                 mediaType = "BOOK",
                 dateAdded = System.currentTimeMillis(),
                 lastScanned = System.currentTimeMillis(),
@@ -86,7 +87,7 @@ class CalibreImportService @Inject constructor(
             // Handle Series
             rawBook.seriesName?.let { seriesName ->
                 val seriesId = metadataDao.findSeriesByName(seriesName)
-                    ?: metadataDao.insertSeries(Series(name = seriesName))
+                    ?: metadataDao.insertSeries(Series(name = seriesName, mediaType = "BOOK"))
                 metadataDao.updateBookWithSeries(newId, seriesId)
             }
 

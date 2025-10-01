@@ -28,10 +28,17 @@ import com.universalmedialibrary.data.local.entity.*
 
         // Essential system entities
         APIKey::class,
-        Bookmark::class
+        Bookmark::class,
+
+        // Person, Series, and Genre entities for metadata
+        People::class,
+        ItemPersonRole::class,
+        Series::class,
+        Genre::class,
+        ItemGenre::class
 
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
