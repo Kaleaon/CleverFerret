@@ -119,7 +119,8 @@ class AudioPlaybackManager @Inject constructor(
                 setUseFastForwardAction(false)
                 setUseRewindAction(false)
                 setSmallIcon(android.R.drawable.ic_media_play)
-                setMediaSessionToken(mediaSession.sessionCompatToken)
+                // Note: Media3 session token is not compatible with old PlayerNotificationManager
+                // TODO: Migrate to Media3's MediaSessionService for proper integration
                 setPlayer(exoPlayer)
             }
     }

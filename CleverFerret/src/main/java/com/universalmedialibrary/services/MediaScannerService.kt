@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.core.app.NotificationCompat
+import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
@@ -23,6 +24,20 @@ import kotlinx.coroutines.*
 import java.io.File
 import javax.inject.Inject
 
+/**
+ * Service for scanning and importing media files from device storage
+ * 
+ * RECENT CHANGES FROM MAIN:
+ * - Added MediaType import from com.universalmedialibrary.data.MediaType
+ * - Fixed MediaItem constructor parameters (removed Date objects, use Long timestamps)
+ * - Changed mediaType from enum to String (mediaType.name)
+ * - Fixed MetadataMusicTrack: albumTitle -> album, duration from Int to Long
+ * - Fixed MetadataMovie: removed invalid parameters, fixed runtime calculation
+ * - Fixed Library constructor: removed Date objects, use System.currentTimeMillis()
+ * - Fixed MetadataCommon: removed invalid parameters (description, tags, etc.)
+ * - Changed DAO method names: insertMusicTrackMetadata -> insertMetadataMusicTrack
+ * - These changes ensure compatibility with the Room entity definitions
+ */
 @AndroidEntryPoint
 class MediaScannerService : Service() {
 
@@ -206,9 +221,11 @@ class MediaScannerService : Service() {
                                 artist = artist,
                                 album = album,
                                 trackNumber = 0,
+
                                 duration = duration,
                                 bitrate = null,
                                 sampleRate = null
+
                             )
                             metadataDao.insertMetadataMusicTrack(metadata)
                         }
@@ -254,12 +271,14 @@ class MediaScannerService : Service() {
                         mediaItem?.let { item ->
                             val metadata = MetadataMovie(
                                 itemId = item.itemId,
+
                                 runtime = (duration / 1000 / 60).toInt(), // Convert to minutes
                                 imdbId = null,
                                 tmdbId = null,
                                 resolution = "${width}x${height}",
                                 videoCodec = null,
                                 audioCodec = null
+
                             )
                             metadataDao.insertMetadataMovie(metadata)
                         }
@@ -365,8 +384,10 @@ class MediaScannerService : Service() {
                 var library = libraryDao.getLibrariesByType(mediaType).firstOrNull()
                 if (library == null) {
                     library = Library(
+
                         name = "${mediaType.lowercase().replaceFirstChar { it.uppercase() }} Library",
                         type = mediaType,
+
                         path = file.parent ?: "",
                         dateModified = System.currentTimeMillis()
                     )
@@ -378,13 +399,16 @@ class MediaScannerService : Service() {
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
                     fileName = file.name,
+                    fileExtension = file.extension,
                     filePath = file.absolutePath,
                     fileExtension = file.extension.lowercase(),
                     fileSize = file.length(),
+
                     mediaType = mediaType,
                     dateAdded = System.currentTimeMillis(),
                     lastModified = file.lastModified(),
                     lastScanned = System.currentTimeMillis()
+
                 )
 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -393,10 +417,12 @@ class MediaScannerService : Service() {
                 // Create basic metadata
                 val metadata = MetadataCommon(
                     itemId = itemId,
+
                     title = file.nameWithoutExtension,
                     summary = null,
                     userRating = null,
                     coverImagePath = null
+
                 )
                 metadataDao.insertMetadataCommon(metadata)
 

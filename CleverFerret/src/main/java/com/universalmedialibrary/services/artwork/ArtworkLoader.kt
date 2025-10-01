@@ -113,12 +113,12 @@ class ArtworkLoader @Inject constructor(
     ): Bitmap? = withContext(Dispatchers.IO) {
         try {
             // Try cache first
-            val cacheKey = getCacheKey("plex_${plexItem.plexMediaId}", maxWidth, maxHeight)
+            val cacheKey = getCacheKey("plex_${plexItem.plexRatingKey}", maxWidth, maxHeight)
             memoryCache.get(cacheKey)?.let { return@withContext it }
             
-            // Build Plex artwork URL
-            val thumbUrl = plexItem.thumbUrl ?: return@withContext null
-            val artworkUrl = buildPlexArtworkUrl(plexServerUrl, thumbUrl, plexToken)
+            // Build Plex artwork URL using rating key
+            // TODO: Implement proper thumb URL fetching from Plex API
+            val artworkUrl = "$plexServerUrl/library/metadata/${plexItem.plexRatingKey}/thumb?X-Plex-Token=$plexToken"
             
             // Load from network
             val bitmap = loadFromUrl(artworkUrl, maxWidth, maxHeight)

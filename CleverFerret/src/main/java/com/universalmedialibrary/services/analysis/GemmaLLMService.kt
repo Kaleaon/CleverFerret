@@ -17,6 +17,15 @@ import javax.inject.Singleton
 /**
  * Service for running Gemma LLM on-device for enhanced OCR and text analysis
  * Uses MediaPipe for efficient on-device inference
+ * 
+ * NOTE: This service is designed to be extracted into a SEPARATE PLUGIN APP
+ * for devices that can handle on-device LLM processing.
+ * 
+ * For most devices, use GeminiService (cloud-based) instead, which provides
+ * similar functionality without requiring powerful on-device hardware.
+ * 
+ * This will be moved to a downloadable plugin that checks device capabilities
+ * and only installs on compatible devices (high-end phones/tablets).
  */
 @Singleton
 class GemmaLLMService @Inject constructor(
@@ -36,10 +45,10 @@ class GemmaLLMService @Inject constructor(
     data class OCRResult(
         val text: String,
         val confidence: Float,
-        val metadata: ExtractedMetadata? = null
+        val metadata: GemmaExtractedMetadata? = null
     )
 
-    data class ExtractedMetadata(
+    data class GemmaGemmaExtractedMetadata(
         val title: String? = null,
         val author: String? = null,
         val isbn: String? = null,
@@ -139,7 +148,7 @@ class GemmaLLMService @Inject constructor(
      */
     suspend fun extractMetadataFromCover(
         ocrText: String
-    ): ExtractedMetadata? = withContext(Dispatchers.IO) {
+    ): GemmaExtractedMetadata? = withContext(Dispatchers.IO) {
         if (llmInference == null || ocrText.isBlank()) {
             return@withContext null
         }
@@ -171,7 +180,7 @@ class GemmaLLMService @Inject constructor(
      */
     suspend fun analyzeFirstPages(
         pageTexts: List<String>
-    ): ExtractedMetadata? = withContext(Dispatchers.IO) {
+    ): GemmaExtractedMetadata? = withContext(Dispatchers.IO) {
         if (llmInference == null || pageTexts.isEmpty()) {
             return@withContext null
         }
@@ -280,7 +289,7 @@ class GemmaLLMService @Inject constructor(
         """.trimIndent()
     }
 
-    private fun parseMetadataResponse(response: String): ExtractedMetadata? {
+    private fun parseMetadataResponse(response: String): GemmaExtractedMetadata? {
         return try {
             // Simple JSON parsing - in production use Gson or kotlinx.serialization
             val cleanResponse = response
@@ -298,7 +307,7 @@ class GemmaLLMService @Inject constructor(
             val language = extractJsonValue(cleanResponse, "language")
             val summary = extractJsonValue(cleanResponse, "summary")
 
-            ExtractedMetadata(
+            GemmaExtractedMetadata(
                 title = title,
                 author = author,
                 isbn = isbn,
