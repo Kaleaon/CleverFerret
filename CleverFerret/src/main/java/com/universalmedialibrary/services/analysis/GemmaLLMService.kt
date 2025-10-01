@@ -17,6 +17,15 @@ import javax.inject.Singleton
 /**
  * Service for running Gemma LLM on-device for enhanced OCR and text analysis
  * Uses MediaPipe for efficient on-device inference
+ * 
+ * NOTE: This service is designed to be extracted into a SEPARATE PLUGIN APP
+ * for devices that can handle on-device LLM processing.
+ * 
+ * For most devices, use GeminiService (cloud-based) instead, which provides
+ * similar functionality without requiring powerful on-device hardware.
+ * 
+ * This will be moved to a downloadable plugin that checks device capabilities
+ * and only installs on compatible devices (high-end phones/tablets).
  */
 @Singleton
 class GemmaLLMService @Inject constructor(

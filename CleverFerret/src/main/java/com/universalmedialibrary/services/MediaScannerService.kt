@@ -24,6 +24,20 @@ import kotlinx.coroutines.*
 import java.io.File
 import javax.inject.Inject
 
+/**
+ * Service for scanning and importing media files from device storage
+ * 
+ * RECENT CHANGES FROM MAIN:
+ * - Added MediaType import from com.universalmedialibrary.data.MediaType
+ * - Fixed MediaItem constructor parameters (removed Date objects, use Long timestamps)
+ * - Changed mediaType from enum to String (mediaType.name)
+ * - Fixed MetadataMusicTrack: albumTitle -> album, duration from Int to Long
+ * - Fixed MetadataMovie: removed invalid parameters, fixed runtime calculation
+ * - Fixed Library constructor: removed Date objects, use System.currentTimeMillis()
+ * - Fixed MetadataCommon: removed invalid parameters (description, tags, etc.)
+ * - Changed DAO method names: insertMusicTrackMetadata -> insertMetadataMusicTrack
+ * - These changes ensure compatibility with the Room entity definitions
+ */
 @AndroidEntryPoint
 class MediaScannerService : Service() {
 

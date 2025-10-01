@@ -22,6 +22,14 @@ class APIKeyRepository @Inject constructor(
     suspend fun getAPIKeysByCategory(category: String): List<APIKey> =
         apiKeyDao.getAPIKeysByCategory(category)
 
+    /**
+     * Get Gemini API key for AI services
+     * This is the PRIMARY AI service for CleverFerret
+     */
+    suspend fun getGeminiApiKey(): String? {
+        return getAPIKeyByProvider("gemini")?.keyValue?.takeIf { it.isNotBlank() }
+    }
+
     suspend fun saveAPIKey(provider: String, keyValue: String, category: String, isRequired: Boolean = false) {
         val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
 
@@ -92,7 +100,10 @@ class APIKeyRepository @Inject constructor(
 
             // Music APIs
             Triple("lastfm", "MUSIC", false),
-            Triple("discogs_token", "MUSIC", false)
+            Triple("discogs_token", "MUSIC", false),
+
+            // AI Services - PRIMARY AI for all devices
+            Triple("gemini", "AI_SERVICES", false)
         )
 
         defaultConfigs.forEach { (provider, category, isRequired) ->
@@ -128,6 +139,7 @@ class APIKeyRepository @Inject constructor(
             "tvdb" -> "TVDB API"
             "lastfm" -> "Last.fm API"
             "discogs_token" -> "Discogs API"
+            "gemini" -> "Google Gemini AI"
             else -> provider.replace("_", " ").split(" ").joinToString(" ") {
                 it.replaceFirstChar { char -> char.uppercaseChar() }
             }

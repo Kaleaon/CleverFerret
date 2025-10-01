@@ -10,6 +10,16 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Service for importing book libraries from Calibre metadata.db files
+ * 
+ * RECENT CHANGES FROM MAIN:
+ * - Fixed MediaItem constructor to use correct entity parameters
+ * - Changed from bookRecord.path/format to file.name/extension
+ * - Fixed fileSize from 0L to file.length()
+ * - Commented out Person/Series/Genre DAO methods (not yet implemented)
+ * - These changes ensure compatibility with the Room entity definitions
+ */
 @Singleton
 class CalibreImportService @Inject constructor(
     private val mediaItemDao: MediaItemDao,

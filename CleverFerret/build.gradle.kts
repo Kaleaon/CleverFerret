@@ -147,7 +147,13 @@ dependencies {
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("com.google.mlkit:entity-extraction:16.0.0-beta5")
     
-    // MediaPipe for Gemma LLM (if available)
+    // Gemini AI - PRIMARY AI SERVICE for all devices
+    // Cloud-based processing via Google's Gemini API
+    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+    
+    // MediaPipe for Gemma LLM - PLUGIN APP ONLY
+    // On-device processing for high-end devices
+    // Will be moved to separate downloadable plugin app
     // implementation("com.google.mediapipe:tasks-genai:latest.release")  // Uncomment when available
 
     
