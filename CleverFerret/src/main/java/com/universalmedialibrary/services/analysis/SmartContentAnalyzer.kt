@@ -41,7 +41,7 @@ class SmartContentAnalyzer @Inject constructor(
     /**
      * Comprehensive analysis of media content
      */
-    suspend fun analyzeContent(uri: Uri): ContentAnalysisResult {
+    suspend fun analyzeContent(uri: Uri): SmartAnalysisResult {
         return withContext(Dispatchers.IO) {
             try {
                 val mediaInfo = mediaViewerManager.analyzeMedia(context, uri)
@@ -73,7 +73,7 @@ class SmartContentAnalyzer @Inject constructor(
     private suspend fun analyzeDocument(
         uri: Uri,
         mediaInfo: MediaViewerManager.MediaInfo
-    ): ContentAnalysisResult {
+    ): SmartAnalysisResult {
         val analysisSteps = mutableListOf<String>()
 
         // Step 1: Extract text from first few pages
@@ -114,7 +114,7 @@ class SmartContentAnalyzer @Inject constructor(
         analysisSteps.add("Checking for duplicates...")
         val duplicates = contentFingerprinter.findDuplicates(fingerprint)
 
-        return ContentAnalysisResult(
+        return SmartAnalysisResult(
             uri = uri.toString(),
             mediaType = mediaInfo.type,
             success = true,
@@ -133,7 +133,7 @@ class SmartContentAnalyzer @Inject constructor(
     private suspend fun analyzeVideo(
         uri: Uri,
         mediaInfo: MediaViewerManager.MediaInfo
-    ): ContentAnalysisResult {
+    ): SmartAnalysisResult {
         val analysisSteps = mutableListOf<String>()
 
         // Step 1: Extract video metadata
@@ -152,7 +152,7 @@ class SmartContentAnalyzer @Inject constructor(
         analysisSteps.add("Comparing with video databases...")
         val archiveMatches = archiveComparator.findVideoMatches(videoMetadata)
 
-        return ContentAnalysisResult(
+        return SmartAnalysisResult(
             uri = uri.toString(),
             mediaType = mediaInfo.type,
             success = true,
@@ -170,7 +170,7 @@ class SmartContentAnalyzer @Inject constructor(
     private suspend fun analyzeAudio(
         uri: Uri,
         mediaInfo: MediaViewerManager.MediaInfo
-    ): ContentAnalysisResult {
+    ): SmartAnalysisResult {
         val analysisSteps = mutableListOf<String>()
 
         // Step 1: Extract audio metadata
@@ -189,7 +189,7 @@ class SmartContentAnalyzer @Inject constructor(
         analysisSteps.add("Comparing with music databases...")
         val archiveMatches = archiveComparator.findAudioMatches(audioMetadata)
 
-        return ContentAnalysisResult(
+        return SmartAnalysisResult(
             uri = uri.toString(),
             mediaType = mediaInfo.type,
             success = true,
@@ -207,7 +207,7 @@ class SmartContentAnalyzer @Inject constructor(
     private suspend fun analyzeComic(
         uri: Uri,
         mediaInfo: MediaViewerManager.MediaInfo
-    ): ContentAnalysisResult {
+    ): SmartAnalysisResult {
         val analysisSteps = mutableListOf<String>()
 
         // Step 1: Extract comic metadata
@@ -226,7 +226,7 @@ class SmartContentAnalyzer @Inject constructor(
         analysisSteps.add("Comparing with comic databases...")
         val archiveMatches = archiveComparator.findComicMatches(comicMetadata)
 
-        return ContentAnalysisResult(
+        return SmartAnalysisResult(
             uri = uri.toString(),
             mediaType = mediaInfo.type,
             success = true,
@@ -358,9 +358,9 @@ class SmartContentAnalyzer @Inject constructor(
      * Apply recommended actions automatically
      */
     suspend fun applyRecommendedActions(
-        result: ContentAnalysisResult,
+        result: SmartAnalysisResult,
         actions: List<RecommendedAction>
-    ): ContentAnalysisResult {
+    ): SmartAnalysisResult {
         return withContext(Dispatchers.IO) {
             var updatedResult = result
 
@@ -407,18 +407,18 @@ class SmartContentAnalyzer @Inject constructor(
 }
 
 /**
- * Result of comprehensive content analysis
+ * Result of comprehensive content analysis (Smart Analyzer version with extended fields)
  */
-data class ContentAnalysisResult(
+data class SmartAnalysisResult(
     val uri: String,
     val mediaType: MediaViewerManager.MediaType,
     val success: Boolean,
     val error: String? = null,
     val extractedText: String = "",
-    val extractedMetadata: ExtractedMetadata = ExtractedMetadata(),
+    val extractedMetadata: DetailedExtractedMetadata = DetailedExtractedMetadata(),
     val contentFingerprint: String = "",
-    val classification: ContentClassification = ContentClassification(),
-    val archiveMatches: List<ArchiveMatch> = emptyList(),
+    val classification: DetailedContentClassification = DetailedContentClassification(),
+    val archiveMatches: List<DetailedArchiveMatch> = emptyList(),
     val duplicates: List<String> = emptyList(),
     val analysisSteps: List<String> = emptyList(),
     val confidence: Float = 0.0f,
@@ -426,14 +426,14 @@ data class ContentAnalysisResult(
     val processingTimeMs: Long = 0L
 ) {
     companion object {
-        fun error(uri: String, error: String) = ContentAnalysisResult(
+        fun error(uri: String, error: String) = SmartAnalysisResult(
             uri = uri,
             mediaType = MediaViewerManager.MediaType.UNSUPPORTED,
             success = false,
             error = error
         )
 
-        fun unsupported(uri: String) = ContentAnalysisResult(
+        fun unsupported(uri: String) = SmartAnalysisResult(
             uri = uri,
             mediaType = MediaViewerManager.MediaType.UNSUPPORTED,
             success = false,
@@ -443,9 +443,9 @@ data class ContentAnalysisResult(
 }
 
 /**
- * Extracted metadata from content analysis
+ * Detailed extracted metadata from content analysis
  */
-data class ExtractedMetadata(
+data class DetailedExtractedMetadata(
     val title: String = "",
     val author: String = "",
     val isbn: String? = null,
@@ -482,9 +482,9 @@ data class ExtractedMetadata(
 )
 
 /**
- * AI-powered content classification
+ * Detailed AI-powered content classification
  */
-data class ContentClassification(
+data class DetailedContentClassification(
     val primaryGenre: String = "",
     val genres: List<String> = emptyList(),
     val language: String = "",
@@ -497,9 +497,9 @@ data class ContentClassification(
 )
 
 /**
- * Match from external archives/databases
+ * Detailed match from external archives/databases
  */
-data class ArchiveMatch(
+data class DetailedArchiveMatch(
     val source: String, // "Open Library", "Google Books", "TMDB", etc.
     val id: String,
     val title: String,

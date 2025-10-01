@@ -137,6 +137,18 @@ dependencies {
     
     // HTML parsing for EPUB and web scraping
     implementation("org.jsoup:jsoup:1.17.2")
+    
+    // XML parsing for Plex API
+    implementation("com.tickaroo.tikxml:annotation:0.8.13")
+    implementation("com.tickaroo.tikxml:core:0.8.13")
+    implementation("com.tickaroo.tikxml:retrofit-converter:0.8.13")
+    
+    // ML Kit for OCR and text recognition
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:entity-extraction:16.0.0-beta5")
+    
+    // MediaPipe for Gemma LLM (if available)
+    // implementation("com.google.mediapipe:tasks-genai:latest.release")  // Uncomment when available
 
     
     // Security for encrypted token storage
