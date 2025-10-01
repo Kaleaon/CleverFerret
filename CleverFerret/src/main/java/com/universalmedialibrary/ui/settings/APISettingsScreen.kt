@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.universalmedialibrary.data.settings.ImageGeneratorType
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -76,6 +77,13 @@ fun APISettingsScreen(
                 onTestKey = { viewModel.testGeminiApiKey(geminiKey) },
                 isLoading = uiState.isLoading,
                 testResult = uiState.geminiTestResult
+            )
+
+            // Image Generator Selection Section
+            ImageGeneratorSection(
+                selectedType = uiState.imageGeneratorType,
+                onTypeSelected = { viewModel.updateImageGeneratorType(it) },
+                isLoading = uiState.isLoading
             )
 
             // Cloud TTS Section
@@ -366,6 +374,97 @@ private fun FeatureFlagsSection(
                     checked = podcastsEnabled,
                     onCheckedChange = onPodcastsToggle
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImageGeneratorSection(
+    selectedType: ImageGeneratorType,
+    onTypeSelected: (ImageGeneratorType) -> Unit,
+    isLoading: Boolean
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Image Generator",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Choose which image generation model to use for creating book covers",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Imagen Option
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = selectedType == ImageGeneratorType.IMAGEN,
+                    onClick = { if (!isLoading) onTypeSelected(ImageGeneratorType.IMAGEN) },
+                    enabled = !isLoading
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                ) {
+                    Text(
+                        text = "Gemini Imagen (Dedicated)",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Higher quality, optimized for book covers",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // Gemini Built-in Option
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = selectedType == ImageGeneratorType.GEMINI_BUILTIN,
+                    onClick = { if (!isLoading) onTypeSelected(ImageGeneratorType.GEMINI_BUILTIN) },
+                    enabled = !isLoading
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                ) {
+                    Text(
+                        text = "Gemini Built-in",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Native multimodal, faster generation",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
