@@ -33,7 +33,13 @@ data class WebFictionStory(
     val tags: List<String> = emptyList(),
     val isCompleted: Boolean = false,
     val downloadStatus: DownloadStatus = DownloadStatus.NOT_DOWNLOADED,
-    val localPath: String? = null
+    val localPath: String? = null,
+    // Fields used by ViewModel
+    val site: String? = null,
+    val totalChapters: Int? = chapterCount,
+    val coverUrl: String? = null,
+    val chapters: List<WebFictionChapter> = emptyList(),
+    val updatedAt: Long? = lastUpdated
 )
 
 enum class StoryStatus {
