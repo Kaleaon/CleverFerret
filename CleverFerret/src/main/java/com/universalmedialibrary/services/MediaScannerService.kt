@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.core.app.NotificationCompat
+import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
@@ -204,15 +205,11 @@ class MediaScannerService : Service() {
                             val metadata = MetadataMusicTrack(
                                 itemId = item.itemId,
                                 artist = artist,
-                                albumTitle = album,
+                                album = album,
                                 trackNumber = 0,
-                                duration = duration.toInt(),
-                                genre = null,
-                                releaseYear = null,
-                                bitrate = null,
-                                sampleRate = null
+                                duration = duration
                             )
-                            metadataDao.insertMusicTrackMetadata(metadata)
+                            metadataDao.insertMetadataMusicTrack(metadata)
                         }
                     }
                 }
@@ -256,18 +253,10 @@ class MediaScannerService : Service() {
                         mediaItem?.let { item ->
                             val metadata = MetadataMovie(
                                 itemId = item.itemId,
-                                director = null,
-                                cast = null,
-                                runtime = (duration / 1000).toInt(), // Convert to seconds
-                                imdbId = null,
-                                tmdbId = null,
-                                rating = null,
-                                resolution = "${width}x${height}",
-                                videoCodec = null,
-                                audioCodec = null,
-                                subtitles = null
+                                runtime = (duration / 60000).toInt(), // Convert to minutes
+                                resolution = "${width}x${height}"
                             )
-                            metadataDao.insertMovieMetadata(metadata)
+                            metadataDao.insertMetadataMovie(metadata)
                         }
                     }
                 }
@@ -371,11 +360,10 @@ class MediaScannerService : Service() {
                 var library = libraryDao.getLibrariesByType(mediaType.name).firstOrNull()
                 if (library == null) {
                     library = Library(
-                        name = "${mediaType.name.lowercase().capitalize()} Library",
+                        name = "${mediaType.name.lowercase().replaceFirstChar { it.uppercase() }} Library",
                         type = mediaType.name,
                         path = file.parent ?: "",
-                        dateCreated = java.util.Date(),
-                        dateModified = java.util.Date()
+                        dateModified = System.currentTimeMillis()
                     )
                     val libraryId = libraryDao.insertLibrary(library)
                     library = library.copy(libraryId = libraryId)
@@ -385,14 +373,11 @@ class MediaScannerService : Service() {
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
                     fileName = file.name,
+                    fileExtension = file.extension,
                     filePath = file.absolutePath,
                     fileSize = file.length(),
-                    mediaType = mediaType,
-                    dateAdded = java.util.Date(),
-                    lastModified = java.util.Date(file.lastModified()),
-                    lastAccessed = null,
-                    playCount = 0,
-                    isLocal = true
+                    mediaType = mediaType.name,
+                    lastModified = file.lastModified()
                 )
 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -401,13 +386,7 @@ class MediaScannerService : Service() {
                 // Create basic metadata
                 val metadata = MetadataCommon(
                     itemId = itemId,
-                    title = file.nameWithoutExtension,
-                    description = null,
-                    tags = null,
-                    userRating = null,
-                    coverImagePath = null,
-                    isFavorite = false,
-                    isDownloaded = true
+                    title = file.nameWithoutExtension
                 )
                 metadataDao.insertCommonMetadata(metadata)
 

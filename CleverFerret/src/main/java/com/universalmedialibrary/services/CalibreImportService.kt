@@ -40,9 +40,9 @@ class CalibreImportService @Inject constructor(
             val mediaItem = MediaItem(
                 libraryId = libraryId,
                 filePath = fullPath,
-                fileName = bookRecord.path,
-                fileExtension = bookRecord.format.lowercase(),
-                fileSize = 0L, // Unknown size
+                fileName = file.name,
+                fileExtension = file.extension.lowercase(),
+                fileSize = file.length(),
                 mediaType = "BOOK",
                 dateAdded = System.currentTimeMillis(),
                 lastScanned = System.currentTimeMillis(),
@@ -74,28 +74,28 @@ class CalibreImportService @Inject constructor(
             )
             metadataDao.insertMetadataBook(metadataBook)
 
-            // Handle Authors
-            for (authorName in rawBook.authorNames) {
-                val cleanedAuthor = cleanAuthorName(authorName)
-                val personId = metadataDao.findPersonByName(cleanedAuthor.name)
-                    ?: metadataDao.insertPerson(cleanedAuthor)
-                val itemPersonRole = ItemPersonRole(itemId = newId, personId = personId, role = "AUTHOR")
-                metadataDao.insertItemPersonRole(itemPersonRole)
-            }
+            // TODO: Handle Authors - DAO methods not yet implemented
+            // for (authorName in rawBook.authorNames) {
+            //     val cleanedAuthor = cleanAuthorName(authorName)
+            //     val personId = metadataDao.findPersonByName(cleanedAuthor.name)
+            //         ?: metadataDao.insertPerson(cleanedAuthor)
+            //     val itemPersonRole = ItemPersonRole(itemId = newId, personId = personId, role = "AUTHOR")
+            //     metadataDao.insertItemPersonRole(itemPersonRole)
+            // }
 
-            // Handle Series
-            rawBook.seriesName?.let { seriesName ->
-                val seriesId = metadataDao.findSeriesByName(seriesName)
-                    ?: metadataDao.insertSeries(Series(name = seriesName))
-                metadataDao.updateBookWithSeries(newId, seriesId)
-            }
+            // TODO: Handle Series - DAO methods not yet implemented
+            // rawBook.seriesName?.let { seriesName ->
+            //     val seriesId = metadataDao.findSeriesByName(seriesName)
+            //         ?: metadataDao.insertSeries(Series(name = seriesName))
+            //     metadataDao.updateBookWithSeries(newId, seriesId)
+            // }
 
-            // Handle Genres (from Tags)
-            for (tagName in rawBook.tags) {
-                val genreId = metadataDao.findGenreByName(tagName)
-                    ?: metadataDao.insertGenre(Genre(name = tagName))
-                metadataDao.insertItemGenre(ItemGenre(itemId = newId, genreId = genreId))
-            }
+            // TODO: Handle Genres - DAO methods not yet implemented
+            // for (tagName in rawBook.tags) {
+            //     val genreId = metadataDao.findGenreByName(tagName)
+            //         ?: metadataDao.insertGenre(Genre(name = tagName))
+            //     metadataDao.insertItemGenre(ItemGenre(itemId = newId, genreId = genreId))
+            // }
         }
     }
 

@@ -6,16 +6,15 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
+import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
-import com.universalmedialibrary.data.local.entity.MediaType
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -148,17 +147,15 @@ class StorageAccessService @Inject constructor(
             }
 
             // Create media item
+            val extension = name.substringAfterLast('.', "")
             val mediaItem = MediaItem(
                 libraryId = library.libraryId,
                 fileName = name,
+                fileExtension = extension,
                 filePath = uri.toString(),
                 fileSize = documentFile.length(),
-                mediaType = mediaType,
-                dateAdded = Date(),
-                lastModified = Date(documentFile.lastModified()),
-                lastAccessed = null,
-                playCount = 0,
-                isLocal = true
+                mediaType = mediaType.name,
+                lastModified = documentFile.lastModified()
             )
 
             val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -166,13 +163,7 @@ class StorageAccessService @Inject constructor(
             // Create basic metadata
             val metadata = MetadataCommon(
                 itemId = itemId,
-                title = name.substringBeforeLast('.'),
-                description = null,
-                tags = null,
-                userRating = null,
-                coverImagePath = null,
-                isFavorite = false,
-                isDownloaded = true
+                title = name.substringBeforeLast('.')
             )
             metadataDao.insertCommonMetadata(metadata)
 
@@ -188,8 +179,7 @@ class StorageAccessService @Inject constructor(
                 name = name,
                 type = "SAF",
                 path = path,
-                dateCreated = Date(),
-                dateModified = Date()
+                dateModified = System.currentTimeMillis()
             )
             val id = libraryDao.insertLibrary(library)
             library = library.copy(libraryId = id)
