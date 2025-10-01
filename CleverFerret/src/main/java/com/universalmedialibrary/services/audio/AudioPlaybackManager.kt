@@ -85,7 +85,8 @@ class AudioPlaybackManager @Inject constructor(
     }
 
     val mediaSession: MediaSession by lazy {
-        MediaSession.Builder(context, exoPlayer).build()
+        MediaSession.Builder(context, exoPlayer)
+            .build()
     }
 
     private var playerNotificationManager: PlayerNotificationManager? = null

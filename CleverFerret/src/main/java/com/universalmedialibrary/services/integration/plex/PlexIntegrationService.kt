@@ -1,7 +1,6 @@
 package com.universalmedialibrary.services.integration.plex
 
 import android.content.Context
-import com.universalmedialibrary.services.analysis.SmartContentAnalyzer
 import com.universalmedialibrary.services.integration.PlexConnectionStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -23,17 +22,15 @@ import javax.inject.Singleton
  *
  * Features:
  * - Remote Plex server management
- * - Advanced metadata correction using CleverFerret's AI
  * - Duplicate detection across Plex libraries
- * - Smart collection creation
+ * - Smart collection creation  
  * - Library analytics and health monitoring
  * - Watch status sync
  * - Custom artwork management
  */
 @Singleton
 class PlexIntegrationService @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val contentAnalyzer: SmartContentAnalyzer
+    @ApplicationContext private val context: Context
 ) {
 
     private val _plexState = MutableStateFlow(PlexIntegrationState())
