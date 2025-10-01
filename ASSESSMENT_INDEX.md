@@ -9,6 +9,7 @@
 - **Start Here**: [ASSESSMENT_AT_A_GLANCE.md](ASSESSMENT_AT_A_GLANCE.md) - One-page overview
 - **Executive Summary**: [ASSESSMENT_SUMMARY.md](ASSESSMENT_SUMMARY.md) - Complete summary
 - **For Developers**: [REPAIR_QUICK_START.md](REPAIR_QUICK_START.md) - How to fix
+- **Gemini OCR Plugin**: [GEMINI_OCR_PLUGIN.md](GEMINI_OCR_PLUGIN.md) - AI/ML strategy 🆕
 - **Updated README**: [README.md](README.md) - Project overview
 
 ---
@@ -32,7 +33,25 @@
 
 ---
 
-### 2. ASSESSMENT_SUMMARY.md 📊
+### 2. GEMINI_OCR_PLUGIN.md 🤖 🆕
+**Size**: 13KB | **Read Time**: 15 minutes  
+**Purpose**: AI/ML strategy and implementation guide
+
+**What's Inside**:
+- Keep Gemini for lightweight OCR via API
+- Remove heavy AI/ML (Gemma LLM, SmartContentAnalyzer, heavy NLP)
+- Screenshot-based text scanning architecture
+- Book cover identification workflow
+- 4-week implementation plan
+- File removal checklist
+- Privacy and cost considerations
+- Why Gemini over on-device ML
+
+**Read this if you want**: Strategy for AI features - what to keep, what to remove, and how to implement
+
+---
+
+### 3. ASSESSMENT_SUMMARY.md 📊
 **Size**: 12KB | **Read Time**: 10 minutes  
 **Purpose**: Complete executive summary
 
@@ -160,7 +179,7 @@
 
 ---
 
-### 7. README.md 📖
+### 8. README.md 📖
 **Size**: Updated | **Read Time**: 5 minutes  
 **Purpose**: Main project documentation
 
@@ -172,6 +191,23 @@
 - ✅ Added realistic time estimates
 
 **Read this if you want**: Updated project overview
+
+### 9. GEMINI_OCR_PLUGIN.md 🤖 🆕
+**Size**: 13KB | **Read Time**: 15 minutes  
+**Purpose**: Gemini OCR implementation guide
+
+**What's Inside**:
+- Gemini as lightweight OCR plugin
+- What to keep (GeminiService)
+- What to remove (heavy AI/ML: Gemma LLM, SmartContentAnalyzer, etc.)
+- Screenshot-based text scanning
+- Book cover identification
+- Implementation plan (4 weeks)
+- File removal checklist
+- Privacy and cost considerations
+- Why Gemini over on-device ML
+
+**Read this if you want**: Guide for implementing Gemini OCR and removing heavy AI/ML
 
 ---
 
@@ -294,10 +330,10 @@ Assessment Documentation
 ## 📈 Document Statistics
 
 ```
-Total Documents: 7
-Total Size: ~76 KB
-Total Read Time: ~75 minutes (all docs)
-Pages (printed): ~40 pages
+Total Documents: 9
+Total Size: ~97 KB
+Total Read Time: ~105 minutes (all docs)
+Pages (printed): ~50 pages
 
 Assessment Coverage: 100%
 Documentation Quality: Comprehensive

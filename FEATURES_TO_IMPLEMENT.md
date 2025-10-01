@@ -327,30 +327,37 @@ These are specialized features for power users.
 - Decide: fix or remove?
 - May be out of scope for core app
 
-### 3.4 AI/ML Features ⚠️ PARTIALLY IMPLEMENTED
+### 3.4 Gemini OCR Plugin ⚠️ PARTIALLY IMPLEMENTED
 
-#### Content Analysis ⚠️ EXISTS BUT BROKEN
+**Recommendation**: Keep Gemini, remove other AI/ML features
+
+#### Gemini for OCR & Text Scanning ⚠️ EXISTS BUT BROKEN
 - [x] Gemini integration (code exists, broken)
-- [x] Gemma LLM (code exists, broken)
-- [x] Smart analyzer (code exists, broken)
-- [ ] Fix all AI/ML compilation errors
-- [ ] Automated metadata extraction
-- [ ] Content summarization
-- [ ] Genre classification
-- [ ] Similar book recommendations
+- [ ] Fix compilation errors in GeminiService
+- [ ] Test screenshot capture and OCR
+- [ ] Book cover identification
+- [ ] Page text extraction
+- [ ] API key management in settings
 
 **Implementation Notes**:
-- Multiple AI services exist
-- All have compilation errors
-- Decide: fix or remove?
-- May require API keys/costs
+- GeminiService already exists in `services/gemini/GeminiService.kt`
+- Designed for: Visual OCR, book identification, text extraction
+- Use as **optional plugin** for enhanced functionality
+- Lightweight, API-based approach
+- Users provide their own Gemini API key
 
-#### OCR Support ⚠️ EXISTS BUT BROKEN
-- [x] OCR service (code exists, broken)
-- [ ] Fix compilation errors
-- [ ] Extract text from images
-- [ ] PDF text extraction
-- [ ] Searchable PDF creation
+#### Features to REMOVE (Heavy, Complex, Incomplete)
+- ❌ Gemma LLM (resource-intensive, runs on-device)
+- ❌ SmartContentAnalyzer (complex, incomplete)
+- ❌ Advanced NLP (heavy libraries, incomplete)
+- ❌ Stanford CoreNLP (too heavy for Android)
+- ❌ Apache Lucene (complex, not needed)
+
+**Rationale**: 
+- Focus on lightweight, API-based solution (Gemini)
+- Avoid heavy on-device ML models
+- Gemini API provides professional OCR and analysis
+- Optional feature - doesn't impact core functionality
 
 ### 3.5 Music Library ⚠️ PARTIALLY IMPLEMENTED
 
@@ -447,12 +454,13 @@ Some implemented features may be out of scope or too complex:
 
 ### Candidates for Removal:
 1. **Plex Integration** - Complex, maintenance burden, limited audience
-2. **AI/ML Features** - Complex, API costs, may not be essential
-3. **Web Fiction Scraping** - Legal concerns, maintenance burden
-4. **News to EPUB** - Niche feature, limited use
-5. **Video Library** - Very different from books, complex
-6. **Music Library** - Very different from books, complex
-7. **Podcast Management** - Very different from books, complex
+2. **Heavy AI/ML Features** - Remove: Gemma LLM, SmartContentAnalyzer, heavy NLP libraries
+3. **Keep: Gemini Plugin** - Lightweight OCR via API for screenshot scanning
+4. **Web Fiction Scraping** - Legal concerns, maintenance burden
+5. **News to EPUB** - Niche feature, limited use
+6. **Video Library** - Very different from books, complex
+7. **Music Library** - Very different from books, complex
+8. **Podcast Management** - Very different from books, complex
 
 ### Recommendation:
 **Focus on being an excellent book library app first.**

@@ -201,9 +201,10 @@ Decision needed on which to keep:
 - Music library (currently broken)
 - Video library (currently broken)
 - Plex integration (currently broken)
-- AI/ML features (currently broken)
+- Heavy AI/ML features (remove: Gemma LLM, SmartContentAnalyzer, heavy NLP)
+- Lightweight AI (keep: Gemini for OCR/screenshot scanning as optional plugin)
 
-**Recommendation**: Focus on being excellent book reader first.
+**Recommendation**: Focus on being excellent book reader first. Keep only Gemini as lightweight OCR plugin.
 
 ---
 

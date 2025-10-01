@@ -292,12 +292,19 @@ This document provides a detailed breakdown of what is broken in CleverFerret, o
 ### AI/ML Analysis
 **Status**: COMPLETELY BROKEN  
 **Reason**: All analysis services have compilation errors  
-**Features Broken**:
-- Gemini integration
-- Gemma LLM
-- Smart content analysis
-- Metadata extraction
-- OCR processing
+**Recommendation**: **REMOVE most AI/ML features, KEEP only Gemini for OCR**
+
+**Features to Remove**:
+- ❌ Gemma LLM (complex, resource-intensive, not essential)
+- ❌ Smart content analysis (incomplete, complex)
+- ❌ Advanced NLP features (heavy, incomplete)
+
+**Feature to Keep & Fix**:
+- ✅ **Gemini Service** - Keep as plugin for screenshot-based OCR and text scanning
+  - Use for: Taking screenshots of pages, extracting text via OCR
+  - Use for: Book identification from cover images
+  - Lightweight, API-based, optional feature
+  - Already has good architecture in `services/gemini/GeminiService.kt`
 
 ### Advanced Readers
 **Status**: COMPLETELY BROKEN  
