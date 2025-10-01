@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.data.settings.ImageGeneratorType
 import com.universalmedialibrary.services.gemini.GeminiService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,10 +39,12 @@ class APISettingsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
                 val geminiKey = apiKeyRepository.getGeminiApiKey()
+                val imageGeneratorType = apiKeyRepository.getImageGeneratorType()
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiApiKey = geminiKey,
+                    imageGeneratorType = imageGeneratorType,
                     geminiEnabled = FeatureFlags.ENABLE_GEMINI,
                     exoPlayerEnabled = FeatureFlags.ENABLE_EXOPLAYER,
                     podcastsEnabled = FeatureFlags.ENABLE_PODCASTS,
@@ -181,6 +184,35 @@ class APISettingsViewModel @Inject constructor(
             hasError = false
         )
     }
+
+    /**
+     * Update image generator type selection
+     */
+    fun updateImageGeneratorType(type: ImageGeneratorType) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+
+                apiKeyRepository.saveImageGeneratorType(type)
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    imageGeneratorType = type,
+                    statusMessage = when (type) {
+                        ImageGeneratorType.IMAGEN -> "Using Gemini Imagen (Dedicated) for image generation"
+                        ImageGeneratorType.GEMINI_BUILTIN -> "Using Gemini Built-in for image generation"
+                    },
+                    hasError = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Error saving image generator type: ${e.message}",
+                    hasError = true
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -190,6 +222,7 @@ data class APISettingsUiState(
     val isLoading: Boolean = false,
     val geminiApiKey: String? = null,
     val geminiTestResult: String? = null,
+    val imageGeneratorType: ImageGeneratorType = ImageGeneratorType.IMAGEN,
     val geminiEnabled: Boolean = true,
     val exoPlayerEnabled: Boolean = true,
     val podcastsEnabled: Boolean = true,

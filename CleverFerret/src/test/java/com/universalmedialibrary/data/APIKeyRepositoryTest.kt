@@ -194,4 +194,108 @@ class APIKeyRepositoryTest {
         // ASSERT
         assertThat(validCount).isEqualTo(1)
     }
+
+    @Test
+    fun `getGeminiApiKey returns null when not set`() = runBlocking {
+        // ACT
+        val apiKey = repository.getGeminiApiKey()
+        
+        // ASSERT
+        assertThat(apiKey).isNull()
+    }
+
+    @Test
+    fun `setGeminiApiKey saves key correctly`() = runBlocking {
+        // ARRANGE
+        val testKey = "test_gemini_api_key_123"
+        
+        // ACT
+        repository.setGeminiApiKey(testKey)
+        
+        // ASSERT
+        val savedKey = repository.getGeminiApiKey()
+        assertThat(savedKey).isEqualTo(testKey)
+        
+        val apiKeyEntity = repository.getAPIKeyByProvider("gemini")
+        assertThat(apiKeyEntity).isNotNull()
+        assertThat(apiKeyEntity?.keyValue).isEqualTo(testKey)
+        assertThat(apiKeyEntity?.category).isEqualTo("AI")
+    }
+
+    @Test
+    fun `setGeminiApiKey updates existing key`() = runBlocking {
+        // ARRANGE
+        repository.setGeminiApiKey("original_key")
+        
+        // ACT
+        repository.setGeminiApiKey("updated_key")
+        
+        // ASSERT
+        val updatedKey = repository.getGeminiApiKey()
+        assertThat(updatedKey).isEqualTo("updated_key")
+        
+        // Verify no duplicate entries
+        val allKeys = repository.getAllAPIKeys().first()
+        val geminiKeys = allKeys.filter { it.provider == "gemini" }
+        assertThat(geminiKeys).hasSize(1)
+    }
+
+    @Test
+    fun `getImageGeneratorType returns IMAGEN by default`() = runBlocking {
+        // ACT
+        val type = repository.getImageGeneratorType()
+        
+        // ASSERT
+        assertThat(type).isEqualTo(com.universalmedialibrary.data.settings.ImageGeneratorType.IMAGEN)
+    }
+
+    @Test
+    fun `saveImageGeneratorType persists IMAGEN correctly`() = runBlocking {
+        // ACT
+        repository.saveImageGeneratorType(com.universalmedialibrary.data.settings.ImageGeneratorType.IMAGEN)
+        
+        // ASSERT
+        val savedType = repository.getImageGeneratorType()
+        assertThat(savedType).isEqualTo(com.universalmedialibrary.data.settings.ImageGeneratorType.IMAGEN)
+    }
+
+    @Test
+    fun `saveImageGeneratorType persists GEMINI_BUILTIN correctly`() = runBlocking {
+        // ACT
+        repository.saveImageGeneratorType(com.universalmedialibrary.data.settings.ImageGeneratorType.GEMINI_BUILTIN)
+        
+        // ASSERT
+        val savedType = repository.getImageGeneratorType()
+        assertThat(savedType).isEqualTo(com.universalmedialibrary.data.settings.ImageGeneratorType.GEMINI_BUILTIN)
+    }
+
+    @Test
+    fun `saveImageGeneratorType updates existing value`() = runBlocking {
+        // ARRANGE
+        repository.saveImageGeneratorType(com.universalmedialibrary.data.settings.ImageGeneratorType.IMAGEN)
+        
+        // ACT
+        repository.saveImageGeneratorType(com.universalmedialibrary.data.settings.ImageGeneratorType.GEMINI_BUILTIN)
+        
+        // ASSERT
+        val updatedType = repository.getImageGeneratorType()
+        assertThat(updatedType).isEqualTo(com.universalmedialibrary.data.settings.ImageGeneratorType.GEMINI_BUILTIN)
+        
+        // Verify no duplicate entries
+        val allKeys = repository.getAllAPIKeys().first()
+        val typeKeys = allKeys.filter { it.provider == "image_generator_type" }
+        assertThat(typeKeys).hasSize(1)
+    }
+
+    @Test
+    fun `getImageGeneratorType returns IMAGEN on invalid value`() = runBlocking {
+        // ARRANGE - Save an invalid value directly
+        repository.saveAPIKey("image_generator_type", "INVALID_TYPE", "AI_SETTINGS")
+        
+        // ACT
+        val type = repository.getImageGeneratorType()
+        
+        // ASSERT
+        assertThat(type).isEqualTo(com.universalmedialibrary.data.settings.ImageGeneratorType.IMAGEN)
+    }
 }

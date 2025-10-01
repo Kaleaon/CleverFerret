@@ -156,6 +156,8 @@ dependencies {
     // Will be moved to separate downloadable plugin app
     // implementation("com.google.mediapipe:tasks-genai:latest.release")  // Uncomment when available
 
+    // HTML parsing for web scraping
+    implementation("org.jsoup:jsoup:1.17.2")
     
     // Security for encrypted token storage
     implementation("androidx.security:security-crypto:1.1.0-alpha06")

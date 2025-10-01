@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.repository
 import com.universalmedialibrary.data.local.dao.APIKeyDao
 import com.universalmedialibrary.data.local.dao.ProviderKeyPair
 import com.universalmedialibrary.data.local.entity.APIKey
+import com.universalmedialibrary.data.settings.ImageGeneratorType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -143,6 +144,32 @@ class APIKeyRepository @Inject constructor(
             else -> provider.replace("_", " ").split(" ").joinToString(" ") {
                 it.replaceFirstChar { char -> char.uppercaseChar() }
             }
+        }
+    }
+
+    // Gemini API key convenience methods
+    suspend fun getGeminiApiKey(): String? = getAPIKeyValue("gemini")
+
+    suspend fun setGeminiApiKey(apiKey: String) {
+        saveAPIKey("gemini", apiKey, "AI", false)
+    }
+
+    // Image generator type persistence methods
+    suspend fun saveImageGeneratorType(type: ImageGeneratorType) {
+        // Store as a special API key entry with the enum name as the value
+        saveAPIKey("image_generator_type", type.name, "AI_SETTINGS", false)
+    }
+
+    suspend fun getImageGeneratorType(): ImageGeneratorType {
+        val value = getAPIKeyValue("image_generator_type")
+        return try {
+            if (value.isNullOrBlank()) {
+                ImageGeneratorType.IMAGEN // Default
+            } else {
+                ImageGeneratorType.valueOf(value)
+            }
+        } catch (e: IllegalArgumentException) {
+            ImageGeneratorType.IMAGEN // Default on invalid value
         }
     }
 }
