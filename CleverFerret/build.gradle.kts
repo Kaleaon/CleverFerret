@@ -134,6 +134,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    
+    // HTML parsing for EPUB and web scraping
+    implementation("org.jsoup:jsoup:1.17.2")
 
     
     // Security for encrypted token storage
@@ -148,6 +151,7 @@ dependencies {
     implementation("androidx.media:media:1.7.1")
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-ui:1.8.0")
+    implementation("androidx.media3:media3-session:1.8.0")
 
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")
