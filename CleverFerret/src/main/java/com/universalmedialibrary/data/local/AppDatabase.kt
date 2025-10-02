@@ -70,6 +70,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun playbackQueueDao(): PlaybackQueueDao
     abstract fun queueItemDao(): QueueItemDao
     abstract fun playbackSessionDao(): PlaybackSessionDao
+    abstract fun unifiedCollectionDao(): UnifiedCollectionDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao

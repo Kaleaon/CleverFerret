@@ -18,13 +18,22 @@ data class Series(
     val seriesId: Long = 0,
 
     val name: String,
+    val sortName: String = name,
     val description: String? = null,
     val totalItems: Int? = null,
     val mediaType: String, // BOOK, TV_SHOW, etc.
 
     val startYear: Int? = null,
     val endYear: Int? = null,
-    val status: String? = null, // ONGOING, COMPLETED, CANCELLED
+    val status: String? = null, // ONGOING, COMPLETED, CANCELLED, HIATUS
+
+    // Komga-inspired fields
+    val publisher: String? = null,
+    val ageRating: String? = null, // E, E10+, T, M, AO
+    val thumbnail: String? = null,
+    val releaseDate: Long? = null,
+    val folderPath: String? = null,
+    val autoDetected: Boolean = false,
 
     val coverImagePath: String? = null,
     val externalId: String? = null,
