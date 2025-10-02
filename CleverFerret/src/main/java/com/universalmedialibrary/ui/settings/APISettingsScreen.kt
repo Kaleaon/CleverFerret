@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.settings.ImageGeneratorType
+import com.universalmedialibrary.data.settings.ArtworkApiSettings
+import com.universalmedialibrary.data.settings.LyricsApiSettings
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -84,6 +86,18 @@ fun APISettingsScreen(
                 selectedType = uiState.imageGeneratorType,
                 onTypeSelected = { viewModel.updateImageGeneratorType(it) },
                 isLoading = uiState.isLoading
+            )
+
+            // Artwork APIs Section
+            ArtworkAPISection(
+                settings = uiState.artworkApis,
+                onSave = { viewModel.saveArtworkApis(it) }
+            )
+
+            // Lyrics APIs Section
+            LyricsAPISection(
+                settings = uiState.lyricsApis,
+                onSave = { viewModel.saveLyricsApis(it) }
             )
 
             // Cloud TTS Section
@@ -466,6 +480,94 @@ private fun ImageGeneratorSection(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ArtworkAPISection(
+    settings: ArtworkApiSettings,
+    onSave: (ArtworkApiSettings) -> Unit
+) {
+    var fanart by remember { mutableStateOf(settings.fanartTvEnabled) }
+    var fanartKey by remember { mutableStateOf(settings.fanartTvApiKey) }
+    var lastfm by remember { mutableStateOf(settings.lastFmEnabled) }
+    var lastfmKey by remember { mutableStateOf(settings.lastFmApiKey) }
+    var caa by remember { mutableStateOf(settings.coverArtArchiveEnabled) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Artwork Providers", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = fanart, onCheckedChange = { fanart = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Fanart.tv")
+            }
+            if (fanart) {
+                OutlinedTextField(value = fanartKey, onValueChange = { fanartKey = it }, label = { Text("Fanart.tv API Key") }, modifier = Modifier.fillMaxWidth())
+            }
+            Spacer(Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = lastfm, onCheckedChange = { lastfm = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Last.fm")
+            }
+            if (lastfm) {
+                OutlinedTextField(value = lastfmKey, onValueChange = { lastfmKey = it }, label = { Text("Last.fm API Key") }, modifier = Modifier.fillMaxWidth())
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = caa, onCheckedChange = { caa = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Cover Art Archive")
+            }
+
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = { onSave(ArtworkApiSettings(fanart, fanartKey, lastfm, lastfmKey, caa)) }) { Text("Save Artwork Settings") }
+        }
+    }
+}
+
+@Composable
+private fun LyricsAPISection(
+    settings: LyricsApiSettings,
+    onSave: (LyricsApiSettings) -> Unit
+) {
+    var musix by remember { mutableStateOf(settings.musixmatchEnabled) }
+    var musixKey by remember { mutableStateOf(settings.musixmatchApiKey) }
+    var genius by remember { mutableStateOf(settings.geniusEnabled) }
+    var geniusKey by remember { mutableStateOf(settings.geniusApiKey) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Lyrics Providers", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = musix, onCheckedChange = { musix = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Musixmatch")
+            }
+            if (musix) {
+                OutlinedTextField(value = musixKey, onValueChange = { musixKey = it }, label = { Text("Musixmatch API Key") }, modifier = Modifier.fillMaxWidth())
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = genius, onCheckedChange = { genius = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Genius")
+            }
+            if (genius) {
+                OutlinedTextField(value = geniusKey, onValueChange = { geniusKey = it }, label = { Text("Genius API Key") }, modifier = Modifier.fillMaxWidth())
+            }
+
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = { onSave(LyricsApiSettings(musix, musixKey, genius, geniusKey)) }) { Text("Save Lyrics Settings") }
         }
     }
 }

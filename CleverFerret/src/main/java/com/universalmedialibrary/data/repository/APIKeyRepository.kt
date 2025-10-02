@@ -102,6 +102,12 @@ class APIKeyRepository @Inject constructor(
             // Music APIs
             Triple("lastfm", "MUSIC", false),
             Triple("discogs_token", "MUSIC", false),
+            // Artwork APIs
+            Triple("fanart_tv", "ARTWORK", false),
+            Triple("cover_art_archive", "ARTWORK", false),
+            // Lyrics APIs
+            Triple("musixmatch", "LYRICS", false),
+            Triple("genius", "LYRICS", false),
 
             // AI Services - PRIMARY AI for all devices
             Triple("gemini", "AI_SERVICES", false)
@@ -140,6 +146,10 @@ class APIKeyRepository @Inject constructor(
             "tvdb" -> "TVDB API"
             "lastfm" -> "Last.fm API"
             "discogs_token" -> "Discogs API"
+            "fanart_tv" -> "Fanart.tv API"
+            "cover_art_archive" -> "Cover Art Archive"
+            "musixmatch" -> "Musixmatch API"
+            "genius" -> "Genius API"
             "gemini" -> "Google Gemini AI"
             else -> provider.replace("_", " ").split(" ").joinToString(" ") {
                 it.replaceFirstChar { char -> char.uppercaseChar() }

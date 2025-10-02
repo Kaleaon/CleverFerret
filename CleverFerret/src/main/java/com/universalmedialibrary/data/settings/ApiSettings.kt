@@ -12,7 +12,9 @@ data class ApiSettings(
     val comicApis: ComicApiSettings = ComicApiSettings(),
     val audiobookApis: AudiobookApiSettings = AudiobookApiSettings(),
     val movieTvApis: MovieTvApiSettings = MovieTvApiSettings(),
-    val musicApis: MusicApiSettings = MusicApiSettings()
+    val musicApis: MusicApiSettings = MusicApiSettings(),
+    val artworkApis: ArtworkApiSettings = ArtworkApiSettings(),
+    val lyricsApis: LyricsApiSettings = LyricsApiSettings()
 )
 
 @Serializable
@@ -54,6 +56,25 @@ data class MusicApiSettings(
     val spotifyClientId: String = "",
     val spotifyClientSecret: String = "",
     val priority: List<String> = listOf("MusicBrainz", "Spotify")
+)
+
+@Serializable
+data class ArtworkApiSettings(
+    val fanartTvEnabled: Boolean = false,
+    val fanartTvApiKey: String = "",
+    val lastFmEnabled: Boolean = false,
+    val lastFmApiKey: String = "",
+    val coverArtArchiveEnabled: Boolean = true,
+    val priority: List<String> = listOf("Cover Art Archive", "Fanart.tv", "Last.fm")
+)
+
+@Serializable
+data class LyricsApiSettings(
+    val musixmatchEnabled: Boolean = false,
+    val musixmatchApiKey: String = "",
+    val geniusEnabled: Boolean = false,
+    val geniusApiKey: String = "",
+    val priority: List<String> = listOf("Musixmatch", "Genius")
 )
 
 enum class MediaType {
