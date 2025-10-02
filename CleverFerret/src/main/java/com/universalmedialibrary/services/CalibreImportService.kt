@@ -52,14 +52,18 @@ class CalibreImportService @Inject constructor(
                 libraryId = libraryId,
                 filePath = fullPath,
                 fileName = file.name,
-
                 fileExtension = fileExtension,
-
                 fileSize = file.length(),
-                mediaType = "BOOK",
+                fileHash = calculateMD5(file),
                 dateAdded = System.currentTimeMillis(),
                 lastScanned = System.currentTimeMillis(),
-                fileHash = calculateMD5(file)
+                lastModified = file.lastModified(),
+                mediaType = "BOOK",
+                mimeType = null,
+                isAvailable = true,
+                hasMetadata = false,
+                hasThumbnail = false,
+                thumbnailPath = null
             )
             val newId = mediaItemDao.insertMediaItem(mediaItem)
 
@@ -67,11 +71,22 @@ class CalibreImportService @Inject constructor(
                 itemId = newId,
                 title = cleanedTitle,
                 sortTitle = sortTitle,
-                year = null, // Not available from Calibre easily
-                releaseDate = null, // Not available from Calibre easily
-                rating = null, // Not available from Calibre easily
+                originalTitle = null,
+                year = null,
+                releaseDate = null,
+                rating = null,
+                userRating = null,
+                communityRating = null,
                 summary = rawBook.comments,
-                coverImagePath = null
+                plot = null,
+                tagline = null,
+                coverImagePath = null,
+                backdropImagePath = null,
+                language = null,
+                country = null,
+                lastUpdated = System.currentTimeMillis(),
+                metadataSource = "Calibre",
+                externalId = null
             )
             metadataDao.insertMetadataCommon(metadataCommon)
 
