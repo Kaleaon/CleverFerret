@@ -258,6 +258,12 @@ private fun getGeneralSettingsItems(): List<SettingsMenuItem> = listOf(
         route = "settings/import"
     ),
     SettingsMenuItem(
+        title = "Storage Organizer",
+        subtitle = "Sort mixed folders into Books/Movies/Music/Comics/Documents",
+        icon = Icons.Default.Folder,
+        route = "settings/organizer"
+    ),
+    SettingsMenuItem(
         title = "Notifications",
         subtitle = "Reading reminders, updates",
         icon = Icons.Default.Notifications,
