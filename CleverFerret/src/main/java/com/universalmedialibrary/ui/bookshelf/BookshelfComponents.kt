@@ -18,12 +18,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.local.entity.BookDetails
 import kotlin.math.absoluteValue
+import com.universalmedialibrary.data.local.entity.ReadingProgress
 
 @Composable
 fun EnhancedBookCard(
     book: BookDetails,
     onClick: () -> Unit,
     onFavoriteToggle: () -> Unit,
+    progress: ReadingProgress? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -107,24 +109,25 @@ fun EnhancedBookCard(
                     )
                 }
 
-                // Progress bar (placeholder - would need reading progress data)
-                Spacer(modifier = Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    progress = { 0.3f }, // Placeholder progress
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(3.dp)
-                        .clip(RoundedCornerShape(2.dp)),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                if (progress != null && progress.percentage > 0f) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        progress = { (progress.percentage / 100f).coerceIn(0f, 1f) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .clip(RoundedCornerShape(2.dp)),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
 
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "30% complete", // Placeholder
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${progress.percentage.toInt()}% complete",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -178,6 +181,7 @@ fun ListBookItem(
     book: BookDetails,
     onClick: () -> Unit,
     onFavoriteToggle: () -> Unit,
+    progress: ReadingProgress? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -229,26 +233,27 @@ fun ListBookItem(
                     RatingStars(rating = book.metadata.rating)
                 }
 
-                // Progress indicator
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    LinearProgressIndicator(
-                        progress = { 0.3f }, // Placeholder
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(3.dp)
-                            .clip(RoundedCornerShape(2.dp)),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "30%",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                if (progress != null && progress.percentage > 0f) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        LinearProgressIndicator(
+                            progress = { (progress.percentage / 100f).coerceIn(0f, 1f) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(2.dp)),
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "${progress.percentage.toInt()}%",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 

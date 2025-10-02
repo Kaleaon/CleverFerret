@@ -26,5 +26,8 @@ interface ReadingProgressDao {
 
     @Query("DELETE FROM reading_progress WHERE itemId = :itemId")
     suspend fun delete(itemId: Long)
+
+    @Query("SELECT * FROM reading_progress WHERE itemId IN (:itemIds)")
+    fun getProgressForItems(itemIds: List<Long>): Flow<List<ReadingProgress>>
 }
 

@@ -41,6 +41,7 @@ fun EnhancedBookshelfScreen(
 ) {
     val books by viewModel.books.collectAsState()
     val favorites by viewModel.favorites.collectAsState()
+    val progressMap by viewModel.progressMap.collectAsState()
     val viewMode by viewModel.viewMode.collectAsState()
     val sortOption by viewModel.sortOption.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -178,6 +179,7 @@ fun EnhancedBookshelfScreen(
                 ViewMode.GRID -> {
                     GridBookView(
                         books = books,
+                        progressMap = progressMap,
                         onClick = { book ->
                             navController.navigate("book_details/${book.mediaItem.itemId}")
                         },
@@ -188,6 +190,7 @@ fun EnhancedBookshelfScreen(
                 ViewMode.LIST -> {
                     ListBookView(
                         books = books,
+                        progressMap = progressMap,
                         onClick = { book ->
                             navController.navigate("book_details/${book.mediaItem.itemId}")
                         },
@@ -314,6 +317,7 @@ fun FavoritesSection(
 @Composable
 fun GridBookView(
     books: List<BookDetails>,
+    progressMap: Map<Long, com.universalmedialibrary.data.local.entity.ReadingProgress>,
     onClick: (BookDetails) -> Unit,
     onFavoriteToggle: (BookDetails) -> Unit,
     modifier: Modifier = Modifier
@@ -328,6 +332,7 @@ fun GridBookView(
         items(books) { book ->
             EnhancedBookCard(
                 book = book,
+                progress = progressMap[book.mediaItem.itemId],
                 onClick = { onClick(book) },
                 onFavoriteToggle = { onFavoriteToggle(book) }
             )
@@ -338,6 +343,7 @@ fun GridBookView(
 @Composable
 fun ListBookView(
     books: List<BookDetails>,
+    progressMap: Map<Long, com.universalmedialibrary.data.local.entity.ReadingProgress>,
     onClick: (BookDetails) -> Unit,
     onFavoriteToggle: (BookDetails) -> Unit,
     modifier: Modifier = Modifier
@@ -350,6 +356,7 @@ fun ListBookView(
         items(books) { book ->
             ListBookItem(
                 book = book,
+                progress = progressMap[book.mediaItem.itemId],
                 onClick = { onClick(book) },
                 onFavoriteToggle = { onFavoriteToggle(book) }
             )
