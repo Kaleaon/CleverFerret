@@ -53,10 +53,14 @@ import com.universalmedialibrary.data.local.entity.*
 
         ,
         // Maintenance proposals
-        MaintenanceChange::class
+        MaintenanceChange::class,
+
+        // Emby/Jellyfin servers
+        EmbyServer::class,
+        JellyfinServer::class
 
     ],
-    version = 15,
+    version = 16,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -76,6 +80,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun playbackSessionDao(): PlaybackSessionDao
     abstract fun unifiedCollectionDao(): UnifiedCollectionDao
     abstract fun maintenanceChangeDao(): MaintenanceChangeDao
+    abstract fun embyServerDao(): EmbyServerDao
+    abstract fun jellyfinServerDao(): JellyfinServerDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
