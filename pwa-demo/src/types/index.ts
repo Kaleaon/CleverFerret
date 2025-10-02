@@ -59,6 +59,22 @@ export enum ViewMode {
   COVER_FLOW = 'COVER_FLOW'
 }
 
+// Reader preferences
+export enum ReaderThemeMode {
+  WHITE = 'WHITE',
+  BLACK = 'BLACK',
+  SEPIA = 'SEPIA',
+  EINK = 'EINK'
+}
+
+export enum ReaderFont {
+  SYSTEM_SANS = 'SYSTEM_SANS',
+  SYSTEM_SERIF = 'SYSTEM_SERIF',
+  ATKINSON = 'ATKINSON',
+  OPENDYSLEXIC = 'OPENDYSLEXIC',
+  LEXEND = 'LEXEND'
+}
+
 export interface ImportStatus {
   isImporting: boolean;
   status: string;
