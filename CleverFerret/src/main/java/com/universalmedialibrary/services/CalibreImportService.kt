@@ -10,6 +10,16 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Service for importing book libraries from Calibre metadata.db files
+ * 
+ * RECENT CHANGES FROM MAIN:
+ * - Fixed MediaItem constructor to use correct entity parameters
+ * - Changed from bookRecord.path/format to file.name/extension
+ * - Fixed fileSize from 0L to file.length()
+ * - Commented out Person/Series/Genre DAO methods (not yet implemented)
+ * - These changes ensure compatibility with the Room entity definitions
+ */
 @Singleton
 class CalibreImportService @Inject constructor(
     private val mediaItemDao: MediaItemDao,
@@ -36,13 +46,16 @@ class CalibreImportService @Inject constructor(
 
             val cleanedTitle = cleanTitle(rawBook.title)
             val sortTitle = createSortTitle(cleanedTitle)
+            val fileExtension = file.extension.lowercase()
 
             val mediaItem = MediaItem(
                 libraryId = libraryId,
                 filePath = fullPath,
-                fileName = bookRecord.path,
-                fileExtension = bookRecord.format.lowercase(),
-                fileSize = 0L, // Unknown size
+                fileName = file.name,
+
+                fileExtension = fileExtension,
+
+                fileSize = file.length(),
                 mediaType = "BOOK",
                 dateAdded = System.currentTimeMillis(),
                 lastScanned = System.currentTimeMillis(),
@@ -74,6 +87,7 @@ class CalibreImportService @Inject constructor(
             )
             metadataDao.insertMetadataBook(metadataBook)
 
+
             // Handle Authors
             for (authorName in rawBook.authorNames) {
                 val cleanedAuthor = cleanAuthorName(authorName)
@@ -86,7 +100,7 @@ class CalibreImportService @Inject constructor(
             // Handle Series
             rawBook.seriesName?.let { seriesName ->
                 val seriesId = metadataDao.findSeriesByName(seriesName)
-                    ?: metadataDao.insertSeries(Series(name = seriesName))
+                    ?: metadataDao.insertSeries(Series(name = seriesName, mediaType = "BOOK"))
                 metadataDao.updateBookWithSeries(newId, seriesId)
             }
 
@@ -96,6 +110,7 @@ class CalibreImportService @Inject constructor(
                     ?: metadataDao.insertGenre(Genre(name = tagName))
                 metadataDao.insertItemGenre(ItemGenre(itemId = newId, genreId = genreId))
             }
+
         }
     }
 

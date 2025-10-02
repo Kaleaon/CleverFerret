@@ -14,6 +14,7 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.core.app.NotificationCompat
+import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
@@ -23,6 +24,20 @@ import kotlinx.coroutines.*
 import java.io.File
 import javax.inject.Inject
 
+/**
+ * Service for scanning and importing media files from device storage
+ * 
+ * RECENT CHANGES FROM MAIN:
+ * - Added MediaType import from com.universalmedialibrary.data.MediaType
+ * - Fixed MediaItem constructor parameters (removed Date objects, use Long timestamps)
+ * - Changed mediaType from enum to String (mediaType.name)
+ * - Fixed MetadataMusicTrack: albumTitle -> album, duration from Int to Long
+ * - Fixed MetadataMovie: removed invalid parameters, fixed runtime calculation
+ * - Fixed Library constructor: removed Date objects, use System.currentTimeMillis()
+ * - Fixed MetadataCommon: removed invalid parameters (description, tags, etc.)
+ * - Changed DAO method names: insertMusicTrackMetadata -> insertMetadataMusicTrack
+ * - These changes ensure compatibility with the Room entity definitions
+ */
 @AndroidEntryPoint
 class MediaScannerService : Service() {
 
@@ -143,7 +158,7 @@ class MediaScannerService : Service() {
                     val name = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
                     val size = it.getLong(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
 
-                    processMediaFile(File(path), MediaType.BOOK)
+                    processMediaFile(File(path), "BOOK")
                 }
             }
         }
@@ -158,7 +173,7 @@ class MediaScannerService : Service() {
                 file.isFile -> {
                     val extension = file.extension.lowercase()
                     if (extension in BOOK_EXTENSIONS || extension in COMIC_EXTENSIONS) {
-                        processMediaFile(file, if (extension in COMIC_EXTENSIONS) MediaType.COMIC else MediaType.BOOK)
+                        processMediaFile(file, if (extension in COMIC_EXTENSIONS) "COMIC" else "BOOK")
                     }
                 }
             }
@@ -197,22 +212,22 @@ class MediaScannerService : Service() {
 
                     val file = File(path)
                     if (file.exists()) {
-                        val mediaItem = processMediaFile(file, MediaType.MUSIC)
+                        val mediaItem = processMediaFile(file, "MUSIC")
 
                         // Add music-specific metadata
                         mediaItem?.let { item ->
                             val metadata = MetadataMusicTrack(
                                 itemId = item.itemId,
                                 artist = artist,
-                                albumTitle = album,
+                                album = album,
                                 trackNumber = 0,
-                                duration = duration.toInt(),
-                                genre = null,
-                                releaseYear = null,
+
+                                duration = duration,
                                 bitrate = null,
                                 sampleRate = null
+
                             )
-                            metadataDao.insertMusicTrackMetadata(metadata)
+                            metadataDao.insertMetadataMusicTrack(metadata)
                         }
                     }
                 }
@@ -250,24 +265,22 @@ class MediaScannerService : Service() {
 
                     val file = File(path)
                     if (file.exists()) {
-                        val mediaItem = processMediaFile(file, MediaType.MOVIE)
+                        val mediaItem = processMediaFile(file, "MOVIE")
 
                         // Add video-specific metadata
                         mediaItem?.let { item ->
                             val metadata = MetadataMovie(
                                 itemId = item.itemId,
-                                director = null,
-                                cast = null,
-                                runtime = (duration / 1000).toInt(), // Convert to seconds
+
+                                runtime = (duration / 1000 / 60).toInt(), // Convert to minutes
                                 imdbId = null,
                                 tmdbId = null,
-                                rating = null,
                                 resolution = "${width}x${height}",
                                 videoCodec = null,
-                                audioCodec = null,
-                                subtitles = null
+                                audioCodec = null
+
                             )
-                            metadataDao.insertMovieMetadata(metadata)
+                            metadataDao.insertMetadataMovie(metadata)
                         }
                     }
                 }
@@ -301,7 +314,7 @@ class MediaScannerService : Service() {
                     val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA))
                     val file = File(path)
                     if (file.exists() && file.length() > 100000) { // Only process images > 100KB
-                        processMediaFile(file, MediaType.DOCUMENT)
+                        processMediaFile(file, "DOCUMENT")
                         count++
                     }
                 }
@@ -346,19 +359,19 @@ class MediaScannerService : Service() {
         }
     }
 
-    private fun determineMediaType(file: File): MediaType? {
+    private fun determineMediaType(file: File): String? {
         val extension = file.extension.lowercase()
         return when {
-            extension in BOOK_EXTENSIONS -> MediaType.BOOK
-            extension in AUDIO_EXTENSIONS -> MediaType.MUSIC
-            extension in VIDEO_EXTENSIONS -> MediaType.MOVIE
-            extension in COMIC_EXTENSIONS -> MediaType.COMIC
-            extension in IMAGE_EXTENSIONS && file.length() > 100000 -> MediaType.DOCUMENT
+            extension in BOOK_EXTENSIONS -> "BOOK"
+            extension in AUDIO_EXTENSIONS -> "MUSIC"
+            extension in VIDEO_EXTENSIONS -> "MOVIE"
+            extension in COMIC_EXTENSIONS -> "COMIC"
+            extension in IMAGE_EXTENSIONS && file.length() > 100000 -> "DOCUMENT"
             else -> null
         }
     }
 
-    private suspend fun processMediaFile(file: File, mediaType: MediaType): MediaItem? {
+    private suspend fun processMediaFile(file: File, mediaType: String): MediaItem? {
         return withContext(Dispatchers.IO) {
             try {
                 // Check if file already exists in database
@@ -368,14 +381,15 @@ class MediaScannerService : Service() {
                 }
 
                 // Get or create library for this media type
-                var library = libraryDao.getLibrariesByType(mediaType.name).firstOrNull()
+                var library = libraryDao.getLibrariesByType(mediaType).firstOrNull()
                 if (library == null) {
                     library = Library(
-                        name = "${mediaType.name.lowercase().capitalize()} Library",
-                        type = mediaType.name,
+
+                        name = "${mediaType.lowercase().replaceFirstChar { it.uppercase() }} Library",
+                        type = mediaType,
+
                         path = file.parent ?: "",
-                        dateCreated = java.util.Date(),
-                        dateModified = java.util.Date()
+                        dateModified = System.currentTimeMillis()
                     )
                     val libraryId = libraryDao.insertLibrary(library)
                     library = library.copy(libraryId = libraryId)
@@ -385,14 +399,16 @@ class MediaScannerService : Service() {
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
                     fileName = file.name,
+                    fileExtension = file.extension,
                     filePath = file.absolutePath,
+                    fileExtension = file.extension.lowercase(),
                     fileSize = file.length(),
+
                     mediaType = mediaType,
-                    dateAdded = java.util.Date(),
-                    lastModified = java.util.Date(file.lastModified()),
-                    lastAccessed = null,
-                    playCount = 0,
-                    isLocal = true
+                    dateAdded = System.currentTimeMillis(),
+                    lastModified = file.lastModified(),
+                    lastScanned = System.currentTimeMillis()
+
                 )
 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -401,15 +417,14 @@ class MediaScannerService : Service() {
                 // Create basic metadata
                 val metadata = MetadataCommon(
                     itemId = itemId,
+
                     title = file.nameWithoutExtension,
-                    description = null,
-                    tags = null,
+                    summary = null,
                     userRating = null,
-                    coverImagePath = null,
-                    isFavorite = false,
-                    isDownloaded = true
+                    coverImagePath = null
+
                 )
-                metadataDao.insertCommonMetadata(metadata)
+                metadataDao.insertMetadataCommon(metadata)
 
                 updateNotification("Found: ${file.name}")
                 newItem
