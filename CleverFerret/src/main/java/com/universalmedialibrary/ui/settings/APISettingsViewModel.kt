@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.settings.ImageGeneratorType
+import com.universalmedialibrary.data.settings.ArtworkApiSettings
+import com.universalmedialibrary.data.settings.LyricsApiSettings
 import com.universalmedialibrary.services.gemini.GeminiService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +50,9 @@ class APISettingsViewModel @Inject constructor(
                     geminiEnabled = FeatureFlags.ENABLE_GEMINI,
                     exoPlayerEnabled = FeatureFlags.ENABLE_EXOPLAYER,
                     podcastsEnabled = FeatureFlags.ENABLE_PODCASTS,
-                    cloudTTSEnabled = FeatureFlags.ENABLE_CLOUD_TTS
+                    cloudTTSEnabled = FeatureFlags.ENABLE_CLOUD_TTS,
+                    artworkApis = _uiState.value.artworkApis,
+                    lyricsApis = _uiState.value.lyricsApis
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -58,6 +62,14 @@ class APISettingsViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun saveArtworkApis(settings: ArtworkApiSettings) {
+        _uiState.value = _uiState.value.copy(statusMessage = "Artwork API settings saved", hasError = false, artworkApis = settings)
+    }
+
+    fun saveLyricsApis(settings: LyricsApiSettings) {
+        _uiState.value = _uiState.value.copy(statusMessage = "Lyrics API settings saved", hasError = false, lyricsApis = settings)
     }
 
     /**
@@ -229,4 +241,7 @@ data class APISettingsUiState(
     val cloudTTSEnabled: Boolean = false,
     val statusMessage: String? = null,
     val hasError: Boolean = false
+    ,
+    val artworkApis: ArtworkApiSettings = ArtworkApiSettings(),
+    val lyricsApis: LyricsApiSettings = LyricsApiSettings()
 )

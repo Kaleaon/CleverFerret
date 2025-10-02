@@ -5,65 +5,65 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// Plex-inspired color palette
-private val PlexGold = Color(0xFFE5A00D)
-private val PlexGoldLight = Color(0xFFF4B942)
-private val PlexGoldDark = Color(0xFFCC8F00)
-private val PlexDarkBackground = Color(0xFF1A1A1A)
-private val PlexDarkSurface = Color(0xFF1F2326)
-private val PlexDarkSurfaceVariant = Color(0xFF2D3136)
-private val PlexTextPrimary = Color(0xFFFFFFFF)
-private val PlexTextSecondary = Color(0xFFB3B3B3)
+// Navy + metallic gold palette
+private val Gold = Color(0xFFD4AF37)
+private val GoldLight = Color(0xFFE0C25E)
+private val GoldDark = Color(0xFFA6862A)
+private val NavyBackground = Color(0xFF0A1630)
+private val NavySurface = Color(0xFF0D1B36)
+private val NavySurfaceVariant = Color(0xFF1B2B4D)
+private val TextPrimary = Color(0xFFE6EAF2)
+private val TextSecondary = Color(0xFFB3BFD6)
 
 // Dark color scheme (Plex-inspired)
-private val PlexDarkColorScheme = darkColorScheme(
-    primary = PlexGold,
-    onPrimary = Color.Black,
-    primaryContainer = PlexGoldDark,
-    onPrimaryContainer = Color.Black,
+private val NavyGoldDarkColorScheme = darkColorScheme(
+    primary = Gold,
+    onPrimary = NavyBackground,
+    primaryContainer = GoldDark,
+    onPrimaryContainer = NavyBackground,
 
-    secondary = PlexDarkSurfaceVariant,
-    onSecondary = PlexTextPrimary,
-    secondaryContainer = PlexDarkSurfaceVariant,
-    onSecondaryContainer = PlexTextPrimary,
+    secondary = NavySurfaceVariant,
+    onSecondary = TextPrimary,
+    secondaryContainer = NavySurfaceVariant,
+    onSecondaryContainer = TextPrimary,
 
-    tertiary = PlexGoldLight,
-    onTertiary = Color.Black,
+    tertiary = GoldLight,
+    onTertiary = NavyBackground,
 
-    background = PlexDarkBackground,
-    onBackground = PlexTextPrimary,
+    background = NavyBackground,
+    onBackground = TextPrimary,
 
-    surface = PlexDarkSurface,
-    onSurface = PlexTextPrimary,
-    surfaceVariant = PlexDarkSurfaceVariant,
-    onSurfaceVariant = PlexTextSecondary,
+    surface = NavySurface,
+    onSurface = TextPrimary,
+    surfaceVariant = NavySurfaceVariant,
+    onSurfaceVariant = TextSecondary,
 
     error = Color(0xFFDC3545),
     onError = Color.White,
 
-    outline = PlexDarkSurfaceVariant,
-    outlineVariant = Color(0xFF3A3F44),
+    outline = NavySurfaceVariant,
+    outlineVariant = Color(0xFF25385F),
 )
 
 // Light color scheme (fallback, though Plex is primarily dark)
-private val PlexLightColorScheme = lightColorScheme(
-    primary = PlexGoldDark,
+private val NavyGoldLightColorScheme = lightColorScheme(
+    primary = GoldDark,
     onPrimary = Color.White,
-    primaryContainer = PlexGoldLight,
+    primaryContainer = GoldLight,
     onPrimaryContainer = Color.Black,
 
-    secondary = Color(0xFF6C757D),
+    secondary = Color(0xFF29406E),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFE9ECEF),
-    onSecondaryContainer = Color(0xFF495057),
+    secondaryContainer = Color(0xFFD8DFEF),
+    onSecondaryContainer = Color(0xFF0F2346),
 
-    background = Color(0xFFFFFBFE),
-    onBackground = Color(0xFF1C1B1F),
+    background = Color(0xFFF7F9FD),
+    onBackground = Color(0xFF0A1630),
 
-    surface = Color(0xFFFFFBFE),
-    onSurface = Color(0xFF1C1B1F),
-    surfaceVariant = Color(0xFFE7E0EC),
-    onSurfaceVariant = Color(0xFF49454F),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF0A1630),
+    surfaceVariant = Color(0xFFE2E8F4),
+    onSurfaceVariant = Color(0xFF29406E),
 
     error = Color(0xFFBA1A1A),
     onError = Color.White,
@@ -75,10 +75,7 @@ fun PlexTheme(
     dynamicColor: Boolean = false, // Disable dynamic color to maintain Plex branding
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        darkTheme -> PlexDarkColorScheme
-        else -> PlexLightColorScheme
-    }
+    val colorScheme = if (darkTheme) NavyGoldDarkColorScheme else NavyGoldLightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -90,48 +87,48 @@ fun PlexTheme(
 // Plex-inspired typography
 private val PlexTypography = Typography(
     displayLarge = Typography().displayLarge.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     displayMedium = Typography().displayMedium.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     displaySmall = Typography().displaySmall.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     headlineLarge = Typography().headlineLarge.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     headlineMedium = Typography().headlineMedium.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     headlineSmall = Typography().headlineSmall.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     titleLarge = Typography().titleLarge.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     titleMedium = Typography().titleMedium.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     titleSmall = Typography().titleSmall.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     bodyLarge = Typography().bodyLarge.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     bodyMedium = Typography().bodyMedium.copy(
-        color = PlexTextSecondary
+        color = TextSecondary
     ),
     bodySmall = Typography().bodySmall.copy(
-        color = PlexTextSecondary
+        color = TextSecondary
     ),
     labelLarge = Typography().labelLarge.copy(
-        color = PlexTextPrimary
+        color = TextPrimary
     ),
     labelMedium = Typography().labelMedium.copy(
-        color = PlexTextSecondary
+        color = TextSecondary
     ),
     labelSmall = Typography().labelSmall.copy(
-        color = PlexTextSecondary
+        color = TextSecondary
     )
 )

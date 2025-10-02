@@ -16,6 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.settings.ImageGeneratorType
+import com.universalmedialibrary.data.settings.ArtworkApiSettings
+import com.universalmedialibrary.data.settings.LyricsApiSettings
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -84,6 +88,18 @@ fun APISettingsScreen(
                 selectedType = uiState.imageGeneratorType,
                 onTypeSelected = { viewModel.updateImageGeneratorType(it) },
                 isLoading = uiState.isLoading
+            )
+
+            // Artwork APIs Section
+            ArtworkAPISection(
+                settings = uiState.artworkApis,
+                onSave = { viewModel.saveArtworkApis(it) }
+            )
+
+            // Lyrics APIs Section
+            LyricsAPISection(
+                settings = uiState.lyricsApis,
+                onSave = { viewModel.saveLyricsApis(it) }
             )
 
             // Cloud TTS Section
@@ -176,7 +192,9 @@ private fun GeminiAPISection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // API Key Input
+            // API Key Input + Info
+            val context = LocalContext.current
+            var showInfo by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = apiKey,
                 onValueChange = onKeyChanged,
@@ -184,17 +202,39 @@ private fun GeminiAPISection(
                 placeholder = { Text("Enter your Gemini API key") },
                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    IconButton(onClick = onShowKeyToggle) {
-                        Icon(
-                            imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
-                            contentDescription = if (showKey) "Hide key" else "Show key"
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = { showInfo = !showInfo }) {
+                            Icon(
+                                imageVector = PhosphorIcons.Info,
+                                contentDescription = "Where to get a key"
+                            )
+                        }
+                        IconButton(onClick = onShowKeyToggle) {
+                            Icon(
+                                imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
+                                contentDescription = if (showKey) "Hide key" else "Show key"
+                            )
+                        }
                     }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
+            if (showInfo) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text("Get a Gemini API key from Google AI Studio.")
+                        Spacer(Modifier.height(8.dp))
+                        TextButton(onClick = {
+                            val url = "https://ai.google.dev/"
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        }) { Text("Open Google AI Studio") }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -466,6 +506,152 @@ private fun ImageGeneratorSection(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ArtworkAPISection(
+    settings: ArtworkApiSettings,
+    onSave: (ArtworkApiSettings) -> Unit
+) {
+    var fanart by remember { mutableStateOf(settings.fanartTvEnabled) }
+    var fanartKey by remember { mutableStateOf(settings.fanartTvApiKey) }
+    var lastfm by remember { mutableStateOf(settings.lastFmEnabled) }
+    var lastfmKey by remember { mutableStateOf(settings.lastFmApiKey) }
+    var caa by remember { mutableStateOf(settings.coverArtArchiveEnabled) }
+    val context = LocalContext.current
+    var showFanartInfo by remember { mutableStateOf(false) }
+    var showLastfmInfo by remember { mutableStateOf(false) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Artwork Providers", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = fanart, onCheckedChange = { fanart = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Fanart.tv")
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = { showFanartInfo = !showFanartInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+            }
+            if (fanart) {
+                OutlinedTextField(value = fanartKey, onValueChange = { fanartKey = it }, label = { Text("Fanart.tv API Key") }, modifier = Modifier.fillMaxWidth())
+                if (showFanartInfo) {
+                    Spacer(Modifier.height(6.dp))
+                    Card { Column(Modifier.padding(12.dp)) {
+                        Text("Get your key at Fanart.tv")
+                        Spacer(Modifier.height(6.dp))
+                        TextButton(onClick = {
+                            val url = "https://fanart.tv/get-an-api-key/"
+                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                        }) { Text("Open Fanart.tv") }
+                    } }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = lastfm, onCheckedChange = { lastfm = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Last.fm")
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = { showLastfmInfo = !showLastfmInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+            }
+            if (lastfm) {
+                OutlinedTextField(value = lastfmKey, onValueChange = { lastfmKey = it }, label = { Text("Last.fm API Key") }, modifier = Modifier.fillMaxWidth())
+                if (showLastfmInfo) {
+                    Spacer(Modifier.height(6.dp))
+                    Card { Column(Modifier.padding(12.dp)) {
+                        Text("Get your key at Last.fm")
+                        Spacer(Modifier.height(6.dp))
+                        TextButton(onClick = {
+                            val url = "https://www.last.fm/api/account/create"
+                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                        }) { Text("Open Last.fm") }
+                    } }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = caa, onCheckedChange = { caa = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Cover Art Archive")
+            }
+
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = { onSave(ArtworkApiSettings(fanart, fanartKey, lastfm, lastfmKey, caa)) }) { Text("Save Artwork Settings") }
+        }
+    }
+}
+
+@Composable
+private fun LyricsAPISection(
+    settings: LyricsApiSettings,
+    onSave: (LyricsApiSettings) -> Unit
+) {
+    var musix by remember { mutableStateOf(settings.musixmatchEnabled) }
+    var musixKey by remember { mutableStateOf(settings.musixmatchApiKey) }
+    var genius by remember { mutableStateOf(settings.geniusEnabled) }
+    var geniusKey by remember { mutableStateOf(settings.geniusApiKey) }
+    val context = LocalContext.current
+    var showMusixInfo by remember { mutableStateOf(false) }
+    var showGeniusInfo by remember { mutableStateOf(false) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Lyrics Providers", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = musix, onCheckedChange = { musix = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Musixmatch")
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = { showMusixInfo = !showMusixInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+            }
+            if (musix) {
+                OutlinedTextField(value = musixKey, onValueChange = { musixKey = it }, label = { Text("Musixmatch API Key") }, modifier = Modifier.fillMaxWidth())
+                if (showMusixInfo) {
+                    Spacer(Modifier.height(6.dp))
+                    Card { Column(Modifier.padding(12.dp)) {
+                        Text("Apply for an API key from Musixmatch.")
+                        Spacer(Modifier.height(6.dp))
+                        TextButton(onClick = {
+                            val url = "https://developer.musixmatch.com/"
+                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                        }) { Text("Open Musixmatch Developer") }
+                    } }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = genius, onCheckedChange = { genius = it })
+                Spacer(Modifier.width(8.dp))
+                Text("Genius")
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = { showGeniusInfo = !showGeniusInfo }) { Icon(PhosphorIcons.Info, contentDescription = null) }
+            }
+            if (genius) {
+                OutlinedTextField(value = geniusKey, onValueChange = { geniusKey = it }, label = { Text("Genius API Key") }, modifier = Modifier.fillMaxWidth())
+                if (showGeniusInfo) {
+                    Spacer(Modifier.height(6.dp))
+                    Card { Column(Modifier.padding(12.dp)) {
+                        Text("Create a client and get credentials at Genius.")
+                        Spacer(Modifier.height(6.dp))
+                        TextButton(onClick = {
+                            val url = "https://genius.com/api-clients"
+                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                        }) { Text("Open Genius API") }
+                    } }
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = { onSave(LyricsApiSettings(musix, musixKey, genius, geniusKey)) }) { Text("Save Lyrics Settings") }
         }
     }
 }

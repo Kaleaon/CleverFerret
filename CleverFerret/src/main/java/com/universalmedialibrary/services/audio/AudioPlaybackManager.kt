@@ -213,6 +213,48 @@ class AudioPlaybackManager @Inject constructor(
             volume = volume ?: s.volume
         )
     }
+
+    /** Export current queue to an M3U playlist at the given destination Uri */
+    fun exportQueueAsM3U(context: Context, destUri: Uri): Boolean {
+        return try {
+            context.contentResolver.openOutputStream(destUri, "w").use { out ->
+                if (out == null) return false
+                out.writer().use { w ->
+                    w.appendLine("#EXTM3U")
+                    queue.forEach { item ->
+                        val title = item.mediaMetadata.title?.toString()
+                        val duration = C.TIME_UNSET
+                        if (title != null) {
+                            w.appendLine("#EXTINF:${duration},${title}")
+                        }
+                        val uri = item.localConfiguration?.uri?.toString() ?: return@forEach
+                        w.appendLine(uri)
+                    }
+                }
+            }
+            true
+        } catch (_: Exception) { false }
+    }
+
+    /** Import an M3U playlist from the given source Uri and replace the queue */
+    fun importM3UToQueue(context: Context, sourceUri: Uri, playWhenReady: Boolean = false): Boolean {
+        return try {
+            val uris = mutableListOf<Uri>()
+            context.contentResolver.openInputStream(sourceUri)?.bufferedReader()?.useLines { lines ->
+                lines.forEach { line ->
+                    val trimmed = line.trim()
+                    if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEach
+                    try { uris.add(Uri.parse(trimmed)) } catch (_: Exception) {}
+                }
+            }
+            if (uris.isEmpty()) return false
+            setQueue(uris, 0, playWhenReady)
+            true
+        } catch (_: Exception) { false }
+    }
+
+    /** Return the current queue URIs */
+    fun getQueueUris(): List<Uri> = queue.mapNotNull { it.localConfiguration?.uri }
 }
 
 enum class RepeatMode { OFF, ONE, ALL }

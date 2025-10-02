@@ -398,17 +398,20 @@ class MediaScannerService : Service() {
                 // Create media item
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
-                    fileName = file.name,
-                    fileExtension = file.extension,
                     filePath = file.absolutePath,
+                    fileName = file.name,
                     fileExtension = file.extension.lowercase(),
                     fileSize = file.length(),
-
-                    mediaType = mediaType,
+                    fileHash = null,
                     dateAdded = System.currentTimeMillis(),
+                    lastScanned = System.currentTimeMillis(),
                     lastModified = file.lastModified(),
-                    lastScanned = System.currentTimeMillis()
-
+                    mediaType = mediaType,
+                    mimeType = null,
+                    isAvailable = true,
+                    hasMetadata = false,
+                    hasThumbnail = false,
+                    thumbnailPath = null
                 )
 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -417,12 +420,24 @@ class MediaScannerService : Service() {
                 // Create basic metadata
                 val metadata = MetadataCommon(
                     itemId = itemId,
-
                     title = file.nameWithoutExtension,
-                    summary = null,
+                    sortTitle = null,
+                    originalTitle = null,
+                    year = null,
+                    releaseDate = null,
+                    rating = null,
                     userRating = null,
-                    coverImagePath = null
-
+                    communityRating = null,
+                    summary = null,
+                    plot = null,
+                    tagline = null,
+                    coverImagePath = null,
+                    backdropImagePath = null,
+                    language = null,
+                    country = null,
+                    lastUpdated = System.currentTimeMillis(),
+                    metadataSource = null,
+                    externalId = null
                 )
                 metadataDao.insertMetadataCommon(metadata)
 
