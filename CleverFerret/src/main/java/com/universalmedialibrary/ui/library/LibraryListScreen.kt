@@ -33,10 +33,7 @@ fun LibraryListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Plex-inspired dark theme colors
-    val backgroundColor = Color(0xFF1A1A1A)
-    val surfaceColor = Color(0xFF1F2326)
-    val primaryColor = Color(0xFFE5A00D)
+    val colorScheme = MaterialTheme.colorScheme
 
     // Create sample data on first launch
     LaunchedEffect(Unit) {
@@ -46,7 +43,7 @@ fun LibraryListScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
+            .background(colorScheme.background)
     ) {
         Column {
             // App Bar with Plex-inspired design
@@ -60,14 +57,14 @@ fun LibraryListScreen(
                         Surface(
                             modifier = Modifier.size(40.dp),
                             shape = CircleShape,
-                            color = primaryColor
+                            color = colorScheme.primary
                         ) {
                             Box(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = "CF",
-                                    color = Color.Black,
+                                    color = colorScheme.onPrimary,
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.titleMedium
                                 )
@@ -78,7 +75,7 @@ fun LibraryListScreen(
                             text = "CleverFerret",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Light,
-                            color = Color.White
+                            color = colorScheme.onSurface
                         )
                     }
                 },
@@ -87,20 +84,20 @@ fun LibraryListScreen(
                         Icon(
                             PhosphorIcons.ArrowClockwise,
                             contentDescription = "Refresh",
-                            tint = Color.White
+                            tint = colorScheme.onSurface
                         )
                     }
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             PhosphorIcons.Gear,
                             contentDescription = "Settings",
-                            tint = Color.White
+                            tint = colorScheme.onSurface
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = surfaceColor,
-                    titleContentColor = Color.White
+                    containerColor = colorScheme.surface,
+                    titleContentColor = colorScheme.onSurface
                 )
             )
 
@@ -115,7 +112,7 @@ fun LibraryListScreen(
                     text = "Your Libraries",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Light,
-                    color = Color.White
+                    color = colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -123,7 +120,7 @@ fun LibraryListScreen(
                 Text(
                     text = "${uiState.libraries.size} libraries",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color(0xFFB3B3B3)
+                    color = colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -155,7 +152,7 @@ fun LibraryListScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            CircularProgressIndicator(color = primaryColor)
+                            CircularProgressIndicator(color = colorScheme.primary)
                             Text(
                                 text = "Loading libraries...",
                                 color = Color(0xFFB3B3B3)
@@ -187,8 +184,8 @@ fun LibraryListScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(24.dp),
-            containerColor = primaryColor,
-            contentColor = Color.Black,
+            containerColor = colorScheme.primary,
+            contentColor = colorScheme.onPrimary,
             shape = RoundedCornerShape(16.dp)
         ) {
             Icon(
