@@ -35,7 +35,11 @@ import com.universalmedialibrary.data.local.entity.*
         ItemPersonRole::class,
         Series::class,
         Genre::class,
-        ItemGenre::class
+        ItemGenre::class,
+
+        // Playlists
+        Playlist::class,
+        PlaylistItem::class
 
     ],
     version = 12,
