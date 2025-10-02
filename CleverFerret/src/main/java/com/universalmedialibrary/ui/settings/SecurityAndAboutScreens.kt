@@ -117,22 +117,22 @@ fun SecurityOptionsSection(
             SwitchSetting(
                 title = "Password Protection",
                 subtitle = "Require password to open the app",
-                checked = settings.passwordProtectionEnabled,
+                checked = settings.enablePinLock,
                 onCheckedChange = { enabled ->
                     if (enabled) {
                         showPasswordDialog = true
                     } else {
-                        onSettingsChange(settings.copy(passwordProtectionEnabled = false, passwordHash = ""))
+                        onSettingsChange(settings.copy(enablePinLock = false, pinCode = null))
                     }
                 }
             )
 
-            if (settings.passwordProtectionEnabled) {
+            if (settings.enablePinLock) {
                 SwitchSetting(
                     title = "Biometric Authentication",
                     subtitle = "Use fingerprint or face unlock",
-                    checked = settings.biometricEnabled,
-                    onCheckedChange = { onSettingsChange(settings.copy(biometricEnabled = it)) }
+                    checked = settings.enableBiometric,
+                    onCheckedChange = { onSettingsChange(settings.copy(enableBiometric = it)) }
                 )
 
                 Row(
@@ -204,8 +204,8 @@ fun SecurityOptionsSection(
                 // In a real implementation, hash the password securely
                 val hashedPassword = password.hashCode().toString() // Simplified for demo
                 onSettingsChange(settings.copy(
-                    passwordProtectionEnabled = true,
-                    passwordHash = hashedPassword
+                    enablePinLock = true,
+                    pinCode = hashedPassword
                 ))
                 showPasswordDialog = false
             }
@@ -256,22 +256,22 @@ fun PreferencesSection(
         SwitchSetting(
             title = "Crash Reporting",
             subtitle = "Help improve the app by sending crash reports",
-            checked = settings.crashReportingEnabled,
-            onCheckedChange = { onSettingsChange(settings.copy(crashReportingEnabled = it)) }
+            checked = settings.enableCrashReporting,
+            onCheckedChange = { onSettingsChange(settings.copy(enableCrashReporting = it)) }
         )
 
         SwitchSetting(
             title = "Notifications",
             subtitle = "Reading reminders and updates",
-            checked = settings.notificationsEnabled,
-            onCheckedChange = { onSettingsChange(settings.copy(notificationsEnabled = it)) }
+            checked = settings.enableNotifications,
+            onCheckedChange = { onSettingsChange(settings.copy(enableNotifications = it)) }
         )
 
         SwitchSetting(
-            title = "Import on Startup",
-            subtitle = "Automatically check for new media files",
-            checked = settings.importOnStartup,
-            onCheckedChange = { onSettingsChange(settings.copy(importOnStartup = it)) }
+            title = "Auto Sync",
+            subtitle = "Automatically sync library on startup",
+            checked = settings.autoSync,
+            onCheckedChange = { onSettingsChange(settings.copy(autoSync = it)) }
         )
     }
 }

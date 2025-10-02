@@ -2,10 +2,15 @@ package com.universalmedialibrary.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.settings.GeneralSettings
+import com.universalmedialibrary.data.settings.SecuritySettings
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,24 +24,15 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
-
-    /**
-     * General application settings
-     */
-    data class GeneralSettings(
-        val crashReportingEnabled: Boolean = false,
-        val notificationsEnabled: Boolean = true,
-        val importOnStartup: Boolean = false
-    )
-
-    /**
-     * Security settings
-     */
-    data class SecuritySettings(
-        val passwordProtectionEnabled: Boolean = false,
-        val passwordHash: String? = null,
-        val biometricEnabled: Boolean = false
-    )
+    
+    // Expose individual settings as StateFlows for easier access
+    val generalSettings: StateFlow<GeneralSettings> = 
+        _uiState.map { it.generalSettings }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, GeneralSettings())
+    
+    val securitySettings: StateFlow<SecuritySettings> = 
+        _uiState.map { it.securitySettings }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, SecuritySettings())
 
     /**
      * UI state for settings screen
