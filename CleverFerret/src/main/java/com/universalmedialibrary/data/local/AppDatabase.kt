@@ -39,7 +39,12 @@ import com.universalmedialibrary.data.local.entity.*
 
         // Playlists
         Playlist::class,
-        PlaylistItem::class
+        PlaylistItem::class,
+
+        // Unified playback queues
+        PlaybackQueue::class,
+        QueueItem::class,
+        PlaybackSession::class
 
     ],
     version = 12,
@@ -56,6 +61,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun metadataDao(): MetadataDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun playlistDao(): PlaylistDao
+    abstract fun playbackQueueDao(): PlaybackQueueDao
+    abstract fun queueItemDao(): QueueItemDao
+    abstract fun playbackSessionDao(): PlaybackSessionDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
