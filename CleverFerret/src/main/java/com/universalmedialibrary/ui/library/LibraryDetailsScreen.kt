@@ -243,11 +243,7 @@ fun LibraryDetailsScreen(
                         items(uiState.mediaItems) { mediaItemWithMetadata ->
                             MediaItem(
                                 item = mediaItemWithMetadata.toMediaItemData(),
-                                onClick = {
-                                    // Navigate to new open route
-                                    val nav = androidx.navigation.compose.rememberNavController() // placeholder to avoid unresolved, actual nav is in parent
-                                    onNavigateToMediaViewer(mediaItemWithMetadata.mediaItem.itemId.toInt())
-                                }
+                                onClick = { onNavigateToMediaViewer(mediaItemWithMetadata.mediaItem.itemId.toInt()) }
                             )
                         }
                     }
