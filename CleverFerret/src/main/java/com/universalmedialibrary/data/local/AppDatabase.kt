@@ -42,13 +42,17 @@ import com.universalmedialibrary.data.local.entity.*
         Playlist::class,
         PlaylistItem::class,
 
+        // Unified Collections
+        UnifiedCollection::class,
+        ItemCollection::class,
+
         // Unified playback queues
         PlaybackQueue::class,
         QueueItem::class,
         PlaybackSession::class
 
     ],
-    version = 13,
+    version = 14,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
