@@ -29,6 +29,7 @@ import com.universalmedialibrary.data.local.entity.*
         // Essential system entities
         APIKey::class,
         Bookmark::class,
+        ReadingProgress::class,
 
         // Person, Series, and Genre entities for metadata
         People::class,
@@ -47,7 +48,7 @@ import com.universalmedialibrary.data.local.entity.*
         PlaybackSession::class
 
     ],
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -60,6 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun metadataDao(): MetadataDao
     abstract fun bookmarkDao(): BookmarkDao
+    abstract fun readingProgressDao(): ReadingProgressDao
     abstract fun playlistDao(): PlaylistDao
     abstract fun playbackQueueDao(): PlaybackQueueDao
     abstract fun queueItemDao(): QueueItemDao
