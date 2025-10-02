@@ -72,7 +72,9 @@ fun NowPlayingScreen(
                     onSkipNext = viewModel::skipToNext,
                     onSkipPrevious = viewModel::skipToPrevious,
                     onSeek = viewModel::seekTo,
-                    onSpeedChange = viewModel::setPlaybackSpeed
+                    onSpeedChange = viewModel::setPlaybackSpeed,
+                    onThumbsUp = { viewModel.likeCurrentTrack() },
+                    onAddToPlaylist = { viewModel.addCurrentTrackToPlaylist() }
                 )
             }
 
@@ -97,7 +99,9 @@ private fun CurrentPlayingItem(
     onSkipNext: () -> Unit,
     onSkipPrevious: () -> Unit,
     onSeek: (Long) -> Unit,
-    onSpeedChange: (Float) -> Unit
+    onSpeedChange: (Float) -> Unit,
+    onThumbsUp: () -> Unit,
+    onAddToPlaylist: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -178,6 +182,13 @@ private fun CurrentPlayingItem(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(onClick = onThumbsUp) {
+                    Icon(
+                        Icons.Default.ThumbUp,
+                        contentDescription = "Like",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
                 IconButton(onClick = { /* shuffle toggle */ }) {
                     Icon(
                         PhosphorIcons.Shuffle,
@@ -208,6 +219,13 @@ private fun CurrentPlayingItem(
                     Icon(
                         PhosphorIcons.Repeat,
                         contentDescription = "Repeat",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = onAddToPlaylist) {
+                    Icon(
+                        Icons.Default.PlaylistAdd,
+                        contentDescription = "Add to playlist",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

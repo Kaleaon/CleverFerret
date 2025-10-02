@@ -127,6 +127,20 @@ class NowPlayingViewModel @Inject constructor(
         }
     }
 
+    fun likeCurrentTrack() {
+        viewModelScope.launch {
+            // TODO: Implement in UnifiedPlaybackQueueManager
+            // playbackQueueManager.addCurrentToPlaylist("Liked")
+        }
+    }
+
+    fun addCurrentTrackToPlaylist() {
+        viewModelScope.launch {
+            // TODO: Show UI to choose playlist or create new, then:
+            // playbackQueueManager.addCurrentToPlaylist("<Selected>")
+        }
+    }
+
     /**
      * Switch to different queue type
      */
