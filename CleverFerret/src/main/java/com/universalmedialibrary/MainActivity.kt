@@ -38,6 +38,7 @@ import com.universalmedialibrary.ui.library.CreateLibraryDialog
 import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.open.MediaOpenScreen
 import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
+import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.PlexTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -119,6 +120,9 @@ fun AppNavigation() {
         }
         composable("settings/organizer") {
             StorageOrganizerScreen(onBack = { navController.navigateUp() })
+        }
+        composable("settings/playlists") {
+            PlaylistSettingsScreen(onBack = { navController.navigateUp() })
         }
     }
 }
