@@ -46,6 +46,7 @@ class StorageAccessService @Inject constructor(
     fun createDirectoryPickerIntent(): Intent {
         return Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         }
     }
@@ -55,7 +56,7 @@ class StorageAccessService @Inject constructor(
      */
     fun persistUriPermission(context: Context, uri: Uri) {
         try {
-            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             context.contentResolver.takePersistableUriPermission(uri, takeFlags)
 
             // Save to preferences
@@ -75,6 +76,99 @@ class StorageAccessService @Inject constructor(
         val prefs = context.getSharedPreferences(PREF_PERSISTED_URIS, Context.MODE_PRIVATE)
         val uriStrings = prefs.getStringSet("uris", emptySet()) ?: emptySet()
         return uriStrings.mapNotNull { Uri.parse(it) }
+    }
+
+    /**
+     * Organize a mixed root SAF folder by moving files into per-type subfolders (Books, Movies, Music, Comics, Documents).
+     */
+    suspend fun organizeDirectory(
+        context: Context,
+        treeUri: Uri,
+        progressCallback: (String) -> Unit = {}
+    ): Int = withContext(Dispatchers.IO) {
+        var moved = 0
+        try {
+            val root = DocumentFile.fromTreeUri(context, treeUri) ?: return@withContext 0
+            val targets = mapOf(
+                "BOOK" to getOrCreateChildDir(context, root, "Books"),
+                "MOVIE" to getOrCreateChildDir(context, root, "Movies"),
+                "MUSIC" to getOrCreateChildDir(context, root, "Music"),
+                "COMIC" to getOrCreateChildDir(context, root, "Comics"),
+                "DOCUMENT" to getOrCreateChildDir(context, root, "Documents")
+            )
+
+            root.listFiles().forEach { child ->
+                if (child.isDirectory) return@forEach
+                val name = child.name ?: return@forEach
+                val type = determineMediaType(name) ?: return@forEach
+                val destParent = targets[type] ?: return@forEach
+                val result = moveDocumentFile(context, child, destParent)
+                if (result) {
+                    moved++
+                    progressCallback("Moved: $name → ${destParent.name}")
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        moved
+    }
+
+    private fun getOrCreateChildDir(context: Context, parent: DocumentFile, name: String): DocumentFile {
+        parent.listFiles().firstOrNull { it.isDirectory && it.name == name }?.let { return it }
+        return parent.createDirectory(name) ?: parent
+    }
+
+    private fun moveDocumentFile(context: Context, src: DocumentFile, dstDir: DocumentFile): Boolean {
+        return try {
+            // Try DocumentsContract move if possible
+            val srcDoc = src.uri
+            val dstParent = dstDir.uri
+            try {
+                val moved = android.provider.DocumentsContract.moveDocument(context.contentResolver, srcDoc, src.parentFile?.uri, dstParent)
+                moved != null
+            } catch (_: Throwable) {
+                // Fallback to copy + delete
+                val mime = src.type ?: "application/octet-stream"
+                val base = src.name ?: "file"
+                val target = createUniqueFile(dstDir, mime, base)
+                val copied = copyStream(context, src.uri, target.uri)
+                if (copied) src.delete() else false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun createUniqueFile(dstDir: DocumentFile, mime: String, baseName: String): DocumentFile {
+        var name = baseName
+        var idx = 1
+        while (dstDir.findFile(name) != null) {
+            val ext = name.substringAfterLast('.', "")
+            val stem = if (ext.isNotEmpty()) name.removeSuffix(".$ext") else name
+            name = if (ext.isNotEmpty()) "$stem ($idx).$ext" else "$stem ($idx)"
+            idx++
+        }
+        return dstDir.createFile(mime, name) ?: dstDir
+    }
+
+    private fun copyStream(context: Context, src: Uri, dst: Uri): Boolean {
+        return try {
+            context.contentResolver.openInputStream(src).use { input ->
+                context.contentResolver.openOutputStream(dst, "w").use { output ->
+                    if (input == null || output == null) return false
+                    val buf = ByteArray(8192)
+                    var n: Int
+                    while (true) {
+                        n = input.read(buf)
+                        if (n <= 0) break
+                        output.write(buf, 0, n)
+                    }
+                    output.flush()
+                }
+            }
+            true
+        } catch (e: Exception) { false }
     }
 
     /**
