@@ -13,6 +13,8 @@ This document is the master reference for how CleverFerret finds, imports, and p
 - **Readers/Players** (Compose UI):
   - EPUB reader: `ui/reader/EPUBReaderScreen.kt` (minimal internal state); services in `services/epub/*`
   - Generic reader: `ui/reader/EReaderScreen.kt` (Compose-driven content render)
+  - Document reader: `ui/reader/DocumentReaderScreen.kt` (PDF/TXT/HTML/DOCX)
+  - Comic reader: `ui/reader/ComicReaderScreen.kt` (CBZ/CBR paging)
   - Audio: `ui/player/AudioPlayerScreen.kt` (+ `AudioPlayerViewModel.kt`)
   - Video: `ui/player/VideoPlayerScreen.kt`, `ui/player/UniversalVideoPlayerScreen.kt`
   - Metadata editor: `ui/metadata/MetadataEditorScreen.kt`
@@ -104,6 +106,14 @@ Controls (EPUB):
 #### Generic e-reader (Compose content)
 - Entry: `ui/reader/EReaderScreen.kt`
 - Renders chapter content in Compose; integrates with `EReaderViewModel` when enabled.
+
+#### Document reader (PDF/TXT/HTML/DOCX)
+- Entry: `ui/reader/DocumentReaderScreen.kt`
+- PDF: `PdfRenderer` with page controls; TXT: stream to text; HTML: WebView; DOCX: unzip `word/document.xml` and extract `<w:t>`
+
+#### Comic reader (CBZ/CBR)
+- Entry: `ui/reader/ComicReaderScreen.kt`
+- CBZ: unzip images; CBR: `junrar` extract; simple paging with prev/next
 
 Common reader gestures and options (target)
 - Tap zones for next/prev

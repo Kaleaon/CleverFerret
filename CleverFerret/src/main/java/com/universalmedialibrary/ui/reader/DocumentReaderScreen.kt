@@ -53,10 +53,11 @@ fun DocumentReaderScreen(
 				.fillMaxSize()
 				.padding(paddingValues)
 		) {
-			when (extension) {
+	when (extension) {
 				"pdf" -> PdfReaderView(uri)
 				"txt" -> TextReaderView(uri)
 				"html", "htm" -> HtmlReaderView(uri)
+			"docx" -> DocxReaderView(uri)
 				else -> UnsupportedDocumentView(extension)
 			}
 		}
@@ -105,11 +106,57 @@ private fun UnsupportedDocumentView(extension: String) {
 		verticalArrangement = Arrangement.Center
 	) {
 		Text(
-			text = "Unsupported document type: .$extension",
+			text = "Unsupported document type: .$extension\nTry converting to PDF/DOCX.",
 			style = MaterialTheme.typography.bodyLarge,
 			textAlign = TextAlign.Center
 		)
 	}
+}
+
+@Composable
+private fun DocxReaderView(uri: Uri) {
+	// Minimal DOCX text extractor: unzip and parse word/document.xml, collecting <w:t> text nodes
+	val context = LocalContext.current
+	var text by remember(uri) { mutableStateOf("Loading...") }
+
+	LaunchedEffect(uri) {
+		text = try {
+			val tmp = copyToTempFile(context, uri, ".docx")
+			val sb = StringBuilder()
+			java.util.zip.ZipFile(tmp).use { zip ->
+				val entry = zip.getEntry("word/document.xml")
+				if (entry != null) {
+					zip.getInputStream(entry).bufferedReader(Charsets.UTF_8).use { r ->
+						val xml = r.readText()
+						// Naive XML extraction: get text between <w:t>...</w:t>
+						val regex = "<w:t[^>]*>(.*?)</w:t>".toRegex(RegexOption.DOT_MATCHES_ALL)
+						regex.findAll(xml).forEach { m -> sb.append(m.groupValues[1]) }
+					}
+				} else {
+					sb.append("(No document.xml found)")
+				}
+			}
+			sb.toString()
+		} catch (e: Exception) {
+			"Failed to open DOCX: ${e.message}"
+		}
+	}
+
+	Column(
+		modifier = Modifier
+			.fillMaxSize()
+			.verticalScroll(rememberScrollState())
+			.padding(16.dp)
+	) {
+		Text(text = text)
+	}
+}
+
+private fun copyToTempFile(context: android.content.Context, uri: Uri, suffix: String): File {
+	val input: InputStream = context.contentResolver.openInputStream(uri) ?: throw IllegalArgumentException("No stream")
+	val tmp = File.createTempFile("cf_tmp_", suffix, context.cacheDir)
+	FileOutputStream(tmp).use { out -> input.copyTo(out) }
+	return tmp
 }
 
 @Composable
