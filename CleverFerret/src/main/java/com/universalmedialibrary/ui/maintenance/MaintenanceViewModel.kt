@@ -5,6 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.entity.MaintenanceChange
 import com.universalmedialibrary.data.repository.MaintenanceRepository
 import com.universalmedialibrary.services.duplicates.DuplicateDetectionService
+import com.universalmedialibrary.services.metadata.RealMetadataService
+import com.universalmedialibrary.services.thumbnails.ThumbnailService
+import com.universalmedialibrary.services.maintenance.FileChangeScanner
+import com.universalmedialibrary.data.repository.MediaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +19,11 @@ import javax.inject.Inject
 @HiltViewModel
 class MaintenanceViewModel @Inject constructor(
     private val repository: MaintenanceRepository,
-    private val duplicateDetectionService: DuplicateDetectionService
+    private val duplicateDetectionService: DuplicateDetectionService,
+    private val metadataService: RealMetadataService,
+    private val thumbnailService: ThumbnailService,
+    private val fileChangeScanner: FileChangeScanner,
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
 
     val pending: StateFlow<List<MaintenanceChange>> = repository.getPending()
@@ -53,6 +61,51 @@ class MaintenanceViewModel @Inject constructor(
 
     fun reject(changeId: Long) {
         viewModelScope.launch { repository.reject(changeId) }
+    }
+
+    fun fetchMetadataProposals(query: String) {
+        viewModelScope.launch {
+            val result = metadataService.searchBookMetadata(query = query)
+            val md = result.metadata ?: return@launch
+            // In a real flow, we’d map result to a target item; here we create a generic proposal
+            repository.propose(
+                MaintenanceChange(
+                    itemId = -1,
+                    changeType = "METADATA_UPDATE",
+                    summary = "Proposed metadata for '$query' from ${result.sources.joinToString()}.",
+                    oldDataJson = null,
+                    newDataJson = "{\"title\":\"${md.title}\"}"
+                )
+            )
+        }
+    }
+
+    fun generateCoverProposalsForLibrary(libraryId: Long) {
+        viewModelScope.launch {
+            mediaRepository.getMediaItemsByLibrary(libraryId).collect { items ->
+                items.take(5).forEach { item ->
+                    // Placeholder cover generation preview proposal
+                    repository.propose(
+                        MaintenanceChange(
+                            itemId = item.itemId,
+                            changeType = "COVER_UPDATE",
+                            summary = "Generate placeholder cover for ${item.fileName}",
+                            oldDataJson = null,
+                            newDataJson = null
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun scanFileChanges(libraryId: Long) {
+        viewModelScope.launch {
+            mediaRepository.getMediaItemsByLibrary(libraryId).collect { items ->
+                val proposals = fileChangeScanner.scan(items)
+                proposals.forEach { repository.propose(it) }
+            }
+        }
     }
 }
 

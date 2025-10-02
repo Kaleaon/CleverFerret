@@ -38,8 +38,9 @@ fun MaintenanceScreen(
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { viewModel.detectDuplicates(libraryId) }) { Text("Detect Duplicates") }
-                OutlinedButton(onClick = { /* TODO: Fetch metadata proposals */ }) { Text("Fetch Metadata") }
-                OutlinedButton(onClick = { /* TODO: Generate Covers */ }) { Text("Generate Covers") }
+                OutlinedButton(onClick = { viewModel.fetchMetadataProposals("sample query") }) { Text("Fetch Metadata") }
+                OutlinedButton(onClick = { viewModel.generateCoverProposalsForLibrary(libraryId) }) { Text("Generate Covers") }
+                OutlinedButton(onClick = { viewModel.scanFileChanges(libraryId) }) { Text("Review File Changes") }
             }
 
             Spacer(Modifier.height(16.dp))
