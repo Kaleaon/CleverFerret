@@ -51,8 +51,12 @@ import com.universalmedialibrary.data.local.entity.*
         QueueItem::class,
         PlaybackSession::class
 
+        ,
+        // Maintenance proposals
+        MaintenanceChange::class
+
     ],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -71,6 +75,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun queueItemDao(): QueueItemDao
     abstract fun playbackSessionDao(): PlaybackSessionDao
     abstract fun unifiedCollectionDao(): UnifiedCollectionDao
+    abstract fun maintenanceChangeDao(): MaintenanceChangeDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao

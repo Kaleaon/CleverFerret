@@ -32,6 +32,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
+import com.universalmedialibrary.ui.collections.CollectionsScreen
+import com.universalmedialibrary.ui.home.ContinueReadingSection
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.ui.library.CreateLibraryDialog
@@ -124,6 +127,12 @@ fun AppNavigation() {
         composable("settings/playlists") {
             PlaylistSettingsScreen(onBack = { navController.navigateUp() })
         }
+        composable("maintenance") {
+            MaintenanceScreen(onBack = { navController.navigateUp() })
+        }
+        composable("collections") {
+            CollectionsScreen(onOpenCollection = { /* TODO: navigate to collection detail */ })
+        }
     }
 }
 
@@ -196,6 +205,12 @@ fun LibraryListScreen(
             TopAppBar(
                 title = { Text("Libraries") },
                 actions = {
+                    IconButton(onClick = { navController.navigate("maintenance") }) {
+                        Icon(Icons.Default.Build, contentDescription = "Maintenance")
+                    }
+                    IconButton(onClick = { navController.navigate("collections") }) {
+                        Icon(Icons.Default.Collections, contentDescription = "Collections")
+                    }
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More Options")
                     }
@@ -223,9 +238,13 @@ fun LibraryListScreen(
             SampleLibrary("Movie Library", "MOVIE", 3)
         )
 
-        LazyVerticalGrid(
+        Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            // Continue Reading section
+            ContinueReadingSection(onOpenItem = { id -> navController.navigate("open/$id") })
+
+            LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp),
-            modifier = Modifier.padding(paddingValues),
+                modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
