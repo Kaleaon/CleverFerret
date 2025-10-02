@@ -46,9 +46,17 @@ import {
   Backup as BackupIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import { useAppStore } from '../store/app-store';
+import { ReaderThemeMode, ReaderFont } from '../types';
 
 export const SettingsScreen: React.FC = () => {
   const navigate = useNavigate();
+  const {
+    readerPreferences,
+    setReaderThemeMode,
+    setReaderFont,
+    setReaderFontSize,
+  } = useAppStore();
   const [notifications, setNotifications] = useState(true);
   const [autoSync, setAutoSync] = useState(false);
   const [offlineMode, setOfflineMode] = useState(true);
@@ -76,9 +84,55 @@ export const SettingsScreen: React.FC = () => {
       items: [
         {
           icon: <DarkModeIcon />,
-          primary: 'Dark Mode',
-          secondary: 'Currently enabled (Plex-style theme)',
-          action: <Switch checked={true} disabled />,
+          primary: 'Reader Theme',
+          secondary: 'White, Black, Sepia, E‑ink',
+          action: (
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel>Theme</InputLabel>
+              <Select
+                label="Theme"
+                value={readerPreferences.themeMode}
+                onChange={(e: any) => setReaderThemeMode(e.target.value as ReaderThemeMode)}
+              >
+                <MenuItem value={ReaderThemeMode.WHITE}>White</MenuItem>
+                <MenuItem value={ReaderThemeMode.BLACK}>Black</MenuItem>
+                <MenuItem value={ReaderThemeMode.SEPIA}>Sepia</MenuItem>
+                <MenuItem value={ReaderThemeMode.EINK}>E‑ink</MenuItem>
+              </Select>
+            </FormControl>
+          ),
+        },
+        {
+          icon: <DarkModeIcon />,
+          primary: 'Reader Font',
+          secondary: 'System Sans/Serif, Atkinson, OpenDyslexic, Lexend',
+          action: (
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Font</InputLabel>
+              <Select
+                label="Font"
+                value={readerPreferences.font}
+                onChange={(e: any) => setReaderFont(e.target.value as ReaderFont)}
+              >
+                <MenuItem value={ReaderFont.SYSTEM_SANS}>System Sans</MenuItem>
+                <MenuItem value={ReaderFont.SYSTEM_SERIF}>System Serif</MenuItem>
+                <MenuItem value={ReaderFont.ATKINSON}>Atkinson Hyperlegible</MenuItem>
+                <MenuItem value={ReaderFont.OPENDYSLEXIC}>OpenDyslexic</MenuItem>
+                <MenuItem value={ReaderFont.LEXEND}>Lexend</MenuItem>
+              </Select>
+            </FormControl>
+          ),
+        },
+        {
+          icon: <DarkModeIcon />,
+          primary: 'Reader Font Size',
+          secondary: `${readerPreferences.fontSize}px`,
+          action: (
+            <Box>
+              <Button size="small" onClick={() => setReaderFontSize(Math.max(12, readerPreferences.fontSize - 2))}>A-</Button>
+              <Button size="small" onClick={() => setReaderFontSize(Math.min(28, readerPreferences.fontSize + 2))}>A+</Button>
+            </Box>
+          ),
         },
         {
           icon: <LanguageIcon />,

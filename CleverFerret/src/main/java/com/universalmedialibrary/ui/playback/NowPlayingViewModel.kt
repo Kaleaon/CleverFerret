@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.playback
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
+import com.universalmedialibrary.data.repository.PlaylistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -16,7 +17,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class NowPlayingViewModel @Inject constructor(
-    private val playbackQueueManager: UnifiedPlaybackQueueManager
+    private val playbackQueueManager: UnifiedPlaybackQueueManager,
+    private val playlistRepository: PlaylistRepository
 ) : ViewModel() {
 
     // Expose state flows from the queue manager
@@ -124,6 +126,24 @@ class NowPlayingViewModel @Inject constructor(
             // TODO: Implement shuffle toggle
             // val currentShuffle = currentQueue.value?.shuffleEnabled ?: false
             // playbackQueueManager.setShuffleMode(!currentShuffle)
+        }
+    }
+
+    fun likeCurrentTrack() {
+        viewModelScope.launch {
+            currentItem.value?.let { item ->
+                playlistRepository.addToLiked(item.mediaItemId)
+            }
+        }
+    }
+
+    fun addCurrentTrackToPlaylist() {
+        viewModelScope.launch {
+            // TODO: Show UI to choose/create playlist; default fallback name
+            val defaultName = "My Playlist"
+            currentItem.value?.let { item ->
+                playlistRepository.addToPlaylistByName(defaultName, item.mediaItemId)
+            }
         }
     }
 

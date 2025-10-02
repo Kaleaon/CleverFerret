@@ -32,37 +32,56 @@ import { MetadataEditorScreen } from './components/MetadataEditorScreen';
 import { MediaViewerScreen } from './components/MediaViewerScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 
-// Plex-inspired dark theme
+// Navy + metallic gold theme
 const plexTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#e5a00d', // Plex gold
-      light: '#f4b942',
-      dark: '#cc8f00',
-      contrastText: '#000000',
+      main: '#d4af37', // metallic gold
+      light: '#e0c25e',
+      dark: '#a6862a',
+      contrastText: '#0a1630',
+    },
+    secondary: {
+      main: '#0f2346', // dark navy accent
     },
     background: {
-      default: '#1a1a1a',
-      paper: '#1f2326',
+      default: '#0a1630', // deep navy background
+      paper: '#0d1b36',
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#b3b3b3',
+      primary: '#e6eaf2',
+      secondary: '#b3bfd6',
     },
   },
   components: {
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1f2326',
-          border: '1px solid #2d3136',
+          backgroundColor: '#0d1b36',
+          border: '1px solid #1b2b4d',
           transition: 'all 0.3s ease',
           '&:hover': {
             transform: 'translateY(-4px)',
-            borderColor: '#e5a00d',
-            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
+            borderColor: '#d4af37',
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.45)',
           },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#0d1b36',
+          borderBottom: '1px solid #1b2b4d',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#0d1b36',
+          borderColor: '#1b2b4d',
         },
       },
     },

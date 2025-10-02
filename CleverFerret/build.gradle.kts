@@ -176,6 +176,9 @@ dependencies {
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")
 
+    // Archives: RAR (CBR) support for comic reader
+    implementation("com.github.junrar:junrar:7.5.4")
+
     // Glance for widgets
     implementation("androidx.glance:glance-appwidget:1.1.1")
     implementation("androidx.glance:glance-material3:1.1.1")

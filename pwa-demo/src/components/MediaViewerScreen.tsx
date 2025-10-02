@@ -1,5 +1,5 @@
 // Media viewer for different content types
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -23,7 +23,8 @@ import {
   VolumeUp as VolumeIcon,
   Fullscreen as FullscreenIcon,
 } from '@mui/icons-material';
-import { MediaItem, MetadataCommon } from '../types';
+import { MediaItem, MetadataCommon, ReaderThemeMode, ReaderFont } from '../types';
+import { useAppStore } from '../store/app-store';
 import { MediaItemService, MetadataService } from '../services/database';
 
 interface MediaViewerProps {
@@ -31,10 +32,35 @@ interface MediaViewerProps {
   metadata?: MetadataCommon;
 }
 
-const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
+const EBookViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
+  const { mediaItem, metadata } = props;
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages] = useState(250); // Demo value
-  const [fontSize, setFontSize] = useState(16);
+  const [totalPages] = useState(250);
+  const { readerPreferences, setReaderFontSize } = useAppStore();
+  const fontSize = readerPreferences.fontSize;
+
+  const readerStyles = useMemo(() => {
+    // Colors by reader theme
+    const themeToColors: Record<ReaderThemeMode, { bg: string; fg: string; accent: string }> = {
+      [ReaderThemeMode.WHITE]: { bg: '#FFFFFF', fg: '#111111', accent: '#0a1630' },
+      [ReaderThemeMode.BLACK]: { bg: '#0a0a0a', fg: '#f5f5f5', accent: '#d4af37' },
+      [ReaderThemeMode.SEPIA]: { bg: '#F4ECD8', fg: '#3B2F2F', accent: '#8B6B3E' },
+      [ReaderThemeMode.EINK]: { bg: '#F5F5F0', fg: '#222222', accent: '#555555' },
+    };
+
+    const fontStacks: Record<ReaderFont, string> = {
+      [ReaderFont.SYSTEM_SANS]: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+      [ReaderFont.SYSTEM_SERIF]: "'Times New Roman', Times, Georgia, 'Iowan Old Style', 'Palatino Linotype', 'URW Palladio L', 'Book Antiqua', serif",
+      [ReaderFont.ATKINSON]: "'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
+      [ReaderFont.OPENDYSLEXIC]: "'OpenDyslexic3', 'OpenDyslexic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
+      [ReaderFont.LEXEND]: "'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
+    };
+
+    const c = themeToColors[readerPreferences.themeMode];
+    const fontFamily = fontStacks[readerPreferences.font];
+
+    return { c, fontFamily };
+  }, [readerPreferences]);
 
   const demoContent = `
     <h1>${metadata?.title || 'Sample Book'}</h1>
@@ -69,7 +95,7 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       {/* Reader Controls */}
       <Box sx={{ 
         p: 2, 
-        borderBottom: '1px solid #2d3136',
+        borderBottom: '1px solid #1b2b4d',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -78,10 +104,10 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
           Page {currentPage} of {totalPages}
         </Typography>
         <Box>
-          <IconButton onClick={() => setFontSize(Math.max(14, fontSize - 2))}>
+          <IconButton onClick={() => setReaderFontSize(Math.max(12, fontSize - 2))}>
             <Typography variant="h6">A-</Typography>
           </IconButton>
-          <IconButton onClick={() => setFontSize(Math.min(24, fontSize + 2))}>
+          <IconButton onClick={() => setReaderFontSize(Math.min(28, fontSize + 2))}>
             <Typography variant="h5">A+</Typography>
           </IconButton>
         </Box>
@@ -90,22 +116,27 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
       {/* Content Area */}
       <Box sx={{ 
         flex: 1, 
-        p: 4,
+        p: { xs: 2, md: 4 },
         maxWidth: '800px',
         mx: 'auto',
-        '& h1': { color: 'primary.main', mb: 3 },
-        '& h2': { color: 'primary.main', mt: 4, mb: 2 },
-        '& p': { mb: 2, lineHeight: 1.6, fontSize: `${fontSize}px` },
-        '& ul': { pl: 3, mb: 2 },
-        '& li': { mb: 1, fontSize: `${fontSize}px` }
+        bgcolor: readerStyles.c.bg,
+        color: readerStyles.c.fg,
+        borderRadius: 2,
+        border: '1px solid rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+        '& h1': { color: readerStyles.c.accent, mb: 3, fontFamily: readerStyles.fontFamily },
+        '& h2': { color: readerStyles.c.accent, mt: 4, mb: 2, fontFamily: readerStyles.fontFamily },
+        '& p': { mb: 2, lineHeight: 1.7, fontSize: `${fontSize}px`, fontFamily: readerStyles.fontFamily },
+        '& ul': { pl: 3, mb: 2, fontFamily: readerStyles.fontFamily },
+        '& li': { mb: 1, fontSize: `${fontSize}px`, fontFamily: readerStyles.fontFamily }
       }}>
-        <div dangerouslySetInnerHTML={{ __html: demoContent }} />
+        <div style={{ fontFamily: readerStyles.fontFamily }} dangerouslySetInnerHTML={{ __html: demoContent }} />
       </Box>
 
       {/* Navigation */}
       <Box sx={{ 
         p: 2, 
-        borderTop: '1px solid #2d3136',
+        borderTop: '1px solid #1b2b4d',
         display: 'flex',
         justifyContent: 'space-between'
       }}>
@@ -126,7 +157,8 @@ const EBookViewer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   );
 };
 
-const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
+const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
+  const { mediaItem, metadata } = props;
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration] = useState(7200); // 2 hours demo
@@ -234,7 +266,8 @@ const VideoPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
   );
 };
 
-const AudioPlayer: React.FC<MediaViewerProps> = ({ mediaItem, metadata }) => {
+const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
+  const { mediaItem, metadata } = props;
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration] = useState(180); // 3 minutes demo

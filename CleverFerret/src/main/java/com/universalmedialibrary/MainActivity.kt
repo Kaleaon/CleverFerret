@@ -36,6 +36,9 @@ import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.ui.library.CreateLibraryDialog
 import com.universalmedialibrary.ui.library.LibraryDetailsScreen
+import com.universalmedialibrary.ui.open.MediaOpenScreen
+import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
+import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.PlexTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -92,8 +95,34 @@ fun AppNavigation() {
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
             LibraryDetailsScreen(
                 libraryId = libraryId,
-                onNavigateBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToMediaViewer = { id -> navController.navigate("open/$id") },
+                onCreateDocument = { navController.navigate("editor/new") }
             )
+        }
+        composable("open/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
+            if (itemId > 0) {
+                MediaOpenScreen(
+                    itemId = itemId,
+                    onBack = { navController.navigateUp() }
+                )
+            } else {
+                Text("Invalid media item")
+            }
+        }
+        composable("editor/new") {
+            com.universalmedialibrary.ui.writer.DocumentEditorScreen(
+                title = "Untitled",
+                initialText = "",
+                onBack = { navController.navigateUp() }
+            )
+        }
+        composable("settings/organizer") {
+            StorageOrganizerScreen(onBack = { navController.navigateUp() })
+        }
+        composable("settings/playlists") {
+            PlaylistSettingsScreen(onBack = { navController.navigateUp() })
         }
     }
 }

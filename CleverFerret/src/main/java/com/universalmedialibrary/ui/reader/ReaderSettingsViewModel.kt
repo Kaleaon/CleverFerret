@@ -307,6 +307,7 @@ class ReaderSettingsViewModel @Inject constructor(
             "LIGHT" -> "#FFFFFF" to "#000000"
             "DARK" -> "#121212" to "#E0E0E0"
             "SEPIA" -> "#F7F1E6" to "#5D4E37"
+            "EINK" -> "#F5F5F0" to "#222222"
             else -> "#FFFFFF" to "#000000" // Default to light
         }
     }
