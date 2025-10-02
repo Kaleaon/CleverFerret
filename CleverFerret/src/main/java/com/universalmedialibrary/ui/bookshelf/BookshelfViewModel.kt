@@ -88,8 +88,26 @@ class BookshelfViewModel @Inject constructor(
 
     fun loadBooks(libraryId: Long) {
         viewModelScope.launch {
-            mediaItemDao.getBookDetailsForLibrary(libraryId).collect { bookList ->
-                _allBooks.value = bookList
+            mediaItemDao.getBookDetailsForLibrary(libraryId).collect { mediaItems ->
+                // Convert MediaItems to BookDetails
+                val bookDetailsList = mediaItems.map { mediaItem ->
+                    val metadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId) 
+                        ?: com.universalmedialibrary.data.local.entity.MetadataCommon(
+                            itemId = mediaItem.itemId,
+                            title = mediaItem.fileName,
+                            sortTitle = mediaItem.fileName
+                        )
+                    val bookMetadata = metadataDao.getMetadataBookByItemId(mediaItem.itemId)
+                    
+                    BookDetails(
+                        mediaItem = mediaItem,
+                        metadata = metadata,
+                        bookMetadata = bookMetadata,
+                        authorName = null, // TODO: Fetch from People table
+                        seriesName = null  // TODO: Fetch from Series table
+                    )
+                }
+                _allBooks.value = bookDetailsList
             }
         }
     }

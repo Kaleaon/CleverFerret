@@ -25,8 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
-import com.universalmedialibrary.data.local.model.BookDetails
-import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.data.local.entity.BookDetails
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 
 import kotlin.math.absoluteValue
 

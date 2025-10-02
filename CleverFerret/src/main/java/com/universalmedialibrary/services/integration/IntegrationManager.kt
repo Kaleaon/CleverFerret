@@ -42,17 +42,37 @@ class IntegrationManager @Inject constructor(
             val calibreStatus = calibreService.checkConnections()
 
             // Check cloud storage
-            val cloudStatus = cloudService.checkAllConnections()
+            val cloudStatusRaw = cloudService.checkAllConnections()
 
             // Check book services
-            val bookStatus = bookServices.checkServices()
+            val bookStatusRaw = bookServices.checkServices()
+
+            // Convert service-specific status types to IntegrationManager types
+            val calibreStatusConverted = CalibreConnectionStatus(
+                isConnected = calibreStatus.isConnected,
+                serverUrl = calibreStatus.serverUrl ?: "",
+                libraryCount = calibreStatus.libraryCount
+            )
+            
+            val cloudStatusConverted = CloudConnectionStatus(
+                dropboxConnected = cloudStatusRaw.dropboxConnected,
+                googleDriveConnected = cloudStatusRaw.googleDriveConnected,
+                oneDriveConnected = cloudStatusRaw.oneDriveConnected,
+                hasActiveConnections = cloudStatusRaw.hasActiveConnections
+            )
+            
+            val bookStatusConverted = BookServicesStatus(
+                amazonConnected = bookStatusRaw.amazonConnected,
+                googleBooksConnected = bookStatusRaw.googleBooksConnected,
+                hasActiveConnections = bookStatusRaw.hasActiveConnections
+            )
 
             _integrationState.value = _integrationState.value.copy(
                 isInitializing = false,
                 plexStatus = plexStatus,
-                calibreStatus = calibreStatus,
-                cloudStatus = cloudStatus,
-                bookServicesStatus = bookStatus,
+                calibreStatus = calibreStatusConverted,
+                cloudStatus = cloudStatusConverted,
+                bookServicesStatus = bookStatusConverted,
                 lastSyncTime = System.currentTimeMillis()
             )
 
