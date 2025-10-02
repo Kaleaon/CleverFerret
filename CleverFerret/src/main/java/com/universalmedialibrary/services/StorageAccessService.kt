@@ -91,11 +91,12 @@ class StorageAccessService @Inject constructor(
         try {
             val documentFile = DocumentFile.fromTreeUri(context, treeUri) ?: return@withContext 0
 
-            // Create or get library
-            val library = getOrCreateLibrary(documentFile.name ?: libraryName ?: "Media Library", treeUri.toString())
+            // Root info used to create per-type libraries under this tree
+            val rootName = documentFile.name ?: libraryName ?: "Media Library"
+            val rootPath = treeUri.toString()
 
-            // Recursively scan directory
-            itemsFound = scanDocumentFile(context, documentFile, library, progressCallback)
+            // Recursively scan directory, creating per-type libraries as needed
+            itemsFound = scanDocumentFile(context, documentFile, rootName, rootPath, progressCallback)
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -107,19 +108,20 @@ class StorageAccessService @Inject constructor(
     private suspend fun scanDocumentFile(
         context: Context,
         documentFile: DocumentFile,
-        library: Library,
+        rootName: String,
+        rootPath: String,
         progressCallback: (String) -> Unit
     ): Int {
         var itemsFound = 0
 
         if (documentFile.isDirectory) {
             documentFile.listFiles().forEach { child ->
-                itemsFound += scanDocumentFile(context, child, library, progressCallback)
+                itemsFound += scanDocumentFile(context, child, rootName, rootPath, progressCallback)
             }
         } else if (documentFile.isFile) {
             val mediaType = determineMediaType(documentFile.name ?: "")
             if (mediaType != null) {
-                processMediaFile(context, documentFile, library, mediaType, progressCallback)
+                processMediaFile(context, documentFile, rootName, rootPath, mediaType, progressCallback)
                 itemsFound++
             }
         }
@@ -130,7 +132,8 @@ class StorageAccessService @Inject constructor(
     private suspend fun processMediaFile(
         context: Context,
         documentFile: DocumentFile,
-        library: Library,
+        rootName: String,
+        rootPath: String,
         mediaType: MediaType,
         progressCallback: (String) -> Unit
     ) {
@@ -145,6 +148,9 @@ class StorageAccessService @Inject constructor(
             if (existingItem != null) {
                 return
             }
+
+            // Get or create a library for this media type under the same root
+            val library = getOrCreateLibraryForType(rootName, rootPath, mediaType.name)
 
             // Create media item
             val extension = name.substringAfterLast('.', "")
@@ -197,18 +203,20 @@ class StorageAccessService @Inject constructor(
         }
     }
 
-    private suspend fun getOrCreateLibrary(name: String, path: String): Library {
-        var library = libraryDao.getLibraryByPath(path)
-        if (library == null) {
-            library = Library(
-                name = name,
-                type = "DOCUMENT",
-                path = path,
-                dateModified = System.currentTimeMillis()
-            )
-            val id = libraryDao.insertLibrary(library)
-            library = library.copy(libraryId = id)
-        }
+    private suspend fun getOrCreateLibraryForType(rootName: String, rootPath: String, type: String): Library {
+        // Try to find a library with this type under the same root path
+        val existing = libraryDao.getLibrariesByType(type).firstOrNull { it.path == rootPath }
+        if (existing != null) return existing
+
+        val name = "$rootName - ${'$'}{type.lowercase().replaceFirstChar { it.uppercase() }}"
+        var library = Library(
+            name = name,
+            type = type,
+            path = rootPath,
+            dateModified = System.currentTimeMillis()
+        )
+        val id = libraryDao.insertLibrary(library)
+        library = library.copy(libraryId = id)
         return library
     }
 
