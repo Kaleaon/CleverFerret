@@ -38,6 +38,8 @@ import com.universalmedialibrary.data.local.model.BookDetails
 import com.universalmedialibrary.data.local.model.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.ui.details.LibraryDetailsViewModel
+import com.universalmedialibrary.ui.library.ImprovedLibraryListScreen
+import com.universalmedialibrary.ui.library.LibraryManagementViewModel
 import com.universalmedialibrary.ui.main.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -64,7 +66,15 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "library_list") {
         composable("library_list") {
-            LibraryListScreen(navController = navController)
+            val libraryManagementViewModel: LibraryManagementViewModel = hiltViewModel()
+            ImprovedLibraryListScreen(
+                onNavigateToLibrary = { id -> navController.navigate("library_details/$id") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onCreateLibrary = { name, type, path -> 
+                    libraryManagementViewModel.createLibrary(name, type, path)
+                },
+                onRefresh = { /* no-op; flows auto-update */ }
+            )
         }
         composable("library_details/{libraryId}") {
             LibraryDetailsScreen()
