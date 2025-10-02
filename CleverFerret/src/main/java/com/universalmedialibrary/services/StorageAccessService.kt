@@ -150,12 +150,20 @@ class StorageAccessService @Inject constructor(
             val extension = name.substringAfterLast('.', "")
             val mediaItem = MediaItem(
                 libraryId = library.libraryId,
-                fileName = name,
-                fileExtension = extension,
                 filePath = uri.toString(),
+                fileName = name,
+                fileExtension = extension.lowercase(),
                 fileSize = documentFile.length(),
+                fileHash = null,
+                dateAdded = System.currentTimeMillis(),
+                lastScanned = System.currentTimeMillis(),
+                lastModified = documentFile.lastModified(),
                 mediaType = mediaType.name,
-                lastModified = documentFile.lastModified()
+                mimeType = null,
+                isAvailable = true,
+                hasMetadata = false,
+                hasThumbnail = false,
+                thumbnailPath = null
             )
 
             val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -163,7 +171,24 @@ class StorageAccessService @Inject constructor(
             // Create basic metadata
             val metadata = MetadataCommon(
                 itemId = itemId,
-                title = name.substringBeforeLast('.')
+                title = name.substringBeforeLast('.'),
+                sortTitle = null,
+                originalTitle = null,
+                year = null,
+                releaseDate = null,
+                rating = null,
+                userRating = null,
+                communityRating = null,
+                summary = null,
+                plot = null,
+                tagline = null,
+                coverImagePath = null,
+                backdropImagePath = null,
+                language = null,
+                country = null,
+                lastUpdated = System.currentTimeMillis(),
+                metadataSource = "SAF",
+                externalId = null
             )
             metadataDao.insertCommonMetadata(metadata)
 
@@ -173,11 +198,11 @@ class StorageAccessService @Inject constructor(
     }
 
     private suspend fun getOrCreateLibrary(name: String, path: String): Library {
-        var library = libraryDao.getLibrariesByType(name).firstOrNull()
+        var library = libraryDao.getLibraryByPath(path)
         if (library == null) {
             library = Library(
                 name = name,
-                type = "SAF",
+                type = "DOCUMENT",
                 path = path,
                 dateModified = System.currentTimeMillis()
             )

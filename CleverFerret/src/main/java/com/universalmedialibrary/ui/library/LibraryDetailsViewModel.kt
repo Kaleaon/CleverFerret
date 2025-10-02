@@ -102,15 +102,12 @@ class LibraryDetailsViewModel @Inject constructor(
                         else -> emptyList()
                     }
 
-                    // Insert media items and get their IDs
-                    val insertedIds = mediaItemDao.insertMediaItems(sampleItems)
-
-                    // Create sample metadata for each item
-                    val sampleMetadata = sampleItems.zip(insertedIds) { item, itemId ->
-                        createSampleMetadata(itemId, item, library.type)
+                    // Insert media items individually and insert metadata
+                    for (item in sampleItems) {
+                        val itemId = mediaItemDao.insertMediaItem(item)
+                        val metadata = createSampleMetadata(itemId, item, library.type)
+                        metadataDao.insertCommonMetadata(metadata)
                     }
-
-                    metadataDao.insertCommonMetadataBatch(sampleMetadata)
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
