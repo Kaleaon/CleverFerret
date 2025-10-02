@@ -38,7 +38,7 @@ import com.universalmedialibrary.data.local.entity.*
         ItemGenre::class
 
     ],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -51,6 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun metadataDao(): MetadataDao
     abstract fun bookmarkDao(): BookmarkDao
+    abstract fun playlistDao(): PlaylistDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
