@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.opds
 
 import android.util.Log
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.SharingRepository
 import fi.iki.elonen.NanoHTTPD
 import kotlinx.coroutines.runBlocking
@@ -11,6 +12,7 @@ import javax.inject.Singleton
 @Singleton
 class OpdsServer @Inject constructor(
     private val mediaRepository: MediaRepository,
+    private val libraryRepository: LibraryRepository,
     private val sharingRepository: SharingRepository,
     private val opdsService: OpdsService
 ) : NanoHTTPD(8088) {
@@ -41,13 +43,61 @@ class OpdsServer @Inject constructor(
         if (!enabled) return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "OPDS disabled")
 
         return try {
-            when (session.uri) {
-                "/opds" -> newFixedLengthResponse(MIME_XML, opdsService.generateCatalogFeed())
+            when {
+                session.uri == "/opds" -> newFixedLengthResponse(MIME_XML, opdsService.generateCatalogFeed())
+                session.uri.startsWith("/opds/libraries") -> serveLibraries()
+                session.uri.startsWith("/opds/library/") -> serveLibraryItems(session)
                 else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
             }
         } catch (e: Exception) {
             newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error: ${e.message}")
         }
+    }
+
+    private fun serveLibraries(): Response {
+        val xml = runBlocking {
+            val libs = libraryRepository.getAllLibraries().firstOrNull().orEmpty()
+            val entries = libs.joinToString("\n") { lib ->
+                """
+                <entry>
+                  <title>${lib.name}</title>
+                  <id>urn:lib:${lib.libraryId}</id>
+                  <link rel="subsection" href="/opds/library/${lib.libraryId}" />
+                </entry>
+                """.trimIndent()
+            }
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
+              <title>Libraries</title>
+              $entries
+            </feed>
+            """.trimIndent()
+        }
+        return newFixedLengthResponse(MIME_XML, xml)
+    }
+
+    private fun serveLibraryItems(session: IHTTPSession): Response {
+        val libraryId = session.uri.removePrefix("/opds/library/").toLongOrNull() ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Bad library id")
+        val xml = runBlocking {
+            val items = mediaRepository.getMediaItemsByLibrary(libraryId).firstOrNull().orEmpty()
+            val entries = items.joinToString("\n") { item ->
+                """
+                <entry>
+                  <title>${item.fileName}</title>
+                  <id>urn:item:${item.itemId}</id>
+                </entry>
+                """.trimIndent()
+            }
+            """
+            <?xml version="1.0" encoding="utf-8"?>
+            <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
+              <title>Library $libraryId</title>
+              $entries
+            </feed>
+            """.trimIndent()
+        }
+        return newFixedLengthResponse(MIME_XML, xml)
     }
 
     companion object {

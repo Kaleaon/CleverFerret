@@ -67,16 +67,23 @@ class MaintenanceViewModel @Inject constructor(
         viewModelScope.launch {
             val result = metadataService.searchBookMetadata(query = query)
             val md = result.metadata ?: return@launch
-            // In a real flow, we’d map result to a target item; here we create a generic proposal
-            repository.propose(
-                MaintenanceChange(
-                    itemId = -1,
-                    changeType = "METADATA_UPDATE",
-                    summary = "Proposed metadata for '$query' from ${result.sources.joinToString()}.",
-                    oldDataJson = null,
-                    newDataJson = "{\"title\":\"${md.title}\"}"
+            // Map by title to a local item for proposal
+            mediaRepository.searchMediaItems(md.title, 25).firstOrNull()?.let { item ->
+                val before = mediaRepository.getCommonMetadata(item.itemId)
+                val after = before?.copy(
+                    title = md.title,
+                    summary = md.description ?: before.summary
                 )
-            )
+                repository.propose(
+                    MaintenanceChange(
+                        itemId = item.itemId,
+                        changeType = "METADATA_UPDATE",
+                        summary = "Update metadata from ${result.sources.joinToString()}",
+                        oldDataJson = before?.let { "{\"title\":\"${it.title}\",\"summary\":\"${it.summary ?: ""}\"}" },
+                        newDataJson = after?.let { "{\"title\":\"${it.title}\",\"summary\":\"${it.summary ?: ""}\"}" }
+                    )
+                )
+            }
         }
     }
 

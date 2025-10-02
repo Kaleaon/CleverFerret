@@ -18,6 +18,45 @@ import javax.inject.Singleton
 class ThumbnailService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    suspend fun extractCoverFromEpub(uri: Uri, sizePx: Int = 600): File? = withContext(Dispatchers.IO) {
+        // Minimal EPUB cover extraction by scanning for cover images in the zip
+        try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                java.util.zip.ZipInputStream(input).use { zis ->
+                    var entry: java.util.zip.ZipEntry?
+                    while (zis.nextEntry.also { entry = it } != null) {
+                        if (entry!!.name.lowercase().contains("cover") && entry!!.name.lowercase().endsWith(“.jpg”)) {
+                            val outDir = File(context.cacheDir, "thumbnails").apply { mkdirs() }
+                            val outFile = File(outDir, "epub_${uri.hashCode()}_${sizePx}.jpg")
+                            FileOutputStream(outFile).use { out -> zis.copyTo(out) }
+                            return@withContext outFile
+                        }
+                    }
+                }
+            }
+            null
+        } catch (_: Exception) { null }
+    }
+
+    suspend fun extractCoverFromCbz(uri: Uri, sizePx: Int = 600): File? = withContext(Dispatchers.IO) {
+        try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                java.util.zip.ZipInputStream(input).use { zis ->
+                    var entry: java.util.zip.ZipEntry?
+                    var best: Pair<java.util.zip.ZipEntry, File>? = null
+                    while (zis.nextEntry.also { entry = it } != null) {
+                        if (entry!!.name.lowercase().matches(Regex(".*\\.(jpg|jpeg|png)$"))) {
+                            val outDir = File(context.cacheDir, "thumbnails").apply { mkdirs() }
+                            val outFile = File(outDir, "cbz_${uri.hashCode()}_${entry!!.name.hashCode()}_${sizePx}.jpg")
+                            FileOutputStream(outFile).use { out -> zis.copyTo(out) }
+                            if (best == null || entry!!.name < best!!.first.name) best = entry!! to outFile
+                        }
+                    }
+                    best?.second
+                }
+            }
+        } catch (_: Exception) { null }
+    }
     suspend fun generatePlaceholder(title: String, sizePx: Int = 600): File = withContext(Dispatchers.IO) {
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
