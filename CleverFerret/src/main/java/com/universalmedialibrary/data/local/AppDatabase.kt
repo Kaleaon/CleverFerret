@@ -59,8 +59,12 @@ import com.universalmedialibrary.data.local.entity.*
         EmbyServer::class,
         JellyfinServer::class
 
+        ,
+        // Sharing
+        SharedLink::class
+
     ],
-    version = 16,
+    version = 17,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -82,6 +86,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun maintenanceChangeDao(): MaintenanceChangeDao
     abstract fun embyServerDao(): EmbyServerDao
     abstract fun jellyfinServerDao(): JellyfinServerDao
+    abstract fun sharedLinkDao(): SharedLinkDao
     
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao

@@ -42,6 +42,7 @@ import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.open.MediaOpenScreen
 import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
 import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
+import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.PlexTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -126,6 +127,9 @@ fun AppNavigation() {
         }
         composable("settings/playlists") {
             PlaylistSettingsScreen(onBack = { navController.navigateUp() })
+        }
+        composable("settings/opds") {
+            OpdsSettingsScreen(onBack = { navController.navigateUp() })
         }
         composable("maintenance") {
             MaintenanceScreen(onBack = { navController.navigateUp() })
@@ -218,6 +222,13 @@ fun LibraryListScreen(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
                     ) {
+                        DropdownMenuItem(
+                            text = { Text("OPDS Server") },
+                            onClick = {
+                                showMenu = false
+                                navController.navigate("settings/opds")
+                            }
+                        )
                         DropdownMenuItem(
                             text = { Text("Import Calibre Library") },
                             onClick = {
