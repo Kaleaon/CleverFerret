@@ -50,6 +50,11 @@ Implementation guides for major features and components.
 **UI & Design:**
 - [Metadata Editor UI Design](features/UI_DESIGN_METADATA_EDITOR.md) - Metadata editing interface design
 
+**Komga Analysis (NEW):**
+- [📊 Komga Features Analysis](../KOMGA_FEATURES_ANALYSIS.md) - Comprehensive analysis of Komga features and recommendations
+- [🛠️ Komga Implementation Guide](../KOMGA_IMPLEMENTATION_GUIDE.md) - Step-by-step implementation guides for Komga-inspired features
+- [📈 Komga vs CleverFerret](../KOMGA_VS_CLEVERFERRET.md) - Feature comparison matrix and strategic recommendations
+
 ### 🗂️ Archive (`/archive/`)
 Historical documentation, completed tasks, and legacy information.
 
