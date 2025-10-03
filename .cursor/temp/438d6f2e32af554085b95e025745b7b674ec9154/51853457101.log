@@ -1,0 +1,1222 @@
+﻿2025-10-03T03:07:59.3776130Z Current runner version: '2.328.0'
+2025-10-03T03:07:59.3794830Z ##[group]Runner Image Provisioner
+2025-10-03T03:07:59.3795480Z Hosted Compute Agent
+2025-10-03T03:07:59.3795820Z Version: 20251002.412
+2025-10-03T03:07:59.3796200Z Commit: 1e18d81df3fc3cb54a9ae6ec87a63fe7cf6e532d
+2025-10-03T03:07:59.3796660Z Build Date: 2025-10-02T12:45:57Z
+2025-10-03T03:07:59.3797090Z ##[endgroup]
+2025-10-03T03:07:59.3797440Z ##[group]Operating System
+2025-10-03T03:07:59.3797900Z macOS
+2025-10-03T03:07:59.3798220Z 15.6.1
+2025-10-03T03:07:59.3798510Z 24G90
+2025-10-03T03:07:59.3798800Z ##[endgroup]
+2025-10-03T03:07:59.3799170Z ##[group]Runner Image
+2025-10-03T03:07:59.3799510Z Image: macos-15-arm64
+2025-10-03T03:07:59.3799830Z Version: 20250922.2357
+2025-10-03T03:07:59.3800570Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20250922.2357/images/macos/macos-15-arm64-Readme.md
+2025-10-03T03:07:59.3801670Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20250922.2357
+2025-10-03T03:07:59.3802290Z ##[endgroup]
+2025-10-03T03:07:59.3803910Z ##[group]GITHUB_TOKEN Permissions
+2025-10-03T03:07:59.3805190Z Actions: write
+2025-10-03T03:07:59.3805520Z Attestations: write
+2025-10-03T03:07:59.3805910Z Checks: write
+2025-10-03T03:07:59.3806230Z Contents: write
+2025-10-03T03:07:59.3806600Z Deployments: write
+2025-10-03T03:07:59.3806940Z Discussions: write
+2025-10-03T03:07:59.3807240Z Issues: write
+2025-10-03T03:07:59.3807530Z Metadata: read
+2025-10-03T03:07:59.3807910Z Models: read
+2025-10-03T03:07:59.3808260Z Packages: write
+2025-10-03T03:07:59.3808590Z Pages: write
+2025-10-03T03:07:59.3808960Z PullRequests: write
+2025-10-03T03:07:59.3809340Z RepositoryProjects: write
+2025-10-03T03:07:59.3809690Z SecurityEvents: write
+2025-10-03T03:07:59.3810130Z Statuses: write
+2025-10-03T03:07:59.3810500Z ##[endgroup]
+2025-10-03T03:07:59.3811970Z Secret source: Actions
+2025-10-03T03:07:59.3812450Z Prepare workflow directory
+2025-10-03T03:07:59.4070930Z Prepare all required actions
+2025-10-03T03:07:59.4098210Z Getting action download info
+2025-10-03T03:07:59.8034550Z Download action repository 'actions/checkout@v5' (SHA:08c6903cd8c0fde910a37f88322edcfb5dd907a8)
+2025-10-03T03:08:00.1472320Z Download action repository 'actions/setup-java@v5' (SHA:dded0888837ed1f317902acf8a20df0ad188d165)
+2025-10-03T03:08:01.4028090Z Download action repository 'gradle/actions@v3' (SHA:d9c87d481d55275bb5441eef3fe0e46805f9ef70)
+2025-10-03T03:08:02.7368110Z Download action repository 'reactivecircus/android-emulator-runner@v2' (SHA:1dcd0090116d15e7c562f8db72807de5e036a4ed)
+2025-10-03T03:08:03.8319730Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-10-03T03:08:03.9969690Z Complete job name: API 34 (x86_64)
+2025-10-03T03:08:04.0291900Z ##[group]Run actions/checkout@v5
+2025-10-03T03:08:04.0292210Z with:
+2025-10-03T03:08:04.0292340Z   repository: Kaleaon/CleverFerret
+2025-10-03T03:08:04.0292650Z   token: ***
+2025-10-03T03:08:04.0292760Z   ssh-strict: true
+2025-10-03T03:08:04.0292890Z   ssh-user: git
+2025-10-03T03:08:04.0293020Z   persist-credentials: true
+2025-10-03T03:08:04.0293160Z   clean: true
+2025-10-03T03:08:04.0293290Z   sparse-checkout-cone-mode: true
+2025-10-03T03:08:04.0293460Z   fetch-depth: 1
+2025-10-03T03:08:04.0293580Z   fetch-tags: false
+2025-10-03T03:08:04.0293710Z   show-progress: true
+2025-10-03T03:08:04.0293830Z   lfs: false
+2025-10-03T03:08:04.0293940Z   submodules: false
+2025-10-03T03:08:04.0294070Z   set-safe-directory: true
+2025-10-03T03:08:04.0294300Z env:
+2025-10-03T03:08:04.0294460Z   GRADLE_OPTS: -Dorg.gradle.daemon=false
+2025-10-03T03:08:04.0294630Z   JAVA_VERSION: 17
+2025-10-03T03:08:04.0294750Z ##[endgroup]
+2025-10-03T03:08:04.3428000Z Syncing repository: Kaleaon/CleverFerret
+2025-10-03T03:08:04.3429180Z ##[group]Getting Git version info
+2025-10-03T03:08:04.3429480Z Working directory is '/Users/runner/work/CleverFerret/CleverFerret'
+2025-10-03T03:08:04.3429940Z [command]/opt/homebrew/bin/git version
+2025-10-03T03:08:04.3900170Z git version 2.50.1
+2025-10-03T03:08:04.3910280Z ##[endgroup]
+2025-10-03T03:08:04.3915830Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/c72f8c9a-2252-4d3e-96b8-424e88aa6d90/.gitconfig'
+2025-10-03T03:08:04.3921400Z Temporarily overriding HOME='/Users/runner/work/_temp/c72f8c9a-2252-4d3e-96b8-424e88aa6d90' before making global git config changes
+2025-10-03T03:08:04.3921980Z Adding repository directory to the temporary git global config as a safe directory
+2025-10-03T03:08:04.3924500Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/CleverFerret/CleverFerret
+2025-10-03T03:08:04.4056680Z Deleting the contents of '/Users/runner/work/CleverFerret/CleverFerret'
+2025-10-03T03:08:04.4059010Z ##[group]Initializing the repository
+2025-10-03T03:08:04.4062250Z [command]/opt/homebrew/bin/git init /Users/runner/work/CleverFerret/CleverFerret
+2025-10-03T03:08:04.4257400Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-10-03T03:08:04.4258040Z hint: is subject to change. To configure the initial branch name to use in all
+2025-10-03T03:08:04.4258480Z hint: of your new repositories, which will suppress this warning, call:
+2025-10-03T03:08:04.4258770Z hint:
+2025-10-03T03:08:04.4259050Z hint: 	git config --global init.defaultBranch <name>
+2025-10-03T03:08:04.4259270Z hint:
+2025-10-03T03:08:04.4259490Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-10-03T03:08:04.4259870Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-10-03T03:08:04.4260150Z hint:
+2025-10-03T03:08:04.4260290Z hint: 	git branch -m <name>
+2025-10-03T03:08:04.4260460Z hint:
+2025-10-03T03:08:04.4260700Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-10-03T03:08:04.4261130Z Initialized empty Git repository in /Users/runner/work/CleverFerret/CleverFerret/.git/
+2025-10-03T03:08:04.4266270Z [command]/opt/homebrew/bin/git remote add origin https://github.com/Kaleaon/CleverFerret
+2025-10-03T03:08:04.4342650Z ##[endgroup]
+2025-10-03T03:08:04.4343020Z ##[group]Disabling automatic garbage collection
+2025-10-03T03:08:04.4343330Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2025-10-03T03:08:04.4403900Z ##[endgroup]
+2025-10-03T03:08:04.4404270Z ##[group]Setting up auth
+2025-10-03T03:08:04.4408270Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-10-03T03:08:04.4461490Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-10-03T03:08:04.5220210Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-10-03T03:08:04.5268850Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-10-03T03:08:04.5948850Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-10-03T03:08:04.6006110Z ##[endgroup]
+2025-10-03T03:08:04.6006430Z ##[group]Fetching the repository
+2025-10-03T03:08:04.6011280Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +38d8f3638d3eff12118832d00bac6140ef0ef179:refs/remotes/pull/197/merge
+2025-10-03T03:08:06.0807730Z From https://github.com/Kaleaon/CleverFerret
+2025-10-03T03:08:06.0808530Z  * [new ref]         38d8f3638d3eff12118832d00bac6140ef0ef179 -> pull/197/merge
+2025-10-03T03:08:06.0874930Z ##[endgroup]
+2025-10-03T03:08:06.0875360Z ##[group]Determining the checkout info
+2025-10-03T03:08:06.0876070Z ##[endgroup]
+2025-10-03T03:08:06.0880250Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2025-10-03T03:08:06.0945260Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2025-10-03T03:08:06.1006970Z ##[group]Checking out the ref
+2025-10-03T03:08:06.1009790Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/197/merge
+2025-10-03T03:08:06.3526400Z HEAD is now at 38d8f36 Merge 438d6f2e32af554085b95e025745b7b674ec9154 into 5e100e0168595b9f444cb3ec2966df1b61a22789
+2025-10-03T03:08:06.3540250Z ##[endgroup]
+2025-10-03T03:08:06.3674120Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2025-10-03T03:08:06.3740440Z 38d8f3638d3eff12118832d00bac6140ef0ef179
+2025-10-03T03:08:06.3916480Z ##[group]Run actions/setup-java@v5
+2025-10-03T03:08:06.3916720Z with:
+2025-10-03T03:08:06.3916850Z   distribution: temurin
+2025-10-03T03:08:06.3916990Z   java-version: 17
+2025-10-03T03:08:06.3917110Z   java-package: jdk
+2025-10-03T03:08:06.3917240Z   check-latest: false
+2025-10-03T03:08:06.3917370Z   server-id: github
+2025-10-03T03:08:06.3917530Z   server-username: GITHUB_ACTOR
+2025-10-03T03:08:06.3917700Z   server-password: GITHUB_TOKEN
+2025-10-03T03:08:06.3917860Z   overwrite-settings: true
+2025-10-03T03:08:06.3918020Z   job-status: success
+2025-10-03T03:08:06.3918230Z   token: ***
+2025-10-03T03:08:06.3918340Z env:
+2025-10-03T03:08:06.3918470Z   GRADLE_OPTS: -Dorg.gradle.daemon=false
+2025-10-03T03:08:06.3918640Z   JAVA_VERSION: 17
+2025-10-03T03:08:06.3918770Z ##[endgroup]
+2025-10-03T03:08:06.5151420Z ##[group]Installed distributions
+2025-10-03T03:08:06.5212090Z Resolved Java 17.0.16+8 from tool-cache
+2025-10-03T03:08:06.5213310Z Setting Java 17.0.16+8 as the default
+2025-10-03T03:08:06.5224290Z (node:4233) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2025-10-03T03:08:06.5224870Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2025-10-03T03:08:06.5225640Z Creating toolchains.xml for JDK version 17 from temurin
+2025-10-03T03:08:06.5270350Z Writing to /Users/runner/.m2/toolchains.xml
+2025-10-03T03:08:06.5271400Z 
+2025-10-03T03:08:06.5271710Z Java configuration:
+2025-10-03T03:08:06.5272030Z   Distribution: temurin
+2025-10-03T03:08:06.5272350Z   Version: 17.0.16+8
+2025-10-03T03:08:06.5272800Z   Path: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/arm64/Contents/Home
+2025-10-03T03:08:06.5273260Z 
+2025-10-03T03:08:06.5273740Z ##[endgroup]
+2025-10-03T03:08:06.5291290Z Creating settings.xml with server-id: github
+2025-10-03T03:08:06.5291570Z Writing to /Users/runner/.m2/settings.xml
+2025-10-03T03:08:06.5440650Z ##[group]Run gradle/actions/setup-gradle@v3
+2025-10-03T03:08:06.5440970Z with:
+2025-10-03T03:08:06.5441090Z   cache-disabled: false
+2025-10-03T03:08:06.5441340Z   cache-read-only: true
+2025-10-03T03:08:06.5441500Z   cache-write-only: false
+2025-10-03T03:08:06.5441660Z   cache-overwrite-existing: false
+2025-10-03T03:08:06.5441880Z   gradle-home-cache-includes: caches
+notifications
+
+2025-10-03T03:08:06.5442120Z   gradle-home-cache-cleanup: false
+2025-10-03T03:08:06.5442300Z   add-job-summary: always
+2025-10-03T03:08:06.5442470Z   add-job-summary-as-pr-comment: never
+2025-10-03T03:08:06.5442660Z   dependency-graph: disabled
+2025-10-03T03:08:06.5442890Z   dependency-graph-continue-on-failure: true
+2025-10-03T03:08:06.5443130Z   build-scan-publish: false
+2025-10-03T03:08:06.5443300Z   validate-wrappers: false
+2025-10-03T03:08:06.5443470Z   generate-job-summary: true
+2025-10-03T03:08:06.5443710Z   gradle-home-cache-strict-match: false
+2025-10-03T03:08:06.5444090Z   workflow-job-context: {
+  "config": {
+    "api": 34,
+    "arch": "x86_64",
+    "target": "google_apis"
+  }
+}
+2025-10-03T03:08:06.5444550Z   github-token: ***
+2025-10-03T03:08:06.5444690Z env:
+2025-10-03T03:08:06.5444830Z   GRADLE_OPTS: -Dorg.gradle.daemon=false
+2025-10-03T03:08:06.5445050Z   JAVA_VERSION: 17
+2025-10-03T03:08:06.5445390Z   JAVA_HOME: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/arm64/Contents/Home
+2025-10-03T03:08:06.5445900Z   JAVA_HOME_17_ARM64: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/arm64/Contents/Home
+2025-10-03T03:08:06.5446250Z ##[endgroup]
+2025-10-03T03:08:07.3680000Z Merged default JDK locations into /Users/runner/.m2/toolchains.xml
+2025-10-03T03:08:07.3681470Z ##[group]Restore Gradle state from cache
+2025-10-03T03:08:07.4704360Z ##[warning]Failed to restore gradle-home-v1|macOS|instrumentation-tests[e8a6be49ea8ca73430163e2b820eea12]-38d8f3638d3eff12118832d00bac6140ef0ef179: Error: Cache service responded with 400
+2025-10-03T03:08:07.4739950Z Gradle User Home cache not found. Will initialize empty.
+2025-10-03T03:08:07.4740580Z ##[endgroup]
+2025-10-03T03:08:07.4845520Z ##[group]Run reactivecircus/android-emulator-runner@v2
+2025-10-03T03:08:07.4845760Z with:
+2025-10-03T03:08:07.4845890Z   api-level: 34
+2025-10-03T03:08:07.4846020Z   arch: x86_64
+2025-10-03T03:08:07.4846140Z   target: google_apis
+2025-10-03T03:08:07.4846370Z   emulator-options: -no-window -gpu swiftshader_indirect -no-boot-anim
+2025-10-03T03:08:07.4846650Z   disable-animations: true
+2025-10-03T03:08:07.4846810Z   script: ./gradlew connectedCheck
+2025-10-03T03:08:07.4846980Z   cores: 2
+2025-10-03T03:08:07.4847110Z   avd-name: test
+2025-10-03T03:08:07.4847290Z   force-avd-creation: true
+2025-10-03T03:08:07.4847470Z   emulator-boot-timeout: 600
+2025-10-03T03:08:07.4847630Z   emulator-port: 5554
+2025-10-03T03:08:07.4847790Z   disable-spellchecker: false
+2025-10-03T03:08:07.4847970Z   disable-linux-hw-accel: auto
+2025-10-03T03:08:07.4848140Z   enable-hw-keyboard: false
+2025-10-03T03:08:07.4848290Z   channel: stable
+2025-10-03T03:08:07.4848430Z env:
+2025-10-03T03:08:07.4848610Z   GRADLE_OPTS: -Dorg.gradle.daemon=false
+2025-10-03T03:08:07.4848790Z   JAVA_VERSION: 17
+2025-10-03T03:08:07.4849090Z   JAVA_HOME: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/arm64/Contents/Home
+2025-10-03T03:08:07.4849580Z   JAVA_HOME_17_ARM64: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/arm64/Contents/Home
+2025-10-03T03:08:07.4849940Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2025-10-03T03:08:07.4850170Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2025-10-03T03:08:07.4850370Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2025-10-03T03:08:07.4850680Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2025-10-03T03:08:07.4851020Z   DEVELOCITY_AUTO_INJECTION_CUSTOM_VALUE: gradle-actions
+2025-10-03T03:08:07.4851330Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2025-10-03T03:08:07.4851520Z ##[endgroup]
+2025-10-03T03:08:07.5512850Z ##[group]Configure emulator
+2025-10-03T03:08:07.5514120Z API level: 34
+2025-10-03T03:08:07.5514320Z System image API level: 34
+2025-10-03T03:08:07.5514500Z target: google_apis
+2025-10-03T03:08:07.5514660Z CPU architecture: x86_64
+2025-10-03T03:08:07.5514860Z Hardware profile: 
+2025-10-03T03:08:07.5515000Z Cores: 2
+2025-10-03T03:08:07.5515200Z RAM size: 
+2025-10-03T03:08:07.5515350Z Heap size: 
+2025-10-03T03:08:07.5516090Z SD card path or size: 
+2025-10-03T03:08:07.5516490Z Disk size: 
+2025-10-03T03:08:07.5516630Z AVD name: test
+2025-10-03T03:08:07.5516920Z force avd creation: true
+2025-10-03T03:08:07.5517120Z Emulator boot timeout: 600
+2025-10-03T03:08:07.5518060Z emulator port: 5554
+2025-10-03T03:08:07.5518350Z emulator options: -no-window -gpu swiftshader_indirect -no-boot-anim
+2025-10-03T03:08:07.5518670Z disable animations: true
+2025-10-03T03:08:07.5519170Z disable spellchecker: false
+2025-10-03T03:08:07.5519480Z disable Linux hardware acceleration: false
+2025-10-03T03:08:07.5520180Z enable hardware keyboard: false
+2025-10-03T03:08:07.5520540Z Channel: 0 (stable)
+2025-10-03T03:08:07.5521720Z Script:
+2025-10-03T03:08:07.5522080Z ./gradlew connectedCheck
+2025-10-03T03:08:07.5522310Z Pre emulator launch script:
+2025-10-03T03:08:07.5522620Z ##[endgroup]
+2025-10-03T03:08:07.5523660Z ##[group]Install Android SDK
+2025-10-03T03:08:07.5556890Z [command]/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+2025-10-03T03:08:09.6438580Z Installing latest build tools, platform tools, and platform.
+2025-10-03T03:08:09.6456980Z [command]/bin/sh -c \sdkmanager --install 'build-tools;35.0.0' platform-tools 'platforms;android-34'> /dev/null
+2025-10-03T03:08:10.6484580Z Installing latest emulator.
+2025-10-03T03:08:10.6491900Z [command]/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+2025-10-03T03:08:11.6948310Z Installing system images.
+2025-10-03T03:08:11.7049660Z [command]/bin/sh -c \sdkmanager --install 'system-images;android-34;google_apis;x86_64' --channel=0 > /dev/null
+2025-10-03T03:09:03.3850370Z ##[endgroup]
+2025-10-03T03:09:03.3858890Z ##[group]Launch Emulator
+2025-10-03T03:09:03.3866630Z Creating AVD.
+2025-10-03T03:09:03.3893760Z [command]/bin/sh -c \echo no | avdmanager create avd --force -n test --abi 'google_apis/x86_64' --package 'system-images;android-34;google_apis;x86_64'
+2025-10-03T03:09:04.0150210Z Loading local repository...                                                     
+2025-10-03T03:09:04.0250890Z [=========                              ] 25% Loading local repository...       
+2025-10-03T03:09:04.0354410Z [=========                              ] 25% Fetch remote repository...        
+2025-10-03T03:09:04.0430740Z [=======================================] 100% Fetch remote repository...       
+2025-10-03T03:09:04.1043930Z Do you wish to create a custom hardware profile? [no] [command]/bin/sh -c \printf 'hw.cpu.ncore=2
+2025-10-03T03:09:04.1044420Z ' >> /Users/runner/.android/avd/test.avd/config.ini
+2025-10-03T03:09:04.1087380Z Starting emulator.
+2025-10-03T03:09:04.1153800Z [command]/bin/sh -c \/Users/runner/Library/Android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -no-boot-anim &
+2025-10-03T03:09:04.2761830Z INFO         | Android emulator version 36.1.9.0 (build_id 13823996) (CL:N/A)
+2025-10-03T03:09:04.2762470Z INFO         | Graphics backend: gfxstream
+2025-10-03T03:09:04.2780340Z INFO         | Found systemPath /Users/runner/Library/Android/sdk/system-images/android-34/google_apis/x86_64/
+2025-10-03T03:09:04.2782330Z PANIC: Avd's CPU Architecture 'x86_64' is not supported by the QEMU2 emulator on aarch64 host.
+2025-10-03T03:09:04.2798160Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:04.6403740Z * daemon not running; starting now at tcp:5037
+2025-10-03T03:09:07.7294000Z * daemon started successfully
+2025-10-03T03:09:07.7395240Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:07.7395840Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:09.7354770Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:09.7494060Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:09.7499760Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:11.7594480Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:11.7702540Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:11.7708650Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:13.7756870Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:13.7863090Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:13.7866970Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:15.7909580Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:15.8010000Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:15.8013690Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:17.8098130Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:17.8496960Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:17.8497460Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:19.8324720Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:19.8527330Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:19.8527970Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:21.8506110Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:21.8602290Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:21.8605180Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:23.8648060Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:23.8759690Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:23.8806660Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:25.8808820Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:25.8899310Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:25.8902940Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:27.8945910Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:27.9054160Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:27.9057400Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:29.9202820Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:29.9402370Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:29.9403040Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:31.9446720Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:31.9557690Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:31.9558700Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:33.9595780Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:33.9700670Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:33.9703950Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:35.9738220Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:35.9844560Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:35.9848080Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:37.9880340Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:38.0002850Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:38.0003320Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:40.0046250Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:40.0149340Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:40.0152220Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:42.0198530Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:42.0327970Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:42.0330950Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:44.0377650Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:44.0479740Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:44.0483180Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:46.0525790Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:46.0621430Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:46.0624490Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:48.0662350Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:48.0773020Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:48.0776760Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:50.0826000Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:50.0958130Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:50.0977230Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:52.1002200Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:52.1100640Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:52.1104590Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:54.1148220Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:54.1247790Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:54.1251290Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:56.1324830Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:56.1429060Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:56.1431960Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:09:58.1511620Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:09:58.1839260Z adb: device 'emulator-5554' not found
+2025-10-03T03:09:58.1848380Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:00.1975810Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:00.2264130Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:00.2272640Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:02.2405250Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:02.2598230Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:02.2604270Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:04.2654760Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:04.2754220Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:04.2757070Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:06.2913790Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:06.2975450Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:06.2976070Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:08.2990520Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:08.3094330Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:08.3096890Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:10.3184470Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:10.3386480Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:10.3389860Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:12.3479000Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:12.3795520Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:12.3803980Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:14.3984440Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:14.4316670Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:14.4323840Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:16.4521080Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:16.4797050Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:16.4804630Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:18.4900760Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:18.5205940Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:18.5213830Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:20.5258000Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:20.5361660Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:20.5364470Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:22.5412210Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:22.5507550Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:22.5510220Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:24.5554880Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:24.5649740Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:24.5653300Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:26.5748670Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:26.5965110Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:26.5969610Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:28.6048120Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:28.6161520Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:28.6166330Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:30.6345280Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:30.6661070Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:30.6669630Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:32.6854220Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:32.7183740Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:32.7192640Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:34.7393520Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:34.7709830Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:34.7717340Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:36.7757990Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:36.7850950Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:36.7854240Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:38.7915380Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:38.8026780Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:38.8028270Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:40.8133330Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:40.8359370Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:40.8362700Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:42.8555230Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:42.8749380Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:42.8753170Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:44.8949830Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:44.9270630Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:44.9278450Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:46.9469020Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:46.9774430Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:46.9781350Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:48.9853420Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:48.9981820Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:48.9985820Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:51.0039990Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:51.0146470Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:51.0146890Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:53.0179690Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:53.0273830Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:53.0276970Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:55.0429440Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:55.0626930Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:55.0631080Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:57.0698620Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:57.0915420Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:57.0925770Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:10:59.1107790Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:10:59.1340980Z adb: device 'emulator-5554' not found
+2025-10-03T03:10:59.1344980Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:01.1493770Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:01.1781070Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:01.1789410Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:03.1883030Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:03.2123680Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:03.2128030Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:05.2178300Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:05.2275620Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:05.2278050Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:07.2302360Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:07.2396120Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:07.2398940Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:09.2501040Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:09.2647850Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:09.2652780Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:11.2837180Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:11.3074410Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:11.3078230Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:13.3171640Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:13.3371040Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:13.3374600Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:15.3439880Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:15.3538610Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:15.3542540Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:17.3675640Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:17.3958780Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:17.3966010Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:19.3996770Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:19.4087710Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:19.4091140Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:21.4117000Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:21.4208510Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:21.4212690Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:23.4274550Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:23.4365580Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:23.4368330Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:25.4484810Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:25.4786000Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:25.4792910Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:27.4900340Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:27.5115610Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:27.5119800Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:29.5285450Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:29.5517570Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:29.5521010Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:31.5615360Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:31.5865950Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:31.5870290Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:33.5983550Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:33.6244360Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:33.6251440Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:35.6316300Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:35.6407370Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:35.6410030Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:37.6455510Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:37.6547290Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:37.6548990Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:39.6666250Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:39.6962400Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:39.6971320Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:41.7149850Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:41.7435440Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:41.7443410Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:43.7627270Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:43.7842700Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:43.7846270Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:45.7961180Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:45.8175140Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:45.8179030Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:47.8283090Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:47.8515760Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:47.8520250Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:49.8549030Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:49.8646140Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:49.8648910Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:51.8671570Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:51.8765660Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:51.8768540Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:53.8889800Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:53.9210730Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:53.9217110Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:55.9418410Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:55.9742290Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:55.9750100Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:11:57.9836100Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:11:57.9973330Z adb: device 'emulator-5554' not found
+2025-10-03T03:11:57.9977560Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:00.0047340Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:00.0220640Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:00.0223590Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:02.0327230Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:02.0553220Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:02.0556680Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:04.0599170Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:04.0701230Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:04.0704700Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:06.0766450Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:06.0861860Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:06.0862900Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:08.0952460Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:08.1170510Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:08.1174610Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:10.1280100Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:10.1593700Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:10.1601430Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:12.1792320Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:12.2087290Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:12.2094970Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:14.2210940Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:14.2457520Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:14.2462980Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:16.2508720Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:16.2602630Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:16.2605920Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:18.2627710Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:18.2727750Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:18.2731660Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:20.2760970Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:20.2858950Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:20.2861420Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:22.2920870Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:22.3013870Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:22.3016410Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:24.3202780Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:24.3511980Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:24.3516230Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:26.3703050Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:26.3976330Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:26.3983320Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:28.4080770Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:28.4355140Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:28.4361970Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:30.4547050Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:30.4862980Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:30.4870660Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:32.4972630Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:32.5119010Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:32.5122810Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:34.5167150Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:34.5268230Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:34.5272570Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:36.5325100Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:36.5427630Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:36.5430720Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:38.5458030Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:38.5553980Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:38.5557190Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:40.5680350Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:40.5999680Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:40.6007430Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:42.6096490Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:42.6370910Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:42.6372020Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:44.6411960Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:44.6522240Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:44.6524790Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:46.6640930Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:46.6933500Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:46.6940640Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:48.6992300Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:48.7118500Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:48.7145160Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:50.7172750Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:50.7297930Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:50.7301610Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:52.7349760Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:52.7482050Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:52.7485760Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:54.7525320Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:54.7621520Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:54.7623350Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:56.7715670Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:56.8044670Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:56.8052310Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:12:58.8173680Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:12:58.8437700Z adb: device 'emulator-5554' not found
+2025-10-03T03:12:58.8446540Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:00.8586780Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:00.8894170Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:00.8901770Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:02.9071110Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:02.9348730Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:02.9355430Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:04.9414400Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:04.9545220Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:04.9545600Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:06.9564080Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:06.9673560Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:06.9674540Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:08.9708490Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:08.9809600Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:08.9812850Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:10.9839010Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:10.9931550Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:10.9934880Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:13.0099610Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:13.0413370Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:13.0419970Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:15.0529960Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:15.0866300Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:15.0873450Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:17.0999880Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:17.1294710Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:17.1302730Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:19.1418390Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:19.1701830Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:19.1711550Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:21.1753230Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:21.1853390Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:21.1856190Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:23.1880780Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:23.1988920Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:23.1990900Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:25.2027060Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:25.2127600Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:25.2130290Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:27.2180460Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:27.2282490Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:27.2283640Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:29.2353030Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:29.2499440Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:29.2503140Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:31.2649480Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:31.2989760Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:31.2996870Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:33.3169090Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:33.3503950Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:33.3510740Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:35.3659500Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:35.3985430Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:35.3990350Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:37.4052530Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:37.4151340Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:37.4153490Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:39.4194010Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:39.4292060Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:39.4294870Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:41.4349330Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:41.4444780Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:41.4447500Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:43.4486540Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:43.4578000Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:43.4580650Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:45.4658940Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:45.4951970Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:45.4960250Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:47.5132280Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:47.5342310Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:47.5346250Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:49.5480400Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:49.5651810Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:49.5656490Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:51.5795120Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:51.6102380Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:51.6108090Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:53.6156930Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:53.6277840Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:53.6281360Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:55.6308250Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:55.6416990Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:55.6420360Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:57.6463480Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:57.6567460Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:57.6569910Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:13:59.6655420Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:13:59.6756800Z adb: device 'emulator-5554' not found
+2025-10-03T03:13:59.6761030Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:01.6801340Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:01.6899010Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:01.6901210Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:03.6974770Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:03.7266330Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:03.7280630Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:05.7324490Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:05.7552710Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:05.7556840Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:07.7653710Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:07.7924550Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:07.7933600Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:09.7980940Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:09.8096990Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:09.8100480Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:11.8157290Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:11.8270420Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:11.8271980Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:13.8305320Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:13.8414070Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:13.8417260Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:15.8457280Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:15.8557990Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:15.8559650Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:17.8619460Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:17.8715020Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:17.8718100Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:19.8791000Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:19.9016980Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:19.9020800Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:21.9117220Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:21.9331360Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:21.9335250Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:23.9511560Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:23.9719780Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:23.9723190Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:25.9891290Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:26.0188110Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:26.0188670Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:28.0303660Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:28.0533980Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:28.0537590Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:30.0646530Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:30.0758680Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:30.0768290Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:32.0808370Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:32.0905600Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:32.0908560Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:34.0969880Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:34.1066600Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:34.1070090Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:36.1176620Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:36.1380550Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:36.1384550Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:38.1548050Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:38.1753500Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:38.1757190Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:40.1872190Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:40.1967470Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:40.1970050Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:42.2097560Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:42.2316150Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:42.2319600Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:44.2391700Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:44.2607920Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:44.2611280Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:46.2679540Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:46.2811850Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:46.2827500Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:48.2873830Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:48.2975080Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:48.2979200Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:50.3003290Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:50.3106150Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:50.3110690Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:52.3252440Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:52.3553780Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:52.3560890Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:54.3648780Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:54.3881020Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:54.3884310Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:56.3975420Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:56.4226260Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:56.4231450Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:14:58.4331850Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:14:58.4543120Z adb: device 'emulator-5554' not found
+2025-10-03T03:14:58.4559310Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:00.4643990Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:00.4869640Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:00.4873670Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:02.4926390Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:02.5035270Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:02.5036820Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:04.5062420Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:04.5177080Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:04.5184770Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:06.5250180Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:06.5349600Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:06.5357900Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:08.5430110Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:08.5533520Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:08.5536700Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:10.5713800Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:10.5937850Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:10.5941510Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:12.6090250Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:12.6299160Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:12.6302770Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:14.6482550Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:14.6750580Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:14.6756230Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:16.6821670Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:16.7046180Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:16.7050060Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:18.7093940Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:18.7196440Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:18.7202750Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:20.7245390Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:20.7356110Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:20.7358690Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:22.7395990Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:22.7496880Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:22.7499810Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:24.7535870Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:24.7645310Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:24.7650040Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:26.7844440Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:26.8115890Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:26.8121770Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:28.8304470Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:28.8573580Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:28.8581470Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:30.8672100Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:30.8815880Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:30.8820230Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:32.8905830Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:32.9072950Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:32.9082840Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:34.9221850Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:34.9460190Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:34.9463670Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:36.9508400Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:36.9605550Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:36.9608180Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:38.9663870Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:38.9758760Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:38.9761740Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:40.9833010Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:40.9923110Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:40.9927040Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:43.0023500Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:43.0311100Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:43.0319360Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:45.0458240Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:45.0765950Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:45.0773680Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:47.0944990Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:47.1235200Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:47.1243640Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:49.1361670Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:49.1563670Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:49.1567540Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:51.1770690Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:51.1969420Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:51.1974510Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:53.2026470Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:53.2128860Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:53.2132240Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:55.2189430Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:55.2285740Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:55.2288980Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:57.2372140Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:57.2492670Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:57.2496550Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:15:59.2550490Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:15:59.2652320Z adb: device 'emulator-5554' not found
+2025-10-03T03:15:59.2655840Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:01.2848080Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:01.3143520Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:01.3150830Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:03.3271280Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:03.3524300Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:03.3531650Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:05.3665450Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:05.3885590Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:05.3889420Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:07.4002230Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:07.4225410Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:07.4228920Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:09.4288340Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:09.4392240Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:09.4398320Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:11.4441610Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:11.4534130Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:11.4537040Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:13.4581820Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:13.4678780Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:13.4681500Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:15.4865710Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:15.5173110Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:15.5180160Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:17.5362010Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:17.5675340Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:17.5684500Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:19.5832390Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:19.5982720Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:19.5987120Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:21.6167320Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:21.6407770Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:21.6409420Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:23.6595170Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:23.6820950Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:23.6824470Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:25.6873740Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:25.6973590Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:25.6976790Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:27.7017860Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:27.7108930Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:27.7112100Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:29.7141190Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:29.7244220Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:29.7247290Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:31.7390770Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:31.7655220Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:31.7665720Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:33.7767310Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:33.8077490Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:33.8085780Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:35.8224400Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:35.8539180Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:35.8547110Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:37.8729420Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:37.8943620Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:37.8947550Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:39.9066180Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:39.9279120Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:39.9282490Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:41.9335200Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:41.9436550Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:41.9440080Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:43.9486070Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:43.9583930Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:43.9587600Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:45.9629140Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:45.9722380Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:45.9725140Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:47.9894810Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:48.0194390Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:48.0201150Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:50.0335050Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:50.0608980Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:50.0616730Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:52.0810730Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:52.1121480Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:52.1128340Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:54.1275910Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:54.1491920Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:54.1495360Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:56.1577530Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:56.1801160Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:56.1806300Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:16:58.1849340Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:16:58.1944680Z adb: device 'emulator-5554' not found
+2025-10-03T03:16:58.1947260Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:00.1990070Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:00.2087600Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:00.2090400Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:02.2114670Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:02.2206360Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:02.2209040Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:04.2303010Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:04.2598800Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:04.2605250Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:06.2801970Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:06.3111840Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:06.3118330Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:08.3216980Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:08.3342840Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:08.3346380Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:10.3442970Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:10.3679150Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:10.3680900Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:12.3808820Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:12.4028660Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:12.4032330Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:14.4075670Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:14.4174120Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:14.4177210Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:16.4264460Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:16.4362370Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:16.4365430Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:18.4406990Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:18.4591410Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:18.4592760Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:20.4706600Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:20.5011220Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:20.5018830Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:22.5122320Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:22.5382120Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:22.5389660Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:24.5529910Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:24.5822000Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:24.5830310Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:26.6013580Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:26.6215910Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:26.6220740Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:28.6349810Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:28.6565500Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:28.6568760Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:30.6591290Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:30.6687370Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:30.6690120Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:32.6751130Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:32.6848080Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:32.6851010Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:34.6877630Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:34.6971770Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:34.6974950Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:36.7064800Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:36.7299750Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:36.7304360Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:38.7477110Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:38.7774330Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:38.7780990Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:40.7905620Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:40.8139840Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:40.8153000Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:42.8256270Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:42.8466390Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:42.8469540Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:44.8532220Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:44.8738560Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:44.8748910Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:46.8799620Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:46.8897610Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:46.8897990Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:48.8925610Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:48.9017940Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:48.9020490Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:50.9053800Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:50.9163110Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:50.9166230Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:52.9330730Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:52.9639620Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:52.9646400Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:54.9798830Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:54.9989010Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:54.9994050Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:57.0045110Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:57.0290240Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:57.0295730Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:17:59.0479480Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:17:59.0701510Z adb: device 'emulator-5554' not found
+2025-10-03T03:17:59.0705730Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:01.0888330Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:01.1108060Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:01.1111920Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:03.1160510Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:03.1260980Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:03.1264290Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:05.1305560Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:05.1396630Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:05.1399400Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:07.1439860Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:07.1530680Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:07.1533580Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:09.1673880Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:09.1979310Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:09.1986550Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:11.2098010Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:11.2432530Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:11.2439350Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:13.2573400Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:13.2881780Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:13.2890440Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:15.3022340Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:15.3230060Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:15.3234120Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:17.3417380Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:17.3633130Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:17.3636700Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:19.3679560Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:19.3776030Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:19.3778750Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:21.3837320Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:21.3937950Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:21.3941470Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:23.3965970Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:23.4091980Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:23.4092360Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:25.4237920Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:25.4493070Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:25.4500400Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:27.4624880Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:27.4935310Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:27.4942880Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:29.5117300Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:29.5436740Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:29.5444390Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:31.5526530Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:31.5763660Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:31.5767070Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:33.5856420Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:33.6112020Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:33.6116250Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:35.6129400Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:35.6227640Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:35.6230370Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:37.6280880Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:37.6373130Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:37.6375300Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:39.6417070Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:39.6509380Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:39.6511640Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:41.6549840Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:41.6718780Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:41.6724200Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:43.6895860Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:43.7112820Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:43.7118590Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:45.7172450Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:45.7303410Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:45.7306660Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:47.7432590Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:47.7629080Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:47.7632500Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:49.7727100Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:49.7953830Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:49.7957220Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:51.8002380Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:51.8097240Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:51.8099990Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:53.8139380Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:53.8233860Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:53.8236730Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:55.8277900Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:55.8369260Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:55.8371940Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:57.8499770Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:57.8621080Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:57.8624630Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:18:59.8736680Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:18:59.9001380Z adb: device 'emulator-5554' not found
+2025-10-03T03:18:59.9009900Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:01.9130030Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:01.9353550Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:01.9356680Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:03.9456610Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:03.9680830Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:03.9685470Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:05.9800710Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:06.0026490Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:06.0030180Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:08.0112350Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:08.0210000Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:08.0213410Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:10.0237110Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:10.0330830Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:10.0332920Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:12.0367310Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:12.0462940Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:12.0465780Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:14.0504980Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:14.0595500Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:14.0598790Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:16.0729780Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2025-10-03T03:19:16.1046920Z adb: device 'emulator-5554' not found
+2025-10-03T03:19:16.1054440Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:16.1057620Z ##[endgroup]
+2025-10-03T03:19:16.1063460Z ##[group]Terminate Emulator
+2025-10-03T03:19:16.1085650Z [command]/Users/runner/Library/Android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2025-10-03T03:19:16.1264570Z error: could not connect to TCP port 5554: Connection refused
+2025-10-03T03:19:16.1269220Z The process '/Users/runner/Library/Android/sdk/platform-tools/adb' failed with exit code 1
+2025-10-03T03:19:16.1270180Z ##[endgroup]
+2025-10-03T03:19:16.1280550Z ##[error]Timeout waiting for emulator to boot.
+2025-10-03T03:19:16.1507250Z ##[group]Run actions/upload-artifact@v4
+2025-10-03T03:19:16.1507580Z with:
+2025-10-03T03:19:16.1507790Z   name: instrumentation-test-api34-x86_64
+2025-10-03T03:19:16.1508080Z   path: **/build/reports/androidTests/
+2025-10-03T03:19:16.1508320Z   retention-days: 14
+2025-10-03T03:19:16.1508570Z   if-no-files-found: warn
+2025-10-03T03:19:16.1508790Z   compression-level: 6
+2025-10-03T03:19:16.1509010Z   overwrite: false
+2025-10-03T03:19:16.1509220Z   include-hidden-files: false
+2025-10-03T03:19:16.1509480Z env:
+2025-10-03T03:19:16.1509680Z   GRADLE_OPTS: -Dorg.gradle.daemon=false
+2025-10-03T03:19:16.1509940Z   JAVA_VERSION: 17
+2025-10-03T03:19:16.1510360Z   JAVA_HOME: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/arm64/Contents/Home
+2025-10-03T03:19:16.1510970Z   JAVA_HOME_17_ARM64: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/arm64/Contents/Home
+2025-10-03T03:19:16.1511450Z   GRADLE_ACTION_ID: gradle/actions/setup-gradle
+2025-10-03T03:19:16.1511860Z   GRADLE_BUILD_ACTION_SETUP_COMPLETED: true
+2025-10-03T03:19:16.1512380Z   GRADLE_BUILD_ACTION_CACHE_RESTORED: true
+2025-10-03T03:19:16.1512750Z   DEVELOCITY_INJECTION_INIT_SCRIPT_NAME: gradle-actions.inject-develocity.init.gradle
+2025-10-03T03:19:16.1513140Z   DEVELOCITY_AUTO_INJECTION_CUSTOM_VALUE: gradle-actions
+2025-10-03T03:19:16.1513400Z   GITHUB_DEPENDENCY_GRAPH_ENABLED: false
+2025-10-03T03:19:16.1513630Z   ANDROID_AVD_HOME: /Users/runner/.android/avd
+2025-10-03T03:19:16.1513850Z ##[endgroup]
+2025-10-03T03:19:16.3952560Z ##[warning]No files were found with the provided path: **/build/reports/androidTests/. No artifacts will be uploaded.
+2025-10-03T03:19:16.4042000Z Post job cleanup.
+2025-10-03T03:19:16.5672130Z In post-action step
+2025-10-03T03:19:16.5674860Z Cache is read-only: will not save state for use in subsequent builds.
+2025-10-03T03:19:16.5677300Z Generating Job Summary
+2025-10-03T03:19:16.5693140Z Completed post-action step
+2025-10-03T03:19:16.5773770Z Post job cleanup.
+2025-10-03T03:19:16.9225340Z (node:13963) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2025-10-03T03:19:16.9226660Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2025-10-03T03:19:16.9350710Z Post job cleanup.
+2025-10-03T03:19:17.0546490Z [command]/opt/homebrew/bin/git version
+2025-10-03T03:19:17.0730390Z git version 2.50.1
+2025-10-03T03:19:17.0752370Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/cb937b1b-c843-4ee9-b351-4502fe3fba28/.gitconfig'
+2025-10-03T03:19:17.0757840Z Temporarily overriding HOME='/Users/runner/work/_temp/cb937b1b-c843-4ee9-b351-4502fe3fba28' before making global git config changes
+2025-10-03T03:19:17.0758710Z Adding repository directory to the temporary git global config as a safe directory
+2025-10-03T03:19:17.0761410Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/CleverFerret/CleverFerret
+2025-10-03T03:19:17.0852080Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-10-03T03:19:17.0903950Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-10-03T03:19:17.1724270Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-10-03T03:19:17.1774380Z http.https://github.com/.extraheader
+2025-10-03T03:19:17.1781100Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-10-03T03:19:17.1842690Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-10-03T03:19:17.2480310Z Cleaning up orphan processes
+2025-10-03T03:19:17.9252570Z Terminate orphan process: pid (5289) (adb)

@@ -47,4 +47,9 @@ object DatabaseModule {
         return database.bookmarkDao()
     }
 
+    @Provides
+    fun provideReadingProgressDao(database: AppDatabase): ReadingProgressDao {
+        return database.readingProgressDao()
+    }
+
 }

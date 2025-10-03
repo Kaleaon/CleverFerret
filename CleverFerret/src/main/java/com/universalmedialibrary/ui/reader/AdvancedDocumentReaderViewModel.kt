@@ -10,11 +10,15 @@ import com.universalmedialibrary.ui.reader.components.TableOfContentsItem
 import com.universalmedialibrary.ui.viewer.MediaViewerManager
 import com.universalmedialibrary.ui.viewer.common.ViewerSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.universalmedialibrary.data.repository.ReadingProgressRepository
+import com.universalmedialibrary.data.local.dao.MediaItemDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -23,7 +27,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdvancedDocumentReaderViewModel @Inject constructor(
-    private val mediaViewerManager: MediaViewerManager
+    private val mediaViewerManager: MediaViewerManager,
+    private val mediaItemDao: MediaItemDao,
+    private val readingProgressRepository: ReadingProgressRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdvancedDocumentReaderUiState())
@@ -35,6 +41,10 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
     private var readingStartTime: Long = 0L
     private var wordsRead: Int = 0
 
+    private var currentItemId: Long? = null
+    private var progressJob: Job? = null
+    private var lastSavedPercent: Float = -1f
+
     fun loadDocument(context: Context, documentUri: Uri) {
         viewModelScope.launch {
             try {
@@ -44,6 +54,12 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 )
 
                 val mediaInfo = mediaViewerManager.analyzeMedia(context, documentUri)
+
+                // Resolve MediaItem for progress tracking (best-effort by path)
+                currentItemId = try {
+                    mediaItemDao.getMediaItemByFilePath(documentUri.toString())?.itemId
+                        ?: mediaItemDao.getItemByPath(documentUri.toString())?.itemId
+                } catch (_: Exception) { null }
 
                 when (mediaInfo.documentFormat) {
                     MediaViewerManager.DocumentFormat.PDF -> {
@@ -258,6 +274,26 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 readingProgress = progress,
                 currentChapter = findCurrentChapter(clampedPage)
             )
+
+            // Debounced progress persistence (≥1% change or after 500ms)
+            val itemId = currentItemId
+            if (itemId != null && _uiState.value.totalPages > 0) {
+                val percent = (clampedPage.toFloat() / _uiState.value.totalPages.toFloat()) * 100f
+                if (lastSavedPercent < 0f || kotlin.math.abs(percent - lastSavedPercent) >= 1f) {
+                    progressJob?.cancel()
+                    progressJob = viewModelScope.launch {
+                        delay(500)
+                        try {
+                            readingProgressRepository.updateProgress(
+                                itemId = itemId,
+                                currentPage = clampedPage,
+                                percentage = percent
+                            )
+                            lastSavedPercent = percent
+                        } catch (_: Exception) { /* ignore persistence errors for now */ }
+                    }
+                }
+            }
 
             // Auto-bookmark if enabled
             if (_uiState.value.settings.autoBookmarks) {

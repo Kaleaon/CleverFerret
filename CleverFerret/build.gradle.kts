@@ -166,6 +166,9 @@ dependencies {
     // Image loading - Use stable version
     implementation("io.coil-kt:coil-compose:2.7.0")
 
+    // Embedded HTTP server for OPDS
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
+
 
     // Basic media - Use stable versions
     implementation("androidx.media:media:1.7.1")

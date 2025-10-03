@@ -4,8 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,32 +39,32 @@ fun PlaylistSettingsScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
+	Scaffold(
+		topBar = {
             TopAppBar(
                 title = { Text("Playlists") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) } }
+                navigationIcon = { IconButton(onClick = onBack) { Icon(PhosphorIcons.ArrowLeft, contentDescription = null) } }
             )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text("Import or export playlists using M3U format.")
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = { exportLauncher.launch("playlist.m3u") }) { Text("Export Current Queue (M3U)") }
-                OutlinedButton(onClick = { importLauncher.launch(arrayOf("audio/x-mpegurl", "application/vnd.apple.mpegurl", "text/plain")) }) { Text("Import M3U") }
-            }
-            if (status.isNotBlank()) {
-                Text(status)
-            }
-        }
-    }
+		}
+	) { paddingValues ->
+		Column(
+			modifier = Modifier
+				.fillMaxSize()
+				.padding(paddingValues)
+				.padding(16.dp),
+			horizontalAlignment = Alignment.CenterHorizontally,
+			verticalArrangement = Arrangement.spacedBy(12.dp)
+		) {
+			Text("Import or export playlists using M3U format.")
+			Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+				Button(onClick = { exportLauncher.launch("playlist.m3u") }) { Text("Export Current Queue (M3U)") }
+				OutlinedButton(onClick = { importLauncher.launch(arrayOf("audio/x-mpegurl", "application/vnd.apple.mpegurl", "text/plain")) }) { Text("Import M3U") }
+			}
+			if (status.isNotBlank()) {
+				Text(status)
+			}
+		}
+	}
 }
 
 @dagger.hilt.EntryPoint
