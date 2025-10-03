@@ -96,7 +96,7 @@ class GeminiService @Inject constructor(
             1) Detect dialogue speech bubbles and rectangular narration boxes. Ignore pure SFX unless they clearly convey dialogue.
             2) Extract the exact original text per bubble/box (respect vertical or stylized text).
             3) Identify the source language.
-            4) Translate faithfully to ${'$'}targetLanguage (natural, concise).
+            4) Translate faithfully to $targetLanguage (natural, concise).
             5) Return only JSON with integer pixel coordinates in the source image space.
 
             Constraints:
@@ -133,7 +133,7 @@ class GeminiService @Inject constructor(
             val response = model.generateContent(c)
             response.text ?: "{}"
         } catch (e: Exception) {
-            "{\"error\":\"${'$'}{e.message}\"}"
+            "{\"error\":\"${e.message}\"}"
         }
     }
 
