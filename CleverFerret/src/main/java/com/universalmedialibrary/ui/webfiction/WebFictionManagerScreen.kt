@@ -60,6 +60,9 @@ fun WebFictionManagerScreen(
                         IconButton(onClick = { showSiteInfoDialog = true }) {
                             Icon(Icons.Default.Info, contentDescription = "Supported Sites")
                         }
+                        IconButton(onClick = { viewModel.downloadRedditSeriesAsEpub("Out of Cruel Space", "HFY") }) {
+                            Icon(Icons.Default.Download, contentDescription = "Download OOCS from Reddit")
+                        }
                         IconButton(onClick = { viewModel.checkAllForUpdates() }) {
                             Icon(Icons.Default.Refresh, contentDescription = "Check for Updates")
                         }

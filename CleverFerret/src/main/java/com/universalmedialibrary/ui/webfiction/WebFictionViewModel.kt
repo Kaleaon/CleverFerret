@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WebFictionViewModel @Inject constructor(
-    private val webFictionService: WebFictionService
+    private val webFictionService: WebFictionService,
+    private val basicConverter: FanfictionToEpubConverterBasic
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WebFictionUiState())
@@ -21,6 +23,22 @@ class WebFictionViewModel @Inject constructor(
 
     init {
         loadStories()
+    }
+
+    fun downloadRedditSeriesAsEpub(seriesQuery: String = "Out of Cruel Space", subreddit: String = "HFY") {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val result = basicConverter.convertRedditSeriesToEpub(seriesQuery = seriesQuery, subreddit = subreddit)
+                if (!result.success) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, error = result.errorMessage ?: "Failed to convert Reddit series")
+                } else {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
     }
 
     fun addStoryFromUrl(url: String) {
