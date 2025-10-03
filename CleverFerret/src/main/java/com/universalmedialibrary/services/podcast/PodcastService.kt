@@ -310,7 +310,7 @@ data class TaddyPodcast(
 
 @Singleton
 class PodcastService @Inject constructor(
-    private val context: Context
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context
 ) {
     
     private val httpClient = OkHttpClient.Builder().build()
@@ -851,10 +851,11 @@ class PodcastService @Inject constructor(
     }
 
     private fun escapeXml(text: String): String {
-        return text.replace("&", "&")
-                  .replace("<", "<")
-                  .replace(">", ">")
-                  .replace("\"", "&quot;")
-                  .replace("'", "&apos;")
+        return text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
     }
 }
