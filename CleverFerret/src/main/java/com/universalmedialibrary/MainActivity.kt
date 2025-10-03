@@ -150,7 +150,7 @@ fun AppNavigation() {
 @Composable
 fun LibraryListScreen(
     navController: NavController,
-    viewModel: MainViewModel = hiltViewModel(),
+    viewModel: MainViewModel = hiltViewModel()
 ) {
     val libraries by viewModel.libraries.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
