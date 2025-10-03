@@ -13,7 +13,21 @@ from pathlib import Path
 class LintConfigChecker:
     def __init__(self, project_root):
         self.project_root = Path(project_root)
-        self.android_dir = self.project_root / "CleverFerret"
+        # Detect module from settings.gradle.kts include(":<module>")
+        settings_file = self.project_root / "settings.gradle.kts"
+        module_name = None
+        if settings_file.exists():
+            try:
+                content = settings_file.read_text()
+                import re as _re
+                m = _re.search(r'include\(\s*"\s*:(.+?)\s*"\s*\)', content)
+                if m:
+                    module_name = m.group(1)
+            except Exception:
+                module_name = None
+        if not module_name:
+            module_name = "app" if (self.project_root / "app").exists() else "CleverFerret"
+        self.android_dir = self.project_root / module_name
         self.issues = []
         self.warnings = []
         

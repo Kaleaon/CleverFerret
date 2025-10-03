@@ -11,7 +11,22 @@ from pathlib import Path
 class CompilationErrorDetector:
     def __init__(self, project_root):
         self.project_root = Path(project_root)
-        self.android_dir = self.project_root / "CleverFerret"
+        # Detect module from settings.gradle.kts include(":<module>")
+        settings_file = self.project_root / "settings.gradle.kts"
+        module_name = None
+        if settings_file.exists():
+            try:
+                content = settings_file.read_text()
+                # naive parse to first include(":NAME")
+                import re as _re
+                m = _re.search(r'include\(\s*"\s*:(.+?)\s*"\s*\)', content)
+                if m:
+                    module_name = m.group(1)
+            except Exception:
+                module_name = None
+        if not module_name:
+            module_name = "app" if (self.project_root / "app").exists() else "CleverFerret"
+        self.android_dir = self.project_root / module_name
         self.source_dir = self.android_dir / "src/main/java/com/universalmedialibrary"
         self.errors = []
         self.warnings = []
@@ -253,7 +268,9 @@ class CompilationErrorDetector:
         return total_issues == 0
 
 def main():
-    detector = CompilationErrorDetector("/app")
+    import sys
+    project_root = sys.argv[1] if len(sys.argv) > 1 else "/workspace"
+    detector = CompilationErrorDetector(project_root)
     success = detector.run_analysis()
     return 0 if success else 1
 
