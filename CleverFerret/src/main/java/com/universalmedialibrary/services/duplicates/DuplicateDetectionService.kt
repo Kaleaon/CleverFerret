@@ -5,6 +5,7 @@ import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.data.local.entity.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -17,8 +18,7 @@ class DuplicateDetectionService @Inject constructor(
 ) {
     fun scanLibraryForDuplicates(libraryId: Long): Flow<DuplicateScanResult> = flow {
         emit(DuplicateScanResult.Scanning(0))
-        val items = mediaRepository.getMediaItemsByLibrary(libraryId)
-            .firstOrNull() ?: emptyList()
+        val items = mediaRepository.getMediaItemsByLibrary(libraryId).firstOrNull() ?: emptyList()
 
         val total = items.size.coerceAtLeast(1)
         var processed = 0
@@ -70,10 +70,5 @@ data class DuplicateGroup(
     val wastedSpace: Long
 )
 
-// Extension to get first value from Flow safely without adding coroutines dep here
-private suspend fun <T> Flow<T>.firstOrNull(): T? {
-    var result: T? = null
-    kotlinx.coroutines.flow.take(1)(this).collect { value -> result = value }
-    return result
-}
+// Using kotlinx.coroutines.flow.firstOrNull()
 

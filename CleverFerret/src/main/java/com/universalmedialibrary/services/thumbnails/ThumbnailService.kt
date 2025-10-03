@@ -25,9 +25,11 @@ class ThumbnailService @Inject constructor(
                 java.util.zip.ZipInputStream(input).use { zis ->
                     var entry: java.util.zip.ZipEntry?
                     while (zis.nextEntry.also { entry = it } != null) {
-                        if (entry!!.name.lowercase().contains("cover") && entry!!.name.lowercase().endsWith(“.jpg”)) {
+                        val name = entry!!.name.lowercase()
+                        if (name.contains("cover") && name.matches(Regex(".*\\.(jpg|jpeg|png)$"))) {
                             val outDir = File(context.cacheDir, "thumbnails").apply { mkdirs() }
-                            val outFile = File(outDir, "epub_${uri.hashCode()}_${sizePx}.jpg")
+                            val ext = name.substringAfterLast('.', "jpg")
+                            val outFile = File(outDir, "epub_${uri.hashCode()}_${sizePx}.$ext")
                             FileOutputStream(outFile).use { out -> zis.copyTo(out) }
                             return@withContext outFile
                         }
@@ -45,11 +47,13 @@ class ThumbnailService @Inject constructor(
                     var entry: java.util.zip.ZipEntry?
                     var best: Pair<java.util.zip.ZipEntry, File>? = null
                     while (zis.nextEntry.also { entry = it } != null) {
-                        if (entry!!.name.lowercase().matches(Regex(".*\\.(jpg|jpeg|png)$"))) {
+                        val name = entry!!.name
+                        if (name.lowercase().matches(Regex(".*\\.(jpg|jpeg|png)$"))) {
                             val outDir = File(context.cacheDir, "thumbnails").apply { mkdirs() }
-                            val outFile = File(outDir, "cbz_${uri.hashCode()}_${entry!!.name.hashCode()}_${sizePx}.jpg")
+                            val ext = name.substringAfterLast('.', "jpg").lowercase()
+                            val outFile = File(outDir, "cbz_${uri.hashCode()}_${name.hashCode()}_${sizePx}.$ext")
                             FileOutputStream(outFile).use { out -> zis.copyTo(out) }
-                            if (best == null || entry!!.name < best!!.first.name) best = entry!! to outFile
+                            if (best == null || name < best!!.first.name) best = entry!! to outFile
                         }
                     }
                     best?.second
