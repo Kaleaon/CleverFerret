@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 import com.universalmedialibrary.services.opds.OpdsServer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -30,7 +31,7 @@ fun OpdsSettingsScreen(onBack: () -> Unit, viewModel: OpdsSettingsViewModel = hi
         topBar = {
             TopAppBar(
                 title = { Text("OPDS Server") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) } }
+                navigationIcon = { IconButton(onClick = onBack) { Icon(PhosphorIcons.ArrowLeft, null) } }
             )
         }
     ) { padding ->
