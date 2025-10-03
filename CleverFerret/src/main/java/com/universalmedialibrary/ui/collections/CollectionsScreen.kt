@@ -44,7 +44,7 @@ fun CollectionsScreen(
                 CollectionRow(collection = collection) {
                     onOpenCollection(collection.collectionId)
                 }
-                Divider()
+                HorizontalDivider()
             }
         }
     }

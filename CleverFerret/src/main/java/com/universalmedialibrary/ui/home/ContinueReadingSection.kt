@@ -27,7 +27,7 @@ class ContinueReadingViewModel @Inject constructor(
 ) : ViewModel() {
     val recent: StateFlow<List<ReadingProgress>> = repository.getRecentlyRead(10)
         .stateIn(
-            scope = androidx.lifecycle.viewModelScope,
+            scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
@@ -54,7 +54,7 @@ fun ContinueReadingSection(
             }
         }
         Spacer(Modifier.height(8.dp))
-        Divider()
+        HorizontalDivider()
     }
 }
 

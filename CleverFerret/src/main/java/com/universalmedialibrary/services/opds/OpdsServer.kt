@@ -40,17 +40,17 @@ class OpdsServer @Inject constructor(
     }
 
     override fun serve(session: IHTTPSession): Response {
-        if (!enabled) return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "OPDS disabled")
+        if (!enabled) return newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "OPDS disabled")
 
         return try {
             when {
                 session.uri == "/opds" -> newFixedLengthResponse(MIME_XML, opdsService.generateCatalogFeed())
                 session.uri.startsWith("/opds/libraries") -> serveLibraries(session)
                 session.uri.startsWith("/opds/library/") -> serveLibraryItems(session)
-                else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
+                else -> newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "Not found")
             }
         } catch (e: Exception) {
-            newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error: ${e.message}")
+            newFixedLengthResponse(Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT, "Error: ${e.message}")
         }
     }
 

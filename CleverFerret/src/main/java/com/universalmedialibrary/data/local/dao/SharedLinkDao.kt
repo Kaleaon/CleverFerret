@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SharedLinkDao {
-    @Query("SELECT * FROM shared_links WHERE token = :token AND enabled = 1")
+    @Query("SELECT * FROM shared_links WHERE token = :token AND enabled = 1 AND (expiresAt IS NULL OR expiresAt > strftime('%s','now')*1000)")
     suspend fun getByToken(token: String): SharedLink?
 
     @Query("SELECT * FROM shared_links WHERE targetType = :type AND targetId = :id ORDER BY createdAt DESC")
