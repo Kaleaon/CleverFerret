@@ -15,7 +15,7 @@ class OpdsServer @Inject constructor(
     private val libraryRepository: LibraryRepository,
     private val sharingRepository: SharingRepository,
     private val opdsService: OpdsService
-) : NanoHTTPD(8088) {
+) : NanoHTTPD("127.0.0.1", 8088) {
 
     @Volatile
     private var enabled: Boolean = false
@@ -45,7 +45,7 @@ class OpdsServer @Inject constructor(
         return try {
             when {
                 session.uri == "/opds" -> newFixedLengthResponse(MIME_XML, opdsService.generateCatalogFeed())
-                session.uri.startsWith("/opds/libraries") -> serveLibraries(session)
+                session.uri.startsWith("/opds/libraries") -> serveLibraries()
                 session.uri.startsWith("/opds/library/") -> serveLibraryItems(session)
                 else -> newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "Not found")
             }
@@ -62,13 +62,13 @@ class OpdsServer @Inject constructor(
                 <entry>
                   <title>${lib.name}</title>
                   <id>urn:lib:${lib.libraryId}</id>
-                  <link rel="subsection" href="/opds/library/${lib.libraryId}" />
+                  <link rel=\"subsection\" href=\"/opds/library/${lib.libraryId}\" />
                 </entry>
                 """.trimIndent()
             }
             """
-            <?xml version="1.0" encoding="utf-8"?>
-            <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
+            <?xml version=\"1.0\" encoding=\"utf-8\"?>
+            <feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:opds=\"http://opds-spec.org/2010/catalog\">
               <title>Libraries</title>
               $entries
             </feed>
@@ -78,7 +78,7 @@ class OpdsServer @Inject constructor(
     }
 
     private fun serveLibraryItems(session: IHTTPSession): Response {
-        val libraryId = session.uri.removePrefix("/opds/library/").toLongOrNull() ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "Bad library id")
+        val libraryId = session.uri.removePrefix("/opds/library/").toLongOrNull() ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, NanoHTTPD.MIME_PLAINTEXT, "Bad library id")
         val xml = runBlocking {
             val items = mediaRepository.getMediaItemsByLibrary(libraryId).firstOrNull().orEmpty()
             val entries = items.joinToString("\n") { item ->
@@ -90,8 +90,8 @@ class OpdsServer @Inject constructor(
                 """.trimIndent()
             }
             """
-            <?xml version="1.0" encoding="utf-8"?>
-            <feed xmlns="http://www.w3.org/2005/Atom" xmlns:opds="http://opds-spec.org/2010/catalog">
+            <?xml version=\"1.0\" encoding=\"utf-8\"?>
+            <feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:opds=\"http://opds-spec.org/2010/catalog\">
               <title>Library $libraryId</title>
               $entries
             </feed>
