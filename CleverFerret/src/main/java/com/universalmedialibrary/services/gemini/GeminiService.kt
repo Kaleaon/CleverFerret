@@ -19,14 +19,14 @@ import javax.inject.Singleton
  * PRIMARY AI SERVICE for CleverFerret
  * This is the main AI integration that all devices should use.
  * Uses Google's Gemini API for cloud-based AI processing.
- * 
+ *
  * This service provides:
  * - Visual OCR of book pages (images) to extract text
  * - Book metadata identification from covers and content
  * - Text analysis and enhancement capabilities
  * - Automated debugging and issue analysis
  * - Automated issue filing and error reporting
- * 
+ *
  * For devices with powerful hardware, a separate plugin app with GemmaLLMService
  * can be downloaded for on-device processing.
  */
@@ -96,7 +96,7 @@ class GeminiService @Inject constructor(
             1) Detect dialogue speech bubbles and rectangular narration boxes. Ignore pure SFX unless they clearly convey dialogue.
             2) Extract the exact original text per bubble/box (respect vertical or stylized text).
             3) Identify the source language.
-            4) Translate faithfully to ${'$'}targetLanguage (natural, concise).
+            4) Translate faithfully to $targetLanguage (natural, concise).
             5) Return only JSON with integer pixel coordinates in the source image space.
 
             Constraints:
@@ -133,7 +133,7 @@ class GeminiService @Inject constructor(
             val response = model.generateContent(c)
             response.text ?: "{}"
         } catch (e: Exception) {
-            "{\"error\":\"${'$'}{e.message}\"}"
+            "{\"error\":\"${e.message}\"}"
         }
     }
 

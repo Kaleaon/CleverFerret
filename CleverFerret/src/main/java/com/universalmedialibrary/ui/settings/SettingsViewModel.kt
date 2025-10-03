@@ -26,21 +26,21 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
-    
+
     // Expose individual settings as StateFlows for easier access
-    val generalSettings: StateFlow<GeneralSettings> = 
+    val generalSettings: StateFlow<GeneralSettings> =
         _uiState.map { it.generalSettings }
             .stateIn(viewModelScope, SharingStarted.Eagerly, GeneralSettings())
-    
-    val securitySettings: StateFlow<SecuritySettings> = 
+
+    val securitySettings: StateFlow<SecuritySettings> =
         _uiState.map { it.securitySettings }
             .stateIn(viewModelScope, SharingStarted.Eagerly, SecuritySettings())
-    
-    val apiSettings: StateFlow<ApiSettings> = 
+
+    val apiSettings: StateFlow<ApiSettings> =
         _uiState.map { it.apiSettings }
             .stateIn(viewModelScope, SharingStarted.Eagerly, ApiSettings())
-    
-    val readerSettings: StateFlow<ReaderSettings> = 
+
+    val readerSettings: StateFlow<ReaderSettings> =
         _uiState.map { it.readerSettings }
             .stateIn(viewModelScope, SharingStarted.Eagerly, ReaderSettings())
 

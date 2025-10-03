@@ -20,7 +20,7 @@ import androidx.glance.unit.ColorProvider
 
 /**
  * Glance-based widget for displaying current media playback information.
- * 
+ *
  * Features:
  * - Full-bleed artwork with gradient scrim
  * - Title and artist/subtitle display
@@ -30,7 +30,7 @@ import androidx.glance.unit.ColorProvider
  * - Fallback for missing artwork
  */
 object MediaPlaybackWidget : GlanceAppWidget() {
-    
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             MediaPlaybackWidgetContent()
@@ -42,7 +42,7 @@ object MediaPlaybackWidget : GlanceAppWidget() {
 fun MediaPlaybackWidgetContent() {
     // TODO: Get state from MediaPlaybackWidgetService via currentStateFlow
     // For now, show placeholder content
-    
+
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -72,9 +72,9 @@ fun MediaPlaybackWidgetContent() {
                     )
                 )
             }
-            
+
             Spacer(modifier = GlanceModifier.height(12.dp))
-            
+
             // Title
             Text(
                 text = "No Media Playing",
@@ -84,7 +84,7 @@ fun MediaPlaybackWidgetContent() {
                 ),
                 maxLines = 1
             )
-            
+
             // Subtitle
             Text(
                 text = "Tap play to start",
@@ -94,9 +94,9 @@ fun MediaPlaybackWidgetContent() {
                 ),
                 maxLines = 1
             )
-            
+
             Spacer(modifier = GlanceModifier.height(12.dp))
-            
+
             // Playback controls row
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
@@ -118,9 +118,9 @@ fun MediaPlaybackWidgetContent() {
                         )
                     )
                 }
-                
+
                 Spacer(modifier = GlanceModifier.width(16.dp))
-                
+
                 // Play/Pause button (48dp minimum)
                 Box(
                     modifier = GlanceModifier
@@ -136,9 +136,9 @@ fun MediaPlaybackWidgetContent() {
                         )
                     )
                 }
-                
+
                 Spacer(modifier = GlanceModifier.width(16.dp))
-                
+
                 // Next button (48dp minimum)
                 Box(
                     modifier = GlanceModifier

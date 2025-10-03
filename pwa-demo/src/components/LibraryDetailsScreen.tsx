@@ -15,7 +15,7 @@ import {
   ToggleButton,
   TextField,
   InputAdornment,
-  List,
+  // List,
   ListItem,
   ListItemText,
   ListItemAvatar,
@@ -25,7 +25,7 @@ import {
   Rating,
   Menu,
   MenuItem,
-  Divider,
+  // Divider,
   Fab,
 } from '@mui/material';
 import {
@@ -38,10 +38,10 @@ import {
   Book as BookIcon,
   Movie as MovieIcon,
   MusicNote as MusicIcon,
-  FilterList as FilterListIcon,
+  // FilterList as FilterListIcon,
   Sort as SortIcon,
   MoreVert as MoreVertIcon,
-  Play as PlayIcon,
+  PlayArrow as PlayIcon,
   Edit as EditIcon,
   Add as AddIcon,
   ViewComfy as ViewComfyIcon,
@@ -54,7 +54,7 @@ import { MetadataAPIService } from '../services/metadataApi';
 // Demo data for media items
 const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20) => {
   const items: any[] = [];
-  
+
   for (let i = 1; i <= count; i++) {
     const baseItem = {
       itemId: i,
@@ -62,8 +62,12 @@ const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20
       filePath: `/demo/${libraryType.toLowerCase()}/${i}`,
       fileName: `Demo ${libraryType} ${i}`,
       fileSize: Math.floor(Math.random() * 500000000) + 1000000,
-      mimeType: libraryType === 'BOOK' ? 'application/epub+zip' : 
-                libraryType === 'MOVIE' ? 'video/mp4' : 'audio/mp3',
+      mimeType:
+        libraryType === 'BOOK'
+          ? 'application/epub+zip'
+          : libraryType === 'MOVIE'
+            ? 'video/mp4'
+            : 'audio/mp3',
       mediaType: libraryType,
       dateAdded: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
       lastModified: new Date(),
@@ -79,32 +83,71 @@ const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20
       isDownloaded: true,
       genre: getRandomGenres(libraryType),
       year: 2020 + Math.floor(Math.random() * 5),
-      author: libraryType === 'BOOK' ? getRandomAuthor() : 
-              libraryType === 'MOVIE' ? getRandomDirector() : 
-              getRandomArtist(),
+      author:
+        libraryType === 'BOOK'
+          ? getRandomAuthor()
+          : libraryType === 'MOVIE'
+            ? getRandomDirector()
+            : getRandomArtist(),
     };
 
     items.push({
       mediaItem: baseItem,
       metadataCommon: metadata,
-      metadataBook: libraryType === 'BOOK' ? {
-        ...metadata,
-        isbn: `978-${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-        publisher: getRandomPublisher(),
-        pageCount: Math.floor(Math.random() * 500) + 100,
-        series: Math.random() > 0.7 ? getRandomSeries() : undefined,
-      } : undefined,
+      metadataBook:
+        libraryType === 'BOOK'
+          ? {
+              ...metadata,
+              isbn: `978-${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+              publisher: getRandomPublisher(),
+              pageCount: Math.floor(Math.random() * 500) + 100,
+              series: Math.random() > 0.7 ? getRandomSeries() : undefined,
+            }
+          : undefined,
     });
   }
-  
+
   return items;
 };
 
 const getRandomTitle = (type: string, index: number) => {
   const titles = {
-    BOOK: ['The Silent Echo', 'Midnight Chronicles', 'Digital Shadows', 'The Last Algorithm', 'Neon Dreams', 'Quantum Hearts', 'The Memory Thief', 'Stellar Winds', 'The Code Breaker', 'Future Past'],
-    MOVIE: ['Cyber Storm', 'The Last Stand', 'Digital Revolution', 'Neon City', 'Time Paradox', 'The Algorithm', 'Space Odyssey 2025', 'Virtual Reality', 'The Matrix Reborn', 'Future Wars'],
-    MUSIC: ['Electronic Dreams', 'Synthwave Nights', 'Digital Pulse', 'Neon Beats', 'Cyber Sounds', 'Future Funk', 'Retrowave', 'Space Disco', 'Neural Network', 'Binary Code'],
+    BOOK: [
+      'The Silent Echo',
+      'Midnight Chronicles',
+      'Digital Shadows',
+      'The Last Algorithm',
+      'Neon Dreams',
+      'Quantum Hearts',
+      'The Memory Thief',
+      'Stellar Winds',
+      'The Code Breaker',
+      'Future Past',
+    ],
+    MOVIE: [
+      'Cyber Storm',
+      'The Last Stand',
+      'Digital Revolution',
+      'Neon City',
+      'Time Paradox',
+      'The Algorithm',
+      'Space Odyssey 2025',
+      'Virtual Reality',
+      'The Matrix Reborn',
+      'Future Wars',
+    ],
+    MUSIC: [
+      'Electronic Dreams',
+      'Synthwave Nights',
+      'Digital Pulse',
+      'Neon Beats',
+      'Cyber Sounds',
+      'Future Funk',
+      'Retrowave',
+      'Space Disco',
+      'Neural Network',
+      'Binary Code',
+    ],
   };
   return titles[type as keyof typeof titles]?.[index % 10] || `${type} Title ${index}`;
 };
@@ -112,8 +155,10 @@ const getRandomTitle = (type: string, index: number) => {
 const getRandomDescription = (type: string) => {
   const descriptions = {
     BOOK: 'A captivating tale of adventure, mystery, and discovery that will keep you turning pages late into the night.',
-    MOVIE: 'An action-packed thriller with stunning visuals and a gripping storyline that will leave you on the edge of your seat.',
-    MUSIC: 'A collection of electronic beats and synthesized melodies that create an atmospheric journey through sound.',
+    MOVIE:
+      'An action-packed thriller with stunning visuals and a gripping storyline that will leave you on the edge of your seat.',
+    MUSIC:
+      'A collection of electronic beats and synthesized melodies that create an atmospheric journey through sound.',
   };
   return descriptions[type as keyof typeof descriptions] || 'An engaging piece of media content.';
 };
@@ -136,27 +181,62 @@ const getRandomGenres = (type: string) => {
 };
 
 const getRandomAuthor = () => {
-  const authors = ['Alex Chen', 'Sarah Johnson', 'Michael Rodriguez', 'Emily Zhang', 'David Kim', 'Lisa Thompson'];
+  const authors = [
+    'Alex Chen',
+    'Sarah Johnson',
+    'Michael Rodriguez',
+    'Emily Zhang',
+    'David Kim',
+    'Lisa Thompson',
+  ];
   return authors[Math.floor(Math.random() * authors.length)];
 };
 
 const getRandomDirector = () => {
-  const directors = ['Christopher Davis', 'Jennifer Liu', 'Robert Miller', 'Amanda Wilson', 'James Park', 'Michelle Brown'];
+  const directors = [
+    'Christopher Davis',
+    'Jennifer Liu',
+    'Robert Miller',
+    'Amanda Wilson',
+    'James Park',
+    'Michelle Brown',
+  ];
   return directors[Math.floor(Math.random() * directors.length)];
 };
 
 const getRandomArtist = () => {
-  const artists = ['Neon Pulse', 'Cyber Dreams', 'Digital Flow', 'Synth Master', 'Echo Wave', 'Future Sound'];
+  const artists = [
+    'Neon Pulse',
+    'Cyber Dreams',
+    'Digital Flow',
+    'Synth Master',
+    'Echo Wave',
+    'Future Sound',
+  ];
   return artists[Math.floor(Math.random() * artists.length)];
 };
 
 const getRandomPublisher = () => {
-  const publishers = ['Digital Press', 'Future Books', 'Neon Publishing', 'Cyber Works', 'Tech Literature', 'Modern Tales'];
+  const publishers = [
+    'Digital Press',
+    'Future Books',
+    'Neon Publishing',
+    'Cyber Works',
+    'Tech Literature',
+    'Modern Tales',
+  ];
   return publishers[Math.floor(Math.random() * publishers.length)];
 };
 
 const getRandomSeries = () => {
-  const series = ['Cyber Chronicles', 'Digital Age', 'Future Tales', 'Neon Series', 'Tech Saga', 'Modern Myths'];
+  const series = [
+    'Cyber Chronicles',
+    'Digital Age',
+    'Future Tales',
+    'Neon Series',
+    'Tech Saga',
+    'Modern Myths',
+  ];
   return series[Math.floor(Math.random() * series.length)];
 };
 
@@ -172,33 +252,41 @@ const MediaCard: React.FC<{
 
   const getIcon = () => {
     switch (item.mediaItem.mediaType) {
-      case 'BOOK': return <BookIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
-      case 'MOVIE': return <MovieIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
-      case 'MUSIC': return <MusicIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
-      default: return <BookIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
+      case 'BOOK':
+        return <BookIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
+      case 'MOVIE':
+        return <MovieIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
+      case 'MUSIC':
+        return <MusicIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
+      default:
+        return <BookIcon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.7)' }} />;
     }
   };
 
   const getActionLabel = () => {
     switch (item.mediaItem.mediaType) {
-      case 'BOOK': return 'Read';
-      case 'MOVIE': return 'Watch';
-      case 'MUSIC': return 'Play';
-      default: return 'Open';
+      case 'BOOK':
+        return 'Read';
+      case 'MOVIE':
+        return 'Watch';
+      case 'MUSIC':
+        return 'Play';
+      default:
+        return 'Open';
     }
   };
 
   if (viewMode === ViewMode.LIST) {
     return (
-      <Paper 
-        sx={{ 
-          mb: 1, 
+      <Paper
+        sx={{
+          mb: 1,
           bgcolor: 'background.paper',
           border: '1px solid #2d3136',
           '&:hover': {
             borderColor: 'primary.main',
             bgcolor: 'secondary.main',
-          }
+          },
         }}
       >
         <ListItem>
@@ -237,8 +325,8 @@ const MediaCard: React.FC<{
             <IconButton size="small" onClick={onEdit}>
               <EditIcon />
             </IconButton>
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={onFavoriteToggle}
               sx={{ color: item.metadataCommon.isFavorite ? 'primary.main' : 'text.secondary' }}
             >
@@ -275,8 +363,9 @@ const MediaCard: React.FC<{
           height: viewMode === ViewMode.COVER_FLOW ? 220 : 260,
           bgcolor: 'secondary.main',
           position: 'relative',
-          backgroundImage: item.metadataCommon.thumbnailPath ? 
-            `url(${item.metadataCommon.thumbnailPath})` : 'none',
+          backgroundImage: item.metadataCommon.thumbnailPath
+            ? `url(${item.metadataCommon.thumbnailPath})`
+            : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
@@ -285,7 +374,7 @@ const MediaCard: React.FC<{
         }}
       >
         {!item.metadataCommon.thumbnailPath && getIcon()}
-        
+
         {/* Favorite indicator */}
         {item.metadataCommon.isFavorite && (
           <Chip
@@ -414,13 +503,15 @@ const MediaCard: React.FC<{
         )}
 
         {/* Action buttons */}
-        <Box sx={{ 
-          position: 'absolute', 
-          bottom: 8, 
-          right: 8,
-          display: 'flex',
-          gap: 0.5
-        }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 8,
+            right: 8,
+            display: 'flex',
+            gap: 0.5,
+          }}
+        >
           <IconButton
             size="small"
             onClick={(e) => {
@@ -443,28 +534,38 @@ const MediaCard: React.FC<{
           sx: {
             bgcolor: 'background.paper',
             border: '1px solid #2d3136',
-          }
+          },
         }}
       >
-        <MenuItem onClick={() => {
-          setMenuAnchor(null);
-          onClick();
-        }}>
+        <MenuItem
+          onClick={() => {
+            setMenuAnchor(null);
+            onClick();
+          }}
+        >
           <PlayIcon sx={{ mr: 1, fontSize: 16 }} />
           {getActionLabel()}
         </MenuItem>
-        <MenuItem onClick={() => {
-          setMenuAnchor(null);
-          onEdit();
-        }}>
+        <MenuItem
+          onClick={() => {
+            setMenuAnchor(null);
+            onEdit();
+          }}
+        >
           <EditIcon sx={{ mr: 1, fontSize: 16 }} />
           Edit Metadata
         </MenuItem>
-        <MenuItem onClick={() => {
-          setMenuAnchor(null);
-          onFavoriteToggle();
-        }}>
-          {item.metadataCommon.isFavorite ? <StarIcon sx={{ mr: 1, fontSize: 16 }} /> : <StarBorderIcon sx={{ mr: 1, fontSize: 16 }} />}
+        <MenuItem
+          onClick={() => {
+            setMenuAnchor(null);
+            onFavoriteToggle();
+          }}
+        >
+          {item.metadataCommon.isFavorite ? (
+            <StarIcon sx={{ mr: 1, fontSize: 16 }} />
+          ) : (
+            <StarBorderIcon sx={{ mr: 1, fontSize: 16 }} />
+          )}
           {item.metadataCommon.isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
         </MenuItem>
       </Menu>
@@ -490,12 +591,15 @@ export const LibraryDetailsScreen: React.FC = () => {
   useEffect(() => {
     // Filter and sort items
     let filtered = items;
-    
+
     if (searchQuery.trim()) {
-      filtered = items.filter(item =>
-        item.metadataCommon.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.metadataCommon.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.metadataCommon.genre?.some((g: string) => g.toLowerCase().includes(searchQuery.toLowerCase()))
+      filtered = items.filter(
+        (item) =>
+          item.metadataCommon.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.metadataCommon.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.metadataCommon.genre?.some((g: string) =>
+            g.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
       );
     }
 
@@ -511,7 +615,9 @@ export const LibraryDetailsScreen: React.FC = () => {
         case 'rating':
           return b.metadataCommon.rating - a.metadataCommon.rating;
         case 'dateAdded':
-          return new Date(b.mediaItem.dateAdded).getTime() - new Date(a.mediaItem.dateAdded).getTime();
+          return (
+            new Date(b.mediaItem.dateAdded).getTime() - new Date(a.mediaItem.dateAdded).getTime()
+          );
         default:
           return 0;
       }
@@ -527,7 +633,7 @@ export const LibraryDetailsScreen: React.FC = () => {
       const types: Library['type'][] = ['BOOK', 'MOVIE', 'MUSIC'];
       const selectedType = types[parseInt(libraryId || '1') % types.length];
       setLibraryType(selectedType);
-      
+
       // Generate demo items
       const demoItems = generateDemoMediaItems(selectedType, 24);
       setItems(demoItems);
@@ -539,27 +645,31 @@ export const LibraryDetailsScreen: React.FC = () => {
   };
 
   const handleFavoriteToggle = (itemId: number) => {
-    setItems(prevItems =>
-      prevItems.map(item =>
+    setItems((prevItems) =>
+      prevItems.map((item) =>
         item.mediaItem.itemId === itemId
           ? {
               ...item,
               metadataCommon: {
                 ...item.metadataCommon,
-                isFavorite: !item.metadataCommon.isFavorite
-              }
+                isFavorite: !item.metadataCommon.isFavorite,
+              },
             }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
   const getLibraryTitle = () => {
     switch (libraryType) {
-      case 'BOOK': return 'Books Library';
-      case 'MOVIE': return 'Movies & TV';
-      case 'MUSIC': return 'Music Library';
-      default: return 'Media Library';
+      case 'BOOK':
+        return 'Books Library';
+      case 'MOVIE':
+        return 'Movies & TV';
+      case 'MUSIC':
+        return 'Music Library';
+      default:
+        return 'Media Library';
     }
   };
 
@@ -594,7 +704,7 @@ export const LibraryDetailsScreen: React.FC = () => {
                 ),
               }}
             />
-            
+
             <Button
               startIcon={<SortIcon />}
               onClick={(e) => {
@@ -630,7 +740,9 @@ export const LibraryDetailsScreen: React.FC = () => {
         {/* Results Info */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: 300 }}>
-            {searchQuery ? `Search Results (${filteredItems.length})` : `All ${libraryType}s (${filteredItems.length})`}
+            {searchQuery
+              ? `Search Results (${filteredItems.length})`
+              : `All ${libraryType}s (${filteredItems.length})`}
           </Typography>
           {searchQuery && (
             <Button onClick={() => setSearchQuery('')} size="small">
@@ -645,15 +757,21 @@ export const LibraryDetailsScreen: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : filteredItems.length === 0 ? (
-          <Paper sx={{ p: 6, textAlign: 'center', bgcolor: 'background.paper', border: '1px solid #2d3136' }}>
+          <Paper
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              bgcolor: 'background.paper',
+              border: '1px solid #2d3136',
+            }}
+          >
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 300 }}>
               {searchQuery ? 'No results found' : 'Library is empty'}
             </Typography>
             <Typography color="text.secondary" paragraph>
-              {searchQuery 
+              {searchQuery
                 ? 'Try adjusting your search terms or browse all items.'
-                : 'Add some media to get started with your collection.'
-              }
+                : 'Add some media to get started with your collection.'}
             </Typography>
             {searchQuery && (
               <Button variant="contained" onClick={() => setSearchQuery('')}>

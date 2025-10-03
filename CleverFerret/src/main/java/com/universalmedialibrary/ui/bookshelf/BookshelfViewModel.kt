@@ -4,16 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.dao.ReadingProgressDao
+import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.data.local.entity.BookDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class BookshelfViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val readingProgressDao: ReadingProgressDao
 ) : ViewModel() {
 
     private val _viewMode = MutableStateFlow(ViewMode.GRID)
@@ -35,6 +39,19 @@ class BookshelfViewModel @Inject constructor(
     val searchActive = _searchActive.asStateFlow()
 
     private val _allBooks = MutableStateFlow<List<BookDetails>>(emptyList())
+
+    // Expose reading progress for currently loaded books by itemId
+    val progressMap: StateFlow<Map<Long, ReadingProgress>> = _allBooks
+        .flatMapLatest { books ->
+            val ids = books.map { it.mediaItem.itemId }
+            if (ids.isEmpty()) flowOf(emptyList()) else readingProgressDao.getProgressForItems(ids)
+        }
+        .map { progresses -> progresses.associateBy { it.itemId } }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
 
     // Filtered and sorted books
     val books = combine(
@@ -91,14 +108,14 @@ class BookshelfViewModel @Inject constructor(
             mediaItemDao.getBookDetailsForLibrary(libraryId).collect { mediaItems ->
                 // Convert MediaItems to BookDetails
                 val bookDetailsList = mediaItems.map { mediaItem ->
-                    val metadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId) 
+                    val metadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId)
                         ?: com.universalmedialibrary.data.local.entity.MetadataCommon(
                             itemId = mediaItem.itemId,
                             title = mediaItem.fileName,
                             sortTitle = mediaItem.fileName
                         )
                     val bookMetadata = metadataDao.getMetadataBookByItemId(mediaItem.itemId)
-                    
+
                     BookDetails(
                         mediaItem = mediaItem,
                         metadata = metadata,

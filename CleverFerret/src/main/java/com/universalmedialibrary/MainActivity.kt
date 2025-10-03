@@ -32,6 +32,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
+import com.universalmedialibrary.ui.collections.CollectionsScreen
+import com.universalmedialibrary.ui.home.ContinueReadingSection
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.ui.library.CreateLibraryDialog
@@ -39,6 +42,7 @@ import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.open.MediaOpenScreen
 import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
 import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
+import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.PlexTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -82,8 +86,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
-
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -124,6 +126,15 @@ fun AppNavigation() {
         composable("settings/playlists") {
             PlaylistSettingsScreen(onBack = { navController.navigateUp() })
         }
+        composable("settings/opds") {
+            OpdsSettingsScreen(onBack = { navController.navigateUp() })
+        }
+        composable("maintenance") {
+            MaintenanceScreen(onBack = { navController.navigateUp() })
+        }
+        composable("collections") {
+            CollectionsScreen(onOpenCollection = { /* TODO: navigate to collection detail */ })
+        }
     }
 }
 
@@ -139,7 +150,7 @@ fun AppNavigation() {
 @Composable
 fun LibraryListScreen(
     navController: NavController,
-    viewModel: MainViewModel = hiltViewModel(),
+    viewModel: MainViewModel = hiltViewModel()
 ) {
     val libraries by viewModel.libraries.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -196,6 +207,12 @@ fun LibraryListScreen(
             TopAppBar(
                 title = { Text("Libraries") },
                 actions = {
+                    IconButton(onClick = { navController.navigate("maintenance") }) {
+                        Icon(Icons.Default.Build, contentDescription = "Maintenance")
+                    }
+                    IconButton(onClick = { navController.navigate("collections") }) {
+                        Icon(Icons.Default.Collections, contentDescription = "Collections")
+                    }
                     IconButton(onClick = { showMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More Options")
                     }
@@ -203,6 +220,13 @@ fun LibraryListScreen(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
                     ) {
+                        DropdownMenuItem(
+                            text = { Text("OPDS Server") },
+                            onClick = {
+                                showMenu = false
+                                navController.navigate("settings/opds")
+                            }
+                        )
                         DropdownMenuItem(
                             text = { Text("Import Calibre Library") },
                             onClick = {
@@ -223,13 +247,17 @@ fun LibraryListScreen(
             SampleLibrary("Movie Library", "MOVIE", 3)
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp),
-            modifier = Modifier.padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
+        Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            // Continue Reading section
+            ContinueReadingSection(onOpenItem = { id -> navController.navigate("open/$id") })
+
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 128.dp),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
 
             // Progress status card
             item {
@@ -468,5 +496,3 @@ private fun getIconForLibraryType(type: String): ImageVector {
         else -> Icons.Default.Book
     }
 }
-
-

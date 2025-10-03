@@ -13,32 +13,31 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MediaOpenViewModel @Inject constructor(
-	private val mediaItemDao: MediaItemDao
+    private val mediaItemDao: MediaItemDao
 ) : ViewModel() {
 
-	data class UiState(
-		val isLoading: Boolean = true,
-		val mediaItem: MediaItem? = null,
-		val error: String? = null
-	)
+    data class UiState(
+        val isLoading: Boolean = true,
+        val mediaItem: MediaItem? = null,
+        val error: String? = null
+    )
 
-	private val _uiState = MutableStateFlow(UiState())
-	val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-	fun load(itemId: Long) {
-		viewModelScope.launch {
-			try {
-				_uiState.value = UiState(isLoading = true)
-				val item = mediaItemDao.getMediaItemById(itemId)
-				if (item == null) {
-					_uiState.value = UiState(isLoading = false, error = "Media item not found")
-				} else {
-					_uiState.value = UiState(isLoading = false, mediaItem = item)
-				}
-			} catch (e: Exception) {
-				_uiState.value = UiState(isLoading = false, error = e.message ?: "Unknown error")
-			}
-		}
-	}
+    fun load(itemId: Long) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = UiState(isLoading = true)
+                val item = mediaItemDao.getMediaItemById(itemId)
+                if (item == null) {
+                    _uiState.value = UiState(isLoading = false, error = "Media item not found")
+                } else {
+                    _uiState.value = UiState(isLoading = false, mediaItem = item)
+                }
+            } catch (e: Exception) {
+                _uiState.value = UiState(isLoading = false, error = e.message ?: "Unknown error")
+            }
+        }
+    }
 }
-

@@ -18,56 +18,55 @@ import dagger.hilt.android.EntryPointAccessors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StorageOrganizerScreen(
-	onBack: () -> Unit,
-	viewModel: SettingsViewModel = hiltViewModel()
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
-	val context = androidx.compose.ui.platform.LocalContext.current
-	var selectedUri by remember { mutableStateOf<Uri?>(null) }
-	var progress by remember { mutableStateOf("") }
-	var movedCount by remember { mutableStateOf<Int?>(null) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var selectedUri by remember { mutableStateOf<Uri?>(null) }
+    var progress by remember { mutableStateOf("") }
+    var movedCount by remember { mutableStateOf<Int?>(null) }
 
-	val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-		if (uri != null) {
-			selectedUri = uri
-			val appContext = context.applicationContext
-			// Access StorageAccessService via EntryPoint or injected graph
-			val service = EntryPointAccessors.fromApplication(appContext, OrganizerEntryPoint::class.java).storageService()
-			service.persistUriPermission(context, uri)
-			// Launch organize in coroutine
-			androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycleScope.launchWhenStarted {
-				movedCount = service.organizeDirectory(context, uri) { msg -> progress = msg }
-			}
-		}
-	}
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            selectedUri = uri
+            val appContext = context.applicationContext
+            // Access StorageAccessService via EntryPoint or injected graph
+            val service = EntryPointAccessors.fromApplication(appContext, OrganizerEntryPoint::class.java).storageService()
+            service.persistUriPermission(context, uri)
+            // Launch organize in coroutine
+            androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycleScope.launchWhenStarted {
+                movedCount = service.organizeDirectory(context, uri) { msg -> progress = msg }
+            }
+        }
+    }
 
-	Scaffold(
-		topBar = {
-			TopAppBar(
-				title = { Text("Storage Organizer") },
-				navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) } }
-			)
-		}
-	) { paddingValues ->
-		Column(
-			modifier = Modifier
-				.fillMaxSize()
-				.padding(paddingValues)
-				.padding(16.dp),
-			horizontalAlignment = Alignment.CenterHorizontally,
-			verticalArrangement = Arrangement.spacedBy(12.dp)
-		) {
-			Text("Select a mixed folder to organize into subfolders by media type.")
-			Button(onClick = { picker.launch(null) }) { Text("Choose Folder") }
-			selectedUri?.let { Text("Selected: $it") }
-			if (progress.isNotBlank()) Text(progress)
-			movedCount?.let { Text("Moved $it file(s)") }
-		}
-	}
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Storage Organizer") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) } }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text("Select a mixed folder to organize into subfolders by media type.")
+            Button(onClick = { picker.launch(null) }) { Text("Choose Folder") }
+            selectedUri?.let { Text("Selected: $it") }
+            if (progress.isNotBlank()) Text(progress)
+            movedCount?.let { Text("Moved $it file(s)") }
+        }
+    }
 }
 
 @dagger.hilt.EntryPoint
 @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
 interface OrganizerEntryPoint {
-	fun storageService(): StorageAccessService
+    fun storageService(): StorageAccessService
 }
-

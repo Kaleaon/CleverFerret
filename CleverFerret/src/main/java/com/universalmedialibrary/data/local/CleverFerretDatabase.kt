@@ -10,11 +10,11 @@ import com.universalmedialibrary.data.local.entity.*
 
 /**
  * CleverFerret Universal Media Library Database
- * 
+ *
  * Comprehensive database supporting all media types with metadata,
  * progress tracking, bookmarks, and external service integration.
- * 
- * Schema based on Calibre's library structure with modern Android 
+ *
+ * Schema based on Calibre's library structure with modern Android
  * Room database patterns and full media type support.
  */
 @Database(
@@ -22,7 +22,7 @@ import com.universalmedialibrary.data.local.entity.*
         // Legacy content creation entities
         DownloadedStory::class,
         StoryUpdate::class,
-        
+
         // Core universal media library entities
         Library::class,
         MediaItem::class,
@@ -30,7 +30,7 @@ import com.universalmedialibrary.data.local.entity.*
         MetadataBook::class,
         MetadataMovie::class,
         MetadataMusicTrack::class,
-        
+
         // Relational entities
         People::class,
         ItemPersonRole::class,
@@ -38,22 +38,22 @@ import com.universalmedialibrary.data.local.entity.*
         ItemGenre::class,
         Series::class,
         Album::class,
-        
+
         // System entities
         APIKey::class,
         Bookmark::class,
         ReadingProgress::class,
         ReadingSession::class,
-        
+
         // Reader settings entities
         ReaderSettingsEntity::class,
         BookReaderSettingsEntity::class,
-        
+
         // Annotation and search entities
         TextAnnotation::class,
         SearchIndex::class,
         ReadingStatistics::class,
-        
+
         // Plex integration entities
         PlexServer::class,
         PlexMediaItem::class,
@@ -75,11 +75,11 @@ import com.universalmedialibrary.data.local.entity.*
 )
 @TypeConverters(Converters::class)
 abstract class CleverFerretDatabase : RoomDatabase() {
-    
+
     // Legacy DAOs
     abstract fun downloadedStoryDao(): DownloadedStoryDao
     abstract fun storyUpdateDao(): StoryUpdateDao
-    
+
     // Core universal media library DAOs
     abstract fun libraryDao(): LibraryDao
     abstract fun mediaItemDao(): MediaItemDao
@@ -90,7 +90,7 @@ abstract class CleverFerretDatabase : RoomDatabase() {
     abstract fun annotationDao(): AnnotationDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
-    
+
 
     // Plex integration DAOs
     abstract fun plexServerDao(): PlexServerDao
@@ -102,13 +102,13 @@ abstract class CleverFerretDatabase : RoomDatabase() {
     abstract fun queueItemDao(): QueueItemDao
     abstract fun playbackSessionDao(): PlaybackSessionDao
 
-    
+
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
-        
+
         @Volatile
         private var INSTANCE: CleverFerretDatabase? = null
-        
+
         fun getDatabase(context: Context): CleverFerretDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

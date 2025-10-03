@@ -1,0 +1,1043 @@
+﻿2025-10-03T05:48:16.1804392Z ##[debug]Starting: Code Quality & Linting
+2025-10-03T05:48:16.1827076Z ##[debug]Cleaning runner temp folder: /home/runner/work/_temp
+2025-10-03T05:48:16.1925876Z ##[debug]Starting: Set up job
+2025-10-03T05:48:16.1926990Z Current runner version: '2.328.0'
+2025-10-03T05:48:16.1947373Z ##[group]Runner Image Provisioner
+2025-10-03T05:48:16.1948219Z Hosted Compute Agent
+2025-10-03T05:48:16.1948781Z Version: 20250912.392
+2025-10-03T05:48:16.1949402Z Commit: d921fda672a98b64f4f82364647e2f10b2267d0b
+2025-10-03T05:48:16.1950156Z Build Date: 2025-09-12T15:23:14Z
+2025-10-03T05:48:16.1950755Z ##[endgroup]
+2025-10-03T05:48:16.1951320Z ##[group]Operating System
+2025-10-03T05:48:16.1952001Z Ubuntu
+2025-10-03T05:48:16.1952562Z 24.04.3
+2025-10-03T05:48:16.1953008Z LTS
+2025-10-03T05:48:16.1953469Z ##[endgroup]
+2025-10-03T05:48:16.1954016Z ##[group]Runner Image
+2025-10-03T05:48:16.1954615Z Image: ubuntu-24.04
+2025-10-03T05:48:16.1955124Z Version: 20250922.53.1
+2025-10-03T05:48:16.1956175Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250922.53/images/ubuntu/Ubuntu2404-Readme.md
+2025-10-03T05:48:16.1957773Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250922.53
+2025-10-03T05:48:16.1958788Z ##[endgroup]
+2025-10-03T05:48:16.1961254Z ##[group]GITHUB_TOKEN Permissions
+2025-10-03T05:48:16.1963484Z Actions: write
+2025-10-03T05:48:16.1964032Z Attestations: write
+2025-10-03T05:48:16.1964578Z Checks: write
+2025-10-03T05:48:16.1965122Z Contents: write
+2025-10-03T05:48:16.1965712Z Deployments: write
+2025-10-03T05:48:16.1966255Z Discussions: write
+2025-10-03T05:48:16.1966789Z Issues: write
+2025-10-03T05:48:16.1967326Z Metadata: read
+2025-10-03T05:48:16.1967806Z Models: read
+2025-10-03T05:48:16.1968361Z Packages: write
+2025-10-03T05:48:16.1968901Z Pages: write
+2025-10-03T05:48:16.1969490Z PullRequests: write
+2025-10-03T05:48:16.1970086Z RepositoryProjects: write
+2025-10-03T05:48:16.1970667Z SecurityEvents: write
+2025-10-03T05:48:16.1971227Z Statuses: write
+2025-10-03T05:48:16.1971946Z ##[endgroup]
+2025-10-03T05:48:16.1974202Z Secret source: Actions
+2025-10-03T05:48:16.1974951Z ##[debug]Primary repository: Kaleaon/CleverFerret
+2025-10-03T05:48:16.1975697Z Prepare workflow directory
+2025-10-03T05:48:16.2042507Z ##[debug]Creating pipeline directory: '/home/runner/work/CleverFerret'
+2025-10-03T05:48:16.2045843Z ##[debug]Creating workspace directory: '/home/runner/work/CleverFerret/CleverFerret'
+2025-10-03T05:48:16.2047494Z ##[debug]Update context data
+2025-10-03T05:48:16.2050631Z ##[debug]Evaluating job-level environment variables
+2025-10-03T05:48:16.2266431Z ##[debug]Evaluating job container
+2025-10-03T05:48:16.2269708Z ##[debug]Evaluating job service containers
+2025-10-03T05:48:16.2272706Z ##[debug]Evaluating job defaults
+2025-10-03T05:48:16.2296462Z Prepare all required actions
+2025-10-03T05:48:16.2334659Z Getting action download info
+2025-10-03T05:48:16.7022423Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+2025-10-03T05:48:16.7069135Z ##[debug]Copied action archive '/opt/actionarchivecache/actions_checkout/08eba0b27e820071cde6df949e0beb9ba4906955.tar.gz' to '/home/runner/work/_actions/_temp_2404ac45-8be5-46f9-9c6f-a6d24359b3e1/4a576c80-78e6-44b7-9706-cbf50cf5e777.tar.gz'
+2025-10-03T05:48:16.8945014Z ##[debug]Unwrap 'actions-checkout-08eba0b' to '/home/runner/work/_actions/actions/checkout/v4'
+2025-10-03T05:48:16.9127554Z ##[debug]Archive '/home/runner/work/_actions/_temp_2404ac45-8be5-46f9-9c6f-a6d24359b3e1/4a576c80-78e6-44b7-9706-cbf50cf5e777.tar.gz' has been unzipped into '/home/runner/work/_actions/actions/checkout/v4'.
+2025-10-03T05:48:16.9223748Z Download action repository 'actions/setup-java@v4' (SHA:c5195efecf7bdfc987ee8bae7a71cb8b11521c00)
+2025-10-03T05:48:17.4693817Z ##[debug]Download 'https://api.github.com/repos/actions/setup-java/tarball/c5195efecf7bdfc987ee8bae7a71cb8b11521c00' to '/home/runner/work/_actions/_temp_39f89932-c7d1-4646-a2b1-e606b6af8e45/36dfd630-8113-40d1-965e-346844c756fd.tar.gz'
+2025-10-03T05:48:17.5579520Z ##[debug]Unwrap 'actions-setup-java-c5195ef' to '/home/runner/work/_actions/actions/setup-java/v4'
+2025-10-03T05:48:17.5931974Z ##[debug]Archive '/home/runner/work/_actions/_temp_39f89932-c7d1-4646-a2b1-e606b6af8e45/36dfd630-8113-40d1-965e-346844c756fd.tar.gz' has been unzipped into '/home/runner/work/_actions/actions/setup-java/v4'.
+2025-10-03T05:48:17.6001386Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2025-10-03T05:48:17.6134187Z ##[debug]Copied action archive '/opt/actionarchivecache/actions_upload-artifact/ea165f8d65b6e75b540449e92b4886f43607fa02.tar.gz' to '/home/runner/work/_actions/_temp_e1e959f1-6c71-421f-9eb9-23a2bec93260/b673d7c5-adf0-4a53-8ce7-8d083a768a74.tar.gz'
+2025-10-03T05:48:17.6807826Z ##[debug]Unwrap 'actions-upload-artifact-ea165f8' to '/home/runner/work/_actions/actions/upload-artifact/v4'
+2025-10-03T05:48:17.7132644Z ##[debug]Archive '/home/runner/work/_actions/_temp_e1e959f1-6c71-421f-9eb9-23a2bec93260/b673d7c5-adf0-4a53-8ce7-8d083a768a74.tar.gz' has been unzipped into '/home/runner/work/_actions/actions/upload-artifact/v4'.
+2025-10-03T05:48:17.7201983Z Download action repository 'actions/github-script@v7' (SHA:f28e40c7f34bde8b3046d885e986cb6290c5673b)
+2025-10-03T05:48:18.5490993Z ##[debug]Download 'https://api.github.com/repos/actions/github-script/tarball/f28e40c7f34bde8b3046d885e986cb6290c5673b' to '/home/runner/work/_actions/_temp_ef7a9f9b-cd88-4d2c-a374-812c355a7779/252c2388-5668-4da5-96d8-047bae39e1b2.tar.gz'
+2025-10-03T05:48:18.5673784Z ##[debug]Unwrap 'actions-github-script-f28e40c' to '/home/runner/work/_actions/actions/github-script/v7'
+2025-10-03T05:48:18.5768996Z ##[debug]Archive '/home/runner/work/_actions/_temp_ef7a9f9b-cd88-4d2c-a374-812c355a7779/252c2388-5668-4da5-96d8-047bae39e1b2.tar.gz' has been unzipped into '/home/runner/work/_actions/actions/github-script/v7'.
+2025-10-03T05:48:18.5805878Z ##[debug]action.yml for action: '/home/runner/work/_actions/actions/checkout/v4/action.yml'.
+2025-10-03T05:48:18.6356223Z ##[debug]action.yml for action: '/home/runner/work/_actions/actions/setup-java/v4/action.yml'.
+2025-10-03T05:48:18.6429440Z ##[debug]action.yml for action: '/home/runner/work/_actions/actions/upload-artifact/v4/action.yml'.
+2025-10-03T05:48:18.6467327Z ##[debug]action.yml for action: '/home/runner/work/_actions/actions/github-script/v7/action.yml'.
+2025-10-03T05:48:18.6574969Z ##[debug]Set step '__actions_checkout' display name to: 'Checkout code'
+2025-10-03T05:48:18.6577538Z ##[debug]Set step '__actions_setup-java' display name to: 'Set up JDK 17'
+2025-10-03T05:48:18.6578967Z ##[debug]Set step '__run' display name to: 'Grant execute permission for gradlew'
+2025-10-03T05:48:18.6580260Z ##[debug]Set step '__run_2' display name to: 'Run Spotless Check'
+2025-10-03T05:48:18.6581473Z ##[debug]Set step '__run_3' display name to: 'Run Android Lint'
+2025-10-03T05:48:18.6583063Z ##[debug]Set step '__actions_upload-artifact' display name to: 'Upload Lint Results'
+2025-10-03T05:48:18.6584448Z ##[debug]Set step '__actions_github-script' display name to: 'Comment Lint Results on PR'
+2025-10-03T05:48:18.6585134Z Complete job name: Code Quality & Linting
+2025-10-03T05:48:18.6612341Z ##[debug]Collect running processes for tracking orphan processes.
+2025-10-03T05:48:18.6823380Z ##[debug]Finishing: Set up job
+2025-10-03T05:48:18.6937599Z ##[debug]Evaluating condition for step: 'Checkout code'
+2025-10-03T05:48:18.6972373Z ##[debug]Evaluating: success()
+2025-10-03T05:48:18.6977723Z ##[debug]Evaluating success:
+2025-10-03T05:48:18.6993175Z ##[debug]=> true
+2025-10-03T05:48:18.6999700Z ##[debug]Result: true
+2025-10-03T05:48:18.7021147Z ##[debug]Starting: Checkout code
+2025-10-03T05:48:18.7083413Z ##[debug]Register post job cleanup for action: actions/checkout@v4
+2025-10-03T05:48:18.7164528Z ##[debug]Loading inputs
+2025-10-03T05:48:18.7172810Z ##[debug]Evaluating: github.repository
+2025-10-03T05:48:18.7173917Z ##[debug]Evaluating Index:
+2025-10-03T05:48:18.7175689Z ##[debug]..Evaluating github:
+2025-10-03T05:48:18.7176710Z ##[debug]..=> Object
+2025-10-03T05:48:18.7182565Z ##[debug]..Evaluating String:
+2025-10-03T05:48:18.7183390Z ##[debug]..=> 'repository'
+2025-10-03T05:48:18.7187616Z ##[debug]=> 'Kaleaon/CleverFerret'
+2025-10-03T05:48:18.7188991Z ##[debug]Result: 'Kaleaon/CleverFerret'
+2025-10-03T05:48:18.7192294Z ##[debug]Evaluating: github.token
+2025-10-03T05:48:18.7192718Z ##[debug]Evaluating Index:
+2025-10-03T05:48:18.7193112Z ##[debug]..Evaluating github:
+2025-10-03T05:48:18.7193486Z ##[debug]..=> Object
+2025-10-03T05:48:18.7193830Z ##[debug]..Evaluating String:
+2025-10-03T05:48:18.7194182Z ##[debug]..=> 'token'
+2025-10-03T05:48:18.7194940Z ##[debug]=> '***'
+2025-10-03T05:48:18.7195390Z ##[debug]Result: '***'
+2025-10-03T05:48:18.7208275Z ##[debug]Loading env
+2025-10-03T05:48:18.7271658Z ##[group]Run actions/checkout@v4
+2025-10-03T05:48:18.7272833Z with:
+2025-10-03T05:48:18.7273276Z   repository: Kaleaon/CleverFerret
+2025-10-03T05:48:18.7273882Z   token: ***
+2025-10-03T05:48:18.7274392Z   ssh-strict: true
+2025-10-03T05:48:18.7274764Z   ssh-user: git
+2025-10-03T05:48:18.7275235Z   persist-credentials: true
+2025-10-03T05:48:18.7275707Z   clean: true
+2025-10-03T05:48:18.7276124Z   sparse-checkout-cone-mode: true
+2025-10-03T05:48:18.7276537Z   fetch-depth: 1
+2025-10-03T05:48:18.7276989Z   fetch-tags: false
+2025-10-03T05:48:18.7277391Z   show-progress: true
+2025-10-03T05:48:18.7277791Z   lfs: false
+2025-10-03T05:48:18.7278244Z   submodules: false
+2025-10-03T05:48:18.7278639Z   set-safe-directory: true
+2025-10-03T05:48:18.7279314Z ##[endgroup]
+2025-10-03T05:48:18.8257579Z ##[debug]GITHUB_WORKSPACE = '/home/runner/work/CleverFerret/CleverFerret'
+2025-10-03T05:48:18.8259144Z ##[debug]qualified repository = 'Kaleaon/CleverFerret'
+2025-10-03T05:48:18.8260011Z ##[debug]ref = 'refs/pull/197/merge'
+2025-10-03T05:48:18.8261164Z ##[debug]commit = '38d8f3638d3eff12118832d00bac6140ef0ef179'
+2025-10-03T05:48:18.8262580Z ##[debug]clean = true
+2025-10-03T05:48:18.8263261Z ##[debug]filter = undefined
+2025-10-03T05:48:18.8264007Z ##[debug]fetch depth = 1
+2025-10-03T05:48:18.8264731Z ##[debug]fetch tags = false
+2025-10-03T05:48:18.8265642Z ##[debug]show progress = true
+2025-10-03T05:48:18.8266262Z ##[debug]lfs = false
+2025-10-03T05:48:18.8266945Z ##[debug]submodules = false
+2025-10-03T05:48:18.8267617Z ##[debug]recursive submodules = false
+2025-10-03T05:48:18.8268403Z ##[debug]GitHub Host URL = 
+2025-10-03T05:48:18.8269645Z ::add-matcher::/home/runner/work/_actions/actions/checkout/v4/dist/problem-matcher.json
+2025-10-03T05:48:18.8351107Z ##[debug]Added matchers: 'checkout-git'. Problem matchers scan action output for known warning or error strings and report these inline.
+2025-10-03T05:48:18.8356692Z Syncing repository: Kaleaon/CleverFerret
+2025-10-03T05:48:18.8357887Z ::group::Getting Git version info
+2025-10-03T05:48:18.8359034Z ##[group]Getting Git version info
+2025-10-03T05:48:18.8359767Z Working directory is '/home/runner/work/CleverFerret/CleverFerret'
+2025-10-03T05:48:18.8360658Z ##[debug]Getting git version
+2025-10-03T05:48:18.8361105Z [command]/usr/bin/git version
+2025-10-03T05:48:18.8434634Z git version 2.51.0
+2025-10-03T05:48:18.8456950Z ##[debug]0
+2025-10-03T05:48:18.8457863Z ##[debug]git version 2.51.0
+2025-10-03T05:48:18.8458414Z ##[debug]
+2025-10-03T05:48:18.8460037Z ##[debug]Set git useragent to: git/2.51.0 (github-actions-checkout)
+2025-10-03T05:48:18.8461188Z ::endgroup::
+2025-10-03T05:48:18.8462035Z ##[endgroup]
+2025-10-03T05:48:18.8465638Z ::add-mask::***
+2025-10-03T05:48:18.8473272Z Temporarily overriding HOME='/home/runner/work/_temp/6d5f02aa-e3bc-4d1c-a559-c7baccfcef1a' before making global git config changes
+2025-10-03T05:48:18.8474421Z Adding repository directory to the temporary git global config as a safe directory
+2025-10-03T05:48:18.8478243Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/CleverFerret/CleverFerret
+2025-10-03T05:48:18.8509245Z ##[debug]0
+2025-10-03T05:48:18.8510153Z ##[debug]
+2025-10-03T05:48:18.8514528Z Deleting the contents of '/home/runner/work/CleverFerret/CleverFerret'
+2025-10-03T05:48:18.8518031Z ::group::Initializing the repository
+2025-10-03T05:48:18.8518620Z ##[group]Initializing the repository
+2025-10-03T05:48:18.8521545Z [command]/usr/bin/git init /home/runner/work/CleverFerret/CleverFerret
+2025-10-03T05:48:18.8666647Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-10-03T05:48:18.8667777Z hint: is subject to change. To configure the initial branch name to use in all
+2025-10-03T05:48:18.8668708Z hint: of your new repositories, which will suppress this warning, call:
+2025-10-03T05:48:18.8669480Z hint:
+2025-10-03T05:48:18.8670126Z hint: 	git config --global init.defaultBranch <name>
+2025-10-03T05:48:18.8670865Z hint:
+2025-10-03T05:48:18.8672128Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-10-03T05:48:18.8673033Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-10-03T05:48:18.8673726Z hint:
+2025-10-03T05:48:18.8674197Z hint: 	git branch -m <name>
+2025-10-03T05:48:18.8674744Z hint:
+2025-10-03T05:48:18.8675387Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-10-03T05:48:18.8676455Z Initialized empty Git repository in /home/runner/work/CleverFerret/CleverFerret/.git/
+2025-10-03T05:48:18.8677858Z ##[debug]0
+2025-10-03T05:48:18.8678796Z ##[debug]Initialized empty Git repository in /home/runner/work/CleverFerret/CleverFerret/.git/
+2025-10-03T05:48:18.8679474Z ##[debug]
+2025-10-03T05:48:18.8682871Z [command]/usr/bin/git remote add origin https://github.com/Kaleaon/CleverFerret
+2025-10-03T05:48:18.8721061Z ##[debug]0
+2025-10-03T05:48:18.8721858Z ##[debug]
+2025-10-03T05:48:18.8722642Z ::endgroup::
+2025-10-03T05:48:18.8722994Z ##[endgroup]
+2025-10-03T05:48:18.8723668Z ::group::Disabling automatic garbage collection
+2025-10-03T05:48:18.8724264Z ##[group]Disabling automatic garbage collection
+2025-10-03T05:48:18.8725669Z [command]/usr/bin/git config --local gc.auto 0
+2025-10-03T05:48:18.8751987Z ##[debug]0
+2025-10-03T05:48:18.8752703Z ##[debug]
+2025-10-03T05:48:18.8753398Z ::endgroup::
+2025-10-03T05:48:18.8753866Z ##[endgroup]
+2025-10-03T05:48:18.8754501Z ::group::Setting up auth
+2025-10-03T05:48:18.8755001Z ##[group]Setting up auth
+2025-10-03T05:48:18.8759169Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-10-03T05:48:18.8782654Z ##[debug]1
+2025-10-03T05:48:18.8783297Z ##[debug]
+2025-10-03T05:48:18.8787839Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-10-03T05:48:18.9127803Z ##[debug]0
+2025-10-03T05:48:18.9129239Z ##[debug]
+2025-10-03T05:48:18.9133906Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-10-03T05:48:18.9157827Z ##[debug]1
+2025-10-03T05:48:18.9162848Z ##[debug]
+2025-10-03T05:48:18.9164604Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-10-03T05:48:18.9370718Z ##[debug]0
+2025-10-03T05:48:18.9372410Z ##[debug]
+2025-10-03T05:48:18.9379699Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-10-03T05:48:18.9414365Z ##[debug]0
+2025-10-03T05:48:18.9415733Z ##[debug]
+2025-10-03T05:48:18.9422176Z ::endgroup::
+2025-10-03T05:48:18.9423280Z ##[endgroup]
+2025-10-03T05:48:18.9424694Z ::group::Fetching the repository
+2025-10-03T05:48:18.9425534Z ##[group]Fetching the repository
+2025-10-03T05:48:18.9432219Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +38d8f3638d3eff12118832d00bac6140ef0ef179:refs/remotes/pull/197/merge
+2025-10-03T05:48:19.9354970Z From https://github.com/Kaleaon/CleverFerret
+2025-10-03T05:48:19.9355981Z  * [new ref]         38d8f3638d3eff12118832d00bac6140ef0ef179 -> pull/197/merge
+2025-10-03T05:48:19.9384820Z ##[debug]0
+2025-10-03T05:48:19.9385684Z ##[debug]
+2025-10-03T05:48:19.9386089Z ::endgroup::
+2025-10-03T05:48:19.9386308Z ##[endgroup]
+2025-10-03T05:48:19.9386683Z ::group::Determining the checkout info
+2025-10-03T05:48:19.9386998Z ##[group]Determining the checkout info
+2025-10-03T05:48:19.9387914Z ::endgroup::
+2025-10-03T05:48:19.9388123Z ##[endgroup]
+2025-10-03T05:48:19.9393191Z [command]/usr/bin/git sparse-checkout disable
+2025-10-03T05:48:19.9438085Z ##[debug]0
+2025-10-03T05:48:19.9438723Z ##[debug]
+2025-10-03T05:48:19.9443674Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-10-03T05:48:19.9471633Z ##[debug]0
+2025-10-03T05:48:19.9472583Z ##[debug]
+2025-10-03T05:48:19.9473190Z ::group::Checking out the ref
+2025-10-03T05:48:19.9473614Z ##[group]Checking out the ref
+2025-10-03T05:48:19.9477360Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/197/merge
+2025-10-03T05:48:20.0886211Z Note: switching to 'refs/remotes/pull/197/merge'.
+2025-10-03T05:48:20.0887319Z 
+2025-10-03T05:48:20.0888270Z You are in 'detached HEAD' state. You can look around, make experimental
+2025-10-03T05:48:20.0889540Z changes and commit them, and you can discard any commits you make in this
+2025-10-03T05:48:20.0892158Z state without impacting any branches by switching back to a branch.
+2025-10-03T05:48:20.0892675Z 
+2025-10-03T05:48:20.0893000Z If you want to create a new branch to retain commits you create, you may
+2025-10-03T05:48:20.0893750Z do so (now or later) by using -c with the switch command. Example:
+2025-10-03T05:48:20.0894169Z 
+2025-10-03T05:48:20.0894360Z   git switch -c <new-branch-name>
+2025-10-03T05:48:20.0894655Z 
+2025-10-03T05:48:20.0894830Z Or undo this operation with:
+2025-10-03T05:48:20.0895119Z 
+2025-10-03T05:48:20.0895266Z   git switch -
+2025-10-03T05:48:20.0895500Z 
+2025-10-03T05:48:20.0895867Z Turn off this advice by setting config variable advice.detachedHead to false
+2025-10-03T05:48:20.0896382Z 
+2025-10-03T05:48:20.0896964Z HEAD is now at 38d8f36 Merge 438d6f2e32af554085b95e025745b7b674ec9154 into 5e100e0168595b9f444cb3ec2966df1b61a22789
+2025-10-03T05:48:20.0905955Z ##[debug]0
+2025-10-03T05:48:20.0906564Z ##[debug]
+2025-10-03T05:48:20.0907222Z ::endgroup::
+2025-10-03T05:48:20.0907517Z ##[endgroup]
+2025-10-03T05:48:20.0944144Z ##[debug]0
+2025-10-03T05:48:20.0944938Z ##[debug]commit 38d8f3638d3eff12118832d00bac6140ef0ef179
+2025-10-03T05:48:20.0945482Z ##[debug]Author: Kaleaon <kalaeon@gmail.com>
+2025-10-03T05:48:20.0945956Z ##[debug]Date:   Fri Oct 3 03:07:44 2025 +0000
+2025-10-03T05:48:20.0946399Z ##[debug]
+2025-10-03T05:48:20.0947057Z ##[debug]    Merge 438d6f2e32af554085b95e025745b7b674ec9154 into 5e100e0168595b9f444cb3ec2966df1b61a22789
+2025-10-03T05:48:20.0947836Z ##[debug]
+2025-10-03T05:48:20.0948288Z [command]/usr/bin/git log -1 --format=%H
+2025-10-03T05:48:20.0969780Z 38d8f3638d3eff12118832d00bac6140ef0ef179
+2025-10-03T05:48:20.0975243Z ##[debug]0
+2025-10-03T05:48:20.0975916Z ##[debug]38d8f3638d3eff12118832d00bac6140ef0ef179
+2025-10-03T05:48:20.0976387Z ##[debug]
+2025-10-03T05:48:20.0981322Z ##[debug]Unsetting HOME override
+2025-10-03T05:48:20.0989628Z ::remove-matcher owner=checkout-git::
+2025-10-03T05:48:20.1003818Z ##[debug]Removed matchers: 'checkout-git'
+2025-10-03T05:48:20.1057554Z ##[debug]Node Action run completed with exit code 0
+2025-10-03T05:48:20.1089395Z ##[debug]Save intra-action state isPost = true
+2025-10-03T05:48:20.1089861Z ##[debug]Save intra-action state setSafeDirectory = true
+2025-10-03T05:48:20.1090325Z ##[debug]Save intra-action state repositoryPath = /home/runner/work/CleverFerret/CleverFerret
+2025-10-03T05:48:20.1094733Z ##[debug]Set output commit = 38d8f3638d3eff12118832d00bac6140ef0ef179
+2025-10-03T05:48:20.1095524Z ##[debug]Set output ref = refs/pull/197/merge
+2025-10-03T05:48:20.1100231Z ##[debug]Finishing: Checkout code
+2025-10-03T05:48:20.1111363Z ##[debug]Evaluating condition for step: 'Set up JDK 17'
+2025-10-03T05:48:20.1114068Z ##[debug]Evaluating: success()
+2025-10-03T05:48:20.1114438Z ##[debug]Evaluating success:
+2025-10-03T05:48:20.1114874Z ##[debug]=> true
+2025-10-03T05:48:20.1115351Z ##[debug]Result: true
+2025-10-03T05:48:20.1116146Z ##[debug]Starting: Set up JDK 17
+2025-10-03T05:48:20.1153201Z ##[debug]Register post job cleanup for action: actions/setup-java@v4
+2025-10-03T05:48:20.1172926Z ##[debug]Loading inputs
+2025-10-03T05:48:20.1192973Z ##[debug]Evaluating: job.status
+2025-10-03T05:48:20.1193276Z ##[debug]Evaluating Index:
+2025-10-03T05:48:20.1193514Z ##[debug]..Evaluating job:
+2025-10-03T05:48:20.1193759Z ##[debug]..=> Object
+2025-10-03T05:48:20.1193974Z ##[debug]..Evaluating String:
+2025-10-03T05:48:20.1194203Z ##[debug]..=> 'status'
+2025-10-03T05:48:20.1194516Z ##[debug]=> 'success'
+2025-10-03T05:48:20.1194727Z ##[debug]Result: 'success'
+2025-10-03T05:48:20.1201393Z ##[debug]Evaluating: (((github.server_url == 'https://github.com') && github.token) || '')
+2025-10-03T05:48:20.1202219Z ##[debug]Evaluating Or:
+2025-10-03T05:48:20.1204301Z ##[debug]..Evaluating And:
+2025-10-03T05:48:20.1205958Z ##[debug]....Evaluating Equal:
+2025-10-03T05:48:20.1206939Z ##[debug]......Evaluating Index:
+2025-10-03T05:48:20.1207202Z ##[debug]........Evaluating github:
+2025-10-03T05:48:20.1207474Z ##[debug]........=> Object
+2025-10-03T05:48:20.1207710Z ##[debug]........Evaluating String:
+2025-10-03T05:48:20.1207960Z ##[debug]........=> 'server_url'
+2025-10-03T05:48:20.1208235Z ##[debug]......=> 'https://github.com'
+2025-10-03T05:48:20.1208511Z ##[debug]......Evaluating String:
+2025-10-03T05:48:20.1208758Z ##[debug]......=> 'https://github.com'
+2025-10-03T05:48:20.1212163Z ##[debug]....=> true
+2025-10-03T05:48:20.1212670Z ##[debug]....Evaluating Index:
+2025-10-03T05:48:20.1212918Z ##[debug]......Evaluating github:
+2025-10-03T05:48:20.1213173Z ##[debug]......=> Object
+2025-10-03T05:48:20.1213411Z ##[debug]......Evaluating String:
+2025-10-03T05:48:20.1213664Z ##[debug]......=> 'token'
+2025-10-03T05:48:20.1214102Z ##[debug]....=> '***'
+2025-10-03T05:48:20.1214426Z ##[debug]..=> '***'
+2025-10-03T05:48:20.1214911Z ##[debug]=> '***'
+2025-10-03T05:48:20.1219167Z ##[debug]Expanded: ((('https://github.com' == 'https://github.com') && '***') || '')
+2025-10-03T05:48:20.1219696Z ##[debug]Result: '***'
+2025-10-03T05:48:20.1221531Z ##[debug]Loading env
+2025-10-03T05:48:20.1226282Z ##[group]Run actions/setup-java@v4
+2025-10-03T05:48:20.1226519Z with:
+2025-10-03T05:48:20.1226697Z   distribution: temurin
+2025-10-03T05:48:20.1226892Z   java-version: 17
+2025-10-03T05:48:20.1227067Z   cache: gradle
+2025-10-03T05:48:20.1227240Z   java-package: jdk
+2025-10-03T05:48:20.1227425Z   check-latest: false
+2025-10-03T05:48:20.1227608Z   server-id: github
+2025-10-03T05:48:20.1227801Z   server-username: GITHUB_ACTOR
+2025-10-03T05:48:20.1228028Z   server-password: GITHUB_TOKEN
+2025-10-03T05:48:20.1228252Z   overwrite-settings: true
+2025-10-03T05:48:20.1228460Z   job-status: success
+2025-10-03T05:48:20.1228757Z   token: ***
+2025-10-03T05:48:20.1228943Z ##[endgroup]
+2025-10-03T05:48:20.3134853Z ::group::Installed distributions
+2025-10-03T05:48:20.3135350Z ##[group]Installed distributions
+2025-10-03T05:48:20.3232632Z ##[debug]isExplicit: 11.0.28-6
+2025-10-03T05:48:20.3233370Z ##[debug]explicit? true
+2025-10-03T05:48:20.3355701Z ##[debug]isExplicit: 17.0.16-8
+2025-10-03T05:48:20.3356459Z ##[debug]explicit? true
+2025-10-03T05:48:20.3417188Z ##[debug]isExplicit: 21.0.8-9
+2025-10-03T05:48:20.3417878Z ##[debug]explicit? true
+2025-10-03T05:48:20.3483555Z ##[debug]isExplicit: 8.0.462-8
+2025-10-03T05:48:20.3484345Z ##[debug]explicit? true
+2025-10-03T05:48:20.3556953Z Resolved Java 17.0.16+8 from tool-cache
+2025-10-03T05:48:20.3557475Z Setting Java 17.0.16+8 as the default
+2025-10-03T05:48:20.3571432Z Creating toolchains.xml for JDK version 17 from temurin
+2025-10-03T05:48:20.3648097Z Writing to /home/runner/.m2/toolchains.xml
+2025-10-03T05:48:20.3649133Z 
+2025-10-03T05:48:20.3649618Z Java configuration:
+2025-10-03T05:48:20.3650005Z   Distribution: temurin
+2025-10-03T05:48:20.3650368Z   Version: 17.0.16+8
+2025-10-03T05:48:20.3651073Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:48:20.3652010Z 
+2025-10-03T05:48:20.3655938Z ::endgroup::
+2025-10-03T05:48:20.3656283Z ##[endgroup]
+2025-10-03T05:48:20.3662761Z ##[add-matcher]/home/runner/work/_actions/actions/setup-java/v4/.github/java.json
+2025-10-03T05:48:20.3670676Z ##[debug]Added matchers: 'java'. Problem matchers scan action output for known warning or error strings and report these inline.
+2025-10-03T05:48:20.3671308Z Creating settings.xml with server-id: github
+2025-10-03T05:48:20.3673061Z Writing to /home/runner/.m2/settings.xml
+2025-10-03T05:48:20.3678933Z ##[debug]followSymbolicLinks 'true'
+2025-10-03T05:48:20.3710742Z ##[debug]followSymbolicLinks 'true'
+2025-10-03T05:48:20.3711436Z ##[debug]implicitDescendants 'true'
+2025-10-03T05:48:20.3712262Z ##[debug]matchDirectories 'true'
+2025-10-03T05:48:20.3712899Z ##[debug]omitBrokenSymbolicLinks 'true'
+2025-10-03T05:48:20.3713549Z ##[debug]excludeHiddenFiles 'false'
+2025-10-03T05:48:20.3719601Z ##[debug]Search path '/home/runner/work/CleverFerret/CleverFerret'
+2025-10-03T05:48:20.3892076Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/CleverFerret/build.gradle.kts
+2025-10-03T05:48:20.3948745Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/CleverFerret/build.gradle.kts.full
+2025-10-03T05:48:20.3958852Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/CleverFerret/build.gradle.kts.minimal
+2025-10-03T05:48:20.3973361Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/CleverFerret/publish.gradle
+2025-10-03T05:48:20.4686796Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/CleverFerret/version.gradle
+2025-10-03T05:48:20.4732252Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/app/build.gradle.kts
+2025-10-03T05:48:20.4829458Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/build.gradle.kts
+2025-10-03T05:48:20.4844848Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/buildSrc/build.gradle.kts
+2025-10-03T05:48:20.4939888Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/gradle/wrapper/gradle-wrapper.properties
+2025-10-03T05:48:20.5025164Z ##[debug]/home/runner/work/CleverFerret/CleverFerret/settings.gradle.kts
+2025-10-03T05:48:20.5034011Z ##[debug]Found 10 files to hash.
+2025-10-03T05:48:20.5035577Z ##[debug]primary key is setup-java-Linux-x64-gradle-cbe2b305fd2f950fc1b89c96db14eba2dfbed363e5ea6ae79ef4e1f11c32042e
+2025-10-03T05:48:20.5040156Z ##[debug]Cache service version: v2
+2025-10-03T05:48:20.5042628Z ##[debug]Resolved Keys:
+2025-10-03T05:48:20.5043612Z ##[debug]["setup-java-Linux-x64-gradle-cbe2b305fd2f950fc1b89c96db14eba2dfbed363e5ea6ae79ef4e1f11c32042e"]
+2025-10-03T05:48:20.5046848Z ##[debug]Checking zstd --quiet --version
+2025-10-03T05:48:20.5477554Z ##[debug]1.5.7
+2025-10-03T05:48:20.5480663Z ##[debug]zstd version: 1.5.7
+2025-10-03T05:48:20.5489609Z ##[debug][Request] GetCacheEntryDownloadURL https://results-receiver.actions.githubusercontent.com/twirp/github.actions.results.api.v1.CacheService/GetCacheEntryDownloadURL
+2025-10-03T05:48:20.8424807Z ##[debug][Response] - 200
+2025-10-03T05:48:20.8426969Z ##[debug]Headers: {
+2025-10-03T05:48:20.8427402Z ##[debug]  "content-length": "56",
+2025-10-03T05:48:20.8427983Z ##[debug]  "content-type": "application/json",
+2025-10-03T05:48:20.8428615Z ##[debug]  "date": "Fri, 03 Oct 2025 05:48:20 GMT",
+2025-10-03T05:48:20.8429153Z ##[debug]  "x-github-backend": "Kubernetes",
+2025-10-03T05:48:20.8429657Z ##[debug]  "x-github-request-id": "EC22:10DBBD:1C705E4:23C611A:68DF63A4"
+2025-10-03T05:48:20.8430095Z ##[debug]}
+2025-10-03T05:48:20.8430595Z ##[debug]Body: {
+2025-10-03T05:48:20.8430841Z ##[debug]  "ok": false,
+2025-10-03T05:48:20.8431124Z ##[debug]  "signed_download_url": "",
+2025-10-03T05:48:20.8431469Z ##[debug]  "matched_key": ""
+2025-10-03T05:48:20.8431952Z ##[debug]}
+2025-10-03T05:48:20.8436332Z ##[debug]Cache not found for version 5015d68fc48322bc962181073013e02b525502a4093566f767969e784014b308 of keys: setup-java-Linux-x64-gradle-cbe2b305fd2f950fc1b89c96db14eba2dfbed363e5ea6ae79ef4e1f11c32042e
+2025-10-03T05:48:20.8437639Z gradle cache is not found
+2025-10-03T05:48:20.8517407Z ##[debug]Node Action run completed with exit code 0
+2025-10-03T05:48:20.8525463Z ##[debug]JAVA_HOME='/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64'
+2025-10-03T05:48:20.8526176Z ##[debug]JAVA_HOME_17_X64='/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64'
+2025-10-03T05:48:20.8528162Z ##[debug]Save intra-action state cache-primary-key = setup-java-Linux-x64-gradle-cbe2b305fd2f950fc1b89c96db14eba2dfbed363e5ea6ae79ef4e1f11c32042e
+2025-10-03T05:48:20.8529173Z ##[debug]Set output distribution = Temurin-Hotspot
+2025-10-03T05:48:20.8529643Z ##[debug]Set output path = /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:48:20.8530083Z ##[debug]Set output version = 17.0.16+8
+2025-10-03T05:48:20.8530377Z ##[debug]Set output cache-hit = false
+2025-10-03T05:48:20.8531006Z ##[debug]Finishing: Set up JDK 17
+2025-10-03T05:48:20.8538477Z ##[debug]Evaluating condition for step: 'Grant execute permission for gradlew'
+2025-10-03T05:48:20.8540258Z ##[debug]Evaluating: success()
+2025-10-03T05:48:20.8540611Z ##[debug]Evaluating success:
+2025-10-03T05:48:20.8540992Z ##[debug]=> true
+2025-10-03T05:48:20.8541304Z ##[debug]Result: true
+2025-10-03T05:48:20.8542672Z ##[debug]Starting: Grant execute permission for gradlew
+2025-10-03T05:48:20.8559844Z ##[debug]Loading inputs
+2025-10-03T05:48:20.8560707Z ##[debug]Loading env
+2025-10-03T05:48:20.8576037Z ##[group]Run chmod +x gradlew
+2025-10-03T05:48:20.8576320Z [36;1mchmod +x gradlew[0m
+2025-10-03T05:48:20.8613572Z shell: /usr/bin/bash -e {0}
+2025-10-03T05:48:20.8613803Z env:
+2025-10-03T05:48:20.8614099Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:48:20.8614575Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:48:20.8614923Z ##[endgroup]
+2025-10-03T05:48:20.8666100Z ##[debug]/usr/bin/bash -e /home/runner/work/_temp/4015193e-a378-4e39-88e7-a1da27d1e995.sh
+2025-10-03T05:48:20.8703182Z ##[debug]Finishing: Grant execute permission for gradlew
+2025-10-03T05:48:20.8709539Z ##[debug]Evaluating condition for step: 'Run Spotless Check'
+2025-10-03T05:48:20.8710645Z ##[debug]Evaluating: success()
+2025-10-03T05:48:20.8711015Z ##[debug]Evaluating success:
+2025-10-03T05:48:20.8711424Z ##[debug]=> true
+2025-10-03T05:48:20.8712047Z ##[debug]Result: true
+2025-10-03T05:48:20.8712604Z ##[debug]Starting: Run Spotless Check
+2025-10-03T05:48:20.8727289Z ##[debug]Loading inputs
+2025-10-03T05:48:20.8728090Z ##[debug]Loading env
+2025-10-03T05:48:20.8732054Z ##[group]Run ./gradlew spotlessCheck --no-daemon --stacktrace
+2025-10-03T05:48:20.8732459Z [36;1m./gradlew spotlessCheck --no-daemon --stacktrace[0m
+2025-10-03T05:48:20.8761027Z shell: /usr/bin/bash -e {0}
+2025-10-03T05:48:20.8761259Z env:
+2025-10-03T05:48:20.8761547Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:48:20.8762128Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:48:20.8762476Z ##[endgroup]
+2025-10-03T05:48:20.8793763Z ##[debug]/usr/bin/bash -e /home/runner/work/_temp/3eeb3f91-6a2c-418b-9ea7-d00c21fc4cde.sh
+2025-10-03T05:48:23.2407216Z Downloading https://services.gradle.org/distributions/gradle-8.13-bin.zip
+2025-10-03T05:48:27.7146827Z .............10%.............20%.............30%.............40%.............50%.............60%.............70%.............80%.............90%.............100%
+2025-10-03T05:48:29.6092136Z 
+2025-10-03T05:48:29.6094835Z Welcome to Gradle 8.13!
+2025-10-03T05:48:29.6095320Z 
+2025-10-03T05:48:29.6095806Z Here are the highlights of this release:
+2025-10-03T05:48:29.6096645Z  - Daemon JVM auto-provisioning
+2025-10-03T05:48:29.6098744Z  - Enhancements for Scala plugin and JUnit testing
+2025-10-03T05:48:29.6100259Z  - Improvements for build authors and plugin developers
+2025-10-03T05:48:29.6100641Z 
+2025-10-03T05:48:29.6103662Z For more details see https://docs.gradle.org/8.13/release-notes.html
+2025-10-03T05:48:29.6104207Z 
+2025-10-03T05:48:29.7983810Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+2025-10-03T05:48:31.5980369Z Daemon will be stopped at the end of the build 
+2025-10-03T05:48:32.0981607Z Configuration on demand is an incubating feature.
+2025-10-03T05:49:13.8007880Z > Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+2025-10-03T05:49:20.7980568Z > Task :buildSrc:pluginDescriptors
+2025-10-03T05:49:20.7982965Z > Task :buildSrc:processResources NO-SOURCE
+2025-10-03T05:49:27.4982491Z > Task :buildSrc:compileKotlin
+2025-10-03T05:49:27.4987175Z > Task :buildSrc:compileJava NO-SOURCE
+2025-10-03T05:49:27.4987986Z > Task :buildSrc:compileGroovy NO-SOURCE
+2025-10-03T05:49:27.4988888Z > Task :buildSrc:classes UP-TO-DATE
+2025-10-03T05:49:27.6019121Z 
+2025-10-03T05:49:27.6021100Z > Task :buildSrc:jar
+2025-10-03T05:49:27.6022475Z :jar: No valid plugin descriptors were found in META-INF/gradle-plugins
+2025-10-03T05:50:39.8979219Z 
+2025-10-03T05:50:39.8984658Z > Task :spotlessInternalRegisterDependencies
+2025-10-03T05:50:40.2979613Z > Task :CleverFerret:spotlessKotlin
+2025-10-03T05:50:40.4022474Z 
+2025-10-03T05:50:40.4022991Z > Task :CleverFerret:spotlessKotlinCheck FAILED
+2025-10-03T05:50:40.4065018Z FAILURE: Build failed with an exception.
+2025-10-03T05:50:40.4065392Z 
+2025-10-03T05:50:40.4065515Z * What went wrong:
+2025-10-03T05:50:40.4065981Z Execution failed for task ':CleverFerret:spotlessKotlinCheck'.
+2025-10-03T05:50:40.4066574Z > The following files had format violations:
+2025-10-03T05:50:40.4067134Z       src/main/java/com/universalmedialibrary/MainActivity.kt
+2025-10-03T05:50:40.4067679Z           @@ -496,5 +496,3 @@
+2025-10-03T05:50:40.4068571Z            ········else·->·Icons.Default.Book
+2025-10-03T05:50:40.4069069Z            ····}
+2025-10-03T05:50:40.4069344Z            }
+2025-10-03T05:50:40.4069610Z           -
+2025-10-03T05:50:40.4069862Z           -
+2025-10-03T05:50:40.4070679Z       src/main/java/com/universalmedialibrary/data/local/AppDatabase.kt
+2025-10-03T05:50:40.4071294Z           @@ -87,18 +87,18 @@
+2025-10-03T05:50:40.4072021Z            ····abstract·fun·embyServerDao():·EmbyServerDao
+2025-10-03T05:50:40.4072727Z            ····abstract·fun·jellyfinServerDao():·JellyfinServerDao
+2025-10-03T05:50:40.4073410Z            ····abstract·fun·sharedLinkDao():·SharedLinkDao
+2025-10-03T05:50:40.4073907Z           -····
+2025-10-03T05:50:40.4074181Z           +
+2025-10-03T05:50:40.4074898Z            ····//·Additional·DAOs·-·Temporarily·disabled·until·entities·are·properly·configured
+2025-10-03T05:50:40.4103598Z            ····//·abstract·fun·readerSettingsDao():·ReaderSettingsDao
+2025-10-03T05:50:40.4104348Z            ····//·abstract·fun·annotationDao():·AnnotationDao
+2025-10-03T05:50:40.4105013Z            ····//·abstract·fun·searchIndexDao():·SearchIndexDao
+2025-10-03T05:50:40.4105775Z            ····//·abstract·fun·readingStatisticsDao():·ReadingStatisticsDao
+2025-10-03T05:50:40.4106409Z           -····
+2025-10-03T05:50:40.4106684Z           +
+2025-10-03T05:50:40.4107125Z            ····//·Plex·DAOs·-·Temporarily·disabled
+2025-10-03T05:50:40.4107745Z            ····//·abstract·fun·plexServerDao():·PlexServerDao
+2025-10-03T05:50:40.4108418Z            ····//·abstract·fun·plexMediaItemDao():·PlexMediaItemDao
+2025-10-03T05:50:40.4109060Z            ····//·abstract·fun·plexSyncDao():·PlexSyncDao
+2025-10-03T05:50:40.4109538Z           -····
+2025-10-03T05:50:40.4109808Z           +
+2025-10-03T05:50:40.4110244Z            ····//·Playback·queue·DAOs·-·Temporarily·disabled
+2025-10-03T05:50:40.4110909Z            ····//·abstract·fun·playbackQueueDao():·PlaybackQueueDao
+2025-10-03T05:50:40.4111558Z            ····//·abstract·fun·queueItemDao():·QueueItemDao
+2025-10-03T05:50:40.4112508Z       src/main/java/com/universalmedialibrary/data/local/CleverFerretDatabase.kt
+2025-10-03T05:50:40.4113158Z           @@ -10,11 +10,11 @@
+2025-10-03T05:50:40.4113491Z            
+2025-10-03T05:50:40.4113761Z            /**
+2025-10-03T05:50:40.4114245Z            ·*·CleverFerret·Universal·Media·Library·Database
+2025-10-03T05:50:40.4115065Z           -·*·
+2025-10-03T05:50:40.4115374Z           +·*
+2025-10-03T05:50:40.4115977Z            ·*·Comprehensive·database·supporting·all·media·types·with·metadata,
+2025-10-03T05:50:40.4116860Z            ·*·progress·tracking,·bookmarks,·and·external·service·integration.
+2025-10-03T05:50:40.4117469Z           -·*·
+2025-10-03T05:50:40.4118071Z           -·*·Schema·based·on·Calibre's·library·structure·with·modern·Android·
+2025-10-03T05:50:40.4118685Z           +·*
+2025-10-03T05:50:40.4119255Z           +·*·Schema·based·on·Calibre's·library·structure·with·modern·Android
+2025-10-03T05:50:40.4120045Z            ·*·Room·database·patterns·and·full·media·type·support.
+2025-10-03T05:50:40.4120578Z            ·*/
+2025-10-03T05:50:40.4120845Z            @Database(
+2025-10-03T05:50:40.4121156Z           @@ -22,7 +22,7 @@
+2025-10-03T05:50:40.4121671Z            ········//·Legacy·content·creation·entities
+2025-10-03T05:50:40.4122869Z            ········DownloadedStory::class,
+2025-10-03T05:50:40.4123482Z            ········StoryUpdate::class,
+2025-10-03T05:50:40.4123900Z       ... (87 more lines that didn't fit)
+2025-10-03T05:50:40.4124330Z   Violations also present in 68 other files.
+2025-10-03T05:50:40.4124913Z   Run './gradlew :CleverFerret:spotlessApply' to fix these violations.
+2025-10-03T05:50:40.4125351Z 
+2025-10-03T05:50:40.4125463Z * Try:
+2025-10-03T05:50:40.4125825Z > Run with --info or --debug option to get more log output.
+2025-10-03T05:50:40.4126334Z > Run with --scan to get full insights.
+2025-10-03T05:50:40.4126792Z > Get more help at https://help.gradle.org.
+2025-10-03T05:50:40.4127115Z 
+2025-10-03T05:50:40.4127228Z * Exception is:
+2025-10-03T05:50:40.4127956Z org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':CleverFerret:spotlessKotlinCheck'.
+2025-10-03T05:50:40.4129702Z 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.lambda$executeIfValid$1(ExecuteActionsTaskExecuter.java:130)
+2025-10-03T05:50:40.4130964Z 	at org.gradle.internal.Try$Failure.ifSuccessfulOrElse(Try.java:293)
+2025-10-03T05:50:40.4132393Z 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:128)
+2025-10-03T05:50:40.4133980Z 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:116)
+2025-10-03T05:50:40.4135676Z 	at org.gradle.api.internal.tasks.execution.ProblemsTaskPathTrackingTaskExecuter.execute(ProblemsTaskPathTrackingTaskExecuter.java:40)
+2025-10-03T05:50:40.4137451Z 	at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
+2025-10-03T05:50:40.4139146Z 	at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
+2025-10-03T05:50:40.4140826Z 	at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
+2025-10-03T05:50:40.4142507Z 	at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
+2025-10-03T05:50:40.4143967Z 	at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
+2025-10-03T05:50:40.4145444Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
+2025-10-03T05:50:40.4146826Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
+2025-10-03T05:50:40.4148152Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
+2025-10-03T05:50:40.4149745Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+2025-10-03T05:50:40.4151591Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+2025-10-03T05:50:40.4153374Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+2025-10-03T05:50:40.4212695Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4214175Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+2025-10-03T05:50:40.4215607Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4216976Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+2025-10-03T05:50:40.4218341Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
+2025-10-03T05:50:40.4219587Z 	at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:42)
+2025-10-03T05:50:40.4221005Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:331)
+2025-10-03T05:50:40.4222829Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:318)
+2025-10-03T05:50:40.4224667Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:314)
+2025-10-03T05:50:40.4226292Z 	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+2025-10-03T05:50:40.4227841Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:314)
+2025-10-03T05:50:40.4229667Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
+2025-10-03T05:50:40.4231420Z 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
+2025-10-03T05:50:40.4232823Z 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
+2025-10-03T05:50:40.4234047Z 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+2025-10-03T05:50:40.4235260Z 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+2025-10-03T05:50:40.4236236Z Caused by: org.gradle.api.GradleException: The following files had format violations:
+2025-10-03T05:50:40.4236968Z     src/main/java/com/universalmedialibrary/MainActivity.kt
+2025-10-03T05:50:40.4237443Z         @@ -496,5 +496,3 @@
+2025-10-03T05:50:40.4237962Z          ········else·->·Icons.Default.Book
+2025-10-03T05:50:40.4238391Z          ····}
+2025-10-03T05:50:40.4238637Z          }
+2025-10-03T05:50:40.4238882Z         -
+2025-10-03T05:50:40.4239124Z         -
+2025-10-03T05:50:40.4239578Z     src/main/java/com/universalmedialibrary/data/local/AppDatabase.kt
+2025-10-03T05:50:40.4240209Z         @@ -87,18 +87,18 @@
+2025-10-03T05:50:40.4240816Z          ····abstract·fun·embyServerDao():·EmbyServerDao
+2025-10-03T05:50:40.4241623Z          ····abstract·fun·jellyfinServerDao():·JellyfinServerDao
+2025-10-03T05:50:40.4242610Z          ····abstract·fun·sharedLinkDao():·SharedLinkDao
+2025-10-03T05:50:40.4243188Z         -····
+2025-10-03T05:50:40.4243491Z         +
+2025-10-03T05:50:40.4244226Z          ····//·Additional·DAOs·-·Temporarily·disabled·until·entities·are·properly·configured
+2025-10-03T05:50:40.4245121Z          ····//·abstract·fun·readerSettingsDao():·ReaderSettingsDao
+2025-10-03T05:50:40.4245782Z          ····//·abstract·fun·annotationDao():·AnnotationDao
+2025-10-03T05:50:40.4246415Z          ····//·abstract·fun·searchIndexDao():·SearchIndexDao
+2025-10-03T05:50:40.4247139Z          ····//·abstract·fun·readingStatisticsDao():·ReadingStatisticsDao
+2025-10-03T05:50:40.4247717Z         -····
+2025-10-03T05:50:40.4247976Z         +
+2025-10-03T05:50:40.4248408Z          ····//·Plex·DAOs·-·Temporarily·disabled
+2025-10-03T05:50:40.4249001Z          ····//·abstract·fun·plexServerDao():·PlexServerDao
+2025-10-03T05:50:40.4249910Z          ····//·abstract·fun·plexMediaItemDao():·PlexMediaItemDao
+2025-10-03T05:50:40.4250554Z          ····//·abstract·fun·plexSyncDao():·PlexSyncDao
+2025-10-03T05:50:40.4251017Z         -····
+2025-10-03T05:50:40.4251280Z         +
+2025-10-03T05:50:40.4251954Z          ····//·Playback·queue·DAOs·-·Temporarily·disabled
+2025-10-03T05:50:40.4252640Z          ····//·abstract·fun·playbackQueueDao():·PlaybackQueueDao
+2025-10-03T05:50:40.4253281Z          ····//·abstract·fun·queueItemDao():·QueueItemDao
+2025-10-03T05:50:40.4253978Z     src/main/java/com/universalmedialibrary/data/local/CleverFerretDatabase.kt
+2025-10-03T05:50:40.4254754Z         @@ -10,11 +10,11 @@
+2025-10-03T05:50:40.4255109Z          
+2025-10-03T05:50:40.4312043Z          /**
+2025-10-03T05:50:40.4312694Z          ·*·CleverFerret·Universal·Media·Library·Database
+2025-10-03T05:50:40.4313240Z         -·*·
+2025-10-03T05:50:40.4313549Z         +·*
+2025-10-03T05:50:40.4314168Z          ·*·Comprehensive·database·supporting·all·media·types·with·metadata,
+2025-10-03T05:50:40.4315067Z          ·*·progress·tracking,·bookmarks,·and·external·service·integration.
+2025-10-03T05:50:40.4315651Z         -·*·
+2025-10-03T05:50:40.4316238Z         -·*·Schema·based·on·Calibre's·library·structure·with·modern·Android·
+2025-10-03T05:50:40.4316829Z         +·*
+2025-10-03T05:50:40.4317487Z         +·*·Schema·based·on·Calibre's·library·structure·with·modern·Android
+2025-10-03T05:50:40.4350392Z          ·*·Room·database·patterns·and·full·media·type·support.
+2025-10-03T05:50:40.4350941Z          ·*/
+2025-10-03T05:50:40.4351198Z          @Database(
+2025-10-03T05:50:40.4351496Z         @@ -22,7 +22,7 @@
+2025-10-03T05:50:40.4352224Z          ········//·Legacy·content·creation·entities
+2025-10-03T05:50:40.4352955Z          ········DownloadedStory::class,
+2025-10-03T05:50:40.4353522Z          ········StoryUpdate::class,
+2025-10-03T05:50:40.4354292Z     ... (87 more lines that didn't fit)
+2025-10-03T05:50:40.4354781Z Violations also present in 68 other files.
+2025-10-03T05:50:40.4355425Z Run './gradlew :CleverFerret:spotlessApply' to fix these violations.
+2025-10-03T05:50:40.4356367Z 	at com.diffplug.gradle.spotless.SpotlessCheck.performAction(SpotlessCheck.java:111)
+2025-10-03T05:50:40.4372765Z 	at com.diffplug.gradle.spotless.SpotlessCheck.performAction(SpotlessCheck.java:53)
+2025-10-03T05:50:40.4373785Z 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+2025-10-03T05:50:40.4374904Z 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+2025-10-03T05:50:40.4376194Z 	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+2025-10-03T05:50:40.4377273Z 	at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
+2025-10-03T05:50:40.4378345Z 	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.doExecute(StandardTaskAction.java:58)
+2025-10-03T05:50:40.4379642Z 	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
+2025-10-03T05:50:40.4380919Z 	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
+2025-10-03T05:50:40.4382226Z 	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:244)
+2025-10-03T05:50:40.4383417Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
+2025-10-03T05:50:40.4384784Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
+2025-10-03T05:50:40.4386138Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+2025-10-03T05:50:40.4387501Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4388870Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+2025-10-03T05:50:40.4390481Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4391951Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
+2025-10-03T05:50:40.4393184Z 	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:229)
+2025-10-03T05:50:40.4394400Z 	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:212)
+2025-10-03T05:50:40.4395678Z 	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:195)
+2025-10-03T05:50:40.4396900Z 	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:162)
+2025-10-03T05:50:40.4397944Z 	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:105)
+2025-10-03T05:50:40.4398929Z 	at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:44)
+2025-10-03T05:50:40.4399839Z 	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:59)
+2025-10-03T05:50:40.4400688Z 	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:56)
+2025-10-03T05:50:40.4402139Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+2025-10-03T05:50:40.4403863Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+2025-10-03T05:50:40.4405368Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+2025-10-03T05:50:40.4406675Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4408159Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+2025-10-03T05:50:40.4409518Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4410839Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+2025-10-03T05:50:40.4419854Z 	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:56)
+2025-10-03T05:50:40.4420916Z 	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:44)
+2025-10-03T05:50:40.4422414Z 	at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)
+2025-10-03T05:50:40.4423804Z 	at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)
+2025-10-03T05:50:40.4425004Z 	at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
+2025-10-03T05:50:40.4426181Z 	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:50)
+2025-10-03T05:50:40.4427606Z 	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:28)
+2025-10-03T05:50:40.4428990Z 	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:67)
+2025-10-03T05:50:40.4430348Z 	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:37)
+2025-10-03T05:50:40.4431909Z 	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:61)
+2025-10-03T05:50:40.4433360Z 	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:26)
+2025-10-03T05:50:40.4434893Z 	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+2025-10-03T05:50:40.4436498Z 	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+2025-10-03T05:50:40.4437968Z 	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
+2025-10-03T05:50:40.4439521Z 	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
+2025-10-03T05:50:40.4440786Z 	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
+2025-10-03T05:50:40.4442228Z 	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:75)
+2025-10-03T05:50:40.4443110Z 	at org.gradle.internal.Either$Right.fold(Either.java:175)
+2025-10-03T05:50:40.4443907Z 	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+2025-10-03T05:50:40.4444993Z 	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:73)
+2025-10-03T05:50:40.4446104Z 	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:48)
+2025-10-03T05:50:40.4447244Z 	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:46)
+2025-10-03T05:50:40.4448523Z 	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
+2025-10-03T05:50:40.4449748Z 	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+2025-10-03T05:50:40.4450907Z 	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+2025-10-03T05:50:40.4452146Z 	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+2025-10-03T05:50:40.4453181Z 	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+2025-10-03T05:50:40.4454542Z 	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+2025-10-03T05:50:40.4456289Z 	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+2025-10-03T05:50:40.4458487Z 	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:49)
+2025-10-03T05:50:40.4460251Z 	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:27)
+2025-10-03T05:50:40.4462018Z 	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:71)
+2025-10-03T05:50:40.4463620Z 	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:39)
+2025-10-03T05:50:40.4464997Z 	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:65)
+2025-10-03T05:50:40.4466144Z 	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:36)
+2025-10-03T05:50:40.4467198Z 	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:107)
+2025-10-03T05:50:40.4468189Z 	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:56)
+2025-10-03T05:50:40.4469615Z 	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:64)
+2025-10-03T05:50:40.4471487Z 	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:43)
+2025-10-03T05:50:40.4473542Z 	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.executeWithNonEmptySources(AbstractSkipEmptyWorkStep.java:125)
+2025-10-03T05:50:40.4475113Z 	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:56)
+2025-10-03T05:50:40.4476492Z 	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:36)
+2025-10-03T05:50:40.4478073Z 	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
+2025-10-03T05:50:40.4479751Z 	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:36)
+2025-10-03T05:50:40.4481497Z 	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:23)
+2025-10-03T05:50:40.4483085Z 	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:75)
+2025-10-03T05:50:40.4484366Z 	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:41)
+2025-10-03T05:50:40.4485757Z 	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$execute$0(AssignMutableWorkspaceStep.java:35)
+2025-10-03T05:50:40.4487071Z 	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:289)
+2025-10-03T05:50:40.4488345Z 	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:31)
+2025-10-03T05:50:40.4489741Z 	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:22)
+2025-10-03T05:50:40.4491017Z 	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+2025-10-03T05:50:40.4492312Z 	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+2025-10-03T05:50:40.4493776Z 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+2025-10-03T05:50:40.4495541Z 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
+2025-10-03T05:50:40.4497257Z 	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
+2025-10-03T05:50:40.4498677Z 	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
+2025-10-03T05:50:40.4499796Z 	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)
+2025-10-03T05:50:40.4501003Z 	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:48)
+2025-10-03T05:50:40.4502131Z 	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:35)
+2025-10-03T05:50:40.4503228Z 	at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:61)
+2025-10-03T05:50:40.4504654Z 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:127)
+2025-10-03T05:50:40.4506198Z 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:116)
+2025-10-03T05:50:40.4507834Z 	at org.gradle.api.internal.tasks.execution.ProblemsTaskPathTrackingTaskExecuter.execute(ProblemsTaskPathTrackingTaskExecuter.java:40)
+2025-10-03T05:50:40.4509520Z 	at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
+2025-10-03T05:50:40.4511147Z 	at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
+2025-10-03T05:50:40.4512997Z 	at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
+2025-10-03T05:50:40.4514440Z 	at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
+2025-10-03T05:50:40.4515802Z 	at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
+2025-10-03T05:50:40.4517240Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
+2025-10-03T05:50:40.4518598Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
+2025-10-03T05:50:40.4519873Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
+2025-10-03T05:50:40.4521422Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+2025-10-03T05:50:40.4523546Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+2025-10-03T05:50:40.4525155Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+2025-10-03T05:50:40.4526545Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4527955Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+2025-10-03T05:50:40.4529370Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+2025-10-03T05:50:40.4530751Z 	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+2025-10-03T05:50:40.4532299Z 	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
+2025-10-03T05:50:40.4533567Z 	at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:42)
+2025-10-03T05:50:40.4534969Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:331)
+2025-10-03T05:50:40.4536689Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:318)
+2025-10-03T05:50:40.4538544Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:314)
+2025-10-03T05:50:40.4540170Z 	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+2025-10-03T05:50:40.4541869Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:314)
+2025-10-03T05:50:40.4544030Z 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
+2025-10-03T05:50:40.4545598Z 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
+2025-10-03T05:50:40.4546812Z 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
+2025-10-03T05:50:40.4548057Z 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+2025-10-03T05:50:40.4549321Z 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+2025-10-03T05:50:40.4550015Z 
+2025-10-03T05:50:40.4550024Z 
+2025-10-03T05:50:40.4550154Z BUILD FAILED in 2m 17s
+2025-10-03T05:50:40.4550523Z 6 actionable tasks: 6 executed
+2025-10-03T05:50:40.8800156Z ##[error]Process completed with exit code 1.
+2025-10-03T05:50:40.8813862Z ##[debug]Finishing: Run Spotless Check
+2025-10-03T05:50:40.8830857Z ##[debug]Evaluating condition for step: 'Run Android Lint'
+2025-10-03T05:50:40.8832768Z ##[debug]Evaluating: success()
+2025-10-03T05:50:40.8833132Z ##[debug]Evaluating success:
+2025-10-03T05:50:40.8833501Z ##[debug]=> false
+2025-10-03T05:50:40.8833830Z ##[debug]Result: false
+2025-10-03T05:50:40.8838673Z ##[debug]Evaluating condition for step: 'Upload Lint Results'
+2025-10-03T05:50:40.8840281Z ##[debug]Evaluating: always()
+2025-10-03T05:50:40.8840592Z ##[debug]Evaluating always:
+2025-10-03T05:50:40.8841552Z ##[debug]=> true
+2025-10-03T05:50:40.8842199Z ##[debug]Result: true
+2025-10-03T05:50:40.8842671Z ##[debug]Starting: Upload Lint Results
+2025-10-03T05:50:40.8874880Z ##[debug]Loading inputs
+2025-10-03T05:50:40.8877971Z ##[debug]Loading env
+2025-10-03T05:50:40.8881674Z ##[group]Run actions/upload-artifact@v4
+2025-10-03T05:50:40.8882139Z with:
+2025-10-03T05:50:40.8882304Z   name: lint-results
+2025-10-03T05:50:40.8882694Z   path: CleverFerret/build/reports/lint-results-*.html
+CleverFerret/build/reports/lint-results-*.xml
+
+2025-10-03T05:50:40.8883131Z   if-no-files-found: warn
+2025-10-03T05:50:40.8883332Z   compression-level: 6
+2025-10-03T05:50:40.8883755Z   overwrite: false
+2025-10-03T05:50:40.8883944Z   include-hidden-files: false
+2025-10-03T05:50:40.8884141Z env:
+2025-10-03T05:50:40.8884421Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:50:40.8884867Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:50:40.8885195Z ##[endgroup]
+2025-10-03T05:50:41.0983339Z ##[debug]followSymbolicLinks 'true'
+2025-10-03T05:50:41.0984418Z ##[debug]implicitDescendants 'true'
+2025-10-03T05:50:41.0985122Z ##[debug]omitBrokenSymbolicLinks 'true'
+2025-10-03T05:50:41.0985811Z ##[debug]excludeHiddenFiles 'true'
+2025-10-03T05:50:41.1014969Z ##[debug]followSymbolicLinks 'true'
+2025-10-03T05:50:41.1015796Z ##[debug]implicitDescendants 'true'
+2025-10-03T05:50:41.1016529Z ##[debug]matchDirectories 'true'
+2025-10-03T05:50:41.1017246Z ##[debug]omitBrokenSymbolicLinks 'true'
+2025-10-03T05:50:41.1017980Z ##[debug]excludeHiddenFiles 'true'
+2025-10-03T05:50:41.1019187Z ##[debug]Search path '/home/runner/work/CleverFerret/CleverFerret/CleverFerret/build/reports'
+2025-10-03T05:50:41.1059794Z ##[warning]No files were found with the provided path: CleverFerret/build/reports/lint-results-*.html
+CleverFerret/build/reports/lint-results-*.xml. No artifacts will be uploaded.
+2025-10-03T05:50:41.1115121Z ##[debug]Node Action run completed with exit code 0
+2025-10-03T05:50:41.1117307Z ##[debug]Finishing: Upload Lint Results
+2025-10-03T05:50:41.1125590Z ##[debug]Evaluating condition for step: 'Comment Lint Results on PR'
+2025-10-03T05:50:41.1127873Z ##[debug]Evaluating: ((github.event_name == 'pull_request') && always())
+2025-10-03T05:50:41.1128354Z ##[debug]Evaluating And:
+2025-10-03T05:50:41.1128651Z ##[debug]..Evaluating Equal:
+2025-10-03T05:50:41.1128936Z ##[debug]....Evaluating Index:
+2025-10-03T05:50:41.1129224Z ##[debug]......Evaluating github:
+2025-10-03T05:50:41.1129559Z ##[debug]......=> Object
+2025-10-03T05:50:41.1129848Z ##[debug]......Evaluating String:
+2025-10-03T05:50:41.1130158Z ##[debug]......=> 'event_name'
+2025-10-03T05:50:41.1130522Z ##[debug]....=> 'pull_request'
+2025-10-03T05:50:41.1130819Z ##[debug]....Evaluating String:
+2025-10-03T05:50:41.1131104Z ##[debug]....=> 'pull_request'
+2025-10-03T05:50:41.1131379Z ##[debug]..=> true
+2025-10-03T05:50:41.1131639Z ##[debug]..Evaluating always:
+2025-10-03T05:50:41.1132122Z ##[debug]..=> true
+2025-10-03T05:50:41.1132382Z ##[debug]=> true
+2025-10-03T05:50:41.1132933Z ##[debug]Expanded: (('pull_request' == 'pull_request') && true)
+2025-10-03T05:50:41.1133329Z ##[debug]Result: true
+2025-10-03T05:50:41.1133888Z ##[debug]Starting: Comment Lint Results on PR
+2025-10-03T05:50:41.1156181Z ##[debug]Loading inputs
+2025-10-03T05:50:41.1159782Z ##[debug]Evaluating: format('const fs = require(''fs'');
+2025-10-03T05:50:41.1160218Z ##[debug]const lintResultsPath = ''CleverFerret/build/reports/lint-results-debug.xml'';
+2025-10-03T05:50:41.1160630Z ##[debug]if (fs.existsSync(lintResultsPath)) {{
+2025-10-03T05:50:41.1160985Z ##[debug]  const lintResults = fs.readFileSync(lintResultsPath, ''utf8'');
+2025-10-03T05:50:41.1161428Z ##[debug]  const issueCount = (lintResults.match(/<issue/g) || []).length;
+2025-10-03T05:50:41.1162310Z ##[debug]  const body = `### 🔍 Lint Check Results\n\nFound ${{issueCount}} lint issues. Check the [artifacts](https://github.com/{0}/actions/runs/{1}) for details.`;
+2025-10-03T05:50:41.1162906Z ##[debug]  github.rest.issues.createComment({{
+2025-10-03T05:50:41.1163204Z ##[debug]    issue_number: context.issue.number,
+2025-10-03T05:50:41.1163475Z ##[debug]    owner: context.repo.owner,
+2025-10-03T05:50:41.1163735Z ##[debug]    repo: context.repo.repo,
+2025-10-03T05:50:41.1163957Z ##[debug]    body: body
+2025-10-03T05:50:41.1164138Z ##[debug]  }});
+2025-10-03T05:50:41.1164294Z ##[debug]}}
+2025-10-03T05:50:41.1164480Z ##[debug]', github.repository, github.run_id)
+2025-10-03T05:50:41.1164745Z ##[debug]Evaluating format:
+2025-10-03T05:50:41.1168462Z ##[debug]..Evaluating String:
+2025-10-03T05:50:41.1168808Z ##[debug]..=> 'const fs = require(''fs'');
+2025-10-03T05:50:41.1169407Z ##[debug]const lintResultsPath = ''CleverFerret/build/reports/lint-results-debug.xml'';
+2025-10-03T05:50:41.1169833Z ##[debug]if (fs.existsSync(lintResultsPath)) {{
+2025-10-03T05:50:41.1170182Z ##[debug]  const lintResults = fs.readFileSync(lintResultsPath, ''utf8'');
+2025-10-03T05:50:41.1170589Z ##[debug]  const issueCount = (lintResults.match(/<issue/g) || []).length;
+2025-10-03T05:50:41.1171254Z ##[debug]  const body = `### 🔍 Lint Check Results\n\nFound ${{issueCount}} lint issues. Check the [artifacts](https://github.com/{0}/actions/runs/{1}) for details.`;
+2025-10-03T05:50:41.1172145Z ##[debug]  github.rest.issues.createComment({{
+2025-10-03T05:50:41.1172432Z ##[debug]    issue_number: context.issue.number,
+2025-10-03T05:50:41.1172694Z ##[debug]    owner: context.repo.owner,
+2025-10-03T05:50:41.1172943Z ##[debug]    repo: context.repo.repo,
+2025-10-03T05:50:41.1173160Z ##[debug]    body: body
+2025-10-03T05:50:41.1173343Z ##[debug]  }});
+2025-10-03T05:50:41.1173524Z ##[debug]}}
+2025-10-03T05:50:41.1173669Z ##[debug]'
+2025-10-03T05:50:41.1185378Z ##[debug]..Evaluating Index:
+2025-10-03T05:50:41.1185643Z ##[debug]....Evaluating github:
+2025-10-03T05:50:41.1185908Z ##[debug]....=> Object
+2025-10-03T05:50:41.1186143Z ##[debug]....Evaluating String:
+2025-10-03T05:50:41.1186378Z ##[debug]....=> 'repository'
+2025-10-03T05:50:41.1186632Z ##[debug]..=> 'Kaleaon/CleverFerret'
+2025-10-03T05:50:41.1187632Z ##[debug]..Evaluating Index:
+2025-10-03T05:50:41.1187889Z ##[debug]....Evaluating github:
+2025-10-03T05:50:41.1188166Z ##[debug]....=> Object
+2025-10-03T05:50:41.1188373Z ##[debug]....Evaluating String:
+2025-10-03T05:50:41.1188604Z ##[debug]....=> 'run_id'
+2025-10-03T05:50:41.1188837Z ##[debug]..=> '18211689629'
+2025-10-03T05:50:41.1189203Z ##[debug]=> 'const fs = require(''fs'');
+2025-10-03T05:50:41.1189588Z ##[debug]const lintResultsPath = ''CleverFerret/build/reports/lint-results-debug.xml'';
+2025-10-03T05:50:41.1190000Z ##[debug]if (fs.existsSync(lintResultsPath)) {
+2025-10-03T05:50:41.1190365Z ##[debug]  const lintResults = fs.readFileSync(lintResultsPath, ''utf8'');
+2025-10-03T05:50:41.1190778Z ##[debug]  const issueCount = (lintResults.match(/<issue/g) || []).length;
+2025-10-03T05:50:41.1191541Z ##[debug]  const body = `### 🔍 Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/Kaleaon/CleverFerret/actions/runs/18211689629) for details.`;
+2025-10-03T05:50:41.1192412Z ##[debug]  github.rest.issues.createComment({
+2025-10-03T05:50:41.1192704Z ##[debug]    issue_number: context.issue.number,
+2025-10-03T05:50:41.1192969Z ##[debug]    owner: context.repo.owner,
+2025-10-03T05:50:41.1193220Z ##[debug]    repo: context.repo.repo,
+2025-10-03T05:50:41.1193446Z ##[debug]    body: body
+2025-10-03T05:50:41.1193635Z ##[debug]  });
+2025-10-03T05:50:41.1193789Z ##[debug]}
+2025-10-03T05:50:41.1193938Z ##[debug]'
+2025-10-03T05:50:41.1194181Z ##[debug]Result: 'const fs = require(''fs'');
+2025-10-03T05:50:41.1194566Z ##[debug]const lintResultsPath = ''CleverFerret/build/reports/lint-results-debug.xml'';
+2025-10-03T05:50:41.1194975Z ##[debug]if (fs.existsSync(lintResultsPath)) {
+2025-10-03T05:50:41.1195311Z ##[debug]  const lintResults = fs.readFileSync(lintResultsPath, ''utf8'');
+2025-10-03T05:50:41.1195716Z ##[debug]  const issueCount = (lintResults.match(/<issue/g) || []).length;
+2025-10-03T05:50:41.1196447Z ##[debug]  const body = `### 🔍 Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/Kaleaon/CleverFerret/actions/runs/18211689629) for details.`;
+2025-10-03T05:50:41.1197105Z ##[debug]  github.rest.issues.createComment({
+2025-10-03T05:50:41.1197385Z ##[debug]    issue_number: context.issue.number,
+2025-10-03T05:50:41.1197640Z ##[debug]    owner: context.repo.owner,
+2025-10-03T05:50:41.1197880Z ##[debug]    repo: context.repo.repo,
+2025-10-03T05:50:41.1198097Z ##[debug]    body: body
+2025-10-03T05:50:41.1198277Z ##[debug]  });
+2025-10-03T05:50:41.1198428Z ##[debug]}
+2025-10-03T05:50:41.1198575Z ##[debug]'
+2025-10-03T05:50:41.1199431Z ##[debug]Evaluating: github.token
+2025-10-03T05:50:41.1199686Z ##[debug]Evaluating Index:
+2025-10-03T05:50:41.1199909Z ##[debug]..Evaluating github:
+2025-10-03T05:50:41.1200138Z ##[debug]..=> Object
+2025-10-03T05:50:41.1200343Z ##[debug]..Evaluating String:
+2025-10-03T05:50:41.1200556Z ##[debug]..=> 'token'
+2025-10-03T05:50:41.1201081Z ##[debug]=> '***'
+2025-10-03T05:50:41.1201391Z ##[debug]Result: '***'
+2025-10-03T05:50:41.1202951Z ##[debug]Evaluating: (runner.debug == '1')
+2025-10-03T05:50:41.1203231Z ##[debug]Evaluating Equal:
+2025-10-03T05:50:41.1203453Z ##[debug]..Evaluating Index:
+2025-10-03T05:50:41.1203677Z ##[debug]....Evaluating runner:
+2025-10-03T05:50:41.1203908Z ##[debug]....=> Object
+2025-10-03T05:50:41.1204118Z ##[debug]....Evaluating String:
+2025-10-03T05:50:41.1204324Z ##[debug]....=> 'debug'
+2025-10-03T05:50:41.1204590Z ##[debug]..=> '1'
+2025-10-03T05:50:41.1204792Z ##[debug]..Evaluating String:
+2025-10-03T05:50:41.1205000Z ##[debug]..=> '1'
+2025-10-03T05:50:41.1205194Z ##[debug]=> true
+2025-10-03T05:50:41.1205394Z ##[debug]Expanded: ('1' == '1')
+2025-10-03T05:50:41.1205609Z ##[debug]Result: true
+2025-10-03T05:50:41.1209397Z ##[debug]Loading env
+2025-10-03T05:50:41.1213206Z ##[group]Run actions/github-script@v7
+2025-10-03T05:50:41.1213433Z with:
+2025-10-03T05:50:41.1215491Z   script: const fs = require('fs');
+const lintResultsPath = 'CleverFerret/build/reports/lint-results-debug.xml';
+if (fs.existsSync(lintResultsPath)) {
+  const lintResults = fs.readFileSync(lintResultsPath, 'utf8');
+  const issueCount = (lintResults.match(/<issue/g) || []).length;
+  const body = `### 🔍 Lint Check Results\n\nFound ${issueCount} lint issues. Check the [artifacts](https://github.com/Kaleaon/CleverFerret/actions/runs/18211689629) for details.`;
+  github.rest.issues.createComment({
+    issue_number: context.issue.number,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    body: body
+  });
+}
+
+2025-10-03T05:50:41.1217576Z   github-token: ***
+2025-10-03T05:50:41.1217770Z   debug: true
+2025-10-03T05:50:41.1217949Z   user-agent: actions/github-script
+2025-10-03T05:50:41.1218187Z   result-encoding: json
+2025-10-03T05:50:41.1218367Z   retries: 0
+2025-10-03T05:50:41.1218565Z   retry-exempt-status-codes: 400,401,403,404,422
+2025-10-03T05:50:41.1218808Z env:
+2025-10-03T05:50:41.1219072Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:50:41.1219512Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+2025-10-03T05:50:41.1219858Z ##[endgroup]
+2025-10-03T05:50:41.2102726Z ##[debug]Node Action run completed with exit code 0
+2025-10-03T05:50:41.2104838Z ##[debug]Set output result = 
+2025-10-03T05:50:41.2105294Z ##[debug]Finishing: Comment Lint Results on PR
+2025-10-03T05:50:41.2113504Z ##[debug]Evaluating condition for step: 'Post Set up JDK 17'
+2025-10-03T05:50:41.2114992Z ##[debug]Evaluating: always()
+2025-10-03T05:50:41.2115321Z ##[debug]Evaluating always:
+2025-10-03T05:50:41.2115642Z ##[debug]=> true
+2025-10-03T05:50:41.2115952Z ##[debug]Result: true
+2025-10-03T05:50:41.2116577Z ##[debug]Starting: Post Set up JDK 17
+2025-10-03T05:50:41.2147624Z ##[debug]Loading inputs
+2025-10-03T05:50:41.2153823Z ##[debug]Evaluating: job.status
+2025-10-03T05:50:41.2154076Z ##[debug]Evaluating Index:
+2025-10-03T05:50:41.2154290Z ##[debug]..Evaluating job:
+2025-10-03T05:50:41.2154521Z ##[debug]..=> Object
+2025-10-03T05:50:41.2154736Z ##[debug]..Evaluating String:
+2025-10-03T05:50:41.2154960Z ##[debug]..=> 'status'
+2025-10-03T05:50:41.2155200Z ##[debug]=> 'failure'
+2025-10-03T05:50:41.2155409Z ##[debug]Result: 'failure'
+2025-10-03T05:50:41.2156827Z ##[debug]Evaluating: (((github.server_url == 'https://github.com') && github.token) || '')
+2025-10-03T05:50:41.2157306Z ##[debug]Evaluating Or:
+2025-10-03T05:50:41.2157518Z ##[debug]..Evaluating And:
+2025-10-03T05:50:41.2157730Z ##[debug]....Evaluating Equal:
+2025-10-03T05:50:41.2157950Z ##[debug]......Evaluating Index:
+2025-10-03T05:50:41.2158173Z ##[debug]........Evaluating github:
+2025-10-03T05:50:41.2158618Z ##[debug]........=> Object
+2025-10-03T05:50:41.2158830Z ##[debug]........Evaluating String:
+2025-10-03T05:50:41.2159057Z ##[debug]........=> 'server_url'
+2025-10-03T05:50:41.2159313Z ##[debug]......=> 'https://github.com'
+2025-10-03T05:50:41.2159565Z ##[debug]......Evaluating String:
+2025-10-03T05:50:41.2159801Z ##[debug]......=> 'https://github.com'
+2025-10-03T05:50:41.2160032Z ##[debug]....=> true
+2025-10-03T05:50:41.2160232Z ##[debug]....Evaluating Index:
+2025-10-03T05:50:41.2160451Z ##[debug]......Evaluating github:
+2025-10-03T05:50:41.2160665Z ##[debug]......=> Object
+2025-10-03T05:50:41.2160871Z ##[debug]......Evaluating String:
+2025-10-03T05:50:41.2161090Z ##[debug]......=> 'token'
+2025-10-03T05:50:41.2161454Z ##[debug]....=> '***'
+2025-10-03T05:50:41.2162003Z ##[debug]..=> '***'
+2025-10-03T05:50:41.2162274Z ##[debug]=> '***'
+2025-10-03T05:50:41.2162773Z ##[debug]Expanded: ((('https://github.com' == 'https://github.com') && '***') || '')
+2025-10-03T05:50:41.2163236Z ##[debug]Result: '***'
+2025-10-03T05:50:41.2164652Z ##[debug]Loading env
+2025-10-03T05:50:41.2168285Z Post job cleanup.
+2025-10-03T05:50:41.3806908Z ##[debug]Node Action run completed with exit code 0
+2025-10-03T05:50:41.3809212Z ##[debug]Finishing: Post Set up JDK 17
+2025-10-03T05:50:41.3816298Z ##[debug]Evaluating condition for step: 'Post Checkout code'
+2025-10-03T05:50:41.3817711Z ##[debug]Evaluating: always()
+2025-10-03T05:50:41.3818045Z ##[debug]Evaluating always:
+2025-10-03T05:50:41.3818373Z ##[debug]=> true
+2025-10-03T05:50:41.3818672Z ##[debug]Result: true
+2025-10-03T05:50:41.3819191Z ##[debug]Starting: Post Checkout code
+2025-10-03T05:50:41.3848498Z ##[debug]Loading inputs
+2025-10-03T05:50:41.3849347Z ##[debug]Evaluating: github.repository
+2025-10-03T05:50:41.3849623Z ##[debug]Evaluating Index:
+2025-10-03T05:50:41.3849835Z ##[debug]..Evaluating github:
+2025-10-03T05:50:41.3850076Z ##[debug]..=> Object
+2025-10-03T05:50:41.3850284Z ##[debug]..Evaluating String:
+2025-10-03T05:50:41.3850558Z ##[debug]..=> 'repository'
+2025-10-03T05:50:41.3850855Z ##[debug]=> 'Kaleaon/CleverFerret'
+2025-10-03T05:50:41.3851209Z ##[debug]Result: 'Kaleaon/CleverFerret'
+2025-10-03T05:50:41.3853396Z ##[debug]Evaluating: github.token
+2025-10-03T05:50:41.3853882Z ##[debug]Evaluating Index:
+2025-10-03T05:50:41.3854301Z ##[debug]..Evaluating github:
+2025-10-03T05:50:41.3854694Z ##[debug]..=> Object
+2025-10-03T05:50:41.3855001Z ##[debug]..Evaluating String:
+2025-10-03T05:50:41.3855285Z ##[debug]..=> 'token'
+2025-10-03T05:50:41.3855812Z ##[debug]=> '***'
+2025-10-03T05:50:41.3856247Z ##[debug]Result: '***'
+2025-10-03T05:50:41.3877062Z ##[debug]Loading env
+2025-10-03T05:50:41.3880787Z Post job cleanup.
+2025-10-03T05:50:41.4814721Z ##[debug]Getting git version
+2025-10-03T05:50:41.4829960Z [command]/usr/bin/git version
+2025-10-03T05:50:41.4870608Z git version 2.51.0
+2025-10-03T05:50:41.4893633Z ##[debug]0
+2025-10-03T05:50:41.4894259Z ##[debug]git version 2.51.0
+2025-10-03T05:50:41.4894637Z ##[debug]
+2025-10-03T05:50:41.4895359Z ##[debug]Set git useragent to: git/2.51.0 (github-actions-checkout)
+2025-10-03T05:50:41.4898552Z ::add-mask::***
+2025-10-03T05:50:41.4922069Z Temporarily overriding HOME='/home/runner/work/_temp/6975a9b6-9985-485b-aac6-b701084b672b' before making global git config changes
+2025-10-03T05:50:41.4923980Z Adding repository directory to the temporary git global config as a safe directory
+2025-10-03T05:50:41.4926583Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/CleverFerret/CleverFerret
+2025-10-03T05:50:41.4954257Z ##[debug]0
+2025-10-03T05:50:41.4954995Z ##[debug]
+2025-10-03T05:50:41.4960848Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-10-03T05:50:41.4987405Z ##[debug]1
+2025-10-03T05:50:41.4988367Z ##[debug]
+2025-10-03T05:50:41.4993622Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-10-03T05:50:41.5230281Z ##[debug]0
+2025-10-03T05:50:41.5231551Z ##[debug]
+2025-10-03T05:50:41.5237098Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-10-03T05:50:41.5259647Z http.https://github.com/.extraheader
+2025-10-03T05:50:41.5266668Z ##[debug]0
+2025-10-03T05:50:41.5267380Z ##[debug]http.https://github.com/.extraheader
+2025-10-03T05:50:41.5267883Z ##[debug]
+2025-10-03T05:50:41.5273108Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2025-10-03T05:50:41.5299749Z ##[debug]0
+2025-10-03T05:50:41.5300346Z ##[debug]
+2025-10-03T05:50:41.5305520Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-10-03T05:50:41.5536972Z ##[debug]0
+2025-10-03T05:50:41.5537555Z ##[debug]
+2025-10-03T05:50:41.5538126Z ##[debug]Unsetting HOME override
+2025-10-03T05:50:41.5612489Z ##[debug]Node Action run completed with exit code 0
+2025-10-03T05:50:41.5614583Z ##[debug]Finishing: Post Checkout code
+2025-10-03T05:50:41.5656029Z ##[debug]Starting: Complete job
+2025-10-03T05:50:41.5657485Z Uploading runner diagnostic logs
+2025-10-03T05:50:41.5668377Z ##[debug]Starting diagnostic file upload.
+2025-10-03T05:50:41.5668702Z ##[debug]Setting up diagnostic log folders.
+2025-10-03T05:50:41.5670279Z ##[debug]Creating diagnostic log files folder.
+2025-10-03T05:50:41.5677940Z ##[debug]Copying 1 worker diagnostic logs.
+2025-10-03T05:50:41.5686550Z ##[debug]Copying 1 runner diagnostic logs.
+2025-10-03T05:50:41.5687557Z ##[debug]Zipping diagnostic files.
+2025-10-03T05:50:41.5769978Z ##[debug]Uploading diagnostic metadata file.
+2025-10-03T05:50:41.5792757Z ##[debug]Diagnostic file upload complete.
+2025-10-03T05:50:41.5793250Z Completed runner diagnostic log upload
+2025-10-03T05:50:41.5793513Z Cleaning up orphan processes
+2025-10-03T05:50:41.6062713Z Terminate orphan process: pid (2281) (java)
+2025-10-03T05:50:41.6078723Z ##[debug]Finishing: Complete job
+2025-10-03T05:50:41.6107433Z ##[debug]Finishing: Code Quality & Linting

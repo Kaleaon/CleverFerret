@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Service for importing book libraries from Calibre metadata.db files
- * 
+ *
  * RECENT CHANGES FROM MAIN:
  * - Fixed MediaItem constructor to use correct entity parameters
  * - Changed from bookRecord.path/format to file.name/extension

@@ -28,9 +28,6 @@ const plexTheme = createTheme({
       default: '#1a1a1a', // Main background
       paper: '#1f2326', // Card background
     },
-    surface: {
-      main: '#282c34',
-    },
     text: {
       primary: '#ffffff',
       secondary: '#b3b3b3',
@@ -184,11 +181,13 @@ const App: React.FC = () => {
     <ThemeProvider theme={plexTheme}>
       <CssBaseline />
       <Router>
-        <Box sx={{ 
-          minHeight: '100vh', 
-          bgcolor: 'background.default',
-          color: 'text.primary'
-        }}>
+        <Box
+          sx={{
+            minHeight: '100vh',
+            bgcolor: 'background.default',
+            color: 'text.primary',
+          }}
+        >
           <Routes>
             <Route path="/" element={<LibraryListScreen />} />
             <Route path="/library/:libraryId" element={<LibraryDetailsScreen />} />

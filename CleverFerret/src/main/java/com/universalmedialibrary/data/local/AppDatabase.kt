@@ -29,6 +29,7 @@ import com.universalmedialibrary.data.local.entity.*
         // Essential system entities
         APIKey::class,
         Bookmark::class,
+        ReadingProgress::class,
 
         // Person, Series, and Genre entities for metadata
         People::class,
@@ -41,13 +42,29 @@ import com.universalmedialibrary.data.local.entity.*
         Playlist::class,
         PlaylistItem::class,
 
+        // Unified Collections
+        UnifiedCollection::class,
+        ItemCollection::class,
+
         // Unified playback queues
         PlaybackQueue::class,
         QueueItem::class,
         PlaybackSession::class
 
+        ,
+        // Maintenance proposals
+        MaintenanceChange::class,
+
+        // Emby/Jellyfin servers
+        EmbyServer::class,
+        JellyfinServer::class
+
+        ,
+        // Sharing
+        SharedLink::class
+
     ],
-    version = 12,
+    version = 17,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -60,22 +77,28 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun metadataDao(): MetadataDao
     abstract fun bookmarkDao(): BookmarkDao
+    abstract fun readingProgressDao(): ReadingProgressDao
     abstract fun playlistDao(): PlaylistDao
     abstract fun playbackQueueDao(): PlaybackQueueDao
     abstract fun queueItemDao(): QueueItemDao
     abstract fun playbackSessionDao(): PlaybackSessionDao
-    
+    abstract fun unifiedCollectionDao(): UnifiedCollectionDao
+    abstract fun maintenanceChangeDao(): MaintenanceChangeDao
+    abstract fun embyServerDao(): EmbyServerDao
+    abstract fun jellyfinServerDao(): JellyfinServerDao
+    abstract fun sharedLinkDao(): SharedLinkDao
+
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
     // abstract fun annotationDao(): AnnotationDao
     // abstract fun searchIndexDao(): SearchIndexDao
     // abstract fun readingStatisticsDao(): ReadingStatisticsDao
-    
+
     // Plex DAOs - Temporarily disabled
     // abstract fun plexServerDao(): PlexServerDao
     // abstract fun plexMediaItemDao(): PlexMediaItemDao
     // abstract fun plexSyncDao(): PlexSyncDao
-    
+
     // Playback queue DAOs - Temporarily disabled
     // abstract fun playbackQueueDao(): PlaybackQueueDao
     // abstract fun queueItemDao(): QueueItemDao

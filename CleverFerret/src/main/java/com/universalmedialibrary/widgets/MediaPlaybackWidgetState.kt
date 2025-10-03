@@ -5,10 +5,10 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 
 /**
  * MediaPlaybackWidgetState
- * 
+ *
  * Represents the current state of the media playback widget.
  * Contains all data needed to render the widget UI.
- * 
+ *
  * This is a simple data class that can be easily serialized
  * to widget preferences for persistence.
  */
@@ -33,19 +33,19 @@ data class MediaPlaybackWidgetState(
      */
     val hasMedia: Boolean
         get() = currentMedia != null
-    
+
     /**
      * Whether the widget is in an error state
      */
     val hasError: Boolean
         get() = error != null
-    
+
     /**
      * Whether playback controls should be enabled
      */
     val canPlay: Boolean
         get() = hasMedia && !isLoading && !hasError
-    
+
     /**
      * Display title for the widget
      * Falls back to filename if no title is set
@@ -56,7 +56,7 @@ data class MediaPlaybackWidgetState(
             currentMedia != null -> currentMedia.fileName.substringBeforeLast('.')
             else -> "No Media"
         }
-    
+
     /**
      * Display subtitle for the widget
      * Shows media type or custom subtitle
@@ -67,7 +67,7 @@ data class MediaPlaybackWidgetState(
             currentMedia != null -> formatMediaType(currentMedia.mediaType)
             else -> ""
         }
-    
+
     /**
      * Progress percentage (0-100)
      */
@@ -77,31 +77,31 @@ data class MediaPlaybackWidgetState(
         } else {
             0
         }
-    
+
     /**
      * Formatted current position (MM:SS)
      */
     val formattedPosition: String
         get() = formatTime(currentPositionMs)
-    
+
     /**
      * Formatted duration (MM:SS)
      */
     val formattedDuration: String
         get() = formatTime(durationMs)
-    
+
     /**
      * Whether there are more items in the queue
      */
     val hasNextInQueue: Boolean
         get() = currentQueuePosition < queueSize - 1
-    
+
     /**
      * Whether there are previous items in the queue
      */
     val hasPreviousInQueue: Boolean
         get() = currentQueuePosition > 0
-    
+
     private fun formatMediaType(mediaType: String): String {
         return when (mediaType.uppercase()) {
             "BOOK", "AUDIOBOOK" -> "Book"
@@ -113,42 +113,42 @@ data class MediaPlaybackWidgetState(
             else -> mediaType.lowercase().replaceFirstChar { it.uppercase() }
         }
     }
-    
+
     private fun formatTime(milliseconds: Long): String {
         val seconds = milliseconds / 1000
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
         return String.format("%d:%02d", minutes, remainingSeconds)
     }
-    
+
     /**
      * Create a copy with updated playback position
      */
     fun withPosition(positionMs: Long): MediaPlaybackWidgetState {
         return copy(currentPositionMs = positionMs)
     }
-    
+
     /**
      * Create a copy with updated playback state
      */
     fun withPlaybackState(playing: Boolean, paused: Boolean = false): MediaPlaybackWidgetState {
         return copy(isPlaying = playing, isPaused = paused)
     }
-    
+
     /**
      * Create a copy with an error
      */
     fun withError(errorMessage: String): MediaPlaybackWidgetState {
         return copy(error = errorMessage, isLoading = false)
     }
-    
+
     /**
      * Create a copy in loading state
      */
     fun withLoading(): MediaPlaybackWidgetState {
         return copy(isLoading = true, error = null)
     }
-    
+
     companion object {
         /**
          * Create an empty state
@@ -156,7 +156,7 @@ data class MediaPlaybackWidgetState(
         fun empty(): MediaPlaybackWidgetState {
             return MediaPlaybackWidgetState()
         }
-        
+
         /**
          * Create a state from a MediaItem
          */
