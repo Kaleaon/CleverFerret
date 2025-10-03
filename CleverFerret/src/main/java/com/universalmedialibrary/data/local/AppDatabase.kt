@@ -87,18 +87,18 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun embyServerDao(): EmbyServerDao
     abstract fun jellyfinServerDao(): JellyfinServerDao
     abstract fun sharedLinkDao(): SharedLinkDao
-    
+
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
     // abstract fun annotationDao(): AnnotationDao
     // abstract fun searchIndexDao(): SearchIndexDao
     // abstract fun readingStatisticsDao(): ReadingStatisticsDao
-    
+
     // Plex DAOs - Temporarily disabled
     // abstract fun plexServerDao(): PlexServerDao
     // abstract fun plexMediaItemDao(): PlexMediaItemDao
     // abstract fun plexSyncDao(): PlexSyncDao
-    
+
     // Playback queue DAOs - Temporarily disabled
     // abstract fun playbackQueueDao(): PlaybackQueueDao
     // abstract fun queueItemDao(): QueueItemDao

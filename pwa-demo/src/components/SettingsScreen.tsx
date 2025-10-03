@@ -51,18 +51,13 @@ import { ReaderThemeMode, ReaderFont } from '../types';
 
 export const SettingsScreen: React.FC = () => {
   const navigate = useNavigate();
-  const {
-    readerPreferences,
-    setReaderThemeMode,
-    setReaderFont,
-    setReaderFontSize,
-  } = useAppStore();
+  const { readerPreferences, setReaderThemeMode, setReaderFont, setReaderFontSize } = useAppStore();
   const [notifications, setNotifications] = useState(true);
   const [autoSync, setAutoSync] = useState(false);
   const [offlineMode, setOfflineMode] = useState(true);
   const [showApiDialog, setShowApiDialog] = useState(false);
   const [showAboutDialog, setShowAboutDialog] = useState(false);
-  
+
   // API Keys state
   const [apiKeys, setApiKeys] = useState({
     googleBooks: '',
@@ -129,8 +124,18 @@ export const SettingsScreen: React.FC = () => {
           secondary: `${readerPreferences.fontSize}px`,
           action: (
             <Box>
-              <Button size="small" onClick={() => setReaderFontSize(Math.max(12, readerPreferences.fontSize - 2))}>A-</Button>
-              <Button size="small" onClick={() => setReaderFontSize(Math.min(28, readerPreferences.fontSize + 2))}>A+</Button>
+              <Button
+                size="small"
+                onClick={() => setReaderFontSize(Math.max(12, readerPreferences.fontSize - 2))}
+              >
+                A-
+              </Button>
+              <Button
+                size="small"
+                onClick={() => setReaderFontSize(Math.min(28, readerPreferences.fontSize + 2))}
+              >
+                A+
+              </Button>
             </Box>
           ),
         },
@@ -150,32 +155,21 @@ export const SettingsScreen: React.FC = () => {
           primary: 'Notifications',
           secondary: 'Show import progress and updates',
           action: (
-            <Switch
-              checked={notifications}
-              onChange={(e) => setNotifications(e.target.checked)}
-            />
+            <Switch checked={notifications} onChange={(e) => setNotifications(e.target.checked)} />
           ),
         },
         {
           icon: <CloudSyncIcon />,
           primary: 'Auto Sync',
           secondary: 'Automatically sync library changes',
-          action: (
-            <Switch
-              checked={autoSync}
-              onChange={(e) => setAutoSync(e.target.checked)}
-            />
-          ),
+          action: <Switch checked={autoSync} onChange={(e) => setAutoSync(e.target.checked)} />,
         },
         {
           icon: <DownloadIcon />,
           primary: 'Offline Mode',
           secondary: 'Download content for offline viewing',
           action: (
-            <Switch
-              checked={offlineMode}
-              onChange={(e) => setOfflineMode(e.target.checked)}
-            />
+            <Switch checked={offlineMode} onChange={(e) => setOfflineMode(e.target.checked)} />
           ),
         },
       ],
@@ -271,9 +265,7 @@ export const SettingsScreen: React.FC = () => {
               {section.items.map((item, itemIndex) => (
                 <React.Fragment key={itemIndex}>
                   <ListItem sx={{ py: 2 }}>
-                    <ListItemIcon sx={{ color: 'primary.main' }}>
-                      {item.icon}
-                    </ListItemIcon>
+                    <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
                     <ListItemText
                       primary={item.primary}
                       secondary={item.secondary}
@@ -282,9 +274,7 @@ export const SettingsScreen: React.FC = () => {
                         fontSize: '0.875rem',
                       }}
                     />
-                    <ListItemSecondaryAction>
-                      {item.action}
-                    </ListItemSecondaryAction>
+                    <ListItemSecondaryAction>{item.action}</ListItemSecondaryAction>
                   </ListItem>
                   {itemIndex < section.items.length - 1 && (
                     <Divider sx={{ borderColor: '#2d3136' }} />
@@ -319,12 +309,7 @@ export const SettingsScreen: React.FC = () => {
             >
               Clear All Data
             </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<DeleteIcon />}
-              sx={{ mb: 1 }}
-            >
+            <Button variant="outlined" color="error" startIcon={<DeleteIcon />} sx={{ mb: 1 }}>
               Reset Settings
             </Button>
           </Box>
@@ -332,19 +317,12 @@ export const SettingsScreen: React.FC = () => {
       </Box>
 
       {/* API Keys Dialog */}
-      <Dialog
-        open={showApiDialog}
-        onClose={() => setShowApiDialog(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Configure Metadata API Keys
-        </DialogTitle>
+      <Dialog open={showApiDialog} onClose={() => setShowApiDialog(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Configure Metadata API Keys</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" paragraph>
-            Configure API keys to enable automatic metadata fetching from various sources.
-            All keys are stored locally and never shared.
+            Configure API keys to enable automatic metadata fetching from various sources. All keys
+            are stored locally and never shared.
           </Typography>
 
           <Card sx={{ mb: 3, bgcolor: 'secondary.main' }}>
@@ -399,9 +377,7 @@ export const SettingsScreen: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowApiDialog(false)}>
-            Cancel
-          </Button>
+          <Button onClick={() => setShowApiDialog(false)}>Cancel</Button>
           <Button onClick={handleApiKeysSave} variant="contained">
             Save API Keys
           </Button>
@@ -415,9 +391,7 @@ export const SettingsScreen: React.FC = () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>
-          About CleverFerret
-        </DialogTitle>
+        <DialogTitle>About CleverFerret</DialogTitle>
         <DialogContent>
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 300 }}>

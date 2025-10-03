@@ -51,4 +51,3 @@ val isCompleted = percentage >= 100f
         readingProgressDao.delete(itemId)
     }
 }
-

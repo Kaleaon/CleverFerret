@@ -134,23 +134,23 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    
+
     // HTML parsing for EPUB and web scraping
     implementation("org.jsoup:jsoup:1.17.2")
-    
+
     // XML parsing for Plex API
     implementation("com.tickaroo.tikxml:annotation:0.8.13")
     implementation("com.tickaroo.tikxml:core:0.8.13")
     implementation("com.tickaroo.tikxml:retrofit-converter:0.8.13")
-    
+
     // ML Kit for OCR and text recognition
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("com.google.mlkit:entity-extraction:16.0.0-beta5")
-    
+
     // Gemini AI - PRIMARY AI SERVICE for all devices
     // Cloud-based processing via Google's Gemini API
     implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
-    
+
     // MediaPipe for Gemma LLM - PLUGIN APP ONLY
     // On-device processing for high-end devices
     // Will be moved to separate downloadable plugin app
@@ -158,10 +158,10 @@ dependencies {
 
     // HTML parsing for web scraping
     implementation("org.jsoup:jsoup:1.17.2")
-    
+
     // Security for encrypted token storage
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
-    
+
 
     // Image loading - Use stable version
     implementation("io.coil-kt:coil-compose:2.7.0")

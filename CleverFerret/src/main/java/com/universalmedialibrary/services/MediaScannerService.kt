@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 /**
  * Service for scanning and importing media files from device storage
- * 
+ *
  * RECENT CHANGES FROM MAIN:
  * - Added MediaType import from com.universalmedialibrary.data.MediaType
  * - Fixed MediaItem constructor parameters (removed Date objects, use Long timestamps)

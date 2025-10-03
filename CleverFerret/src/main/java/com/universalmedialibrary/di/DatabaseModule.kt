@@ -31,7 +31,7 @@ object DatabaseModule {
     fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
         return appDatabase.apiKeyDao()
     }
-    
+
     @Provides
     fun provideMediaItemDao(appDatabase: AppDatabase): MediaItemDao {
         return appDatabase.mediaItemDao()

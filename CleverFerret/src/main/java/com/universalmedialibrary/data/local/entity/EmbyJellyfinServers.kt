@@ -35,4 +35,3 @@ data class JellyfinServer(
     val lastSynced: Long = 0,
     val isActive: Boolean = true
 )
-

@@ -35,4 +35,3 @@ class CollectionsViewModel @Inject constructor(
         viewModelScope.launch { repository.removeItem(collectionId, itemId) }
     }
 }
-

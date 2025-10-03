@@ -10,12 +10,12 @@ export class CleverFerretDB extends Dexie {
 
   constructor() {
     super('CleverFerretDB');
-    
+
     this.version(3).stores({
       libraries: '++libraryId, name, type, path',
       mediaItems: '++itemId, libraryId, fileName, mediaType, filePath',
       metadataCommon: 'itemId, title, isFavorite, isDownloaded',
-      metadataBooks: 'itemId, author, isbn, series'
+      metadataBooks: 'itemId, author, isbn, series',
     });
   }
 }
@@ -29,29 +29,34 @@ export class LibraryService {
   }
 
   static async addLibrary(library: Omit<Library, 'libraryId'>): Promise<number> {
-    return await db.libraries.add({
+    const id = await db.libraries.add({
       ...library,
       dateCreated: new Date(),
-      dateModified: new Date()
+      dateModified: new Date(),
     });
+    return Number(id);
   }
 
   static async deleteLibrary(libraryId: number): Promise<void> {
-    await db.transaction('rw', [db.libraries, db.mediaItems, db.metadataCommon, db.metadataBooks], async () => {
-      // Delete all related media items first
-      const mediaItems = await db.mediaItems.where('libraryId').equals(libraryId).toArray();
-      const itemIds = mediaItems.map(item => item.itemId!);
-      
-      // Delete metadata for all items
-      await db.metadataCommon.where('itemId').anyOf(itemIds).delete();
-      await db.metadataBooks.where('itemId').anyOf(itemIds).delete();
-      
-      // Delete media items
-      await db.mediaItems.where('libraryId').equals(libraryId).delete();
-      
-      // Finally delete the library
-      await db.libraries.delete(libraryId);
-    });
+    await db.transaction(
+      'rw',
+      [db.libraries, db.mediaItems, db.metadataCommon, db.metadataBooks],
+      async () => {
+        // Delete all related media items first
+        const mediaItems = await db.mediaItems.where('libraryId').equals(libraryId).toArray();
+        const itemIds = mediaItems.map((item) => item.itemId!);
+
+        // Delete metadata for all items
+        await db.metadataCommon.where('itemId').anyOf(itemIds).delete();
+        await db.metadataBooks.where('itemId').anyOf(itemIds).delete();
+
+        // Delete media items
+        await db.mediaItems.where('libraryId').equals(libraryId).delete();
+
+        // Finally delete the library
+        await db.libraries.delete(libraryId);
+      },
+    );
   }
 }
 
@@ -61,18 +66,19 @@ export class MediaItemService {
   }
 
   static async addMediaItem(item: Omit<MediaItem, 'itemId'>): Promise<number> {
-    return await db.mediaItems.add({
+    const id = await db.mediaItems.add({
       ...item,
+      fileSize: item.fileSize ?? 0,
+      mimeType: item.mimeType ?? 'application/octet-stream',
       dateAdded: new Date(),
-      lastModified: new Date()
+      lastModified: new Date(),
     });
+    return Number(id);
   }
 
   static async searchItems(query: string): Promise<MediaItem[]> {
     return await db.mediaItems
-      .filter(item => 
-        item.fileName.toLowerCase().includes(query.toLowerCase())
-      )
+      .filter((item) => item.fileName.toLowerCase().includes(query.toLowerCase()))
       .toArray();
   }
 }
@@ -82,13 +88,13 @@ export class MetadataService {
     const [mediaItem, metadataCommon, metadataBook] = await Promise.all([
       db.mediaItems.get(itemId),
       db.metadataCommon.get(itemId),
-      db.metadataBooks.get(itemId)
+      db.metadataBooks.get(itemId),
     ]);
 
     return {
       mediaItem,
       metadataCommon,
-      metadataBook
+      metadataBook,
     };
   }
 

@@ -5,6 +5,11 @@ import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
+import com.universalmedialibrary.services.contentcreation.FanfictionToEPUBConverter
+import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
+import com.universalmedialibrary.services.webfiction.RedditFanficDownloader
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,5 +33,32 @@ object ServicesModule {
     @Singleton
     fun provideAPIKeyRepository(apiKeyDao: APIKeyDao): APIKeyRepository = APIKeyRepository(apiKeyDao)
 
-    // Additional services can be added here as needed
+    @Provides
+    @Singleton
+    fun providePodcastService(
+        @ApplicationContext context: Context
+    ): PodcastService = PodcastService(context)
+
+    @Provides
+    @Singleton
+    fun provideFanfictionToEpubConverter(
+        @ApplicationContext context: Context,
+        updateManager: com.universalmedialibrary.services.contentcreation.StoryUpdateManager
+    ): FanfictionToEpubConverter = FanfictionToEpubConverter(context, updateManager)
+
+    @Provides
+    @Singleton
+    fun provideFanfictionToEPUBConverter(
+        @ApplicationContext context: Context
+    ): FanfictionToEPUBConverter = FanfictionToEPUBConverter(context)
+
+    @Provides
+    @Singleton
+    fun provideFanfictionToEpubConverterBasic(
+        @ApplicationContext context: Context
+    ): FanfictionToEpubConverterBasic = FanfictionToEpubConverterBasic(context)
+
+    @Provides
+    @Singleton
+    fun provideRedditFanficDownloader(): RedditFanficDownloader = RedditFanficDownloader()
 }

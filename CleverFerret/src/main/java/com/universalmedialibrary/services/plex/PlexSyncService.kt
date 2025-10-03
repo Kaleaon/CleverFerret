@@ -145,7 +145,7 @@ class PlexSyncService @Inject constructor(
         for (library in libraries.body()!!.mediaContainer.directories) {
             // Create or get a unified library for this Plex library
             val unifiedLibrary = getOrCreateUnifiedLibrary(server, library)
-            
+
             val items = api.getLibraryItems(library.key, server.token)
             if (items.isSuccessful && items.body()?.mediaContainer?.metadata != null) {
                 val plexItems = items.body()!!.mediaContainer.metadata!!.map { metadata ->
@@ -161,7 +161,7 @@ class PlexSyncService @Inject constructor(
                     )
                 }
                 plexMediaItemDao.insertMediaItems(plexItems)
-                
+
                 // Map to unified MediaItem model (stub entries)
                 mapPlexItemsToUnifiedModel(items.body()!!.mediaContainer.metadata!!, unifiedLibrary.libraryId, server)
             }
@@ -174,7 +174,7 @@ class PlexSyncService @Inject constructor(
     private suspend fun getOrCreateUnifiedLibrary(server: PlexServer, plexLibrary: PlexLibrary): Library {
         val libraryName = "${server.name} - ${plexLibrary.title}"
         val existingLibrary = libraryDao.getLibraryByName(libraryName)
-        
+
         return if (existingLibrary != null) {
             existingLibrary
         } else {
@@ -188,7 +188,7 @@ class PlexSyncService @Inject constructor(
             library.copy(libraryId = libraryId)
         }
     }
-    
+
     /**
      * Map Plex items to unified MediaItem model (stub entries)
      */
@@ -201,7 +201,7 @@ class PlexSyncService @Inject constructor(
             val existingItem = mediaItemDao.getMediaItemByPath(
                 "plex://${server.machineIdentifier}/${metadata.ratingKey}"
             )
-            
+
             if (existingItem == null) {
                 // Create stub entry in unified model
                 val mediaItem = MediaItem(
@@ -222,7 +222,7 @@ class PlexSyncService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Map Plex media type to unified media type
      */
@@ -234,7 +234,7 @@ class PlexSyncService @Inject constructor(
             else -> "OTHER"
         }
     }
-    
+
     /**
      * Sync playback progress
      */

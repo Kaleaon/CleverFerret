@@ -35,7 +35,7 @@ jobs:
           cache-dependency-path: pwa-demo/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --no-audit --no-fund --legacy-peer-deps
         working-directory: ./pwa-demo
 
       - name: Build PWA

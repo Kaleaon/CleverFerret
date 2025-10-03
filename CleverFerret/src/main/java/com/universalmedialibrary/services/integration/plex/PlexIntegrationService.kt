@@ -23,7 +23,7 @@ import javax.inject.Singleton
  * Features:
  * - Remote Plex server management
  * - Duplicate detection across Plex libraries
- * - Smart collection creation  
+ * - Smart collection creation
  * - Library analytics and health monitoring
  * - Watch status sync
  * - Custom artwork management

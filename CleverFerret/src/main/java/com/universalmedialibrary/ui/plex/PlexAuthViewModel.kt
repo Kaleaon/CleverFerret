@@ -19,15 +19,15 @@ class PlexAuthViewModel @Inject constructor(
     private val authService: PlexAuthService,
     private val plexSyncService: PlexSyncService
 ) : ViewModel() {
-    
+
     private val _authState = MutableStateFlow<PlexAuthUiState>(PlexAuthUiState.Idle)
     val authState: StateFlow<PlexAuthUiState> = _authState.asStateFlow()
-    
+
     private val _discoveredServers = MutableStateFlow<List<PlexDiscoveredServer>>(emptyList())
     val discoveredServers: StateFlow<List<PlexDiscoveredServer>> = _discoveredServers.asStateFlow()
-    
+
     private var pollingJob: Job? = null
-    
+
     init {
         // Observe auth service state
         viewModelScope.launch {
@@ -47,21 +47,21 @@ class PlexAuthViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Start PIN authentication flow
      */
     fun startPinAuth() {
         viewModelScope.launch {
             val result = authService.startPinAuth()
-            
+
             result.onSuccess { pinData ->
                 // Start polling for authentication
                 startPolling(pinData.pinId)
             }
         }
     }
-    
+
     /**
      * Start polling for PIN authentication completion
      */
@@ -71,7 +71,7 @@ class PlexAuthViewModel @Inject constructor(
             authService.pollForAuth(pinId)
         }
     }
-    
+
     /**
      * Cancel authentication
      */
@@ -79,16 +79,16 @@ class PlexAuthViewModel @Inject constructor(
         pollingJob?.cancel()
         _authState.value = PlexAuthUiState.Idle
     }
-    
+
     /**
      * Discover available Plex servers
      */
     fun discoverServers() {
         viewModelScope.launch {
             _authState.value = PlexAuthUiState.DiscoveringServers
-            
+
             val result = authService.discoverServers()
-            
+
             result.onSuccess { servers ->
                 _discoveredServers.value = servers
                 _authState.value = PlexAuthUiState.ServersDiscovered(servers.size)
@@ -97,7 +97,7 @@ class PlexAuthViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Select a Plex server to sync
      */
@@ -106,7 +106,7 @@ class PlexAuthViewModel @Inject constructor(
             // Find the best connection (prefer local, then remote)
             val connection = server.connections.firstOrNull { it.local }
                 ?: server.connections.firstOrNull()
-            
+
             if (connection != null) {
                 // Add server to database
                 val result = plexSyncService.addServer(
@@ -115,7 +115,7 @@ class PlexAuthViewModel @Inject constructor(
                     port = connection.port,
                     token = server.accessToken
                 )
-                
+
                 result.onSuccess {
                     // Server added successfully - could navigate to sync screen
                 }.onFailure { error ->
@@ -128,7 +128,7 @@ class PlexAuthViewModel @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Sign out
      */
@@ -137,24 +137,24 @@ class PlexAuthViewModel @Inject constructor(
         _discoveredServers.value = emptyList()
         _authState.value = PlexAuthUiState.Idle
     }
-    
+
     /**
      * Check if user is authenticated
      */
     fun isAuthenticated(): Boolean {
         return authService.isAuthenticated()
     }
-    
+
     /**
      * Get stored username
      */
     fun getUsername(): String? {
-        return authService.getStoredToken()?.let { 
+        return authService.getStoredToken()?.let {
             // In a real implementation, we'd decode the token or fetch from storage
             "Plex User"
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         pollingJob?.cancel()

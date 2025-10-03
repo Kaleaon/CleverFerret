@@ -133,4 +133,3 @@ private fun CreateCollectionDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }
-

@@ -29,4 +29,3 @@ class SharingRepository @Inject constructor(
 
     suspend fun getByToken(token: String): SharedLink? = dao.getByToken(token)
 }
-

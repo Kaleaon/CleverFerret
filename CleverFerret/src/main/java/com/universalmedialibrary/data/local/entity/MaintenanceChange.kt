@@ -28,4 +28,3 @@ data class MaintenanceChange(
     val createdAt: Long = System.currentTimeMillis(),
     val decidedAt: Long? = null
 )
-

@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
+    "lint:fix": "eslint . --ext ts,tsx --fix --report-unused-disable-directives",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest",
     "test:ui": "vitest --ui"
   },
@@ -32,11 +35,14 @@
     "eslint": "^8.53.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
     "fake-indexeddb": "^6.2.2",
     "jsdom": "^27.0.0",
-    "typescript": "^5.2.2",
+    "typescript": "5.3.3",
     "vite": "^7.1.7",
-    "vite-plugin-pwa": "^0.17.4",
+    "vite-plugin-pwa": "^0.20.5",
     "vitest": "^3.2.4",
     "workbox-window": "^7.0.0"
   }

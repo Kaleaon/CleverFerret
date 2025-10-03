@@ -27,10 +27,24 @@ describe('Database Service', () => {
 
     it('should delete a library and all its contents', async () => {
       // 1. Setup: Add a library with a media item and book metadata
-      const libraryId = await LibraryService.addLibrary({ name: 'Lib To Delete', type: 'BOOK', path: '/dev/null' });
-      const mediaItemId = await MediaItemService.addMediaItem({ libraryId, fileName: 'book.epub', mediaType: 'BOOK', filePath: '/dev/null/book.epub' });
+      const libraryId = await LibraryService.addLibrary({
+        name: 'Lib To Delete',
+        type: 'BOOK',
+        path: '/dev/null',
+      });
+      const mediaItemId = await MediaItemService.addMediaItem({
+        libraryId,
+        fileName: 'book.epub',
+        mediaType: 'BOOK',
+        filePath: '/dev/null/book.epub',
+      });
 
-      const metadataBook: MetadataBook = { itemId: mediaItemId, author: 'test', isbn: 'test', series: 'test' };
+      const metadataBook: MetadataBook = {
+        itemId: mediaItemId,
+        author: 'test',
+        isbn: 'test',
+        series: 'test',
+      };
       await db.metadataBooks.add(metadataBook);
 
       const metadataCommon: MetadataCommon = { itemId: mediaItemId, title: 'test book' };

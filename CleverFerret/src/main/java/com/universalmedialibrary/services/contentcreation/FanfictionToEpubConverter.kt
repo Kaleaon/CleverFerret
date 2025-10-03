@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * Service for converting fanfiction stories to EPUB format
- *
+ * 
  * Supports popular fanfiction sites:
  * - Archive of Our Own (AO3)
  * - FanFiction.Net
@@ -60,15 +60,15 @@ class FanfictionToEpubConverter @Inject constructor(
         try {
             // Check if story exists
             val existingStory = updateManager.checkStoryExists(url)
-
+            
             if (existingStory != null) {
                 // Check for updates
                 val updateCheck = updateManager.checkForUpdates(existingStory)
-
+                
                 if (updateCheck.hasUpdates && updateCheck.error == null) {
                     // Story has updates, re-download it
                     val updateResult = updateManager.updateStory(existingStory)
-
+                    
                     return@withContext ConversionResult(
                         success = updateResult.success,
                         filePath = updateResult.updatedStory?.epubFilePath,
@@ -102,7 +102,7 @@ class FanfictionToEpubConverter @Inject constructor(
             } else {
                 // New story, download it
                 val result = convertFanfictionToEpub(url)
-
+                
                 if (result.success && result.filePath != null && result.title != null && result.author != null) {
                     // Track the new download
                     val (site, siteId) = extractSiteInfo(url)
@@ -115,16 +115,16 @@ class FanfictionToEpubConverter @Inject constructor(
                         site = site,
                         siteStoryId = siteId
                     )
-
+                    
                     return@withContext result.copy(
                         storyId = storyId,
                         wasUpdate = false
                     )
                 }
-
+                
                 return@withContext result
             }
-
+            
         } catch (e: Exception) {
             ConversionResult(
                 success = false,
@@ -152,7 +152,7 @@ class FanfictionToEpubConverter @Inject constructor(
             )
         }
     }
-
+    
     /**
      * Convert Archive of Our Own story
      */
@@ -161,20 +161,20 @@ class FanfictionToEpubConverter @Inject constructor(
             // Get the work ID from URL
             val workId = Regex("works/(\\d+)").find(url)?.groupValues?.get(1)
                 ?: return@withContext ConversionResult(false, errorMessage = "Invalid AO3 URL")
-
+            
             // Use the entire work download URL
             val fullWorkUrl = "https://archiveofourown.org/works/$workId?view_entire_work=true"
             val document = Jsoup.connect(fullWorkUrl).get()
-
+            
             val title = document.select("h2.title").first()?.text()?.trim() ?: "Unknown Title"
             val author = document.select("h3.byline a").first()?.text()?.trim() ?: "Unknown Author"
             val summary = document.select(".summary .userstuff").first()?.html() ?: ""
             val fandom = document.select(".fandom .tag").joinToString(", ") { it.text() }
-
+            
             // Extract all chapters
             val chapters = mutableListOf<Chapter>()
             val chapterElements = document.select("#chapters .chapter")
-
+            
             if (chapterElements.isEmpty()) {
                 // Single chapter story
                 val content = document.select("#workskin .userstuff").first()?.html() ?: ""
@@ -187,9 +187,9 @@ class FanfictionToEpubConverter @Inject constructor(
                     chapters.add(Chapter(chapterTitle, chapterContent, index + 1))
                 }
             }
-
+            
             val epubPath = createFanfictionEpub(title, author, chapters, summary, fandom, url)
-
+            
             ConversionResult(
                 success = true,
                 filePath = epubPath,
@@ -197,12 +197,12 @@ class FanfictionToEpubConverter @Inject constructor(
                 author = author,
                 chapters = chapters.size
             )
-
+            
         } catch (e: Exception) {
             ConversionResult(false, errorMessage = "Failed to convert AO3 story: ${e.message}")
         }
     }
-
+    
     /**
      * Convert FanFiction.Net story
      */
@@ -210,16 +210,16 @@ class FanfictionToEpubConverter @Inject constructor(
         try {
             val storyId = Regex("s/(\\d+)").find(url)?.groupValues?.get(1)
                 ?: return@withContext ConversionResult(false, errorMessage = "Invalid FF.Net URL")
-
+            
             val document = Jsoup.connect(url).get()
             val title = document.select("#profile_top b").first()?.text()?.trim() ?: "Unknown Title"
             val author = document.select("#profile_top a").first()?.text()?.trim() ?: "Unknown Author"
             val summary = document.select("#profile_top div").first()?.text()?.trim() ?: ""
-
+            
             // Check if multi-chapter
             val chapterSelect = document.select("#chap_select option")
             val chapters = mutableListOf<Chapter>()
-
+            
             if (chapterSelect.size <= 1) {
                 // Single chapter
                 val content = document.select("#storytext").html()
@@ -234,9 +234,9 @@ class FanfictionToEpubConverter @Inject constructor(
                     chapters.add(Chapter(chapterTitle, chapterContent, i))
                 }
             }
-
+            
             val epubPath = createFanfictionEpub(title, author, chapters, summary, "FanFiction.Net", url)
-
+            
             ConversionResult(
                 success = true,
                 filePath = epubPath,
@@ -244,12 +244,12 @@ class FanfictionToEpubConverter @Inject constructor(
                 author = author,
                 chapters = chapters.size
             )
-
+            
         } catch (e: Exception) {
             ConversionResult(false, errorMessage = "Failed to convert FF.Net story: ${e.message}")
         }
     }
-
+    
     /**
      * Convert Wattpad story
      */
@@ -259,13 +259,13 @@ class FanfictionToEpubConverter @Inject constructor(
             val title = document.select("h1").first()?.text()?.trim() ?: "Unknown Title"
             val author = document.select(".author-info__username").first()?.text()?.trim() ?: "Unknown Author"
             val summary = document.select(".description").first()?.text()?.trim() ?: ""
-
+            
             // For Wattpad, we'll get the current chapter only (full story conversion would require authentication)
             val content = document.select(".part_text").html()
             val chapters = listOf(Chapter("Chapter 1", content, 1))
-
+            
             val epubPath = createFanfictionEpub(title, author, chapters, summary, "Wattpad", url)
-
+            
             ConversionResult(
                 success = true,
                 filePath = epubPath,
@@ -273,12 +273,12 @@ class FanfictionToEpubConverter @Inject constructor(
                 author = author,
                 chapters = chapters.size
             )
-
+            
         } catch (e: Exception) {
             ConversionResult(false, errorMessage = "Failed to convert Wattpad story: ${e.message}")
         }
     }
-
+    
     /**
      * Generic fanfiction converter for unknown sites
      */
@@ -288,10 +288,10 @@ class FanfictionToEpubConverter @Inject constructor(
             val title = extractGenericTitle(document)
             val author = extractGenericAuthor(document)
             val content = extractGenericContent(document)
-
+            
             val chapters = listOf(Chapter("Chapter 1", content, 1))
             val epubPath = createFanfictionEpub(title, author, chapters, "", "Unknown Site", url)
-
+            
             ConversionResult(
                 success = true,
                 filePath = epubPath,
@@ -299,28 +299,28 @@ class FanfictionToEpubConverter @Inject constructor(
                 author = author,
                 chapters = chapters.size
             )
-
+            
         } catch (e: Exception) {
             ConversionResult(false, errorMessage = "Failed to convert story: ${e.message}")
         }
     }
-
+    
     private fun extractGenericTitle(document: Document): String {
         return document.select("h1").first()?.text()
             ?: document.select("title").first()?.text()
             ?: "Unknown Title"
     }
-
+    
     private fun extractGenericAuthor(document: Document): String {
         return document.select(".author, .by, [rel=author]").first()?.text()
             ?: "Unknown Author"
     }
-
+    
     private fun extractGenericContent(document: Document): String {
         val contentSelectors = listOf(
             ".story", ".chapter", ".content", ".post", "article", "main"
         )
-
+        
         for (selector in contentSelectors) {
             val element = document.select(selector).first()
             if (element != null && element.text().length > 100) {
@@ -328,10 +328,10 @@ class FanfictionToEpubConverter @Inject constructor(
                 return element.html()
             }
         }
-
+        
         return document.select("p").joinToString("<br><br>") { it.html() }
     }
-
+    
     /**
      * Create EPUB file from fanfiction data
      */
@@ -348,11 +348,11 @@ class FanfictionToEpubConverter @Inject constructor(
         if (!outputDir.exists()) {
             outputDir.mkdirs()
         }
-
+        
         val safeFileName = title.replace(Regex("[^a-zA-Z0-9\\s]"), "").replace("\\s+".toRegex(), "_")
         val fileName = "${safeFileName}_${System.currentTimeMillis()}.epub"
         val outputFile = File(outputDir, fileName)
-
+        
         // Create metadata
         val metadata = SimpleEpubCreator.EpubMetadata(
             title = title,
@@ -360,7 +360,7 @@ class FanfictionToEpubConverter @Inject constructor(
             description = if (summary.isNotEmpty()) "$fandom fanfiction: $summary" else "$fandom fanfiction converted from: $sourceUrl",
             publisher = "CleverFerret Fanfiction Reader"
         )
-
+        
         // Convert to SimpleEpubCreator chapters
         val epubChapters = chapters.map { chapter ->
             val chapterContent = """
@@ -368,14 +368,14 @@ class FanfictionToEpubConverter @Inject constructor(
                     ${chapter.content}
                 </div>
             """.trimIndent()
-
+            
             SimpleEpubCreator.Chapter(
                 title = chapter.title,
                 content = chapterContent,
                 id = "chapter_${chapter.number}"
             )
         }
-
+        
         // Add source information as first chapter if multiple chapters
         val finalChapters = if (chapters.size > 1) {
             val infoChapter = SimpleEpubCreator.Chapter(
@@ -408,13 +408,13 @@ class FanfictionToEpubConverter @Inject constructor(
             )
             listOf(updatedChapter)
         }
-
+        
         // Generate EPUB
         epubCreator.createEpub(outputFile, metadata, finalChapters)
-
+        
         return outputFile.absolutePath
     }
-
+    
     /**
      * Extract site information from URL for tracking purposes
      */
@@ -429,7 +429,7 @@ class FanfictionToEpubConverter @Inject constructor(
                 "ffnet" to storyId
             }
             url.contains("wattpad.com") -> {
-                val storyId = Regex("story/(\\d+)").find(url)?.groupValues?.get(1)
+                val storyId = Regex("story/(\\d+)").find(url)?.groupValues?.get(1) 
                     ?: url.substringAfterLast("/").substringBefore("-")
                 "wattpad" to storyId
             }

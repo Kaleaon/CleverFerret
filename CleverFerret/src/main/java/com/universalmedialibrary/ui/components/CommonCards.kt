@@ -42,21 +42,21 @@ fun ErrorStateCard(
                 modifier = Modifier.size(48.dp),
                 tint = MaterialTheme.colorScheme.error
             )
-            
+
             Text(
                 text = "Error",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
-            
+
             Button(
                 onClick = onRetry,
                 colors = ButtonDefaults.buttonColors(
@@ -97,7 +97,7 @@ fun LoadingStateCard(
             CircularProgressIndicator(
                 modifier = Modifier.size(48.dp)
             )
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
@@ -141,7 +141,7 @@ fun EmptyStateCard(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
@@ -149,14 +149,14 @@ fun EmptyStateCard(
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Button(
                 onClick = onActionClick,
                 modifier = Modifier.fillMaxWidth(0.7f)
@@ -198,7 +198,7 @@ fun InfoBanner(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
@@ -231,7 +231,7 @@ fun SectionHeader(
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         if (actionLabel != null && onActionClick != null) {
             TextButton(onClick = onActionClick) {
                 Text(actionLabel)
@@ -269,7 +269,7 @@ fun StatsCard(
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
-            
+
             Column {
                 Text(
                     text = value,
@@ -277,7 +277,7 @@ fun StatsCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-                
+
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodySmall,

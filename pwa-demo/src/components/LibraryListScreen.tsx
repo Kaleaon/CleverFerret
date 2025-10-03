@@ -52,28 +52,40 @@ const LibraryCard: React.FC<{
     itemCount: Math.floor(Math.random() * 500) + 10,
     lastSync: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
     recentlyAdded: Math.floor(Math.random() * 20),
-    isActive: Math.random() > 0.3
+    isActive: Math.random() > 0.3,
   };
 
   const getIcon = () => {
     switch (library.type) {
-      case 'BOOK': return <BookIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
-      case 'MOVIE': return <VideoIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
-      case 'MUSIC': return <LibraryMusicIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
-      case 'PODCAST': return <PodcastIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
-      case 'MAGAZINE': return <MagazineIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
-      default: return <CollectionsIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'BOOK':
+        return <BookIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'MOVIE':
+        return <VideoIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'MUSIC':
+        return <LibraryMusicIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'PODCAST':
+        return <PodcastIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'MAGAZINE':
+        return <MagazineIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      default:
+        return <CollectionsIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
     }
   };
 
   const getBackgroundColor = () => {
     switch (library.type) {
-      case 'BOOK': return 'linear-gradient(135deg, #2C5F2D 0%, #97BC62 100%)';
-      case 'MOVIE': return 'linear-gradient(135deg, #1565C0 0%, #42A5F5 100%)';
-      case 'MUSIC': return 'linear-gradient(135deg, #7B1FA2 0%, #BA68C8 100%)';
-      case 'PODCAST': return 'linear-gradient(135deg, #EF6C00 0%, #FFB74D 100%)';
-      case 'MAGAZINE': return 'linear-gradient(135deg, #D32F2F 0%, #F48FB1 100%)';
-      default: return 'linear-gradient(135deg, #455A64 0%, #90A4AE 100%)';
+      case 'BOOK':
+        return 'linear-gradient(135deg, #2C5F2D 0%, #97BC62 100%)';
+      case 'MOVIE':
+        return 'linear-gradient(135deg, #1565C0 0%, #42A5F5 100%)';
+      case 'MUSIC':
+        return 'linear-gradient(135deg, #7B1FA2 0%, #BA68C8 100%)';
+      case 'PODCAST':
+        return 'linear-gradient(135deg, #EF6C00 0%, #FFB74D 100%)';
+      case 'MAGAZINE':
+        return 'linear-gradient(135deg, #D32F2F 0%, #F48FB1 100%)';
+      default:
+        return 'linear-gradient(135deg, #455A64 0%, #90A4AE 100%)';
     }
   };
 
@@ -81,7 +93,7 @@ const LibraryCard: React.FC<{
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return 'Updated today';
     if (diffDays <= 7) return `Updated ${diffDays} days ago`;
     return `Updated ${date.toLocaleDateString()}`;
@@ -103,8 +115,8 @@ const LibraryCard: React.FC<{
           borderColor: 'primary.main',
           '& .library-overlay': {
             opacity: 1,
-          }
-        }
+          },
+        },
       }}
       onClick={onClick}
     >
@@ -125,11 +137,11 @@ const LibraryCard: React.FC<{
             right: 0,
             height: '40px',
             background: 'linear-gradient(transparent, rgba(31, 35, 38, 0.8))',
-          }
+          },
         }}
       >
         {getIcon()}
-        
+
         {/* Status indicator */}
         {mockStats.isActive && (
           <Box
@@ -192,27 +204,27 @@ const LibraryCard: React.FC<{
 
       {/* Content */}
       <CardContent sx={{ p: 2, height: 120, display: 'flex', flexDirection: 'column' }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
+        <Typography
+          variant="h6"
+          sx={{
             fontWeight: 600,
             fontSize: '1.1rem',
             mb: 0.5,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
           }}
         >
           {library.name}
         </Typography>
-        
-        <Typography 
-          variant="body2" 
+
+        <Typography
+          variant="body2"
           color="text.secondary"
-          sx={{ 
-            mb: 1.5, 
+          sx={{
+            mb: 1.5,
             textTransform: 'capitalize',
-            fontSize: '0.875rem'
+            fontSize: '0.875rem',
           }}
         >
           {library.type.toLowerCase()} library
@@ -220,28 +232,26 @@ const LibraryCard: React.FC<{
 
         {/* Stats */}
         <Box sx={{ mt: 'auto' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography 
-              variant="body2" 
-              sx={{ 
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
                 fontWeight: 600,
                 color: 'primary.main',
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
               }}
             >
               {mockStats.itemCount.toLocaleString()} items
             </Typography>
-            <Typography 
-              variant="caption" 
-              color="text.secondary"
-              sx={{ fontSize: '0.75rem' }}
-            >
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
               {mockStats.recentlyAdded} new
             </Typography>
           </Box>
-          
-          <Typography 
-            variant="caption" 
+
+          <Typography
+            variant="caption"
             color="text.secondary"
             sx={{ fontSize: '0.7rem', opacity: 0.8 }}
           >
@@ -281,27 +291,27 @@ const AddLibraryDialog: React.FC<{
   ] as const;
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: {
           bgcolor: 'background.paper',
           borderRadius: 3,
           border: '1px solid #2d3136',
-          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.4)'
-        }
+          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.4)',
+        },
       }}
     >
-      <DialogTitle 
+      <DialogTitle
         sx={{
           pb: 2,
           fontSize: '1.5rem',
           fontWeight: 300,
           color: 'text.primary',
-          borderBottom: '1px solid #2d3136'
+          borderBottom: '1px solid #2d3136',
         }}
       >
         Add New Library
@@ -316,7 +326,7 @@ const AddLibraryDialog: React.FC<{
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., My Books, Action Movies, Jazz Collection"
-          sx={{ 
+          sx={{
             mb: 3,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
@@ -331,7 +341,7 @@ const AddLibraryDialog: React.FC<{
           variant="outlined"
           value={type}
           onChange={(e) => setType(e.target.value as Library['type'])}
-          sx={{ 
+          sx={{
             mb: 3,
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
@@ -356,7 +366,7 @@ const AddLibraryDialog: React.FC<{
           onChange={(e) => setPath(e.target.value)}
           placeholder="/path/to/library"
           helperText="Optional path to your media files on disk"
-          sx={{ 
+          sx={{
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
             },
@@ -364,7 +374,7 @@ const AddLibraryDialog: React.FC<{
         />
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 2, gap: 2 }}>
-        <Button 
+        <Button
           onClick={onClose}
           variant="outlined"
           sx={{
@@ -374,15 +384,15 @@ const AddLibraryDialog: React.FC<{
             color: 'text.secondary',
             '&:hover': {
               borderColor: 'primary.main',
-              bgcolor: 'rgba(229, 160, 13, 0.1)'
-            }
+              bgcolor: 'rgba(229, 160, 13, 0.1)',
+            },
           }}
         >
           Cancel
         </Button>
-        <Button 
-          onClick={handleSubmit} 
-          variant="contained" 
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
           disabled={!name.trim()}
           sx={{
             borderRadius: 2,
@@ -396,7 +406,7 @@ const AddLibraryDialog: React.FC<{
             '&:disabled': {
               bgcolor: 'rgba(255, 255, 255, 0.12)',
               color: 'rgba(255, 255, 255, 0.3)',
-            }
+            },
           }}
         >
           Create Library
@@ -408,14 +418,8 @@ const AddLibraryDialog: React.FC<{
 
 export const LibraryListScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { 
-    libraries, 
-    isLoading, 
-    importStatus, 
-    loadLibraries, 
-    addLibrary 
-  } = useAppStore();
-  
+  const { libraries, isLoading, importStatus, loadLibraries, addLibrary } = useAppStore();
+
   const [showDialog, setShowDialog] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -446,8 +450,8 @@ export const LibraryListScreen: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
       {/* Plex-style header */}
-      <AppBar 
-        position="static" 
+      <AppBar
+        position="static"
         elevation={0}
         sx={{
           bgcolor: 'background.default',
@@ -463,34 +467,34 @@ export const LibraryListScreen: React.FC = () => {
                 width: 40,
                 height: 40,
                 mr: 2,
-                fontWeight: 700
+                fontWeight: 700,
               }}
             >
               CF
             </Avatar>
-            <Typography 
-              variant="h5" 
-              component="div" 
-              sx={{ 
+            <Typography
+              variant="h5"
+              component="div"
+              sx={{
                 fontWeight: 300,
                 fontSize: '1.5rem',
-                color: 'text.primary'
+                color: 'text.primary',
               }}
             >
               CleverFerret
             </Typography>
           </Box>
-          
+
           <Box sx={{ flexGrow: 1 }} />
-          
+
           <IconButton
             color="inherit"
             onClick={handleMenuOpen}
             sx={{
               color: 'text.primary',
               '&:hover': {
-                bgcolor: 'secondary.main'
-              }
+                bgcolor: 'secondary.main',
+              },
             }}
           >
             <MoreVertIcon />
@@ -506,33 +510,33 @@ export const LibraryListScreen: React.FC = () => {
                 borderRadius: 2,
                 mt: 1,
                 minWidth: 220,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-              }
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+              },
             }}
           >
-            <MenuItem 
+            <MenuItem
               onClick={handleImportCalibre}
-              sx={{ 
+              sx={{
                 py: 1.5,
                 px: 2,
                 '&:hover': {
-                  bgcolor: 'secondary.main'
-                }
+                  bgcolor: 'secondary.main',
+                },
               }}
             >
               📚 Import Calibre Library
             </MenuItem>
-            <MenuItem 
+            <MenuItem
               onClick={() => {
                 handleMenuClose();
                 navigate('/settings');
               }}
-              sx={{ 
+              sx={{
                 py: 1.5,
                 px: 2,
                 '&:hover': {
-                  bgcolor: 'secondary.main'
-                }
+                  bgcolor: 'secondary.main',
+                },
               }}
             >
               ⚙️ Settings
@@ -544,11 +548,16 @@ export const LibraryListScreen: React.FC = () => {
       {/* Main content area */}
       <Box sx={{ p: { xs: 2, md: 3 } }}>
         {isLoading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" sx={{ minHeight: '60vh' }}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ minHeight: '60vh' }}
+          >
             <CircularProgress sx={{ color: 'primary.main' }} />
           </Box>
         ) : libraries.length === 0 ? (
-          <Box 
+          <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -558,7 +567,7 @@ export const LibraryListScreen: React.FC = () => {
               textAlign: 'center',
               maxWidth: 500,
               mx: 'auto',
-              px: 3
+              px: 3,
             }}
           >
             <Paper
@@ -576,33 +585,34 @@ export const LibraryListScreen: React.FC = () => {
             >
               <CollectionsIcon sx={{ fontSize: 60, color: 'primary.main' }} />
             </Paper>
-            
-            <Typography 
-              variant="h3" 
+
+            <Typography
+              variant="h3"
               gutterBottom
-              sx={{ 
+              sx={{
                 fontWeight: 300,
                 color: 'text.primary',
                 mb: 2,
-                fontSize: { xs: '2rem', md: '2.5rem' }
+                fontSize: { xs: '2rem', md: '2.5rem' },
               }}
             >
               Welcome to CleverFerret
             </Typography>
-            
-            <Typography 
-              variant="h6" 
-              color="text.secondary" 
+
+            <Typography
+              variant="h6"
+              color="text.secondary"
               mb={4}
-              sx={{ 
+              sx={{
                 fontWeight: 300,
                 lineHeight: 1.6,
-                opacity: 0.8
+                opacity: 0.8,
               }}
             >
-              Create your first media library to start organizing your books, movies, music, and more.
+              Create your first media library to start organizing your books, movies, music, and
+              more.
             </Typography>
-            
+
             <Button
               variant="contained"
               size="large"
@@ -619,18 +629,13 @@ export const LibraryListScreen: React.FC = () => {
                 '&:hover': {
                   bgcolor: 'primary.light',
                   transform: 'translateY(-2px)',
-                }
+                },
               }}
             >
               Create Your First Library
             </Button>
-            
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              mt={3}
-              sx={{ opacity: 0.6 }}
-            >
+
+            <Typography variant="body2" color="text.secondary" mt={3} sx={{ opacity: 0.6 }}>
               You can also import an existing Calibre library from the menu above
             </Typography>
           </Box>
@@ -638,21 +643,17 @@ export const LibraryListScreen: React.FC = () => {
           <>
             {/* Libraries header */}
             <Box sx={{ mb: 4 }}>
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  fontWeight: 300, 
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 300,
                   mb: 1,
-                  color: 'text.primary'
+                  color: 'text.primary',
                 }}
               >
                 Your Libraries
               </Typography>
-              <Typography 
-                variant="body1" 
-                color="text.secondary"
-                sx={{ opacity: 0.8 }}
-              >
+              <Typography variant="body1" color="text.secondary" sx={{ opacity: 0.8 }}>
                 {libraries.length} {libraries.length === 1 ? 'library' : 'libraries'}
               </Typography>
             </Box>
@@ -660,15 +661,7 @@ export const LibraryListScreen: React.FC = () => {
             {/* Libraries grid */}
             <Grid container spacing={3} sx={{ pb: { xs: 8, md: 4 } }}>
               {libraries.map((library) => (
-                <Grid 
-                  item 
-                  xs={12} 
-                  sm={6} 
-                  md={4} 
-                  lg={3} 
-                  xl={2.4}
-                  key={library.libraryId}
-                >
+                <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={library.libraryId}>
                   <LibraryCard
                     library={library}
                     onClick={() => navigate(`/library/${library.libraryId}`)}
@@ -714,9 +707,7 @@ export const LibraryListScreen: React.FC = () => {
       >
         <Card sx={{ p: 3, textAlign: 'center' }}>
           <CircularProgress color="inherit" sx={{ mb: 2 }} />
-          <Typography variant="h6">
-            {importStatus.status}
-          </Typography>
+          <Typography variant="h6">{importStatus.status}</Typography>
         </Card>
       </Backdrop>
     </Box>

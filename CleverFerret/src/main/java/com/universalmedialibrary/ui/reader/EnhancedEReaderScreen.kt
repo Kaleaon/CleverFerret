@@ -53,7 +53,7 @@ fun EnhancedEReaderScreen(
     val readerSettings by viewModel.readerSettings.collectAsState()
     val ttsState by viewModel.ttsState.collectAsState()
     val context = LocalContext.current
-
+    
     var showSettingsMenu by remember { mutableStateOf(false) }
     var showFontMenu by remember { mutableStateOf(false) }
 
@@ -65,7 +65,7 @@ fun EnhancedEReaderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
+                title = { 
                     Text(
                         text = uiState.bookTitle,
                         maxLines = 1
@@ -79,7 +79,7 @@ fun EnhancedEReaderScreen(
                 actions = {
                     // TTS Control
                     IconButton(
-                        onClick = {
+                        onClick = { 
                             if (ttsState.isPlaying) {
                                 viewModel.pauseTTS()
                             } else {
@@ -92,12 +92,12 @@ fun EnhancedEReaderScreen(
                             contentDescription = if (ttsState.isPlaying) "Pause TTS" else "Start TTS"
                         )
                     }
-
+                    
                     // Font settings
                     IconButton(onClick = { showFontMenu = true }) {
                         Icon(Icons.Default.FormatSize, contentDescription = "Font Settings")
                     }
-
+                    
                     DropdownMenu(
                         expanded = showFontMenu,
                         onDismissRequest = { showFontMenu = false }
@@ -107,7 +107,7 @@ fun EnhancedEReaderScreen(
                             style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier.padding(16.dp, 8.dp)
                         )
-
+                        
                         Row(
                             modifier = Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -115,19 +115,19 @@ fun EnhancedEReaderScreen(
                             IconButton(onClick = { viewModel.decreaseFontSize() }) {
                                 Icon(Icons.Default.Remove, contentDescription = "Decrease")
                             }
-
+                            
                             Text(
                                 "${readerSettings.fontSize.toInt()}sp",
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
-
+                            
                             IconButton(onClick = { viewModel.increaseFontSize() }) {
                                 Icon(Icons.Default.Add, contentDescription = "Increase")
                             }
                         }
-
+                        
                         HorizontalDivider()
-
+                        
                         DropdownMenuItem(
                             text = { Text("Dark Mode") },
                             onClick = { viewModel.toggleDarkMode() },
@@ -138,7 +138,7 @@ fun EnhancedEReaderScreen(
                                 )
                             }
                         )
-
+                        
                         DropdownMenuItem(
                             text = { Text("Justified Text") },
                             onClick = { viewModel.toggleJustified() },
@@ -150,12 +150,12 @@ fun EnhancedEReaderScreen(
                             }
                         )
                     }
-
+                    
                     // Settings
                     IconButton(onClick = { showSettingsMenu = true }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
-
+                    
                     DropdownMenu(
                         expanded = showSettingsMenu,
                         onDismissRequest = { showSettingsMenu = false }
@@ -164,17 +164,17 @@ fun EnhancedEReaderScreen(
                             text = { Text("Line Height") },
                             onClick = { /* TODO: Implement line height adjustment */ }
                         )
-
+                        
                         DropdownMenuItem(
                             text = { Text("Margins") },
                             onClick = { /* TODO: Implement margin adjustment */ }
                         )
-
+                        
                         DropdownMenuItem(
                             text = { Text("Page Turn Animation") },
                             onClick = { /* TODO: Implement page turn settings */ }
                         )
-
+                        
                         DropdownMenuItem(
                             text = { Text("Bookmark") },
                             onClick = { viewModel.toggleBookmark() },
@@ -206,29 +206,29 @@ fun EnhancedEReaderScreen(
                                 "Text-to-Speech",
                                 style = MaterialTheme.typography.titleSmall
                             )
-
+                            
                             Spacer(modifier = Modifier.height(8.dp))
-
+                            
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(onClick = { viewModel.pauseTTS() }) {
                                     Icon(Icons.Default.Pause, contentDescription = "Pause")
                                 }
-
+                                
                                 IconButton(onClick = { viewModel.stopTTS() }) {
                                     Icon(Icons.Default.Stop, contentDescription = "Stop")
                                 }
-
+                                
                                 Spacer(modifier = Modifier.width(16.dp))
-
+                                
                                 Text(
                                     "Speed: ${String.format(Locale.getDefault(), "%.1f", ttsState.speed)}x",
                                     style = MaterialTheme.typography.bodySmall
                                 )
-
+                                
                                 Spacer(modifier = Modifier.width(8.dp))
-
+                                
                                 Button(
                                     onClick = { viewModel.adjustTTSSpeed(-0.1f) },
                                     modifier = Modifier.size(32.dp),
@@ -236,9 +236,9 @@ fun EnhancedEReaderScreen(
                                 ) {
                                     Text("-", fontSize = 12.sp)
                                 }
-
+                                
                                 Spacer(modifier = Modifier.width(4.dp))
-
+                                
                                 Button(
                                     onClick = { viewModel.adjustTTSSpeed(0.1f) },
                                     modifier = Modifier.size(32.dp),
@@ -250,7 +250,7 @@ fun EnhancedEReaderScreen(
                         }
                     }
                 }
-
+                
                 // Navigation Bar
                 if (uiState.isLoaded && !uiState.isLoading) {
                     BottomAppBar {
@@ -265,13 +265,13 @@ fun EnhancedEReaderScreen(
                             ) {
                                 Icon(Icons.Default.NavigateBefore, contentDescription = "Previous Chapter")
                             }
-
+                            
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = "Chapter ${uiState.currentChapterIndex + 1} of ${uiState.totalChapters}",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
-
+                                
                                 LinearProgressIndicator(
                                     progress = { (uiState.currentChapterIndex + 1f) / uiState.totalChapters.coerceAtLeast(1) },
                                     modifier = Modifier
@@ -279,7 +279,7 @@ fun EnhancedEReaderScreen(
                                         .padding(top = 4.dp),
                                 )
                             }
-
+                            
                             IconButton(
                                 onClick = { viewModel.nextChapter() },
                                 enabled = uiState.currentChapterIndex < uiState.totalChapters - 1
@@ -303,7 +303,7 @@ fun EnhancedEReaderScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-
+                
                 uiState.error != null -> {
                     Column(
                         modifier = Modifier
@@ -324,7 +324,7 @@ fun EnhancedEReaderScreen(
                         )
                     }
                 }
-
+                
                 uiState.isLoaded -> {
                     EnhancedReaderContent(
                         content = uiState.currentChapterContent,
@@ -332,7 +332,7 @@ fun EnhancedEReaderScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-
+                
                 else -> {
                     Text(
                         text = "No book loaded",
@@ -356,7 +356,7 @@ private fun EnhancedReaderContent(
 ) {
     val backgroundColor = if (settings.isDarkMode) Color(0xFF1A1A1A) else Color.White
     val textColor = if (settings.isDarkMode) Color(0xFFE0E0E0) else Color.Black
-
+    
     Column(
         modifier = modifier
             .background(backgroundColor)

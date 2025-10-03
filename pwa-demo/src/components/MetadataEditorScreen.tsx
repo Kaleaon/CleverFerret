@@ -41,14 +41,14 @@ import {
   MusicNote as MusicIcon,
   Book as BookIcon,
 } from '@mui/icons-material';
-import { MediaItem, MetadataCommon, MetadataBook } from '../types';
+// import { MediaItem, MetadataCommon, MetadataBook } from '../types';
 import { MetadataAPIService, MetadataSearchResult } from '../services/metadataApi';
-import { MetadataService } from '../services/database';
+// import { MetadataService } from '../services/database';
 
 export const MetadataEditorScreen: React.FC = () => {
   const { mediaId } = useParams<{ mediaId: string }>();
   const navigate = useNavigate();
-  
+
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -57,20 +57,22 @@ export const MetadataEditorScreen: React.FC = () => {
   const [year, setYear] = useState<number | ''>('');
   const [rating, setRating] = useState<number | null>(null);
   const [thumbnailPath, setThumbnailPath] = useState('');
-  const [mediaType, setMediaType] = useState<'BOOK' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT'>('BOOK');
-  
+  const [mediaType, setMediaType] = useState<
+    'BOOK' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT'
+  >('BOOK');
+
   // Book-specific fields
   const [isbn, setIsbn] = useState('');
   const [publisher, setPublisher] = useState('');
   const [pageCount, setPageCount] = useState<number | ''>('');
   const [series, setSeries] = useState('');
-  
+
   // API search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<MetadataSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchDialog, setShowSearchDialog] = useState(false);
-  
+
   // General state
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -114,7 +116,6 @@ export const MetadataEditorScreen: React.FC = () => {
       setPublisher(mockMetadata.publisher);
       setPageCount(mockMetadata.pageCount);
       setSeries(mockMetadata.series);
-
     } catch (err) {
       setError('Failed to load metadata');
       console.error('Error loading metadata:', err);
@@ -150,7 +151,7 @@ export const MetadataEditorScreen: React.FC = () => {
     if (result.rating) setRating(result.rating);
     if (result.cover || result.poster) setThumbnailPath(result.cover || result.poster || '');
     if (result.isbn) setIsbn(result.isbn);
-    
+
     setShowSearchDialog(false);
   };
 
@@ -167,10 +168,10 @@ export const MetadataEditorScreen: React.FC = () => {
       };
 
       console.log('Saving metadata:', updatedMetadata);
-      
+
       // Simulate save delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       navigate(-1);
     } catch (err) {
       setError('Failed to save metadata');
@@ -182,21 +183,27 @@ export const MetadataEditorScreen: React.FC = () => {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'BOOK': return <BookIcon />;
-      case 'MOVIE': return <MovieIcon />;
-      case 'MUSIC': return <MusicIcon />;
-      default: return <ImageIcon />;
+      case 'BOOK':
+        return <BookIcon />;
+      case 'MOVIE':
+        return <MovieIcon />;
+      case 'MUSIC':
+        return <MusicIcon />;
+      default:
+        return <ImageIcon />;
     }
   };
 
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -213,12 +220,7 @@ export const MetadataEditorScreen: React.FC = () => {
           <Typography variant="h6" sx={{ flexGrow: 1, ml: 2 }}>
             Edit Metadata
           </Typography>
-          <Button
-            color="inherit"
-            startIcon={<SaveIcon />}
-            onClick={handleSave}
-            disabled={saving}
-          >
+          <Button color="inherit" startIcon={<SaveIcon />} onClick={handleSave} disabled={saving}>
             {saving ? 'Saving...' : 'Save'}
           </Button>
         </Toolbar>
@@ -238,19 +240,21 @@ export const MetadataEditorScreen: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Cover Art
               </Typography>
-              <Box sx={{ 
-                width: '100%',
-                height: 300,
-                bgcolor: 'secondary.main',
-                borderRadius: 2,
-                mb: 2,
-                backgroundImage: thumbnailPath ? `url(${thumbnailPath})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
+              <Box
+                sx={{
+                  width: '100%',
+                  height: 300,
+                  bgcolor: 'secondary.main',
+                  borderRadius: 2,
+                  mb: 2,
+                  backgroundImage: thumbnailPath ? `url(${thumbnailPath})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 {!thumbnailPath && getIcon(mediaType)}
               </Box>
               <TextField
@@ -305,7 +309,13 @@ export const MetadataEditorScreen: React.FC = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label={mediaType === 'MOVIE' ? 'Director' : mediaType === 'MUSIC' ? 'Artist' : 'Author'}
+                    label={
+                      mediaType === 'MOVIE'
+                        ? 'Director'
+                        : mediaType === 'MUSIC'
+                          ? 'Artist'
+                          : 'Author'
+                    }
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                   />
@@ -344,11 +354,7 @@ export const MetadataEditorScreen: React.FC = () => {
                     <Typography component="legend" variant="body2" gutterBottom>
                       Rating
                     </Typography>
-                    <Rating
-                      value={rating}
-                      onChange={(event, newValue) => setRating(newValue)}
-                      precision={0.5}
-                    />
+                    <Rating value={rating} onChange={(_, v) => setRating(v)} precision={0.5} />
                   </Box>
                 </Grid>
 
@@ -390,7 +396,9 @@ export const MetadataEditorScreen: React.FC = () => {
                         label="Page Count"
                         type="number"
                         value={pageCount}
-                        onChange={(e) => setPageCount(e.target.value ? parseInt(e.target.value) : '')}
+                        onChange={(e) =>
+                          setPageCount(e.target.value ? parseInt(e.target.value) : '')
+                        }
                       />
                     </Grid>
 
@@ -442,9 +450,7 @@ export const MetadataEditorScreen: React.FC = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>
-          Search Results for "{searchQuery}"
-        </DialogTitle>
+        <DialogTitle>Search Results for "{searchQuery}"</DialogTitle>
         <DialogContent>
           <List>
             {searchResults.map((result, index) => (
@@ -452,17 +458,14 @@ export const MetadataEditorScreen: React.FC = () => {
                 <ListItem
                   button
                   onClick={() => applySearchResult(result)}
-                  sx={{ 
+                  sx={{
                     borderRadius: 2,
                     mb: 1,
-                    '&:hover': { bgcolor: 'secondary.main' }
+                    '&:hover': { bgcolor: 'secondary.main' },
                   }}
                 >
                   <ListItemAvatar>
-                    <Avatar
-                      src={result.cover || result.poster}
-                      sx={{ bgcolor: 'primary.main' }}
-                    >
+                    <Avatar src={result.cover || result.poster} sx={{ bgcolor: 'primary.main' }}>
                       {getIcon(mediaType)}
                     </Avatar>
                   </ListItemAvatar>

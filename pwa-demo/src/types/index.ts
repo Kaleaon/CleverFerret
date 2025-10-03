@@ -56,7 +56,7 @@ export interface BookDetails {
 export enum ViewMode {
   GRID = 'GRID',
   LIST = 'LIST',
-  COVER_FLOW = 'COVER_FLOW'
+  COVER_FLOW = 'COVER_FLOW',
 }
 
 // Reader preferences
@@ -64,7 +64,7 @@ export enum ReaderThemeMode {
   WHITE = 'WHITE',
   BLACK = 'BLACK',
   SEPIA = 'SEPIA',
-  EINK = 'EINK'
+  EINK = 'EINK',
 }
 
 export enum ReaderFont {
@@ -72,7 +72,7 @@ export enum ReaderFont {
   SYSTEM_SERIF = 'SYSTEM_SERIF',
   ATKINSON = 'ATKINSON',
   OPENDYSLEXIC = 'OPENDYSLEXIC',
-  LEXEND = 'LEXEND'
+  LEXEND = 'LEXEND',
 }
 
 export interface ImportStatus {

@@ -81,4 +81,3 @@ class ThumbnailService @Inject constructor(
         outFile
     }
 }
-

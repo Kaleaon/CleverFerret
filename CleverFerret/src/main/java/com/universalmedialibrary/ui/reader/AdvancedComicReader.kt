@@ -69,15 +69,15 @@ fun AdvancedComicReader(
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
         val density = LocalDensity.current
-
+        
         var showControls by remember { mutableStateOf(true) }
         var showSettings by remember { mutableStateOf(false) }
         var showPanelBrowser by remember { mutableStateOf(false) }
-
+        
         var scale by remember { mutableFloatStateOf(1f) }
         var offsetX by remember { mutableFloatStateOf(0f) }
         var offsetY by remember { mutableFloatStateOf(0f) }
-
+        
         // Guided view animation state
         var guidedViewOffset by remember { mutableStateOf(Offset.Zero) }
         val guidedViewAnimation = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
@@ -130,7 +130,7 @@ fun AdvancedComicReader(
                 uiState.isLoading -> {
                     LoadingState()
                 }
-
+                
                 uiState.error != null -> {
                     ErrorState(
                         error = uiState.error!!,
@@ -138,7 +138,7 @@ fun AdvancedComicReader(
                         onBack = onBack
                     )
                 }
-
+                
                 uiState.isLoaded -> {
                     when (uiState.settings.readingMode) {
                         ReadingMode.CONTINUOUS_SCROLL -> {
@@ -149,7 +149,7 @@ fun AdvancedComicReader(
                                 onTap = { showControls = !showControls }
                             )
                         }
-
+                        
                         ReadingMode.DOUBLE_PAGE -> {
                             DoublePageView(
                                 pages = uiState.pages,
@@ -159,14 +159,14 @@ fun AdvancedComicReader(
                                 offsetY = offsetY,
                                 onPageChanged = { page -> viewModel.setCurrentPage(page) },
                                 onScaleChanged = { newScale -> scale = newScale },
-                                onOffsetChanged = { x, y ->
+                                onOffsetChanged = { x, y -> 
                                     offsetX = x
                                     offsetY = y
                                 },
                                 onTap = { showControls = !showControls }
                             )
                         }
-
+                        
                         else -> {
                             SinglePageView(
                                 pages = uiState.pages,
@@ -181,13 +181,13 @@ fun AdvancedComicReader(
                                 onPageChanged = { page -> viewModel.setCurrentPage(page) },
                                 onPanelSelected = { panel -> viewModel.setCurrentPanel(panel) },
                                 onScaleChanged = { newScale -> scale = newScale },
-                                onOffsetChanged = { x, y ->
+                                onOffsetChanged = { x, y -> 
                                     if (!uiState.comicSettings.panelByPanelMode) {
                                         offsetX = x
                                         offsetY = y
                                     }
                                 },
-                                onTap = {
+                                onTap = { 
                                     if (uiState.comicSettings.panelByPanelMode) {
                                         viewModel.nextPanel()
                                     } else {
@@ -235,7 +235,7 @@ fun AdvancedComicReader(
                     panelByPanelMode = uiState.comicSettings.panelByPanelMode,
                     readingDirection = uiState.settings.readingDirection,
                     canGoPrevious = uiState.currentPage > 1 || uiState.currentPanel > 0,
-                    canGoNext = uiState.currentPage < uiState.totalPages ||
+                    canGoNext = uiState.currentPage < uiState.totalPages || 
                                uiState.currentPanel < uiState.currentPagePanels.size - 1,
                     onPreviousPage = { viewModel.previousPage() },
                     onNextPage = { viewModel.nextPage() },
@@ -247,8 +247,8 @@ fun AdvancedComicReader(
             }
 
             // Panel navigation hints
-            if (uiState.comicSettings.panelByPanelMode &&
-                uiState.comicSettings.panelNavigationHints &&
+            if (uiState.comicSettings.panelByPanelMode && 
+                uiState.comicSettings.panelNavigationHints && 
                 showControls) {
                 PanelNavigationHints(
                     currentPanel = uiState.currentPanel,
@@ -310,7 +310,7 @@ private fun SinglePageView(
 ) {
     if (currentPage > 0 && currentPage <= pages.size) {
         val currentPageUri = pages[currentPage - 1]
-
+        
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -382,7 +382,7 @@ private fun SinglePageView(
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     panels.forEachIndexed { index, panel ->
                         val isCurrentPanel = panelByPanelMode && index == currentPanel
-
+                        
                         drawRect(
                             color = if (isCurrentPanel) Color.Red else Color.Yellow,
                             topLeft = Offset(panel.left, panel.top),
@@ -391,7 +391,7 @@ private fun SinglePageView(
                                 width = if (isCurrentPanel) 4.dp.toPx() else 2.dp.toPx()
                             )
                         )
-
+                        
                         if (showPanelBorders) {
                             drawRect(
                                 color = Color.Black.copy(alpha = 0.1f),

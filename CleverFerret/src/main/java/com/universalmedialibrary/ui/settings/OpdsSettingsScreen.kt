@@ -60,4 +60,3 @@ fun OpdsSettingsScreen(onBack: () -> Unit, viewModel: OpdsSettingsViewModel = hi
         }
     }
 }
-

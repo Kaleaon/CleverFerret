@@ -18,4 +18,3 @@ class ComicReaderViewModel @Inject constructor(
         return geminiService.translateComicPage(bitmap, targetLanguage)
     }
 }
-

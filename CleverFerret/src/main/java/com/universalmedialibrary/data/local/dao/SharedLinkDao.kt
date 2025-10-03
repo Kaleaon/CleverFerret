@@ -21,4 +21,3 @@ interface SharedLinkDao {
     @Delete
     suspend fun delete(link: SharedLink)
 }
-
