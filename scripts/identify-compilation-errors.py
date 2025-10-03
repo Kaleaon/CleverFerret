@@ -11,7 +11,10 @@ from pathlib import Path
 class CompilationErrorDetector:
     def __init__(self, project_root):
         self.project_root = Path(project_root)
-        self.android_dir = self.project_root / "CleverFerret"
+        # Prefer standard module name `app`, fallback to legacy `CleverFerret`
+        candidate_app = self.project_root / "app"
+        candidate_cf = self.project_root / "CleverFerret"
+        self.android_dir = candidate_app if candidate_app.exists() else candidate_cf
         self.source_dir = self.android_dir / "src/main/java/com/universalmedialibrary"
         self.errors = []
         self.warnings = []

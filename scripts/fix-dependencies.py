@@ -11,7 +11,11 @@ from pathlib import Path
 class DependencyFixer:
     def __init__(self, project_root):
         self.project_root = Path(project_root)
-        self.build_file = self.project_root / "CleverFerret" / "build.gradle.kts"
+        # Detect Android module directory dynamically
+        candidate_app = self.project_root / "app"
+        candidate_cf = self.project_root / "CleverFerret"
+        self.module_dir = candidate_app if candidate_app.exists() else candidate_cf
+        self.build_file = self.module_dir / "build.gradle.kts"
         self.settings_file = self.project_root / "settings.gradle.kts"
         
     def analyze_dependencies(self):
