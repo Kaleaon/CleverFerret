@@ -11,7 +11,7 @@ class JellyfinIntegrationService @Inject constructor() {
     fun createApi(baseUrl: String): JellyfinApi {
         val client = OkHttpClient.Builder().build()
         return Retrofit.Builder()
-            .baseUrl(baseUrl)
+            .baseUrl(if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
