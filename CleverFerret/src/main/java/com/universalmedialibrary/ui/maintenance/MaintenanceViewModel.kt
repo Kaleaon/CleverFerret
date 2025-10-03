@@ -9,6 +9,7 @@ import com.universalmedialibrary.services.metadata.RealMetadataService
 import com.universalmedialibrary.services.thumbnails.ThumbnailService
 import com.universalmedialibrary.services.maintenance.FileChangeScanner
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -74,13 +75,16 @@ class MaintenanceViewModel @Inject constructor(
                     title = md.title,
                     summary = md.description ?: before.summary
                 )
+                val gson = Gson()
+                val oldJson = before?.let { mapOf("title" to it.title, "summary" to it.summary) }?.let { gson.toJson(it) }
+                val newJson = after?.let { mapOf("title" to it.title, "summary" to it.summary) }?.let { gson.toJson(it) }
                 repository.propose(
                     MaintenanceChange(
                         itemId = item.itemId,
                         changeType = "METADATA_UPDATE",
                         summary = "Update metadata from ${result.sources.joinToString()}",
-                        oldDataJson = before?.let { "{\"title\":\"${it.title}\",\"summary\":\"${it.summary ?: ""}\"}" },
-                        newDataJson = after?.let { "{\"title\":\"${it.title}\",\"summary\":\"${it.summary ?: ""}\"}" }
+                        oldDataJson = oldJson,
+                        newDataJson = newJson
                     )
                 )
             }

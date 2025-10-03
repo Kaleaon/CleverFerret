@@ -9,6 +9,7 @@ import com.universalmedialibrary.data.local.entity.ReadingProgress
 import com.universalmedialibrary.data.local.entity.BookDetails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,11 +44,7 @@ class BookshelfViewModel @Inject constructor(
     val progressMap: StateFlow<Map<Long, ReadingProgress>> = _allBooks
         .flatMapLatest { books ->
             val ids = books.map { it.mediaItem.itemId }
-            if (ids.isEmpty()) {
-                flowOf(emptyList())
-            } else {
-                readingProgressDao.getProgressForItems(ids)
-            }
+            if (ids.isEmpty()) flowOf(emptyList()) else readingProgressDao.getProgressForItems(ids)
         }
         .map { progresses -> progresses.associateBy { it.itemId } }
         .stateIn(
