@@ -76,4 +76,3 @@ private fun ChangeRow(change: MaintenanceChange, onAccept: () -> Unit, onReject:
         }
     }
 }
-

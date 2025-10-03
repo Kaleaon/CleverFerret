@@ -55,4 +55,3 @@ class CollectionRepository @Inject constructor(
         }
     }
 }
-

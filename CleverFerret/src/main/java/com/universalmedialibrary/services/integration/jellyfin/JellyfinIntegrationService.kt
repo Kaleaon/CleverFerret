@@ -18,4 +18,3 @@ class JellyfinIntegrationService @Inject constructor() {
             .create(JellyfinApi::class.java)
     }
 }
-

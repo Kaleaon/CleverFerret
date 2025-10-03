@@ -74,4 +74,3 @@ private fun ContinueCard(progress: ReadingProgress, onOpenItem: (Long) -> Unit) 
         }
     }
 }
-

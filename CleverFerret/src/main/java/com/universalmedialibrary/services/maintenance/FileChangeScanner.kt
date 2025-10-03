@@ -40,4 +40,3 @@ class FileChangeScanner @Inject constructor() {
         return proposals
     }
 }
-

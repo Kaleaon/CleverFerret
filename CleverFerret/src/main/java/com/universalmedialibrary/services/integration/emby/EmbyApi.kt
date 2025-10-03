@@ -19,4 +19,3 @@ interface EmbyApi {
         @Query("Limit") limit: Int = 50
     ): Response<Map<String, Any>>
 }
-

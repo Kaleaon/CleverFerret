@@ -34,4 +34,3 @@ interface JellyfinServerDao {
     @Delete
     suspend fun delete(server: JellyfinServer)
 }
-

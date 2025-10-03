@@ -87,7 +87,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun embyServerDao(): EmbyServerDao
     abstract fun jellyfinServerDao(): JellyfinServerDao
     abstract fun sharedLinkDao(): SharedLinkDao
-    
+
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
     // abstract fun annotationDao(): AnnotationDao

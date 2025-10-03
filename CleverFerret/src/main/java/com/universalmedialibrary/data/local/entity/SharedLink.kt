@@ -22,4 +22,3 @@ data class SharedLink(
     val expiresAt: Long? = null,
     val enabled: Boolean = true
 )
-

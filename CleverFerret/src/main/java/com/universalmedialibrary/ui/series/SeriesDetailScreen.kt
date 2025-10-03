@@ -81,4 +81,3 @@ private fun SeriesHeader(series: Series?) {
         }
     }
 }
-

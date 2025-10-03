@@ -24,4 +24,3 @@ interface MaintenanceChangeDao {
     @Query("DELETE FROM maintenance_changes WHERE changeId = :changeId")
     suspend fun delete(changeId: Long)
 }
-

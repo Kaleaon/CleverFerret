@@ -164,4 +164,3 @@ class OpdsServer @Inject constructor(
         private const val MIME_XML = "application/atom+xml;profile=opds-catalog;kind=acquisition"
     }
 }
-

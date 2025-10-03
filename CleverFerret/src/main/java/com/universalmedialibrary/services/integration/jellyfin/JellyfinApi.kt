@@ -19,4 +19,3 @@ interface JellyfinApi {
         @Query("Limit") limit: Int = 50
     ): Response<Map<String, Any>>
 }
-

@@ -20,4 +20,3 @@ class OpdsService @Inject constructor() {
         """.trimIndent()
     }
 }
-

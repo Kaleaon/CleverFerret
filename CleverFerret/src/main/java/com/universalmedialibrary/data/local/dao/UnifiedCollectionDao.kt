@@ -44,4 +44,3 @@ interface UnifiedCollectionDao {
     @Query("UPDATE item_collections SET sortOrder = :sortOrder WHERE collectionId = :collectionId AND itemId = :itemId")
     suspend fun updateItemSortOrder(collectionId: Long, itemId: Long, sortOrder: Int)
 }
-

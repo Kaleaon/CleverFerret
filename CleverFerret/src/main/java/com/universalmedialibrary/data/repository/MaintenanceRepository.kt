@@ -17,4 +17,3 @@ class MaintenanceRepository @Inject constructor(
     suspend fun accept(changeId: Long) = dao.setStatus(changeId, "ACCEPTED")
     suspend fun reject(changeId: Long) = dao.setStatus(changeId, "REJECTED")
 }
-

@@ -18,4 +18,3 @@ class EmbyIntegrationService @Inject constructor() {
             .create(EmbyApi::class.java)
     }
 }
-
