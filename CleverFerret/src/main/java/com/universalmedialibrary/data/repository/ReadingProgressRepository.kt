@@ -38,7 +38,7 @@ class ReadingProgressRepository @Inject constructor(
             percentage = percentage,
             isCompleted = isCompleted,
             lastUpdate = System.currentTimeMillis(),
-            completedDate = if (isCompleted) System.currentTimeMillis() else existing?.completedDate
+            completedDate = if (isCompleted) System.currentTimeMillis() else null
         )
         readingProgressDao.upsert(updated)
     }
