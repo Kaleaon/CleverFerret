@@ -11,10 +11,21 @@ from pathlib import Path
 class DependencyFixer:
     def __init__(self, project_root):
         self.project_root = Path(project_root)
-        # Detect Android module directory dynamically
-        candidate_app = self.project_root / "app"
-        candidate_cf = self.project_root / "CleverFerret"
-        self.module_dir = candidate_app if candidate_app.exists() else candidate_cf
+        # Detect Android module directory dynamically from settings.gradle.kts
+        settings_file = self.project_root / "settings.gradle.kts"
+        module_name = None
+        if settings_file.exists():
+            try:
+                content = settings_file.read_text()
+                import re as _re
+                m = _re.search(r'include\(\s*"\s*:(.+?)\s*"\s*\)', content)
+                if m:
+                    module_name = m.group(1)
+            except Exception:
+                module_name = None
+        if not module_name:
+            module_name = "app" if (self.project_root / "app").exists() else "CleverFerret"
+        self.module_dir = self.project_root / module_name
         self.build_file = self.module_dir / "build.gradle.kts"
         self.settings_file = self.project_root / "settings.gradle.kts"
         
@@ -50,7 +61,7 @@ class DependencyFixer:
             'org.apache.lucene:lucene-analyzers-common:9.7.0': {
                 'issue': 'Too heavy for Android, version compatibility',
                 'fix': 'Downgrade to 8.11.2 or remove',
-                'status': 'FIXED' if '8.11.2' in content else 'NEEDS_FIX'
+                'status': ('NEEDS_FIX' if 'org.apache.lucene:lucene-analyzers-common' in content else 'FIXED')
             },
             'com.github.kilianB:JImageHash': {
                 'issue': 'JitPack GitHub dependency causing build issues',
@@ -60,7 +71,7 @@ class DependencyFixer:
             'org.apache.commons:commons-net:3.9.0': {
                 'issue': 'Wrong groupId',
                 'fix': 'commons-net:commons-net:3.9.0',
-                'status': 'FIXED' if 'commons-net:commons-net' in content else 'NEEDS_FIX'
+                'status': ('NEEDS_FIX' if 'org.apache.commons:commons-net' in content else 'FIXED')
             },
             'com.github.thegrizzlylabs:sardine-android': {
                 'issue': 'JitPack GitHub dependency causing build issues',

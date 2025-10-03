@@ -6,6 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+source "${SCRIPT_DIR}/_common.sh"
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BRANCH_PREFIX=${BRANCH_PREFIX:-"fix/build-failure"}
@@ -21,9 +22,9 @@ DEBUG_DIR="${PROJECT_ROOT}/debug-reports"
 # Select the most recent assembleDebug log
 LATEST_LOG=""
 if compgen -G "${REPAIR_DIR}/assembleDebug_*.log" > /dev/null; then
-	LATEST_LOG=$(ls -1t ${REPAIR_DIR}/assembleDebug_*.log | head -n1)
+	LATEST_LOG=$(ls -1t ${REPAIR_DIR}/assembleDebug_*.log 2>/dev/null | head -n1 || true)
 elif compgen -G "${DEBUG_DIR}/assembleDebug_*.log" > /dev/null; then
-	LATEST_LOG=$(ls -1t ${DEBUG_DIR}/assembleDebug_*.log | head -n1)
+	LATEST_LOG=$(ls -1t ${DEBUG_DIR}/assembleDebug_*.log 2>/dev/null | head -n1 || true)
 fi
 
 if [[ -z "${LATEST_LOG}" ]]; then
@@ -49,18 +50,26 @@ echo "Generated: $(date)"
 echo
 echo "## Summary"
 if compgen -G "${SUMMARY_FILE}" > /dev/null; then
-	LATEST_SUMMARY=$(ls -1t ${SUMMARY_FILE} | head -n1)
-	echo "Included summary: ${LATEST_SUMMARY}"
-	echo
-	awk 'NR<=200 {print}' "${LATEST_SUMMARY}" || true
+	LATEST_SUMMARY=$(ls -1t ${SUMMARY_FILE} 2>/dev/null | head -n1 || true)
+	if [[ -n "${LATEST_SUMMARY}" && -f "${LATEST_SUMMARY}" ]]; then
+		echo "Included summary: ${LATEST_SUMMARY}"
+		echo
+		awk 'NR<=200 {print}' "${LATEST_SUMMARY}" || true
+	else
+		echo "No repair summary found."
+	fi
 else
 	echo "No repair summary found."
 fi
 echo
 echo "## Compiler Error Snippet (tail)"
-echo "```"
-tail -n 200 "${LATEST_LOG}" || true
-echo "```"
+if [[ -n "${LATEST_LOG}" && -f "${LATEST_LOG}" ]]; then
+	echo "```"
+	tail -n 200 "${LATEST_LOG}" || true
+	echo "```"
+else
+	echo "(log unavailable)"
+fi
 } > "${PR_BODY_FILE}"
 
 # Try to get a Copilot explanation if gh-copilot is available
@@ -94,14 +103,21 @@ echo "- **Branch**: ${BRANCH_NAME}"
 echo "- **Labels**: ${LABELS}"
 echo
 echo "## Build Log (tail)"
-echo "```"
-tail -n 120 "${LATEST_LOG}" || true
-echo "```"
+if [[ -n "${LATEST_LOG}" && -f "${LATEST_LOG}" ]]; then
+	echo "```"
+	tail -n 120 "${LATEST_LOG}" || true
+	echo "```"
+else
+	echo "(log unavailable)"
+fi
 } > "${CURSOR_TASK_FILE}"
 
 # Safety checks for git/gh
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; }
-command -v gh >/dev/null 2>&1 || { echo "gh (GitHub CLI) not found"; exit 1; }
+if ! command -v gh >/dev/null 2>&1; then
+	echo "gh (GitHub CLI) not found; skipping PR creation, leaving Cursor task instead."
+	exit 0
+fi
 
 # Ensure working tree is clean or allow untracked reports
 git add -A :/ || true

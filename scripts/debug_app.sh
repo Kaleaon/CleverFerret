@@ -6,12 +6,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+source "${SCRIPT_DIR}/_common.sh"
 
-# Resolve module path (prefer :app if present, else :CleverFerret)
-MODULE_DIR="${PROJECT_ROOT}/app"
-if [[ ! -d "${MODULE_DIR}" ]]; then
-	MODULE_DIR="${PROJECT_ROOT}/CleverFerret"
-fi
+MODULE_NAME=$(detect_module "${PROJECT_ROOT}")
+MODULE_DIR="${PROJECT_ROOT}/${MODULE_NAME}"
 
 LOG_DIR="${PROJECT_ROOT}/debug-reports"
 mkdir -p "${LOG_DIR}"
@@ -36,8 +34,13 @@ echo "🧹 Cleaning..."
 
 echo "🔧 Attempting assembleDebug (this may fail, expected for triage)"
 set +e
-./gradlew :$(basename "${MODULE_DIR}"):assembleDebug --no-daemon --info --stacktrace 2>&1 | tee "${BUILD_LOG}"
-GRADLE_RC=${PIPESTATUS[0]}
+if has_android_sdk "${PROJECT_ROOT}"; then
+	./gradlew :${MODULE_NAME}:assembleDebug --no-daemon --info --stacktrace 2>&1 | tee "${BUILD_LOG}"
+	GRADLE_RC=${PIPESTATUS[0]}
+else
+	echo "Android SDK not detected; skipping assembleDebug." | tee "${BUILD_LOG}"
+	GRADLE_RC=1
+fi
 set -e
 
 echo "📄 Build log saved: ${BUILD_LOG}"

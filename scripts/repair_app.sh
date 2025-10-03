@@ -6,12 +6,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+source "${SCRIPT_DIR}/_common.sh"
 
-# Resolve module path (prefer :app if present, else :CleverFerret)
-MODULE_DIR="${PROJECT_ROOT}/app"
-if [[ ! -d "${MODULE_DIR}" ]]; then
-	MODULE_DIR="${PROJECT_ROOT}/CleverFerret"
-fi
+MODULE_NAME=$(detect_module "${PROJECT_ROOT}")
+MODULE_DIR="${PROJECT_ROOT}/${MODULE_NAME}"
 
 REPORT_DIR="${PROJECT_ROOT}/repair-reports"
 mkdir -p "${REPORT_DIR}"
@@ -70,17 +68,23 @@ if [[ -f "${SCRIPT_DIR}/identify-compilation-errors.py" ]]; then
 	set -e
 fi
 
-echo "🧪 Running metadata check..."
-set +e
-./gradlew :$(basename "${MODULE_DIR}"):checkDebugAarMetadata --no-daemon --stacktrace 2>&1 | tee "${REPORT_DIR}/checkDebugAarMetadata_${TIMESTAMP}.log"
-META_RC=${PIPESTATUS[0]}
-set -e
+META_RC=0
+if has_android_sdk "${PROJECT_ROOT}"; then
+	echo "🧪 Running metadata check..."
+	set +e
+	./gradlew :${MODULE_NAME}:checkDebugAarMetadata --no-daemon --stacktrace 2>&1 | tee "${REPORT_DIR}/checkDebugAarMetadata_${TIMESTAMP}.log"
+	META_RC=${PIPESTATUS[0]}
+	set -e
 
-echo "🏗️ Attempting assembleDebug..."
-set +e
-./gradlew :$(basename "${MODULE_DIR}"):assembleDebug --no-daemon --info --stacktrace 2>&1 | tee "${REPORT_DIR}/assembleDebug_${TIMESTAMP}.log"
-BUILD_STATUS=${PIPESTATUS[0]}
-set -e
+	echo "🏗️ Attempting assembleDebug..."
+	set +e
+	./gradlew :${MODULE_NAME}:assembleDebug --no-daemon --info --stacktrace 2>&1 | tee "${REPORT_DIR}/assembleDebug_${TIMESTAMP}.log"
+	BUILD_STATUS=${PIPESTATUS[0]}
+	set -e
+else
+	echo "⚠️ Android SDK not detected; skipping Gradle tasks." | tee "${REPORT_DIR}/sdk_missing_${TIMESTAMP}.txt"
+	BUILD_STATUS=1
+fi
 
 ERR_FILE_COUNT=$(grep -oE ":[0-9]+:" "${REPORT_DIR}/assembleDebug_${TIMESTAMP}.log" | wc -l | tr -d ' ' || true)
 
