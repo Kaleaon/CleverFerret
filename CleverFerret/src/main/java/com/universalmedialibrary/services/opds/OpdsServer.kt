@@ -95,9 +95,20 @@ class OpdsServer @Inject constructor(
             ?: return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Invalid token")
         if (link.targetType != "LIBRARY" || link.targetId != libraryId) return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Token not valid for library")
 
+        // Basic search and pagination
+        val q = session.parameters["q"]?.firstOrNull()?.lowercase()
+        val page = session.parameters["page"]?.firstOrNull()?.toIntOrNull()?.coerceAtLeast(0) ?: 0
+        val size = session.parameters["size"]?.firstOrNull()?.toIntOrNull()?.coerceIn(1, 200) ?: 50
+
         val xml = runBlocking {
-            val items = mediaRepository.getMediaItemsByLibrary(libraryId).firstOrNull().orEmpty()
-            val entries = items.joinToString("\n") { item ->
+            var items = mediaRepository.getMediaItemsByLibrary(libraryId).firstOrNull().orEmpty()
+            if (!q.isNullOrBlank()) {
+                items = items.filter { it.fileName.lowercase().contains(q) }
+            }
+            val from = (page * size).coerceAtMost(items.size)
+            val to = (from + size).coerceAtMost(items.size)
+            val pageItems = items.subList(from, to)
+            val entries = pageItems.joinToString("\n") { item ->
                 """
                 <entry>
                   <title>${item.fileName}</title>
@@ -106,11 +117,13 @@ class OpdsServer @Inject constructor(
                 </entry>
                 """.trimIndent()
             }
+            val nextLink = if (to < items.size) "<link rel=\"next\" href=\"/opds/library/$libraryId?token=$token&page=${page + 1}&size=$size${if (!q.isNullOrBlank()) "&q=$q" else ""}\" />" else ""
             """
             <?xml version=\"1.0\" encoding=\"utf-8\"?>
             <feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:opds=\"http://opds-spec.org/2010/catalog\">
               <title>Library $libraryId</title>
               $entries
+              $nextLink
             </feed>
             """.trimIndent()
         }
