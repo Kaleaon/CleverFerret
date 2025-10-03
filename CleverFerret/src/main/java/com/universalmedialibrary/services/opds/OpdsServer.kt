@@ -45,7 +45,7 @@ class OpdsServer @Inject constructor(
         return try {
             when {
                 session.uri == "/opds" -> newFixedLengthResponse(MIME_XML, opdsService.generateCatalogFeed())
-                session.uri.startsWith("/opds/libraries") -> serveLibraries()
+                session.uri.startsWith("/opds/libraries") -> serveLibraries(session)
                 session.uri.startsWith("/opds/library/") -> serveLibraryItems(session)
                 else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
             }
