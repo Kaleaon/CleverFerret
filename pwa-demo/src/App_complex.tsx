@@ -28,9 +28,6 @@ const plexTheme = createTheme({
       default: '#1a1a1a', // Main background
       paper: '#1f2326', // Card background
     },
-    surface: {
-      main: '#282c34',
-    },
     text: {
       primary: '#ffffff',
       secondary: '#b3b3b3',

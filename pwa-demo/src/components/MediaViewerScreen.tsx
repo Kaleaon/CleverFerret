@@ -25,7 +25,7 @@ import {
 } from '@mui/icons-material';
 import { MediaItem, MetadataCommon, ReaderThemeMode, ReaderFont } from '../types';
 import { useAppStore } from '../store/app-store';
-import { MediaItemService, MetadataService } from '../services/database';
+// import { MediaItemService, MetadataService } from '../services/database';
 
 interface MediaViewerProps {
   mediaItem?: MediaItem;
@@ -186,7 +186,7 @@ const EBookViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
 const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   const { mediaItem, metadata } = props;
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime] = useState(0);
   const [duration] = useState(7200); // 2 hours demo
 
   const formatTime = (seconds: number) => {
@@ -309,7 +309,7 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
 const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   const { mediaItem, metadata } = props;
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTime] = useState(0);
   const [duration] = useState(180); // 3 minutes demo
 
   return (

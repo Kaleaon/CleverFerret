@@ -29,11 +29,12 @@ export class LibraryService {
   }
 
   static async addLibrary(library: Omit<Library, 'libraryId'>): Promise<number> {
-    return await db.libraries.add({
+    const id = await db.libraries.add({
       ...library,
       dateCreated: new Date(),
       dateModified: new Date(),
     });
+    return Number(id);
   }
 
   static async deleteLibrary(libraryId: number): Promise<void> {
@@ -65,11 +66,14 @@ export class MediaItemService {
   }
 
   static async addMediaItem(item: Omit<MediaItem, 'itemId'>): Promise<number> {
-    return await db.mediaItems.add({
+    const id = await db.mediaItems.add({
       ...item,
+      fileSize: item.fileSize ?? 0,
+      mimeType: item.mimeType ?? 'application/octet-stream',
       dateAdded: new Date(),
       lastModified: new Date(),
     });
+    return Number(id);
   }
 
   static async searchItems(query: string): Promise<MediaItem[]> {

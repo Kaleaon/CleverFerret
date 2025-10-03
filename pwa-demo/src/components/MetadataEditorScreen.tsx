@@ -41,9 +41,9 @@ import {
   MusicNote as MusicIcon,
   Book as BookIcon,
 } from '@mui/icons-material';
-import { MediaItem, MetadataCommon, MetadataBook } from '../types';
+// import { MediaItem, MetadataCommon, MetadataBook } from '../types';
 import { MetadataAPIService, MetadataSearchResult } from '../services/metadataApi';
-import { MetadataService } from '../services/database';
+// import { MetadataService } from '../services/database';
 
 export const MetadataEditorScreen: React.FC = () => {
   const { mediaId } = useParams<{ mediaId: string }>();
@@ -354,11 +354,7 @@ export const MetadataEditorScreen: React.FC = () => {
                     <Typography component="legend" variant="body2" gutterBottom>
                       Rating
                     </Typography>
-                    <Rating
-                      value={rating}
-                      onChange={(event, newValue) => setRating(newValue)}
-                      precision={0.5}
-                    />
+                    <Rating value={rating} onChange={(_, v) => setRating(v)} precision={0.5} />
                   </Box>
                 </Grid>
 
