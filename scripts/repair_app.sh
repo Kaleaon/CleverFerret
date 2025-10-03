@@ -104,5 +104,12 @@ echo "- Build log: repair-reports/assembleDebug_${TIMESTAMP}.log"
 } >> "${SUMMARY_FILE}"
 
 echo "✅ Repair orchestration complete. Summary: ${SUMMARY_FILE}"
+
+# Optional: auto-open PR when build fails
+if [[ "${AUTO_PR_ON_FAILURE:-0}" != "0" && ${BUILD_STATUS} -ne 0 ]]; then
+	echo "🔁 AUTO_PR_ON_FAILURE enabled and build failed. Opening PR..."
+	"${SCRIPT_DIR}/auto_pr_on_failure.sh" || true
+fi
+
 exit ${BUILD_STATUS}
 
