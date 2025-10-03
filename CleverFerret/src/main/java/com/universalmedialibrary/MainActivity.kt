@@ -86,8 +86,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
-
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -254,12 +252,12 @@ fun LibraryListScreen(
             ContinueReadingSection(onOpenItem = { id -> navController.navigate("open/$id") })
 
             LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp),
+                columns = GridCells.Adaptive(minSize = 128.dp),
                 modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
 
             // Progress status card
             item {
