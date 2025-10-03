@@ -98,6 +98,37 @@ fun ApiSettingsScreen(
                 }
             }
 
+            if (mediaType == "comics") {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Bubble Translation", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "Target language for translated speech bubbles (ISO 639-1, e.g., en, es, fr, ja)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            var lang by remember { mutableStateOf(apiSettings.comicApis.geminiTargetLanguage) }
+                            OutlinedTextField(
+                                value = lang,
+                                onValueChange = {
+                                    lang = it
+                                    val current = viewModel.apiSettings.value.comicApis
+                                    viewModel.updateComicApiSettings(current.copy(geminiTargetLanguage = it.take(8)))
+                                },
+                                label = { Text("Target language code") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -240,7 +271,11 @@ private fun updateProviderSettings(
         }
         "comics" -> {
             val current = viewModel.apiSettings.value.comicApis
-            val updated = current.copy(comicVineEnabled = enabled, comicVineApiKey = apiKey)
+            val updated = when (providerName) {
+                "ComicVine" -> current.copy(comicVineEnabled = enabled, comicVineApiKey = apiKey)
+                "Gemini 2.5 Bubble Translation" -> current.copy(geminiBubbleTranslationEnabled = enabled)
+                else -> current
+            }
             viewModel.updateComicApiSettings(updated)
         }
         "audiobooks" -> {
@@ -305,6 +340,14 @@ private fun getComicsProviders(settings: ComicApiSettings): List<ApiProvider> = 
         isEnabled = settings.comicVineEnabled,
         apiKey = settings.comicVineApiKey,
         website = "https://comicvine.gamespot.com/api/",
+        mediaType = MediaType.COMICS
+    ),
+    ApiProvider(
+        name = "Gemini 2.5 Bubble Translation",
+        description = "Translate speech bubbles via Gemini 2.5",
+        requiresApiKey = false,
+        isEnabled = settings.geminiBubbleTranslationEnabled,
+        website = "https://ai.google.dev/",
         mediaType = MediaType.COMICS
     )
 )
