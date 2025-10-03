@@ -2,20 +2,20 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { 
-  CssBaseline, 
-  Box, 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Card, 
-  CardContent, 
-  Grid, 
+import {
+  CssBaseline,
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
   Button,
   Container,
   Chip,
   Avatar,
-  Fab
+  Fab,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -178,7 +178,7 @@ const HomeScreen: React.FC = () => {
               width: 40,
               height: 40,
               mr: 2,
-              fontWeight: 700
+              fontWeight: 700,
             }}
           >
             CF
@@ -200,10 +200,7 @@ const HomeScreen: React.FC = () => {
         <Grid container spacing={3}>
           {demoLibraries.map((library) => (
             <Grid item xs={12} sm={6} md={4} key={library.id}>
-              <LibraryCard
-                library={library}
-                onClick={() => navigate(`/library/${library.id}`)}
-              />
+              <LibraryCard library={library} onClick={() => navigate(`/library/${library.id}`)} />
             </Grid>
           ))}
         </Grid>
@@ -227,10 +224,9 @@ const HomeScreen: React.FC = () => {
 
 // Media item component with realistic data
 const MediaItem: React.FC<{ item: any; onClick: () => void }> = ({ item, onClick }) => {
-
   return (
-    <Card 
-      sx={{ 
+    <Card
+      sx={{
         height: 350,
         cursor: 'pointer',
         position: 'relative',
@@ -254,7 +250,7 @@ const MediaItem: React.FC<{ item: any; onClick: () => void }> = ({ item, onClick
         }}
       >
         {!item.poster && <CollectionsIcon sx={{ fontSize: 50, color: 'primary.main' }} />}
-        
+
         {/* Rating badge */}
         <Box
           sx={{
@@ -306,14 +302,14 @@ const MediaItem: React.FC<{ item: any; onClick: () => void }> = ({ item, onClick
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
           {item.author} • {item.year}
         </Typography>
-        <Chip 
-          label={item.genre} 
-          size="small" 
-          sx={{ 
+        <Chip
+          label={item.genre}
+          size="small"
+          sx={{
             fontSize: '0.7rem',
             bgcolor: 'rgba(229, 160, 13, 0.2)',
             color: 'primary.main',
-          }} 
+          }}
         />
       </CardContent>
     </Card>
@@ -408,7 +404,7 @@ const LibraryScreen: React.FC = () => {
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
           {demoItems.length} items • Mixed media
         </Typography>
-        
+
         <Grid container spacing={3}>
           {demoItems.map((item) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
@@ -435,8 +431,11 @@ const App: React.FC = () => {
         <Routes>
           {/* Main Routes */}
           <Route path="/" element={useCustomComponents ? <LibraryListScreen /> : <HomeScreen />} />
-          <Route path="/library/:id" element={useCustomComponents ? <LibraryDetailsScreen /> : <LibraryScreen />} />
-          
+          <Route
+            path="/library/:id"
+            element={useCustomComponents ? <LibraryDetailsScreen /> : <LibraryScreen />}
+          />
+
           {/* Additional Routes matching Android app */}
           <Route path="/metadata-editor/:mediaId" element={<MetadataEditorScreen />} />
           <Route path="/media-viewer/:mediaId" element={<MediaViewerScreen />} />

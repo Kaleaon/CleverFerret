@@ -124,7 +124,7 @@ class PodcastDownloadManager @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("PodcastDownload", "Failed to download episode ${episode.id}", e)
-            
+
             // Update progress: Failed
             updateProgress(
                 episode.id,
@@ -164,7 +164,7 @@ class PodcastDownloadManager @Inject constructor(
                 val extension = getFileExtension(episode.audioUrl)
                 val fileName = "${sanitizeFileName(episode.title)}.$extension"
                 val file = File(podcastDir, fileName)
-                
+
                 if (file.exists()) {
                     file.delete()
                 } else {
@@ -185,7 +185,7 @@ class PodcastDownloadManager @Inject constructor(
         val extension = getFileExtension(episode.audioUrl)
         val fileName = "${sanitizeFileName(episode.title)}.$extension"
         val file = File(podcastDir, fileName)
-        
+
         return if (file.exists()) file.absolutePath else null
     }
 

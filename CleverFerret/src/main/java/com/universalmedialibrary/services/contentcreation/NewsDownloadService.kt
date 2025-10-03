@@ -25,7 +25,7 @@ class NewsDownloadService @Inject constructor(
     private val httpClient: OkHttpClient
 ) {
     private val epubCreator = SimpleEpubCreator()
-    
+
     private val _downloadProgress = MutableStateFlow<DownloadState>(DownloadState.Idle)
     val downloadProgress: StateFlow<DownloadState> = _downloadProgress.asStateFlow()
 
@@ -54,7 +54,7 @@ class NewsDownloadService @Inject constructor(
         THE_ATLANTIC("The Atlantic", "https://www.theatlantic.com/feed/all/", "News and Analysis", "United States"),
         TIME_MAGAZINE("Time Magazine", "http://feeds.feedburner.com/time/topstories", "News and Current Affairs", "United States"),
         NEWSWEEK("Newsweek", "https://www.newsweek.com/rss", "News Weekly", "United States"),
-        
+
         // Tech - US
         ARS_TECHNICA("Ars Technica", "http://feeds.arstechnica.com/arstechnica/index", "Technology News and Analysis", "United States"),
         THE_VERGE("The Verge", "https://www.theverge.com/rss/index.xml", "Technology, Science, Art, and Culture", "United States"),
@@ -62,16 +62,16 @@ class NewsDownloadService @Inject constructor(
         TECHCRUNCH("TechCrunch", "http://feeds.feedburner.com/TechCrunch/", "Startup and Tech News", "United States"),
         ENGADGET("Engadget", "https://www.engadget.com/rss.xml", "Consumer Electronics", "United States"),
         HACKER_NEWS("Hacker News", "https://hnrss.org/frontpage", "Tech Community News", "United States"),
-        
+
         // Business - US
         WALL_STREET_JOURNAL("Wall Street Journal", "https://feeds.a.dj.com/rss/RSSWorldNews.xml", "Business and Financial News", "United States"),
         BLOOMBERG("Bloomberg", "https://feeds.bloomberg.com/markets/news.rss", "Business and Markets", "United States"),
         FORBES("Forbes", "https://www.forbes.com/real-time/feed2/", "Business and Finance", "United States"),
-        
+
         // Science - US
         SCIENTIFIC_AMERICAN("Scientific American", "http://rss.sciam.com/ScientificAmerican-Global", "Science News and Articles", "United States"),
         POPULAR_SCIENCE("Popular Science", "https://www.popsci.com/feed/", "Science and Technology", "United States"),
-        
+
         // === UNITED KINGDOM ===
         BBC_NEWS("BBC News", "http://feeds.bbci.co.uk/news/rss.xml", "British Broadcasting Corporation", "United Kingdom"),
         BBC_WORLD("BBC World", "http://feeds.bbci.co.uk/news/world/rss.xml", "BBC World News", "United Kingdom"),
@@ -83,54 +83,54 @@ class NewsDownloadService @Inject constructor(
         FINANCIAL_TIMES("Financial Times", "https://www.ft.com/?format=rss", "Global Business News", "United Kingdom"),
         ECONOMIST("The Economist", "https://www.economist.com/latest/rss.xml", "International Affairs and Business", "United Kingdom"),
         THE_REGISTER("The Register", "https://www.theregister.com/headlines.atom", "Tech News and Analysis", "United Kingdom"),
-        
+
         // === GERMANY ===
         DER_SPIEGEL("Der Spiegel", "https://www.spiegel.de/schlagzeilen/index.rss", "German News Magazine", "Germany"),
         DEUTSCHE_WELLE("Deutsche Welle", "https://rss.dw.com/rdf/rss-en-all", "German International Broadcasting", "Germany"),
         FRANKFURTER_ALLGEMEINE("Frankfurter Allgemeine", "https://www.faz.net/rss/aktuell/", "German Newspaper", "Germany"),
-        
+
         // === FRANCE ===
         LE_MONDE("Le Monde", "https://www.lemonde.fr/rss/une.xml", "French Daily Newspaper", "France"),
         FRANCE24("France 24", "https://www.france24.com/en/rss", "French International News", "France"),
         LIBERATION("Liberation", "https://www.liberation.fr/arc/outboundfeeds/rss-all/", "French Daily News", "France"),
-        
+
         // === CANADA ===
         CBC_NEWS("CBC News", "https://www.cbc.ca/cmlink/rss-topstories", "Canadian Broadcasting Corporation", "Canada"),
         GLOBE_AND_MAIL("Globe and Mail", "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/canada/", "Canadian National Newspaper", "Canada"),
-        
+
         // === AUSTRALIA ===
         ABC_NEWS_AU("ABC News Australia", "https://www.abc.net.au/news/feed/51120/rss.xml", "Australian Broadcasting Corporation", "Australia"),
         SYDNEY_MORNING_HERALD("Sydney Morning Herald", "https://www.smh.com.au/rss/feed.xml", "Australian Newspaper", "Australia"),
-        
+
         // === MIDDLE EAST ===
         AL_JAZEERA("Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml", "Middle Eastern International News", "Qatar"),
         HAARETZ("Haaretz", "https://www.haaretz.com/cmlink/1.628017", "Israeli News", "Israel"),
-        
+
         // === ASIA ===
         JAPAN_TIMES("Japan Times", "https://www.japantimes.co.jp/feed/", "Japanese English News", "Japan"),
         SOUTH_CHINA_MORNING_POST("South China Morning Post", "https://www.scmp.com/rss/91/feed", "Hong Kong News", "Hong Kong"),
         STRAITS_TIMES("Straits Times", "https://www.straitstimes.com/news/singapore/rss.xml", "Singapore News", "Singapore"),
-        
+
         // === INDIA ===
         TIMES_OF_INDIA("Times of India", "https://timesofindia.indiatimes.com/rssfeedstopstories.cms", "Indian News", "India"),
         HINDU("The Hindu", "https://www.thehindu.com/news/national/feeder/default.rss", "Indian Newspaper", "India"),
-        
+
         // === LATIN AMERICA ===
         EL_PAIS("El País", "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", "Spanish News", "Spain"),
         FOLHA("Folha de S.Paulo", "https://feeds.folha.uol.com.br/emcimadahora/rss091.xml", "Brazilian News", "Brazil"),
-        
+
         // === RUSSIA ===
         RT_NEWS("RT News", "https://www.rt.com/rss/", "Russian International News", "Russia"),
-        
+
         // === INTERNATIONAL ===
         REUTERS("Reuters", "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best", "International News Agency", "International"),
         ASSOCIATED_PRESS("Associated Press", "https://rsshub.app/ap/topics/apf-topnews", "US News Agency", "International"),
-        
+
         // === SCIENCE & NATURE ===
         NATURE("Nature", "http://feeds.nature.com/nature/rss/current", "Scientific Journal", "International"),
         NEW_SCIENTIST("New Scientist", "https://www.newscientist.com/feed/home", "Science Magazine", "International"),
         SCIENCE_DAILY("Science Daily", "https://www.sciencedaily.com/rss/all.xml", "Science News", "International"),
-        
+
         // === TECHNOLOGY ===
         SLASHDOT("Slashdot", "http://rss.slashdot.org/Slashdot/slashdot", "News for Nerds", "International"),
         TECHMEME("Techmeme", "https://www.techmeme.com/feed.xml", "Tech News Aggregator", "International"),
@@ -140,11 +140,11 @@ class NewsDownloadService @Inject constructor(
             fun fromDisplayName(name: String): NewsSource? {
                 return values().firstOrNull { it.displayName == name }
             }
-            
+
             fun getCountries(): List<String> {
                 return values().map { it.country }.distinct().sorted()
             }
-            
+
             fun getSourcesByCountry(country: String): List<NewsSource> {
                 return values().filter { it.country == country }
             }
@@ -163,7 +163,7 @@ class NewsDownloadService @Inject constructor(
 
             // Fetch RSS feed
             val articles = fetchRssFeed(source.rssUrl, maxArticles)
-            
+
             if (articles.isEmpty()) {
                 val error = "No articles found in feed"
                 _downloadProgress.value = DownloadState.Error(error)
@@ -190,7 +190,7 @@ class NewsDownloadService @Inject constructor(
             // Create EPUB
             val outputDir = File(context.filesDir, "news")
             outputDir.mkdirs()
-            
+
             val timestamp = System.currentTimeMillis()
             val fileName = "${source.displayName.replace(" ", "_")}_$timestamp.epub"
             val outputFile = File(outputDir, fileName)
@@ -231,7 +231,7 @@ class NewsDownloadService @Inject constructor(
             try {
                 val request = Request.Builder().url(rssUrl).build()
                 val response = httpClient.newCall(request).execute()
-                
+
                 if (!response.isSuccessful) {
                     return@withContext emptyList()
                 }
@@ -272,7 +272,7 @@ class NewsDownloadService @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Get sources organized by country
      */
@@ -290,7 +290,7 @@ class NewsDownloadService @Inject constructor(
             }
             .toSortedMap()
     }
-    
+
     /**
      * Get list of all available countries
      */

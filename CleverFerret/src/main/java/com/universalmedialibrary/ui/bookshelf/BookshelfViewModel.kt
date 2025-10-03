@@ -91,14 +91,14 @@ class BookshelfViewModel @Inject constructor(
             mediaItemDao.getBookDetailsForLibrary(libraryId).collect { mediaItems ->
                 // Convert MediaItems to BookDetails
                 val bookDetailsList = mediaItems.map { mediaItem ->
-                    val metadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId) 
+                    val metadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId)
                         ?: com.universalmedialibrary.data.local.entity.MetadataCommon(
                             itemId = mediaItem.itemId,
                             title = mediaItem.fileName,
                             sortTitle = mediaItem.fileName
                         )
                     val bookMetadata = metadataDao.getMetadataBookByItemId(mediaItem.itemId)
-                    
+
                     BookDetails(
                         mediaItem = mediaItem,
                         metadata = metadata,

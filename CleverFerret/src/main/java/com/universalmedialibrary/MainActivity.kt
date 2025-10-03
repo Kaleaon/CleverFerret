@@ -468,5 +468,3 @@ private fun getIconForLibraryType(type: String): ImageVector {
         else -> Icons.Default.Book
     }
 }
-
-

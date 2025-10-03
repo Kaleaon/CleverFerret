@@ -81,7 +81,7 @@ fun ImprovedLibraryListScreen(
                         LoadingStateCard(message = "Loading your libraries...")
                     }
                 }
-                
+
                 uiState.error != null -> {
                     // Error state
                     Box(
@@ -94,7 +94,7 @@ fun ImprovedLibraryListScreen(
                         )
                     }
                 }
-                
+
                 uiState.libraries.isEmpty() -> {
                     // Empty state
                     Column(
@@ -109,14 +109,14 @@ fun ImprovedLibraryListScreen(
                             actionLabel = "Create Library",
                             onActionClick = { showCreateDialog = true }
                         )
-                        
+
                         InfoBanner(
                             message = "You can also import an existing Calibre library from the settings menu",
                             icon = Icons.Default.Info
                         )
                     }
                 }
-                
+
                 else -> {
                     // Content state - show libraries
                     Column(
@@ -127,7 +127,7 @@ fun ImprovedLibraryListScreen(
                             title = "Your Libraries",
                             modifier = Modifier.padding(top = 8.dp)
                         )
-                        
+
                         // Stats row
                         Row(
                             modifier = Modifier
@@ -141,7 +141,7 @@ fun ImprovedLibraryListScreen(
                                 value = uiState.libraries.size.toString(),
                                 modifier = Modifier.weight(1f)
                             )
-                            
+
                             StatsCard(
                                 icon = Icons.Default.Article,
                                 label = "Total Items",
@@ -149,7 +149,7 @@ fun ImprovedLibraryListScreen(
                                 modifier = Modifier.weight(1f)
                             )
                         }
-                        
+
                         // Library grid
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(minSize = 160.dp),

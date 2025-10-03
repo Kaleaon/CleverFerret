@@ -8,7 +8,7 @@ import retrofit2.http.*
  * Uses the Plex.tv cloud API, not the local server API
  */
 interface PlexAuthApi {
-    
+
     /**
      * Request a PIN for authentication
      * POST https://plex.tv/api/v2/pins
@@ -18,7 +18,7 @@ interface PlexAuthApi {
         @Header("X-Plex-Product") product: String = "CleverFerret",
         @Header("X-Plex-Client-Identifier") clientId: String
     ): Response<PlexPinResponse>
-    
+
     /**
      * Check PIN status to get auth token
      * GET https://plex.tv/api/v2/pins/{pinId}
@@ -28,7 +28,7 @@ interface PlexAuthApi {
         @Path("pinId") pinId: String,
         @Header("X-Plex-Client-Identifier") clientId: String
     ): Response<PlexPinResponse>
-    
+
     /**
      * Get user account information
      * GET https://plex.tv/api/v2/user
@@ -37,7 +37,7 @@ interface PlexAuthApi {
     suspend fun getUserInfo(
         @Header("X-Plex-Token") token: String
     ): Response<PlexUserResponse>
-    
+
     /**
      * Get list of servers accessible to the user
      * GET https://plex.tv/api/v2/resources

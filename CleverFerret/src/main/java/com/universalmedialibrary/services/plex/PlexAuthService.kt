@@ -21,17 +21,17 @@ class PlexAuthService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val tokenStorage: SecureTokenStorage
 ) {
-    
+
     companion object {
         private const val TAG = "PlexAuthService"
         private const val PLEX_TV_BASE_URL = "https://plex.tv"
         private const val PIN_POLL_INTERVAL_MS = 1000L
         private const val PIN_MAX_POLL_ATTEMPTS = 300 // 5 minutes
     }
-    
+
     private val _authState = MutableStateFlow<PlexAuthState>(PlexAuthState.Idle)
     val authState: Flow<PlexAuthState> = _authState.asStateFlow()
-    
+
     private val clientIdentifier: String by lazy {
         // Generate or retrieve a unique client identifier for this device
         val prefs = context.getSharedPreferences("plex_client", Context.MODE_PRIVATE)
@@ -41,7 +41,7 @@ class PlexAuthService @Inject constructor(
             newId
         }
     }
-    
+
     private val authApi: PlexAuthApi by lazy {
         Retrofit.Builder()
             .baseUrl(PLEX_TV_BASE_URL)
@@ -49,7 +49,7 @@ class PlexAuthService @Inject constructor(
             .build()
             .create(PlexAuthApi::class.java)
     }
-    
+
     /**
      * Start the PIN authentication flow
      * Returns the PIN code that the user needs to enter at plex.tv/link
@@ -57,9 +57,9 @@ class PlexAuthService @Inject constructor(
     suspend fun startPinAuth(): Result<PlexPinAuthData> {
         return try {
             _authState.value = PlexAuthState.RequestingPin
-            
+
             val response = authApi.requestPin(clientId = clientIdentifier)
-            
+
             if (response.isSuccessful && response.body() != null) {
                 val pinData = response.body()!!
                 val authData = PlexPinAuthData(
@@ -67,7 +67,7 @@ class PlexAuthService @Inject constructor(
                     pinCode = pinData.code,
                     expiresAt = pinData.expiresAt
                 )
-                
+
                 _authState.value = PlexAuthState.WaitingForUser(authData)
                 Result.success(authData)
             } else {
@@ -81,31 +81,31 @@ class PlexAuthService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Poll for PIN authentication completion
      * This should be called in a loop after startPinAuth
      */
     suspend fun pollForAuth(pinId: String): Result<PlexAuthResult> {
         var attempts = 0
-        
+
         while (attempts < PIN_MAX_POLL_ATTEMPTS) {
             try {
                 val response = authApi.checkPin(pinId, clientIdentifier)
-                
+
                 if (response.isSuccessful && response.body() != null) {
                     val pinData = response.body()!!
-                    
+
                     if (!pinData.authToken.isNullOrEmpty()) {
                         // User has authenticated!
                         return completeAuthentication(pinData.authToken)
                     }
                 }
-                
+
                 // Wait before next poll
                 delay(PIN_POLL_INTERVAL_MS)
                 attempts++
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Error polling PIN", e)
                 if (attempts >= PIN_MAX_POLL_ATTEMPTS - 1) {
@@ -116,32 +116,32 @@ class PlexAuthService @Inject constructor(
                 attempts++
             }
         }
-        
+
         val error = "Authentication timeout - PIN expired"
         _authState.value = PlexAuthState.Error(error)
         return Result.failure(Exception(error))
     }
-    
+
     /**
      * Complete authentication after receiving token
      */
     private suspend fun completeAuthentication(token: String): Result<PlexAuthResult> {
         return try {
             _authState.value = PlexAuthState.FetchingUserInfo
-            
+
             // Get user information
             val userResponse = authApi.getUserInfo(token)
-            
+
             if (userResponse.isSuccessful && userResponse.body() != null) {
                 val user = userResponse.body()!!
-                
+
                 // Save token securely
                 tokenStorage.saveAuthToken(
                     token = token,
                     userId = user.id.toString(),
                     username = user.username
                 )
-                
+
                 val authResult = PlexAuthResult(
                     token = token,
                     userId = user.id.toString(),
@@ -149,7 +149,7 @@ class PlexAuthService @Inject constructor(
                     email = user.email,
                     thumb = user.thumb
                 )
-                
+
                 _authState.value = PlexAuthState.Authenticated(authResult)
                 Result.success(authResult)
             } else {
@@ -163,7 +163,7 @@ class PlexAuthService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Discover available Plex servers for the authenticated user
      */
@@ -173,11 +173,11 @@ class PlexAuthService @Inject constructor(
             if (token.isNullOrEmpty()) {
                 return Result.failure(Exception("Not authenticated"))
             }
-            
+
             _authState.value = PlexAuthState.DiscoveringServers
-            
+
             val response = authApi.getResources(token)
-            
+
             if (response.isSuccessful && response.body() != null) {
                 val servers = response.body()!!
                     .filter { it.provides.contains("server") }
@@ -198,7 +198,7 @@ class PlexAuthService @Inject constructor(
                             } ?: emptyList()
                         )
                     }
-                
+
                 Result.success(servers)
             } else {
                 val error = "Failed to discover servers: ${response.message()}"
@@ -209,7 +209,7 @@ class PlexAuthService @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     /**
      * Sign out and clear stored credentials
      */
@@ -217,14 +217,14 @@ class PlexAuthService @Inject constructor(
         tokenStorage.clearAuth()
         _authState.value = PlexAuthState.Idle
     }
-    
+
     /**
      * Check if user is currently authenticated
      */
     fun isAuthenticated(): Boolean {
         return tokenStorage.isAuthenticated()
     }
-    
+
     /**
      * Get stored token if available
      */

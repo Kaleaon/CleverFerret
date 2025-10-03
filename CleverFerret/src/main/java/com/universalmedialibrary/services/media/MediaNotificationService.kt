@@ -142,10 +142,10 @@ class MediaNotificationService : MediaSessionService() {
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-    
+
     /**
      * Update notification with artwork loading from MediaItem
-     * 
+     *
      * TODO: This is a scaffolding method that will load artwork via ArtworkLoader
      * and update the notification. Currently not fully wired up.
      */
@@ -163,7 +163,7 @@ class MediaNotificationService : MediaSessionService() {
                 maxWidth = 512,
                 maxHeight = 512
             )
-            
+
             // Update notification with loaded artwork
             updateNotification(
                 title = title,
@@ -174,7 +174,7 @@ class MediaNotificationService : MediaSessionService() {
             )
         }
     }
-    
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

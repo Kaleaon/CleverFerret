@@ -53,14 +53,14 @@ class IntegrationManager @Inject constructor(
                 serverUrl = calibreStatus.serverUrl ?: "",
                 libraryCount = calibreStatus.libraryCount
             )
-            
+
             val cloudStatusConverted = CloudConnectionStatus(
                 dropboxConnected = cloudStatusRaw.dropboxConnected,
                 googleDriveConnected = cloudStatusRaw.googleDriveConnected,
                 oneDriveConnected = cloudStatusRaw.oneDriveConnected,
                 hasActiveConnections = cloudStatusRaw.hasActiveConnections
             )
-            
+
             val bookStatusConverted = BookServicesStatus(
                 amazonConnected = bookStatusRaw.amazonConnected,
                 googleBooksConnected = bookStatusRaw.googleBooksConnected,

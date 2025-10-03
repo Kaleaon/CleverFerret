@@ -49,11 +49,16 @@ const EBookViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
     };
 
     const fontStacks: Record<ReaderFont, string> = {
-      [ReaderFont.SYSTEM_SANS]: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
-      [ReaderFont.SYSTEM_SERIF]: "'Times New Roman', Times, Georgia, 'Iowan Old Style', 'Palatino Linotype', 'URW Palladio L', 'Book Antiqua', serif",
-      [ReaderFont.ATKINSON]: "'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
-      [ReaderFont.OPENDYSLEXIC]: "'OpenDyslexic3', 'OpenDyslexic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
-      [ReaderFont.LEXEND]: "'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
+      [ReaderFont.SYSTEM_SANS]:
+        "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+      [ReaderFont.SYSTEM_SERIF]:
+        "'Times New Roman', Times, Georgia, 'Iowan Old Style', 'Palatino Linotype', 'URW Palladio L', 'Book Antiqua', serif",
+      [ReaderFont.ATKINSON]:
+        "'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
+      [ReaderFont.OPENDYSLEXIC]:
+        "'OpenDyslexic3', 'OpenDyslexic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
+      [ReaderFont.LEXEND]:
+        "'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif",
     };
 
     const c = themeToColors[readerPreferences.themeMode];
@@ -86,20 +91,24 @@ const EBookViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   `;
 
   return (
-    <Box sx={{ 
-      bgcolor: 'background.paper', 
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
-      {/* Reader Controls */}
-      <Box sx={{ 
-        p: 2, 
-        borderBottom: '1px solid #1b2b4d',
+    <Box
+      sx={{
+        bgcolor: 'background.paper',
+        minHeight: '100vh',
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+        flexDirection: 'column',
+      }}
+    >
+      {/* Reader Controls */}
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: '1px solid #1b2b4d',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
         <Typography variant="body2" color="text.secondary">
           Page {currentPage} of {totalPages}
         </Typography>
@@ -114,39 +123,56 @@ const EBookViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
       </Box>
 
       {/* Content Area */}
-      <Box sx={{ 
-        flex: 1, 
-        p: { xs: 2, md: 4 },
-        maxWidth: '800px',
-        mx: 'auto',
-        bgcolor: readerStyles.c.bg,
-        color: readerStyles.c.fg,
-        borderRadius: 2,
-        border: '1px solid rgba(0,0,0,0.1)',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-        '& h1': { color: readerStyles.c.accent, mb: 3, fontFamily: readerStyles.fontFamily },
-        '& h2': { color: readerStyles.c.accent, mt: 4, mb: 2, fontFamily: readerStyles.fontFamily },
-        '& p': { mb: 2, lineHeight: 1.7, fontSize: `${fontSize}px`, fontFamily: readerStyles.fontFamily },
-        '& ul': { pl: 3, mb: 2, fontFamily: readerStyles.fontFamily },
-        '& li': { mb: 1, fontSize: `${fontSize}px`, fontFamily: readerStyles.fontFamily }
-      }}>
-        <div style={{ fontFamily: readerStyles.fontFamily }} dangerouslySetInnerHTML={{ __html: demoContent }} />
+      <Box
+        sx={{
+          flex: 1,
+          p: { xs: 2, md: 4 },
+          maxWidth: '800px',
+          mx: 'auto',
+          bgcolor: readerStyles.c.bg,
+          color: readerStyles.c.fg,
+          borderRadius: 2,
+          border: '1px solid rgba(0,0,0,0.1)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+          '& h1': { color: readerStyles.c.accent, mb: 3, fontFamily: readerStyles.fontFamily },
+          '& h2': {
+            color: readerStyles.c.accent,
+            mt: 4,
+            mb: 2,
+            fontFamily: readerStyles.fontFamily,
+          },
+          '& p': {
+            mb: 2,
+            lineHeight: 1.7,
+            fontSize: `${fontSize}px`,
+            fontFamily: readerStyles.fontFamily,
+          },
+          '& ul': { pl: 3, mb: 2, fontFamily: readerStyles.fontFamily },
+          '& li': { mb: 1, fontSize: `${fontSize}px`, fontFamily: readerStyles.fontFamily },
+        }}
+      >
+        <div
+          style={{ fontFamily: readerStyles.fontFamily }}
+          dangerouslySetInnerHTML={{ __html: demoContent }}
+        />
       </Box>
 
       {/* Navigation */}
-      <Box sx={{ 
-        p: 2, 
-        borderTop: '1px solid #1b2b4d',
-        display: 'flex',
-        justifyContent: 'space-between'
-      }}>
-        <IconButton 
+      <Box
+        sx={{
+          p: 2,
+          borderTop: '1px solid #1b2b4d',
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
+        <IconButton
           disabled={currentPage <= 1}
           onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
         >
           ← Previous
         </IconButton>
-        <IconButton 
+        <IconButton
           disabled={currentPage >= totalPages}
           onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
         >
@@ -171,42 +197,50 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   };
 
   return (
-    <Box sx={{ 
-      bgcolor: '#000', 
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative'
-    }}>
-      {/* Video Area */}
-      <Box sx={{ 
-        flex: 1, 
+    <Box
+      sx={{
+        bgcolor: '#000',
+        minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(45deg, #1a1a1a 25%, transparent 25%), linear-gradient(-45deg, #1a1a1a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1a 75%), linear-gradient(-45deg, transparent 75%, #1a1a1a 75%)',
-        backgroundSize: '20px 20px',
-        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-      }}>
-        <Box sx={{ 
-          textAlign: 'center',
-          color: 'white',
-          p: 4
-        }}>
+        flexDirection: 'column',
+        position: 'relative',
+      }}
+    >
+      {/* Video Area */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background:
+            'linear-gradient(45deg, #1a1a1a 25%, transparent 25%), linear-gradient(-45deg, #1a1a1a 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #1a1a1a 75%), linear-gradient(-45deg, transparent 75%, #1a1a1a 75%)',
+          backgroundSize: '20px 20px',
+          backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: 'center',
+            color: 'white',
+            p: 4,
+          }}
+        >
           <Typography variant="h4" gutterBottom>
             {metadata?.title || 'Video Player'}
           </Typography>
           <Typography variant="body1" color="grey.400" mb={4}>
-            Demo video player. In production, this would use a video.js player or similar component to handle various video formats (MP4, WebM, etc.)
+            Demo video player. In production, this would use a video.js player or similar component
+            to handle various video formats (MP4, WebM, etc.)
           </Typography>
-          
-          <IconButton 
-            sx={{ 
+
+          <IconButton
+            sx={{
               bgcolor: 'primary.main',
               color: 'black',
               width: 80,
               height: 80,
-              '&:hover': { bgcolor: 'primary.light' }
+              '&:hover': { bgcolor: 'primary.light' },
             }}
             onClick={() => setIsPlaying(!isPlaying)}
           >
@@ -216,48 +250,54 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
       </Box>
 
       {/* Video Controls */}
-      <Box sx={{ 
-        bgcolor: 'rgba(0,0,0,0.8)',
-        p: 2,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2
-      }}>
+      <Box
+        sx={{
+          bgcolor: 'rgba(0,0,0,0.8)',
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+        }}
+      >
         <IconButton onClick={() => setIsPlaying(!isPlaying)} sx={{ color: 'white' }}>
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
         </IconButton>
-        
+
         <Typography variant="body2" color="white" sx={{ minWidth: '80px' }}>
           {formatTime(currentTime)}
         </Typography>
-        
-        <Box sx={{ 
-          flex: 1, 
-          height: 4, 
-          bgcolor: 'grey.700', 
-          borderRadius: 2,
-          position: 'relative',
-          cursor: 'pointer'
-        }}>
-          <Box sx={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            height: '100%',
-            bgcolor: 'primary.main',
+
+        <Box
+          sx={{
+            flex: 1,
+            height: 4,
+            bgcolor: 'grey.700',
             borderRadius: 2,
-            width: `${(currentTime / duration) * 100}%`
-          }} />
+            position: 'relative',
+            cursor: 'pointer',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              height: '100%',
+              bgcolor: 'primary.main',
+              borderRadius: 2,
+              width: `${(currentTime / duration) * 100}%`,
+            }}
+          />
         </Box>
-        
+
         <Typography variant="body2" color="white" sx={{ minWidth: '80px' }}>
           {formatTime(duration)}
         </Typography>
-        
+
         <IconButton sx={{ color: 'white' }}>
           <VolumeIcon />
         </IconButton>
-        
+
         <IconButton sx={{ color: 'white' }}>
           <FullscreenIcon />
         </IconButton>
@@ -273,31 +313,33 @@ const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   const [duration] = useState(180); // 3 minutes demo
 
   return (
-    <Box sx={{ 
-      bgcolor: 'background.default',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      p: 4
-    }}>
-      {/* Album Art */}
-      <Paper sx={{ 
-        width: 300,
-        height: 300,
-        mb: 4,
+    <Box
+      sx={{
+        bgcolor: 'background.default',
+        minHeight: '100vh',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: 'secondary.main',
-        backgroundImage: metadata?.thumbnailPath ? `url(${metadata.thumbnailPath})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
-        {!metadata?.thumbnailPath && (
-          <VolumeIcon sx={{ fontSize: 80, color: 'primary.main' }} />
-        )}
+        p: 4,
+      }}
+    >
+      {/* Album Art */}
+      <Paper
+        sx={{
+          width: 300,
+          height: 300,
+          mb: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'secondary.main',
+          backgroundImage: metadata?.thumbnailPath ? `url(${metadata.thumbnailPath})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {!metadata?.thumbnailPath && <VolumeIcon sx={{ fontSize: 80, color: 'primary.main' }} />}
       </Paper>
 
       {/* Track Info */}
@@ -309,24 +351,28 @@ const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
       </Typography>
 
       {/* Audio Controls */}
-      <Box sx={{ 
-        width: '100%',
-        maxWidth: 400,
-        mt: 4
-      }}>
-        <Box sx={{ 
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          mb: 2
-        }}>
-          <IconButton 
-            sx={{ 
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: 400,
+          mt: 4,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 2,
+          }}
+        >
+          <IconButton
+            sx={{
               bgcolor: 'primary.main',
               color: 'black',
               width: 60,
               height: 60,
-              '&:hover': { bgcolor: 'primary.light' }
+              '&:hover': { bgcolor: 'primary.light' },
             }}
             onClick={() => setIsPlaying(!isPlaying)}
           >
@@ -334,34 +380,40 @@ const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
           </IconButton>
         </Box>
 
-        <Box sx={{ 
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
           <Typography variant="caption">
             {Math.floor(currentTime / 60)}:{(currentTime % 60).toString().padStart(2, '0')}
           </Typography>
-          
-          <Box sx={{ 
-            flex: 1, 
-            height: 4, 
-            bgcolor: 'secondary.main', 
-            borderRadius: 2,
-            position: 'relative',
-            cursor: 'pointer'
-          }}>
-            <Box sx={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              height: '100%',
-              bgcolor: 'primary.main',
+
+          <Box
+            sx={{
+              flex: 1,
+              height: 4,
+              bgcolor: 'secondary.main',
               borderRadius: 2,
-              width: `${(currentTime / duration) * 100}%`
-            }} />
+              position: 'relative',
+              cursor: 'pointer',
+            }}
+          >
+            <Box
+              sx={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: '100%',
+                bgcolor: 'primary.main',
+                borderRadius: 2,
+                width: `${(currentTime / duration) * 100}%`,
+              }}
+            />
           </Box>
-          
+
           <Typography variant="caption">
             {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
           </Typography>
@@ -458,12 +510,14 @@ export const MediaViewerScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -510,23 +564,17 @@ export const MediaViewerScreen: React.FC = () => {
       </Fab>
 
       {/* Menu */}
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={() => {
-          handleMenuClose();
-          navigate(`/edit/${mediaId}`);
-        }}>
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            navigate(`/edit/${mediaId}`);
+          }}
+        >
           Edit Metadata
         </MenuItem>
-        <MenuItem onClick={handleMenuClose}>
-          Add to Favorites
-        </MenuItem>
-        <MenuItem onClick={handleMenuClose}>
-          Download Offline
-        </MenuItem>
+        <MenuItem onClick={handleMenuClose}>Add to Favorites</MenuItem>
+        <MenuItem onClick={handleMenuClose}>Download Offline</MenuItem>
       </Menu>
     </Box>
   );

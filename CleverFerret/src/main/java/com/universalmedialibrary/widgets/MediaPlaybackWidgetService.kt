@@ -20,16 +20,16 @@ import javax.inject.Singleton
 
 /**
  * MediaPlaybackWidgetService
- * 
+ *
  * Service that observes the unified playback queue and updates widget state.
  * Acts as a bridge between UnifiedPlaybackQueueManager and the widget UI.
- * 
+ *
  * Features:
  * - Observes queue state changes from UnifiedPlaybackQueueManager
  * - Loads artwork via ArtworkLoader
  * - Exposes StateFlow for widget updates
  * - Handles widget action callbacks (play, pause, next, previous)
- * 
+ *
  * TODO: Implement actual widget update via Glance or RemoteViews
  * TODO: Add error handling and retry logic for artwork loading
  * TODO: Add preferences for widget customization
@@ -41,19 +41,19 @@ class MediaPlaybackWidgetService @Inject constructor(
     private val artworkLoader: ArtworkLoader,
     private val database: AppDatabase
 ) {
-    
+
     private val TAG = "MediaPlaybackWidgetService"
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
+
     // Widget state exposed to UI
     private val _widgetState = MutableStateFlow(MediaPlaybackWidgetState.empty())
     val widgetState: StateFlow<MediaPlaybackWidgetState> = _widgetState.asStateFlow()
-    
+
     init {
         observePlaybackQueue()
     }
-    
+
     /**
      * Observe the playback queue and update widget state
      */
@@ -65,7 +65,7 @@ class MediaPlaybackWidgetService @Inject constructor(
                 queueManager.queueItems,
                 queueManager.playbackState
             ) { currentItem, queueItems, playbackState ->
-                
+
 
                 // TODO: Uncomment when MediaItemDao is available
                 // Load media item if we have a current queue item
@@ -76,7 +76,7 @@ class MediaPlaybackWidgetService @Inject constructor(
                 }
                 */
                 val mediaItem: com.universalmedialibrary.data.local.entity.MediaItem? = null
-                
+
                 // Build widget state
                 val state = if (currentItem != null) {
                     MediaPlaybackWidgetState(
@@ -96,9 +96,9 @@ class MediaPlaybackWidgetService @Inject constructor(
                 } else {
                     MediaPlaybackWidgetState.empty()
                 }
-                
+
                 _widgetState.value = state
-                
+
                 // TODO: Uncomment when MediaItemDao is available
                 // Load artwork asynchronously
                 /*
@@ -106,14 +106,14 @@ class MediaPlaybackWidgetService @Inject constructor(
                     loadArtworkForCurrentItem(mediaItem)
                 }
                 */
-                
+
                 // TODO: Trigger actual widget update via Glance or RemoteViews
                 Log.d(TAG, "Widget state updated: ${state.displayTitle}")
-                
+
             }.collect { /* State is updated via _widgetState above */ }
         }
     }
-    
+
     /**
      * Load artwork for the current media item
      */
@@ -126,7 +126,7 @@ class MediaPlaybackWidgetService @Inject constructor(
                     maxWidth = 256,
                     maxHeight = 256
                 )
-                
+
                 // TODO: Save artwork to temporary file and update state with URI
                 // For now, just log
                 if (artwork != null) {
@@ -140,7 +140,7 @@ class MediaPlaybackWidgetService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Handle play action from widget
      */
@@ -149,7 +149,7 @@ class MediaPlaybackWidgetService @Inject constructor(
         queueManager.play()
         // Widget will update automatically via state flow
     }
-    
+
     /**
      * Handle pause action from widget
      */
@@ -158,7 +158,7 @@ class MediaPlaybackWidgetService @Inject constructor(
         queueManager.pause()
         // Widget will update automatically via state flow
     }
-    
+
     /**
      * Handle next action from widget
      */
@@ -168,7 +168,7 @@ class MediaPlaybackWidgetService @Inject constructor(
         serviceScope.launch {
             val currentItems = queueManager.queueItems.value
             val currentItem = queueManager.currentItem.value
-            
+
             if (currentItem != null) {
                 val currentIndex = currentItems.indexOf(currentItem)
                 if (currentIndex < currentItems.size - 1) {
@@ -179,7 +179,7 @@ class MediaPlaybackWidgetService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Handle previous action from widget
      */
@@ -189,7 +189,7 @@ class MediaPlaybackWidgetService @Inject constructor(
         serviceScope.launch {
             val currentItems = queueManager.queueItems.value
             val currentItem = queueManager.currentItem.value
-            
+
             if (currentItem != null) {
                 val currentIndex = currentItems.indexOf(currentItem)
                 if (currentIndex > 0) {
@@ -200,7 +200,7 @@ class MediaPlaybackWidgetService @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Update widget for all instances
      */
@@ -208,7 +208,7 @@ class MediaPlaybackWidgetService @Inject constructor(
         // TODO: Trigger widget update via Glance AppWidgetManager
         Log.d(TAG, "Widget update requested")
     }
-    
+
     /**
      * Get current widget state synchronously
      */

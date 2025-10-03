@@ -19,14 +19,14 @@ import javax.inject.Singleton
  * PRIMARY AI SERVICE for CleverFerret
  * This is the main AI integration that all devices should use.
  * Uses Google's Gemini API for cloud-based AI processing.
- * 
+ *
  * This service provides:
  * - Visual OCR of book pages (images) to extract text
  * - Book metadata identification from covers and content
  * - Text analysis and enhancement capabilities
  * - Automated debugging and issue analysis
  * - Automated issue filing and error reporting
- * 
+ *
  * For devices with powerful hardware, a separate plugin app with GemmaLLMService
  * can be downloaded for on-device processing.
  */

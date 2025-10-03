@@ -24,7 +24,7 @@ object AppModule {
     fun provideApplicationContext(@ApplicationContext context: Context): Context {
         return context
     }
-    
+
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {

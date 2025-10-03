@@ -38,4 +38,3 @@ interface PlaylistDao {
     @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId ORDER BY position ASC")
     fun getPlaylistItemsFlow(playlistId: Long): Flow<List<PlaylistItem>>
 }
-

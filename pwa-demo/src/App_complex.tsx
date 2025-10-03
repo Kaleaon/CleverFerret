@@ -184,11 +184,13 @@ const App: React.FC = () => {
     <ThemeProvider theme={plexTheme}>
       <CssBaseline />
       <Router>
-        <Box sx={{ 
-          minHeight: '100vh', 
-          bgcolor: 'background.default',
-          color: 'text.primary'
-        }}>
+        <Box
+          sx={{
+            minHeight: '100vh',
+            bgcolor: 'background.default',
+            color: 'text.primary',
+          }}
+        >
           <Routes>
             <Route path="/" element={<LibraryListScreen />} />
             <Route path="/library/:libraryId" element={<LibraryDetailsScreen />} />

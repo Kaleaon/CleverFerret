@@ -63,40 +63,40 @@ fun PlexAuthScreen(
                         )
                     }
                 }
-                
+
                 is PlexAuthUiState.RequestingPin -> {
                     LoadingContent("Requesting authentication PIN...")
                 }
-                
+
                 is PlexAuthUiState.WaitingForUser -> {
                     PinDisplayContent(
                         pinCode = state.pinCode,
                         onCancel = { viewModel.cancelAuth() }
                     )
                 }
-                
+
                 is PlexAuthUiState.Authenticating -> {
                     LoadingContent("Authenticating with Plex...")
                 }
-                
+
                 is PlexAuthUiState.Authenticated -> {
                     SuccessContent(
                         username = state.username,
                         onDiscoverServers = { viewModel.discoverServers() }
                     )
                 }
-                
+
                 is PlexAuthUiState.DiscoveringServers -> {
                     LoadingContent("Discovering Plex servers...")
                 }
-                
+
                 is PlexAuthUiState.ServersDiscovered -> {
                     ServersContent(
                         servers = servers,
                         onServerSelected = { server -> viewModel.selectServer(server) }
                     )
                 }
-                
+
                 is PlexAuthUiState.Error -> {
                     ErrorContent(
                         message = state.message,
@@ -126,20 +126,20 @@ private fun IdleContent(onStartAuth: () -> Unit) {
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Text(
                 text = "Sign in to Plex",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Text(
                 text = "Connect your Plex account to sync your media library",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Button(
                 onClick = onStartAuth,
                 modifier = Modifier.fillMaxWidth()
@@ -174,19 +174,19 @@ private fun PinDisplayContent(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Text(
                 text = "Enter this PIN at",
                 style = MaterialTheme.typography.titleMedium
             )
-            
+
             Text(
                 text = "plex.tv/link",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            
+
             Surface(
                 modifier = Modifier.padding(vertical = 8.dp),
                 shape = MaterialTheme.shapes.medium,
@@ -200,17 +200,17 @@ private fun PinDisplayContent(
                     modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
                 )
             }
-            
+
             CircularProgressIndicator(
                 modifier = Modifier.size(32.dp)
             )
-            
+
             Text(
                 text = "Waiting for authorization...",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
@@ -247,7 +247,7 @@ private fun AuthenticatedContent(
                     fontWeight = FontWeight.Bold
                 )
             }
-            
+
             Button(
                 onClick = onDiscoverServers,
                 modifier = Modifier.fillMaxWidth()
@@ -256,7 +256,7 @@ private fun AuthenticatedContent(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Discover Servers")
             }
-            
+
             OutlinedButton(
                 onClick = onSignOut,
                 modifier = Modifier.fillMaxWidth()
@@ -289,18 +289,18 @@ private fun SuccessContent(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Text(
                 text = "Authentication Successful!",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Text(
                 text = "Welcome, $username",
                 style = MaterialTheme.typography.bodyLarge
             )
-            
+
             Button(
                 onClick = onDiscoverServers,
                 modifier = Modifier.fillMaxWidth()
@@ -329,7 +329,7 @@ private fun ServersContent(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            
+
             if (servers.isEmpty()) {
                 Text(
                     text = "No servers found",
@@ -384,7 +384,7 @@ private fun ServerListItem(
                     )
                 }
             }
-            
+
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null
@@ -435,21 +435,21 @@ private fun ErrorContent(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
-            
+
             Text(
                 text = "Authentication Failed",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
-            
+
             Button(
                 onClick = onRetry,
                 modifier = Modifier.fillMaxWidth(),

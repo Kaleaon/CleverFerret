@@ -11,28 +11,27 @@ import com.universalmedialibrary.ui.reader.ComicReaderScreen
 
 @Composable
 fun MediaOpenScreen(
-	itemId: Long,
-	onBack: () -> Unit,
-	viewModel: MediaOpenViewModel = hiltViewModel()
+    itemId: Long,
+    onBack: () -> Unit,
+    viewModel: MediaOpenViewModel = hiltViewModel()
 ) {
-	val uiState by viewModel.uiState.collectAsState()
-	LaunchedEffect(itemId) { viewModel.load(itemId) }
+    val uiState by viewModel.uiState.collectAsState()
+    LaunchedEffect(itemId) { viewModel.load(itemId) }
 
-	when {
-		uiState.isLoading -> CircularProgressIndicator()
-		uiState.error != null -> Text(uiState.error ?: "Error")
-		uiState.mediaItem != null -> {
-			val item = uiState.mediaItem
-			val path = item.filePath
-			val name = item.fileName
-			val ext = name.substringAfterLast('.', "").lowercase()
-			when {
-				ext == "epub" -> EReaderScreen(bookFilePath = path, onBack = onBack)
-				ext in setOf("pdf", "txt", "html", "htm", "docx") -> DocumentReaderScreen(uriString = path, fileName = name, onBack = onBack)
-				ext in setOf("cbz", "cbr") -> ComicReaderScreen(uriString = path, fileName = name, onBack = onBack)
-				else -> Text("No viewer for .$ext")
-			}
-		}
-	}
+    when {
+        uiState.isLoading -> CircularProgressIndicator()
+        uiState.error != null -> Text(uiState.error ?: "Error")
+        uiState.mediaItem != null -> {
+            val item = uiState.mediaItem
+            val path = item.filePath
+            val name = item.fileName
+            val ext = name.substringAfterLast('.', "").lowercase()
+            when {
+                ext == "epub" -> EReaderScreen(bookFilePath = path, onBack = onBack)
+                ext in setOf("pdf", "txt", "html", "htm", "docx") -> DocumentReaderScreen(uriString = path, fileName = name, onBack = onBack)
+                ext in setOf("cbz", "cbr") -> ComicReaderScreen(uriString = path, fileName = name, onBack = onBack)
+                else -> Text("No viewer for .$ext")
+            }
+        }
+    }
 }
-
