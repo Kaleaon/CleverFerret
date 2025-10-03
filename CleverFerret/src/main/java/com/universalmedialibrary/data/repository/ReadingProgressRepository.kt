@@ -28,7 +28,7 @@ class ReadingProgressRepository @Inject constructor(
         currentChapter: Int = 1
     ) {
         val existing = readingProgressDao.getProgress(itemId).first()
-        val isCompleted = percentage >= 99.0f
+val isCompleted = percentage >= 100f
         val updated = (existing ?: ReadingProgress(
             itemId = itemId
         )).copy(
