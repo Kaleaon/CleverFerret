@@ -65,12 +65,75 @@ class GeminiService @Inject constructor(
             }
 
             generativeModel = GenerativeModel(
-                modelName = "gemini-2.5-flash",
+                modelName = "gemini-2.5-pro",
                 apiKey = apiKey
             )
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    /**
+     * Translate manga/comic speech bubbles from a single page image.
+     * Returns strict JSON text with bubble coordinates and translations.
+     */
+    suspend fun translateComicPage(
+        pageBitmap: Bitmap,
+        targetLanguage: String = "en"
+    ): String = withContext(Dispatchers.IO) {
+        if (!FeatureFlags.ENABLE_GEMINI) {
+            return@withContext "{\"error\":\"Gemini integration is disabled\"}"
+        }
+
+        val model = generativeModel
+        if (model == null) {
+            return@withContext "{\"error\":\"Gemini service not initialized\"}"
+        }
+
+        val prompt = """
+            You are helping translate a manga/comic page. Tasks:
+            1) Detect dialogue speech bubbles and rectangular narration boxes. Ignore pure SFX unless they clearly convey dialogue.
+            2) Extract the exact original text per bubble/box (respect vertical or stylized text).
+            3) Identify the source language.
+            4) Translate faithfully to ${'$'}targetLanguage (natural, concise).
+            5) Return only JSON with integer pixel coordinates in the source image space.
+
+            Constraints:
+            - Output JSON only, no extra commentary.
+            - Coordinates are pixel integers relative to the provided image (origin top-left).
+            - For each bubble/box, include a tight bbox and a 3–8 point polygon if irregular.
+
+            JSON shape:
+            {
+              "page_language": "ja",
+              "bubbles": [
+                {
+                  "id": "b1",
+                  "bbox": [x, y, w, h],
+                  "polygon": [[x1,y1],[x2,y2],[x3,y3],[x4,y4]],
+                  "reading_order": 1,
+                  "original_text": "…",
+                  "translation": "…",
+                  "is_dialogue": true
+                }
+              ]
+            }
+
+            Notes:
+            - Preserve reading order as published (right-to-left if applicable).
+            - If unsure or illegible, set original_text to "" and give best-effort translation.
+        """.trimIndent()
+
+        try {
+            val c = content {
+                text(prompt)
+                image(pageBitmap)
+            }
+            val response = model.generateContent(c)
+            response.text ?: "{}"
+        } catch (e: Exception) {
+            "{\"error\":\"${'$'}{e.message}\"}"
         }
     }
 

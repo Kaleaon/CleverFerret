@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -14,8 +15,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.settings.SettingsViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
+
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
@@ -27,7 +34,9 @@ import com.github.junrar.rarfile.FileHeader
 fun ComicReaderScreen(
 	uriString: String,
 	fileName: String,
-	onBack: () -> Unit
+	onBack: () -> Unit,
+	settingsViewModel: SettingsViewModel = hiltViewModel(),
+	comicReaderViewModel: ComicReaderViewModel = hiltViewModel()
 ) {
 	val context = LocalContext.current
 	val uri = remember(uriString) { Uri.parse(uriString) }
@@ -36,6 +45,8 @@ fun ComicReaderScreen(
 	var images by remember { mutableStateOf<List<File>>(emptyList()) }
 	var index by remember { mutableStateOf(0) }
 	var currentBitmap by remember { mutableStateOf<Bitmap?>(null) }
+	var translationsJson by remember { mutableStateOf<String?>(null) }
+	val scope = rememberCoroutineScope()
 
 	LaunchedEffect(uri) {
 		images = try {
@@ -95,7 +106,42 @@ fun ComicReaderScreen(
 			}
 
 			Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-				currentBitmap?.let { Image(bitmap = it.asImageBitmap(), contentDescription = null) }
+				currentBitmap?.let { bmp ->
+					Image(bitmap = bmp.asImageBitmap(), contentDescription = null)
+					val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+					val enabled = apiSettings.comicApis.geminiBubbleTranslationEnabled
+					if (enabled && translationsJson != null) {
+						// Minimal overlay: show a badge indicating translations are available
+						Surface(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f)) {
+							Text(
+								text = "Translations",
+								modifier = Modifier.padding(6.dp),
+								color = MaterialTheme.colorScheme.onPrimary,
+								textAlign = TextAlign.Center
+							)
+						}
+					}
+				}
+			}
+
+			// Action row for translation
+			val apiSettings = settingsViewModel.apiSettings.collectAsState().value
+			if (apiSettings.comicApis.geminiBubbleTranslationEnabled) {
+				Row(
+					modifier = Modifier.fillMaxWidth().padding(8.dp),
+					horizontalArrangement = Arrangement.End
+				) {
+					Button(onClick = {
+						currentBitmap?.let { bmp ->
+							scope.launch {
+								translationsJson = comicReaderViewModel.translatePage(
+									bmp,
+									apiSettings.comicApis.geminiTargetLanguage
+								)
+							}
+						}
+					}) { Text("Translate Page") }
+				}
 			}
 		}
 	}

@@ -30,6 +30,8 @@ data class BookApiSettings(
 data class ComicApiSettings(
     val comicVineEnabled: Boolean = false,
     val comicVineApiKey: String = "",
+    val geminiBubbleTranslationEnabled: Boolean = false,
+    val geminiTargetLanguage: String = "en",
     val priority: List<String> = listOf("ComicVine")
 )
 
