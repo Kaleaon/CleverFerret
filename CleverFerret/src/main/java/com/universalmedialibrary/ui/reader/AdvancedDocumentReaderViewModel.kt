@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -40,6 +42,8 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
     private var wordsRead: Int = 0
 
     private var currentItemId: Long? = null
+    private var progressJob: Job? = null
+    private var lastSavedPercent: Float = -1f
 
     fun loadDocument(context: Context, documentUri: Uri) {
         viewModelScope.launch {
@@ -271,17 +275,23 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
                 currentChapter = findCurrentChapter(clampedPage)
             )
 
-            // Persist reading progress (best-effort if we know the item)
+            // Debounced progress persistence (≥1% change or after 500ms)
             val itemId = currentItemId
             if (itemId != null && _uiState.value.totalPages > 0) {
-                viewModelScope.launch {
-                    try {
-                        readingProgressRepository.updateProgress(
-                            itemId = itemId,
-                            currentPage = clampedPage,
-                            percentage = (clampedPage.toFloat() / _uiState.value.totalPages.toFloat()) * 100f
-                        )
-                    } catch (_: Exception) { /* ignore persistence errors for now */ }
+                val percent = (clampedPage.toFloat() / _uiState.value.totalPages.toFloat()) * 100f
+                if (lastSavedPercent < 0f || kotlin.math.abs(percent - lastSavedPercent) >= 1f) {
+                    progressJob?.cancel()
+                    progressJob = viewModelScope.launch {
+                        delay(500)
+                        try {
+                            readingProgressRepository.updateProgress(
+                                itemId = itemId,
+                                currentPage = clampedPage,
+                                percentage = percent
+                            )
+                            lastSavedPercent = percent
+                        } catch (_: Exception) { /* ignore persistence errors for now */ }
+                    }
                 }
             }
 
