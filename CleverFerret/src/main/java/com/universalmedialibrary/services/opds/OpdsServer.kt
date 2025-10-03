@@ -20,6 +20,8 @@ class OpdsServer @Inject constructor(
     @Volatile
     private var enabled: Boolean = false
 
+    fun isRunning(): Boolean = enabled
+
     fun startServer() {
         if (!enabled) {
             enabled = true
@@ -45,8 +47,9 @@ class OpdsServer @Inject constructor(
         return try {
             when {
                 session.uri == "/opds" -> newFixedLengthResponse(MIME_XML, opdsService.generateCatalogFeed())
-                session.uri.startsWith("/opds/libraries") -> serveLibraries()
+                session.uri.startsWith("/opds/libraries") -> serveLibraries(session)
                 session.uri.startsWith("/opds/library/") -> serveLibraryItems(session)
+                session.uri.startsWith("/opds/download/") -> serveDownload(session)
                 else -> newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "Not found")
             }
         } catch (e: Exception) {
@@ -54,22 +57,28 @@ class OpdsServer @Inject constructor(
         }
     }
 
-    private fun serveLibraries(): Response {
+    private fun serveLibraries(session: IHTTPSession): Response {
+        val token = session.parameters["token"]?.firstOrNull()
+            ?: return newFixedLengthResponse(Response.Status.UNAUTHORIZED, NanoHTTPD.MIME_PLAINTEXT, "Missing token")
+        val link = runBlocking { sharingRepository.getByToken(token) }
+            ?: return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Invalid token")
+        if (link.targetType != "LIBRARY") return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Token not for libraries")
+
         val xml = runBlocking {
-            val libs = libraryRepository.getAllLibraries().firstOrNull().orEmpty()
-            val entries = libs.joinToString("\n") { lib ->
+            val lib = libraryRepository.getLibraryById(link.targetId)
+            val entries = if (lib != null) {
                 """
                 <entry>
                   <title>${lib.name}</title>
                   <id>urn:lib:${lib.libraryId}</id>
-                  <link rel=\"subsection\" href=\"/opds/library/${lib.libraryId}\" />
+                  <link rel=\"subsection\" href=\"/opds/library/${lib.libraryId}?token=$token\" />
                 </entry>
                 """.trimIndent()
-            }
+            } else ""
             """
             <?xml version=\"1.0\" encoding=\"utf-8\"?>
             <feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:opds=\"http://opds-spec.org/2010/catalog\">
-              <title>Libraries</title>
+              <title>Shared Libraries</title>
               $entries
             </feed>
             """.trimIndent()
@@ -78,7 +87,14 @@ class OpdsServer @Inject constructor(
     }
 
     private fun serveLibraryItems(session: IHTTPSession): Response {
-        val libraryId = session.uri.removePrefix("/opds/library/").toLongOrNull() ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, NanoHTTPD.MIME_PLAINTEXT, "Bad library id")
+        val libraryId = session.uri.removePrefix("/opds/library/").toLongOrNull()
+            ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, NanoHTTPD.MIME_PLAINTEXT, "Bad library id")
+        val token = session.parameters["token"]?.firstOrNull()
+            ?: return newFixedLengthResponse(Response.Status.UNAUTHORIZED, NanoHTTPD.MIME_PLAINTEXT, "Missing token")
+        val link = runBlocking { sharingRepository.getByToken(token) }
+            ?: return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Invalid token")
+        if (link.targetType != "LIBRARY" || link.targetId != libraryId) return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Token not valid for library")
+
         val xml = runBlocking {
             val items = mediaRepository.getMediaItemsByLibrary(libraryId).firstOrNull().orEmpty()
             val entries = items.joinToString("\n") { item ->
@@ -86,6 +102,7 @@ class OpdsServer @Inject constructor(
                 <entry>
                   <title>${item.fileName}</title>
                   <id>urn:item:${item.itemId}</id>
+                  <link rel=\"http://opds-spec.org/acquisition/open-access\" href=\"/opds/download/${item.itemId}?token=$token\" />
                 </entry>
                 """.trimIndent()
             }
@@ -98,6 +115,36 @@ class OpdsServer @Inject constructor(
             """.trimIndent()
         }
         return newFixedLengthResponse(MIME_XML, xml)
+    }
+
+    private fun serveDownload(session: IHTTPSession): Response {
+        val itemId = session.uri.removePrefix("/opds/download/").toLongOrNull()
+            ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, NanoHTTPD.MIME_PLAINTEXT, "Bad item id")
+        val token = session.parameters["token"]?.firstOrNull()
+            ?: return newFixedLengthResponse(Response.Status.UNAUTHORIZED, NanoHTTPD.MIME_PLAINTEXT, "Missing token")
+        val link = runBlocking { sharingRepository.getByToken(token) }
+            ?: return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Invalid token")
+        val media = runBlocking { mediaRepository.getMediaItemById(itemId) }
+            ?: return newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "Item not found")
+        if (link.targetType != "LIBRARY" || link.targetId != media.libraryId) {
+            return newFixedLengthResponse(Response.Status.FORBIDDEN, NanoHTTPD.MIME_PLAINTEXT, "Token not valid for item")
+        }
+
+        return try {
+            val file = java.io.File(media.filePath)
+            if (!file.exists()) return newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "File missing")
+            val mime = when (media.fileExtension.lowercase()) {
+                "epub" -> "application/epub+zip"
+                "pdf" -> "application/pdf"
+                "cbz" -> "application/x-cbz"
+                "cbr" -> "application/x-cbr"
+                else -> "application/octet-stream"
+            }
+            val fis = java.io.FileInputStream(file)
+            newFixedLengthResponse(Response.Status.OK, mime, fis, file.length())
+        } catch (e: Exception) {
+            newFixedLengthResponse(Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT, "Error: ${e.message}")
+        }
     }
 
     companion object {
