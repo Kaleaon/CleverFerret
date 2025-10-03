@@ -26,5 +26,7 @@ class SharingRepository @Inject constructor(
     }
 
     suspend fun setEnabled(id: Long, enabled: Boolean) = dao.setEnabled(id, enabled)
+
+    suspend fun getByToken(token: String): SharedLink? = dao.getByToken(token)
 }
 
