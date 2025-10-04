@@ -8,6 +8,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.entity.podcast.PodcastEntity
+import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
+import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
+import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
 
 
 /**
@@ -49,7 +53,13 @@ import com.universalmedialibrary.data.local.entity.*
         // Unified playback queues
         PlaybackQueue::class,
         QueueItem::class,
-        PlaybackSession::class
+        PlaybackSession::class,
+
+        // Podcasts
+        PodcastEntity::class,
+        PodcastEpisodeEntity::class,
+        PodcastSubscriptionEntity::class,
+        PodcastChapterEntity::class
 
         ,
         // Maintenance proposals
@@ -64,7 +74,7 @@ import com.universalmedialibrary.data.local.entity.*
         SharedLink::class
 
     ],
-    version = 17,
+    version = 18,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -87,6 +97,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun embyServerDao(): EmbyServerDao
     abstract fun jellyfinServerDao(): JellyfinServerDao
     abstract fun sharedLinkDao(): SharedLinkDao
+
+    // Podcast DAOs
+    abstract fun podcastDao(): PodcastDao
+    abstract fun podcastEpisodeDao(): PodcastEpisodeDao
+    abstract fun podcastSubscriptionDao(): PodcastSubscriptionDao
+    abstract fun podcastChapterDao(): PodcastChapterDao
 
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
