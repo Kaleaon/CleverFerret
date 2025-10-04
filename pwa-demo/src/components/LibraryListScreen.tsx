@@ -40,6 +40,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/app-store';
+import { DownloadService } from '../services/database';
 import { Library } from '../types';
 
 // Plex-inspired library card component
@@ -436,11 +437,36 @@ export const LibraryListScreen: React.FC = () => {
   };
 
   const handleImportCalibre = () => {
-    // Simulate Calibre import process
-    // In real implementation, this would trigger file selection
-    // and process metadata.db file
-    alert('Import Calibre Library functionality would be implemented here');
-    handleMenuClose();
+    // File System Access API to select Calibre metadata.db
+    const openPicker = async () => {
+      try {
+        // @ts-ignore - showOpenFilePicker not in TS lib by default for all environments
+        const [handle] = await window.showOpenFilePicker({
+          types: [
+            {
+              description: 'Calibre metadata.db',
+              accept: { 'application/x-sqlite3': ['.db'], 'application/octet-stream': ['.db'] },
+            },
+          ],
+          excludeAcceptAllOption: false,
+          multiple: false,
+        });
+        const file = await handle.getFile();
+        const channel = new MessageChannel();
+        navigator.serviceWorker?.controller?.postMessage(
+          { type: 'PROCESS_FILE', file, fileType: 'calibre-db' },
+          [channel.port2],
+        );
+        channel.port1.onmessage = async (e) => {
+          console.log('Calibre import result', e.data);
+        };
+      } catch (e) {
+        console.warn('Import cancelled or not supported', e);
+      } finally {
+        handleMenuClose();
+      }
+    };
+    openPicker();
   };
 
   const handleAddLibrary = (name: string, type: Library['type'], path: string) => {
@@ -526,6 +552,23 @@ export const LibraryListScreen: React.FC = () => {
             >
               📚 Import Calibre Library
             </MenuItem>
+          <MenuItem
+            onClick={async () => {
+              // Demo: queue a download for the first library dummy item
+              await DownloadService.queueDownload(1, '/demo/file.epub');
+              handleMenuClose();
+              alert('Queued demo download');
+            }}
+            sx={{
+              py: 1.5,
+              px: 2,
+              '&:hover': {
+                bgcolor: 'secondary.main',
+              },
+            }}
+          >
+            ⬇️ Queue Demo Download
+          </MenuItem>
             <MenuItem
               onClick={() => {
                 handleMenuClose();

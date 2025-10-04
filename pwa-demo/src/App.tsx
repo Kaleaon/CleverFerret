@@ -1,6 +1,6 @@
 // Working Plex-inspired CleverFerret App
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   CssBaseline,
@@ -428,6 +428,7 @@ const App: React.FC = () => {
     <ThemeProvider theme={plexTheme}>
       <CssBaseline />
       <Router>
+        <DeepLinkHandler />
         <Routes>
           {/* Main Routes */}
           <Route path="/" element={useCustomComponents ? <LibraryListScreen /> : <HomeScreen />} />
@@ -448,3 +449,22 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+const DeepLinkHandler: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const action = params.get('action');
+    const url = params.get('url');
+    if (action === 'import') {
+      // Navigate to settings where import can be triggered or future import screen
+      navigate('/settings');
+    }
+    if (url) {
+      // In a real app, handle custom protocol deep-links
+      console.log('Received deep link url', url);
+    }
+  }, [location]);
+  return null;
+};

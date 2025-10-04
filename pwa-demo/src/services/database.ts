@@ -7,15 +7,17 @@ export class CleverFerretDB extends Dexie {
   mediaItems!: Table<MediaItem>;
   metadataCommon!: Table<MetadataCommon>;
   metadataBooks!: Table<MetadataBook>;
+  downloads!: Table<{ id?: number; itemId: number; url: string; status: 'queued' | 'downloading' | 'completed' | 'failed'; bytesTotal?: number; bytesReceived?: number; createdAt: Date; updatedAt: Date }>; 
 
   constructor() {
     super('CleverFerretDB');
 
-    this.version(3).stores({
+    this.version(4).stores({
       libraries: '++libraryId, name, type, path',
       mediaItems: '++itemId, libraryId, fileName, mediaType, filePath',
       metadataCommon: 'itemId, title, isFavorite, isDownloaded',
       metadataBooks: 'itemId, author, isbn, series',
+      downloads: '++id, itemId, status',
     });
   }
 }
@@ -107,5 +109,26 @@ export class MetadataService {
     if (current) {
       await db.metadataCommon.update(itemId, { isFavorite: !current.isFavorite });
     }
+  }
+}
+
+export class DownloadService {
+  static async queueDownload(itemId: number, url: string) {
+    const id = await db.downloads.add({
+      itemId,
+      url,
+      status: 'queued',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return Number(id);
+  }
+
+  static async setStatus(id: number, status: 'queued' | 'downloading' | 'completed' | 'failed', bytesReceived?: number, bytesTotal?: number) {
+    await db.downloads.update(id, { status, bytesReceived, bytesTotal, updatedAt: new Date() });
+  }
+
+  static async listDownloads() {
+    return await db.downloads.orderBy('createdAt').reverse().toArray();
   }
 }

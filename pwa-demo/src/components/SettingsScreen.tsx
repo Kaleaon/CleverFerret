@@ -1,5 +1,5 @@
 // Settings screen for CleverFerret
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -57,6 +57,44 @@ export const SettingsScreen: React.FC = () => {
   const [offlineMode, setOfflineMode] = useState(true);
   const [showApiDialog, setShowApiDialog] = useState(false);
   const [showAboutDialog, setShowAboutDialog] = useState(false);
+  const [installPromptEvent, setInstallPromptEvent] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setInstallPromptEvent(e);
+      setIsInstallable(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPromptEvent) return;
+    await installPromptEvent.prompt();
+    const choiceResult = await installPromptEvent.userChoice;
+    if (choiceResult.outcome === 'accepted') {
+      console.log('PWA installed');
+    }
+    setInstallPromptEvent(null);
+    setIsInstallable(false);
+  };
+
+  const requestNotificationPermission = async () => {
+    try {
+      if (!('Notification' in window)) return;
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        const reg = await navigator.serviceWorker?.getRegistration();
+        await reg?.showNotification('Notifications enabled', {
+          body: 'You will receive updates from CleverFerret.',
+        });
+      }
+    } catch (e) {
+      console.warn('Notification permission request failed', e);
+    }
+  };
 
   // API Keys state
   const [apiKeys, setApiKeys] = useState({
@@ -155,7 +193,16 @@ export const SettingsScreen: React.FC = () => {
           primary: 'Notifications',
           secondary: 'Show import progress and updates',
           action: (
-            <Switch checked={notifications} onChange={(e) => setNotifications(e.target.checked)} />
+            <Switch
+              checked={notifications}
+              onChange={async (e) => {
+                const enable = e.target.checked;
+                setNotifications(enable);
+                if (enable) {
+                  await requestNotificationPermission();
+                }
+              }}
+            />
           ),
         },
         {
@@ -210,6 +257,16 @@ export const SettingsScreen: React.FC = () => {
     {
       title: 'About',
       items: [
+        {
+          icon: <UpdateIcon />,
+          primary: 'Install App',
+          secondary: isInstallable ? 'Install CleverFerret on this device' : 'Already installed or not supported',
+          action: (
+            <Button size="small" disabled={!isInstallable} onClick={handleInstallClick}>
+              Install
+            </Button>
+          ),
+        },
         {
           icon: <UpdateIcon />,
           primary: 'Check for Updates',

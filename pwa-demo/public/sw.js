@@ -1,16 +1,15 @@
 // Service Worker for PWA functionality
-const CACHE_NAME = 'cleverferret-v1';
-const STATIC_CACHE = 'cleverferret-static-v1';
-const DYNAMIC_CACHE = 'cleverferret-dynamic-v1';
+const APP_VERSION = 'v2';
+const STATIC_CACHE = `cleverferret-static-${APP_VERSION}`;
+const DYNAMIC_CACHE = `cleverferret-dynamic-${APP_VERSION}`;
+const OFFLINE_URL = './offline.html';
 
 // Files to cache on install
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  // Add other static assets
+  './',
+  './index.html',
+  './manifest.json',
+  OFFLINE_URL,
 ];
 
 // Install event - cache static files
@@ -49,10 +48,30 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
+  // Handle Web Share Target POST to /import
+  if (request.method === 'POST') {
+    const url = new URL(request.url);
+    if (url.pathname === '/import') {
+      event.respondWith((async () => {
+        try {
+          // Read form data to ensure browser considers it handled
+          const formData = await request.formData();
+          const files = formData.getAll('files');
+          // Optionally postMessage to clients for processing
+          const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+          for (const client of clientList) {
+            client.postMessage({ type: 'SHARE_TARGET_IMPORT', count: files?.length || 0 });
+          }
+        } catch (_) {}
+        // Redirect user to import handler route in app
+        return Response.redirect('/?action=import', 303);
+      })());
+      return;
+    }
   }
+
+  // Skip other non-GET requests
+  if (request.method !== 'GET') return;
 
   // Skip external requests
   if (!request.url.startsWith(self.location.origin)) {
@@ -60,33 +79,36 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    // Try cache first, then network
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
+    caches.match(request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-        // If not in cache, fetch from network
+      // Network first for navigation requests (ensure latest shell)
+      if (request.mode === 'navigate') {
         return fetch(request)
           .then((networkResponse) => {
-            // Cache dynamic content for offline access
-            if (networkResponse.ok) {
-              const responseClone = networkResponse.clone();
-              caches.open(DYNAMIC_CACHE)
-                .then((cache) => {
-                  cache.put(request, responseClone);
-                });
-            }
+            const responseClone = networkResponse.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, responseClone));
             return networkResponse;
           })
-          .catch(() => {
-            // If network fails, return offline page for navigation requests
-            if (request.mode === 'navigate') {
-              return caches.match('/offline.html');
-            }
+          .catch(async () => {
+            const cached = await caches.match(request);
+            return cached || caches.match(OFFLINE_URL);
           });
-      })
+      }
+
+      // Cache-first for static assets; network fallback
+      return fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            const responseClone = networkResponse.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(OFFLINE_URL));
+    })
   );
 });
 
@@ -112,13 +134,17 @@ async function processCalibreImport() {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'PROCESS_FILE') {
     const { file, type } = event.data;
-    processFileUpload(file, type)
+    const resolvedType = event.data.fileType || type;
+    processFileUpload(file, resolvedType)
       .then((result) => {
         event.ports[0].postMessage({ success: true, result });
       })
       .catch((error) => {
         event.ports[0].postMessage({ success: false, error: error.message });
       });
+  }
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });
 
@@ -163,3 +189,40 @@ async function processCalibreDatabase(file) {
     metadataProcessed: true
   };
 }
+
+// Push notifications
+self.addEventListener('push', (event) => {
+  try {
+    const data = event.data ? event.data.json() : { title: 'CleverFerret', body: 'New update' };
+    const title = data.title || 'CleverFerret';
+    const options = {
+      body: data.body || 'Notification',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-72.png',
+      data: data.data || {},
+      actions: [
+        { action: 'open', title: 'Open' },
+      ],
+    };
+    event.waitUntil(self.registration.showNotification(title, options));
+  } catch (e) {
+    // no-op
+  }
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification?.data?.url || '/';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus();
+          client.postMessage({ type: 'NAVIGATE', url: targetUrl });
+          return;
+        }
+      }
+      return self.clients.openWindow(targetUrl);
+    })
+  );
+});
