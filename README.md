@@ -137,35 +137,11 @@ For more detailed planning, please refer to the project's issue tracker.
 
 ## 6. Current Build Status
 
-**BUILD STATUS**: 🟡 **IN PROGRESS** - Significant progress made on compilation errors. The application is being actively fixed for deployment readiness.
+For the current build state and prioritized repair plan, refer to the repair documentation:
 
-**Current Progress** (as of latest update):
-- ✅ Database layer: Fixed and operational (added missing entities: People, Series, Genre)
-- ✅ Core services: CalibreImportService, MediaScannerService fixed
-- ✅ Data models: WebFictionModels fixed
-- ✅ Dependencies: Added missing jsoup library
-- 🔄 Remaining: ~66 files with compilation errors (down from 80)
+- [REPAIR_DOCUMENTATION_INDEX.md](REPAIR_DOCUMENTATION_INDEX.md)
+- [docs/CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md](docs/CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md)
 
-**What's Working**:
-- ✅ Room database with complete entity set
-- ✅ Calibre library import service
-- ✅ Media scanner service
-- ✅ Hilt dependency injection
-- ✅ Basic navigation structure
-
-**Remaining Issues**:
-- ⚠️ ViewModels need parameter updates (~28 files)
-- ⚠️ Service layer integrations (~24 files)  
-- ⚠️ UI screens need updates (~14 files)
-
-**See detailed documentation**:
-- [APP_PUBLICATION_READINESS.md](APP_PUBLICATION_READINESS.md) - Complete publication readiness assessment
-- [BROKEN_FEATURES_LIST.md](BROKEN_FEATURES_LIST.md) - Detailed breakdown of broken features
-- [FEATURES_TO_IMPLEMENT.md](FEATURES_TO_IMPLEMENT.md) - Features requiring implementation
-- [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md) - Development roadmap and known issues
-- [BUGS_AND_ISSUES.md](BUGS_AND_ISSUES.md) - Architectural concerns and bugs
-
-**Estimated Time to Buildable**: 3-5 days of focused work  
-**Estimated Time to Publication Ready**: 4-6 weeks
+These documents are the single source of truth. This README intentionally avoids duplicating counts or timelines to prevent drift.
 
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Kaleaon/CleverFerret?utm_source=oss&utm_medium=github&utm_campaign=Kaleaon%2FCleverFerret&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)

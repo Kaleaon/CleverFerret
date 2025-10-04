@@ -69,7 +69,7 @@ All pull requests are automatically checked for:
 - Build success
 - Test passage
 
-**CI will fail if code is not properly formatted.** Make sure to run `spotlessApply` before pushing.
+See `.github/workflows/static-analysis.yml` for exact tool versions. Ensure local checks align to avoid drift.
 
 ### Code Style
 - Kotlin coding conventions

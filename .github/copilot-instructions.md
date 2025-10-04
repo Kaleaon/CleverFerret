@@ -9,7 +9,7 @@ Always reference these instructions first and fallback to search or bash command
 - Install Android SDK with required components:
   - `platform-tools`
   - `platforms;android-34` 
-  - `build-tools;34.0.0`
+  - `build-tools;33.0.2`
 - Build the project:
   - `./gradlew clean` -- takes 2 minutes first time with Gradle setup. NEVER CANCEL.
   - `./gradlew assembleDebug` -- takes 5 minutes for first build. NEVER CANCEL. Set timeout to 10+ minutes.
@@ -30,7 +30,7 @@ Always reference these instructions first and fallback to search or bash command
 ### Application Information
 - **Package Name:** `com.universalmedialibrary`
 - **Main Module:** `CleverFerret`
-- **Min SDK:** 24 (Android 7.0)
+- **Min SDK:** 26 (Android 8.0)
 - **Target SDK:** 34 (Android 14)  
 - **Version:** 1.0 (versionCode 1)
 - **Architecture:** Kotlin + Jetpack Compose + Material You + Hilt + Room
@@ -130,7 +130,7 @@ android {
     
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

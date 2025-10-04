@@ -156,7 +156,8 @@ data class ItemCollection(
 
 **Implementation:**
 ```kotlin
-// TODO: Add to AppDatabase entities
+// NOTE: This document includes roadmap TODOs for planned work.
+// TODO (roadmap): Add to AppDatabase entities
 @Entity(tableName = "unified_tags")
 data class UnifiedTag(
     @PrimaryKey(autoGenerate = true)
@@ -236,13 +237,13 @@ enum class SortOrder {
 sealed class UnifiedMediaItem {
     // ... existing properties ...
     
-    // TODO: Add computed properties for tags/collections
+    // TODO (roadmap): Add computed properties for tags/collections
     // These would be loaded via repository/DAO queries
     // val tags: List<UnifiedTag>
     // val collections: List<UnifiedCollection>
     // val genres: List<Genre>
     
-    // TODO: Add artwork accessors
+    // TODO (roadmap): Add artwork accessors
     // val primaryArtwork: String?
     // val thumbnailArtwork: String?
     // val backgroundArtwork: String?
@@ -304,7 +305,7 @@ sealed class UnifiedMediaItem {
 
 **Implementation:**
 ```kotlin
-// TODO: Add to ArtworkLoader
+// TODO (roadmap): Add to ArtworkLoader
 class DiskArtworkCache(private val cacheDir: File) {
     fun get(key: String): Bitmap?
     fun put(key: String, bitmap: Bitmap)
@@ -312,7 +313,7 @@ class DiskArtworkCache(private val cacheDir: File) {
     fun trimToSize(maxBytes: Long)
 }
 
-// TODO: Add configuration
+// TODO (roadmap): Add configuration
 data class ArtworkCacheConfig(
     val memoryPercent: Float = 0.2f,     // 20% of available memory
     val diskCacheSizeMB: Int = 250,       // 250 MB disk cache
@@ -334,7 +335,7 @@ interface ArtworkExtractor {
 }
 
 class EpubArtworkExtractor : ArtworkExtractor {
-    // TODO: Implement EPUB cover extraction
+    // TODO (roadmap): Implement EPUB cover extraction
     override suspend fun extract(filePath: String): Bitmap? {
         // 1. Open EPUB as ZIP
         // 2. Find cover image (check manifest, common paths)
@@ -344,7 +345,7 @@ class EpubArtworkExtractor : ArtworkExtractor {
 }
 
 class Mp3ArtworkExtractor : ArtworkExtractor {
-    // TODO: Implement MP3 ID3 tag artwork extraction
+    // TODO (roadmap): Implement MP3 ID3 tag artwork extraction
     override suspend fun extract(filePath: String): Bitmap? {
         // 1. Parse ID3v2 tags
         // 2. Extract APIC frame (Attached Picture)
@@ -354,7 +355,7 @@ class Mp3ArtworkExtractor : ArtworkExtractor {
 }
 
 class Mp4ArtworkExtractor : ArtworkExtractor {
-    // TODO: Implement MP4 metadata artwork extraction
+    // TODO (roadmap): Implement MP4 metadata artwork extraction
     override suspend fun extract(filePath: String): Bitmap? {
         // 1. Parse MP4 atoms
         // 2. Find 'covr' atom
@@ -370,7 +371,7 @@ class Mp4ArtworkExtractor : ArtworkExtractor {
 
 **Implementation:**
 ```kotlin
-// TODO: Add scaling presets
+// TODO (roadmap): Add scaling presets
 enum class ArtworkContext(val maxWidth: Int, val maxHeight: Int) {
     NOTIFICATION(512, 512),       // Android notification
     WIDGET_SMALL(256, 256),       // Homescreen widget
@@ -381,7 +382,7 @@ enum class ArtworkContext(val maxWidth: Int, val maxHeight: Int) {
     BACKGROUND(1920, 1080)        // Background artwork
 }
 
-// TODO: Enhance loadArtwork method signature
+// TODO (roadmap): Enhance loadArtwork method signature
 suspend fun loadArtwork(
     mediaItem: MediaItem,
     context: ArtworkContext = ArtworkContext.GRID_THUMBNAIL
@@ -394,7 +395,7 @@ suspend fun loadArtwork(
 
 **Implementation:**
 ```kotlin
-// TODO: Add background loader
+// TODO (roadmap): Add background loader
 class ArtworkPreloader @Inject constructor(
     private val artworkLoader: ArtworkLoader,
     private val database: AppDatabase
@@ -420,7 +421,7 @@ class ArtworkPreloader @Inject constructor(
 **Current Support:**
 - ✅ File path-based media items
 - ✅ Local thumbnails
-- 🔄 Embedded artwork extraction (TODO)
+- 🔄 Embedded artwork extraction (TODO - planned)
 
 **Future Enhancements:**
 - File system watching for auto-imports
@@ -437,7 +438,7 @@ class ArtworkPreloader @Inject constructor(
 
 **Integration with Unified Model:**
 ```kotlin
-// TODO: Add conversion function
+// TODO (roadmap): Add conversion function
 fun PlexMediaItem.toUnifiedMediaItem(): UnifiedMediaItem {
     return when (plexType) {
         "movie" -> UnifiedMediaItem.Movie(...)
@@ -452,14 +453,14 @@ fun PlexMediaItem.toUnifiedMediaItem(): UnifiedMediaItem {
 
 **Architecture:**
 ```kotlin
-// TODO: Add Jellyfin entities
+// TODO (roadmap): Add Jellyfin entities
 @Entity(tableName = "jellyfin_servers")
 data class JellyfinServer(...)
 
 @Entity(tableName = "jellyfin_media_items")
 data class JellyfinMediaItem(...)
 
-// TODO: Add conversion to unified model
+// TODO (roadmap): Add conversion to unified model
 fun JellyfinMediaItem.toUnifiedMediaItem(): UnifiedMediaItem
 ```
 
@@ -484,7 +485,7 @@ fun JellyfinMediaItem.toUnifiedMediaItem(): UnifiedMediaItem
 
 **Architecture:**
 ```kotlin
-// TODO: Add metadata provider interface
+// TODO (roadmap): Add metadata provider interface
 interface MetadataProvider {
     suspend fun search(query: String): List<SearchResult>
     suspend fun getDetails(id: String): MetadataDetails?
@@ -534,7 +535,7 @@ fun UnifiedMediaDetails(item: UnifiedMediaItem) {
 ### 2. Playback System
 
 ```kotlin
-// TODO: Enhance UnifiedPlaybackQueueManager
+// TODO (roadmap): Enhance UnifiedPlaybackQueueManager
 class UnifiedPlaybackQueueManager {
     suspend fun enqueue(item: UnifiedMediaItem) {
         when (item) {
@@ -550,7 +551,7 @@ class UnifiedPlaybackQueueManager {
 ### 3. Search and Filtering
 
 ```kotlin
-// TODO: Add unified search
+// TODO (roadmap): Add unified search
 suspend fun searchAcrossAllMedia(
     query: String,
     types: Set<MediaType> = MediaType.values().toSet(),
@@ -624,7 +625,7 @@ suspend fun searchAcrossAllMedia(
 For gradual rollout and testing:
 
 ```kotlin
-// TODO: Add to settings/preferences
+// TODO (roadmap): Add to settings/preferences
 object FeatureFlags {
     const val ENABLE_UNIFIED_TAGS = true
     const val ENABLE_UNIFIED_COLLECTIONS = true

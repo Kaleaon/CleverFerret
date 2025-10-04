@@ -1,19 +1,19 @@
-# Universal Media Library - Installation Guide
+# CleverFerret Universal Media Library - Installation Guide
 
 ## System Requirements
 
-- Android 7.0 (API level 24) or higher
+- Android 8.0 (API level 26) or higher
 - At least 100 MB of free storage space
 
 ## Installation
 
-1. Download the latest APK from the [Releases](https://github.com/Kaleaon/Android-calibre/releases) section
+1. Download the latest APK from the [Releases](https://github.com/Kaleaon/CleverFerret/releases) section
 2. Enable "Install from unknown sources" in your Android settings if not already enabled
 3. Open the downloaded APK file and follow the installation prompts
 
 ## First Run
 
-When you first open the Universal Media Library app, you'll see an empty library screen. This is the intended first-run state.
+When you first open the CleverFerret app, you'll see an empty library screen. This is the intended first-run state.
 
 ### Getting Started
 

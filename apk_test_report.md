@@ -16,7 +16,7 @@
 - **Package Name**: `com.universalmedialibrary`
 - **Version Code**: 1
 - **Version Name**: 1.0
-- **Min SDK Version**: 24 (Android 7.0) ✅
+- **Min SDK Version**: 26 (Android 8.0) ✅
 - **Target SDK Version**: 34 (Android 14) ✅
 - **Compile SDK Version**: 34 ✅
 
@@ -80,14 +80,14 @@
 The **signed APK** (`universal-media-library-v1.0-signed.apk`) is ready for installation on:
 
 #### Supported Devices:
-- ✅ **Android 7.0+** (API 24+)
+- ✅ **Android 8.0+** (API 26+)
 - ✅ **All major architectures** (ARM64, ARM32, x86, x86_64)
 - ✅ **Modern Android versions** up to Android 14
 
 #### Installation Requirements:
 1. Enable "Install from unknown sources" in device settings
 2. Minimum 17MB free storage space
-3. Android 7.0 or higher
+3. Android 8.0 or higher
 
 ---
 
@@ -132,7 +132,7 @@ Based on manifest analysis, the app should:
 ### 🎉 INSTALLATION VERDICT: **WILL INSTALL AND LAUNCH**
 
 The signed APK (`universal-media-library-v1.0-signed.apk`) should:
-- ✅ **Install successfully** on Android 7.0+ devices
+- ✅ **Install successfully** on Android 8.0+ devices
 - ✅ **Launch without crashes** (based on structure analysis)
 - ✅ **Display proper UI** with Material You theming
 - ✅ **Function as intended** for media library management
