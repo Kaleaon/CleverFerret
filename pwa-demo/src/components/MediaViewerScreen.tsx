@@ -189,6 +189,33 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   const [currentTime] = useState(0);
   const [duration] = useState(7200); // 2 hours demo
 
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      try {
+        // Set basic metadata
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: metadata?.title || 'Video',
+          artist: 'Unknown',
+          album: 'CleverFerret',
+          artwork: metadata?.thumbnailPath
+            ? [{ src: metadata.thumbnailPath, sizes: '512x512', type: 'image/png' }]
+            : [],
+        });
+
+        // Action handlers
+        navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
+        navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
+        navigator.mediaSession.setActionHandler('stop', () => setIsPlaying(false));
+        navigator.mediaSession.setActionHandler('seekbackward', () => {});
+        navigator.mediaSession.setActionHandler('seekforward', () => {});
+        navigator.mediaSession.setActionHandler('previoustrack', () => {});
+        navigator.mediaSession.setActionHandler('nexttrack', () => {});
+      } catch (_) {
+        // no-op
+      }
+    }
+  }, [metadata]);
+
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -246,6 +273,13 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
           >
             {isPlaying ? <PauseIcon sx={{ fontSize: 40 }} /> : <PlayIcon sx={{ fontSize: 40 }} />}
           </IconButton>
+          {/* Minimal <video> element to leverage MediaSession on supported browsers */}
+          <video
+            id="cf-video"
+            style={{ display: 'none' }}
+            controls
+            src={undefined}
+          />
         </Box>
       </Box>
 
@@ -311,6 +345,30 @@ const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime] = useState(0);
   const [duration] = useState(180); // 3 minutes demo
+
+  useEffect(() => {
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: metadata?.title || 'Audio Track',
+          artist: 'Unknown Artist',
+          album: 'CleverFerret',
+          artwork: metadata?.thumbnailPath
+            ? [{ src: metadata.thumbnailPath, sizes: '512x512', type: 'image/png' }]
+            : [],
+        });
+        navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
+        navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
+        navigator.mediaSession.setActionHandler('stop', () => setIsPlaying(false));
+        navigator.mediaSession.setActionHandler('seekbackward', () => {});
+        navigator.mediaSession.setActionHandler('seekforward', () => {});
+        navigator.mediaSession.setActionHandler('previoustrack', () => {});
+        navigator.mediaSession.setActionHandler('nexttrack', () => {});
+      } catch (_) {
+        // no-op
+      }
+    }
+  }, [metadata]);
 
   return (
     <Box

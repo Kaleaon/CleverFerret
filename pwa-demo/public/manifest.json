@@ -1,9 +1,12 @@
 {
+  "id": "/",
   "name": "CleverFerret - Universal Media Library",
   "short_name": "CleverFerret",
   "description": "A comprehensive Universal Media Library for managing books, movies, music, and more",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "browser"],
   "background_color": "#FFFBFE",
   "theme_color": "#6750A4",
   "orientation": "any",
@@ -88,6 +91,33 @@
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
   ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+cleverferret",
+      "url": "/?url=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/import",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "application/epub+zip",
+            "application/pdf",
+            "audio/mpeg",
+            "video/mp4"
+          ]
+        }
+      ]
+    }
+  },
   "file_handlers": [
     {
       "action": "/import",
