@@ -61,7 +61,7 @@ class StorageAccessService @Inject constructor(
 
             // Save to preferences
             val prefs = context.getSharedPreferences(PREF_PERSISTED_URIS, Context.MODE_PRIVATE)
-            val uris = prefs.getStringSet("uris", mutableSetOf()) ?: mutableSetOf()
+            val uris: MutableSet<String> = prefs.getStringSet("uris", mutableSetOf<String>())?.toMutableSet() ?: mutableSetOf()
             uris.add(uri.toString())
             prefs.edit().putStringSet("uris", uris).apply()
         } catch (e: Exception) {
@@ -74,7 +74,7 @@ class StorageAccessService @Inject constructor(
      */
     fun getPersistedUris(context: Context): List<Uri> {
         val prefs = context.getSharedPreferences(PREF_PERSISTED_URIS, Context.MODE_PRIVATE)
-        val uriStrings = prefs.getStringSet("uris", emptySet()) ?: emptySet()
+        val uriStrings: Set<String> = prefs.getStringSet("uris", emptySet<String>()) ?: emptySet()
         return uriStrings.mapNotNull { Uri.parse(it) }
     }
 
@@ -125,7 +125,12 @@ class StorageAccessService @Inject constructor(
             val srcDoc = src.uri
             val dstParent = dstDir.uri
             try {
-                val moved = android.provider.DocumentsContract.moveDocument(context.contentResolver, srcDoc, src.parentFile?.uri, dstParent)
+                val parentUri: Uri? = src.parentFile?.uri
+                val moved = if (parentUri != null) {
+                    DocumentsContract.moveDocument(context.contentResolver, srcDoc, parentUri, dstParent)
+                } else {
+                    null
+                }
                 moved != null
             } catch (_: Throwable) {
                 // Fallback to copy + delete
@@ -373,7 +378,7 @@ class StorageAccessService @Inject constructor(
 
             // Remove from preferences
             val prefs = context.getSharedPreferences(PREF_PERSISTED_URIS, Context.MODE_PRIVATE)
-            val uris = prefs.getStringSet("uris", mutableSetOf()) ?: mutableSetOf()
+            val uris: MutableSet<String> = prefs.getStringSet("uris", mutableSetOf<String>())?.toMutableSet() ?: mutableSetOf()
             uris.remove(uri.toString())
             prefs.edit().putStringSet("uris", uris).apply()
         } catch (e: Exception) {

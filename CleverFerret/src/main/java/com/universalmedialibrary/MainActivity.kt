@@ -98,8 +98,7 @@ fun AppNavigation() {
             LibraryDetailsScreen(
                 libraryId = libraryId,
                 onNavigateBack = { navController.navigateUp() },
-                onNavigateToMediaViewer = { id -> navController.navigate("open/$id") },
-                onCreateDocument = { navController.navigate("editor/new") }
+                onNavigateToMediaViewer = { id -> navController.navigate("open/$id") }
             )
         }
         composable("open/{itemId}") { backStackEntry ->
@@ -319,6 +318,8 @@ fun LibraryListScreen(
     }
 }
 
+}
+
 @Composable
 fun LibraryCard(library: SampleLibrary, onClick: () -> Unit) {
     val backgroundColor = when (library.type.uppercase()) {
@@ -449,42 +450,7 @@ fun LibrarySelectionDialog(
     )
 }
 
-/**
- * A composable that displays a single library as a card, showing an icon and its name.
- *
- * @param library The [Library] object containing the information to display.
- * @param onClick Callback invoked when the card is clicked.
- */
-@Composable
-fun LibraryCard(
-    library: Library,
-    onClick: () -> Unit,
-) {
-    Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Icon(
-                imageVector = getIconForLibraryType(library.type),
-                contentDescription = library.type,
-                modifier = Modifier.size(48.dp),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = library.name,
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-    }
-}
+// Removed duplicate LibraryCard overload that accepted Library entity to reduce ambiguity
 
 
 private fun getIconForLibraryType(type: String): ImageVector {
