@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.zip.ZipFile
+import java.io.FileOutputStream
+import java.net.URL
 import javax.inject.Inject
 
 /**
@@ -69,10 +71,13 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                         }
                     }
                     is BookSource.Stream -> {
-                        // TODO: Implement streaming support for remote comic archives
-                        return@withContext Result.failure(
-                            UnsupportedOperationException("Stream sources not yet implemented")
+                        // Download remote CBZ/CBR to a temporary file, support CBZ immediately
+                        val tempFile = downloadToTempFile(
+                            context = context,
+                            url = source.url,
+                            defaultExtension = "cbz"
                         )
+                        tempFile
                     }
                 }
 
@@ -118,6 +123,21 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                 Result.failure(e)
             }
         }
+    }
+
+    /**
+     * Download the content at [url] to a temporary file in cache directory and return the file.
+     */
+    private fun downloadToTempFile(context: Context, url: String, defaultExtension: String): File {
+        val guessedExt = url.substringAfterLast('.', missingDelimiterValue = defaultExtension)
+            .lowercase().ifEmpty { defaultExtension }
+        val temp = File(context.cacheDir, "stream_${System.currentTimeMillis()}.$guessedExt")
+        URL(url).openStream().use { input ->
+            FileOutputStream(temp).use { output ->
+                input.copyTo(output)
+            }
+        }
+        return temp
     }
 
     override suspend fun goTo(locator: Locator): Result<Unit> {

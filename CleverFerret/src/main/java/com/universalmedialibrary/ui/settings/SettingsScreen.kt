@@ -111,16 +111,12 @@ fun SettingsScreen(
         }
 
         // Error handling
-        // TODO: Fix error handling - properties don't exist on uiState
-        /*
         uiState.error?.let { error ->
             LaunchedEffect(error) {
-                // Show snackbar or toast
-                // For now, we'll just clear the error after displaying
+                // Placeholder: Could hook into a SnackbarHost in the Scaffold
                 viewModel.clearError()
             }
         }
-        */
     }
 }
 

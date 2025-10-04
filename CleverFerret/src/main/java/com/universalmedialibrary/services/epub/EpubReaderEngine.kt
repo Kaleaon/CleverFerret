@@ -14,6 +14,8 @@ import kotlinx.coroutines.withContext
 import com.google.gson.Gson
 import org.jsoup.Jsoup
 import java.io.File
+import java.io.FileOutputStream
+import java.net.URL
 import java.util.zip.ZipFile
 import javax.inject.Inject
 
@@ -68,12 +70,15 @@ class EpubReaderEngine @Inject constructor(
                                 IllegalArgumentException("Unsupported URI scheme: ${source.uri.scheme}")
                             )
                         }
-                    }
+                }
                     is BookSource.Stream -> {
-                        // TODO: Implement streaming support for remote EPUB files
-                        return@withContext Result.failure(
-                            UnsupportedOperationException("Stream sources not yet implemented")
+                        // Download remote EPUB to a temporary file, then open it like a local file
+                        val tempFile = downloadToTempFile(
+                            context = context,
+                            url = source.url,
+                            defaultExtension = "epub"
                         )
+                        tempFile
                     }
                 }
 
@@ -102,6 +107,21 @@ class EpubReaderEngine @Inject constructor(
                 Result.failure(e)
             }
         }
+    }
+
+    /**
+     * Download the content at [url] to a temporary file in cache directory and return the file.
+     */
+    private fun downloadToTempFile(context: Context, url: String, defaultExtension: String): File {
+        val guessedExt = url.substringAfterLast('.', missingDelimiterValue = defaultExtension)
+            .lowercase().ifEmpty { defaultExtension }
+        val temp = File(context.cacheDir, "stream_${System.currentTimeMillis()}.$guessedExt")
+        URL(url).openStream().use { input ->
+            FileOutputStream(temp).use { output ->
+                input.copyTo(output)
+            }
+        }
+        return temp
     }
 
     override suspend fun goTo(locator: Locator): Result<Unit> {

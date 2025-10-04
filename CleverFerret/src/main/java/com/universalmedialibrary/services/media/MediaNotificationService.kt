@@ -12,6 +12,8 @@ import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat as MediaNotificationCompat
 import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import androidx.media3.session.MediaSessionService
 import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.R
@@ -37,10 +39,14 @@ import javax.inject.Inject
  * - High-importance notification channel
  * - Smart notification management
  */
+@AndroidEntryPoint
 class MediaNotificationService : MediaSessionService() {
 
 
     private var mediaSession: MediaSession? = null
+
+    @Inject
+    lateinit var mediaSessionManager: MediaSessionManager
 
 
     companion object {
@@ -79,8 +85,8 @@ class MediaNotificationService : MediaSessionService() {
         super.onCreate()
         createNotificationChannel()
 
-        // TODO: Get MediaSession from proper source
-        // mediaSession = mediaSessionManager.getMediaSession()
+        // Obtain MediaSession from the central manager if available
+        mediaSession = mediaSessionManager.getMediaSession()
 
         // Start as foreground service with initial notification
         val notification = createMediaNotification(

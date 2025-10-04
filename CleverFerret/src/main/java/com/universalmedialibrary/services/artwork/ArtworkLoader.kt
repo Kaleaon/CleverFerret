@@ -83,11 +83,18 @@ class ArtworkLoader @Inject constructor(
             val cacheKey = getCacheKey(mediaItem.itemId.toString(), maxWidth, maxHeight)
             memoryCache.get(cacheKey)?.let { return@withContext it }
 
-            // TODO: Load from media file metadata (EPUB, MP3 ID3, etc.)
-            // For now, return null to indicate no artwork available
+            // Fallback: try a placeholder from resources if available (avoids nulls in UI)
+            val placeholder = runCatching {
+                val resId = context.resources.getIdentifier(
+                    "placeholder_book_cover",
+                    "drawable",
+                    context.packageName
+                )
+                if (resId != 0) BitmapFactory.decodeResource(context.resources, resId) else null
+            }.getOrNull()
 
-            Log.d(TAG, "No artwork found for local media item: ${mediaItem.fileName}")
-            null
+            Log.d(TAG, "No embedded artwork found for: ${mediaItem.fileName}; returning placeholder=${placeholder != null}")
+            placeholder
         } catch (e: Exception) {
             Log.e(TAG, "Error loading artwork for media item: ${mediaItem.fileName}", e)
             null
