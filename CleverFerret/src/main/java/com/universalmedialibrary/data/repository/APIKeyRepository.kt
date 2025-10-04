@@ -23,13 +23,9 @@ class APIKeyRepository @Inject constructor(
     suspend fun getAPIKeysByCategory(category: String): List<APIKey> =
         apiKeyDao.getAPIKeysByCategory(category)
 
-    /**
-     * Get Gemini API key for AI services
-     * This is the PRIMARY AI service for CleverFerret
-     */
-    suspend fun getGeminiApiKey(): String? {
-        return getAPIKeyByProvider("gemini")?.keyValue?.takeIf { it.isNotBlank() }
-    }
+    // Deprecated duplicate helper kept for backward compatibility
+    @Deprecated("Use getAPIKeyValue(\"gemini\") or the defined helper below")
+    suspend fun getGeminiApiKey(): String? = getAPIKeyValue("gemini")
 
     suspend fun saveAPIKey(provider: String, keyValue: String, category: String, isRequired: Boolean = false) {
         val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
@@ -158,7 +154,6 @@ class APIKeyRepository @Inject constructor(
     }
 
     // Gemini API key convenience methods
-    suspend fun getGeminiApiKey(): String? = getAPIKeyValue("gemini")
 
     suspend fun setGeminiApiKey(apiKey: String) {
         saveAPIKey("gemini", apiKey, "AI", false)
