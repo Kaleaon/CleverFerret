@@ -16,6 +16,9 @@ import java.util.zip.ZipFile
 import java.io.FileOutputStream
 import java.net.URL
 import javax.inject.Inject
+import com.github.junrar.Archive
+import com.github.junrar.rarfile.FileHeader
+import java.io.ByteArrayOutputStream
 
 /**
  * Comic Book Archive Reader Engine for CBZ and CBR formats.
@@ -38,6 +41,8 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
     private var pageEntries: List<ComicPage> = emptyList()
     private var currentPageIndex: Int = 0
     private var isRarFormat: Boolean = false
+    private var rarArchive: Archive? = null
+    private var rarPageHeaders: List<FileHeader> = emptyList()
 
     private val _currentLocator = MutableStateFlow(
         Locator(href = "", locations = emptyMap())
@@ -91,11 +96,25 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                 isRarFormat = file.extension.lowercase() == "cbr"
 
                 if (isRarFormat) {
-                    // CBR support would require a RAR library (e.g., junrar)
-                    // For now, we'll return an error
-                    return@withContext Result.failure(
-                        UnsupportedOperationException("CBR format not yet supported. Please convert to CBZ format.")
-                    )
+                    // CBR format (RAR)
+                    rarArchive = Archive(file)
+                    rarPageHeaders = rarArchive!!.fileHeaders
+                        .filter { header ->
+                            !header.isDirectory &&
+                            (header.fileName ?: "").substringAfterLast('.', "").lowercase() in setOf("jpg", "jpeg", "png", "gif", "bmp", "webp") &&
+                            !(header.fileName ?: "").contains("__MACOSX") &&
+                            !(header.fileName ?: "").startsWith(".")
+                        }
+                        .sortedBy { it.fileName ?: "" }
+
+                    pageEntries = rarPageHeaders.mapIndexed { index, header ->
+                        ComicPage(
+                            index = index,
+                            fileName = (header.fileName ?: "page_$index").substringAfterLast('/'),
+                            entryName = header.fileName ?: "page_$index",
+                            size = header.fullUnpackSize
+                        )
+                    }
                 } else {
                     // CBZ format (ZIP)
                     zipFile = ZipFile(file)
@@ -185,6 +204,8 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
     override suspend fun close() {
         zipFile?.close()
         zipFile = null
+        try { rarArchive?.close() } catch (_: Exception) {}
+        rarArchive = null
         archiveFile = null
         pageEntries = emptyList()
         currentBookId = ""
@@ -206,12 +227,21 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             if (pageIndex !in pageEntries.indices) return@withContext null
 
             val page = pageEntries[pageIndex]
-            val zip = zipFile ?: return@withContext null
 
             try {
-                val entry = zip.getEntry(page.entryName)
-                val inputStream = zip.getInputStream(entry)
-                BitmapFactory.decodeStream(inputStream)
+                if (isRarFormat) {
+                    val archive = rarArchive ?: return@withContext null
+                    val header = rarPageHeaders.getOrNull(pageIndex) ?: return@withContext null
+                    val baos = ByteArrayOutputStream()
+                    archive.extractFile(header, baos)
+                    val bytes = baos.toByteArray()
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                } else {
+                    val zip = zipFile ?: return@withContext null
+                    val entry = zip.getEntry(page.entryName)
+                    val inputStream = zip.getInputStream(entry)
+                    BitmapFactory.decodeStream(inputStream)
+                }
             } catch (e: Exception) {
                 null
             }
