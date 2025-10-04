@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 // PWA is handled via custom public/sw.js and public/manifest.json
 
 export default defineConfig({
+  base: './',
   plugins: [react()],
   server: {
     port: 5000,

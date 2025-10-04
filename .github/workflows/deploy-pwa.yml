@@ -42,6 +42,9 @@ jobs:
         run: npm run build
         working-directory: ./pwa-demo
 
+      - name: Add SPA fallback for GitHub Pages
+        run: cp pwa-demo/dist/index.html pwa-demo/dist/404.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

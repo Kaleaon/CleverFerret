@@ -2,13 +2,13 @@
 const APP_VERSION = 'v2';
 const STATIC_CACHE = `cleverferret-static-${APP_VERSION}`;
 const DYNAMIC_CACHE = `cleverferret-dynamic-${APP_VERSION}`;
-const OFFLINE_URL = '/offline.html';
+const OFFLINE_URL = './offline.html';
 
 // Files to cache on install
 const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  './',
+  './index.html',
+  './manifest.json',
   OFFLINE_URL,
 ];
 
