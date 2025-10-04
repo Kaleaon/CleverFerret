@@ -77,7 +77,7 @@ git push origin v1.2.0
 - **Parallel Workers**: 2
 
 ### Testing Coverage
-- **API Levels**: 24, 30, 34 (Android 7.0 to 14)
+- **API Levels**: 26, 30, 34 (Android 8.0 to 14)
 - **Architectures**: x86, x86_64
 - **Test Types**: Unit, instrumentation, performance
 - **Retry Attempts**: 3 for flaky tests
@@ -86,7 +86,7 @@ git push origin v1.2.0
 - **Target Size**: < 20MB (release)
 - **Security**: Signed APKs, vulnerability scanning
 - **Performance**: Startup time < 3 seconds
-- **Compatibility**: Android 7.0+ (99% of devices)
+- **Compatibility**: Android 8.0+ (broad device coverage)
 
 ## 🛠️ Workflow Customization
 
@@ -94,7 +94,7 @@ git push origin v1.2.0
 Edit `enhanced_android_ci.yml`:
 ```yaml
 matrix:
-  api-level: [24, 30, 34]  # Add/remove API levels
+  api-level: [26, 30, 34]  # Add/remove API levels
   build-type: [debug, release]
 ```
 

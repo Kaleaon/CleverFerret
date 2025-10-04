@@ -78,14 +78,14 @@
 - Poor user experience with installation
 
 **After Fix**:
-- ✅ APKs install successfully on all supported devices (Android 7.0+)
+- ✅ APKs install successfully on all supported devices (Android 8.0+)
 - ✅ All required permissions properly declared
 - ✅ Clear installation documentation and troubleshooting
 - ✅ Better user experience with detailed guidance
 
 ## Testing Recommendations
 
-1. **Test on multiple Android versions**: 7.0, 8.0, 8.1, 10, 12, 13, 14
+1. **Test on multiple Android versions**: 8.0, 8.1, 10, 12, 13, 14
 2. **Test installation process**: Download APK and install on clean device
 3. **Test permissions**: Verify notification and foreground service work correctly
 4. **Test import functionality**: Ensure Calibre import service functions properly

@@ -21,10 +21,7 @@
 3. Select your browser/file manager
 4. Enable "Allow from this source"
 
-**Android 7.0-7.1:**
-1. Go to Settings → Security
-2. Enable "Unknown sources"
-3. Confirm the warning dialog
+<!-- Note: Minimum supported is Android 8.0+; older versions are no longer targeted. -->
 
 ### Step 3: Install the APK
 1. Tap the downloaded APK file
@@ -37,7 +34,7 @@
 ## ✅ Verified Compatibility
 
 ### Supported Devices:
-- **Android Version**: 7.0+ (API level 24+)
+- **Android Version**: 8.0+ (API level 26+)
 - **Architectures**: ARM64, ARM32, x86, x86_64
 - **Storage**: Minimum 17 MB free space
 - **RAM**: 2GB+ recommended
@@ -93,7 +90,7 @@
 - **Version**: 1.0 (Version Code: 1)
 - **Signed With**: Debug certificate (safe for testing)
 - **Target SDK**: Android 14 (API 34)
-- **Min SDK**: Android 7.0 (API 24)
+- **Min SDK**: Android 8.0 (API 26)
 
 ### Included Features:
 - Modern Jetpack Compose UI

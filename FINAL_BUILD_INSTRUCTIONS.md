@@ -91,7 +91,7 @@ chmod +x build-scripts/setup-build-environment.sh
 ### **APK Output:**
 - **Name:** `CleverFerret-enhanced-v1.1-[DATE].apk`
 - **Size:** ~17MB (optimized)
-- **Compatibility:** Android 7.0+ (API 26+)
+- **Compatibility:** Android 8.0+ (API 26+)
 - **Status:** Properly signed and verified
 
 ### **Enhanced Features:**

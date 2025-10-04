@@ -31,7 +31,7 @@ This integration provides the foundation for displaying current media playback i
                     │ updates
                     ▼
 ┌─────────────────────────────────────────────────────────────┐
-│         MediaPlaybackWidget (Glance - TODO)                   │
+│         MediaPlaybackWidget (Glance - TODO - planned)         │
 │  - Displays current media info                               │
 │  - Shows artwork, title, artist                              │
 │  - Playback controls (play/pause/next/previous)              │
@@ -88,8 +88,8 @@ val plexBitmap = artworkLoader.loadPlexArtwork(
 ```
 
 **TODOs**:
-- [ ] Implement artwork extraction from EPUB files
-- [ ] Implement artwork extraction from MP3 ID3 tags
+- [ ] Implement artwork extraction from EPUB files (planned)
+- [ ] Implement artwork extraction from MP3 ID3 tags (planned)
 - [ ] Add disk cache for network-loaded artwork
 - [ ] Add configurable cache size
 - [ ] Add artwork preloading for queue items

@@ -6,7 +6,7 @@ Since this is the first release of Universal Media Library, follow these steps t
 
 ### 1. Create GitHub Release
 
-1. Go to the [Releases page](https://github.com/Kaleaon/Android-calibre/releases)
+1. Go to the [Releases page](https://github.com/Kaleaon/CleverFerret/releases)
 2. Click "Create a new release"
 3. Set tag version to `v1.0.0`
 4. Target the main branch or current development branch
@@ -26,7 +26,7 @@ This is the first release of the Universal Media Library for Android.
 - ✅ First-run ready state (empty, clean installation)
 
 ### 📱 System Requirements
-- Android 7.0+ (API level 24 or higher)
+- Android 8.0+ (API level 26 or higher)
 - 100 MB free storage space
 
 ### 📦 Installation
@@ -84,7 +84,7 @@ The GitHub Actions workflow in `.github/workflows/release.yml` will automate fut
 - **Version Code:** 1
 - **Version Name:** 1.0
 - **Target SDK:** 34 (Android 14)
-- **Min SDK:** 24 (Android 7.0)
+- **Min SDK:** 26 (Android 8.0)
 - **APK Type:** Release (signed with debug certificates for installation)
 - **Build Type:** Release with R8 minification disabled
 - **Signing:** Fixed - APKs are now properly signed for installation

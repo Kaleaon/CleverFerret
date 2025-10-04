@@ -485,7 +485,7 @@ CleverFerret is now a fully functional, feature-complete media library applicati
 
 ### Technical Requirements ✅
 
-- ✅ Min SDK 24 (Android 7.0) - 94% device coverage
+- ✅ Min SDK 26 (Android 8.0)
 - ✅ Target SDK 34 (Android 14) - Latest
 - ✅ Compile SDK 34
 - ✅ All permissions declared
