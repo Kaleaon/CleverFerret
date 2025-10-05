@@ -1,210 +1,47 @@
 package com.universalmedialibrary.ui.podcast
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.services.podcast.AdvancedPodcastPlayerService
-import com.universalmedialibrary.services.podcast.PodcastService
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import com.universalmedialibrary.data.repository.podcast.PodcastRepository
+import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.podcast.PodcastEpisode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel for the advanced podcast player screen
- */
 @HiltViewModel
 class PodcastPlayerViewModel @Inject constructor(
-    private val podcastPlayerService: AdvancedPodcastPlayerService,
-    private val podcastService: PodcastService
+    private val repository: PodcastRepository,
+    private val audioPlaybackManager: AudioPlaybackManager
 ) : ViewModel() {
     
-    val playbackState: StateFlow<com.universalmedialibrary.services.podcast.PodcastPlaybackState> = 
-        podcastPlayerService.playbackState
+    private val _uiState = MutableStateFlow(PodcastPlayerUiState())
+    val uiState: StateFlow<PodcastPlayerUiState> = _uiState.asStateFlow()
     
-    val currentEpisode: StateFlow<com.universalmedialibrary.services.podcast.EpisodePlaybackInfo?> = 
-        podcastPlayerService.currentEpisode
+    private var loadEpisodeJob: Job? = null
+    private var positionUpdateJob: Job? = null
     
-    val episodeQueue: StateFlow<List<com.universalmedialibrary.services.podcast.EpisodePlaybackInfo>> = 
-        podcastPlayerService.episodeQueue
+    val playbackState = audioPlaybackManager.state
     
-    val playbackSettings: StateFlow<com.universalmedialibrary.services.podcast.PodcastPlaybackSettings> = 
-        podcastPlayerService.playbackSettings
-    
-    val chapters: StateFlow<List<com.universalmedialibrary.services.podcast.PodcastChapter>> = 
-        podcastPlayerService.chapters
-    
-    /**
-     * Toggle play/pause
-     */
-    fun togglePlayPause() {
-        podcastPlayerService.togglePlayPause()
-    }
-    
-    /**
-     * Skip to previous episode
-     */
-    fun skipToPreviousEpisode() {
-        podcastPlayerService.skipToPreviousEpisode()
-    }
-    
-    /**
-     * Skip to next episode
-     */
-    fun skipToNextEpisode() {
-        podcastPlayerService.skipToNextEpisode()
-    }
-    
-    /**
-     * Skip forward by seconds
-     */
-    fun skipForward(seconds: Int) {
-        podcastPlayerService.skipForward(seconds)
-    }
-    
-    /**
-     * Skip backward by seconds
-     */
-    fun skipBackward(seconds: Int) {
-        podcastPlayerService.skipBackward(seconds)
-    }
-    
-    /**
-     * Seek to specific position
-     */
-    fun seekTo(positionMs: Long) {
-        podcastPlayerService.seekTo(positionMs)
-    }
-    
-    /**
-     * Jump to specific chapter
-     */
-    fun jumpToChapter(chapterIndex: Int) {
-        podcastPlayerService.jumpToChapter(chapterIndex)
-    }
-    
-    /**
-     * Get current playback position
-     */
-    fun getCurrentPosition(): Long {
-        return podcastPlayerService.getCurrentPosition()
-    }
-    
-    /**
-     * Set playback speed
-     */
-    fun setPlaybackSpeed(speed: Float) {
-        podcastPlayerService.setPlaybackSpeed(speed)
-    }
-    
-    /**
-     * Toggle skip silence
-     */
-    fun toggleSkipSilence() {
-        val currentSettings = playbackSettings.value
-        podcastPlayerService.setSkipSilence(!currentSettings.skipSilence)
-    }
-    
-    /**
-     * Toggle sleep timer (cycles through common durations)
-     */
-    fun toggleSleepTimer() {
-        val currentMinutes = playbackSettings.value.sleepTimerMinutes
-        val nextMinutes = when (currentMinutes) {
-            0 -> 15
-            15 -> 30
-            30 -> 60
-            60 -> 90
-            else -> 0
-        }
-        podcastPlayerService.setSleepTimer(nextMinutes)
-    }
-    
-    /**
-     * Set specific sleep timer duration
-     */
-    fun setSleepTimer(minutes: Int) {
-        podcastPlayerService.setSleepTimer(minutes)
-    }
-    
-    /**
-     * Add episode to queue
-     */
-    fun addEpisodeToQueue(episode: com.universalmedialibrary.services.podcast.PodcastEpisode) {
-        podcastPlayerService.addToQueue(episode)
-    }
-    
-    /**
-     * Remove episode from queue
-     */
-    fun removeEpisodeFromQueue(episodeId: String) {
-        podcastPlayerService.removeFromQueue(episodeId)
-    }
-    
-    /**
-     * Get remaining sleep timer time
-     */
-    fun getSleepTimerRemaining(): Long {
-        return podcastPlayerService.getSleepTimerRemaining()
-    }
-    
-    /**
-     * Mark current episode as completed
-     */
-    fun markEpisodeCompleted() {
-        // TODO: Implement episode completion tracking
-        viewModelScope.launch {
-            // Update episode completion status in database
-        }
-    }
-    
-    /**
-     * Download episode for offline listening
-     */
-    fun downloadEpisode(episode: com.universalmedialibrary.services.podcast.PodcastEpisode) {
-        viewModelScope.launch {
-            try {
-                val result = podcastService.downloadEpisode(episode)
-                if (result.success) {
-                    // TODO: Update UI to show download success
+    init {
+        // Track playback position updates
+        positionUpdateJob = viewModelScope.launch {
+            playbackState.collect { state ->
+                if (state.isPlaying) {
+                    _uiState.value = _uiState.value.copy(
+                        isPlaying = true,
+                        currentPosition = audioPlaybackManager.exoPlayer.currentPosition
+                    )
                 } else {
-                    // TODO: Show error message
-                }
-            } catch (e: Exception) {
-                // TODO: Handle download error
-            }
-        }
-    }
-    
-    /**
-     * Subscribe to podcast show
-     */
-    fun subscribeToPodcast(feedUrl: String) {
-        viewModelScope.launch {
-            try {
-                val result = podcastService.subscribeToPodcast(feedUrl)
-                if (result.success) {
-                    // TODO: Update UI to show subscription success
-                } else {
-                    // TODO: Show error message
-                }
-            } catch (e: Exception) {
-                // TODO: Handle subscription error
-            }
-        }
-    }
-    
-    /**
-     * Get episodes for current podcast
-     */
-    fun refreshEpisodes() {
-        val currentEpisode = currentEpisode.value
-        if (currentEpisode != null) {
-            viewModelScope.launch {
-                try {
-                    // TODO: Refresh episodes from podcast feed
-                    // This would require getting the subscription info first
-                } catch (e: Exception) {
-                    // TODO: Handle refresh error
+                    _uiState.value = _uiState.value.copy(isPlaying = false)
                 }
             }
         }
@@ -212,7 +49,115 @@ class PodcastPlayerViewModel @Inject constructor(
     
     override fun onCleared() {
         super.onCleared()
-        // Don't release the service here as it should continue playing in background
-        // podcastPlayerService.release()
+        positionUpdateJob?.cancel()
+        loadEpisodeJob?.cancel()
+    }
+    
+    fun loadEpisode(episodeId: Long) {
+        loadEpisodeJob?.cancel()
+        loadEpisodeJob = viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            
+            repository.getEpisodeById(episodeId)
+                .catch { e ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Failed to load episode: ${e.message}"
+                    )
+                }
+                .collect { episode ->
+                    _uiState.value = _uiState.value.copy(
+                        episode = episode,
+                        isLoading = false
+                    )
+                }
+        }
+    }
+    
+    fun play() {
+        _uiState.value.episode?.let { episode ->
+            val uri = Uri.parse(episode.localFilePath ?: episode.audioUrl)
+            
+            // Create metadata for the player
+            val metadata = MediaMetadata.Builder()
+                .setTitle(episode.title)
+                .setArtist(episode.description ?: "Podcast Episode")
+                .build()
+            
+            // Load and play
+            audioPlaybackManager.loadSingle(uri, metadata, playWhenReady = true)
+            _uiState.value = _uiState.value.copy(isPlaying = true)
+            
+            // Update play position in database
+            viewModelScope.launch {
+                repository.updatePlayPosition(episode.id, _uiState.value.currentPosition)
+            }
+        }
+    }
+    
+    fun pause() {
+        audioPlaybackManager.pause()
+        _uiState.value = _uiState.value.copy(isPlaying = false)
+        
+        // Save current position
+        _uiState.value.episode?.let { episode ->
+            viewModelScope.launch {
+                repository.updatePlayPosition(episode.id, audioPlaybackManager.exoPlayer.currentPosition)
+            }
+        }
+    }
+    
+    fun seekTo(position: Long) {
+        audioPlaybackManager.exoPlayer.seekTo(position)
+        _uiState.value = _uiState.value.copy(currentPosition = position)
+        
+        // Save position to database
+        _uiState.value.episode?.let { episode ->
+            viewModelScope.launch {
+                repository.updatePlayPosition(episode.id, position)
+            }
+        }
+    }
+    
+    fun skipForward() {
+        val newPosition = _uiState.value.currentPosition + 30000 // 30 seconds
+        seekTo(newPosition.coerceAtMost(_uiState.value.episode?.duration ?: 0))
+    }
+    
+    fun skipBackward() {
+        val newPosition = _uiState.value.currentPosition - 15000 // 15 seconds
+        seekTo(newPosition.coerceAtLeast(0))
+    }
+    
+    fun togglePlayPause() {
+        if (_uiState.value.isPlaying) {
+            pause()
+        } else {
+            play()
+        }
+    }
+    
+    fun markAsPlayed() {
+        viewModelScope.launch {
+            _uiState.value.episode?.let { episode ->
+                repository.markEpisodeAsPlayed(episode.id)
+            }
+        }
+    }
+    
+    fun toggleFavorite() {
+        viewModelScope.launch {
+            _uiState.value.episode?.let { episode ->
+                repository.toggleEpisodeFavorite(episode.id, !episode.favorite)
+            }
+        }
     }
 }
+
+data class PodcastPlayerUiState(
+    val episode: PodcastEpisode? = null,
+    val isLoading: Boolean = false,
+    val isPlaying: Boolean = false,
+    val currentPosition: Long = 0,
+    val error: String? = null
+)

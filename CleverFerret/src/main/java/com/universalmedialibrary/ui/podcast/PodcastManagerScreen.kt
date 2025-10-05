@@ -24,7 +24,10 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.MetallicFAB
+import com.universalmedialibrary.ui.theme.MetallicTopAppBar
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,7 +38,7 @@ fun PodcastManagerScreen(
     navController: NavController,
     viewModel: PodcastViewModel = hiltViewModel()
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.FOREST_COPPER) {
         val uiState by viewModel.uiState.collectAsState()
         var showSearchDialog by remember { mutableStateOf(false) }
         var showAddFeedDialog by remember { mutableStateOf(false) }
@@ -43,7 +46,7 @@ fun PodcastManagerScreen(
 
         Scaffold(
             topBar = {
-                TopAppBar(
+                MetallicTopAppBar(
                     title = { 
                         Text(
                             "Podcast Manager",
@@ -69,12 +72,12 @@ fun PodcastManagerScreen(
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(
+                MetallicFAB(
                     onClick = { showAddFeedDialog = true },
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Podcast")
-                }
+                    icon = {
+                        Icon(Icons.Default.Add, contentDescription = "Add Podcast")
+                    }
+                )
             }
         ) { paddingValues ->
             Column(
@@ -678,5 +681,19 @@ private fun formatDuration(seconds: Long): String {
         String.format("%d:%02d:%02d", hours, minutes, secs)
     } else {
         String.format("%d:%02d", minutes, secs)
+    }
+}
+
+private fun formatTime(milliseconds: Long): String {
+    val seconds = (milliseconds / 1000).toInt()
+    val minutes = seconds / 60
+    val remainingSeconds = seconds % 60
+    
+    return if (minutes >= 60) {
+        val hours = minutes / 60
+        val remainingMinutes = minutes % 60
+        "%d:%02d:%02d".format(hours, remainingMinutes, remainingSeconds)
+    } else {
+        "%d:%02d".format(minutes, remainingSeconds)
     }
 }

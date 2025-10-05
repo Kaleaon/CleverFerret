@@ -74,7 +74,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
         SharedLink::class
 
     ],
-    version = 18,
+    version = 20, // Incremented for podcast entities + radio station
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -103,6 +103,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun podcastEpisodeDao(): PodcastEpisodeDao
     abstract fun podcastSubscriptionDao(): PodcastSubscriptionDao
     abstract fun podcastChapterDao(): PodcastChapterDao
+    
+    // Radio DAO
+    abstract fun radioStationDao(): RadioStationDao
 
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
@@ -134,7 +137,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .fallbackToDestructiveMigration() // For development - will implement proper migrations later
+                .fallbackToDestructiveMigration() // Explicitly enabled for podcast entities addition (v18→v19)
                 .build()
                 INSTANCE = instance
                 instance

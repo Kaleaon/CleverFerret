@@ -308,6 +308,10 @@ data class TaddyPodcast(
     val categories: List<String>
 )
 
+/**
+ * Podcast service for RSS feed operations and API searches
+ * Now works with PodcastRepository for persistence
+ */
 @Singleton
 class PodcastService @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context
@@ -641,9 +645,9 @@ class PodcastService @Inject constructor(
     }
 
     /**
-     * Parse RSS feed from URL
+     * Parse RSS feed from URL (public for repository access)
      */
-    private suspend fun parseRSSFeed(feedUrl: String): RSSFeed {
+    suspend fun parseRSSFeed(feedUrl: String): RSSFeed {
         val request = Request.Builder().url(feedUrl).build()
         val response = httpClient.newCall(request).execute()
         val xml = response.body?.string() ?: throw Exception("Empty RSS feed")

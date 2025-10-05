@@ -44,7 +44,8 @@ import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
 import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
 import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -66,7 +67,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PlexTheme {
+            CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -133,6 +134,77 @@ fun AppNavigation() {
         }
         composable("collections") {
             CollectionsScreen(onOpenCollection = { /* TODO: navigate to collection detail */ })
+        }
+        
+        // Podcast routes
+        composable("podcasts") {
+            com.universalmedialibrary.ui.podcast.PodcastManagerScreen(navController = navController)
+        }
+        composable("podcast_player/{episodeId}") { backStackEntry ->
+            val episodeId = backStackEntry.arguments?.getString("episodeId")?.toLongOrNull() ?: -1L
+            com.universalmedialibrary.ui.podcast.PodcastPlayerScreen(
+                episodeId = episodeId,
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Music routes
+        composable("music") {
+            com.universalmedialibrary.ui.music.MusicLibraryScreen(navController = navController)
+        }
+        composable("music_player") {
+            com.universalmedialibrary.ui.music.MusicPlayerScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Reader routes
+        composable("bookshelf/{libraryId}") { backStackEntry ->
+            val libraryId = backStackEntry.arguments?.getString("libraryId")?.toLongOrNull() ?: 1L
+            com.universalmedialibrary.ui.bookshelf.EnhancedBookshelfScreen(
+                navController = navController,
+                libraryId = libraryId
+            )
+        }
+        composable("reader/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
+            com.universalmedialibrary.ui.reader.EReaderScreen(
+                itemId = itemId,
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Radio routes
+        composable("radio") {
+            com.universalmedialibrary.ui.radio.RadioScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Video routes
+        composable("videos") {
+            com.universalmedialibrary.ui.video.VideoLibraryScreen(
+                navController = navController
+            )
+        }
+        composable("video_player/{videoId}") { backStackEntry ->
+            val videoId = backStackEntry.arguments?.getString("videoId")?.toLongOrNull() ?: -1L
+            com.universalmedialibrary.ui.video.VideoPlayerScreen(
+                videoId = videoId,
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Settings route
+        composable("settings") {
+            com.universalmedialibrary.ui.settings.SettingsScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Theme preview for testing
+        composable("theme_preview") {
+            com.universalmedialibrary.ui.theme.ThemePreviewScreen()
         }
     }
 }
@@ -206,6 +278,9 @@ fun LibraryListScreen(
             TopAppBar(
                 title = { Text("Libraries") },
                 actions = {
+                    IconButton(onClick = { navController.navigate("settings") }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
                     IconButton(onClick = { navController.navigate("maintenance") }) {
                         Icon(Icons.Default.Build, contentDescription = "Maintenance")
                     }
@@ -294,12 +369,61 @@ fun LibraryListScreen(
             }
 
             items(sampleLibraries) { library ->
-
                 LibraryCard(
                     library = library,
                     onClick = {
                         navController.navigate("library_details/${library.libraryId}")
                     },
+                )
+            }
+            
+            // Podcast Manager Card
+            item {
+                FeatureCard(
+                    title = "Podcasts",
+                    icon = Icons.Default.Podcasts,
+                    colors = listOf(Color(0xFF0D1F12), Color(0xFF4A7C59)),
+                    onClick = { navController.navigate("podcasts") }
+                )
+            }
+            
+            // Music Library Card
+            item {
+                FeatureCard(
+                    title = "Music",
+                    icon = Icons.Default.MusicNote,
+                    colors = listOf(Color(0xFF4A148C), Color(0xFF9C27B0)),
+                    onClick = { navController.navigate("music") }
+                )
+            }
+            
+            // Radio Streaming Card
+            item {
+                FeatureCard(
+                    title = "Radio",
+                    icon = Icons.Default.Radio,
+                    colors = listOf(Color(0xFF1A0F2E), Color(0xFF6B4BA3)),
+                    onClick = { navController.navigate("radio") }
+                )
+            }
+            
+            // Video Library Card
+            item {
+                FeatureCard(
+                    title = "Videos",
+                    icon = Icons.Default.VideoLibrary,
+                    colors = listOf(Color(0xFF0D47A1), Color(0xFF2196F3)),
+                    onClick = { navController.navigate("videos") }
+                )
+            }
+            
+            // Theme Preview Card (for testing)
+            item {
+                FeatureCard(
+                    title = "Themes",
+                    icon = Icons.Default.Palette,
+                    colors = listOf(Color(0xFFD4AF37), Color(0xFFFFD700)),
+                    onClick = { navController.navigate("theme_preview") }
                 )
             }
         }
@@ -318,6 +442,64 @@ fun LibraryListScreen(
     }
 }
 
+}
+
+@Composable
+fun FeatureCard(
+    title: String,
+    icon: ImageVector,
+    colors: List<Color>,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                            colors = colors
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.White
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Tap to open",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
 }
 
 @Composable

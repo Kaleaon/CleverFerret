@@ -5,12 +5,18 @@ import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.ui.theme.MetallicButton
+import com.universalmedialibrary.ui.theme.MetallicCard
+import com.universalmedialibrary.ui.theme.MetallicTopAppBar
+import com.universalmedialibrary.ui.theme.MetallicIconButton
 
 @Composable
 fun MusicLibraryScreen(
@@ -28,11 +34,14 @@ fun MusicLibraryScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            MetallicTopAppBar(
                 title = { Text("Music Library") },
                 actions = {
                     if (!state.isLoading) {
-                        TextButton(onClick = { viewModel.playAll() }) { Text("Play All") }
+                        MetallicButton(
+                            text = "Play All",
+                            onClick = { viewModel.playAll() }
+                        )
                     }
                 }
             )
@@ -49,15 +58,34 @@ fun MusicLibraryScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(state.tracks) { track ->
-                    ListItem(
-                        headlineContent = { Text(track.title ?: "Unknown") },
-                        supportingContent = { Text(listOfNotNull(track.artist, track.album).joinToString(" • ")) },
+                    MetallicCard(
                         modifier = Modifier.fillMaxWidth(),
-                        trailingContent = {
-                            TextButton(onClick = { viewModel.playTrack(track) }) { Text("Play") }
+                        onClick = { viewModel.playTrack(track) }
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = track.title ?: "Unknown",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = listOfNotNull(track.artist, track.album).joinToString(" • "),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            MetallicIconButton(
+                                onClick = { viewModel.playTrack(track) },
+                                icon = {
+                                    Icon(Icons.Default.PlayArrow, "Play")
+                                }
+                            )
                         }
-                    )
-                    Divider()
+                    }
                 }
             }
         }

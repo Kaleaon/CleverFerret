@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
 import com.universalmedialibrary.data.local.entity.BookDetails
+import com.universalmedialibrary.ui.theme.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -55,20 +56,21 @@ fun EnhancedBookshelfScreen(
         viewModel.loadBooks(libraryId)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Bookshelf",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Medium
-                    )
-                },
+    CleverFerretTheme(palette = ThemePalette.BURGUNDY_ROSE_GOLD) {
+        Scaffold(
+            topBar = {
+                MetallicTopAppBar(
+                    title = {
+                        Text(
+                            "Bookshelf",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    },
                 actions = {
                     // Search
                     IconButton(onClick = { viewModel.toggleSearch() }) {
-                        Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search")
+                        Icon(Icons.Default.Search, contentDescription = "Search")
                     }
 
                     // View Mode
@@ -127,21 +129,20 @@ fun EnhancedBookshelfScreen(
                     // Filter
                     IconButton(onClick = { viewModel.toggleFilters() }) {
                         Icon(
-                            PhosphorIcons.Warning,
+                            Icons.Default.FilterList,
                             contentDescription = "Filter",
                             tint = if (showFilters) MaterialTheme.colorScheme.primary
-                                  else MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
             )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
             // Search Bar
             AnimatedVisibility(visible = searchQuery.isNotEmpty() || viewModel.searchActive.collectAsState().value) {
                 SearchTextField(
@@ -225,7 +226,7 @@ fun SearchTextField(
         onValueChange = onQueryChange,
         placeholder = { Text("Search books...") },
         leadingIcon = {
-            Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search")
+            Icon(Icons.Default.Search, contentDescription = "Search")
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
@@ -398,4 +399,6 @@ enum class SortOption(val displayName: String, val icon: ImageVector) {
     DATE_ADDED("Date Added", Icons.Default.Schedule),
     RATING("Rating", Icons.Default.Star),
     RECENTLY_READ("Recently Read", Icons.Default.History)
+}
+tly Read", Icons.Default.History)
 }
