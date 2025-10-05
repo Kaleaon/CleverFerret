@@ -4,11 +4,11 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 /**
- * The main Application class for the app.
+ * The main application class for CleverFerret.
  *
- * The `@HiltAndroidApp` annotation is essential for Hilt's dependency injection.
- * It triggers Hilt's code generation and creates a dependency container that is attached
- * to the application's lifecycle, making it the parent container for all other containers.
+ * This class is annotated with [@HiltAndroidApp] to enable Hilt dependency injection
+ * throughout the application. It serves as the entry point for the dependency injection
+ * framework and initializes the application-level components.
  */
 @HiltAndroidApp
 class MainApplication : Application()

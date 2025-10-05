@@ -1,4 +1,4 @@
-package com.universalmedialibrary.data
+package com.universalmedialibrary.data.local.dao
 
 import android.os.Build
 import androidx.room.Room

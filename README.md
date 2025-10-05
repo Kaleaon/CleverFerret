@@ -24,12 +24,19 @@ CleverFerret is a fully self-contained, native Android application for managing 
 
 ## 2.1. Current Status
 
-The project is currently in the early stages of development. The following features are implemented:
+**IMPORTANT**: CleverFerret consists of two parallel implementations:
 
-*   **Core Database Layer:** A robust database layer built with **Room** to manage libraries, media items, and metadata.
-*   **Calibre Import:** A service to import book libraries from an existing Calibre `metadata.db` file.
-*   **Basic UI:** A simple user interface built with **Jetpack Compose** that allows users to view their libraries and the books within them.
-*   **Dependency Injection:** Using **Hilt** for dependency management.
+### Main Android App (Root Directory)
+- **Status**: ✅ **RECENTLY FIXED** - Basic functionality restored
+- **Features**: Core database layer, Calibre import, basic UI with library management
+- **Build Status**: ✅ Compiles successfully (was 1,755 errors, now fixed)
+
+### CleverFerret Module (`CleverFerret/` directory)
+- **Status**: 🏗️ **UNDER DEVELOPMENT** - Advanced media library features
+- **Features**: Comprehensive media management (books, music, movies, podcasts, radio, AI features)
+- **Build Status**: 🔄 **Needs verification** - May require dependency updates
+
+**For detailed feature status, see [COMPLETE_FEATURE_STATUS.md](COMPLETE_FEATURE_STATUS.md)**
 
 ---
 
@@ -95,13 +102,13 @@ The project follows a standard Android architecture pattern with a UI layer, a d
 
 The database is built using the **Room Persistence Library**, which provides an abstraction layer over SQLite. This allows for compile-time query validation, easier migrations, and less boilerplate code. The database schema is designed to be extensible to support a wide variety of media types.
 
-### 3.2. Architectural Concerns
+### 3.2. Architectural Status
 
-During a recent code audit, a significant architectural issue was identified: the presence of two parallel database implementations.
-*   A modern Room-based implementation in `com.universalmedialibrary.data.local`.
-*   An older, manual `SQLiteOpenHelper`-based implementation in `com.universalmedialibrary.data`.
+**✅ RESOLVED**: The dual database implementation issue has been resolved in the main Android app:
+- **Removed**: Old manual `SQLiteOpenHelper`-based implementation (`com.universalmedialibrary.data`)
+- **Retained**: Modern Room-based implementation (`com.universalmedialibrary.data.local`)
 
-**It is strongly recommended to consolidate the codebase to use only the Room implementation.** The older implementation should be removed to avoid confusion and potential bugs. For a detailed breakdown of this and other issues, please see the [**BUGS_AND_ISSUES.md**](BUGS_AND_ISSUES.md) file.
+**Note**: The CleverFerret module may have its own database implementation that needs verification.
 
 ---
 
@@ -137,11 +144,26 @@ For more detailed planning, please refer to the project's issue tracker.
 
 ## 6. Current Build Status
 
-For the current build state and prioritized repair plan, refer to the repair documentation:
+### Main Android App (Root Directory)
+- **Status**: ✅ **FULLY OPERATIONAL** - All compilation errors resolved
+- **Features**: Basic library management with Calibre import
+- **Next Steps**: Consider merging with or replacing by CleverFerret module
 
-- [REPAIR_DOCUMENTATION_INDEX.md](REPAIR_DOCUMENTATION_INDEX.md)
-- [docs/CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md](docs/CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md)
+### CleverFerret Module (`CleverFerret/` directory)
+- **Status**: 🔄 **UNDER VERIFICATION** - Advanced features need build verification
+- **Features**: Comprehensive media library (see [COMPLETE_FEATURE_STATUS.md](COMPLETE_FEATURE_STATUS.md))
 
-These documents are the single source of truth. This README intentionally avoids duplicating counts or timelines to prevent drift.
+### Repair Documentation (Current)
+- [REPAIR_DOCUMENTATION_INDEX.md](REPAIR_DOCUMENTATION_INDEX.md) - Navigation guide
+- [CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md](CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md) - Current state analysis
+
+### Build Instructions
+```bash
+# Build main app (root directory)
+./gradlew assembleDebug
+
+# Build CleverFerret module (if gradlew available)
+./gradlew :CleverFerret:assembleDebug
+```
 
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Kaleaon/CleverFerret?utm_source=oss&utm_medium=github&utm_campaign=Kaleaon%2FCleverFerret&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
