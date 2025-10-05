@@ -22,56 +22,12 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Data models for podcasts
-data class Podcast(
-    val id: String,
-    val title: String,
-    val description: String,
-    val author: String,
-    val feedUrl: String,
-    val websiteUrl: String? = null,
-    val imageUrl: String? = null,
-    val category: String? = null,
-    val language: String = "en",
-    val isSubscribed: Boolean = false,
-    val lastUpdated: Date? = null,
-    val episodes: List<PodcastEpisode> = emptyList(),
-    val totalEpisodes: Int = 0,
-    val explicit: Boolean = false
-)
-
-data class PodcastEpisode(
-    val id: String,
-    val title: String,
-    val description: String,
-    val audioUrl: String,
-    val duration: Long = 0, // in seconds
-    val fileSize: Long = 0, // in bytes
-    val publishDate: Date,
-    val isDownloaded: Boolean = false,
-    val isPlayed: Boolean = false,
-    val localFilePath: String? = null,
-    val episodeNumber: Int? = null,
-    val seasonNumber: Int? = null,
-    val imageUrl: String? = null,
-    val chapterMarks: List<ChapterMark> = emptyList()
-)
+// Podcast, PodcastEpisode, PodcastSearchResult models are defined in PodcastModels.kt
 
 data class ChapterMark(
     val title: String,
     val startTime: Long, // in seconds
     val url: String? = null
-)
-
-data class PodcastSearchResult(
-    val id: String,
-    val title: String,
-    val author: String,
-    val description: String,
-    val feedUrl: String,
-    val imageUrl: String?,
-    val episodeCount: Int,
-    val category: String?
 )
 
 // RSS/XML parsing models
