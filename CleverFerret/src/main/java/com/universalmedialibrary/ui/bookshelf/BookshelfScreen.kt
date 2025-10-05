@@ -30,6 +30,7 @@ import com.universalmedialibrary.ui.theme.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.filled.*
 
 import kotlin.math.absoluteValue
 
@@ -59,7 +60,7 @@ fun EnhancedBookshelfScreen(
     CleverFerretTheme(palette = ThemePalette.BURGUNDY_ROSE_GOLD) {
         Scaffold(
             topBar = {
-                MetallicTopAppBar(
+                TopAppBar(
                     title = {
                         Text(
                             "Bookshelf",
@@ -67,7 +68,7 @@ fun EnhancedBookshelfScreen(
                             fontWeight = FontWeight.Medium
                         )
                     },
-                actions = {
+                    actions = {
                     // Search
                     IconButton(onClick = { viewModel.toggleSearch() }) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
@@ -137,6 +138,7 @@ fun EnhancedBookshelfScreen(
                     }
                 }
             )
+            }
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -386,7 +388,10 @@ fun CoverFlowView(
         }
     }
 }
+}
 
+// Temporarily commented out to fix compilation
+/*
 enum class ViewMode(val displayName: String, val icon: ImageVector) {
     GRID("Grid", Icons.Default.GridView),
     LIST("List", Icons.AutoMirrored.Filled.List),
@@ -400,5 +405,4 @@ enum class SortOption(val displayName: String, val icon: ImageVector) {
     RATING("Rating", Icons.Default.Star),
     RECENTLY_READ("Recently Read", Icons.Default.History)
 }
-tly Read", Icons.Default.History)
-}
+*/
