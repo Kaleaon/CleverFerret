@@ -70,17 +70,23 @@ class EmbySyncService @Inject constructor(
                     val userResponse = api.getCurrentUser(accessToken)
                     val serverName = userResponse.body()?.get("ServerName") as? String ?: "Emby Server"
 
+                    // Parse URL to extract host and port
+                    val url = java.net.URL(serverUrl)
+                    val host = url.host
+                    val port = if (url.port > 0) url.port else 8096
+
                     val server = EmbyServer(
-                        url = serverUrl,
                         name = serverName,
-                        accessToken = accessToken,
+                        host = host,
+                        port = port,
+                        apiKey = accessToken, // Map accessToken to apiKey
                         userId = userId,
                         isActive = true
                     )
 
                     // Save to database
                     val serverId = embyServerDao.insert(server)
-                    val savedServer = server.copy(serverId = serverId)
+                    val savedServer = server.copy(id = serverId)
 
                     _syncState.value = _syncState.value.copy(
                         isConnecting = false,
@@ -113,8 +119,10 @@ class EmbySyncService @Inject constructor(
         return try {
             _syncState.value = _syncState.value.copy(isSyncing = true, error = null)
 
-            val api = embyIntegration.createApi(server.url)
-            val response = api.getLibraries(server.accessToken)
+            // Reconstruct URL from host and port
+            val serverUrl = "http://${server.host}:${server.port}"
+            val api = embyIntegration.createApi(serverUrl)
+            val response = api.getLibraries(server.apiKey ?: "")
 
             if (response.isSuccessful && response.body() != null) {
                 val responseBody = response.body() ?: run {
@@ -143,7 +151,7 @@ class EmbySyncService @Inject constructor(
                     val library = Library(
                         name = "$name (Emby)",
                         type = type,
-                        path = "emby://${server.serverId}/$libraryId",
+                        path = "emby://${server.id}/$libraryId",
                         source = "EMBY"
                     )
 
@@ -181,10 +189,12 @@ class EmbySyncService @Inject constructor(
         return try {
             _syncState.value = _syncState.value.copy(isSyncing = true)
 
-            val api = embyIntegration.createApi(server.url)
+            // Reconstruct URL from host and port
+            val serverUrl = "http://${server.host}:${server.port}"
+            val api = embyIntegration.createApi(serverUrl)
             val response = api.getLibraryItems(
-                token = server.accessToken,
-                libraryId = embyLibraryId
+                userId = server.userId ?: "",
+                token = server.apiKey ?: ""
             )
 
             if (response.isSuccessful && response.body() != null) {
@@ -205,24 +215,21 @@ class EmbySyncService @Inject constructor(
                     // Create MediaItem stub
                     val mediaItem = MediaItem(
                         libraryId = localLibraryId,
-                        filePath = "emby://${server.serverId}/$itemId",
+                        filePath = "emby://${server.id}/$itemId",
                         fileName = name,
+                        fileExtension = "",
                         fileSize = 0,
-                        mimeType = getMimeTypeFromEmbyType(type),
                         mediaType = getMediaTypeFromEmbyType(type)
                     )
 
                     val localItemId = mediaItemDao.insertMediaItem(mediaItem)
 
                     // Create metadata
+                    val serverUrl = "http://${server.host}:${server.port}"
+                    val thumbnailUrl = getEmbyImageUrl(serverUrl, itemId, server.apiKey ?: "")
                     val metadata = MetadataCommon(
                         itemId = localItemId,
-                        title = name,
-                        description = item["Overview"] as? String,
-                        rating = (item["CommunityRating"] as? Double)?.toFloat(),
-                        thumbnailPath = getEmbyImageUrl(server.url, itemId, server.accessToken),
-                        isFavorite = false,
-                        isDownloaded = false
+                        title = name
                     )
 
                     metadataDao.insertMetadataCommon(metadata)
