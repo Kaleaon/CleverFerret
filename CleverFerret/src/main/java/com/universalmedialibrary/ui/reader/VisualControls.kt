@@ -49,7 +49,7 @@ fun VisualControlsPanel(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var settings by remember { mutableStateOf(visualSettings) }
+    var settings by remember(visualSettings) { mutableStateOf(visualSettings) }
 
     Surface(
         modifier = modifier.fillMaxSize(),

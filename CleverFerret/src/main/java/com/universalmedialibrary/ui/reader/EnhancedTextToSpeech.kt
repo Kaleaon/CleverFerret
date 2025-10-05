@@ -424,7 +424,7 @@ fun TextToSpeechControlPanel(
 
             // Settings panel
             if (showSettings) {
-                Divider()
+                HorizontalDivider()
                 TtsSettingsPanel(
                     settings = settings,
                     controller = controller,

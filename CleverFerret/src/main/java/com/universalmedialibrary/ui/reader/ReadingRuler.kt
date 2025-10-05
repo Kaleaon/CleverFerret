@@ -252,7 +252,7 @@ fun ReadingRulerSettingsPanel(
     onSettingsChange: (ReadingRulerSettings) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var currentSettings by remember { mutableStateOf(settings) }
+    var currentSettings by remember(settings) { mutableStateOf(settings) }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -304,11 +304,13 @@ fun ReadingRulerSettingsPanel(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold
                 )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // First row: Line, Box, Spotlight
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    RulerStyle.values().take(3).forEach { style ->
+                    listOf(RulerStyle.LINE, RulerStyle.BOX, RulerStyle.SPOTLIGHT).forEach { style ->
                         FilterChip(
                             selected = currentSettings.style == style,
                             onClick = {
@@ -331,6 +333,38 @@ fun ReadingRulerSettingsPanel(
                         )
                     }
                 }
+                
+                // Second row: Gradient, Underline
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(RulerStyle.GRADIENT, RulerStyle.UNDERLINE).forEach { style ->
+                        FilterChip(
+                            selected = currentSettings.style == style,
+                            onClick = {
+                                currentSettings = currentSettings.copy(style = style)
+                                onSettingsChange(currentSettings)
+                            },
+                            label = {
+                                Text(
+                                    when (style) {
+                                        RulerStyle.LINE -> "Line"
+                                        RulerStyle.BOX -> "Box"
+                                        RulerStyle.SPOTLIGHT -> "Spot"
+                                        RulerStyle.GRADIENT -> "Fade"
+                                        RulerStyle.UNDERLINE -> "Under"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    // Spacer to maintain alignment
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
 
                 // Height control
                 Text(
@@ -391,7 +425,7 @@ fun ReadingRulerSettingsPanel(
                     }
                 }
 
-                Divider()
+                HorizontalDivider()
 
                 // Dim surroundings
                 Row(

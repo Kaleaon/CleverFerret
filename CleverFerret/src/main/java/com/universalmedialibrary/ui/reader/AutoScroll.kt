@@ -337,7 +337,7 @@ private fun AutoScrollSettings(
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Divider()
+        HorizontalDivider()
 
         // Speed unit toggle
         Row(

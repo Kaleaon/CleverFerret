@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -77,7 +78,7 @@ fun PageTurnAnimationSettings(
                         onSettingsChange(currentSettings)
                         onDismiss()
                     }) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -659,7 +660,15 @@ private fun CurlAnimation(
 ) {
     // Simplified curl effect (full implementation would require custom drawing)
     Box(modifier = Modifier.fillMaxSize()) {
+        // Show next page as background
         nextPage()
+        
+        // Show current page fading out as it curls
+        Box(modifier = Modifier.alpha(1f - progress)) {
+            currentPage()
+        }
+        
+        // Draw curl overlay
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {

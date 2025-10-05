@@ -97,7 +97,7 @@ class QuickAccessWidget : AppWidgetProvider() {
         }
     }
 
-    companion fun {
+    companion object {
         fun updateAppWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,

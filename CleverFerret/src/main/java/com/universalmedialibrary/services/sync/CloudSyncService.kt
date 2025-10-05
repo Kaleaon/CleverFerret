@@ -496,16 +496,24 @@ class CloudSyncService @Inject constructor(
 
     private fun mergeSettings(conflict: SyncConflict): SyncItem? {
         // Merge settings by combining non-conflicting values
-        val local = conflict.localData as Map<*, *>
-        val remote = conflict.remoteData as Map<*, *>
+        val local = conflict.localData as? Map<*, *> ?: return null
+        val remote = conflict.remoteData as? Map<*, *> ?: return null
         
         val merged = mutableMapOf<String, Any>()
+        
+        // Add remote settings first
         remote.forEach { (key, value) ->
-            merged[key as String] = value!!
+            val strKey = key as? String
+            if (strKey != null && value != null) {
+                merged[strKey] = value
+            }
         }
+        
+        // Add local settings that don't conflict
         local.forEach { (key, value) ->
-            if (key !in merged) {
-                merged[key as String] = value!!
+            val strKey = key as? String
+            if (strKey != null && value != null && strKey !in merged) {
+                merged[strKey] = value
             }
         }
 
