@@ -67,12 +67,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
+            // Use settings to determine theme
+            val mainViewModel: MainViewModel = hiltViewModel()
+            val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+            val darkMode by mainViewModel.darkMode.collectAsState(true)
+            
+            CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
                     AppNavigation()
                 }
             }
@@ -205,6 +209,13 @@ fun AppNavigation() {
         // Theme preview for testing
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
+        }
+        
+        // Server integration route
+        composable("servers") {
+            com.universalmedialibrary.ui.integration.ServerIntegrationScreen(
+                onBack = { navController.navigateUp() }
+            )
         }
     }
 }

@@ -50,6 +50,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ViewMode, BookDetails, MediaItem, Library } from '../types';
 import { MediaItemService, MetadataService } from '../services/database';
 import { MetadataAPIService } from '../services/metadataApi';
+import { generateCover } from '../utils/coverGenerator';
 
 // Demo data for media items
 const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20) => {
@@ -73,12 +74,13 @@ const generateDemoMediaItems = (libraryType: Library['type'], count: number = 20
       lastModified: new Date(),
     };
 
+    const title = getRandomTitle(libraryType, i);
     const metadata = {
       itemId: i,
-      title: getRandomTitle(libraryType, i),
+      title,
       description: getRandomDescription(libraryType),
       rating: Math.round((Math.random() * 4 + 1) * 2) / 2, // 1-5 stars, half increments
-      thumbnailPath: getRandomThumbnail(libraryType, i),
+      thumbnailPath: getRandomThumbnail(libraryType, i, title),
       isFavorite: Math.random() > 0.8,
       isDownloaded: true,
       genre: getRandomGenres(libraryType),
@@ -163,11 +165,8 @@ const getRandomDescription = (type: string) => {
   return descriptions[type as keyof typeof descriptions] || 'An engaging piece of media content.';
 };
 
-const getRandomThumbnail = (type: string, index: number) => {
-  const colors = ['4A90E2', 'F5A623', '7ED321', 'D0021B', '9013FE', '50E3C2'];
-  const color = colors[index % colors.length];
-  const text = type === 'BOOK' ? 'BOOK' : type === 'MOVIE' ? 'MOVIE' : 'MUSIC';
-  return `https://via.placeholder.com/300x450/${color}/ffffff?text=${text}+${index}`;
+const getRandomThumbnail = (type: string, index: number, title: string) => {
+  return generateCover(title, type as any);
 };
 
 const getRandomGenres = (type: string) => {
@@ -826,9 +825,26 @@ export const LibraryDetailsScreen: React.FC = () => {
           bgcolor: 'primary.main',
           color: 'black',
         }}
-        onClick={() => {
-          // In a real app, this would open file picker or metadata search
-          alert('Add new media functionality would be implemented here');
+        onClick={async () => {
+          // In a real app, this would open file picker
+          try {
+            // @ts-ignore - showOpenFilePicker not in TS lib by default
+            if ('showOpenFilePicker' in window) {
+              // @ts-ignore
+              const [handle] = await window.showOpenFilePicker({
+                multiple: false,
+                excludeAcceptAllOption: false,
+              });
+              const file = await handle.getFile();
+              console.log('Selected file for import:', file.name);
+              // Would process file and add to library here
+            } else {
+              console.log('File System Access API not supported. Would show alternative file input.');
+            }
+          } catch (e) {
+            // User cancelled or error occurred
+            console.log('File selection cancelled or failed:', e);
+          }
         }}
       >
         <AddIcon />

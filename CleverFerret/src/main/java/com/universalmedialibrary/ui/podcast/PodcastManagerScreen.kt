@@ -324,7 +324,7 @@ fun PodcastCard(
         ) {
             // Podcast artwork
             AsyncImage(
-                model = podcast.imageUrl ?: "https://via.placeholder.com/80x80/7B1FA2/ffffff?text=🎙️",
+                model = podcast.imageUrl ?: null, // Will show podcast icon if no image
                 contentDescription = "Podcast Artwork",
                 modifier = Modifier
                     .size(80.dp)

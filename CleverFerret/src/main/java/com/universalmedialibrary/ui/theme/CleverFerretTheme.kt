@@ -28,35 +28,47 @@ fun CleverFerretTheme(
     dynamicColor: Boolean = false, // Disable to maintain custom branding
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when (palette) {
-        ThemePalette.NAVY_GOLD -> {
-            if (darkTheme) NavyGoldPalette.darkScheme else NavyGoldPalette.lightScheme
-        }
-        ThemePalette.ROYAL_SILVER -> {
-            RoyalSilverPalette.darkScheme
-        }
-        ThemePalette.FOREST_COPPER -> {
-            ForestCopperPalette.darkScheme
-        }
-        ThemePalette.BURGUNDY_ROSE_GOLD -> {
-            BurgundyRoseGoldPalette.darkScheme
-        }
-        ThemePalette.CHARCOAL_CHAMPAGNE -> {
-            CharcoalChampagnePalette.darkScheme
-        }
-        ThemePalette.SLATE_GUNMETAL -> {
-            SlateGunmetalPalette.darkScheme
-        }
+    // Map old enum to unified enum for backward compatibility
+    val unifiedPalette = when (palette) {
+        ThemePalette.NAVY_GOLD -> UnifiedThemePalette.NAVY_GOLD
+        ThemePalette.ROYAL_SILVER -> UnifiedThemePalette.ROYAL_SILVER
+        ThemePalette.FOREST_COPPER -> UnifiedThemePalette.FOREST_COPPER
+        ThemePalette.BURGUNDY_ROSE_GOLD -> UnifiedThemePalette.BURGUNDY_ROSE_GOLD
+        ThemePalette.CHARCOAL_CHAMPAGNE -> UnifiedThemePalette.CHARCOAL_CHAMPAGNE
+        ThemePalette.SLATE_GUNMETAL -> UnifiedThemePalette.SLATE_GUNMETAL
     }
     
-    val metallicGradient = when (palette) {
-        ThemePalette.NAVY_GOLD -> MetallicEffects.Gold
-        ThemePalette.ROYAL_SILVER -> MetallicEffects.Silver
-        ThemePalette.FOREST_COPPER -> MetallicEffects.Copper
-        ThemePalette.BURGUNDY_ROSE_GOLD -> MetallicEffects.RoseGold
-        ThemePalette.CHARCOAL_CHAMPAGNE -> MetallicEffects.Champagne
-        ThemePalette.SLATE_GUNMETAL -> MetallicEffects.Gunmetal
+    CleverFerretUnifiedTheme(
+        palette = unifiedPalette,
+        darkTheme = darkTheme,
+        dynamicColor = dynamicColor,
+        content = content
+    )
+}
+
+@Composable
+fun CleverFerretUnifiedTheme(
+    palette: UnifiedThemePalette = UnifiedThemePalette.NAVY_GOLD,
+    darkTheme: Boolean = true,
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when (palette) {
+        UnifiedThemePalette.NAVY_GOLD -> NavyGoldUnified.darkScheme
+        UnifiedThemePalette.EMERALD_SILVER -> EmeraldSilverUnified.darkScheme
+        UnifiedThemePalette.ROYAL_BRONZE -> RoyalBronzeUnified.darkScheme
+        UnifiedThemePalette.MIDNIGHT_AMBER -> MidnightAmberUnified.darkScheme
+        UnifiedThemePalette.OBSIDIAN_CRIMSON -> ObsidianCrimsonUnified.darkScheme
+        UnifiedThemePalette.SLATE_CYAN -> SlateCyanUnified.darkScheme
+        UnifiedThemePalette.ROYAL_SILVER -> RoyalSilverUnified.darkScheme
+        UnifiedThemePalette.FOREST_COPPER -> ForestCopperUnified.darkScheme
+        UnifiedThemePalette.BURGUNDY_ROSE_GOLD -> BurgundyRoseGoldUnified.darkScheme
+        UnifiedThemePalette.CHARCOAL_CHAMPAGNE -> CharcoalChampagneUnified.darkScheme
+        UnifiedThemePalette.SLATE_GUNMETAL -> SlateGunmetalUnified.darkScheme
+        UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> DeepPurplePlatinumUnified.darkScheme
     }
+    
+    val metallicGradient = getMetallicEffectForTheme(palette)
 
     CompositionLocalProvider(LocalMetallicGradient provides metallicGradient) {
         MaterialTheme(

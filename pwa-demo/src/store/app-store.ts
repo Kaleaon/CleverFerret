@@ -1,7 +1,9 @@
 // Zustand store for state management - equivalent to Android ViewModels
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { Library, ImportStatus, ReaderThemeMode, ReaderFont } from '../types';
 import { LibraryService } from '../services/database';
+import type { UnifiedThemeName } from '../themes/unified-themes';
 
 interface AppState {
   // Libraries state
@@ -10,6 +12,9 @@ interface AppState {
 
   // Import state
   importStatus: ImportStatus;
+
+  // App theme
+  selectedTheme: UnifiedThemeName;
 
   // Reader preferences
   readerPreferences: {
@@ -23,6 +28,7 @@ interface AppState {
   addLibrary: (name: string, type: Library['type'], path: string) => Promise<void>;
   deleteLibrary: (libraryId: number) => Promise<void>;
   setImportStatus: (status: ImportStatus) => void;
+  setTheme: (theme: UnifiedThemeName) => void;
 
   // Reader preference actions
   setReaderThemeMode: (mode: ReaderThemeMode) => void;
@@ -30,15 +36,18 @@ interface AppState {
   setReaderFontSize: (size: number) => void;
 }
 
-export const useAppStore = create<AppState>((set, get) => ({
-  libraries: [],
-  isLoading: false,
-  importStatus: { isImporting: false, status: '' },
-  readerPreferences: {
-    themeMode: ReaderThemeMode.WHITE,
-    font: ReaderFont.SYSTEM_SANS,
-    fontSize: 16,
-  },
+export const useAppStore = create<AppState>()(
+  persist(
+    (set, get) => ({
+      libraries: [],
+      isLoading: false,
+      importStatus: { isImporting: false, status: '' },
+      selectedTheme: 'navy-gold',
+      readerPreferences: {
+        themeMode: ReaderThemeMode.WHITE,
+        font: ReaderFont.SYSTEM_SANS,
+        fontSize: 16,
+      },
 
   loadLibraries: async () => {
     set({ isLoading: true });
@@ -78,6 +87,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ importStatus: status });
   },
 
+  setTheme: (theme: UnifiedThemeName) => {
+    set({ selectedTheme: theme });
+  },
+
   setReaderThemeMode: (mode: ReaderThemeMode) => {
     set((state) => ({
       readerPreferences: {
@@ -104,4 +117,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
     }));
   },
-}));
+    }),
+    {
+      name: 'cleverferret-storage',
+      partialize: (state) => ({
+        selectedTheme: state.selectedTheme,
+        readerPreferences: state.readerPreferences,
+      }),
+    }
+  )
+);

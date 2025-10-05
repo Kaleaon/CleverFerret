@@ -1,7 +1,7 @@
 // Working Plex-inspired CleverFerret App
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import {
   CssBaseline,
   Box,
@@ -31,62 +31,13 @@ import { LibraryDetailsScreen } from './components/LibraryDetailsScreen';
 import { MetadataEditorScreen } from './components/MetadataEditorScreen';
 import { MediaViewerScreen } from './components/MediaViewerScreen';
 import { SettingsScreen } from './components/SettingsScreen';
+import { ThemePreviewScreen } from './components/ThemePreviewScreen';
+import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
 
-// Navy + metallic gold theme
-const plexTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#d4af37', // metallic gold
-      light: '#e0c25e',
-      dark: '#a6862a',
-      contrastText: '#0a1630',
-    },
-    secondary: {
-      main: '#0f2346', // dark navy accent
-    },
-    background: {
-      default: '#0a1630', // deep navy background
-      paper: '#0d1b36',
-    },
-    text: {
-      primary: '#e6eaf2',
-      secondary: '#b3bfd6',
-    },
-  },
-  components: {
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#0d1b36',
-          border: '1px solid #1b2b4d',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            transform: 'translateY(-4px)',
-            borderColor: '#d4af37',
-            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.45)',
-          },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#0d1b36',
-          borderBottom: '1px solid #1b2b4d',
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#0d1b36',
-          borderColor: '#1b2b4d',
-        },
-      },
-    },
-  },
-});
+// Import theme system and utilities
+import { getUnifiedTheme } from './themes/unified-themes';
+import { useAppStore } from './store/app-store';
+import { generateCover } from './utils/coverGenerator';
 
 // Demo library data
 const demoLibraries = [
@@ -214,7 +165,7 @@ const HomeScreen: React.FC = () => {
           bgcolor: 'primary.main',
           color: 'black',
         }}
-        onClick={() => alert('Add library functionality')}
+        onClick={() => navigate('/')}
       >
         <AddIcon />
       </Fab>
@@ -330,7 +281,7 @@ const LibraryScreen: React.FC = () => {
       rating: 4.5,
       genre: 'Sci-Fi',
       type: 'BOOK',
-      poster: 'https://via.placeholder.com/300x450/2C5F2D/ffffff?text=📚+Digital+Frontier',
+      poster: generateCover('The Digital Frontier', 'BOOK', 'Sarah Chen'),
     },
     {
       id: 2,
@@ -340,7 +291,7 @@ const LibraryScreen: React.FC = () => {
       rating: 4.8,
       genre: 'Thriller',
       type: 'MOVIE',
-      poster: 'https://via.placeholder.com/300x450/1565C0/ffffff?text=🎬+Cyber+Dreams',
+      poster: generateCover('Cyber Dreams', 'MOVIE', 'Michael Rodriguez'),
     },
     {
       id: 3,
@@ -350,7 +301,7 @@ const LibraryScreen: React.FC = () => {
       rating: 4.2,
       genre: 'Electronic',
       type: 'MUSIC',
-      poster: 'https://via.placeholder.com/300x450/7B1FA2/ffffff?text=🎵+Neon+Nights',
+      poster: generateCover('Neon Nights', 'MUSIC', 'Synthwave Collective'),
     },
     {
       id: 4,
@@ -360,7 +311,7 @@ const LibraryScreen: React.FC = () => {
       rating: 4.6,
       genre: 'Non-Fiction',
       type: 'BOOK',
-      poster: 'https://via.placeholder.com/300x450/2C5F2D/ffffff?text=📚+AI+Revolution',
+      poster: generateCover('AI Revolution', 'BOOK', 'Dr. Emily Zhang'),
     },
     {
       id: 5,
@@ -370,7 +321,7 @@ const LibraryScreen: React.FC = () => {
       rating: 4.9,
       genre: 'Action',
       type: 'MOVIE',
-      poster: 'https://via.placeholder.com/300x450/1565C0/ffffff?text=🎬+Matrix+Reborn',
+      poster: generateCover('Matrix Reborn', 'MOVIE', 'James Cameron'),
     },
     {
       id: 6,
@@ -380,7 +331,7 @@ const LibraryScreen: React.FC = () => {
       rating: 4.3,
       genre: 'EDM',
       type: 'MUSIC',
-      poster: 'https://via.placeholder.com/300x450/7B1FA2/ffffff?text=🎵+Future+Bass',
+      poster: generateCover('Future Bass', 'MUSIC', 'Digital Dreams'),
     },
   ];
 
@@ -410,7 +361,7 @@ const LibraryScreen: React.FC = () => {
             <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
               <MediaItem
                 item={item}
-                onClick={() => alert(`Opening ${item.title} - ${item.type} viewer would load here`)}
+                onClick={() => navigate(`/media/${item.id}`)}
               />
             </Grid>
           ))}
@@ -423,9 +374,11 @@ const LibraryScreen: React.FC = () => {
 // Main App component
 const App: React.FC = () => {
   const [useCustomComponents] = useState(true);
+  const selectedTheme = useAppStore((state) => state.selectedTheme);
+  const currentTheme = getUnifiedTheme(selectedTheme);
 
   return (
-    <ThemeProvider theme={plexTheme}>
+    <ThemeProvider theme={currentTheme.theme}>
       <CssBaseline />
       <Router>
         <DeepLinkHandler />
@@ -439,9 +392,13 @@ const App: React.FC = () => {
 
           {/* Additional Routes matching Android app */}
           <Route path="/metadata-editor/:mediaId" element={<MetadataEditorScreen />} />
+          <Route path="/media/:mediaId" element={<MediaViewerScreen />} />
           <Route path="/media-viewer/:mediaId" element={<MediaViewerScreen />} />
+          <Route path="/edit/:mediaId" element={<MetadataEditorScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
           <Route path="/settings/*" element={<SettingsScreen />} />
+          <Route path="/themes" element={<ThemePreviewScreen />} />
+          <Route path="/servers" element={<ServerIntegrationScreen />} />
         </Routes>
       </Router>
     </ThemeProvider>
