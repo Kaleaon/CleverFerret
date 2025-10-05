@@ -158,7 +158,9 @@ fun AppNavigation() {
         }
         composable("music_player") {
             com.universalmedialibrary.ui.music.MusicPlayerScreen(
-                onBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToQueue = { navController.navigate("queue") },
+                onNavigateToAlbum = { albumId -> navController.navigate("album/$albumId") }
             )
         }
 
@@ -172,8 +174,9 @@ fun AppNavigation() {
         }
         composable("reader/{itemId}") { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
+            // TODO: Need to resolve itemId to file path - for now use placeholder
             com.universalmedialibrary.ui.reader.EReaderScreen(
-                itemId = itemId,
+                bookFilePath = "", // TODO: Load from database using itemId
                 onBack = { navController.navigateUp() }
             )
         }
