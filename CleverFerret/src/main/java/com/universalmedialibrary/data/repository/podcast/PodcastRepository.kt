@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
 import com.universalmedialibrary.services.podcast.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -141,7 +141,7 @@ class PlexSyncService @Inject constructor(
     private suspend fun syncMediaItems(server: PlexServer, api: PlexApi) {
         val libraries = api.getLibraries(server.token)
         val librariesBody = libraries.body()
-        if (!libraries.isSuccessful || librariesBody == null) return
+        if (!libraries.isSuccessful || librariesBody?.mediaContainer?.directories == null) return
 
         for (library in librariesBody.mediaContainer.directories) {
             // Create or get a unified library for this Plex library

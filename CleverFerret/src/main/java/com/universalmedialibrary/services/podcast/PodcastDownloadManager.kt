@@ -91,8 +91,8 @@ class PodcastDownloadManager @Inject constructor(
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationInExternalFilesDir(
                 context,
-                Environment.DIRECTORY_PODCASTS + "/" + sanitizeFileName(podcastTitle),
-                fileName
+                Environment.DIRECTORY_PODCASTS,
+                "${sanitizeFileName(podcastTitle)}/$fileName"
             )
             .setAllowedOverMetered(false) // WiFi only by default
             .setAllowedOverRoaming(false)

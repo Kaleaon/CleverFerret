@@ -78,8 +78,7 @@ export const MetadataEditorScreen: React.FC = () => {
 
   useEffect(() => {
     loadMetadata();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mediaId]);
+  }, [mediaId, mediaType]);
 
   const loadMetadata = async () => {
     if (!mediaId) {

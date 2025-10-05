@@ -807,8 +807,13 @@ export const MediaViewerScreen: React.FC = () => {
       fileName.endsWith('.cbz') ||
       fileName.endsWith('.cbr') ||
       fileName.endsWith('.cbt') ||
+      fileName.endsWith('.cb7') ||
       mediaItem.mimeType === 'application/x-cbz' ||
-      mediaItem.mimeType === 'application/x-cbr';
+      mediaItem.mimeType === 'application/x-cbr' ||
+      mediaItem.mimeType === 'application/x-cbt' ||
+      mediaItem.mimeType === 'application/x-cb7' ||
+      mediaItem.mimeType === 'application/vnd.comicbook+zip' ||
+      mediaItem.mimeType === 'application/vnd.comicbook-rar';
 
     // Override mediaType for specific formats
     if (isPDF) {

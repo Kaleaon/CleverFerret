@@ -48,8 +48,6 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ViewMode, Library } from '../types';
-// import { MediaItemService, MetadataService } from '../services/database';
-// import { MetadataAPIService } from '../services/metadataApi';
 import { generateCover } from '../utils/coverGenerator';
 
 // Demo data for media items

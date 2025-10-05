@@ -187,7 +187,10 @@ class WebFictionService @Inject constructor() {
 
     // Archive of Our Own scraper
     private suspend fun extractFromAO3(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val title = doc.select("h2.title").text()
         val author = doc.select("a[rel=author]").text()
@@ -215,7 +218,10 @@ class WebFictionService @Inject constructor() {
 
     // FanFiction.Net scraper
     private suspend fun extractFromFFN(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val title = doc.select("b.xcontrast_txt").text()
         val author = doc.select("a.xcontrast_txt").first()?.text() ?: "Unknown"
@@ -242,7 +248,10 @@ class WebFictionService @Inject constructor() {
 
     // Royal Road scraper
     private suspend fun extractFromRoyalRoad(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val title = doc.select("h1").text()
         val author = doc.select("h4 a[href*=/profile]").text()
@@ -270,11 +279,14 @@ class WebFictionService @Inject constructor() {
 
     // WebNovel scraper
     private suspend fun extractFromWebnovel(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val title = doc.select("h1.pt4").text()
         val author = doc.select("address a").text()
-        val description = doc.select("p").first { it.text().isNotEmpty() }?.text() ?: ""
+        val description = doc.select("p").firstOrNull { it.text().isNotEmpty() }?.text() ?: ""
         val coverUrl = doc.select("i.g_thumb img").attr("src")
         val tags = doc.select("p.tags a").map { it.text() }
 
@@ -295,7 +307,10 @@ class WebFictionService @Inject constructor() {
     // Wattpad scraper
     private suspend fun extractFromWattpad(url: String): WebFictionStory? {
         // Wattpad requires more complex handling due to dynamic loading
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val title = doc.select("h1").text()
         val author = doc.select("a.username").text()
@@ -319,7 +334,10 @@ class WebFictionService @Inject constructor() {
 
     // ScribbleHub scraper
     private suspend fun extractFromScribbleHub(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val title = doc.select("div.fic_title").text()
         val author = doc.select("span.auth_name_fic").text()
@@ -345,7 +363,10 @@ class WebFictionService @Inject constructor() {
 
     // FimFiction scraper
     private suspend fun extractFromFimFiction(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val title = doc.select("h1 a").text()
         val author = doc.select("div.author a").text()
@@ -371,7 +392,10 @@ class WebFictionService @Inject constructor() {
 
     // Generic scraper for unsupported sites
     private suspend fun extractGeneric(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         // Try common selectors
         val title = doc.select("h1").first()?.text() ?: doc.title()
@@ -395,7 +419,10 @@ class WebFictionService @Inject constructor() {
 
         // AO3 allows downloading entire work at once
         val fullWorkUrl = "${story.url}?view_full_work=true"
-        val doc = Jsoup.connect(fullWorkUrl).get()
+        val doc = Jsoup.connect(fullWorkUrl)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val chapterElements = doc.select("div.chapter")
         chapterElements.forEachIndexed { index, element ->
@@ -420,8 +447,13 @@ class WebFictionService @Inject constructor() {
         val chapters = mutableListOf<WebFictionChapter>()
 
         for (chapterNum in 1..story.totalChapters) {
-            val chapterUrl = "${story.url.removeSuffix("/1")}/$chapterNum"
-            val doc = Jsoup.connect(chapterUrl).get()
+            // Build chapter URL by replacing the last path segment
+            val baseUrl = story.url.substringBeforeLast("/")
+            val chapterUrl = "$baseUrl/$chapterNum"
+            val doc = Jsoup.connect(chapterUrl)
+                .timeout(30000)
+                .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+                .get()
 
             val chapterTitle = doc.select("select option[selected]").text()
             val content = doc.select("div#storytext").html()
@@ -445,7 +477,10 @@ class WebFictionService @Inject constructor() {
 
         // Get chapter list from table of contents
         val tocUrl = story.url
-        val doc = Jsoup.connect(tocUrl).get()
+        val doc = Jsoup.connect(tocUrl)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
 
         val chapterLinks = doc.select("tbody tr td a[href*=/chapter/]")
 
@@ -453,7 +488,10 @@ class WebFictionService @Inject constructor() {
             val chapterUrl = "https://www.royalroad.com${link.attr("href")}"
             val chapterTitle = link.text()
 
-            val chapterDoc = Jsoup.connect(chapterUrl).get()
+            val chapterDoc = Jsoup.connect(chapterUrl)
+                .timeout(30000)
+                .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+                .get()
             val content = chapterDoc.select("div.chapter-content").html()
 
             chapters.add(

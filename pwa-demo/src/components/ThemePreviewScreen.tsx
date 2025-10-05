@@ -19,7 +19,6 @@ import {
   ArrowBack as ArrowBackIcon,
   Check as CheckIcon,
   Book as BookIcon,
-  Movie as MovieIcon,
 } from '@mui/icons-material';
 import { getAllUnifiedThemes, type UnifiedThemeName } from '../themes/unified-themes';
 import { useAppStore } from '../store/app-store';

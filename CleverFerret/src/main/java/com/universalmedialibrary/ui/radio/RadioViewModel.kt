@@ -1,6 +1,5 @@
 package com.universalmedialibrary.ui.radio
 
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,14 +7,12 @@ import com.universalmedialibrary.data.local.dao.RadioStationDao
 import com.universalmedialibrary.data.local.entity.RadioStation
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RadioViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val radioStationDao: RadioStationDao,
     private val playbackManager: AudioPlaybackManager
 ) : ViewModel() {

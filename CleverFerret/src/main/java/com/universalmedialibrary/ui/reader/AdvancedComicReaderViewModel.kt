@@ -105,14 +105,28 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
                         while (entry != null) {
                             if (!entry.isDirectory && isImageFile(entry.name)) {
-                                val file = File(tempDir, entry.name)
-                                file.parentFile?.mkdirs()
+                                // Security: Prevent Zip Slip vulnerability by validating entry name
+                                val entryName = entry.name
+                                if (entryName.contains("..") || File(entryName).isAbsolute) {
+                                    entry = zipStream.nextZipEntry
+                                    continue
+                                }
 
-                                FileOutputStream(file).use { outputStream ->
+                                val file = File(tempDir, entryName)
+                                // Canonicalize and validate the path is within tempDir
+                                val canonicalFile = file.canonicalFile
+                                if (!canonicalFile.path.startsWith(tempDir.canonicalPath)) {
+                                    entry = zipStream.nextZipEntry
+                                    continue
+                                }
+
+                                canonicalFile.parentFile?.mkdirs()
+
+                                FileOutputStream(canonicalFile).use { outputStream ->
                                     zipStream.copyTo(outputStream)
                                 }
 
-                                extractedFiles.add(file.absolutePath)
+                                extractedFiles.add(canonicalFile.absolutePath)
                             }
                             entry = zipStream.nextZipEntry
                         }
