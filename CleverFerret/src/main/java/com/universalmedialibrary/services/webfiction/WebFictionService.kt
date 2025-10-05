@@ -13,51 +13,22 @@ import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Data models for web fiction
-data class WebFictionStory(
-    val id: String,
-    val title: String,
-    val author: String,
-    val description: String,
-    val url: String,
-    val site: WebFictionSite,
-    val chapters: List<WebFictionChapter> = emptyList(),
-    val totalChapters: Int = 0,
-    val lastUpdated: String? = null,
-    val status: String = "Unknown", // Complete, In-Progress, Hiatus
-    val rating: String? = null,
-    val tags: List<String> = emptyList(),
-    val coverUrl: String? = null,
-    val wordCount: Long = 0
-)
+// WebFictionStory, WebFictionChapter models are defined in WebFictionModels.kt
 
-data class WebFictionChapter(
-    val id: String,
-    val title: String,
-    val url: String,
-    val content: String,
-    val chapterNumber: Int,
-    val publishDate: String? = null,
-    val wordCount: Int = 0
-)
-
-enum class WebFictionSite(
-    val displayName: String,
-    val baseUrl: String,
-    val supportsUpdate: Boolean = true
-) {
-    ARCHIVE_OF_OUR_OWN("Archive of Our Own", "https://archiveofourown.org", true),
-    FANFICTION_NET("FanFiction.Net", "https://www.fanfiction.net", true),
-    ROYAL_ROAD("Royal Road", "https://www.royalroad.com", true),
-    WEBNOVEL("WebNovel", "https://www.webnovel.com", true),
-    WATTPAD("Wattpad", "https://www.wattpad.com", true),
-    SCRIBBLE_HUB("Scribble Hub", "https://www.scribblehub.com", true),
-    SPACEBATTLES("SpaceBattles", "https://forums.spacebattles.com", true),
-    SUFFICIENT_VELOCITY("Sufficient Velocity", "https://forums.sufficientvelocity.com", true),
-    QUESTIONABLE_QUESTING("Questionable Questing", "https://forum.questionablequesting.com", true),
-    FIMFICTION("FimFiction", "https://www.fimfiction.net", true),
-    LITEROTICA("Literotica", "https://www.literotica.com", false), // Adult content
-    GENERIC("Generic Web Fiction", "", true) // For custom/unsupported sites
+// WebFictionSite enum - site definitions
+enum class WebFictionSiteType {
+    ARCHIVE_OF_OUR_OWN,
+    FANFICTION_NET,
+    ROYAL_ROAD,
+    WEBNOVEL,
+    WATTPAD,
+    SCRIBBLE_HUB,
+    SPACEBATTLES,
+    SUFFICIENT_VELOCITY,
+    QUESTIONABLE_QUESTING,
+    FIMFICTION,
+    LITEROTICA,
+    GENERIC
 }
 
 // API interfaces for sites that have them
@@ -116,13 +87,13 @@ class WebFictionService @Inject constructor() {
             try {
                 val site = detectSite(url)
                 when (site) {
-                    WebFictionSite.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
-                    WebFictionSite.FANFICTION_NET -> extractFromFFN(url)
-                    WebFictionSite.ROYAL_ROAD -> extractFromRoyalRoad(url)
-                    WebFictionSite.WEBNOVEL -> extractFromWebnovel(url)
-                    WebFictionSite.WATTPAD -> extractFromWattpad(url)
-                    WebFictionSite.SCRIBBLE_HUB -> extractFromScribbleHub(url)
-                    WebFictionSite.FIMFICTION -> extractFromFimFiction(url)
+                    WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
+                    WebFictionSiteType.FANFICTION_NET -> extractFromFFN(url)
+                    WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(url)
+                    WebFictionSiteType.WEBNOVEL -> extractFromWebnovel(url)
+                    WebFictionSiteType.WATTPAD -> extractFromWattpad(url)
+                    WebFictionSiteType.SCRIBBLE_HUB -> extractFromScribbleHub(url)
+                    WebFictionSiteType.FIMFICTION -> extractFromFimFiction(url)
                     else -> extractGeneric(url)
                 }
             } catch (e: Exception) {
@@ -155,11 +126,11 @@ class WebFictionService @Inject constructor() {
         return withContext(Dispatchers.IO) {
             try {
                 when (story.site) {
-                    WebFictionSite.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
-                    WebFictionSite.FANFICTION_NET -> downloadFFNChapters(story)
-                    WebFictionSite.ROYAL_ROAD -> downloadRoyalRoadChapters(story)
-                    WebFictionSite.WEBNOVEL -> downloadWebnovelChapters(story)
-                    WebFictionSite.WATTPAD -> downloadWattpadChapters(story)
+                    WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
+                    WebFictionSiteType.FANFICTION_NET -> downloadFFNChapters(story)
+                    WebFictionSiteType.ROYAL_ROAD -> downloadRoyalRoadChapters(story)
+                    WebFictionSiteType.WEBNOVEL -> downloadWebnovelChapters(story)
+                    WebFictionSiteType.WATTPAD -> downloadWattpadChapters(story)
                     else -> emptyList()
                 }
             } catch (e: Exception) {
@@ -168,20 +139,20 @@ class WebFictionService @Inject constructor() {
         }
     }
 
-    private fun detectSite(url: String): WebFictionSite {
+    private fun detectSite(url: String): WebFictionSiteType {
         val domain = URL(url).host.lowercase()
         return when {
-            "archiveofourown.org" in domain -> WebFictionSite.ARCHIVE_OF_OUR_OWN
-            "fanfiction.net" in domain -> WebFictionSite.FANFICTION_NET
-            "royalroad.com" in domain -> WebFictionSite.ROYAL_ROAD
-            "webnovel.com" in domain -> WebFictionSite.WEBNOVEL
-            "wattpad.com" in domain -> WebFictionSite.WATTPAD
-            "scribblehub.com" in domain -> WebFictionSite.SCRIBBLE_HUB
-            "spacebattles.com" in domain -> WebFictionSite.SPACEBATTLES
-            "sufficientvelocity.com" in domain -> WebFictionSite.SUFFICIENT_VELOCITY
-            "questionablequesting.com" in domain -> WebFictionSite.QUESTIONABLE_QUESTING
-            "fimfiction.net" in domain -> WebFictionSite.FIMFICTION
-            else -> WebFictionSite.GENERIC
+            "archiveofourown.org" in domain -> WebFictionSiteType.ARCHIVE_OF_OUR_OWN
+            "fanfiction.net" in domain -> WebFictionSiteType.FANFICTION_NET
+            "royalroad.com" in domain -> WebFictionSiteType.ROYAL_ROAD
+            "webnovel.com" in domain -> WebFictionSiteType.WEBNOVEL
+            "wattpad.com" in domain -> WebFictionSiteType.WATTPAD
+            "scribblehub.com" in domain -> WebFictionSiteType.SCRIBBLE_HUB
+            "spacebattles.com" in domain -> WebFictionSiteType.SPACEBATTLES
+            "sufficientvelocity.com" in domain -> WebFictionSiteType.SUFFICIENT_VELOCITY
+            "questionablequesting.com" in domain -> WebFictionSiteType.QUESTIONABLE_QUESTING
+            "fimfiction.net" in domain -> WebFictionSiteType.FIMFICTION
+            else -> WebFictionSiteType.GENERIC
         }
     }
 
@@ -208,7 +179,7 @@ class WebFictionService @Inject constructor() {
             author = author,
             description = description,
             url = url,
-            site = WebFictionSite.ARCHIVE_OF_OUR_OWN,
+            site = WebFictionSiteType.ARCHIVE_OF_OUR_OWN,
             totalChapters = chapterCount,
             status = status,
             rating = rating,
@@ -240,7 +211,7 @@ class WebFictionService @Inject constructor() {
             author = author,
             description = description,
             url = url,
-            site = WebFictionSite.FANFICTION_NET,
+            site = WebFictionSiteType.FANFICTION_NET,
             totalChapters = chapterCount,
             status = status
         )
@@ -269,7 +240,7 @@ class WebFictionService @Inject constructor() {
             author = author,
             description = description,
             url = url,
-            site = WebFictionSite.ROYAL_ROAD,
+            site = WebFictionSiteType.ROYAL_ROAD,
             totalChapters = chapterCount,
             status = status,
             tags = tags,
@@ -298,7 +269,7 @@ class WebFictionService @Inject constructor() {
             author = author,
             description = description,
             url = url,
-            site = WebFictionSite.WEBNOVEL,
+            site = WebFictionSiteType.WEBNOVEL,
             tags = tags,
             coverUrl = coverUrl
         )
@@ -326,7 +297,7 @@ class WebFictionService @Inject constructor() {
             author = author,
             description = description,
             url = url,
-            site = WebFictionSite.WATTPAD,
+            site = WebFictionSiteType.WATTPAD,
             tags = tags,
             coverUrl = coverUrl
         )
@@ -354,7 +325,7 @@ class WebFictionService @Inject constructor() {
             author = author,
             description = description,
             url = url,
-            site = WebFictionSite.SCRIBBLE_HUB,
+            site = WebFictionSiteType.SCRIBBLE_HUB,
             status = status,
             tags = tags,
             coverUrl = coverUrl
@@ -383,7 +354,7 @@ class WebFictionService @Inject constructor() {
             author = author,
             description = description,
             url = url,
-            site = WebFictionSite.FIMFICTION,
+            site = WebFictionSiteType.FIMFICTION,
             status = status,
             tags = tags,
             coverUrl = coverUrl
@@ -409,7 +380,7 @@ class WebFictionService @Inject constructor() {
             author = "Unknown",
             description = description,
             url = url,
-            site = WebFictionSite.GENERIC
+            site = WebFictionSiteType.GENERIC
         )
     }
 
