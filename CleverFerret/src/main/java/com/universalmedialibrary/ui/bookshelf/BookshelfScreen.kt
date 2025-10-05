@@ -400,5 +400,3 @@ enum class SortOption(val displayName: String, val icon: ImageVector) {
     RATING("Rating", Icons.Default.Star),
     RECENTLY_READ("Recently Read", Icons.Default.History)
 }
-tly Read", Icons.Default.History)
-}
