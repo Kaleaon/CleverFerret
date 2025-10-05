@@ -27,22 +27,22 @@ import androidx.room.PrimaryKey
 data class PodcastChapterEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     // Foreign key
     val episodeId: Long,
-    
+
     // Chapter info
     val title: String,
     val startTime: Long, // in milliseconds
     val endTime: Long? = null, // in milliseconds, null if unknown
-    
+
     // Optional metadata
     val url: String? = null, // Link to chapter resource
     val imageUrl: String? = null, // Chapter-specific image
-    
+
     // Chapter type
     val chapterType: String = "normal", // normal, ad, intro, outro, etc.
-    
+
     // Order
     val chapterIndex: Int = 0
 )

@@ -103,7 +103,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun podcastEpisodeDao(): PodcastEpisodeDao
     abstract fun podcastSubscriptionDao(): PodcastSubscriptionDao
     abstract fun podcastChapterDao(): PodcastChapterDao
-    
+
     // Radio DAO
     abstract fun radioStationDao(): RadioStationDao
 

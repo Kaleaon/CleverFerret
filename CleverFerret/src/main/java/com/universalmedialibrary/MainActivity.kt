@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
             val mainViewModel: MainViewModel = hiltViewModel()
             val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
             val darkMode by mainViewModel.darkMode.collectAsState(true)
-            
+
             CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -139,7 +139,7 @@ fun AppNavigation() {
         composable("collections") {
             CollectionsScreen(onOpenCollection = { /* TODO: navigate to collection detail */ })
         }
-        
+
         // Podcast routes
         composable("podcasts") {
             com.universalmedialibrary.ui.podcast.PodcastManagerScreen(navController = navController)
@@ -151,7 +151,7 @@ fun AppNavigation() {
                 onBack = { navController.navigateUp() }
             )
         }
-        
+
         // Music routes
         composable("music") {
             com.universalmedialibrary.ui.music.MusicLibraryScreen(navController = navController)
@@ -161,7 +161,7 @@ fun AppNavigation() {
                 onBack = { navController.navigateUp() }
             )
         }
-        
+
         // Reader routes
         composable("bookshelf/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toLongOrNull() ?: 1L
@@ -177,14 +177,14 @@ fun AppNavigation() {
                 onBack = { navController.navigateUp() }
             )
         }
-        
+
         // Radio routes
         composable("radio") {
             com.universalmedialibrary.ui.radio.RadioScreen(
                 onBack = { navController.navigateUp() }
             )
         }
-        
+
         // Video routes
         composable("videos") {
             com.universalmedialibrary.ui.video.VideoLibraryScreen(
@@ -198,19 +198,19 @@ fun AppNavigation() {
                 onBack = { navController.navigateUp() }
             )
         }
-        
+
         // Settings route
         composable("settings") {
             com.universalmedialibrary.ui.settings.SettingsScreen(
                 onBack = { navController.navigateUp() }
             )
         }
-        
+
         // Theme preview for testing
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
         }
-        
+
         // Server integration route
         composable("servers") {
             com.universalmedialibrary.ui.integration.ServerIntegrationScreen(
@@ -250,12 +250,13 @@ fun LibraryListScreen(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocumentTree(),
             onResult = { uri ->
-                if (uri != null && dbFileUri != null && selectedLibraryForImport != null) {
+                val libraryForImport = selectedLibraryForImport
+                if (uri != null && dbFileUri != null && libraryForImport != null) {
                     val intent =
                         Intent(context, CalibreImportForegroundService::class.java).apply {
                             putExtra(CalibreImportForegroundService.EXTRA_DB_PATH, dbFileUri.toString())
                             putExtra(CalibreImportForegroundService.EXTRA_ROOT_PATH, uri.toString())
-                            putExtra(CalibreImportForegroundService.EXTRA_LIBRARY_ID, selectedLibraryForImport!!.libraryId)
+                            putExtra(CalibreImportForegroundService.EXTRA_LIBRARY_ID, libraryForImport.libraryId)
                         }
                     context.startForegroundService(intent)
                     dbFileUri = null
@@ -387,7 +388,7 @@ fun LibraryListScreen(
                     },
                 )
             }
-            
+
             // Podcast Manager Card
             item {
                 FeatureCard(
@@ -397,7 +398,7 @@ fun LibraryListScreen(
                     onClick = { navController.navigate("podcasts") }
                 )
             }
-            
+
             // Music Library Card
             item {
                 FeatureCard(
@@ -407,7 +408,7 @@ fun LibraryListScreen(
                     onClick = { navController.navigate("music") }
                 )
             }
-            
+
             // Radio Streaming Card
             item {
                 FeatureCard(
@@ -417,7 +418,7 @@ fun LibraryListScreen(
                     onClick = { navController.navigate("radio") }
                 )
             }
-            
+
             // Video Library Card
             item {
                 FeatureCard(
@@ -427,7 +428,7 @@ fun LibraryListScreen(
                     onClick = { navController.navigate("videos") }
                 )
             }
-            
+
             // Theme Preview Card (for testing)
             item {
                 FeatureCard(

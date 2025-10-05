@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Unified Theme System - 12 Themes Shared Between PWA and Android
- * 
+ *
  * These themes are designed to match exactly between web and mobile platforms.
  * Color values are synchronized with pwa-demo/src/themes/unified-themes.ts
  */
@@ -35,7 +35,7 @@ object NavyGoldUnified {
     private val NavyDeep = Color(0xFF0A1630)
     private val NavyPaper = Color(0xFF0D1B36)
     private val NavyAccent = Color(0xFF0F2346)
-    
+
     val darkScheme = darkColorScheme(
         primary = Gold,
         onPrimary = NavyDeep,
@@ -59,7 +59,7 @@ object EmeraldSilverUnified {
     private val SilverDark = Color(0xFFA0A0A0)
     private val EmeraldDeep = Color(0xFF0A1F14)
     private val EmeraldPaper = Color(0xFF0D2618)
-    
+
     val darkScheme = darkColorScheme(
         primary = Silver,
         onPrimary = EmeraldDeep,
@@ -83,7 +83,7 @@ object RoyalBronzeUnified {
     private val BronzeDark = Color(0xFFA86428)
     private val PurpleDeep = Color(0xFF1A0A30)
     private val PurplePaper = Color(0xFF220D40)
-    
+
     val darkScheme = darkColorScheme(
         primary = Bronze,
         onPrimary = PurpleDeep,
@@ -107,7 +107,7 @@ object MidnightAmberUnified {
     private val AmberDark = Color(0xFFCC9900)
     private val MidnightDeep = Color(0xFF0C1824)
     private val MidnightPaper = Color(0xFF15202E)
-    
+
     val darkScheme = darkColorScheme(
         primary = Amber,
         onPrimary = MidnightDeep,
@@ -131,7 +131,7 @@ object ObsidianCrimsonUnified {
     private val CrimsonDark = Color(0xFFB00F30)
     private val ObsidianDeep = Color(0xFF0A0A0A)
     private val ObsidianPaper = Color(0xFF141414)
-    
+
     val darkScheme = darkColorScheme(
         primary = Crimson,
         onPrimary = ObsidianDeep,
@@ -155,7 +155,7 @@ object SlateCyanUnified {
     private val CyanDark = Color(0xFF00A8CC)
     private val SlateDeep = Color(0xFF1A1F24)
     private val SlatePaper = Color(0xFF232930)
-    
+
     val darkScheme = darkColorScheme(
         primary = Cyan,
         onPrimary = SlateDeep,
@@ -179,7 +179,7 @@ object RoyalSilverUnified {
     private val SilverDark = Color(0xFF9A9A9A)
     private val RoyalDeep = Color(0xFF1A1535)
     private val RoyalPaper = Color(0xFF211A40)
-    
+
     val darkScheme = darkColorScheme(
         primary = Silver,
         onPrimary = RoyalDeep,
@@ -203,7 +203,7 @@ object ForestCopperUnified {
     private val CopperDark = Color(0xFF935E29)
     private val ForestDeep = Color(0xFF0D1F0D)
     private val ForestPaper = Color(0xFF152915)
-    
+
     val darkScheme = darkColorScheme(
         primary = Copper,
         onPrimary = ForestDeep,
@@ -227,7 +227,7 @@ object BurgundyRoseGoldUnified {
     private val RoseGoldDark = Color(0xFF93575F)
     private val BurgundyDeep = Color(0xFF2D0F1A)
     private val BurgundyPaper = Color(0xFF3D1525)
-    
+
     val darkScheme = darkColorScheme(
         primary = RoseGold,
         onPrimary = BurgundyDeep,
@@ -251,7 +251,7 @@ object CharcoalChampagneUnified {
     private val ChampagneDark = Color(0xFFC5B8A5)
     private val CharcoalDeep = Color(0xFF1F1F1F)
     private val CharcoalPaper = Color(0xFF2A2A2A)
-    
+
     val darkScheme = darkColorScheme(
         primary = Champagne,
         onPrimary = CharcoalDeep,
@@ -275,7 +275,7 @@ object SlateGunmetalUnified {
     private val GunmetalDark = Color(0xFF6F7D87)
     private val SlateDeep = Color(0xFF1A2029)
     private val SlatePaper = Color(0xFF232C38)
-    
+
     val darkScheme = darkColorScheme(
         primary = Gunmetal,
         onPrimary = SlateDeep,
@@ -299,7 +299,7 @@ object DeepPurplePlatinumUnified {
     private val PlatinumDark = Color(0xFFB8B7B5)
     private val PurpleDeep = Color(0xFF1A0F2E)
     private val PurplePaper = Color(0xFF24153D)
-    
+
     val darkScheme = darkColorScheme(
         primary = Platinum,
         onPrimary = PurpleDeep,

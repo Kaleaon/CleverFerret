@@ -69,17 +69,17 @@ fun AdvancedVideoPlayerScreen(
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
         val density = LocalDensity.current
-        
+
         var showControls by remember { mutableStateOf(true) }
         var showSettings by remember { mutableStateOf(false) }
         var showSubtitleTracks by remember { mutableStateOf(false) }
         var showAudioTracks by remember { mutableStateOf(false) }
         var showChapters by remember { mutableStateOf(false) }
-        
+
         var brightness by remember { mutableFloatStateOf(1f) }
         var volume by remember { mutableFloatStateOf(0.8f) }
         var isFullscreen by remember { mutableStateOf(false) }
-        
+
         // Gesture states
         var isDragging by remember { mutableStateOf(false) }
         var seekPreview by remember { mutableLongStateOf(-1L) }
@@ -130,7 +130,7 @@ fun AdvancedVideoPlayerScreen(
                     ) { change, _ ->
                         val deltaX = change.x
                         val deltaY = change.y
-                        
+
                         when {
                             // Horizontal drag for seeking
                             abs(deltaX) > abs(deltaY) -> {
@@ -175,7 +175,7 @@ fun AdvancedVideoPlayerScreen(
                 uiState.isLoading -> {
                     LoadingState()
                 }
-                
+
                 uiState.error != null -> {
                     ErrorState(
                         error = uiState.error!!,
@@ -183,7 +183,7 @@ fun AdvancedVideoPlayerScreen(
                         onBack = onBack
                     )
                 }
-                
+
                 uiState.isLoaded -> {
                     // Video player view
                     AndroidView(
@@ -237,7 +237,7 @@ fun AdvancedVideoPlayerScreen(
                     }
                 }
             }
-            
+
             // Control overlays
             AnimatedVisibility(
                 visible = showControls && uiState.isLoaded,
@@ -250,7 +250,7 @@ fun AdvancedVideoPlayerScreen(
                     currentChapter = uiState.currentChapter,
                     onBack = onBack,
                     onCast = { /* TODO: Implement casting */ },
-                    onPip = { 
+                    onPip = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             enterPictureInPictureMode(context)
                         }
@@ -276,7 +276,7 @@ fun AdvancedVideoPlayerScreen(
                     onRewind = { viewModel.seekRelative(-10000) },
                     onForward = { viewModel.seekRelative(10000) },
                     onVolumeChange = { volume = it },
-                    onFullscreen = { 
+                    onFullscreen = {
                         isFullscreen = !isFullscreen
                         // TODO: Toggle orientation
                     },
@@ -522,7 +522,7 @@ private fun formatTime(milliseconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60
-    
+
     return if (hours > 0) {
         String.format("%d:%02d:%02d", hours, minutes, secs)
     } else {

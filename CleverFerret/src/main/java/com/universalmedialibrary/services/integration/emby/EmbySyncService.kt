@@ -11,14 +11,14 @@ import javax.inject.Singleton
 
 /**
  * Complete Emby Integration Service
- * 
+ *
  * Features:
  * - Server authentication and connection
  * - Library synchronization
  * - Media item fetching
  * - Metadata synchronization
  * - Progress tracking
- * 
+ *
  * Note: Emby API is very similar to Jellyfin (both use X-Emby-Token header)
  */
 @Singleton
@@ -46,7 +46,7 @@ class EmbySyncService @Inject constructor(
             _syncState.value = _syncState.value.copy(isConnecting = true, error = null)
 
             val api = embyIntegration.createApi(serverUrl)
-            
+
             // Authenticate and get token
             val authResponse = api.authenticate(
                 mapOf(
@@ -61,7 +61,7 @@ class EmbySyncService @Inject constructor(
                     _syncState.value = _syncState.value.copy(isConnecting = false, error = error)
                     return Result.failure(Exception(error))
                 }
-                
+
                 val accessToken = authData["AccessToken"] as? String
                 val userId = authData["User"]?.let { (it as? Map<*, *>)?.get("Id") as? String }
 
@@ -122,7 +122,7 @@ class EmbySyncService @Inject constructor(
                     _syncState.value = _syncState.value.copy(isSyncing = false, error = error)
                     return Result.failure(Exception(error))
                 }
-                
+
                 val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 val libraries = mutableListOf<Library>()
 
@@ -193,7 +193,7 @@ class EmbySyncService @Inject constructor(
                     _syncState.value = _syncState.value.copy(isSyncing = false, error = error)
                     return Result.failure(Exception(error))
                 }
-                
+
                 val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 var syncedCount = 0
 

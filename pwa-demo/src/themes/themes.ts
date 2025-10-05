@@ -1,10 +1,10 @@
 // Modern theme system with multiple beautiful themes
 import { createTheme, ThemeOptions, Theme } from '@mui/material/styles';
 
-export type ThemeName = 
-  | 'navy-gold' 
-  | 'emerald-silver' 
-  | 'royal-bronze' 
+export type ThemeName =
+  | 'navy-gold'
+  | 'emerald-silver'
+  | 'royal-bronze'
   | 'midnight-amber'
   | 'obsidian-crimson'
   | 'slate-cyan';

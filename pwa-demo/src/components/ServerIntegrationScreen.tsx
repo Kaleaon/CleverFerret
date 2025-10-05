@@ -29,7 +29,6 @@ import {
   CloudQueue as PlexIcon,
   Cloud as JellyfinIcon,
   CloudCircle as EmbyIcon,
-  Add as AddIcon,
   CheckCircle as CheckCircleIcon,
   Sync as SyncIcon,
   LinkOff as LinkOffIcon,
@@ -100,8 +99,8 @@ export const ServerIntegrationScreen: React.FC = () => {
     setServers(servers.filter((s) => s.id !== serverId));
   };
 
-  const handleSync = (serverId: string) => {
-    console.log('Syncing server:', serverId);
+  const handleSync = (_serverId: string) => {
+    // Syncing server: serverId
     // Would trigger actual sync here
   };
 
@@ -154,7 +153,9 @@ export const ServerIntegrationScreen: React.FC = () => {
                   }}
                 >
                   <CardContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                    <Box
+                      sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}
+                    >
                       <Box sx={{ color: serverType.color, mb: 1 }}>{serverType.icon}</Box>
                       <Typography variant="h6" align="center" gutterBottom>
                         {serverType.name}
@@ -197,7 +198,11 @@ export const ServerIntegrationScreen: React.FC = () => {
                         primary={server.name}
                         secondary={
                           <>
-                            <Typography variant="body2" component="span" sx={{ color: serverTypeInfo?.color }}>
+                            <Typography
+                              variant="body2"
+                              component="span"
+                              sx={{ color: serverTypeInfo?.color }}
+                            >
                               {serverTypeInfo?.name}
                             </Typography>
                             {' • '}
@@ -267,11 +272,7 @@ export const ServerIntegrationScreen: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowAddDialog(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleConnect}
-            disabled={!serverUrl || !username}
-          >
+          <Button variant="contained" onClick={handleConnect} disabled={!serverUrl || !username}>
             Connect
           </Button>
         </DialogActions>

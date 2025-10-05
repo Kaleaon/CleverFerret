@@ -7,7 +7,16 @@ export class CleverFerretDB extends Dexie {
   mediaItems!: Table<MediaItem>;
   metadataCommon!: Table<MetadataCommon>;
   metadataBooks!: Table<MetadataBook>;
-  downloads!: Table<{ id?: number; itemId: number; url: string; status: 'queued' | 'downloading' | 'completed' | 'failed'; bytesTotal?: number; bytesReceived?: number; createdAt: Date; updatedAt: Date }>; 
+  downloads!: Table<{
+    id?: number;
+    itemId: number;
+    url: string;
+    status: 'queued' | 'downloading' | 'completed' | 'failed';
+    bytesTotal?: number;
+    bytesReceived?: number;
+    createdAt: Date;
+    updatedAt: Date;
+  }>;
 
   constructor() {
     super('CleverFerretDB');
@@ -124,7 +133,12 @@ export class DownloadService {
     return Number(id);
   }
 
-  static async setStatus(id: number, status: 'queued' | 'downloading' | 'completed' | 'failed', bytesReceived?: number, bytesTotal?: number) {
+  static async setStatus(
+    id: number,
+    status: 'queued' | 'downloading' | 'completed' | 'failed',
+    bytesReceived?: number,
+    bytesTotal?: number,
+  ) {
     await db.downloads.update(id, { status, bytesReceived, bytesTotal, updatedAt: new Date() });
   }
 

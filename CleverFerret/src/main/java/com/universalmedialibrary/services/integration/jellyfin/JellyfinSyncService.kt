@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 /**
  * Complete Jellyfin Integration Service
- * 
+ *
  * Features:
  * - Server authentication and connection
  * - Library synchronization
@@ -45,7 +45,7 @@ class JellyfinSyncService @Inject constructor(
             _syncState.value = _syncState.value.copy(isConnecting = true, error = null)
 
             val api = jellyfinIntegration.createApi(serverUrl)
-            
+
             // Authenticate and get token
             val authResponse = api.authenticate(
                 mapOf(
@@ -60,7 +60,7 @@ class JellyfinSyncService @Inject constructor(
                     _syncState.value = _syncState.value.copy(isConnecting = false, error = error)
                     return Result.failure(Exception(error))
                 }
-                
+
                 val accessToken = authData["AccessToken"] as? String
                 val userId = authData["User"]?.let { (it as? Map<*, *>)?.get("Id") as? String }
 
@@ -121,7 +121,7 @@ class JellyfinSyncService @Inject constructor(
                     _syncState.value = _syncState.value.copy(isSyncing = false, error = error)
                     return Result.failure(Exception(error))
                 }
-                
+
                 val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 val libraries = mutableListOf<Library>()
 
@@ -192,7 +192,7 @@ class JellyfinSyncService @Inject constructor(
                     _syncState.value = _syncState.value.copy(isSyncing = false, error = error)
                     return Result.failure(Exception(error))
                 }
-                
+
                 val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 var syncedCount = 0
 

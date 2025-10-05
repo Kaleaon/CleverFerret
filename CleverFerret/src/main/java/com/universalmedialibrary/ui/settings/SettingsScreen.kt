@@ -24,12 +24,12 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showThemePicker by remember { mutableStateOf(false) }
-    
+
     CleverFerretTheme(palette = uiState.selectedTheme, darkTheme = uiState.darkMode) {
         Scaffold(
             topBar = {
                 MetallicTopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Settings",
                             fontWeight = FontWeight.Bold
@@ -58,7 +58,7 @@ fun SettingsScreen(
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
-                
+
                 item {
                     MetallicCard {
                         Column {
@@ -82,15 +82,15 @@ fun SettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                
+
                                 MetallicButton(
                                     text = "Change",
                                     onClick = { showThemePicker = true }
                                 )
                             }
-                            
+
                             MetallicDivider()
-                            
+
                             // Dark mode toggle
                             Row(
                                 modifier = Modifier
@@ -111,7 +111,7 @@ fun SettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                
+
                                 Switch(
                                     checked = uiState.darkMode,
                                     onCheckedChange = { viewModel.setDarkMode(it) }
@@ -120,7 +120,7 @@ fun SettingsScreen(
                         }
                     }
                 }
-                
+
                 // Podcasts Section
                 item {
                     MetallicText(
@@ -129,7 +129,7 @@ fun SettingsScreen(
                         modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
                     )
                 }
-                
+
                 item {
                     MetallicCard {
                         Column {
@@ -153,15 +153,15 @@ fun SettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                
+
                                 Switch(
                                     checked = uiState.autoDownloadPodcasts,
                                     onCheckedChange = { viewModel.setAutoDownload(it) }
                                 )
                             }
-                            
+
                             MetallicDivider()
-                            
+
                             // WiFi only
                             Row(
                                 modifier = Modifier
@@ -182,7 +182,7 @@ fun SettingsScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                
+
                                 Switch(
                                     checked = uiState.wifiOnlyDownloads,
                                     onCheckedChange = { viewModel.setWifiOnlyDownloads(it) }
@@ -191,7 +191,7 @@ fun SettingsScreen(
                         }
                     }
                 }
-                
+
                 // Notifications Section
                 item {
                     MetallicText(
@@ -200,7 +200,7 @@ fun SettingsScreen(
                         modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
                     )
                 }
-                
+
                 item {
                     MetallicCard {
                         Row(
@@ -222,7 +222,7 @@ fun SettingsScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            
+
                             Switch(
                                 checked = uiState.notificationsEnabled,
                                 onCheckedChange = { viewModel.setNotificationsEnabled(it) }
@@ -230,7 +230,7 @@ fun SettingsScreen(
                         }
                     }
                 }
-                
+
                 // About Section
                 item {
                     MetallicText(
@@ -239,7 +239,7 @@ fun SettingsScreen(
                         modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
                     )
                 }
-                
+
                 item {
                     MetallicCard {
                         Column(
@@ -265,7 +265,7 @@ fun SettingsScreen(
                 }
             }
         }
-        
+
         // Theme picker dialog
         if (showThemePicker) {
             ThemePickerDialog(
@@ -297,9 +297,9 @@ private fun ThemePickerDialog(
                     Card(
                         onClick = { onSelect(palette) },
                         colors = CardDefaults.cardColors(
-                            containerColor = if (palette == currentTheme) 
-                                MaterialTheme.colorScheme.primaryContainer 
-                            else 
+                            containerColor = if (palette == currentTheme)
+                                MaterialTheme.colorScheme.primaryContainer
+                            else
                                 MaterialTheme.colorScheme.surface
                         )
                     ) {

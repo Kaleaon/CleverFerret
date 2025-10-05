@@ -13,15 +13,12 @@ import {
   Button,
   Paper,
   Chip,
-  Avatar,
   Rating,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
   Check as CheckIcon,
   Book as BookIcon,
-  Movie as MovieIcon,
-  MusicNote as MusicIcon,
 } from '@mui/icons-material';
 import { getAllUnifiedThemes, type UnifiedThemeName } from '../themes/unified-themes';
 import { useAppStore } from '../store/app-store';
@@ -192,7 +189,7 @@ const ThemeCard: React.FC<{
                 }}
               />
               <Chip
-                icon={<MovieIcon sx={{ fontSize: 16 }} />}
+                icon={<BookIcon sx={{ fontSize: 16 }} />}
                 label="Movies"
                 size="small"
                 sx={{
@@ -262,7 +259,8 @@ export const ThemePreviewScreen: React.FC = () => {
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Choose from our carefully crafted color schemes, synchronized across PWA and Android.
-            Each theme features modern dark mode design with unique accent colors and subtle animations.
+            Each theme features modern dark mode design with unique accent colors and subtle
+            animations.
           </Typography>
         </Paper>
 

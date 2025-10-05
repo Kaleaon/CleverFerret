@@ -22,18 +22,18 @@ class VideoLibraryViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaItemDao: MediaItemDao
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(VideoLibraryUiState())
     val uiState: StateFlow<VideoLibraryUiState> = _uiState.asStateFlow()
-    
+
     init {
         scanVideos()
     }
-    
+
     fun scanVideos() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 val videos = mutableListOf<VideoItem>()
                 val projection = arrayOf(
@@ -45,7 +45,7 @@ class VideoLibraryViewModel @Inject constructor(
                     MediaStore.Video.Media.RESOLUTION,
                     MediaStore.Video.Media.DATE_ADDED
                 )
-                
+
                 context.contentResolver.query(
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     projection,
@@ -58,7 +58,7 @@ class VideoLibraryViewModel @Inject constructor(
                     val nameCol = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
                     val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
                     val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
-                    
+
                     while (cursor.moveToNext()) {
                         val id = cursor.getLong(idCol)
                         val title = cursor.getString(titleCol)
@@ -69,7 +69,7 @@ class VideoLibraryViewModel @Inject constructor(
                             MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                             id
                         )
-                        
+
                         videos.add(
                             VideoItem(
                                 id = id,
@@ -82,7 +82,7 @@ class VideoLibraryViewModel @Inject constructor(
                         )
                     }
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     videos = videos
@@ -95,7 +95,7 @@ class VideoLibraryViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }

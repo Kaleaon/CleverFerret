@@ -26,12 +26,12 @@ fun VideoLibraryScreen(
     viewModel: VideoLibraryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     CleverFerretTheme(palette = ThemePalette.SLATE_GUNMETAL) {
         Scaffold(
             topBar = {
                 MetallicTopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Video Library",
                             fontWeight = FontWeight.Bold
@@ -61,7 +61,7 @@ fun VideoLibraryScreen(
                         CircularProgressIndicator()
                     }
                 }
-                
+
                 uiState.videos.isEmpty() -> {
                     Box(
                         modifier = Modifier
@@ -93,7 +93,7 @@ fun VideoLibraryScreen(
                         }
                     }
                 }
-                
+
                 else -> {
                     LazyColumn(
                         modifier = Modifier
@@ -114,7 +114,7 @@ fun VideoLibraryScreen(
                     }
                 }
             }
-            
+
             // Error message
             uiState.error?.let { error ->
                 Snackbar(
@@ -154,9 +154,9 @@ private fun VideoCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -165,7 +165,7 @@ private fun VideoCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     Text(
                         text = formatFileSize(video.size),
                         style = MaterialTheme.typography.bodySmall,
@@ -173,7 +173,7 @@ private fun VideoCard(
                     )
                 }
             }
-            
+
             MetallicIconButton(
                 onClick = onClick,
                 icon = {
@@ -188,7 +188,7 @@ private fun formatDuration(milliseconds: Long): String {
     val seconds = (milliseconds / 1000).toInt()
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
-    
+
     return if (minutes >= 60) {
         val hours = minutes / 60
         val remainingMinutes = minutes % 60

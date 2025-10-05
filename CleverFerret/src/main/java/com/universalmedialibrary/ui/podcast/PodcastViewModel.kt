@@ -29,11 +29,11 @@ class PodcastViewModel @Inject constructor(
     fun searchPodcasts(query: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
-                isSearching = true, 
+                isSearching = true,
                 searchResults = emptyList(),
                 error = null
             )
-            
+
             try {
                 val results = repository.searchPodcastsOnline(query)
                 _uiState.value = _uiState.value.copy(
@@ -53,7 +53,7 @@ class PodcastViewModel @Inject constructor(
     fun subscribeFromSearchResult(searchResult: PodcastSearchResult) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             try {
                 when (val result = repository.subscribeToPodcast(searchResult.feedUrl)) {
                     is PodcastOperationResult.Success -> {
@@ -82,7 +82,7 @@ class PodcastViewModel @Inject constructor(
     fun addPodcastByFeedUrl(feedUrl: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             try {
                 when (val result = repository.subscribeToPodcast(feedUrl)) {
                     is PodcastOperationResult.Success -> {
@@ -124,7 +124,7 @@ class PodcastViewModel @Inject constructor(
     fun refreshAllPodcasts() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             try {
                 _uiState.value.podcasts.forEach { podcast ->
                     repository.refreshPodcast(podcast.id)
@@ -146,7 +146,7 @@ class PodcastViewModel @Inject constructor(
                 // Find podcast for title
                 val podcast = _uiState.value.podcasts.find { it.id == episode.podcastId }
                 val podcastTitle = podcast?.title ?: "Unknown Podcast"
-                
+
                 // Start download using Android DownloadManager
                 downloadManager.downloadEpisode(
                     episodeId = episode.id,
@@ -154,7 +154,7 @@ class PodcastViewModel @Inject constructor(
                     episodeTitle = episode.title,
                     podcastTitle = podcastTitle
                 )
-                
+
                 // Update UI state
                 _uiState.value = _uiState.value.copy(error = null)
             } catch (e: Exception) {
@@ -164,11 +164,11 @@ class PodcastViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun cancelDownload(episode: PodcastEpisode) {
         downloadManager.cancelDownload(episode.id)
     }
-    
+
     val downloadProgress = downloadManager.downloadProgress
 
     fun deleteDownloadedEpisode(episode: PodcastEpisode) {
@@ -183,7 +183,7 @@ class PodcastViewModel @Inject constructor(
                         file.delete()
                     }
                 }
-                
+
                 // Update episode status in database
                 val updatedEpisode = episode.copy(
                     downloaded = false,
@@ -219,7 +219,7 @@ class PodcastViewModel @Inject constructor(
                 }
         }
     }
-    
+
     private fun loadEpisodes() {
         viewModelScope.launch {
             repository.getDownloadedEpisodes()

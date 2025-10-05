@@ -5,25 +5,21 @@ const DYNAMIC_CACHE = `cleverferret-dynamic-${APP_VERSION}`;
 const OFFLINE_URL = './offline.html';
 
 // Files to cache on install
-const STATIC_FILES = [
-  './',
-  './index.html',
-  './manifest.json',
-  OFFLINE_URL,
-];
+const STATIC_FILES = ['./', './index.html', './manifest.json', OFFLINE_URL];
 
 // Install event - cache static files
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
   event.waitUntil(
-    caches.open(STATIC_CACHE)
+    caches
+      .open(STATIC_CACHE)
       .then((cache) => {
         console.log('Pre-caching static files...');
         return cache.addAll(STATIC_FILES);
       })
       .then(() => {
         return self.skipWaiting();
-      })
+      }),
   );
 });
 
@@ -31,16 +27,21 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
   event.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(keyList.map((key) => {
-        if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
-          console.log('Removing old cache:', key);
-          return caches.delete(key);
-        }
-      }));
-    }).then(() => {
-      return self.clients.claim();
-    })
+    caches
+      .keys()
+      .then((keyList) => {
+        return Promise.all(
+          keyList.map((key) => {
+            if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
+              console.log('Removing old cache:', key);
+              return caches.delete(key);
+            }
+          }),
+        );
+      })
+      .then(() => {
+        return self.clients.claim();
+      }),
   );
 });
 
@@ -52,20 +53,25 @@ self.addEventListener('fetch', (event) => {
   if (request.method === 'POST') {
     const url = new URL(request.url);
     if (url.pathname === '/import') {
-      event.respondWith((async () => {
-        try {
-          // Read form data to ensure browser considers it handled
-          const formData = await request.formData();
-          const files = formData.getAll('files');
-          // Optionally postMessage to clients for processing
-          const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-          for (const client of clientList) {
-            client.postMessage({ type: 'SHARE_TARGET_IMPORT', count: files?.length || 0 });
-          }
-        } catch (_) {}
-        // Redirect user to import handler route in app
-        return Response.redirect('/?action=import', 303);
-      })());
+      event.respondWith(
+        (async () => {
+          try {
+            // Read form data to ensure browser considers it handled
+            const formData = await request.formData();
+            const files = formData.getAll('files');
+            // Optionally postMessage to clients for processing
+            const clientList = await self.clients.matchAll({
+              type: 'window',
+              includeUncontrolled: true,
+            });
+            for (const client of clientList) {
+              client.postMessage({ type: 'SHARE_TARGET_IMPORT', count: files?.length || 0 });
+            }
+          } catch (_) {}
+          // Redirect user to import handler route in app
+          return Response.redirect('/?action=import', 303);
+        })(),
+      );
       return;
     }
   }
@@ -108,7 +114,7 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => caches.match(OFFLINE_URL));
-    })
+    }),
   );
 });
 
@@ -168,7 +174,7 @@ async function processEpubFile(file) {
   return {
     title: 'Extracted Title',
     author: 'Extracted Author',
-    size: file.size
+    size: file.size,
   };
 }
 
@@ -177,7 +183,7 @@ async function processPdfFile(file) {
   return {
     title: file.name,
     size: file.size,
-    type: 'pdf'
+    type: 'pdf',
   };
 }
 
@@ -186,7 +192,7 @@ async function processCalibreDatabase(file) {
   // This would involve SQLite parsing in the actual implementation
   return {
     booksImported: 0,
-    metadataProcessed: true
+    metadataProcessed: true,
   };
 }
 
@@ -200,9 +206,7 @@ self.addEventListener('push', (event) => {
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-72.png',
       data: data.data || {},
-      actions: [
-        { action: 'open', title: 'Open' },
-      ],
+      actions: [{ action: 'open', title: 'Open' }],
     };
     event.waitUntil(self.registration.showNotification(title, options));
   } catch (e) {
@@ -223,6 +227,6 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       return self.clients.openWindow(targetUrl);
-    })
+    }),
   );
 });
