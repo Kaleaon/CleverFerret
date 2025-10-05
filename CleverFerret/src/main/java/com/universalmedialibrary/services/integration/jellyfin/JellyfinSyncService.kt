@@ -55,7 +55,12 @@ class JellyfinSyncService @Inject constructor(
             )
 
             if (authResponse.isSuccessful && authResponse.body() != null) {
-                val authData = authResponse.body()!!
+                val authData = authResponse.body() ?: run {
+                    val error = "Empty authentication response"
+                    _syncState.value = _syncState.value.copy(isConnecting = false, error = error)
+                    return Result.failure(Exception(error))
+                }
+                
                 val accessToken = authData["AccessToken"] as? String
                 val userId = authData["User"]?.let { (it as? Map<*, *>)?.get("Id") as? String }
 
@@ -111,7 +116,13 @@ class JellyfinSyncService @Inject constructor(
             val response = api.getLibraries(server.accessToken)
 
             if (response.isSuccessful && response.body() != null) {
-                val items = response.body()!!["Items"] as? List<Map<String, Any>> ?: emptyList()
+                val responseBody = response.body() ?: run {
+                    val error = "Empty response from server"
+                    _syncState.value = _syncState.value.copy(isSyncing = false, error = error)
+                    return Result.failure(Exception(error))
+                }
+                
+                val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 val libraries = mutableListOf<Library>()
 
                 items.forEach { item ->
@@ -176,7 +187,13 @@ class JellyfinSyncService @Inject constructor(
             )
 
             if (response.isSuccessful && response.body() != null) {
-                val items = response.body()!!["Items"] as? List<Map<String, Any>> ?: emptyList()
+                val responseBody = response.body() ?: run {
+                    val error = "Empty response from server"
+                    _syncState.value = _syncState.value.copy(isSyncing = false, error = error)
+                    return Result.failure(Exception(error))
+                }
+                
+                val items = responseBody["Items"] as? List<Map<String, Any>> ?: emptyList()
                 var syncedCount = 0
 
                 items.forEach { item ->
