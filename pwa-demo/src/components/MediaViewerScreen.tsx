@@ -340,6 +340,264 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   );
 };
 
+const PDFViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
+  const { mediaItem, metadata } = props;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages] = useState(42);
+  const [zoom, setZoom] = useState(100);
+
+  return (
+    <Box
+      sx={{
+        bgcolor: '#1a1a1a',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* PDF Controls */}
+      <Box
+        sx={{
+          bgcolor: 'rgba(0,0,0,0.8)',
+          p: 2,
+          borderBottom: '1px solid #333',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <IconButton
+            disabled={currentPage <= 1}
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            sx={{ color: 'white' }}
+          >
+            ←
+          </IconButton>
+          <Typography variant="body2" color="white" sx={{ minWidth: '120px', textAlign: 'center' }}>
+            Page {currentPage} / {totalPages}
+          </Typography>
+          <IconButton
+            disabled={currentPage >= totalPages}
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            sx={{ color: 'white' }}
+          >
+            →
+          </IconButton>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <IconButton onClick={() => setZoom(Math.max(50, zoom - 10))} sx={{ color: 'white' }}>
+            <Typography>-</Typography>
+          </IconButton>
+          <Typography variant="body2" color="white" sx={{ minWidth: '80px', textAlign: 'center' }}>
+            {zoom}%
+          </Typography>
+          <IconButton onClick={() => setZoom(Math.min(200, zoom + 10))} sx={{ color: 'white' }}>
+            <Typography>+</Typography>
+          </IconButton>
+        </Box>
+      </Box>
+
+      {/* PDF Content Area */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2,
+          overflow: 'auto',
+        }}
+      >
+        <Paper
+          sx={{
+            width: `${zoom}%`,
+            maxWidth: '100%',
+            minHeight: '80vh',
+            bgcolor: 'white',
+            p: 4,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          }}
+        >
+          <Typography variant="h5" gutterBottom sx={{ color: '#000' }}>
+            {metadata?.title || 'PDF Document'}
+          </Typography>
+          <Typography variant="body1" paragraph sx={{ color: '#333', lineHeight: 1.8 }}>
+            This is a demonstration of the PDF viewer component. In a production environment, this
+            would render actual PDF content using a library like PDF.js or similar.
+          </Typography>
+          <Typography variant="body1" paragraph sx={{ color: '#333', lineHeight: 1.8 }}>
+            The viewer would support:
+          </Typography>
+          <Box component="ul" sx={{ color: '#333', pl: 3 }}>
+            <li>PDF rendering with vector graphics support</li>
+            <li>Page navigation and thumbnails</li>
+            <li>Zoom and pan functionality</li>
+            <li>Text selection and search</li>
+            <li>Annotations and highlights</li>
+            <li>Form filling support</li>
+            <li>Print functionality</li>
+          </Box>
+          <Typography variant="body2" sx={{ color: '#666', mt: 3, fontStyle: 'italic' }}>
+            Page {currentPage} of {totalPages}
+          </Typography>
+        </Paper>
+      </Box>
+    </Box>
+  );
+};
+
+const ComicViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
+  const { mediaItem, metadata } = props;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages] = useState(24);
+  const [viewMode, setViewMode] = useState<'single' | 'double'>('single');
+
+  const demoPages = [
+    { page: 1, color: '#FF6B6B' },
+    { page: 2, color: '#4ECDC4' },
+    { page: 3, color: '#45B7D1' },
+    { page: 4, color: '#FFA07A' },
+    { page: 5, color: '#98D8C8' },
+  ];
+
+  return (
+    <Box
+      sx={{
+        bgcolor: '#000',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Comic Controls */}
+      <Box
+        sx={{
+          bgcolor: 'rgba(0,0,0,0.9)',
+          p: 2,
+          borderBottom: '1px solid #333',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <IconButton
+            disabled={currentPage <= 1}
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            sx={{ color: 'white' }}
+          >
+            ←
+          </IconButton>
+          <Typography variant="body2" color="white">
+            {currentPage} / {totalPages}
+          </Typography>
+          <IconButton
+            disabled={currentPage >= totalPages}
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            sx={{ color: 'white' }}
+          >
+            →
+          </IconButton>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            size="small"
+            variant={viewMode === 'single' ? 'contained' : 'outlined'}
+            onClick={() => setViewMode('single')}
+            sx={{ color: 'white' }}
+          >
+            Single
+          </Button>
+          <Button
+            size="small"
+            variant={viewMode === 'double' ? 'contained' : 'outlined'}
+            onClick={() => setViewMode('double')}
+            sx={{ color: 'white' }}
+          >
+            Double
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Comic Content Area */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            maxWidth: viewMode === 'double' ? '90vw' : '60vw',
+          }}
+        >
+          {/* Current Page */}
+          <Box
+            sx={{
+              width: viewMode === 'double' ? '45vw' : '60vw',
+              height: '80vh',
+              bgcolor: demoPages[(currentPage - 1) % demoPages.length].color,
+              borderRadius: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              p: 4,
+            }}
+          >
+            <Typography variant="h2" sx={{ color: 'white', fontWeight: 700, mb: 2 }}>
+              {metadata?.title || 'Comic'}
+            </Typography>
+            <Typography variant="h4" sx={{ color: 'white', opacity: 0.8 }}>
+              Page {currentPage}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: 'white', opacity: 0.6, mt: 2, textAlign: 'center' }}
+            >
+              In a production app, this would display the actual comic page image from CBZ/CBR
+              archives
+            </Typography>
+          </Box>
+
+          {/* Second Page (double page mode) */}
+          {viewMode === 'double' && currentPage < totalPages && (
+            <Box
+              sx={{
+                width: '45vw',
+                height: '80vh',
+                bgcolor: demoPages[currentPage % demoPages.length].color,
+                borderRadius: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                p: 4,
+              }}
+            >
+              <Typography variant="h4" sx={{ color: 'white', opacity: 0.8 }}>
+                Page {currentPage + 1}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
 const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
   const { mediaItem, metadata } = props;
   const [isPlaying, setIsPlaying] = useState(false);
@@ -545,13 +803,41 @@ export const MediaViewerScreen: React.FC = () => {
   const renderViewer = () => {
     if (!mediaItem || !metadata) return null;
 
+    // Check for specific file types
+    const fileName = mediaItem.fileName?.toLowerCase() || '';
+    const isPDF = fileName.endsWith('.pdf') || mediaItem.mimeType === 'application/pdf';
+    const isComic = 
+      fileName.endsWith('.cbz') || 
+      fileName.endsWith('.cbr') || 
+      fileName.endsWith('.cbt') ||
+      mediaItem.mimeType === 'application/x-cbz' ||
+      mediaItem.mimeType === 'application/x-cbr';
+
+    // Override mediaType for specific formats
+    if (isPDF) {
+      return <PDFViewer mediaItem={mediaItem} metadata={metadata} />;
+    }
+    if (isComic) {
+      return <ComicViewer mediaItem={mediaItem} metadata={metadata} />;
+    }
+
     switch (mediaItem.mediaType) {
       case 'BOOK':
         return <EBookViewer mediaItem={mediaItem} metadata={metadata} />;
       case 'MOVIE':
         return <VideoPlayer mediaItem={mediaItem} metadata={metadata} />;
       case 'MUSIC':
+      case 'PODCAST':
         return <AudioPlayer mediaItem={mediaItem} metadata={metadata} />;
+      case 'DOCUMENT':
+        return <PDFViewer mediaItem={mediaItem} metadata={metadata} />;
+      case 'MAGAZINE':
+        // Magazines can be either PDF or Comic format
+        return isPDF ? (
+          <PDFViewer mediaItem={mediaItem} metadata={metadata} />
+        ) : (
+          <ComicViewer mediaItem={mediaItem} metadata={metadata} />
+        );
       default:
         return (
           <Box sx={{ p: 4, textAlign: 'center' }}>

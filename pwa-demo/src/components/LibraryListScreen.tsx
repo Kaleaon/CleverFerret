@@ -555,9 +555,13 @@ export const LibraryListScreen: React.FC = () => {
           <MenuItem
             onClick={async () => {
               // Demo: queue a download for the first library dummy item
-              await DownloadService.queueDownload(1, '/demo/file.epub');
               handleMenuClose();
-              alert('Queued demo download');
+              try {
+                await DownloadService.queueDownload(1, '/demo/file.epub');
+                console.log('Demo download queued successfully');
+              } catch (error) {
+                console.error('Failed to queue download:', error);
+              }
             }}
             sx={{
               py: 1.5,

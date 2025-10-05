@@ -48,10 +48,11 @@ import {
 } from '@mui/icons-material';
 import { useAppStore } from '../store/app-store';
 import { ReaderThemeMode, ReaderFont } from '../types';
+import { getAllThemes } from '../themes/themes';
 
 export const SettingsScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { readerPreferences, setReaderThemeMode, setReaderFont, setReaderFontSize } = useAppStore();
+  const { readerPreferences, selectedTheme, setReaderThemeMode, setReaderFont, setReaderFontSize, setTheme } = useAppStore();
   const [notifications, setNotifications] = useState(true);
   const [autoSync, setAutoSync] = useState(false);
   const [offlineMode, setOfflineMode] = useState(true);
@@ -111,10 +112,38 @@ export const SettingsScreen: React.FC = () => {
     setShowApiDialog(false);
   };
 
+  const allThemes = getAllThemes();
+
   const settingsSections = [
     {
       title: 'Appearance',
       items: [
+        {
+          icon: <DarkModeIcon />,
+          primary: 'App Theme',
+          secondary: allThemes.find((t) => t.name === selectedTheme)?.displayName || 'Navy & Gold',
+          action: (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <FormControl size="small" sx={{ minWidth: 180 }}>
+                <InputLabel>Theme</InputLabel>
+                <Select
+                  label="Theme"
+                  value={selectedTheme}
+                  onChange={(e: any) => setTheme(e.target.value)}
+                >
+                  {allThemes.map((theme) => (
+                    <MenuItem key={theme.name} value={theme.name}>
+                      {theme.displayName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button size="small" onClick={() => navigate('/themes')}>
+                Preview
+              </Button>
+            </Box>
+          ),
+        },
         {
           icon: <DarkModeIcon />,
           primary: 'Reader Theme',

@@ -44,6 +44,7 @@ import {
 // import { MediaItem, MetadataCommon, MetadataBook } from '../types';
 import { MetadataAPIService, MetadataSearchResult } from '../services/metadataApi';
 // import { MetadataService } from '../services/database';
+import { generateCover } from '../utils/coverGenerator';
 
 export const MetadataEditorScreen: React.FC = () => {
   const { mediaId } = useParams<{ mediaId: string }>();
@@ -91,14 +92,15 @@ export const MetadataEditorScreen: React.FC = () => {
 
     try {
       // For demo, create mock metadata
+      const title = `Demo ${mediaType} ${mediaId}`;
       const mockMetadata = {
-        title: `Demo ${mediaType} ${mediaId}`,
+        title,
         description: 'This is demonstration metadata that would be loaded from the database.',
         author: 'Demo Author',
         genre: ['Fiction', 'Adventure'],
         year: 2024,
         rating: 4.2,
-        thumbnailPath: 'https://via.placeholder.com/300x450/1a1a1a/e5a00d?text=Demo+Cover',
+        thumbnailPath: generateCover(title, mediaType, 'Demo Author'),
         isbn: '978-0-123456-78-9',
         publisher: 'Demo Publisher',
         pageCount: 256,
