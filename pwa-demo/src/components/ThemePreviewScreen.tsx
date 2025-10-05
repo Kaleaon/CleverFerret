@@ -189,7 +189,7 @@ const ThemeCard: React.FC<{
                 }}
               />
               <Chip
-                icon={<MovieIcon sx={{ fontSize: 16 }} />}
+                icon={<BookIcon sx={{ fontSize: 16 }} />}
                 label="Movies"
                 size="small"
                 sx={{

@@ -1,5 +1,5 @@
 // Metadata editing interface with API integration
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -76,11 +76,7 @@ export const MetadataEditorScreen: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadMetadata();
-  }, [mediaId, mediaType]);
-
-  const loadMetadata = async () => {
+  const loadMetadata = useCallback(async () => {
     if (!mediaId) {
       setError('No media ID provided');
       setLoading(false);
@@ -121,7 +117,11 @@ export const MetadataEditorScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [mediaId, mediaType]);
+
+  useEffect(() => {
+    loadMetadata();
+  }, [loadMetadata]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
