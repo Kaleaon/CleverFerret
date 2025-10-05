@@ -48,7 +48,7 @@ import {
 } from '@mui/icons-material';
 import { useAppStore } from '../store/app-store';
 import { ReaderThemeMode, ReaderFont } from '../types';
-import { getAllThemes } from '../themes/themes';
+import { getAllUnifiedThemes } from '../themes/unified-themes';
 
 export const SettingsScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -112,7 +112,7 @@ export const SettingsScreen: React.FC = () => {
     setShowApiDialog(false);
   };
 
-  const allThemes = getAllThemes();
+  const allThemes = getAllUnifiedThemes();
 
   const settingsSections = [
     {
@@ -217,6 +217,16 @@ export const SettingsScreen: React.FC = () => {
     {
       title: 'Library & Sync',
       items: [
+        {
+          icon: <CloudSyncIcon />,
+          primary: 'Server Integration',
+          secondary: 'Connect to Plex, Jellyfin, or Emby servers',
+          action: (
+            <Button size="small" onClick={() => navigate('/servers')}>
+              Manage
+            </Button>
+          ),
+        },
         {
           icon: <NotificationsIcon />,
           primary: 'Notifications',

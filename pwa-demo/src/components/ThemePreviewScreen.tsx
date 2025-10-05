@@ -23,16 +23,16 @@ import {
   Movie as MovieIcon,
   MusicNote as MusicIcon,
 } from '@mui/icons-material';
-import { getAllThemes, type ThemeName } from '../themes/themes';
+import { getAllUnifiedThemes, type UnifiedThemeName } from '../themes/unified-themes';
 import { useAppStore } from '../store/app-store';
 import { ThemeProvider } from '@mui/material/styles';
 
 const ThemeCard: React.FC<{
-  themeName: ThemeName;
+  themeName: UnifiedThemeName;
   isSelected: boolean;
   onSelect: () => void;
 }> = ({ themeName, isSelected, onSelect }) => {
-  const themeConfig = getAllThemes().find((t) => t.name === themeName);
+  const themeConfig = getAllUnifiedThemes().find((t) => t.name === themeName);
   if (!themeConfig) return null;
 
   const theme = themeConfig.theme;
@@ -220,8 +220,8 @@ const ThemeCard: React.FC<{
 export const ThemePreviewScreen: React.FC = () => {
   const navigate = useNavigate();
   const { selectedTheme, setTheme } = useAppStore();
-  const [previewTheme, setPreviewTheme] = useState<ThemeName>(selectedTheme);
-  const themes = getAllThemes();
+  const [previewTheme, setPreviewTheme] = useState<UnifiedThemeName>(selectedTheme);
+  const themes = getAllUnifiedThemes();
 
   const handleApplyTheme = () => {
     setTheme(previewTheme);
@@ -258,11 +258,11 @@ export const ThemePreviewScreen: React.FC = () => {
       <Box sx={{ p: 3 }}>
         <Paper sx={{ p: 3, mb: 3, bgcolor: 'background.paper', border: '1px solid #2d3136' }}>
           <Typography variant="h5" gutterBottom sx={{ fontWeight: 300 }}>
-            6 Beautiful Themes
+            12 Beautiful Themes
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Choose from our carefully crafted color schemes. Each theme features modern dark mode
-            design with unique accent colors and subtle animations.
+            Choose from our carefully crafted color schemes, synchronized across PWA and Android.
+            Each theme features modern dark mode design with unique accent colors and subtle animations.
           </Typography>
         </Paper>
 

@@ -32,9 +32,10 @@ import { MetadataEditorScreen } from './components/MetadataEditorScreen';
 import { MediaViewerScreen } from './components/MediaViewerScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ThemePreviewScreen } from './components/ThemePreviewScreen';
+import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
 
 // Import theme system and utilities
-import { getTheme } from './themes/themes';
+import { getUnifiedTheme } from './themes/unified-themes';
 import { useAppStore } from './store/app-store';
 import { generateCover } from './utils/coverGenerator';
 
@@ -374,7 +375,7 @@ const LibraryScreen: React.FC = () => {
 const App: React.FC = () => {
   const [useCustomComponents] = useState(true);
   const selectedTheme = useAppStore((state) => state.selectedTheme);
-  const currentTheme = getTheme(selectedTheme);
+  const currentTheme = getUnifiedTheme(selectedTheme);
 
   return (
     <ThemeProvider theme={currentTheme.theme}>
@@ -397,6 +398,7 @@ const App: React.FC = () => {
           <Route path="/settings" element={<SettingsScreen />} />
           <Route path="/settings/*" element={<SettingsScreen />} />
           <Route path="/themes" element={<ThemePreviewScreen />} />
+          <Route path="/servers" element={<ServerIntegrationScreen />} />
         </Routes>
       </Router>
     </ThemeProvider>

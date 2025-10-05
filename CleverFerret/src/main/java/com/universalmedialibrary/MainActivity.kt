@@ -210,6 +210,13 @@ fun AppNavigation() {
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
         }
+        
+        // Server integration route
+        composable("servers") {
+            com.universalmedialibrary.ui.integration.ServerIntegrationScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
     }
 }
 

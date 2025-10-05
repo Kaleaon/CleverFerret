@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Library, ImportStatus, ReaderThemeMode, ReaderFont } from '../types';
 import { LibraryService } from '../services/database';
-import type { ThemeName } from '../themes/themes';
+import type { UnifiedThemeName } from '../themes/unified-themes';
 
 interface AppState {
   // Libraries state
@@ -14,7 +14,7 @@ interface AppState {
   importStatus: ImportStatus;
 
   // App theme
-  selectedTheme: ThemeName;
+  selectedTheme: UnifiedThemeName;
 
   // Reader preferences
   readerPreferences: {
@@ -28,7 +28,7 @@ interface AppState {
   addLibrary: (name: string, type: Library['type'], path: string) => Promise<void>;
   deleteLibrary: (libraryId: number) => Promise<void>;
   setImportStatus: (status: ImportStatus) => void;
-  setTheme: (theme: ThemeName) => void;
+  setTheme: (theme: UnifiedThemeName) => void;
 
   // Reader preference actions
   setReaderThemeMode: (mode: ReaderThemeMode) => void;
@@ -87,7 +87,7 @@ export const useAppStore = create<AppState>()(
     set({ importStatus: status });
   },
 
-  setTheme: (theme: ThemeName) => {
+  setTheme: (theme: UnifiedThemeName) => {
     set({ selectedTheme: theme });
   },
 
