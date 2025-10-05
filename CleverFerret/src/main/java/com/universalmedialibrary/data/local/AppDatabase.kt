@@ -74,7 +74,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
         SharedLink::class
 
     ],
-    version = 18,
+    version = 19, // Incremented for podcast entities addition
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

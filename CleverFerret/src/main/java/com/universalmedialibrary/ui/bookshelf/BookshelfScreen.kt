@@ -68,7 +68,7 @@ fun EnhancedBookshelfScreen(
                 actions = {
                     // Search
                     IconButton(onClick = { viewModel.toggleSearch() }) {
-                        Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search")
+                        Icon(Icons.Default.Search, contentDescription = "Search")
                     }
 
                     // View Mode
@@ -127,10 +127,10 @@ fun EnhancedBookshelfScreen(
                     // Filter
                     IconButton(onClick = { viewModel.toggleFilters() }) {
                         Icon(
-                            PhosphorIcons.Warning,
+                            Icons.Default.FilterList,
                             contentDescription = "Filter",
                             tint = if (showFilters) MaterialTheme.colorScheme.primary
-                                  else MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -225,7 +225,7 @@ fun SearchTextField(
         onValueChange = onQueryChange,
         placeholder = { Text("Search books...") },
         leadingIcon = {
-            Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search")
+            Icon(Icons.Default.Search, contentDescription = "Search")
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
