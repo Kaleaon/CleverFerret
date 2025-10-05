@@ -1,8 +1,12 @@
 package com.universalmedialibrary.ui.podcast
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
+import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -15,13 +19,39 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PodcastPlayerViewModel @Inject constructor(
-    private val repository: PodcastRepository
+    private val repository: PodcastRepository,
+    private val audioPlaybackManager: AudioPlaybackManager
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(PodcastPlayerUiState())
     val uiState: StateFlow<PodcastPlayerUiState> = _uiState.asStateFlow()
     
     private var loadEpisodeJob: Job? = null
+    private var positionUpdateJob: Job? = null
+    
+    val playbackState = audioPlaybackManager.state
+    
+    init {
+        // Track playback position updates
+        positionUpdateJob = viewModelScope.launch {
+            playbackState.collect { state ->
+                if (state.isPlaying) {
+                    _uiState.value = _uiState.value.copy(
+                        isPlaying = true,
+                        currentPosition = audioPlaybackManager.exoPlayer.currentPosition
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(isPlaying = false)
+                }
+            }
+        }
+    }
+    
+    override fun onCleared() {
+        super.onCleared()
+        positionUpdateJob?.cancel()
+        loadEpisodeJob?.cancel()
+    }
     
     fun loadEpisode(episodeId: Long) {
         loadEpisodeJob?.cancel()
@@ -45,18 +75,48 @@ class PodcastPlayerViewModel @Inject constructor(
     }
     
     fun play() {
-        // TODO: Integrate with AudioPlaybackManager
-        _uiState.value = _uiState.value.copy(isPlaying = true)
+        _uiState.value.episode?.let { episode ->
+            val uri = Uri.parse(episode.localFilePath ?: episode.audioUrl)
+            
+            // Create metadata for the player
+            val metadata = MediaMetadata.Builder()
+                .setTitle(episode.title)
+                .setArtist(episode.description ?: "Podcast Episode")
+                .build()
+            
+            // Load and play
+            audioPlaybackManager.loadSingle(uri, metadata, playWhenReady = true)
+            _uiState.value = _uiState.value.copy(isPlaying = true)
+            
+            // Update play position in database
+            viewModelScope.launch {
+                repository.updatePlayPosition(episode.id, _uiState.value.currentPosition)
+            }
+        }
     }
     
     fun pause() {
-        // TODO: Integrate with AudioPlaybackManager
+        audioPlaybackManager.pause()
         _uiState.value = _uiState.value.copy(isPlaying = false)
+        
+        // Save current position
+        _uiState.value.episode?.let { episode ->
+            viewModelScope.launch {
+                repository.updatePlayPosition(episode.id, audioPlaybackManager.exoPlayer.currentPosition)
+            }
+        }
     }
     
     fun seekTo(position: Long) {
-        // TODO: Integrate with AudioPlaybackManager
+        audioPlaybackManager.exoPlayer.seekTo(position)
         _uiState.value = _uiState.value.copy(currentPosition = position)
+        
+        // Save position to database
+        _uiState.value.episode?.let { episode ->
+            viewModelScope.launch {
+                repository.updatePlayPosition(episode.id, position)
+            }
+        }
     }
     
     fun skipForward() {

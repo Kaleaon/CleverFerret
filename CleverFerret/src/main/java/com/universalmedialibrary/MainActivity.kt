@@ -181,6 +181,27 @@ fun AppNavigation() {
             )
         }
         
+        // Video routes
+        composable("videos") {
+            com.universalmedialibrary.ui.video.VideoLibraryScreen(
+                navController = navController
+            )
+        }
+        composable("video_player/{videoId}") { backStackEntry ->
+            val videoId = backStackEntry.arguments?.getString("videoId")?.toLongOrNull() ?: -1L
+            com.universalmedialibrary.ui.video.VideoPlayerScreen(
+                videoId = videoId,
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Settings route
+        composable("settings") {
+            com.universalmedialibrary.ui.settings.SettingsScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
         // Theme preview for testing
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
@@ -257,6 +278,9 @@ fun LibraryListScreen(
             TopAppBar(
                 title = { Text("Libraries") },
                 actions = {
+                    IconButton(onClick = { navController.navigate("settings") }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
                     IconButton(onClick = { navController.navigate("maintenance") }) {
                         Icon(Icons.Default.Build, contentDescription = "Maintenance")
                     }
@@ -380,6 +404,16 @@ fun LibraryListScreen(
                     icon = Icons.Default.Radio,
                     colors = listOf(Color(0xFF1A0F2E), Color(0xFF6B4BA3)),
                     onClick = { navController.navigate("radio") }
+                )
+            }
+            
+            // Video Library Card
+            item {
+                FeatureCard(
+                    title = "Videos",
+                    icon = Icons.Default.VideoLibrary,
+                    colors = listOf(Color(0xFF0D47A1), Color(0xFF2196F3)),
+                    onClick = { navController.navigate("videos") }
                 )
             }
             

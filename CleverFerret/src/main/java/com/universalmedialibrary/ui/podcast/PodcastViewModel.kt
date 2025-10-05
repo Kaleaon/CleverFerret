@@ -14,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PodcastViewModel @Inject constructor(
-    private val repository: PodcastRepository
+    private val repository: PodcastRepository,
+    private val downloadManager: com.universalmedialibrary.services.podcast.PodcastDownloadManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PodcastUiState())
@@ -142,11 +143,20 @@ class PodcastViewModel @Inject constructor(
     fun downloadEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
             try {
-                // TODO: Implement actual download manager
-                // For now, just mark as downloaded in database
-                val updatedEpisode = episode.copy(downloaded = true)
-                repository.updateEpisode(updatedEpisode)
-                // Episodes will be reloaded automatically via Flow
+                // Find podcast for title
+                val podcast = _uiState.value.podcasts.find { it.id == episode.podcastId }
+                val podcastTitle = podcast?.title ?: "Unknown Podcast"
+                
+                // Start download using Android DownloadManager
+                downloadManager.downloadEpisode(
+                    episodeId = episode.id,
+                    audioUrl = episode.audioUrl,
+                    episodeTitle = episode.title,
+                    podcastTitle = podcastTitle
+                )
+                
+                // Update UI state
+                _uiState.value = _uiState.value.copy(error = null)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     error = "Download failed: ${e.message}"
@@ -154,6 +164,12 @@ class PodcastViewModel @Inject constructor(
             }
         }
     }
+    
+    fun cancelDownload(episode: PodcastEpisode) {
+        downloadManager.cancelDownload(episode.id)
+    }
+    
+    val downloadProgress = downloadManager.downloadProgress
 
     fun deleteDownloadedEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {

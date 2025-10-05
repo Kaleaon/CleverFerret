@@ -2,283 +2,334 @@ package com.universalmedialibrary.ui.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.RotateRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import com.universalmedialibrary.ui.theme.*
 
+/**
+ * Settings Screen with metallic theme
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    navController: NavController,
+    onBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    var showThemePicker by remember { mutableStateOf(false) }
+    
+    CleverFerretTheme(palette = uiState.selectedTheme, darkTheme = uiState.darkMode) {
+        Scaffold(
+            topBar = {
+                MetallicTopAppBar(
+                    title = { 
+                        Text(
+                            "Settings",
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.ArrowBack, "Back")
+                        }
                     }
+                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Appearance Section
+                item {
+                    MetallicText(
+                        text = "Appearance",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+                
+                item {
+                    MetallicCard {
+                        Column {
+                            // Theme selector
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Theme",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = uiState.selectedTheme.name.replace("_", " "),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                
+                                MetallicButton(
+                                    text = "Change",
+                                    onClick = { showThemePicker = true }
+                                )
+                            }
+                            
+                            MetallicDivider()
+                            
+                            // Dark mode toggle
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Dark Mode",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "Use dark theme for better reading",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                
+                                Switch(
+                                    checked = uiState.darkMode,
+                                    onCheckedChange = { viewModel.setDarkMode(it) }
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                // Podcasts Section
+                item {
+                    MetallicText(
+                        text = "Podcasts",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
+                    )
+                }
+                
+                item {
+                    MetallicCard {
+                        Column {
+                            // Auto-download
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Auto-Download Episodes",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "Automatically download new episodes",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                
+                                Switch(
+                                    checked = uiState.autoDownloadPodcasts,
+                                    onCheckedChange = { viewModel.setAutoDownload(it) }
+                                )
+                            }
+                            
+                            MetallicDivider()
+                            
+                            // WiFi only
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "WiFi Only Downloads",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "Download only on WiFi to save data",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                
+                                Switch(
+                                    checked = uiState.wifiOnlyDownloads,
+                                    onCheckedChange = { viewModel.setWifiOnlyDownloads(it) }
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                // Notifications Section
+                item {
+                    MetallicText(
+                        text = "Notifications",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
+                    )
+                }
+                
+                item {
+                    MetallicCard {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Enable Notifications",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Get notified about new content",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            
+                            Switch(
+                                checked = uiState.notificationsEnabled,
+                                onCheckedChange = { viewModel.setNotificationsEnabled(it) }
+                            )
+                        }
+                    }
+                }
+                
+                // About Section
+                item {
+                    MetallicText(
+                        text = "About",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
+                    )
+                }
+                
+                item {
+                    MetallicCard {
+                        Column(
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "CleverFerret",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Universal Media Library",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = "Version 1.0",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Theme picker dialog
+        if (showThemePicker) {
+            ThemePickerDialog(
+                currentTheme = uiState.selectedTheme,
+                onDismiss = { showThemePicker = false },
+                onSelect = { theme ->
+                    viewModel.setTheme(theme)
+                    showThemePicker = false
                 }
             )
         }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item {
-                Text(
-                    text = "Configure your media library settings",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-
-            // API Settings Section
-            item {
-                SettingsCategoryHeader("API Settings")
-            }
-
-            items(getApiSettingsItems()) { item ->
-                SettingsItem(
-                    title = item.title,
-                    subtitle = item.subtitle,
-                    icon = item.icon,
-                    onClick = { navController.navigate(item.route) }
-                )
-            }
-
-            // External Integrations Section
-            item {
-                SettingsCategoryHeader("External Integrations")
-            }
-
-            items(getIntegrationsSettingsItems()) { item ->
-                SettingsItem(
-                    title = item.title,
-                    subtitle = item.subtitle,
-                    icon = item.icon,
-                    onClick = { navController.navigate(item.route) }
-                )
-            }
-
-            // Reader Settings Section
-            item {
-                SettingsCategoryHeader("Reader Settings")
-            }
-
-            items(getReaderSettingsItems()) { item ->
-                SettingsItem(
-                    title = item.title,
-                    subtitle = item.subtitle,
-                    icon = item.icon,
-                    onClick = { navController.navigate(item.route) }
-                )
-            }
-
-            // General Settings Section
-            item {
-                SettingsCategoryHeader("General")
-            }
-
-            items(getGeneralSettingsItems()) { item ->
-                SettingsItem(
-                    title = item.title,
-                    subtitle = item.subtitle,
-                    icon = item.icon,
-                    onClick = { navController.navigate(item.route) }
-                )
-            }
-        }
-
-        // Error handling
-        // TODO: Fix error handling - properties don't exist on uiState
-        /*
-        uiState.error?.let { error ->
-            LaunchedEffect(error) {
-                // Show snackbar or toast
-                // For now, we'll just clear the error after displaying
-                viewModel.clearError()
-            }
-        }
-        */
     }
 }
 
 @Composable
-fun SettingsCategoryHeader(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(vertical = 8.dp)
-    )
-}
-
-@Composable
-fun SettingsItem(
-    title: String,
-    subtitle: String,
-    icon: ImageVector,
-    onClick: () -> Unit
+private fun ThemePickerDialog(
+    currentTheme: ThemePalette,
+    onDismiss: () -> Unit,
+    onSelect: (ThemePalette) -> Unit
 ) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Theme") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ThemePalette.values().forEach { palette ->
+                    Card(
+                        onClick = { onSelect(palette) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (palette == currentTheme) 
+                                MaterialTheme.colorScheme.primaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.surface
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = palette.name.replace("_", " "),
+                                fontWeight = if (palette == currentTheme) FontWeight.Bold else FontWeight.Normal
+                            )
+                            if (palette == currentTheme) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    "Selected",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                }
             }
-
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
         }
-    }
+    )
 }
-
-data class SettingsMenuItem(
-    val title: String,
-    val subtitle: String,
-    val icon: ImageVector,
-    val route: String
-)
-
-private fun getApiSettingsItems(): List<SettingsMenuItem> = listOf(
-    SettingsMenuItem(
-        title = "API Keys Manager",
-        subtitle = "Configure all metadata APIs (16+ providers)",
-        icon = Icons.Default.Key,
-        route = "settings/api_keys"
-    )
-)
-
-private fun getIntegrationsSettingsItems(): List<SettingsMenuItem> = listOf(
-    SettingsMenuItem(
-        title = "Plex Integration",
-        subtitle = "Connect to Plex servers for enhanced media management",
-        icon = Icons.Default.Cloud,
-        route = "settings/integrations/plex"
-    )
-)
-
-private fun getReaderSettingsItems(): List<SettingsMenuItem> = listOf(
-    SettingsMenuItem(
-        title = "Visual Controls",
-        subtitle = "Font, colors, spacing, margins",
-        icon = Icons.Default.Visibility,
-        route = "settings/reader/visual"
-    ),
-    SettingsMenuItem(
-        title = "Theming",
-        subtitle = "Day/Night mode, custom themes",
-        icon = Icons.Default.Palette,
-        route = "settings/reader/theme"
-    ),
-    SettingsMenuItem(
-        title = "Paging & Navigation",
-        subtitle = "Touch controls, volume keys, gestures",
-        icon = Icons.Default.TouchApp,
-        route = "settings/reader/paging"
-    ),
-    SettingsMenuItem(
-        title = "Auto-Scroll",
-        subtitle = "Hands-free reading settings",
-        icon = Icons.AutoMirrored.Filled.RotateRight,
-        route = "settings/reader/autoscroll"
-    ),
-    SettingsMenuItem(
-        title = "Text-to-Speech",
-        subtitle = "Voice settings and controls",
-        icon = Icons.Default.RecordVoiceOver,
-        route = "settings/reader/tts"
-    )
-)
-
-private fun getGeneralSettingsItems(): List<SettingsMenuItem> = listOf(
-    SettingsMenuItem(
-        title = "Security",
-        subtitle = "Password protection, biometrics",
-        icon = Icons.Default.Security,
-        route = "settings/security"
-    ),
-    SettingsMenuItem(
-        title = "Import & Export",
-        subtitle = "Library management, backup settings",
-        icon = Icons.Default.ImportExport,
-        route = "settings/import"
-    ),
-    SettingsMenuItem(
-        title = "Playlists",
-        subtitle = "Import/Export M3U playlists",
-        icon = Icons.Default.LibraryMusic,
-        route = "settings/playlists"
-    ),
-    SettingsMenuItem(
-        title = "Storage Organizer",
-        subtitle = "Sort mixed folders into Books/Movies/Music/Comics/Documents",
-        icon = Icons.Default.Folder,
-        route = "settings/organizer"
-    ),
-    SettingsMenuItem(
-        title = "Notifications",
-        subtitle = "Reading reminders, updates",
-        icon = Icons.Default.Notifications,
-        route = "settings/notifications"
-    ),
-    SettingsMenuItem(
-        title = "About",
-        subtitle = "Version info, licenses, support",
-        icon = Icons.Default.Info,
-        route = "settings/about"
-    )
-)
