@@ -2,11 +2,11 @@
 // These themes are designed to work identically on both platforms
 import { createTheme, ThemeOptions, Theme } from '@mui/material/styles';
 
-export type UnifiedThemeName = 
+export type UnifiedThemeName =
   // Original 6 themes
-  | 'navy-gold' 
-  | 'emerald-silver' 
-  | 'royal-bronze' 
+  | 'navy-gold'
+  | 'emerald-silver'
+  | 'royal-bronze'
   | 'midnight-amber'
   | 'obsidian-crimson'
   | 'slate-cyan'

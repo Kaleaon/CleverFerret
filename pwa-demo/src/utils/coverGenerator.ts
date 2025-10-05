@@ -75,14 +75,7 @@ const mediaTypePatterns = {
 };
 
 export function generateCoverDataURL(options: CoverOptions): string {
-  const {
-    title,
-    author,
-    mediaType,
-    colorScheme = 0,
-    width = 300,
-    height = 450,
-  } = options;
+  const { title, author, mediaType, colorScheme = 0, width = 300, height = 450 } = options;
 
   const scheme = colorSchemes[colorScheme % colorSchemes.length];
   const icon = mediaTypeIcons[mediaType];
@@ -90,14 +83,14 @@ export function generateCoverDataURL(options: CoverOptions): string {
 
   // Create nice title truncation
   const maxTitleLength = 40;
-  const displayTitle = title.length > maxTitleLength 
-    ? title.substring(0, maxTitleLength - 3) + '...' 
-    : title;
+  const displayTitle =
+    title.length > maxTitleLength ? title.substring(0, maxTitleLength - 3) + '...' : title;
 
   const maxAuthorLength = 30;
-  const displayAuthor = author && author.length > maxAuthorLength
-    ? author.substring(0, maxAuthorLength - 3) + '...'
-    : author || '';
+  const displayAuthor =
+    author && author.length > maxAuthorLength
+      ? author.substring(0, maxAuthorLength - 3) + '...'
+      : author || '';
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
@@ -209,7 +202,7 @@ export function hashStringToColorScheme(str: string): number {
 export function generateCover(
   title: string,
   mediaType: CoverOptions['mediaType'],
-  author?: string
+  author?: string,
 ): string {
   return generateCoverDataURL({
     title,

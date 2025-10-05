@@ -9,7 +9,7 @@ import androidx.compose.ui.text.font.FontWeight
 
 /**
  * CleverFerret Theme System with Metallic Accents
- * 
+ *
  * Features:
  * - Multiple beautiful color palettes
  * - Metallic accents (Gold, Silver, Copper, Rose Gold, etc.)
@@ -37,7 +37,7 @@ fun CleverFerretTheme(
         ThemePalette.CHARCOAL_CHAMPAGNE -> UnifiedThemePalette.CHARCOAL_CHAMPAGNE
         ThemePalette.SLATE_GUNMETAL -> UnifiedThemePalette.SLATE_GUNMETAL
     }
-    
+
     CleverFerretUnifiedTheme(
         palette = unifiedPalette,
         darkTheme = darkTheme,
@@ -67,7 +67,7 @@ fun CleverFerretUnifiedTheme(
         UnifiedThemePalette.SLATE_GUNMETAL -> SlateGunmetalUnified.darkScheme
         UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> DeepPurplePlatinumUnified.darkScheme
     }
-    
+
     val metallicGradient = getMetallicEffectForTheme(palette)
 
     CompositionLocalProvider(LocalMetallicGradient provides metallicGradient) {
@@ -109,7 +109,7 @@ private val CleverFerretTypography = Typography(
         fontWeight = FontWeight.SemiBold,
         letterSpacing = androidx.compose.ui.unit.sp(0)
     ),
-    
+
     // Headline styles - for section headers
     headlineLarge = Typography().headlineLarge.copy(
         fontWeight = FontWeight.Bold,
@@ -123,7 +123,7 @@ private val CleverFerretTypography = Typography(
         fontWeight = FontWeight.SemiBold,
         letterSpacing = androidx.compose.ui.unit.sp(0)
     ),
-    
+
     // Title styles - for cards and list items
     titleLarge = Typography().titleLarge.copy(
         fontWeight = FontWeight.SemiBold,
@@ -137,7 +137,7 @@ private val CleverFerretTypography = Typography(
         fontWeight = FontWeight.Medium,
         letterSpacing = androidx.compose.ui.unit.sp(0.1)
     ),
-    
+
     // Body styles - for paragraphs and content
     bodyLarge = Typography().bodyLarge.copy(
         fontWeight = FontWeight.Normal,
@@ -151,7 +151,7 @@ private val CleverFerretTypography = Typography(
         fontWeight = FontWeight.Normal,
         letterSpacing = androidx.compose.ui.unit.sp(0.4)
     ),
-    
+
     // Label styles - for buttons and small text
     labelLarge = Typography().labelLarge.copy(
         fontWeight = FontWeight.Medium,

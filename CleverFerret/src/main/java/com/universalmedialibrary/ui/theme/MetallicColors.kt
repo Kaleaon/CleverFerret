@@ -15,7 +15,7 @@ object MetallicGold {
     val Dark = Color(0xFFB8860B)           // Dark goldenrod
     val Burnished = Color(0xFFC5A572)      // Burnished gold
     val Rose = Color(0xFFE5BE8A)           // Rose gold hint
-    
+
     // Gradient colors for metallic effect
     val Highlight = Color(0xFFFFF8DC)      // Cornsilk highlight
     val Shadow = Color(0xFF856D34)         // Gold shadow
@@ -29,7 +29,7 @@ object MetallicCopper {
     val Dark = Color(0xFF964B00)           // Dark copper/bronze
     val Burnished = Color(0xFFC46210)      // Burnished copper
     val Rose = Color(0xFFECC5C0)           // Rose copper
-    
+
     // Gradient colors for metallic effect
     val Highlight = Color(0xFFFFA07A)      // Light salmon highlight
     val Shadow = Color(0xFF8B4513)         // Saddle brown shadow
@@ -43,7 +43,7 @@ object MetallicSilver {
     val Dark = Color(0xFF71706E)           // Dark silver
     val Burnished = Color(0xFFA8A9AD)      // Burnished silver
     val Platinum = Color(0xFFE5E4E2)       // Platinum
-    
+
     // Gradient colors for metallic effect
     val Highlight = Color(0xFFF5F5F5)      // White smoke highlight
     val Shadow = Color(0xFF505050)         // Gray shadow
@@ -56,7 +56,7 @@ object MetallicRoseGold {
     val Medium = Color(0xFFD4A5A5)         // Medium rose gold
     val Dark = Color(0xFF9B6B6F)           // Dark rose gold
     val Burnished = Color(0xFFC9ADA7)      // Burnished rose gold
-    
+
     // Gradient colors for metallic effect
     val Highlight = Color(0xFFFFE4E1)      // Misty rose highlight
     val Shadow = Color(0xFF8B4A5A)         // Deep rose shadow
@@ -69,7 +69,7 @@ object MetallicChampagne {
     val Medium = Color(0xFFE8D5C4)         // Medium champagne
     val Dark = Color(0xFFD4C5B0)           // Dark champagne
     val Burnished = Color(0xFFDDD0B4)      // Burnished champagne
-    
+
     // Gradient colors for metallic effect
     val Highlight = Color(0xFFFFFAF0)      // Floral white highlight
     val Shadow = Color(0xFFB8A68F)         // Khaki shadow
@@ -82,7 +82,7 @@ object MetallicGunmetal {
     val Medium = Color(0xFF3E4E57)         // Medium gunmetal
     val Dark = Color(0xFF1E2427)           // Dark gunmetal
     val Burnished = Color(0xFF474B4E)      // Burnished gunmetal
-    
+
     // Gradient colors for metallic effect
     val Highlight = Color(0xFF6B7F8A)      // Steel blue highlight
     val Shadow = Color(0xFF0F1113)         // Almost black shadow
@@ -103,35 +103,35 @@ object MetallicEffects {
         shadow = MetallicGold.Shadow,
         shimmer = MetallicGold.Light
     )
-    
+
     val Copper = MetallicGradient(
         base = MetallicCopper.Primary,
         highlight = MetallicCopper.Highlight,
         shadow = MetallicCopper.Shadow,
         shimmer = MetallicCopper.Light
     )
-    
+
     val Silver = MetallicGradient(
         base = MetallicSilver.Primary,
         highlight = MetallicSilver.Highlight,
         shadow = MetallicSilver.Shadow,
         shimmer = MetallicSilver.Platinum
     )
-    
+
     val RoseGold = MetallicGradient(
         base = MetallicRoseGold.Primary,
         highlight = MetallicRoseGold.Highlight,
         shadow = MetallicRoseGold.Shadow,
         shimmer = MetallicRoseGold.Light
     )
-    
+
     val Champagne = MetallicGradient(
         base = MetallicChampagne.Primary,
         highlight = MetallicChampagne.Highlight,
         shadow = MetallicChampagne.Shadow,
         shimmer = MetallicChampagne.Light
     )
-    
+
     val Gunmetal = MetallicGradient(
         base = MetallicGunmetal.Primary,
         highlight = MetallicGunmetal.Highlight,

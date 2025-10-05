@@ -30,54 +30,54 @@ import androidx.room.PrimaryKey
 data class PodcastEpisodeEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    
+
     // Foreign key
     val podcastId: Long,
-    
+
     // Basic info
     val guid: String, // Unique identifier from RSS feed
     val title: String,
     val description: String? = null,
     val link: String? = null,
-    
+
     // Media info
     val audioUrl: String,
     val mimeType: String? = null,
     val fileSize: Long = 0, // in bytes
     val duration: Long = 0, // in milliseconds
-    
+
     // Publishing info
     val publishDate: Long,
     val episodeNumber: Int? = null,
     val seasonNumber: Int? = null,
-    
+
     // Images
     val imageUrl: String? = null,
     val localImagePath: String? = null,
-    
+
     // Download status
     val downloaded: Boolean = false,
     val localFilePath: String? = null,
     val downloadProgress: Float = 0f, // 0.0 to 1.0
     val downloadedAt: Long? = null,
     val downloadError: String? = null,
-    
+
     // Playback status
     val played: Boolean = false,
     val playPosition: Long = 0, // in milliseconds
     val playbackSpeed: Float? = null, // null = use podcast default
     val lastPlayedAt: Long? = null,
-    
+
     // User flags
     val isNew: Boolean = true,
     val isFavorite: Boolean = false,
     val isQueued: Boolean = false,
     val queuePosition: Int? = null,
-    
+
     // Chapter support
     val hasChapters: Boolean = false,
     val chaptersUrl: String? = null,
-    
+
     // Metadata
     val addedAt: Long = System.currentTimeMillis(),
     val modifiedAt: Long = System.currentTimeMillis()

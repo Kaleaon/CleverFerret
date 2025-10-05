@@ -47,9 +47,9 @@ import {
   ViewComfy as ViewComfyIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ViewMode, BookDetails, MediaItem, Library } from '../types';
-import { MediaItemService, MetadataService } from '../services/database';
-import { MetadataAPIService } from '../services/metadataApi';
+import { ViewMode, Library } from '../types';
+// import { MediaItemService, MetadataService } from '../services/database';
+// import { MetadataAPIService } from '../services/metadataApi';
 import { generateCover } from '../utils/coverGenerator';
 
 // Demo data for media items
@@ -585,6 +585,7 @@ export const LibraryDetailsScreen: React.FC = () => {
 
   useEffect(() => {
     loadLibraryItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [libraryId]);
 
   useEffect(() => {
@@ -706,7 +707,7 @@ export const LibraryDetailsScreen: React.FC = () => {
 
             <Button
               startIcon={<SortIcon />}
-              onClick={(e) => {
+              onClick={() => {
                 // Simple sort toggle for demo
                 const sorts = ['title', 'author', 'year', 'rating', 'dateAdded'];
                 const currentIndex = sorts.indexOf(sortBy);
@@ -828,22 +829,19 @@ export const LibraryDetailsScreen: React.FC = () => {
         onClick={async () => {
           // In a real app, this would open file picker
           try {
-            // @ts-ignore - showOpenFilePicker not in TS lib by default
             if ('showOpenFilePicker' in window) {
-              // @ts-ignore
+              // @ts-expect-error - File System Access API typing
               const [handle] = await window.showOpenFilePicker({
                 multiple: false,
                 excludeAcceptAllOption: false,
               });
-              const file = await handle.getFile();
-              console.log('Selected file for import:', file.name);
+              await handle.getFile();
               // Would process file and add to library here
             } else {
-              console.log('File System Access API not supported. Would show alternative file input.');
+              // File System Access API not supported. Would show alternative file input.
             }
-          } catch (e) {
+          } catch (_e) {
             // User cancelled or error occurred
-            console.log('File selection cancelled or failed:', e);
           }
         }}
       >

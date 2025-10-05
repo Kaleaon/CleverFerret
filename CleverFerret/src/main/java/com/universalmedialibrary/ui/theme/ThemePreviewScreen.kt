@@ -22,12 +22,12 @@ import androidx.compose.ui.unit.dp
 fun ThemePreviewScreen() {
     var selectedPalette by remember { mutableStateOf(ThemePalette.NAVY_GOLD) }
     var showPaletteSelector by remember { mutableStateOf(false) }
-    
+
     CleverFerretTheme(palette = selectedPalette) {
         Scaffold(
             topBar = {
                 MetallicTopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Theme Preview",
                             fontWeight = FontWeight.Bold
@@ -71,7 +71,7 @@ fun ThemePreviewScreen() {
                         }
                     }
                 }
-                
+
                 // Buttons showcase
                 item {
                     Text(
@@ -80,7 +80,7 @@ fun ThemePreviewScreen() {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -98,12 +98,12 @@ fun ThemePreviewScreen() {
                         )
                     }
                 }
-                
+
                 // Cards showcase
                 item {
                     MetallicDivider()
                 }
-                
+
                 item {
                     Text(
                         "Cards",
@@ -111,7 +111,7 @@ fun ThemePreviewScreen() {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 item {
                     MetallicCard {
                         Row(
@@ -136,12 +136,12 @@ fun ThemePreviewScreen() {
                         }
                     }
                 }
-                
+
                 // Stats showcase
                 item {
                     MetallicDivider()
                 }
-                
+
                 item {
                     Text(
                         "Statistics",
@@ -149,7 +149,7 @@ fun ThemePreviewScreen() {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -160,12 +160,12 @@ fun ThemePreviewScreen() {
                         MetallicStatsCard(value = "256", label = "Episodes")
                     }
                 }
-                
+
                 // Progress showcase
                 item {
                     MetallicDivider()
                 }
-                
+
                 item {
                     Text(
                         "Progress Indicators",
@@ -173,7 +173,7 @@ fun ThemePreviewScreen() {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 item {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -183,12 +183,12 @@ fun ThemePreviewScreen() {
                         MetallicProgressBar(progress = 0.9f)
                     }
                 }
-                
+
                 // Icon buttons showcase
                 item {
                     MetallicDivider()
                 }
-                
+
                 item {
                     Text(
                         "Icon Buttons",
@@ -196,7 +196,7 @@ fun ThemePreviewScreen() {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -220,12 +220,12 @@ fun ThemePreviewScreen() {
                         )
                     }
                 }
-                
+
                 // Color palette info
                 item {
                     MetallicDivider()
                 }
-                
+
                 item {
                     Text(
                         "Theme Information",
@@ -233,7 +233,7 @@ fun ThemePreviewScreen() {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 item {
                     Card(
                         colors = CardDefaults.cardColors(
@@ -254,7 +254,7 @@ fun ThemePreviewScreen() {
                 }
             }
         }
-        
+
         // Palette selector dialog
         if (showPaletteSelector) {
             PaletteSelectorDialog(
@@ -316,9 +316,9 @@ private fun PaletteSelectorDialog(
                     Card(
                         onClick = { onSelect(palette) },
                         colors = CardDefaults.cardColors(
-                            containerColor = if (palette == currentPalette) 
-                                MaterialTheme.colorScheme.primaryContainer 
-                            else 
+                            containerColor = if (palette == currentPalette)
+                                MaterialTheme.colorScheme.primaryContainer
+                            else
                                 MaterialTheme.colorScheme.surface
                         )
                     ) {

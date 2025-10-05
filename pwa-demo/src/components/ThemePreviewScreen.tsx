@@ -13,7 +13,6 @@ import {
   Button,
   Paper,
   Chip,
-  Avatar,
   Rating,
 } from '@mui/material';
 import {
@@ -21,7 +20,6 @@ import {
   Check as CheckIcon,
   Book as BookIcon,
   Movie as MovieIcon,
-  MusicNote as MusicIcon,
 } from '@mui/icons-material';
 import { getAllUnifiedThemes, type UnifiedThemeName } from '../themes/unified-themes';
 import { useAppStore } from '../store/app-store';
@@ -262,7 +260,8 @@ export const ThemePreviewScreen: React.FC = () => {
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Choose from our carefully crafted color schemes, synchronized across PWA and Android.
-            Each theme features modern dark mode design with unique accent colors and subtle animations.
+            Each theme features modern dark mode design with unique accent colors and subtle
+            animations.
           </Typography>
         </Paper>
 

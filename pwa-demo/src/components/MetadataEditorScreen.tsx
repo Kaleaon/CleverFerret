@@ -11,9 +11,6 @@ import {
   TextField,
   Button,
   Grid,
-  Card,
-  CardMedia,
-  CardContent,
   Chip,
   CircularProgress,
   Alert,
@@ -81,6 +78,7 @@ export const MetadataEditorScreen: React.FC = () => {
 
   useEffect(() => {
     loadMetadata();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaId]);
 
   const loadMetadata = async () => {
@@ -161,15 +159,7 @@ export const MetadataEditorScreen: React.FC = () => {
     setSaving(true);
     try {
       // In a real app, this would save to the database
-      const updatedMetadata = {
-        title,
-        description,
-        rating,
-        thumbnailPath,
-        genre: genre.join(', '),
-      };
-
-      console.log('Saving metadata:', updatedMetadata);
+      // Saving metadata with: title, description, rating, thumbnailPath, genre
 
       // Simulate save delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -177,7 +167,7 @@ export const MetadataEditorScreen: React.FC = () => {
       navigate(-1);
     } catch (err) {
       setError('Failed to save metadata');
-      console.error('Save error:', err);
+      // Save error: err
     } finally {
       setSaving(false);
     }

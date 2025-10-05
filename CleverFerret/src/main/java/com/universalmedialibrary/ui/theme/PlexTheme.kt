@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 /**
  * Legacy PlexTheme - now redirects to CleverFerretTheme
  * Kept for backward compatibility with existing code
- * 
+ *
  * @deprecated Use CleverFerretTheme instead for more theme options
  */
 @Deprecated(

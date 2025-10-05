@@ -52,7 +52,14 @@ import { getAllUnifiedThemes } from '../themes/unified-themes';
 
 export const SettingsScreen: React.FC = () => {
   const navigate = useNavigate();
-  const { readerPreferences, selectedTheme, setReaderThemeMode, setReaderFont, setReaderFontSize, setTheme } = useAppStore();
+  const {
+    readerPreferences,
+    selectedTheme,
+    setReaderThemeMode,
+    setReaderFont,
+    setReaderFontSize,
+    setTheme,
+  } = useAppStore();
   const [notifications, setNotifications] = useState(true);
   const [autoSync, setAutoSync] = useState(false);
   const [offlineMode, setOfflineMode] = useState(true);
@@ -76,7 +83,7 @@ export const SettingsScreen: React.FC = () => {
     await installPromptEvent.prompt();
     const choiceResult = await installPromptEvent.userChoice;
     if (choiceResult.outcome === 'accepted') {
-      console.log('PWA installed');
+      // PWA installed
     }
     setInstallPromptEvent(null);
     setIsInstallable(false);
@@ -108,7 +115,7 @@ export const SettingsScreen: React.FC = () => {
 
   const handleApiKeysSave = () => {
     // In a real app, this would save to secure storage
-    console.log('Saving API keys:', apiKeys);
+    // Saving API keys: apiKeys
     setShowApiDialog(false);
   };
 
@@ -299,7 +306,9 @@ export const SettingsScreen: React.FC = () => {
         {
           icon: <UpdateIcon />,
           primary: 'Install App',
-          secondary: isInstallable ? 'Install CleverFerret on this device' : 'Already installed or not supported',
+          secondary: isInstallable
+            ? 'Install CleverFerret on this device'
+            : 'Already installed or not supported',
           action: (
             <Button size="small" disabled={!isInstallable} onClick={handleInstallClick}>
               Install
@@ -343,7 +352,7 @@ export const SettingsScreen: React.FC = () => {
 
       {/* Settings Content */}
       <Box sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
-        {settingsSections.map((section, sectionIndex) => (
+        {settingsSections.map((section) => (
           <Paper
             key={section.title}
             sx={{

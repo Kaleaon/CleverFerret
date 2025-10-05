@@ -33,14 +33,14 @@ fun RadioScreen(
     val currentStation by viewModel.currentStation.collectAsState()
     val playbackState by viewModel.playbackState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
-    
+
     var selectedTab by remember { mutableIntStateOf(0) }
-    
+
     CleverFerretTheme(palette = ThemePalette.ROYAL_SILVER) {
         Scaffold(
             topBar = {
                 MetallicTopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Radio Streaming",
                             fontWeight = FontWeight.Bold
@@ -102,14 +102,14 @@ fun RadioScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            
+
                             if (playbackState.isPlaying) {
                                 MetallicBadge(text = "LIVE")
                             }
                         }
                     }
                 }
-                
+
                 // Tabs
                 TabRow(selectedTabIndex = selectedTab) {
                     Tab(
@@ -128,7 +128,7 @@ fun RadioScreen(
                         text = { Text("Recent") }
                     )
                 }
-                
+
                 // Station list
                 when (selectedTab) {
                     0 -> StationList(
@@ -154,7 +154,7 @@ fun RadioScreen(
                     )
                 }
             }
-            
+
             // Add station dialog
             if (uiState.showAddStationDialog) {
                 AddRadioStationDialog(
@@ -164,7 +164,7 @@ fun RadioScreen(
                     }
                 )
             }
-            
+
             // Error snackbar
             uiState.error?.let { error ->
                 Snackbar(
@@ -279,9 +279,9 @@ private fun RadioStationCard(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             // Station info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -291,7 +291,7 @@ private fun RadioStationCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -299,7 +299,7 @@ private fun RadioStationCard(
                     station.genre?.let {
                         MetallicBadge(text = it)
                     }
-                    
+
                     station.bitrate?.let {
                         Text(
                             text = "${it}kbps",
@@ -308,7 +308,7 @@ private fun RadioStationCard(
                         )
                     }
                 }
-                
+
                 station.description?.let {
                     Text(
                         text = it,
@@ -320,7 +320,7 @@ private fun RadioStationCard(
                     )
                 }
             }
-            
+
             // Controls
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -329,13 +329,13 @@ private fun RadioStationCard(
                     Icon(
                         if (station.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (station.isFavorite) 
-                            MaterialTheme.colorScheme.primary 
-                        else 
+                        tint = if (station.isFavorite)
+                            MaterialTheme.colorScheme.primary
+                        else
                             MaterialTheme.colorScheme.onSurface
                     )
                 }
-                
+
                 MetallicIconButton(
                     onClick = onPlay,
                     icon = {
@@ -359,7 +359,7 @@ private fun AddRadioStationDialog(
     var streamUrl by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var genre by remember { mutableStateOf("") }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Radio Station") },
@@ -374,7 +374,7 @@ private fun AddRadioStationDialog(
                     placeholder = { Text("e.g., BBC Radio 1") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 OutlinedTextField(
                     value = streamUrl,
                     onValueChange = { streamUrl = it },
@@ -382,7 +382,7 @@ private fun AddRadioStationDialog(
                     placeholder = { Text("https://example.com/stream.mp3") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
@@ -390,7 +390,7 @@ private fun AddRadioStationDialog(
                     placeholder = { Text("e.g., Pop music from London") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 OutlinedTextField(
                     value = genre,
                     onValueChange = { genre = it },

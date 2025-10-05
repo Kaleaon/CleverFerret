@@ -140,15 +140,17 @@ class PlexSyncService @Inject constructor(
      */
     private suspend fun syncMediaItems(server: PlexServer, api: PlexApi) {
         val libraries = api.getLibraries(server.token)
-        if (!libraries.isSuccessful || libraries.body() == null) return
+        val librariesBody = libraries.body()
+        if (!libraries.isSuccessful || librariesBody == null) return
 
-        for (library in libraries.body()!!.mediaContainer.directories) {
+        for (library in librariesBody.mediaContainer.directories) {
             // Create or get a unified library for this Plex library
             val unifiedLibrary = getOrCreateUnifiedLibrary(server, library)
 
             val items = api.getLibraryItems(library.key, server.token)
-            if (items.isSuccessful && items.body()?.mediaContainer?.metadata != null) {
-                val plexItems = items.body()!!.mediaContainer.metadata!!.map { metadata ->
+            val itemsBody = items.body()
+            if (items.isSuccessful && itemsBody?.mediaContainer?.metadata != null) {
+                val plexItems = itemsBody.mediaContainer.metadata.map { metadata ->
                     PlexMediaItem(
                         serverId = server.serverId,
                         plexRatingKey = metadata.ratingKey,
@@ -163,7 +165,7 @@ class PlexSyncService @Inject constructor(
                 plexMediaItemDao.insertMediaItems(plexItems)
 
                 // Map to unified MediaItem model (stub entries)
-                mapPlexItemsToUnifiedModel(items.body()!!.mediaContainer.metadata!!, unifiedLibrary.libraryId, server)
+                mapPlexItemsToUnifiedModel(itemsBody.mediaContainer.metadata, unifiedLibrary.libraryId, server)
             }
         }
     }
@@ -297,8 +299,9 @@ class PlexSyncService @Inject constructor(
      */
     private suspend fun syncCollections(server: PlexServer, api: PlexApi) {
         val collections = api.getCollections(server.token)
-        if (collections.isSuccessful && collections.body()?.mediaContainer?.metadata != null) {
-            for (collectionData in collections.body()!!.mediaContainer.metadata!!) {
+        val collectionsBody = collections.body()
+        if (collections.isSuccessful && collectionsBody?.mediaContainer?.metadata != null) {
+            for (collectionData in collectionsBody.mediaContainer.metadata) {
                 val collection = PlexCollection(
                     serverId = server.serverId,
                     plexRatingKey = collectionData.ratingKey,
@@ -312,12 +315,13 @@ class PlexSyncService @Inject constructor(
 
                 // Get collection items
                 val collectionItems = api.getCollectionItems(collectionData.ratingKey, server.token)
-                if (collectionItems.isSuccessful && collectionItems.body()?.mediaContainer?.metadata != null) {
+                val collectionItemsBody = collectionItems.body()
+                if (collectionItems.isSuccessful && collectionItemsBody?.mediaContainer?.metadata != null) {
                     // Clear existing items
                     plexSyncDao.deleteCollectionItems(collectionId)
 
                     // Add new items
-                    val items = collectionItems.body()!!.mediaContainer.metadata!!.mapIndexedNotNull { index, metadata ->
+                    val items = collectionItemsBody.mediaContainer.metadata.mapIndexedNotNull { index, metadata ->
                         val plexItem = plexMediaItemDao.getMediaItemByRatingKey(metadata.ratingKey)
                         plexItem?.let {
                             PlexCollectionItem(

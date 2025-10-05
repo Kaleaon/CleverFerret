@@ -45,7 +45,7 @@ fun WebFictionManagerScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Web Fiction Manager",
                             fontWeight = FontWeight.Medium
@@ -211,7 +211,7 @@ fun WebFictionManagerScreen(
                             WebFictionStoryCard(
                                 story = story,
                                 hasUpdates = story.id in uiState.storiesWithUpdates.map { it.id },
-                                onStoryClick = { 
+                                onStoryClick = {
                                     navController.navigate("webfiction_story/${story.id}")
                                 },
                                 onUpdateClick = {
@@ -297,7 +297,7 @@ fun WebFictionStoryCard(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
-                    
+
                     if (hasUpdates) {
                         Icon(
                             Icons.Default.NewReleases,
@@ -426,7 +426,7 @@ fun AddWebFictionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { 
+        title = {
             Text(
                 "Add Web Fiction Story",
                 fontWeight = FontWeight.Medium
@@ -439,10 +439,10 @@ fun AddWebFictionDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-                
+
                 OutlinedTextField(
                     value = url,
-                    onValueChange = { 
+                    onValueChange = {
                         url = it
                         isValidUrl = it.isBlank() || it.startsWith("http")
                     },
@@ -455,9 +455,9 @@ fun AddWebFictionDialog(
                     } else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text(
                     text = "Supported sites: AO3, FFN, Royal Road, WebNovel, Wattpad, and more",
                     style = MaterialTheme.typography.bodySmall,
@@ -488,7 +488,7 @@ fun SupportedSitesDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { 
+        title = {
             Text(
                 "Supported Web Fiction Sites",
                 fontWeight = FontWeight.Medium

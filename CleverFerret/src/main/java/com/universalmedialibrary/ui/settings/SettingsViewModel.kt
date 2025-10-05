@@ -16,10 +16,10 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
-    
+
     init {
         // Load settings from repository
         viewModelScope.launch {
@@ -42,31 +42,31 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun setTheme(palette: ThemePalette) {
         viewModelScope.launch {
             settingsRepository.setTheme(palette)
         }
     }
-    
+
     fun setDarkMode(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setDarkMode(enabled)
         }
     }
-    
+
     fun setAutoDownload(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setAutoDownloadPodcasts(enabled)
         }
     }
-    
+
     fun setWifiOnlyDownloads(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setWifiOnlyDownloads(enabled)
         }
     }
-    
+
     fun setNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setNotificationsEnabled(enabled)

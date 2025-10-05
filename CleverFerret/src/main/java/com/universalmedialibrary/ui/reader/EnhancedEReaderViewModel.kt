@@ -111,4 +111,3 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
         _readerSettings.value = _readerSettings.value.copy(isJustified = !_readerSettings.value.isJustified)
     }
 }
-
