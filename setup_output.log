@@ -1,0 +1,55 @@
+🤖 CleverFerret AI Auto-Setup Script
+====================================
+Setting up build environment for AI assistants...
+
+[0;34m[INFO][0m Detecting operating system...
+[0;32m[SUCCESS][0m ✅ Platform detected: Linux
+[0;34m[INFO][0m Checking Java 17 installation...
+[0;34m[INFO][0m Installing Java 17...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  openjdk-17-jdk-headless openjdk-17-jre openjdk-17-jre-headless
+Suggested packages:
+  openjdk-17-demo openjdk-17-source visualvm libnss-mdns fonts-ipafont-gothic
+  fonts-ipafont-mincho fonts-wqy-microhei | fonts-wqy-zenhei fonts-indic
+The following NEW packages will be installed:
+  openjdk-17-jdk openjdk-17-jdk-headless openjdk-17-jre
+  openjdk-17-jre-headless
+0 upgraded, 4 newly installed, 0 to remove and 10 not upgraded.
+Need to get 121 MB of archives.
+After this operation, 274 MB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu plucky-updates/universe amd64 openjdk-17-jre-headless amd64 17.0.16+8~us1-0ubuntu1~25.04.1 [48.0 MB]
+Get:2 http://archive.ubuntu.com/ubuntu plucky-updates/universe amd64 openjdk-17-jre amd64 17.0.16+8~us1-0ubuntu1~25.04.1 [220 kB]
+Get:3 http://archive.ubuntu.com/ubuntu plucky-updates/universe amd64 openjdk-17-jdk-headless amd64 17.0.16+8~us1-0ubuntu1~25.04.1 [71.5 MB]
+Get:4 http://archive.ubuntu.com/ubuntu plucky-updates/universe amd64 openjdk-17-jdk amd64 17.0.16+8~us1-0ubuntu1~25.04.1 [1,519 kB]
+debconf: unable to initialize frontend: Dialog
+debconf: (Dialog frontend will not work on a dumb terminal, an emacs shell buffer, or without a controlling terminal.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+Fetched 121 MB in 8s (14.7 MB/s)
+Selecting previously unselected package openjdk-17-jre-headless:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 60585 files and directories currently installed.)
+Preparing to unpack .../openjdk-17-jre-headless_17.0.16+8~us1-0ubuntu1~25.04.1_amd64.deb ...
+Unpacking openjdk-17-jre-headless:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+Selecting previously unselected package openjdk-17-jre:amd64.
+Preparing to unpack .../openjdk-17-jre_17.0.16+8~us1-0ubuntu1~25.04.1_amd64.deb ...
+Unpacking openjdk-17-jre:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+Selecting previously unselected package openjdk-17-jdk-headless:amd64.
+Preparing to unpack .../openjdk-17-jdk-headless_17.0.16+8~us1-0ubuntu1~25.04.1_amd64.deb ...
+Unpacking openjdk-17-jdk-headless:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+Selecting previously unselected package openjdk-17-jdk:amd64.
+Preparing to unpack .../openjdk-17-jdk_17.0.16+8~us1-0ubuntu1~25.04.1_amd64.deb ...
+Unpacking openjdk-17-jdk:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+Setting up openjdk-17-jre-headless:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+Processing triggers for hicolor-icon-theme (0.18-2) ...
+Processing triggers for ca-certificates-java (20240118) ...
+done.
+Setting up openjdk-17-jdk-headless:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+Setting up openjdk-17-jre:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+Setting up openjdk-17-jdk:amd64 (17.0.16+8~us1-0ubuntu1~25.04.1) ...
+[0;31m[ERROR][0m ❌ Java installation failed or wrong version
