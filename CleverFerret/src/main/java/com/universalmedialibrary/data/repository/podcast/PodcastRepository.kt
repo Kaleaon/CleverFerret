@@ -209,7 +209,7 @@ class PodcastRepository @Inject constructor(
         return try {
             val podcast = podcastDao.getPodcastById(podcastId)
                 .map { it?.toDomain() }
-                .collect { it } as? Podcast
+                .firstOrNull()
                 ?: return PodcastOperationResult.Error("Podcast not found")
             
             val rssFeed = podcastService.parseRSSFeed(podcast.feedUrl)
@@ -220,7 +220,7 @@ class PodcastRepository @Inject constructor(
             // Get existing episodes
             val existingGuids = episodeDao.getEpisodesByPodcast(podcastId)
                 .map { episodes -> episodes.map { it.guid }.toSet() }
-                .collect { it } as Set<String>
+                .firstOrNull() ?: emptySet()
             
             // Find new episodes
             val newEpisodes = rssFeed.items
