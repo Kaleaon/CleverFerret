@@ -27,13 +27,18 @@ class PodcastViewModel @Inject constructor(
 
     fun searchPodcasts(query: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSearching = true, searchResults = emptyList())
+            _uiState.value = _uiState.value.copy(
+                isSearching = true, 
+                searchResults = emptyList(),
+                error = null
+            )
             
             try {
                 val results = repository.searchPodcastsOnline(query)
                 _uiState.value = _uiState.value.copy(
                     searchResults = results,
-                    isSearching = false
+                    isSearching = false,
+                    error = null
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -46,12 +51,15 @@ class PodcastViewModel @Inject constructor(
 
     fun subscribeFromSearchResult(searchResult: PodcastSearchResult) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             
             try {
                 when (val result = repository.subscribeToPodcast(searchResult.feedUrl)) {
                     is PodcastOperationResult.Success -> {
-                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = null
+                        )
                         // Podcasts will be reloaded automatically via Flow
                     }
                     is PodcastOperationResult.Error -> {
@@ -72,12 +80,15 @@ class PodcastViewModel @Inject constructor(
 
     fun addPodcastByFeedUrl(feedUrl: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             
             try {
                 when (val result = repository.subscribeToPodcast(feedUrl)) {
                     is PodcastOperationResult.Success -> {
-                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = null
+                        )
                         // Podcasts will be reloaded automatically via Flow
                     }
                     is PodcastOperationResult.Error -> {
@@ -147,10 +158,12 @@ class PodcastViewModel @Inject constructor(
     fun deleteDownloadedEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
             try {
-                // Delete local file if exists
+                // Delete local file if exists (validate it's in app storage)
                 episode.localFilePath?.let { path ->
                     val file = java.io.File(path)
-                    if (file.exists()) {
+                    // Security: Only delete files in app's external files directory
+                    val appStoragePath = android.os.Environment.getExternalStorageDirectory().absolutePath
+                    if (file.exists() && file.absolutePath.startsWith(appStoragePath)) {
                         file.delete()
                     }
                 }

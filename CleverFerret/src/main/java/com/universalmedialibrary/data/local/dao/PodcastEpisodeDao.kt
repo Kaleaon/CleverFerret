@@ -44,14 +44,20 @@ interface PodcastEpisodeDao {
     
     @Query("""
         SELECT * FROM podcast_episodes 
-        WHERE (CASE WHEN :includeAll = 1 THEN 1 ELSE podcastId IN (:podcastIds) END)
         ORDER BY publishDate DESC 
         LIMIT :limit
     """)
-    fun getRecentEpisodes(
+    fun getAllRecentEpisodes(limit: Int = 50): Flow<List<PodcastEpisodeEntity>>
+    
+    @Query("""
+        SELECT * FROM podcast_episodes 
+        WHERE podcastId IN (:podcastIds)
+        ORDER BY publishDate DESC 
+        LIMIT :limit
+    """)
+    fun getRecentEpisodesForPodcasts(
         podcastIds: List<Long>, 
-        limit: Int = 50,
-        includeAll: Boolean = false
+        limit: Int = 50
     ): Flow<List<PodcastEpisodeEntity>>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -107,11 +107,12 @@ class PodcastRepository @Inject constructor(
                 podcastDao.insertPodcast(podcastEntity)
             }
             
-            // Insert episodes
-            val episodeEntities = rssFeed.items.mapIndexed { index, item ->
+            // Insert episodes with stable GUIDs
+            val episodeEntities = rssFeed.items.map { item ->
+                val guid = item.guid ?: item.audioUrl ?: "${feedUrl}-${item.title}-${item.pubDate}"
                 PodcastEpisodeEntity(
                     podcastId = podcastId,
-                    guid = item.guid ?: "$feedUrl-$index",
+                    guid = guid,
                     title = item.title,
                     description = item.description,
                     audioUrl = item.audioUrl ?: "",
@@ -222,13 +223,17 @@ class PodcastRepository @Inject constructor(
                 .map { episodes -> episodes.map { it.guid }.toSet() }
                 .firstOrNull() ?: emptySet()
             
-            // Find new episodes
+            // Find new episodes with stable GUIDs
             val newEpisodes = rssFeed.items
-                .filter { item -> item.guid !in existingGuids }
                 .map { item ->
+                    val guid = item.guid ?: item.audioUrl ?: "${podcast.feedUrl}-${item.title}-${item.pubDate}"
+                    guid to item
+                }
+                .filter { (guid, _) -> guid !in existingGuids }
+                .map { (guid, item) ->
                     PodcastEpisodeEntity(
                         podcastId = podcastId,
-                        guid = item.guid ?: "${podcast.feedUrl}-${System.currentTimeMillis()}",
+                        guid = guid,
                         title = item.title,
                         description = item.description,
                         audioUrl = item.audioUrl ?: "",
@@ -298,4 +303,5 @@ class PodcastRepository @Inject constructor(
             System.currentTimeMillis()
         }
     }
+}
 }

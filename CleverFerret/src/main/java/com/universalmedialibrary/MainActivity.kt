@@ -174,6 +174,13 @@ fun AppNavigation() {
             )
         }
         
+        // Radio routes
+        composable("radio") {
+            com.universalmedialibrary.ui.radio.RadioScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
         // Theme preview for testing
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
@@ -363,6 +370,16 @@ fun LibraryListScreen(
                     icon = Icons.Default.MusicNote,
                     colors = listOf(Color(0xFF4A148C), Color(0xFF9C27B0)),
                     onClick = { navController.navigate("music") }
+                )
+            }
+            
+            // Radio Streaming Card
+            item {
+                FeatureCard(
+                    title = "Radio",
+                    icon = Icons.Default.Radio,
+                    colors = listOf(Color(0xFF1A0F2E), Color(0xFF6B4BA3)),
+                    onClick = { navController.navigate("radio") }
                 )
             }
             

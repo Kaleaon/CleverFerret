@@ -683,3 +683,17 @@ private fun formatDuration(seconds: Long): String {
         String.format("%d:%02d", minutes, secs)
     }
 }
+
+private fun formatTime(milliseconds: Long): String {
+    val seconds = (milliseconds / 1000).toInt()
+    val minutes = seconds / 60
+    val remainingSeconds = seconds % 60
+    
+    return if (minutes >= 60) {
+        val hours = minutes / 60
+        val remainingMinutes = minutes % 60
+        "%d:%02d:%02d".format(hours, remainingMinutes, remainingSeconds)
+    } else {
+        "%d:%02d".format(minutes, remainingSeconds)
+    }
+}

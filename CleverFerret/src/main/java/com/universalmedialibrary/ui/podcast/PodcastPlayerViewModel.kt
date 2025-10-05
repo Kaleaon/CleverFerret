@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,8 +21,11 @@ class PodcastPlayerViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PodcastPlayerUiState())
     val uiState: StateFlow<PodcastPlayerUiState> = _uiState.asStateFlow()
     
+    private var loadEpisodeJob: Job? = null
+    
     fun loadEpisode(episodeId: Long) {
-        viewModelScope.launch {
+        loadEpisodeJob?.cancel()
+        loadEpisodeJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             
             repository.getEpisodeById(episodeId)
