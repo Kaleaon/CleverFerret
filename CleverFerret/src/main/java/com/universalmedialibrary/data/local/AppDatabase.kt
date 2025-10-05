@@ -133,6 +133,41 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        /**
+         * Migration from version 19 to 20: Adds RadioStation table for internet radio streaming
+         */
+        private val MIGRATION_19_20 = object : Migration(19, 20) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Create RadioStation table
+                database.execSQL("""
+                    CREATE TABLE IF NOT EXISTS radio_stations (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        name TEXT NOT NULL,
+                        description TEXT,
+                        streamUrl TEXT NOT NULL,
+                        websiteUrl TEXT,
+                        logoUrl TEXT,
+                        genre TEXT,
+                        country TEXT,
+                        language TEXT,
+                        bitrate INTEGER,
+                        codec TEXT,
+                        isFavorite INTEGER NOT NULL DEFAULT 0,
+                        customOrder INTEGER NOT NULL DEFAULT 0,
+                        tags TEXT,
+                        addedAt INTEGER NOT NULL,
+                        lastPlayedAt INTEGER,
+                        playCount INTEGER NOT NULL DEFAULT 0
+                    )
+                """.trimIndent())
+                
+                // Create indexes for better query performance
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_radio_stations_name ON radio_stations(name)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_radio_stations_genre ON radio_stations(genre)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS index_radio_stations_isFavorite ON radio_stations(isFavorite)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -140,7 +175,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .fallbackToDestructiveMigration() // Explicitly enabled for podcast entities addition (v18→v19)
+                .addMigrations(MIGRATION_19_20) // Add proper migration to preserve user data
+                .fallbackToDestructiveMigrationOnDowngrade() // Only destructive on downgrades
                 .build()
                 INSTANCE = instance
                 instance
