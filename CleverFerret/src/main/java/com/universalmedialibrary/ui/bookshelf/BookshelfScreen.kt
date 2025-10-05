@@ -137,6 +137,7 @@ fun EnhancedBookshelfScreen(
                     }
                 }
             )
+            }
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -211,6 +212,7 @@ fun EnhancedBookshelfScreen(
                 }
             }
         }
+    }
     }
 }
 
