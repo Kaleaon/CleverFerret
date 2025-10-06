@@ -1,8 +1,10 @@
 package com.universalmedialibrary.ui.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.local.entity.MediaItem
-import com.universalmedialibrary.data.local.entity.MediaType
+import com.universalmedialibrary.data.MediaType
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -18,8 +20,15 @@ object MediaItemHandler {
         val filePath = mediaItem.filePath
         val encodedPath = URLEncoder.encode(filePath, StandardCharsets.UTF_8.toString())
 
-        when (mediaItem.type) {
-            MediaType.BOOK -> {
+        // Parse mediaType string to MediaType enum
+        val mediaType = try {
+            MediaType.valueOf(mediaItem.mediaType)
+        } catch (e: IllegalArgumentException) {
+            MediaType.UNKNOWN
+        }
+
+        when (mediaType) {
+            MediaType.BOOK, MediaType.EBOOK -> {
                 val extension = filePath.substringAfterLast('.', "").lowercase()
                 when (extension) {
                     "epub" -> navController.navigate("epub_reader/$encodedPath")
@@ -27,13 +36,13 @@ object MediaItemHandler {
                     else -> navController.navigate("epub_reader/$encodedPath") // Default to EPUB reader
                 }
             }
-            MediaType.AUDIO -> {
+            MediaType.MUSIC, MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM, MediaType.AUDIOBOOK -> {
                 navController.navigate("audio_player/$encodedPath")
             }
-            MediaType.VIDEO -> {
+            MediaType.MOVIE, MediaType.TV_SHOW, MediaType.DOCUMENTARY -> {
                 navController.navigate("video_player/$encodedPath")
             }
-            MediaType.COMIC -> {
+            MediaType.COMIC, MediaType.MANGA -> {
                 // Use comic reader when available, fallback to PDF reader
                 navController.navigate("pdf_reader/$encodedPath")
             }
@@ -49,11 +58,16 @@ object MediaItemHandler {
      */
     fun getMediaIcon(mediaType: MediaType): androidx.compose.ui.graphics.vector.ImageVector {
         return when (mediaType) {
-            MediaType.BOOK -> androidx.compose.material.icons.Icons.Default.Book
-            MediaType.AUDIO -> androidx.compose.material.icons.Icons.Default.MusicNote
-            MediaType.VIDEO -> androidx.compose.material.icons.Icons.Default.Movie
-            MediaType.COMIC -> androidx.compose.material.icons.Icons.Default.Book
-            else -> androidx.compose.material.icons.Icons.Default.Help
+            MediaType.BOOK, MediaType.EBOOK -> Icons.Default.Book
+            MediaType.MUSIC, MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM -> Icons.Default.MusicNote
+            MediaType.AUDIOBOOK, MediaType.PODCAST, MediaType.PODCAST_EPISODE -> Icons.Default.Headset
+            MediaType.MOVIE, MediaType.TV_SHOW, MediaType.DOCUMENTARY -> Icons.Default.Movie
+            MediaType.COMIC, MediaType.MANGA -> Icons.Default.Book
+            MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.Default.Article
+            MediaType.DOCUMENT, MediaType.REPORT, MediaType.PRESENTATION -> Icons.Default.Description
+            MediaType.ACADEMIC_PAPER, MediaType.JOURNAL -> Icons.Default.School
+            MediaType.WEB_FICTION, MediaType.NEWS_ARTICLE -> Icons.Default.Public
+            else -> Icons.Default.Help
         }
     }
 
