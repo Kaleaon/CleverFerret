@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import retrofit2.http.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -52,7 +51,6 @@ class PlexIntegrationService @Inject constructor(
 
             val retrofit = Retrofit.Builder()
                 .baseUrl(serverUrl.ensureTrailingSlash())
-                .addConverterFactory(SimpleXmlConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(createOkHttpClient(token))
                 .build()
@@ -90,7 +88,7 @@ class PlexIntegrationService @Inject constructor(
                 lastConnectionResult = "Successfully connected to $serverName"
             )
 
-            PlexConnectionResult.Success(connection)
+            PlexConnectionResult.Success("Successfully connected to $serverName", null)
 
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
@@ -136,7 +134,7 @@ class PlexIntegrationService @Inject constructor(
                 lastEnhancementResult = "Enhanced $successful items, $failed failed"
             )
 
-            MetadataEnhancementResult.Success(successful, failed, enhancementResults)
+            MetadataEnhancementResult.Success(enhancementResults.size, successful)
 
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
@@ -177,7 +175,7 @@ class PlexIntegrationService @Inject constructor(
                 duplicatesFound = duplicateGroups.size
             )
 
-            DuplicateAnalysisResult.Success(duplicateGroups)
+            DuplicateAnalysisResult.Success(duplicateGroups, duplicateGroups.sumOf { it.items.size })
 
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
@@ -220,7 +218,7 @@ class PlexIntegrationService @Inject constructor(
                     collections.add(collection)
 
                     // Create the collection on Plex server
-                    api.createCollection(libraryKey, collection.name, collection.items)
+                    api.createCollection(libraryKey, collection.name, 0, collection.items.joinToString(","))
                 }
             }
 
@@ -233,7 +231,7 @@ class PlexIntegrationService @Inject constructor(
                 collectionsCreated = collections.size
             )
 
-            SmartCollectionResult.Success(collections)
+            SmartCollectionResult.Success(collections.map { it.name }, collections.size)
 
         } catch (e: Exception) {
             _plexState.value = _plexState.value.copy(
@@ -374,11 +372,9 @@ class PlexIntegrationService @Inject constructor(
             if (groupItems.size > 1) {
                 duplicateGroups.add(
                     DuplicateGroup(
-                        id = title.hashCode().toString(),
-                        title = title,
                         items = groupItems,
                         similarity = 1.0f, // Exact title match
-                        reason = "Identical titles"
+                        reason = "Identical titles: $title"
                     )
                 )
             }

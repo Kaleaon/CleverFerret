@@ -18,7 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipEntry
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -100,15 +101,15 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
             try {
                 context.contentResolver.openInputStream(comicUri)?.use { inputStream ->
-                    ZipArchiveInputStream(inputStream).use { zipStream ->
-                        var entry = zipStream.nextZipEntry
+                    ZipInputStream(inputStream).use { zipStream ->
+                        var entry: ZipEntry? = zipStream.nextEntry
 
                         while (entry != null) {
                             if (!entry.isDirectory && isImageFile(entry.name)) {
                                 // Security: Prevent Zip Slip vulnerability by validating entry name
                                 val entryName = entry.name
                                 if (entryName.contains("..") || File(entryName).isAbsolute) {
-                                    entry = zipStream.nextZipEntry
+                                    entry = zipStream.nextEntry
                                     continue
                                 }
 
@@ -116,7 +117,7 @@ class AdvancedComicReaderViewModel @Inject constructor(
                                 // Canonicalize and validate the path is within tempDir
                                 val canonicalFile = file.canonicalFile
                                 if (!canonicalFile.path.startsWith(tempDir.canonicalPath)) {
-                                    entry = zipStream.nextZipEntry
+                                    entry = zipStream.nextEntry
                                     continue
                                 }
 
@@ -128,7 +129,7 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
                                 extractedFiles.add(canonicalFile.absolutePath)
                             }
-                            entry = zipStream.nextZipEntry
+                            entry = zipStream.nextEntry
                         }
                     }
                 }
@@ -266,7 +267,7 @@ class AdvancedComicReaderViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(comicSettings = comicSettings)
 
         // Re-detect panels if detection settings changed
-        if (comicSettings.smartPanelDetection != _uiState.value.comicSettings.smartPanelDetection) {
+        if (comicSettings.panelDetection != _uiState.value.comicSettings.panelDetection) {
             viewModelScope.launch {
                 detectPanelsForCurrentPage(null)
             }
@@ -274,7 +275,7 @@ class AdvancedComicReaderViewModel @Inject constructor(
     }
 
     private suspend fun detectPanelsForCurrentPage(context: Context?) {
-        if (!_uiState.value.comicSettings.smartPanelDetection) {
+        if (!_uiState.value.comicSettings.panelDetection) {
             _uiState.value = _uiState.value.copy(
                 currentPagePanels = emptyList(),
                 currentPanelRect = null
