@@ -352,7 +352,8 @@ private fun FontFamilyControl(
         "SERIF" to "Serif",
         "SANS_SERIF" to "Sans Serif",
         "MONOSPACE" to "Monospace",
-        "CURSIVE" to "Cursive"
+```suggestion
+        "CUSTOM" to "Custom"
     )
 
     ControlSection(
