@@ -62,7 +62,8 @@ class MetadataApiService @Inject constructor(
                         rating = item.volumeInfo.averageRating,
                         isbn = item.volumeInfo.industryIdentifiers
                             ?.find { it.type == "ISBN_13" }?.identifier,
-                        source = MetadataSource.GOOGLE_BOOKS
+                        mediaType = com.universalmedialibrary.data.MediaType.BOOK,
+                        source = MetadataSource.GOOGLE_BOOKS.name
                     )
                 )
             }
@@ -82,7 +83,8 @@ class MetadataApiService @Inject constructor(
                         year = doc.first_publish_year,
                         coverUrl = doc.cover_i?.let { "https://covers.openlibrary.org/b/id/$it-M.jpg" },
                         isbn = doc.isbn?.firstOrNull(),
-                        source = MetadataSource.OPEN_LIBRARY
+                        mediaType = com.universalmedialibrary.data.MediaType.BOOK,
+                        source = MetadataSource.OPEN_LIBRARY.name
                     )
                 )
             }
@@ -116,7 +118,8 @@ class MetadataApiService @Inject constructor(
                         coverUrl = movie.poster_path?.let { "https://image.tmdb.org/t/p/w500$it" },
                         description = movie.overview,
                         rating = movie.vote_average,
-                        source = MetadataSource.TMDB
+                        mediaType = com.universalmedialibrary.data.MediaType.MOVIE,
+                        source = MetadataSource.TMDB.name
                     )
                 )
             }
@@ -139,7 +142,8 @@ class MetadataApiService @Inject constructor(
                         title = release.title ?: "Unknown Title",
                         artist = release.artist_credit?.firstOrNull()?.name,
                         year = release.date?.take(4)?.toIntOrNull(),
-                        source = MetadataSource.MUSICBRAINZ
+                        mediaType = com.universalmedialibrary.data.MediaType.MUSIC,
+                        source = MetadataSource.MUSICBRAINZ.name
                     )
                 )
             }
@@ -162,7 +166,8 @@ class MetadataApiService @Inject constructor(
                 description = "This is a demo movie result for '$query'. In production, this would use the actual TMDB API.",
                 genres = listOf("Action", "Drama"),
                 rating = 8.5f,
-                source = MetadataSource.TMDB
+                mediaType = com.universalmedialibrary.data.MediaType.MOVIE,
+                source = MetadataSource.TMDB.name
             )
         )
     }
@@ -177,7 +182,8 @@ class MetadataApiService @Inject constructor(
                 coverUrl = "https://via.placeholder.com/500x500/7B1FA2/ffffff?text=Music",
                 description = "This is a demo music result for '$query'.",
                 genres = listOf("Electronic", "Ambient"),
-                source = MetadataSource.MUSICBRAINZ
+                mediaType = com.universalmedialibrary.data.MediaType.MUSIC,
+                source = MetadataSource.MUSICBRAINZ.name
             )
         )
     }
