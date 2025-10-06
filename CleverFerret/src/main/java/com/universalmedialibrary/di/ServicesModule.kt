@@ -39,8 +39,9 @@ object ServicesModule {
     @Provides
     @Singleton
     fun providePodcastService(
-        @ApplicationContext context: Context
-    ): PodcastService = PodcastService(context)
+        @ApplicationContext context: Context,
+        podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository
+    ): PodcastService = PodcastService(context, podcastRepository)
 
     @Provides
     @Singleton
