@@ -121,6 +121,34 @@ object RoyalSilverPalette {
 
         outline = PurpleAccent,
     )
+
+    val lightScheme = lightColorScheme(
+        primary = PurpleMedium,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFE8DEF8),
+        onPrimaryContainer = PurpleDeep,
+
+        secondary = MetallicSilver.Medium,
+        onSecondary = Color.White,
+        secondaryContainer = Color(0xFFE8E8F0),
+        onSecondaryContainer = PurpleDeep,
+
+        tertiary = PurpleAccent,
+        onTertiary = Color.White,
+
+        background = Color(0xFFFDF7FF),
+        onBackground = PurpleDeep,
+
+        surface = Color.White,
+        onSurface = PurpleDeep,
+        surfaceVariant = Color(0xFFE8DEF8),
+        onSurfaceVariant = PurpleMedium,
+
+        surfaceTint = MetallicSilver.Primary,
+
+        error = Color(0xFFBA1A1A),
+        onError = Color.White,
+    )
 }
 
 // Forest Green + Copper (Natural and Warm)
@@ -158,6 +186,34 @@ object ForestCopperPalette {
         surfaceTint = MetallicCopper.Primary,
 
         outline = GreenAccent,
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = GreenAccent,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFD4E7D7),
+        onPrimaryContainer = GreenDeep,
+
+        secondary = MetallicCopper.Medium,
+        onSecondary = Color.White,
+        secondaryContainer = Color(0xFFFFE5D6),
+        onSecondaryContainer = GreenDeep,
+
+        tertiary = MetallicCopper.Rose,
+        onTertiary = Color.White,
+
+        background = Color(0xFFF5FFF6),
+        onBackground = GreenDeep,
+
+        surface = Color.White,
+        onSurface = GreenDeep,
+        surfaceVariant = Color(0xFFD4E7D7),
+        onSurfaceVariant = GreenMedium,
+
+        surfaceTint = MetallicCopper.Primary,
+
+        error = Color(0xFFBA1A1A),
+        onError = Color.White,
     )
 }
 
@@ -197,6 +253,34 @@ object BurgundyRoseGoldPalette {
 
         outline = BurgundyAccent,
     )
+
+    val lightScheme = lightColorScheme(
+        primary = BurgundyAccent,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFFFD9E4),
+        onPrimaryContainer = BurgundyDeep,
+
+        secondary = MetallicRoseGold.Medium,
+        onSecondary = Color.White,
+        secondaryContainer = Color(0xFFFFE4E8),
+        onSecondaryContainer = BurgundyDeep,
+
+        tertiary = MetallicRoseGold.Light,
+        onTertiary = BurgundyDeep,
+
+        background = Color(0xFFFFF8FA),
+        onBackground = BurgundyDeep,
+
+        surface = Color.White,
+        onSurface = BurgundyDeep,
+        surfaceVariant = Color(0xFFFFD9E4),
+        onSurfaceVariant = BurgundyMedium,
+
+        surfaceTint = MetallicRoseGold.Primary,
+
+        error = Color(0xFFBA1A1A),
+        onError = Color.White,
+    )
 }
 
 // Charcoal + Champagne Gold (Sophisticated and Subtle)
@@ -235,6 +319,34 @@ object CharcoalChampagnePalette {
 
         outline = CharcoalAccent,
     )
+
+    val lightScheme = lightColorScheme(
+        primary = CharcoalAccent,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFF5F5DC),
+        onPrimaryContainer = CharcoalDeep,
+
+        secondary = MetallicChampagne.Medium,
+        onSecondary = CharcoalDeep,
+        secondaryContainer = Color(0xFFFFF8DC),
+        onSecondaryContainer = CharcoalDeep,
+
+        tertiary = MetallicGold.Medium,
+        onTertiary = Color.White,
+
+        background = Color(0xFFFAFAFA),
+        onBackground = CharcoalDeep,
+
+        surface = Color.White,
+        onSurface = CharcoalDeep,
+        surfaceVariant = Color(0xFFF5F5F5),
+        onSurfaceVariant = CharcoalMedium,
+
+        surfaceTint = MetallicChampagne.Primary,
+
+        error = Color(0xFFBA1A1A),
+        onError = Color.White,
+    )
 }
 
 // Slate + Gunmetal (Modern and Industrial)
@@ -272,6 +384,34 @@ object SlateGunmetalPalette {
         surfaceTint = MetallicGunmetal.Highlight,
 
         outline = SlateAccent,
+    )
+
+    val lightScheme = lightColorScheme(
+        primary = SlateAccent,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFE3E8EE),
+        onPrimaryContainer = SlateDeep,
+
+        secondary = MetallicSilver.Medium,
+        onSecondary = Color.White,
+        secondaryContainer = Color(0xFFECF0F5),
+        onSecondaryContainer = SlateDeep,
+
+        tertiary = MetallicGunmetal.Medium,
+        onTertiary = Color.White,
+
+        background = Color(0xFFF8FAFB),
+        onBackground = SlateDeep,
+
+        surface = Color.White,
+        onSurface = SlateDeep,
+        surfaceVariant = Color(0xFFE3E8EE),
+        onSurfaceVariant = SlateMedium,
+
+        surfaceTint = MetallicGunmetal.Highlight,
+
+        error = Color(0xFFBA1A1A),
+        onError = Color.White,
     )
 }
 

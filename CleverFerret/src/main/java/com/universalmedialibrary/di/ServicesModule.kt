@@ -7,8 +7,7 @@ import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
-import com.universalmedialibrary.services.contentcreation.FanfictionToEPUBConverter
-import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
+import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
 import com.universalmedialibrary.services.webfiction.RedditFanficDownloader
 import dagger.Module
 import dagger.Provides
@@ -35,6 +34,10 @@ object ServicesModule {
 
     @Provides
     @Singleton
+    fun provideStoryUpdateManager(): StoryUpdateManager = StoryUpdateManager()
+
+    @Provides
+    @Singleton
     fun providePodcastService(
         @ApplicationContext context: Context
     ): PodcastService = PodcastService(context)
@@ -43,20 +46,8 @@ object ServicesModule {
     @Singleton
     fun provideFanfictionToEpubConverter(
         @ApplicationContext context: Context,
-        updateManager: com.universalmedialibrary.services.contentcreation.StoryUpdateManager
+        updateManager: StoryUpdateManager
     ): FanfictionToEpubConverter = FanfictionToEpubConverter(context, updateManager)
-
-    @Provides
-    @Singleton
-    fun provideFanfictionToEPUBConverter(
-        @ApplicationContext context: Context
-    ): FanfictionToEPUBConverter = FanfictionToEPUBConverter(context)
-
-    @Provides
-    @Singleton
-    fun provideFanfictionToEpubConverterBasic(
-        @ApplicationContext context: Context
-    ): FanfictionToEpubConverterBasic = FanfictionToEpubConverterBasic(context)
 
     @Provides
     @Singleton
