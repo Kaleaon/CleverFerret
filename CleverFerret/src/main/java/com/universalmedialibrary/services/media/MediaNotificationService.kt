@@ -46,7 +46,7 @@ class MediaNotificationService : MediaSessionService() {
     lateinit var artworkLoader: ArtworkLoader
 
     private var mediaSession: MediaSession? = null
-    
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     companion object {

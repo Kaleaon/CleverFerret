@@ -49,7 +49,7 @@ data class MetadataCommon(
     val lastUpdated: Long = System.currentTimeMillis(),
     val metadataSource: String? = null, // API source used
     val externalId: String? = null, // ID in external database
-    
+
     // User interaction metadata
     val isFavorite: Boolean = false,
     val isDownloaded: Boolean = false

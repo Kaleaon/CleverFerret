@@ -57,7 +57,7 @@ class SettingsViewModel @Inject constructor(
                 _uiState.value = newState
             }
         }
-        
+
         // Load API settings
         viewModelScope.launch {
             settingsRepository.apiSettingsFlow.collect { settings ->
@@ -102,7 +102,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(bookApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.googleBooksApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("google_books", settings.googleBooksApiKey, "books")
@@ -131,7 +131,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(comicApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.comicVineApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("comicvine", settings.comicVineApiKey, "comics")
@@ -145,7 +145,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(audiobookApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.overDriveApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("overdrive", settings.overDriveApiKey, "audiobooks")
@@ -162,7 +162,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(movieTvApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.tmdbApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("tmdb", settings.tmdbApiKey, "movies")
@@ -194,7 +194,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(musicApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.spotifyClientId.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("spotify", settings.spotifyClientId, "music")

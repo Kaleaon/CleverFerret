@@ -539,14 +539,14 @@ class PodcastService @Inject constructor(
                     episodeCount = rssFeed.items.size,
                     explicit = rssFeed.explicit
                 )
-                
+
                 // Store podcast in database via Repository
                 val newPodcastId = podcastRepository.insertPodcast(podcast)
                 val episodes = convertRSSItemsToEpisodes(rssFeed.items, newPodcastId)
                 for (episode in episodes) {
                     podcastRepository.updateEpisode(episode)
                 }
-                
+
                 podcast.copy(id = newPodcastId)
             } catch (e: Exception) {
                 null
