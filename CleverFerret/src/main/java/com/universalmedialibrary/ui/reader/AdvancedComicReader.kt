@@ -758,7 +758,7 @@ private fun ComicReaderSettingsSheet(
         ) {
             Text("Comic Reader Settings", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text("Reading Mode", style = MaterialTheme.typography.titleMedium)
             // Add basic settings UI - stub implementation
             Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
@@ -786,7 +786,7 @@ private fun PanelBrowserSheet(
         ) {
             Text("Panel Browser", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Add thumbnail grid - stub implementation
             LazyColumn {
                 items(pages.size) { index ->

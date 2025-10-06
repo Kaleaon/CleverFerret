@@ -24,7 +24,7 @@ interface JellyfinApi {
         @Query("StartIndex") start: Int = 0,
         @Query("Limit") limit: Int = 50
     ): Response<Map<String, Any>>
-    
+
     @GET("/Library/MediaFolders")
     suspend fun getLibraries(@Header("X-Emby-Token") token: String): Response<Map<String, Any>>
 }
