@@ -20,8 +20,10 @@ import com.universalmedialibrary.data.local.entity.MediaItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Foreground service for media playback notifications
@@ -37,11 +39,15 @@ import javax.inject.Inject
  * - High-importance notification channel
  * - Smart notification management
  */
+@AndroidEntryPoint
 class MediaNotificationService : MediaSessionService() {
 
+    @Inject
+    lateinit var artworkLoader: ArtworkLoader
 
     private var mediaSession: MediaSession? = null
-
+    
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     companion object {
         const val NOTIFICATION_ID = 1001
@@ -84,8 +90,8 @@ class MediaNotificationService : MediaSessionService() {
 
         // Start as foreground service with initial notification
         val notification = createMediaNotification(
-            title = getString(R.string.media_notification_title),
-            artist = getString(R.string.media_notification_unknown_artist),
+            title = getString(resources.getIdentifier("media_notification_title", "string", packageName)),
+            artist = getString(resources.getIdentifier("media_notification_unknown_artist", "string", packageName)),
             isPlaying = false
         )
         startForeground(NOTIFICATION_ID, notification)
@@ -115,6 +121,7 @@ class MediaNotificationService : MediaSessionService() {
     }
 
     override fun onDestroy() {
+        serviceScope.cancel()
         mediaSession?.release()
         mediaSession = null
         super.onDestroy()
@@ -132,7 +139,7 @@ class MediaNotificationService : MediaSessionService() {
     ) {
         val notification = createMediaNotification(
             title = title,
-            artist = artist ?: getString(R.string.media_notification_unknown_artist),
+            artist = artist ?: getString(resources.getIdentifier("media_notification_unknown_artist", "string", packageName)),
             album = album,
             artwork = artwork,
             isPlaying = isPlaying
@@ -180,10 +187,10 @@ class MediaNotificationService : MediaSessionService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                getString(R.string.notification_channel_media_playback),
+                getString(resources.getIdentifier("notification_channel_media_playback", "string", packageName)),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = getString(R.string.notification_channel_media_playback_description)
+                description = getString(resources.getIdentifier("notification_channel_media_playback_description", "string", packageName))
                 setShowBadge(false)
                 enableLights(false)
                 enableVibration(false)
@@ -214,33 +221,33 @@ class MediaNotificationService : MediaSessionService() {
         // Create media control actions
         val playPauseAction = if (isPlaying) {
             NotificationCompat.Action.Builder(
-                R.drawable.ic_pause,
-                getString(R.string.media_pause),
+                resources.getIdentifier("ic_pause", "drawable", packageName),
+                getString(resources.getIdentifier("media_pause", "string", packageName)),
                 createActionPendingIntent(ACTION_PAUSE)
             ).build()
         } else {
             NotificationCompat.Action.Builder(
-                R.drawable.ic_play,
-                getString(R.string.media_play),
+                resources.getIdentifier("ic_play", "drawable", packageName),
+                getString(resources.getIdentifier("media_play", "string", packageName)),
                 createActionPendingIntent(ACTION_PLAY)
             ).build()
         }
 
         val previousAction = NotificationCompat.Action.Builder(
-            R.drawable.ic_skip_previous,
-            getString(R.string.media_skip_previous),
+            resources.getIdentifier("ic_skip_previous", "drawable", packageName),
+            getString(resources.getIdentifier("media_skip_previous", "string", packageName)),
             createActionPendingIntent(ACTION_PREVIOUS)
         ).build()
 
         val nextAction = NotificationCompat.Action.Builder(
-            R.drawable.ic_skip_next,
-            getString(R.string.media_skip_next),
+            resources.getIdentifier("ic_skip_next", "drawable", packageName),
+            getString(resources.getIdentifier("media_skip_next", "string", packageName)),
             createActionPendingIntent(ACTION_NEXT)
         ).build()
 
         val stopAction = NotificationCompat.Action.Builder(
-            R.drawable.ic_pause, // Using pause icon for stop
-            getString(R.string.media_stop),
+            resources.getIdentifier("ic_pause", "drawable", packageName), // Using pause icon for stop
+            getString(resources.getIdentifier("media_stop", "string", packageName)),
             createActionPendingIntent(ACTION_STOP)
         ).build()
 
@@ -250,7 +257,7 @@ class MediaNotificationService : MediaSessionService() {
             .setContentText(artist)
             .setSubText(album)
             .setLargeIcon(artwork)
-            .setSmallIcon(R.drawable.ic_media_notification)
+            .setSmallIcon(resources.getIdentifier("ic_media_notification", "drawable", packageName))
             .setContentIntent(contentIntent)
             .setDeleteIntent(createActionPendingIntent(ACTION_STOP))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -269,9 +276,9 @@ class MediaNotificationService : MediaSessionService() {
             .setCancelButtonIntent(createActionPendingIntent(ACTION_STOP))
 
         // Set MediaSession token if available
-        mediaSession?.let { session ->
-            mediaStyle.setMediaSession(session.sessionCompatToken)
-        }
+        // Note: Media3's MediaSession doesn't expose sessionCompatToken directly
+        // The notification will still work without it, but media controls may be limited
+        // TODO: Investigate proper Media3 notification integration with MediaNotificationManager
 
         builder.setStyle(mediaStyle)
 
