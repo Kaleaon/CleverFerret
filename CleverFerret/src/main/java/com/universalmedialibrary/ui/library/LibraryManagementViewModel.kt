@@ -44,11 +44,7 @@ class LibraryManagementViewModel @Inject constructor(
                 val library = Library(
                     name = name,
                     type = type,
-                    path = path,
-                    isActive = true,
-                    dateCreated = System.currentTimeMillis(),
-                    lastScanned = 0,
-                    description = "Created on ${java.text.SimpleDateFormat("MMM dd, yyyy").format(java.util.Date())}"
+                    path = path
                 )
 
                 libraryRepository.createLibrary(library)
@@ -144,10 +140,7 @@ class LibraryManagementViewModel @Inject constructor(
                     name = libraryName,
                     type = "BOOK",
                     path = path,
-                    isActive = true,
-                    dateCreated = System.currentTimeMillis(),
-                    lastScanned = 0,
-                    description = "Imported from Calibre library at $path"
+                    source = "CALIBRE"
                 )
 
                 libraryRepository.createLibrary(library)

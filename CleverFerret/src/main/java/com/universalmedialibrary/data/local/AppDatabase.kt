@@ -59,9 +59,10 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
         PodcastEntity::class,
         PodcastEpisodeEntity::class,
         PodcastSubscriptionEntity::class,
-        PodcastChapterEntity::class
+        PodcastChapterEntity::class,
 
-        ,
+        // Radio
+        RadioStation::class,
         // Maintenance proposals
         MaintenanceChange::class,
 

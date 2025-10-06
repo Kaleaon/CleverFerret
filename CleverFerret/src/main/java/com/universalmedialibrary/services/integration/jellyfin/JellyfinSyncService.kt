@@ -69,17 +69,23 @@ class JellyfinSyncService @Inject constructor(
                     val userResponse = api.getCurrentUser(accessToken)
                     val serverName = userResponse.body()?.get("ServerName") as? String ?: "Jellyfin Server"
 
+                    // Parse URL to extract host and port
+                    val url = java.net.URL(serverUrl)
+                    val host = url.host
+                    val port = if (url.port > 0) url.port else 8096
+
                     val server = JellyfinServer(
-                        url = serverUrl,
                         name = serverName,
-                        accessToken = accessToken,
+                        host = host,
+                        port = port,
+                        apiKey = accessToken, // Map accessToken to apiKey
                         userId = userId,
                         isActive = true
                     )
 
                     // Save to database
                     val serverId = jellyfinServerDao.insert(server)
-                    val savedServer = server.copy(serverId = serverId)
+                    val savedServer = server.copy(id = serverId)
 
                     _syncState.value = _syncState.value.copy(
                         isConnecting = false,
@@ -112,8 +118,10 @@ class JellyfinSyncService @Inject constructor(
         return try {
             _syncState.value = _syncState.value.copy(isSyncing = true, error = null)
 
-            val api = jellyfinIntegration.createApi(server.url)
-            val response = api.getLibraries(server.accessToken)
+            // Reconstruct URL from host and port
+            val serverUrl = "http://${server.host}:${server.port}"
+            val api = jellyfinIntegration.createApi(serverUrl)
+            val response = api.getLibraries(server.apiKey ?: "")
 
             if (response.isSuccessful && response.body() != null) {
                 val responseBody = response.body() ?: run {
@@ -142,7 +150,7 @@ class JellyfinSyncService @Inject constructor(
                     val library = Library(
                         name = "$name (Jellyfin)",
                         type = type,
-                        path = "jellyfin://${server.serverId}/$libraryId",
+                        path = "jellyfin://${server.id}/$libraryId",
                         source = "JELLYFIN"
                     )
 
@@ -180,10 +188,12 @@ class JellyfinSyncService @Inject constructor(
         return try {
             _syncState.value = _syncState.value.copy(isSyncing = true)
 
-            val api = jellyfinIntegration.createApi(server.url)
+            // Reconstruct URL from host and port
+            val serverUrl = "http://${server.host}:${server.port}"
+            val api = jellyfinIntegration.createApi(serverUrl)
             val response = api.getLibraryItems(
-                token = server.accessToken,
-                libraryId = jellyfinLibraryId
+                userId = server.userId ?: "",
+                token = server.apiKey ?: ""
             )
 
             if (response.isSuccessful && response.body() != null) {
@@ -204,24 +214,21 @@ class JellyfinSyncService @Inject constructor(
                     // Create MediaItem stub
                     val mediaItem = MediaItem(
                         libraryId = localLibraryId,
-                        filePath = "jellyfin://${server.serverId}/$itemId",
+                        filePath = "jellyfin://${server.id}/$itemId",
                         fileName = name,
+                        fileExtension = "",
                         fileSize = 0, // Unknown for remote
-                        mimeType = getMimeTypeFromJellyfinType(type),
                         mediaType = getMediaTypeFromJellyfinType(type)
                     )
 
                     val localItemId = mediaItemDao.insertMediaItem(mediaItem)
 
                     // Create metadata
+                    val serverUrl = "http://${server.host}:${server.port}"
+                    val thumbnailUrl = getJellyfinImageUrl(serverUrl, itemId, server.apiKey ?: "")
                     val metadata = MetadataCommon(
                         itemId = localItemId,
-                        title = name,
-                        description = item["Overview"] as? String,
-                        rating = (item["CommunityRating"] as? Double)?.toFloat(),
-                        thumbnailPath = getJellyfinImageUrl(server.url, itemId, server.accessToken),
-                        isFavorite = false,
-                        isDownloaded = false
+                        title = name
                     )
 
                     metadataDao.insertMetadataCommon(metadata)

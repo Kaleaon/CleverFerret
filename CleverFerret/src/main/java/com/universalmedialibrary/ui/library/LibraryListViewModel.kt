@@ -81,38 +81,32 @@ class LibraryListViewModel @Inject constructor(
                         Library(
                             name = "My Books",
                             type = "BOOK",
-                            path = "/storage/emulated/0/Books",
-                            description = "Personal book collection"
+                            path = "/storage/emulated/0/Books"
                         ),
                         Library(
                             name = "Movies & TV",
                             type = "MOVIE",
-                            path = "/storage/emulated/0/Movies",
-                            description = "Movie and TV show collection"
+                            path = "/storage/emulated/0/Movies"
                         ),
                         Library(
                             name = "Music Library",
                             type = "MUSIC",
-                            path = "/storage/emulated/0/Music",
-                            description = "Music collection"
+                            path = "/storage/emulated/0/Music"
                         ),
                         Library(
                             name = "Podcasts",
                             type = "PODCAST",
-                            path = "/storage/emulated/0/Podcasts",
-                            description = "Podcast episodes"
+                            path = "/storage/emulated/0/Podcasts"
                         ),
                         Library(
                             name = "Magazines",
                             type = "MAGAZINE",
-                            path = "/storage/emulated/0/Magazines",
-                            description = "Digital magazines"
+                            path = "/storage/emulated/0/Magazines"
                         ),
                         Library(
                             name = "Documents",
                             type = "DOCUMENT",
-                            path = "/storage/emulated/0/Documents",
-                            description = "Important documents"
+                            path = "/storage/emulated/0/Documents"
                         )
                     )
 
