@@ -86,7 +86,14 @@ data class MusicApiSettings(
     val discogsApiKey: String = "",
     val lastFmEnabled: Boolean = false,
     val lastFmApiKey: String = "",
-    val priority: List<String> = listOf("MusicBrainz", "Spotify", "Discogs", "Last.fm")
+    // Additional music services
+    val radioBrowserEnabled: Boolean = true,
+    val audioDBEnabled: Boolean = false,
+    val audioDBApiKey: String = "",
+    val deezerEnabled: Boolean = true,
+    val napsterEnabled: Boolean = false,
+    val napsterApiKey: String = "",
+    val priority: List<String> = listOf("MusicBrainz", "Spotify", "Discogs", "Last.fm", "Radio Browser", "AudioDB", "Deezer", "Napster")
 )
 
 @Serializable

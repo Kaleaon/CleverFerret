@@ -186,6 +186,12 @@ class SettingsViewModel @Inject constructor(
             if (settings.lastFmApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("lastfm", settings.lastFmApiKey, "music")
             }
+            if (settings.audioDBApiKey.isNotBlank()) {
+                apiKeyRepository.saveAPIKey("audiodb", settings.audioDBApiKey, "music")
+            }
+            if (settings.napsterApiKey.isNotBlank()) {
+                apiKeyRepository.saveAPIKey("napster", settings.napsterApiKey, "music")
+            }
         }
     }
 }

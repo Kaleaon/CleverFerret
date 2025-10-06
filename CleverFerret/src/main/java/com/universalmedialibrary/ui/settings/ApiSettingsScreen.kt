@@ -326,6 +326,10 @@ private fun updateProviderSettings(
                 "Spotify" -> current.copy(spotifyEnabled = enabled, spotifyClientId = apiKey)
                 "Discogs" -> current.copy(discogsEnabled = enabled, discogsApiKey = apiKey)
                 "Last.fm" -> current.copy(lastFmEnabled = enabled, lastFmApiKey = apiKey)
+                "Radio Browser" -> current.copy(radioBrowserEnabled = enabled)
+                "AudioDB" -> current.copy(audioDBEnabled = enabled, audioDBApiKey = apiKey)
+                "Deezer" -> current.copy(deezerEnabled = enabled)
+                "Napster" -> current.copy(napsterEnabled = enabled, napsterApiKey = apiKey)
                 else -> current
             }
             viewModel.updateMusicApiSettings(updated)
@@ -560,6 +564,40 @@ private fun getMusicProviders(settings: MusicApiSettings): List<ApiProvider> = l
         isEnabled = settings.lastFmEnabled,
         apiKey = settings.lastFmApiKey,
         website = "https://www.last.fm/api",
+        mediaType = MediaType.MUSIC
+    ),
+    ApiProvider(
+        name = "Radio Browser",
+        description = "Free radio station directory",
+        requiresApiKey = false,
+        isEnabled = settings.radioBrowserEnabled,
+        website = "https://api.radio-browser.info/",
+        mediaType = MediaType.MUSIC
+    ),
+    ApiProvider(
+        name = "AudioDB",
+        description = "Music and artist metadata database",
+        requiresApiKey = true,
+        isEnabled = settings.audioDBEnabled,
+        apiKey = settings.audioDBApiKey,
+        website = "https://www.theaudiodb.com/api_guide.php",
+        mediaType = MediaType.MUSIC
+    ),
+    ApiProvider(
+        name = "Deezer",
+        description = "Music streaming service with free API",
+        requiresApiKey = false,
+        isEnabled = settings.deezerEnabled,
+        website = "https://developers.deezer.com/api",
+        mediaType = MediaType.MUSIC
+    ),
+    ApiProvider(
+        name = "Napster",
+        description = "Music streaming and metadata",
+        requiresApiKey = true,
+        isEnabled = settings.napsterEnabled,
+        apiKey = settings.napsterApiKey,
+        website = "https://developer.napster.com/",
         mediaType = MediaType.MUSIC
     )
 )

@@ -86,6 +86,10 @@ enum class MetadataSource {
     SPOTIFY,
     DISCOGS,
     LAST_FM,
+    RADIO_BROWSER,
+    AUDIODB,
+    DEEZER,
+    NAPSTER,
 
     // Audiobook sources
     AUDIBLE,
@@ -196,6 +200,91 @@ data class MusicBrainzArtistCredit(
     val name: String? = null
 )
 
+// Radio Browser API Models
+data class RadioStation(
+    val stationuuid: String,
+    val name: String,
+    val url: String? = null,
+    val homepage: String? = null,
+    val favicon: String? = null,
+    val tags: String? = null,
+    val country: String? = null,
+    val language: String? = null,
+    val codec: String? = null,
+    val bitrate: Int? = null,
+    val votes: Int? = null
+)
+
+// AudioDB API Models
+data class AudioDBResponse(
+    val artists: List<AudioDBArtist>? = null
+)
+
+data class AudioDBArtist(
+    val idArtist: String,
+    val strArtist: String,
+    val strGenre: String? = null,
+    val strBiographyEN: String? = null,
+    val strArtistThumb: String? = null,
+    val strArtistLogo: String? = null,
+    val intFormedYear: String? = null,
+    val strCountry: String? = null
+)
+
+data class AudioDBAlbumResponse(
+    val album: List<AudioDBAlbum>? = null
+)
+
+data class AudioDBAlbum(
+    val idAlbum: String,
+    val strAlbum: String,
+    val strArtist: String? = null,
+    val intYearReleased: String? = null,
+    val strAlbumThumb: String? = null,
+    val strDescriptionEN: String? = null,
+    val strGenre: String? = null
+)
+
+// Deezer API Models
+data class DeezerArtistResponse(
+    val data: List<DeezerArtist>? = null
+)
+
+data class DeezerArtist(
+    val id: Long,
+    val name: String,
+    val picture: String? = null,
+    val picture_medium: String? = null,
+    val picture_big: String? = null,
+    val nb_album: Int? = null,
+    val nb_fan: Int? = null
+)
+
+data class DeezerAlbumResponse(
+    val data: List<DeezerAlbum>? = null
+)
+
+data class DeezerAlbum(
+    val id: Long,
+    val title: String,
+    val cover: String? = null,
+    val cover_medium: String? = null,
+    val cover_big: String? = null,
+    val release_date: String? = null,
+    val artist: DeezerArtist? = null
+)
+
+// Napster API Models
+data class NapsterResponse(
+    val artists: List<NapsterArtist>? = null
+)
+
+data class NapsterArtist(
+    val id: String,
+    val name: String,
+    val biography: String? = null
+)
+
 // API Interfaces - consolidated
 interface GoogleBooksApi {
     @GET("volumes")
@@ -258,4 +347,61 @@ interface MusicBrainzApi {
         @Query("fmt") format: String = "json",
         @Query("limit") limit: Int = 10
     ): MusicBrainzResponse
+}
+
+// Radio Browser API - Free radio station directory
+interface RadioBrowserApi {
+    @GET("json/stations/search")
+    suspend fun searchStations(
+        @Query("name") name: String,
+        @Query("limit") limit: Int = 10
+    ): List<RadioStation>
+    
+    @GET("json/stations/bygenre/{genre}")
+    suspend fun getStationsByGenre(
+        @Path("genre") genre: String,
+        @Query("limit") limit: Int = 10
+    ): List<RadioStation>
+}
+
+// AudioDB API - Music metadata database
+interface AudioDBApi {
+    @GET("api/v1/json/{apiKey}/search.php")
+    suspend fun searchArtist(
+        @Path("apiKey") apiKey: String,
+        @Query("s") artist: String
+    ): AudioDBResponse
+    
+    @GET("api/v1/json/{apiKey}/searchalbum.php")
+    suspend fun searchAlbum(
+        @Path("apiKey") apiKey: String,
+        @Query("s") artist: String,
+        @Query("a") album: String
+    ): AudioDBAlbumResponse
+}
+
+// Deezer API - Music streaming service with free API
+interface DeezerApi {
+    @GET("search/artist")
+    suspend fun searchArtist(
+        @Query("q") query: String,
+        @Query("limit") limit: Int = 10
+    ): DeezerArtistResponse
+    
+    @GET("search/album")
+    suspend fun searchAlbum(
+        @Query("q") query: String,
+        @Query("limit") limit: Int = 10
+    ): DeezerAlbumResponse
+}
+
+// Napster API
+interface NapsterApi {
+    @GET("v2.2/search")
+    suspend fun searchArtists(
+        @Query("apikey") apiKey: String,
+        @Query("query") query: String,
+        @Query("type") type: String = "artist",
+        @Query("limit") limit: Int = 10
+    ): NapsterResponse
 }
