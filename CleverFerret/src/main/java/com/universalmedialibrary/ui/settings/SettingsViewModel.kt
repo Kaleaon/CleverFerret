@@ -26,6 +26,15 @@ class SettingsViewModel @Inject constructor(
     private val _apiSettings = MutableStateFlow(ApiSettings())
     val apiSettings: StateFlow<ApiSettings> = _apiSettings.asStateFlow()
 
+    private val _readerSettings = MutableStateFlow(ReaderSettings())
+    val readerSettings: StateFlow<ReaderSettings> = _readerSettings.asStateFlow()
+
+    private val _securitySettings = MutableStateFlow(SecuritySettings())
+    val securitySettings: StateFlow<SecuritySettings> = _securitySettings.asStateFlow()
+
+    private val _generalSettings = MutableStateFlow(GeneralSettings())
+    val generalSettings: StateFlow<GeneralSettings> = _generalSettings.asStateFlow()
+
     init {
         // Load settings from repository
         viewModelScope.launch {
@@ -201,6 +210,27 @@ class SettingsViewModel @Inject constructor(
             if (settings.napsterApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("napster", settings.napsterApiKey, "music")
             }
+        }
+    }
+
+    fun updateReaderSettings(settings: ReaderSettings) {
+        viewModelScope.launch {
+            _readerSettings.value = settings
+            // TODO: Persist to repository
+        }
+    }
+
+    fun updateSecuritySettings(settings: SecuritySettings) {
+        viewModelScope.launch {
+            _securitySettings.value = settings
+            // TODO: Persist to repository
+        }
+    }
+
+    fun updateGeneralSettings(settings: GeneralSettings) {
+        viewModelScope.launch {
+            _generalSettings.value = settings
+            // TODO: Persist to repository
         }
     }
 }
