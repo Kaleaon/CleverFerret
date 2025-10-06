@@ -20,7 +20,7 @@ import javax.inject.Singleton
 class FanfictionToEPUBConverter @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    
+
     data class Story(
         val title: String,
         val author: String,
@@ -28,13 +28,13 @@ class FanfictionToEPUBConverter @Inject constructor(
         val chapters: List<Chapter>,
         val metadata: StoryMetadata
     )
-    
+
     data class Chapter(
         val number: Int,
         val title: String,
         val content: String
     )
-    
+
     data class StoryMetadata(
         val fandom: String? = null,
         val characters: List<String> = emptyList(),
@@ -46,19 +46,19 @@ class FanfictionToEPUBConverter @Inject constructor(
         val language: String = "en",
         val status: String? = null
     )
-    
+
     enum class FanfictionSite(val domain: String) {
         FANFICTION_NET("fanfiction.net"),
         ARCHIVE_OF_OUR_OWN("archiveofourown.org"),
         WATTPAD("wattpad.com");
-        
+
         companion object {
             fun fromUrl(url: String): FanfictionSite? {
                 return values().find { url.contains(it.domain) }
             }
         }
     }
-    
+
     /**
      * Convert a fanfiction story URL to EPUB
      */
@@ -71,29 +71,29 @@ class FanfictionToEPUBConverter @Inject constructor(
             if (site == null) {
                 return@withContext null
             }
-            
+
             val story = when (site) {
                 FanfictionSite.FANFICTION_NET -> fetchFFNetStory(storyUrl)
                 FanfictionSite.ARCHIVE_OF_OUR_OWN -> fetchAO3Story(storyUrl)
                 FanfictionSite.WATTPAD -> fetchWattpadStory(storyUrl)
             }
-            
+
             if (story == null) {
                 return@withContext null
             }
-            
+
             val fileName = outputFileName ?: "${sanitizeFileName(story.title)}.epub"
             val outputFile = File(context.filesDir, fileName)
-            
+
             createEPUB(story, outputFile)
-            
+
             outputFile
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
-    
+
     /**
      * Fetch story from FanFiction.Net
      */
@@ -103,24 +103,24 @@ class FanfictionToEPUBConverter @Inject constructor(
                 .userAgent("Mozilla/5.0")
                 .timeout(15000)
                 .get()
-            
+
             // Extract story info
             val title = doc.select("#profile_top b.xcontrast_txt").first()?.text() ?: "Unknown Title"
             val author = doc.select("#profile_top a[href^='/u/']").first()?.text() ?: "Unknown Author"
             val summary = doc.select("#profile_top div.xcontrast_txt").first()?.text() ?: ""
-            
+
             // Extract metadata
             val metadataText = doc.select("#profile_top span.xgray").text()
             val metadata = parseFFNetMetadata(metadataText)
-            
+
             // Get chapter count
             val chapterSelect = doc.select("select#chap_select").first()
             val chapterCount = chapterSelect?.select("option")?.size ?: 1
-            
+
             // Fetch all chapters
             val chapters = mutableListOf<Chapter>()
             val storyId = extractStoryId(url)
-            
+
             for (i in 1..chapterCount) {
                 val chapterUrl = if (i == 1) url else url.replace("/s/$storyId/\\d+/".toRegex(), "/s/$storyId/$i/")
                 val chapter = fetchFFNetChapter(chapterUrl, i)
@@ -128,7 +128,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                     chapters.add(chapter)
                 }
             }
-            
+
             Story(
                 title = title,
                 author = author,
@@ -141,7 +141,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Fetch a single chapter from FanFiction.Net
      */
@@ -151,12 +151,12 @@ class FanfictionToEPUBConverter @Inject constructor(
                 .userAgent("Mozilla/5.0")
                 .timeout(15000)
                 .get()
-            
+
             val chapterTitle = doc.select("select#chap_select option[selected]").first()?.text()
                 ?: "Chapter $chapterNumber"
-            
+
             val content = doc.select("#storytext").first()?.html() ?: ""
-            
+
             Chapter(
                 number = chapterNumber,
                 title = chapterTitle,
@@ -166,7 +166,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Fetch story from Archive of Our Own
      */
@@ -178,24 +178,24 @@ class FanfictionToEPUBConverter @Inject constructor(
             } else {
                 "$url?view_full_work=true"
             }
-            
+
             val doc = Jsoup.connect(fullUrl)
                 .userAgent("Mozilla/5.0")
                 .timeout(15000)
                 .get()
-            
+
             // Extract story info
             val title = doc.select("h2.title").first()?.text() ?: "Unknown Title"
             val author = doc.select("a[rel='author']").first()?.text() ?: "Unknown Author"
             val summary = doc.select(".summary blockquote").first()?.text() ?: ""
-            
+
             // Extract metadata
             val metadata = parseAO3Metadata(doc)
-            
+
             // Extract chapters
             val chapters = mutableListOf<Chapter>()
             val chapterDivs = doc.select("div.chapter")
-            
+
             if (chapterDivs.isEmpty()) {
                 // Single chapter work
                 val content = doc.select("div.userstuff").first()?.html() ?: ""
@@ -210,7 +210,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                     val chapterTitle = chapterDiv.select("h3.title a").first()?.text()
                         ?: "Chapter ${index + 1}"
                     val content = chapterDiv.select("div.userstuff").first()?.html() ?: ""
-                    
+
                     chapters.add(Chapter(
                         number = index + 1,
                         title = chapterTitle,
@@ -218,7 +218,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                     ))
                 }
             }
-            
+
             Story(
                 title = title,
                 author = author,
@@ -231,7 +231,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Fetch story from Wattpad
      */
@@ -241,16 +241,16 @@ class FanfictionToEPUBConverter @Inject constructor(
                 .userAgent("Mozilla/5.0")
                 .timeout(15000)
                 .get()
-            
+
             // Extract story info
             val title = doc.select("h1").first()?.text() ?: "Unknown Title"
             val author = doc.select("a.username").first()?.text() ?: "Unknown Author"
             val summary = doc.select(".description-text").first()?.text() ?: ""
-            
+
             // Get chapter links
             val chapterLinks = doc.select("a.story-part__link")
             val chapters = mutableListOf<Chapter>()
-            
+
             chapterLinks.forEachIndexed { index, link ->
                 val chapterUrl = "https://www.wattpad.com" + link.attr("href")
                 val chapter = fetchWattpadChapter(chapterUrl, index + 1)
@@ -258,7 +258,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                     chapters.add(chapter)
                 }
             }
-            
+
             Story(
                 title = title,
                 author = author,
@@ -271,7 +271,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Fetch a single chapter from Wattpad
      */
@@ -281,10 +281,10 @@ class FanfictionToEPUBConverter @Inject constructor(
                 .userAgent("Mozilla/5.0")
                 .timeout(15000)
                 .get()
-            
+
             val chapterTitle = doc.select("h2").first()?.text() ?: "Chapter $chapterNumber"
             val content = doc.select("pre").first()?.html() ?: ""
-            
+
             Chapter(
                 number = chapterNumber,
                 title = chapterTitle,
@@ -294,7 +294,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Parse FanFiction.Net metadata
      */
@@ -312,7 +312,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             status = if (text.contains("Complete")) "Complete" else "In Progress"
         )
     }
-    
+
     /**
      * Parse Archive of Our Own metadata
      */
@@ -322,7 +322,7 @@ class FanfictionToEPUBConverter @Inject constructor(
         val rating = doc.select("dd.rating").text()
         val wordCount = doc.select("dd.words").text().replace(",", "").toIntOrNull() ?: 0
         val status = doc.select("dd.status").text()
-        
+
         return StoryMetadata(
             fandom = tags.firstOrNull(),
             characters = characters,
@@ -331,7 +331,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             status = status
         )
     }
-    
+
     /**
      * Create EPUB file from story
      */
@@ -347,62 +347,62 @@ class FanfictionToEPUBConverter @Inject constructor(
             zip.putNextEntry(mimetypeEntry)
             zip.write(mimetypeContent.toByteArray())
             zip.closeEntry()
-            
+
             // Switch to compressed for other files
             zip.setMethod(ZipEntry.DEFLATED)
-            
+
             // Add META-INF/container.xml
             zip.putNextEntry(ZipEntry("META-INF/container.xml"))
             zip.write(createContainerXml().toByteArray())
             zip.closeEntry()
-            
+
             // Add content.opf
             zip.putNextEntry(ZipEntry("OEBPS/content.opf"))
             zip.write(createContentOPF(story).toByteArray())
             zip.closeEntry()
-            
+
             // Add toc.ncx
             zip.putNextEntry(ZipEntry("OEBPS/toc.ncx"))
             zip.write(createTOC(story).toByteArray())
             zip.closeEntry()
-            
+
             // Add title page
             zip.putNextEntry(ZipEntry("OEBPS/title.xhtml"))
             zip.write(createTitlePage(story).toByteArray())
             zip.closeEntry()
-            
+
             // Add each chapter
             story.chapters.forEach { chapter ->
                 zip.putNextEntry(ZipEntry("OEBPS/chapter${chapter.number}.xhtml"))
                 zip.write(createChapterXHTML(chapter).toByteArray())
                 zip.closeEntry()
             }
-            
+
             // Add stylesheet
             zip.putNextEntry(ZipEntry("OEBPS/style.css"))
             zip.write(createStylesheet().toByteArray())
             zip.closeEntry()
         }
     }
-    
+
     private fun createContainerXml(): String = """<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
     <rootfiles>
         <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
     </rootfiles>
 </container>"""
-    
+
     private fun createContentOPF(story: Story): String {
         val manifest = StringBuilder()
         val spine = StringBuilder()
-        
+
         manifest.append("""
         <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
         <item id="title" href="title.xhtml" media-type="application/xhtml+xml"/>
         <item id="style" href="style.css" media-type="text/css"/>""")
-        
+
         spine.append("""<itemref idref="title"/>""")
-        
+
         story.chapters.forEach { chapter ->
             val chapterId = "chapter${chapter.number}"
             manifest.append("""
@@ -410,7 +410,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             spine.append("""
         <itemref idref="$chapterId"/>""")
         }
-        
+
         return """<?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uid" version="2.0">
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
@@ -428,16 +428,16 @@ class FanfictionToEPUBConverter @Inject constructor(
     </spine>
 </package>"""
     }
-    
+
     private fun createTOC(story: Story): String {
         val navPoints = StringBuilder()
-        
+
         navPoints.append("""
         <navPoint id="navpoint-1" playOrder="1">
             <navLabel><text>Title Page</text></navLabel>
             <content src="title.xhtml"/>
         </navPoint>""")
-        
+
         story.chapters.forEach { chapter ->
             navPoints.append("""
         <navPoint id="navpoint-${chapter.number + 1}" playOrder="${chapter.number + 1}">
@@ -445,7 +445,7 @@ class FanfictionToEPUBConverter @Inject constructor(
             <content src="chapter${chapter.number}.xhtml"/>
         </navPoint>""")
         }
-        
+
         return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
 <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
@@ -461,7 +461,7 @@ class FanfictionToEPUBConverter @Inject constructor(
     </navMap>
 </ncx>"""
     }
-    
+
     private fun createTitlePage(story: Story): String {
         return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -487,7 +487,7 @@ class FanfictionToEPUBConverter @Inject constructor(
 </body>
 </html>"""
     }
-    
+
     private fun createChapterXHTML(chapter: Chapter): String {
         return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -506,7 +506,7 @@ class FanfictionToEPUBConverter @Inject constructor(
 </body>
 </html>"""
     }
-    
+
     private fun createStylesheet(): String = """
 body {
     font-family: Georgia, serif;
@@ -572,37 +572,37 @@ hr {
     margin: 2em 0;
 }
 """
-    
+
     private fun cleanHtml(html: String): String {
         val doc = Jsoup.parse(html)
         doc.select("script, style").remove()
-        
+
         // Convert to clean HTML
         doc.select("br").append("\\n")
         doc.select("p").prepend("\\n\\n")
-        
+
         return doc.html()
     }
-    
+
     private fun sanitizeFileName(name: String): String {
         return name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
             .take(100) // Limit length
     }
-    
+
     private fun extractStoryId(url: String): String {
         val pattern = "/s/(\\d+)/".toRegex()
         return pattern.find(url)?.groupValues?.get(1) ?: ""
     }
-    
+
     private fun escapeXml(text: String): String {
         return text
-            .replace("&", "&")
-            .replace("<", "<")
-            .replace(">", ">")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
             .replace("\"", "&quot;")
             .replace("'", "&apos;")
     }
-    
+
     private fun getCRC32(data: ByteArray): Long {
         val crc = java.util.zip.CRC32()
         crc.update(data)

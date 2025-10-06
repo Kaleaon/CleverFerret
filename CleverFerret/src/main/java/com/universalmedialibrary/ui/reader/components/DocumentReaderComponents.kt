@@ -498,24 +498,31 @@ fun DocumentReaderSettingsSheet(
                         ) {
                             FilterChip(
                                 onClick = {
-                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.SINGLE_PAGE))
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.PAGE_BY_PAGE))
                                 },
-                                label = { Text("Single") },
-                                selected = settings.readingMode == ReadingMode.SINGLE_PAGE
+                                label = { Text("Page") },
+                                selected = settings.readingMode == ReadingMode.PAGE_BY_PAGE
                             )
                             FilterChip(
                                 onClick = {
-                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.DOUBLE_PAGE))
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_VERTICAL))
                                 },
-                                label = { Text("Double") },
-                                selected = settings.readingMode == ReadingMode.DOUBLE_PAGE
+                                label = { Text("Vertical") },
+                                selected = settings.readingMode == ReadingMode.CONTINUOUS_VERTICAL
                             )
                             FilterChip(
                                 onClick = {
-                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_SCROLL))
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_HORIZONTAL))
                                 },
-                                label = { Text("Scroll") },
-                                selected = settings.readingMode == ReadingMode.CONTINUOUS_SCROLL
+                                label = { Text("Horizontal") },
+                                selected = settings.readingMode == ReadingMode.CONTINUOUS_HORIZONTAL
+                            )
+                            FilterChip(
+                                onClick = {
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.WEBTOON))
+                                },
+                                label = { Text("Webtoon") },
+                                selected = settings.readingMode == ReadingMode.WEBTOON
                             )
                         }
 

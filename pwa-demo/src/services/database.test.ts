@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db, LibraryService, MediaItemService } from './database';
-import type { Library, MediaItem, MetadataBook, MetadataCommon } from '../types';
+import type { Library, MetadataBook, MetadataCommon } from '../types';
 
 describe('Database Service', () => {
   beforeEach(async () => {

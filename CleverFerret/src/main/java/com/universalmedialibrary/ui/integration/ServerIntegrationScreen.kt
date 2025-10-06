@@ -30,7 +30,7 @@ fun ServerIntegrationScreen(
     viewModel: ServerIntegrationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     var showAddDialog by remember { mutableStateOf(false) }
     var selectedServerType by remember { mutableStateOf(ServerType.PLEX) }
 
@@ -46,13 +46,11 @@ fun ServerIntegrationScreen(
             )
         },
         floatingActionButton = {
-            MetallicButton(
+            FloatingActionButton(
                 onClick = { showAddDialog = true },
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(Icons.Default.Add, "Add Server")
-                Spacer(Modifier.width(8.dp))
-                Text("Add Server")
             }
         }
     ) { padding ->
@@ -77,7 +75,7 @@ fun ServerIntegrationScreen(
                 ServerTypeCard(
                     serverType = ServerType.PLEX,
                     connectedCount = uiState.plexServers.size,
-                    onClick = { 
+                    onClick = {
                         selectedServerType = ServerType.PLEX
                         showAddDialog = true
                     }
@@ -88,7 +86,7 @@ fun ServerIntegrationScreen(
                 ServerTypeCard(
                     serverType = ServerType.JELLYFIN,
                     connectedCount = uiState.jellyfinServers.size,
-                    onClick = { 
+                    onClick = {
                         selectedServerType = ServerType.JELLYFIN
                         showAddDialog = true
                     }
@@ -99,7 +97,7 @@ fun ServerIntegrationScreen(
                 ServerTypeCard(
                     serverType = ServerType.EMBY,
                     connectedCount = uiState.embyServers.size,
-                    onClick = { 
+                    onClick = {
                         selectedServerType = ServerType.EMBY
                         showAddDialog = true
                     }
@@ -321,7 +319,7 @@ fun AddServerDialog(
             }
         },
         confirmButton = {
-            MetallicButton(
+            Button(
                 onClick = { onAdd(serverUrl, username, password) },
                 enabled = serverUrl.isNotBlank() && username.isNotBlank()
             ) {

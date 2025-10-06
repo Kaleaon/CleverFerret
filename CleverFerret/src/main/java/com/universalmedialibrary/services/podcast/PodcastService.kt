@@ -22,56 +22,12 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Data models for podcasts
-data class Podcast(
-    val id: String,
-    val title: String,
-    val description: String,
-    val author: String,
-    val feedUrl: String,
-    val websiteUrl: String? = null,
-    val imageUrl: String? = null,
-    val category: String? = null,
-    val language: String = "en",
-    val isSubscribed: Boolean = false,
-    val lastUpdated: Date? = null,
-    val episodes: List<PodcastEpisode> = emptyList(),
-    val totalEpisodes: Int = 0,
-    val explicit: Boolean = false
-)
-
-data class PodcastEpisode(
-    val id: String,
-    val title: String,
-    val description: String,
-    val audioUrl: String,
-    val duration: Long = 0, // in seconds
-    val fileSize: Long = 0, // in bytes
-    val publishDate: Date,
-    val isDownloaded: Boolean = false,
-    val isPlayed: Boolean = false,
-    val localFilePath: String? = null,
-    val episodeNumber: Int? = null,
-    val seasonNumber: Int? = null,
-    val imageUrl: String? = null,
-    val chapterMarks: List<ChapterMark> = emptyList()
-)
+// Podcast, PodcastEpisode, PodcastSearchResult models are defined in PodcastModels.kt
 
 data class ChapterMark(
     val title: String,
     val startTime: Long, // in seconds
     val url: String? = null
-)
-
-data class PodcastSearchResult(
-    val id: String,
-    val title: String,
-    val author: String,
-    val description: String,
-    val feedUrl: String,
-    val imageUrl: String?,
-    val episodeCount: Int,
-    val category: String?
 )
 
 // RSS/XML parsing models
@@ -108,7 +64,7 @@ interface PodcastIndexApi {
         @Query("q") query: String,
         @Query("max") maxResults: Int = 20
     ): PodcastSearchResponse
-    
+
     @GET("episodes/byfeedurl")
     suspend fun getEpisodesByFeedUrl(
         @Query("url") feedUrl: String,
@@ -123,7 +79,7 @@ interface ListenNotesApi {
         @Query("type") type: String = "podcast",
         @Query("page_size") pageSize: Int = 20
     ): ListenNotesResponse
-    
+
     @GET("podcasts/{id}")
     suspend fun getPodcastById(@Path("id") id: String): ListenNotesPodcast
 }
@@ -135,7 +91,7 @@ interface iTunesSearchApi {
         @Query("media") media: String = "podcast",
         @Query("limit") limit: Int = 20
     ): iTunesSearchResponse
-    
+
     @GET("lookup")
     suspend fun lookupPodcast(@Query("id") id: String): iTunesSearchResponse
 }
@@ -148,7 +104,7 @@ interface SpotifyPodcastApi {
         @Query("limit") limit: Int = 20,
         @Header("Authorization") authorization: String
     ): SpotifySearchResponse
-    
+
     @GET("shows/{id}")
     suspend fun getPodcastById(
         @Path("id") id: String,
@@ -316,9 +272,9 @@ data class TaddyPodcast(
 class PodcastService @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context
 ) {
-    
+
     private val httpClient = OkHttpClient.Builder().build()
-    
+
     private val podcastIndexApi: PodcastIndexApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.podcastindex.org/api/1.0/")
@@ -327,7 +283,7 @@ class PodcastService @Inject constructor(
             .build()
             .create(PodcastIndexApi::class.java)
     }
-    
+
     private val listenNotesApi: ListenNotesApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://listen-api.listennotes.com/api/v2/")
@@ -336,7 +292,7 @@ class PodcastService @Inject constructor(
             .build()
             .create(ListenNotesApi::class.java)
     }
-    
+
     private val iTunesSearchApi: iTunesSearchApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://itunes.apple.com/")
@@ -345,7 +301,7 @@ class PodcastService @Inject constructor(
             .build()
             .create(iTunesSearchApi::class.java)
     }
-    
+
     private val spotifyApi: SpotifyPodcastApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.spotify.com/v1/")
@@ -354,7 +310,7 @@ class PodcastService @Inject constructor(
             .build()
             .create(SpotifyPodcastApi::class.java)
     }
-    
+
     private val taddyApi: TaddyPodcastApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://api.taddy.org/")
@@ -369,12 +325,12 @@ class PodcastService @Inject constructor(
      * Matches and exceeds Calibre's podcast discovery capabilities
      */
     suspend fun searchPodcasts(
-        query: String, 
+        query: String,
         apiKeys: Map<String, String> = emptyMap()
     ): List<PodcastSearchResult> {
         return withContext(Dispatchers.IO) {
             val allResults = mutableListOf<PodcastSearchResult>()
-            
+
             // 1. PodcastIndex.org (free, no key required)
             try {
                 val podcastIndexResults = searchPodcastIndex(query)
@@ -382,15 +338,15 @@ class PodcastService @Inject constructor(
             } catch (e: Exception) {
                 // Continue with other sources
             }
-            
-            // 2. iTunes/Apple Podcasts (free, largest directory)  
+
+            // 2. iTunes/Apple Podcasts (free, largest directory)
             try {
                 val iTunesResults = searchiTunesPodcasts(query)
                 allResults.addAll(iTunesResults)
             } catch (e: Exception) {
                 // Continue with other sources
             }
-            
+
             // 3. Listen Notes (requires API key, most comprehensive)
             try {
                 apiKeys["listen_notes"]?.let { key ->
@@ -400,7 +356,7 @@ class PodcastService @Inject constructor(
             } catch (e: Exception) {
                 // Continue with other sources
             }
-            
+
             // 4. Spotify (requires OAuth token)
             try {
                 apiKeys["spotify_token"]?.let { token ->
@@ -410,7 +366,7 @@ class PodcastService @Inject constructor(
             } catch (e: Exception) {
                 // Continue with other sources
             }
-            
+
             // 5. Taddy (requires API key, has webhooks)
             try {
                 apiKeys["taddy"]?.let { key ->
@@ -420,12 +376,12 @@ class PodcastService @Inject constructor(
             } catch (e: Exception) {
                 // Continue with other sources
             }
-            
+
             // Remove duplicates based on feed URL and title similarity
             deduplicatePodcastResults(allResults)
         }
     }
-    
+
     private suspend fun searchPodcastIndex(query: String): List<PodcastSearchResult> {
         val response = podcastIndexApi.searchPodcasts(query)
         return response.feeds.map { feed ->
@@ -441,7 +397,7 @@ class PodcastService @Inject constructor(
             )
         }
     }
-    
+
     private suspend fun searchiTunesPodcasts(query: String): List<PodcastSearchResult> {
         val response = iTunesSearchApi.searchPodcasts(query)
         return response.results.map { podcast ->
@@ -457,7 +413,7 @@ class PodcastService @Inject constructor(
             )
         }
     }
-    
+
     private suspend fun searchListenNotes(query: String, apiKey: String): List<PodcastSearchResult> {
         val client = httpClient.newBuilder()
             .addInterceptor { chain ->
@@ -467,14 +423,14 @@ class PodcastService @Inject constructor(
                 chain.proceed(request)
             }
             .build()
-            
+
         val apiWithAuth = Retrofit.Builder()
             .baseUrl("https://listen-api.listennotes.com/api/v2/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
             .create(ListenNotesApi::class.java)
-            
+
         val response = apiWithAuth.searchPodcasts(query)
         return response.results.map { podcast ->
             PodcastSearchResult(
@@ -489,7 +445,7 @@ class PodcastService @Inject constructor(
             )
         }
     }
-    
+
     private suspend fun searchSpotifyPodcasts(query: String, token: String): List<PodcastSearchResult> {
         val response = spotifyApi.searchPodcasts(query, authorization = "Bearer $token")
         return response.shows.items.map { show ->
@@ -505,7 +461,7 @@ class PodcastService @Inject constructor(
             )
         }
     }
-    
+
     private suspend fun searchTaddyPodcasts(query: String, apiKey: String): List<PodcastSearchResult> {
         val response = taddyApi.searchPodcasts(query, apiKey = apiKey)
         return response.results.map { podcast ->
@@ -521,16 +477,16 @@ class PodcastService @Inject constructor(
             )
         }
     }
-    
+
     private fun deduplicatePodcastResults(results: List<PodcastSearchResult>): List<PodcastSearchResult> {
         // Group by feed URL first (most accurate)
         val byFeedUrl = results.groupBy { it.feedUrl.lowercase() }
         val deduplicated = mutableListOf<PodcastSearchResult>()
-        
+
         byFeedUrl.forEach { (feedUrl, podcasts) ->
             if (feedUrl.isNotEmpty()) {
                 // Take the result with most complete information
-                val best = podcasts.maxByOrNull { 
+                val best = podcasts.maxByOrNull {
                     (if (it.description.isNotEmpty()) 1 else 0) +
                     (if (it.imageUrl != null) 1 else 0) +
                     (if (it.category != null) 1 else 0) +
@@ -542,7 +498,7 @@ class PodcastService @Inject constructor(
                 deduplicated.addAll(podcasts)
             }
         }
-        
+
         // Additional deduplication by title similarity for remaining items
         return deduplicated.distinctBy { it.title.lowercase().trim() }
     }
@@ -555,7 +511,7 @@ class PodcastService @Inject constructor(
             try {
                 val rssFeed = parseRSSFeed(feedUrl)
                 val podcastId = generatePodcastId(feedUrl)
-                
+
                 Podcast(
                     id = podcastId,
                     title = rssFeed.title,
@@ -586,7 +542,7 @@ class PodcastService @Inject constructor(
             try {
                 val rssFeed = parseRSSFeed(podcast.feedUrl)
                 val currentEpisodes = convertRSSItemsToEpisodes(rssFeed.items, podcast.id)
-                
+
                 // Find episodes not in the existing list
                 val existingGuids = podcast.episodes.map { it.id }.toSet()
                 currentEpisodes.filter { it.id !in existingGuids }
@@ -604,24 +560,24 @@ class PodcastService @Inject constructor(
             try {
                 val request = Request.Builder().url(episode.audioUrl).build()
                 val response = httpClient.newCall(request).execute()
-                
+
                 if (!response.isSuccessful) return@withContext null
-                
+
                 // Create download directory
                 val podcastDir = File(context.getExternalFilesDir("podcasts"), sanitizeFileName(podcastTitle))
                 podcastDir.mkdirs()
-                
+
                 // Generate filename
                 val fileName = "${sanitizeFileName(episode.title)}.${getFileExtension(episode.audioUrl)}"
                 val file = File(podcastDir, fileName)
-                
+
                 // Download file
                 response.body?.byteStream()?.use { input ->
                     FileOutputStream(file).use { output ->
                         input.copyTo(output)
                     }
                 }
-                
+
                 file.absolutePath
             } catch (e: Exception) {
                 null
@@ -651,26 +607,26 @@ class PodcastService @Inject constructor(
         val request = Request.Builder().url(feedUrl).build()
         val response = httpClient.newCall(request).execute()
         val xml = response.body?.string() ?: throw Exception("Empty RSS feed")
-        
+
         val doc = Jsoup.parse(xml, "", Parser.xmlParser())
-        
+
         // Parse channel info
         val channel = doc.select("channel").first()
             ?: throw Exception("Invalid RSS feed - no channel found")
-        
+
         val title = channel.select("title").text()
         val description = channel.select("description").text()
         val link = channel.select("link").text()
-        val imageUrl = channel.select("image url").text().ifEmpty { 
+        val imageUrl = channel.select("image url").text().ifEmpty {
             channel.select("itunes|image").attr("href")
         }
         val language = channel.select("language").text()
-        val author = channel.select("itunes|author").text().ifEmpty { 
-            channel.select("managingEditor").text() 
+        val author = channel.select("itunes|author").text().ifEmpty {
+            channel.select("managingEditor").text()
         }
         val category = channel.select("itunes|category").attr("text")
         val explicit = channel.select("itunes|explicit").text().equals("yes", true)
-        
+
         // Parse episodes
         val items = channel.select("item").map { item ->
             RSSItem(
@@ -687,7 +643,7 @@ class PodcastService @Inject constructor(
                 imageUrl = item.select("itunes|image").attr("href")
             )
         }.filter { it.audioUrl.isNotEmpty() } // Only include items with audio
-        
+
         return RSSFeed(
             title = title,
             description = description,
@@ -706,16 +662,16 @@ class PodcastService @Inject constructor(
      */
     private fun convertRSSItemsToEpisodes(items: List<RSSItem>, podcastId: String): List<PodcastEpisode> {
         val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
-        
+
         return items.mapIndexed { index, item ->
             val publishDate = try {
                 dateFormat.parse(item.pubDate ?: "")
             } catch (e: Exception) {
                 Date() // Fallback to current date
             }
-            
+
             val duration = parseDuration(item.duration)
-            
+
             PodcastEpisode(
                 id = item.guid ?: "${podcastId}_$index",
                 title = item.title,
@@ -745,7 +701,7 @@ class PodcastService @Inject constructor(
      */
     private fun parseDuration(durationStr: String?): Long {
         if (durationStr.isNullOrEmpty()) return 0L
-        
+
         return try {
             if (durationStr.contains(":")) {
                 val parts = durationStr.split(":")
@@ -811,7 +767,7 @@ class PodcastService @Inject constructor(
             try {
                 val doc = Jsoup.parse(opmlContent, "", Parser.xmlParser())
                 val outlines = doc.select("outline[xmlUrl]")
-                
+
                 outlines.mapNotNull { outline ->
                     val feedUrl = outline.attr("xmlUrl")
                     if (feedUrl.isNotEmpty()) {
@@ -836,7 +792,7 @@ class PodcastService @Inject constructor(
         opml.append("    <dateCreated>${Date()}</dateCreated>\n")
         opml.append("  </head>\n")
         opml.append("  <body>\n")
-        
+
         podcasts.forEach { podcast ->
             opml.append("    <outline text=\"${escapeXml(podcast.title)}\" ")
             opml.append("title=\"${escapeXml(podcast.title)}\" ")
@@ -847,10 +803,10 @@ class PodcastService @Inject constructor(
             }
             opml.append("/>\n")
         }
-        
+
         opml.append("  </body>\n")
         opml.append("</opml>")
-        
+
         return opml.toString()
     }
 

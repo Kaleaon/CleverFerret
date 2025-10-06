@@ -49,74 +49,74 @@ export const useAppStore = create<AppState>()(
         fontSize: 16,
       },
 
-  loadLibraries: async () => {
-    set({ isLoading: true });
-    try {
-      const libraries = await LibraryService.getAllLibraries();
-      set({ libraries, isLoading: false });
+      loadLibraries: async () => {
+        set({ isLoading: true });
+        try {
+          const libraries = await LibraryService.getAllLibraries();
+          set({ libraries, isLoading: false });
 
-      // Initialize with default library if empty (like Android version)
-      if (libraries.length === 0) {
-        await get().addLibrary('My Books', 'BOOK', '/books');
-      }
-    } catch (error) {
-      console.error('Failed to load libraries:', error);
-      set({ isLoading: false });
-    }
-  },
-
-  addLibrary: async (name: string, type: Library['type'], path: string) => {
-    try {
-      await LibraryService.addLibrary({ name, type, path });
-      await get().loadLibraries(); // Refresh the list
-    } catch (error) {
-      console.error('Failed to add library:', error);
-    }
-  },
-
-  deleteLibrary: async (libraryId: number) => {
-    try {
-      await LibraryService.deleteLibrary(libraryId);
-      await get().loadLibraries(); // Refresh the list
-    } catch (error) {
-      console.error('Failed to delete library:', error);
-    }
-  },
-
-  setImportStatus: (status: ImportStatus) => {
-    set({ importStatus: status });
-  },
-
-  setTheme: (theme: UnifiedThemeName) => {
-    set({ selectedTheme: theme });
-  },
-
-  setReaderThemeMode: (mode: ReaderThemeMode) => {
-    set((state) => ({
-      readerPreferences: {
-        ...state.readerPreferences,
-        themeMode: mode,
+          // Initialize with default library if empty (like Android version)
+          if (libraries.length === 0) {
+            await get().addLibrary('My Books', 'BOOK', '/books');
+          }
+        } catch (error) {
+          console.error('Failed to load libraries:', error);
+          set({ isLoading: false });
+        }
       },
-    }));
-  },
 
-  setReaderFont: (font: ReaderFont) => {
-    set((state) => ({
-      readerPreferences: {
-        ...state.readerPreferences,
-        font,
+      addLibrary: async (name: string, type: Library['type'], path: string) => {
+        try {
+          await LibraryService.addLibrary({ name, type, path });
+          await get().loadLibraries(); // Refresh the list
+        } catch (error) {
+          console.error('Failed to add library:', error);
+        }
       },
-    }));
-  },
 
-  setReaderFontSize: (size: number) => {
-    set((state) => ({
-      readerPreferences: {
-        ...state.readerPreferences,
-        fontSize: Math.max(12, Math.min(28, size)),
+      deleteLibrary: async (libraryId: number) => {
+        try {
+          await LibraryService.deleteLibrary(libraryId);
+          await get().loadLibraries(); // Refresh the list
+        } catch (error) {
+          console.error('Failed to delete library:', error);
+        }
       },
-    }));
-  },
+
+      setImportStatus: (status: ImportStatus) => {
+        set({ importStatus: status });
+      },
+
+      setTheme: (theme: UnifiedThemeName) => {
+        set({ selectedTheme: theme });
+      },
+
+      setReaderThemeMode: (mode: ReaderThemeMode) => {
+        set((state) => ({
+          readerPreferences: {
+            ...state.readerPreferences,
+            themeMode: mode,
+          },
+        }));
+      },
+
+      setReaderFont: (font: ReaderFont) => {
+        set((state) => ({
+          readerPreferences: {
+            ...state.readerPreferences,
+            font,
+          },
+        }));
+      },
+
+      setReaderFontSize: (size: number) => {
+        set((state) => ({
+          readerPreferences: {
+            ...state.readerPreferences,
+            fontSize: Math.max(12, Math.min(28, size)),
+          },
+        }));
+      },
     }),
     {
       name: 'cleverferret-storage',
@@ -124,6 +124,6 @@ export const useAppStore = create<AppState>()(
         selectedTheme: state.selectedTheme,
         readerPreferences: state.readerPreferences,
       }),
-    }
-  )
+    },
+  ),
 );

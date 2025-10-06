@@ -28,15 +28,11 @@ import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
   Book as BookIcon,
-  Movie as MovieIcon,
-  MusicNote as MusicIcon,
-  Description as DocumentIcon,
   Podcasts as PodcastIcon,
   Article as MagazineIcon,
   VideoLibrary as VideoIcon,
   LibraryMusic as LibraryMusicIcon,
   Collections as CollectionsIcon,
-  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/app-store';
@@ -440,7 +436,7 @@ export const LibraryListScreen: React.FC = () => {
     // File System Access API to select Calibre metadata.db
     const openPicker = async () => {
       try {
-        // @ts-ignore - showOpenFilePicker not in TS lib by default for all environments
+        // @ts-expect-error - showOpenFilePicker not in TS lib by default for all environments
         const [handle] = await window.showOpenFilePicker({
           types: [
             {
@@ -457,11 +453,11 @@ export const LibraryListScreen: React.FC = () => {
           { type: 'PROCESS_FILE', file, fileType: 'calibre-db' },
           [channel.port2],
         );
-        channel.port1.onmessage = async (e) => {
-          console.log('Calibre import result', e.data);
+        channel.port1.onmessage = async (_e) => {
+          // Calibre import result: e.data
         };
-      } catch (e) {
-        console.warn('Import cancelled or not supported', e);
+      } catch (_e) {
+        // Import cancelled or not supported
       } finally {
         handleMenuClose();
       }
@@ -552,27 +548,27 @@ export const LibraryListScreen: React.FC = () => {
             >
               📚 Import Calibre Library
             </MenuItem>
-          <MenuItem
-            onClick={async () => {
-              // Demo: queue a download for the first library dummy item
-              handleMenuClose();
-              try {
-                await DownloadService.queueDownload(1, '/demo/file.epub');
-                console.log('Demo download queued successfully');
-              } catch (error) {
-                console.error('Failed to queue download:', error);
-              }
-            }}
-            sx={{
-              py: 1.5,
-              px: 2,
-              '&:hover': {
-                bgcolor: 'secondary.main',
-              },
-            }}
-          >
-            ⬇️ Queue Demo Download
-          </MenuItem>
+            <MenuItem
+              onClick={async () => {
+                // Demo: queue a download for the first library dummy item
+                handleMenuClose();
+                try {
+                  await DownloadService.queueDownload(1, '/demo/file.epub');
+                  // Demo download queued successfully
+                } catch (error) {
+                  // Failed to queue download
+                }
+              }}
+              sx={{
+                py: 1.5,
+                px: 2,
+                '&:hover': {
+                  bgcolor: 'secondary.main',
+                },
+              }}
+            >
+              ⬇️ Queue Demo Download
+            </MenuItem>
             <MenuItem
               onClick={() => {
                 handleMenuClose();

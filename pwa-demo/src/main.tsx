@@ -14,7 +14,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('./sw.js')
       .then((registration) => {
-        console.log('SW registered: ', registration);
+        // SW registered: registration
 
         // Listen for updates
         if (registration.waiting) {
@@ -26,7 +26,7 @@ if ('serviceWorker' in navigator) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 // New content available; prompt refresh or auto-reload
-                console.log('New content is available; refreshing');
+                // New content is available; refreshing
                 newWorker.postMessage({ type: 'SKIP_WAITING' });
                 window.location.reload();
               }
@@ -41,8 +41,8 @@ if ('serviceWorker' in navigator) {
           }
         });
       })
-      .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
+      .catch((_registrationError) => {
+        // SW registration failed: registrationError
       });
   });
 }

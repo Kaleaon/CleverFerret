@@ -359,10 +359,7 @@ const LibraryScreen: React.FC = () => {
         <Grid container spacing={3}>
           {demoItems.map((item) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
-              <MediaItem
-                item={item}
-                onClick={() => navigate(`/media/${item.id}`)}
-              />
+              <MediaItem item={item} onClick={() => navigate(`/media/${item.id}`)} />
             </Grid>
           ))}
         </Grid>
@@ -420,8 +417,9 @@ const DeepLinkHandler: React.FC = () => {
     }
     if (url) {
       // In a real app, handle custom protocol deep-links
-      console.log('Received deep link url', url);
+      // Received deep link url: url
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
   return null;
 };

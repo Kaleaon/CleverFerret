@@ -311,9 +311,3 @@ data class PlaybackSettings(
     val networkTimeout: Int,
     val useGPUDecoding: Boolean
 )
-
-enum class VideoPlayerType {
-    EXOPLAYER,
-    VLC,
-    SYSTEM_PLAYER
-}

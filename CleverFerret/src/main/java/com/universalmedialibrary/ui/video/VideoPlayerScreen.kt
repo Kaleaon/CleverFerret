@@ -30,18 +30,18 @@ fun VideoPlayerScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    
+
     // Create ExoPlayer
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build()
     }
-    
+
     DisposableEffect(Unit) {
         onDispose {
             exoPlayer.release()
         }
     }
-    
+
     CleverFerretTheme(palette = ThemePalette.SLATE_GUNMETAL) {
         Box(
             modifier = Modifier
@@ -62,7 +62,7 @@ fun VideoPlayerScreen(
                 },
                 modifier = Modifier.fillMaxSize()
             )
-            
+
             // Back button overlay
             IconButton(
                 onClick = onBack,

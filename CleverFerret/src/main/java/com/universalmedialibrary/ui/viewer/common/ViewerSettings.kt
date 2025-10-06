@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.viewer.common
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 
 /**
  * Common viewer settings and models
@@ -15,7 +16,20 @@ data class ViewerSettings(
     val textColor: Color = Color.Black,
     val fontSize: Float = 16f,
     val lineSpacing: Float = 1.5f,
-    val autoScrollSpeed: Float = 1.0f
+    val autoScrollSpeed: Float = 1.0f,
+    // Document reading properties
+    val fontFamily: FontFamily = FontFamily.Default,
+    val textAlignment: TextAlignment = TextAlignment.LEFT,
+    val marginHorizontal: Float = 16f,
+    // Reading mode and direction
+    val readingMode: ReadingMode = ReadingMode.PAGE_BY_PAGE,
+    val readingDirection: ReadingDirection = ReadingDirection.LEFT_TO_RIGHT,
+    // Additional features
+    val volumeKeysForNavigation: Boolean = false,
+    val autoBookmarks: Boolean = true,
+    val readingAnalytics: Boolean = true,
+    val doubleTapToZoom: Boolean = true,
+    val pinchToZoom: Boolean = true
 )
 
 data class VideoSettings(
@@ -43,7 +57,11 @@ data class ComicSettings(
     val enablePageTurn: Boolean = true,
     val doubleTapZoom: Boolean = true,
     val panelDetection: Boolean = true,
-    val smoothScrolling: Boolean = true
+    val smoothScrolling: Boolean = true,
+    val panelByPanelMode: Boolean = false,
+    val showPanelBorders: Boolean = false,
+    val panelTransitionDuration: Long = 300L,
+    val panelNavigationHints: Boolean = true
 )
 
 enum class ReadingMode {

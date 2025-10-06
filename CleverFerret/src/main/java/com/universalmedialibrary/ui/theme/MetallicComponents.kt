@@ -32,7 +32,7 @@ fun MetallicButton(
     enabled: Boolean = true
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     Button(
         onClick = onClick,
         modifier = modifier
@@ -71,7 +71,7 @@ fun MetallicCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     Card(
         modifier = modifier
             .shadow(
@@ -107,7 +107,7 @@ fun MetallicDivider(
     thickness: androidx.compose.ui.unit.Dp = 1.dp
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -135,7 +135,7 @@ fun MetallicBadge(
     modifier: Modifier = Modifier
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
@@ -167,7 +167,7 @@ fun MetallicIconButton(
     icon: @Composable () -> Unit
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     IconButton(
         onClick = onClick,
         modifier = modifier
@@ -206,7 +206,7 @@ fun MetallicFAB(
     icon: @Composable () -> Unit
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier
@@ -239,7 +239,7 @@ fun MetallicTopAppBar(
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     TopAppBar(
         title = title,
         modifier = modifier
@@ -267,7 +267,7 @@ fun MetallicProgressBar(
     modifier: Modifier = Modifier
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     LinearProgressIndicator(
         progress = progress,
         modifier = modifier
@@ -287,7 +287,7 @@ fun MetallicAccentBox(
     content: @Composable BoxScope.() -> Unit
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     Box(
         modifier = modifier
             .shadow(
@@ -326,7 +326,7 @@ fun MetallicText(
     style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.titleLarge
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     Text(
         text = text,
         modifier = modifier,
@@ -352,7 +352,7 @@ fun MetallicStatsCard(
     modifier: Modifier = Modifier
 ) {
     val metallic = LocalMetallicGradient.current
-    
+
     MetallicAccentBox(
         modifier = modifier.width(120.dp)
     ) {

@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object RadioModule {
-    
+
     @Provides
     @Singleton
     fun provideRadioStationDao(database: AppDatabase): RadioStationDao {

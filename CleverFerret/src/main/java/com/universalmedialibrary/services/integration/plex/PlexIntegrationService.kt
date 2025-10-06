@@ -461,26 +461,7 @@ data class PlexLibraryStats(
     val photos: Int
 )
 
-// Result classes
-sealed class PlexConnectionResult {
-    data class Success(val connection: PlexServerConnection) : PlexConnectionResult()
-    data class Error(val message: String) : PlexConnectionResult()
-}
-
-sealed class MetadataEnhancementResult {
-    data class Success(val enhanced: Int, val failed: Int, val details: List<ItemEnhancementResult>) : MetadataEnhancementResult()
-    data class Error(val message: String) : MetadataEnhancementResult()
-}
-
-sealed class DuplicateAnalysisResult {
-    data class Success(val duplicateGroups: List<DuplicateGroup>) : DuplicateAnalysisResult()
-    data class Error(val message: String) : DuplicateAnalysisResult()
-}
-
-sealed class SmartCollectionResult {
-    data class Success(val collections: List<SmartCollection>) : SmartCollectionResult()
-    data class Error(val message: String) : SmartCollectionResult()
-}
+// Result classes are defined in PlexServiceResults.kt
 
 data class ItemEnhancementResult(
     val ratingKey: String,
@@ -488,7 +469,8 @@ data class ItemEnhancementResult(
     val details: String
 )
 
-data class DuplicateGroup(
+// Note: DuplicateGroup is defined in PlexServiceResults.kt
+data class DuplicateGroupLocal(
     val id: String,
     val title: String,
     val items: List<PlexMediaItem>,

@@ -39,10 +39,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.viewer.common.ComicSettings
 import com.universalmedialibrary.ui.viewer.common.ReadingDirection
 import com.universalmedialibrary.ui.viewer.common.ReadingMode
+import com.universalmedialibrary.ui.viewer.common.ViewerSettings
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.max
@@ -65,19 +67,19 @@ fun AdvancedComicReader(
     onBack: () -> Unit,
     viewModel: AdvancedComicReaderViewModel = hiltViewModel()
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
         val density = LocalDensity.current
-        
+
         var showControls by remember { mutableStateOf(true) }
         var showSettings by remember { mutableStateOf(false) }
         var showPanelBrowser by remember { mutableStateOf(false) }
-        
+
         var scale by remember { mutableFloatStateOf(1f) }
         var offsetX by remember { mutableFloatStateOf(0f) }
         var offsetY by remember { mutableFloatStateOf(0f) }
-        
+
         // Guided view animation state
         var guidedViewOffset by remember { mutableStateOf(Offset.Zero) }
         val guidedViewAnimation = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
@@ -130,7 +132,7 @@ fun AdvancedComicReader(
                 uiState.isLoading -> {
                     LoadingState()
                 }
-                
+
                 uiState.error != null -> {
                     ErrorState(
                         error = uiState.error!!,
@@ -138,10 +140,10 @@ fun AdvancedComicReader(
                         onBack = onBack
                     )
                 }
-                
+
                 uiState.isLoaded -> {
-                    when (uiState.settings.readingMode) {
-                        ReadingMode.CONTINUOUS_SCROLL -> {
+                    when (uiState.comicSettings.readingMode) {
+                        ReadingMode.WEBTOON, ReadingMode.CONTINUOUS_VERTICAL -> {
                             WebtoonView(
                                 pages = uiState.pages,
                                 currentPage = uiState.currentPage,
@@ -149,8 +151,8 @@ fun AdvancedComicReader(
                                 onTap = { showControls = !showControls }
                             )
                         }
-                        
-                        ReadingMode.DOUBLE_PAGE -> {
+
+                        ReadingMode.CONTINUOUS_HORIZONTAL -> {
                             DoublePageView(
                                 pages = uiState.pages,
                                 currentPage = uiState.currentPage,
@@ -159,14 +161,14 @@ fun AdvancedComicReader(
                                 offsetY = offsetY,
                                 onPageChanged = { page -> viewModel.setCurrentPage(page) },
                                 onScaleChanged = { newScale -> scale = newScale },
-                                onOffsetChanged = { x, y -> 
+                                onOffsetChanged = { x, y ->
                                     offsetX = x
                                     offsetY = y
                                 },
                                 onTap = { showControls = !showControls }
                             )
                         }
-                        
+
                         else -> {
                             SinglePageView(
                                 pages = uiState.pages,
@@ -181,13 +183,13 @@ fun AdvancedComicReader(
                                 onPageChanged = { page -> viewModel.setCurrentPage(page) },
                                 onPanelSelected = { panel -> viewModel.setCurrentPanel(panel) },
                                 onScaleChanged = { newScale -> scale = newScale },
-                                onOffsetChanged = { x, y -> 
+                                onOffsetChanged = { x, y ->
                                     if (!uiState.comicSettings.panelByPanelMode) {
                                         offsetX = x
                                         offsetY = y
                                     }
                                 },
-                                onTap = { 
+                                onTap = {
                                     if (uiState.comicSettings.panelByPanelMode) {
                                         viewModel.nextPanel()
                                     } else {
@@ -233,9 +235,9 @@ fun AdvancedComicReader(
                     currentPanel = uiState.currentPanel,
                     totalPanels = uiState.currentPagePanels.size,
                     panelByPanelMode = uiState.comicSettings.panelByPanelMode,
-                    readingDirection = uiState.settings.readingDirection,
+                    readingDirection = uiState.comicSettings.readingDirection,
                     canGoPrevious = uiState.currentPage > 1 || uiState.currentPanel > 0,
-                    canGoNext = uiState.currentPage < uiState.totalPages || 
+                    canGoNext = uiState.currentPage < uiState.totalPages ||
                                uiState.currentPanel < uiState.currentPagePanels.size - 1,
                     onPreviousPage = { viewModel.previousPage() },
                     onNextPage = { viewModel.nextPage() },
@@ -247,8 +249,8 @@ fun AdvancedComicReader(
             }
 
             // Panel navigation hints
-            if (uiState.comicSettings.panelByPanelMode && 
-                uiState.comicSettings.panelNavigationHints && 
+            if (uiState.comicSettings.panelByPanelMode &&
+                uiState.comicSettings.panelNavigationHints &&
                 showControls) {
                 PanelNavigationHints(
                     currentPanel = uiState.currentPanel,
@@ -310,7 +312,7 @@ private fun SinglePageView(
 ) {
     if (currentPage > 0 && currentPage <= pages.size) {
         val currentPageUri = pages[currentPage - 1]
-        
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -382,7 +384,7 @@ private fun SinglePageView(
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     panels.forEachIndexed { index, panel ->
                         val isCurrentPanel = panelByPanelMode && index == currentPanel
-                        
+
                         drawRect(
                             color = if (isCurrentPanel) Color.Red else Color.Yellow,
                             topLeft = Offset(panel.left, panel.top),
@@ -391,7 +393,7 @@ private fun SinglePageView(
                                 width = if (isCurrentPanel) 4.dp.toPx() else 2.dp.toPx()
                             )
                         )
-                        
+
                         if (showPanelBorders) {
                             drawRect(
                                 color = Color.Black.copy(alpha = 0.1f),
@@ -494,7 +496,7 @@ private fun WebtoonView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                contentScale = ContentScale.FitWidth
+                contentScale = ContentScale.FillWidth
             )
         }
     }
@@ -631,6 +633,175 @@ private fun ErrorState(
                 }
                 Button(onClick = onRetry) {
                     Text("Retry")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopComicControls(
+    title: String,
+    currentPage: Int,
+    totalPages: Int,
+    currentPanel: Int,
+    totalPanels: Int,
+    panelByPanelMode: Boolean,
+    onBack: () -> Unit,
+    onPanelBrowser: () -> Unit,
+    onSettings: () -> Unit
+) {
+    Surface(
+        color = Color.Black.copy(alpha = 0.7f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "Page $currentPage/$totalPages" + if (panelByPanelMode) " - Panel $currentPanel/$totalPanels" else "",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+            Row {
+                IconButton(onClick = onPanelBrowser) {
+                    Icon(Icons.Default.GridView, contentDescription = "Panel Browser", tint = Color.White)
+                }
+                IconButton(onClick = onSettings) {
+                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BottomComicControls(
+    currentPage: Int,
+    totalPages: Int,
+    currentPanel: Int,
+    totalPanels: Int,
+    panelByPanelMode: Boolean,
+    readingDirection: ReadingDirection,
+    canGoPrevious: Boolean,
+    canGoNext: Boolean,
+    onPreviousPage: () -> Unit,
+    onNextPage: () -> Unit,
+    onPreviousPanel: () -> Unit,
+    onNextPanel: () -> Unit,
+    onPageSeek: (Int) -> Unit,
+    onTogglePanelMode: () -> Unit
+) {
+    Surface(
+        color = Color.Black.copy(alpha = 0.7f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = if (panelByPanelMode) onPreviousPanel else onPreviousPage, enabled = canGoPrevious) {
+                    Icon(
+                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.Default.ArrowForward else Icons.Default.ArrowBack,
+                        contentDescription = "Previous",
+                        tint = if (canGoPrevious) Color.White else Color.Gray
+                    )
+                }
+                Text("$currentPage / $totalPages", color = Color.White)
+                IconButton(onClick = if (panelByPanelMode) onNextPanel else onNextPage, enabled = canGoNext) {
+                    Icon(
+                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.Default.ArrowBack else Icons.Default.ArrowForward,
+                        contentDescription = "Next",
+                        tint = if (canGoNext) Color.White else Color.Gray
+                    )
+                }
+                IconButton(onClick = onTogglePanelMode) {
+                    Icon(
+                        if (panelByPanelMode) Icons.Default.ViewAgenda else Icons.Default.Dashboard,
+                        contentDescription = "Toggle Panel Mode",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ComicReaderSettingsSheet(
+    settings: ViewerSettings,
+    comicSettings: ComicSettings,
+    onDismiss: () -> Unit,
+    onSettingsChanged: (ViewerSettings) -> Unit,
+    onComicSettingsChanged: (ComicSettings) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text("Comic Reader Settings", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Reading Mode", style = MaterialTheme.typography.titleMedium)
+            // Add basic settings UI - stub implementation
+            Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+                Text("Close")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PanelBrowserSheet(
+    pages: List<String>,
+    currentPage: Int,
+    panels: Map<Int, List<Rect>>,
+    onDismiss: () -> Unit,
+    onPageSelected: (Int) -> Unit,
+    onPanelSelected: (Int, Int) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text("Panel Browser", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Add thumbnail grid - stub implementation
+            LazyColumn {
+                items(pages.size) { index ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable { onPageSelected(index + 1) }
+                    ) {
+                        Text(
+                            "Page ${index + 1}",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
         }

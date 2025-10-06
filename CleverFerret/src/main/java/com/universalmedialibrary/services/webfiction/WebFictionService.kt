@@ -13,58 +13,29 @@ import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// Data models for web fiction
-data class WebFictionStory(
-    val id: String,
-    val title: String,
-    val author: String,
-    val description: String,
-    val url: String,
-    val site: WebFictionSite,
-    val chapters: List<WebFictionChapter> = emptyList(),
-    val totalChapters: Int = 0,
-    val lastUpdated: String? = null,
-    val status: String = "Unknown", // Complete, In-Progress, Hiatus
-    val rating: String? = null,
-    val tags: List<String> = emptyList(),
-    val coverUrl: String? = null,
-    val wordCount: Long = 0
-)
+// WebFictionStory, WebFictionChapter models are defined in WebFictionModels.kt
 
-data class WebFictionChapter(
-    val id: String,
-    val title: String,
-    val url: String,
-    val content: String,
-    val chapterNumber: Int,
-    val publishDate: String? = null,
-    val wordCount: Int = 0
-)
-
-enum class WebFictionSite(
-    val displayName: String,
-    val baseUrl: String,
-    val supportsUpdate: Boolean = true
-) {
-    ARCHIVE_OF_OUR_OWN("Archive of Our Own", "https://archiveofourown.org", true),
-    FANFICTION_NET("FanFiction.Net", "https://www.fanfiction.net", true),
-    ROYAL_ROAD("Royal Road", "https://www.royalroad.com", true),
-    WEBNOVEL("WebNovel", "https://www.webnovel.com", true),
-    WATTPAD("Wattpad", "https://www.wattpad.com", true),
-    SCRIBBLE_HUB("Scribble Hub", "https://www.scribblehub.com", true),
-    SPACEBATTLES("SpaceBattles", "https://forums.spacebattles.com", true),
-    SUFFICIENT_VELOCITY("Sufficient Velocity", "https://forums.sufficientvelocity.com", true),
-    QUESTIONABLE_QUESTING("Questionable Questing", "https://forum.questionablequesting.com", true),
-    FIMFICTION("FimFiction", "https://www.fimfiction.net", true),
-    LITEROTICA("Literotica", "https://www.literotica.com", false), // Adult content
-    GENERIC("Generic Web Fiction", "", true) // For custom/unsupported sites
+// WebFictionSite enum - site definitions
+enum class WebFictionSiteType {
+    ARCHIVE_OF_OUR_OWN,
+    FANFICTION_NET,
+    ROYAL_ROAD,
+    WEBNOVEL,
+    WATTPAD,
+    SCRIBBLE_HUB,
+    SPACEBATTLES,
+    SUFFICIENT_VELOCITY,
+    QUESTIONABLE_QUESTING,
+    FIMFICTION,
+    LITEROTICA,
+    GENERIC
 }
 
 // API interfaces for sites that have them
 interface RoyalRoadApi {
     @GET("fiction/{fictionId}")
     suspend fun getFiction(@Path("fictionId") fictionId: String): RoyalRoadFiction
-    
+
     @GET("fiction/{fictionId}/chapters")
     suspend fun getChapters(@Path("fictionId") fictionId: String): List<RoyalRoadChapter>
 }
@@ -99,7 +70,7 @@ data class RoyalRoadChapter(
 
 @Singleton
 class WebFictionService @Inject constructor() {
-    
+
     private val royalRoadApi: RoyalRoadApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://www.royalroad.com/api/")
@@ -116,13 +87,13 @@ class WebFictionService @Inject constructor() {
             try {
                 val site = detectSite(url)
                 when (site) {
-                    WebFictionSite.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
-                    WebFictionSite.FANFICTION_NET -> extractFromFFN(url)
-                    WebFictionSite.ROYAL_ROAD -> extractFromRoyalRoad(url)
-                    WebFictionSite.WEBNOVEL -> extractFromWebnovel(url)
-                    WebFictionSite.WATTPAD -> extractFromWattpad(url)
-                    WebFictionSite.SCRIBBLE_HUB -> extractFromScribbleHub(url)
-                    WebFictionSite.FIMFICTION -> extractFromFimFiction(url)
+                    WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
+                    WebFictionSiteType.FANFICTION_NET -> extractFromFFN(url)
+                    WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(url)
+                    WebFictionSiteType.WEBNOVEL -> extractFromWebnovel(url)
+                    WebFictionSiteType.WATTPAD -> extractFromWattpad(url)
+                    WebFictionSiteType.SCRIBBLE_HUB -> extractFromScribbleHub(url)
+                    WebFictionSiteType.FIMFICTION -> extractFromFimFiction(url)
                     else -> extractGeneric(url)
                 }
             } catch (e: Exception) {
@@ -138,7 +109,7 @@ class WebFictionService @Inject constructor() {
         return withContext(Dispatchers.IO) {
             try {
                 val currentStory = extractStoryFromUrl(story.url) ?: return@withContext emptyList()
-                
+
                 // Find chapters that weren't in the original story
                 val existingChapterIds = story.chapters.map { it.id }.toSet()
                 currentStory.chapters.filter { it.id !in existingChapterIds }
@@ -154,12 +125,14 @@ class WebFictionService @Inject constructor() {
     suspend fun downloadAllChapters(story: WebFictionStory): List<WebFictionChapter> {
         return withContext(Dispatchers.IO) {
             try {
-                when (story.site) {
-                    WebFictionSite.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
-                    WebFictionSite.FANFICTION_NET -> downloadFFNChapters(story)
-                    WebFictionSite.ROYAL_ROAD -> downloadRoyalRoadChapters(story)
-                    WebFictionSite.WEBNOVEL -> downloadWebnovelChapters(story)
-                    WebFictionSite.WATTPAD -> downloadWattpadChapters(story)
+                // Parse site from URL if site string is not available
+                val siteType = detectSite(story.url)
+                when (siteType) {
+                    WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
+                    WebFictionSiteType.FANFICTION_NET -> downloadFFNChapters(story)
+                    WebFictionSiteType.ROYAL_ROAD -> downloadRoyalRoadChapters(story)
+                    WebFictionSiteType.WEBNOVEL -> downloadWebnovelChapters(story)
+                    WebFictionSiteType.WATTPAD -> downloadWattpadChapters(story)
                     else -> emptyList()
                 }
             } catch (e: Exception) {
@@ -168,126 +141,203 @@ class WebFictionService @Inject constructor() {
         }
     }
 
-    private fun detectSite(url: String): WebFictionSite {
+    private fun detectSite(url: String): WebFictionSiteType {
         val domain = URL(url).host.lowercase()
         return when {
-            "archiveofourown.org" in domain -> WebFictionSite.ARCHIVE_OF_OUR_OWN
-            "fanfiction.net" in domain -> WebFictionSite.FANFICTION_NET
-            "royalroad.com" in domain -> WebFictionSite.ROYAL_ROAD
-            "webnovel.com" in domain -> WebFictionSite.WEBNOVEL
-            "wattpad.com" in domain -> WebFictionSite.WATTPAD
-            "scribblehub.com" in domain -> WebFictionSite.SCRIBBLE_HUB
-            "spacebattles.com" in domain -> WebFictionSite.SPACEBATTLES
-            "sufficientvelocity.com" in domain -> WebFictionSite.SUFFICIENT_VELOCITY
-            "questionablequesting.com" in domain -> WebFictionSite.QUESTIONABLE_QUESTING
-            "fimfiction.net" in domain -> WebFictionSite.FIMFICTION
-            else -> WebFictionSite.GENERIC
+            "archiveofourown.org" in domain -> WebFictionSiteType.ARCHIVE_OF_OUR_OWN
+            "fanfiction.net" in domain -> WebFictionSiteType.FANFICTION_NET
+            "royalroad.com" in domain -> WebFictionSiteType.ROYAL_ROAD
+            "webnovel.com" in domain -> WebFictionSiteType.WEBNOVEL
+            "wattpad.com" in domain -> WebFictionSiteType.WATTPAD
+            "scribblehub.com" in domain -> WebFictionSiteType.SCRIBBLE_HUB
+            "spacebattles.com" in domain -> WebFictionSiteType.SPACEBATTLES
+            "sufficientvelocity.com" in domain -> WebFictionSiteType.SUFFICIENT_VELOCITY
+            "questionablequesting.com" in domain -> WebFictionSiteType.QUESTIONABLE_QUESTING
+            "fimfiction.net" in domain -> WebFictionSiteType.FIMFICTION
+            else -> WebFictionSiteType.GENERIC
+        }
+    }
+
+    private fun parseStoryStatus(statusText: String?): StoryStatus {
+        if (statusText == null) return StoryStatus.UNKNOWN
+        val normalized = statusText.lowercase()
+        return when {
+            "complete" in normalized || "completed" in normalized -> StoryStatus.COMPLETED
+            "ongoing" in normalized || "in-progress" in normalized || "in progress" in normalized -> StoryStatus.ONGOING
+            "hiatus" in normalized -> StoryStatus.HIATUS
+            "cancelled" in normalized || "abandoned" in normalized -> StoryStatus.CANCELLED
+            else -> StoryStatus.UNKNOWN
+        }
+    }
+
+    private fun siteTypeToString(siteType: WebFictionSiteType): String {
+        return when (siteType) {
+            WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "Archive of Our Own"
+            WebFictionSiteType.FANFICTION_NET -> "FanFiction.Net"
+            WebFictionSiteType.ROYAL_ROAD -> "Royal Road"
+            WebFictionSiteType.WEBNOVEL -> "WebNovel"
+            WebFictionSiteType.WATTPAD -> "Wattpad"
+            WebFictionSiteType.SCRIBBLE_HUB -> "ScribbleHub"
+            WebFictionSiteType.SPACEBATTLES -> "SpaceBattles"
+            WebFictionSiteType.SUFFICIENT_VELOCITY -> "Sufficient Velocity"
+            WebFictionSiteType.QUESTIONABLE_QUESTING -> "Questionable Questing"
+            WebFictionSiteType.FIMFICTION -> "FimFiction"
+            WebFictionSiteType.LITEROTICA -> "Literotica"
+            WebFictionSiteType.GENERIC -> "Generic"
         }
     }
 
     // Archive of Our Own scraper
     private suspend fun extractFromAO3(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val title = doc.select("h2.title").text()
         val author = doc.select("a[rel=author]").text()
         val description = doc.select("div.summary blockquote").text()
         val tags = doc.select("dd.freeform a.tag").map { it.text() }
         val rating = doc.select("dd.rating a.tag").text()
-        val status = doc.select("dd.status a.tag").text()
+        val statusText = doc.select("dd.status a.tag").text()
         val chapterCount = doc.select("dd.chapters").text().split("/")[0].toIntOrNull() ?: 1
-        
+        val language = doc.select("dd.language").text()
+        val wordCountText = doc.select("dd.words").text().replace(",", "")
+        val wordCount = wordCountText.toLongOrNull()
+
         val storyId = extractAO3Id(url)
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSite.ARCHIVE_OF_OUR_OWN,
-            totalChapters = chapterCount,
-            status = status,
-            rating = rating,
-            tags = tags
+            status = parseStoryStatus(statusText),
+            genre = null,
+            fandom = null,
+            language = language.ifEmpty { null },
+            wordCount = wordCount,
+            chapterCount = chapterCount,
+            lastUpdated = null,
+            rating = rating.ifEmpty { null },
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.ARCHIVE_OF_OUR_OWN),
+            totalChapters = chapterCount
         )
     }
 
     // FanFiction.Net scraper
     private suspend fun extractFromFFN(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val title = doc.select("b.xcontrast_txt").text()
         val author = doc.select("a.xcontrast_txt").first()?.text() ?: "Unknown"
         val description = doc.select("div#profile_top div.xcontrast_txt").text()
         val storyInfo = doc.select("span.xgray").text()
-        
+
         // Parse story info (Rating, Language, Chapters, etc.)
         val chapterCount = Regex("Chapters: (\\d+)").find(storyInfo)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-        val status = if ("Complete" in storyInfo) "Complete" else "In-Progress"
-        
+        val statusText = if ("Complete" in storyInfo) "Complete" else "In-Progress"
+        val language = Regex("Language: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
+        val wordCountText = Regex("Words: ([0-9,]+)").find(storyInfo)?.groupValues?.get(1)?.replace(",", "")
+        val wordCount = wordCountText?.toLongOrNull()
+        val rating = Regex("Rated: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
+        val genre = Regex("Genre: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
+
         val storyId = extractFFNId(url)
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSite.FANFICTION_NET,
-            totalChapters = chapterCount,
-            status = status
+            status = parseStoryStatus(statusText),
+            genre = genre,
+            fandom = null,
+            language = language,
+            wordCount = wordCount,
+            chapterCount = chapterCount,
+            lastUpdated = null,
+            rating = rating,
+            site = siteTypeToString(WebFictionSiteType.FANFICTION_NET),
+            totalChapters = chapterCount
         )
     }
 
     // Royal Road scraper
     private suspend fun extractFromRoyalRoad(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val title = doc.select("h1").text()
         val author = doc.select("h4 a[href*=/profile]").text()
         val description = doc.select("div.description").text()
         val coverUrl = doc.select("img.thumbnail").attr("src")
         val tags = doc.select("span.tags a").map { it.text() }
-        val status = doc.select("span.label").text()
+        val statusText = doc.select("span.label").text()
         val chapterCount = doc.select("tbody tr").size
-        
+
         val storyId = extractRoyalRoadId(url)
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSite.ROYAL_ROAD,
-            totalChapters = chapterCount,
-            status = status,
+            status = parseStoryStatus(statusText),
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = "English",
+            wordCount = null,
+            chapterCount = chapterCount,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.ROYAL_ROAD),
+            totalChapters = chapterCount,
             coverUrl = coverUrl
         )
     }
 
     // WebNovel scraper
     private suspend fun extractFromWebnovel(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val title = doc.select("h1.pt4").text()
         val author = doc.select("address a").text()
-        val description = doc.select("p").first { it.text().isNotEmpty() }?.text() ?: ""
+        val description = doc.select("p").firstOrNull { it.text().isNotEmpty() }?.text() ?: ""
         val coverUrl = doc.select("i.g_thumb img").attr("src")
         val tags = doc.select("p.tags a").map { it.text() }
-        
+
         val storyId = extractWebnovelId(url)
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSite.WEBNOVEL,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.WEBNOVEL),
             coverUrl = coverUrl
         )
     }
@@ -295,178 +345,244 @@ class WebFictionService @Inject constructor() {
     // Wattpad scraper
     private suspend fun extractFromWattpad(url: String): WebFictionStory? {
         // Wattpad requires more complex handling due to dynamic loading
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val title = doc.select("h1").text()
         val author = doc.select("a.username").text()
         val description = doc.select("h2.description").text()
         val coverUrl = doc.select("img.cover").attr("src")
         val tags = doc.select("div.tags a").map { it.text() }
-        
+
         val storyId = extractWattpadId(url)
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSite.WATTPAD,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.WATTPAD),
             coverUrl = coverUrl
         )
     }
 
     // ScribbleHub scraper
     private suspend fun extractFromScribbleHub(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val title = doc.select("div.fic_title").text()
         val author = doc.select("span.auth_name_fic").text()
         val description = doc.select("div.wi_fic_desc").text()
         val coverUrl = doc.select("div.fic_image img").attr("src")
         val tags = doc.select("a.fic_genre").map { it.text() }
-        val status = doc.select("span.pub_status").text()
-        
+        val statusText = doc.select("span.pub_status").text()
+
         val storyId = extractScribbleHubId(url)
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSite.SCRIBBLE_HUB,
-            status = status,
+            status = parseStoryStatus(statusText),
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.SCRIBBLE_HUB),
             coverUrl = coverUrl
         )
     }
 
     // FimFiction scraper
     private suspend fun extractFromFimFiction(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val title = doc.select("h1 a").text()
         val author = doc.select("div.author a").text()
         val description = doc.select("div.description").text()
         val coverUrl = doc.select("div.story_image img").attr("src")
         val tags = doc.select("a.character_tag, a.content_tag").map { it.text() }
-        val status = doc.select("span.completion_status").text()
-        
+        val statusText = doc.select("span.completion_status").text()
+
         val storyId = extractFimFictionId(url)
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSite.FIMFICTION,
-            status = status,
+            status = parseStoryStatus(statusText),
+            genre = null,
+            fandom = "My Little Pony",
+            language = "English",
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.FIMFICTION),
             coverUrl = coverUrl
         )
     }
 
     // Generic scraper for unsupported sites
     private suspend fun extractGeneric(url: String): WebFictionStory? {
-        val doc = Jsoup.connect(url).get()
-        
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         // Try common selectors
         val title = doc.select("h1").first()?.text() ?: doc.title()
         val description = doc.select("meta[name=description]").attr("content")
-        
+
         val storyId = url.hashCode().toString()
-        
+
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = "Unknown",
             description = description,
-            url = url,
-            site = WebFictionSite.GENERIC
+            status = StoryStatus.UNKNOWN,
+            genre = null,
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
+            site = siteTypeToString(WebFictionSiteType.GENERIC)
         )
     }
 
     // Chapter downloading methods
     private suspend fun downloadAO3Chapters(story: WebFictionStory): List<WebFictionChapter> {
         val chapters = mutableListOf<WebFictionChapter>()
-        
+
         // AO3 allows downloading entire work at once
         val fullWorkUrl = "${story.url}?view_full_work=true"
-        val doc = Jsoup.connect(fullWorkUrl).get()
-        
+        val doc = Jsoup.connect(fullWorkUrl)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val chapterElements = doc.select("div.chapter")
         chapterElements.forEachIndexed { index, element ->
             val chapterTitle = element.select("h3.landmark").text()
             val content = element.select("div.userstuff").html()
-            
+
             chapters.add(
                 WebFictionChapter(
                     id = "${story.id}_${index + 1}",
+                    storyId = story.id,
+                    number = index + 1,
                     title = chapterTitle.ifEmpty { "Chapter ${index + 1}" },
-                    url = "${story.url}#chapter-${index + 1}",
                     content = content,
-                    chapterNumber = index + 1
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
                 )
             )
         }
-        
+
         return chapters
     }
 
     private suspend fun downloadFFNChapters(story: WebFictionStory): List<WebFictionChapter> {
         val chapters = mutableListOf<WebFictionChapter>()
-        
-        for (chapterNum in 1..story.totalChapters) {
-            val chapterUrl = "${story.url.removeSuffix("/1")}/$chapterNum"
-            val doc = Jsoup.connect(chapterUrl).get()
-            
+
+        val totalChapters = story.totalChapters ?: story.chapterCount ?: 1
+        for (chapterNum in 1..totalChapters) {
+            // Build chapter URL by replacing the last path segment
+            val baseUrl = story.url.substringBeforeLast("/")
+            val chapterUrl = "$baseUrl/$chapterNum"
+            val doc = Jsoup.connect(chapterUrl)
+                .timeout(30000)
+                .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+                .get()
+
             val chapterTitle = doc.select("select option[selected]").text()
             val content = doc.select("div#storytext").html()
-            
+
             chapters.add(
                 WebFictionChapter(
                     id = "${story.id}_$chapterNum",
+                    storyId = story.id,
+                    number = chapterNum,
                     title = chapterTitle.ifEmpty { "Chapter $chapterNum" },
-                    url = chapterUrl,
                     content = content,
-                    chapterNumber = chapterNum
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
                 )
             )
         }
-        
+
         return chapters
     }
 
     private suspend fun downloadRoyalRoadChapters(story: WebFictionStory): List<WebFictionChapter> {
         val chapters = mutableListOf<WebFictionChapter>()
-        
+
         // Get chapter list from table of contents
         val tocUrl = story.url
-        val doc = Jsoup.connect(tocUrl).get()
-        
+        val doc = Jsoup.connect(tocUrl)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
         val chapterLinks = doc.select("tbody tr td a[href*=/chapter/]")
-        
+
         chapterLinks.forEachIndexed { index, link ->
             val chapterUrl = "https://www.royalroad.com${link.attr("href")}"
             val chapterTitle = link.text()
-            
-            val chapterDoc = Jsoup.connect(chapterUrl).get()
+
+            val chapterDoc = Jsoup.connect(chapterUrl)
+                .timeout(30000)
+                .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+                .get()
             val content = chapterDoc.select("div.chapter-content").html()
-            
+
             chapters.add(
                 WebFictionChapter(
                     id = "${story.id}_${index + 1}",
+                    storyId = story.id,
+                    number = index + 1,
                     title = chapterTitle,
-                    url = chapterUrl,
                     content = content,
-                    chapterNumber = index + 1
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
                 )
             )
         }
-        
+
         return chapters
     }
 

@@ -22,15 +22,15 @@ class PodcastPlayerViewModel @Inject constructor(
     private val repository: PodcastRepository,
     private val audioPlaybackManager: AudioPlaybackManager
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(PodcastPlayerUiState())
     val uiState: StateFlow<PodcastPlayerUiState> = _uiState.asStateFlow()
-    
+
     private var loadEpisodeJob: Job? = null
     private var positionUpdateJob: Job? = null
-    
+
     val playbackState = audioPlaybackManager.state
-    
+
     init {
         // Track playback position updates
         positionUpdateJob = viewModelScope.launch {
@@ -46,18 +46,18 @@ class PodcastPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         positionUpdateJob?.cancel()
         loadEpisodeJob?.cancel()
     }
-    
+
     fun loadEpisode(episodeId: Long) {
         loadEpisodeJob?.cancel()
         loadEpisodeJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            
+
             repository.getEpisodeById(episodeId)
                 .catch { e ->
                     _uiState.value = _uiState.value.copy(
@@ -73,32 +73,32 @@ class PodcastPlayerViewModel @Inject constructor(
                 }
         }
     }
-    
+
     fun play() {
         _uiState.value.episode?.let { episode ->
             val uri = Uri.parse(episode.localFilePath ?: episode.audioUrl)
-            
+
             // Create metadata for the player
             val metadata = MediaMetadata.Builder()
                 .setTitle(episode.title)
                 .setArtist(episode.description ?: "Podcast Episode")
                 .build()
-            
+
             // Load and play
             audioPlaybackManager.loadSingle(uri, metadata, playWhenReady = true)
             _uiState.value = _uiState.value.copy(isPlaying = true)
-            
+
             // Update play position in database
             viewModelScope.launch {
                 repository.updatePlayPosition(episode.id, _uiState.value.currentPosition)
             }
         }
     }
-    
+
     fun pause() {
         audioPlaybackManager.pause()
         _uiState.value = _uiState.value.copy(isPlaying = false)
-        
+
         // Save current position
         _uiState.value.episode?.let { episode ->
             viewModelScope.launch {
@@ -106,11 +106,11 @@ class PodcastPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun seekTo(position: Long) {
         audioPlaybackManager.exoPlayer.seekTo(position)
         _uiState.value = _uiState.value.copy(currentPosition = position)
-        
+
         // Save position to database
         _uiState.value.episode?.let { episode ->
             viewModelScope.launch {
@@ -118,17 +118,17 @@ class PodcastPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun skipForward() {
         val newPosition = _uiState.value.currentPosition + 30000 // 30 seconds
         seekTo(newPosition.coerceAtMost(_uiState.value.episode?.duration ?: 0))
     }
-    
+
     fun skipBackward() {
         val newPosition = _uiState.value.currentPosition - 15000 // 15 seconds
         seekTo(newPosition.coerceAtLeast(0))
     }
-    
+
     fun togglePlayPause() {
         if (_uiState.value.isPlaying) {
             pause()
@@ -136,7 +136,7 @@ class PodcastPlayerViewModel @Inject constructor(
             play()
         }
     }
-    
+
     fun markAsPlayed() {
         viewModelScope.launch {
             _uiState.value.episode?.let { episode ->
@@ -144,7 +144,7 @@ class PodcastPlayerViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun toggleFavorite() {
         viewModelScope.launch {
             _uiState.value.episode?.let { episode ->

@@ -29,16 +29,16 @@ fun PodcastPlayerScreen(
     viewModel: PodcastPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     LaunchedEffect(episodeId) {
         viewModel.loadEpisode(episodeId)
     }
-    
+
     CleverFerretTheme(palette = ThemePalette.FOREST_COPPER) {
         Scaffold(
             topBar = {
                 MetallicTopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             text = "Now Playing",
                             fontWeight = FontWeight.Medium
@@ -50,15 +50,15 @@ fun PodcastPlayerScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             uiState.episode?.let { viewModel.toggleFavorite() }
                         }) {
                             Icon(
                                 if (uiState.episode?.favorite == true) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorite",
-                                tint = if (uiState.episode?.favorite == true) 
-                                    MaterialTheme.colorScheme.primary 
-                                else 
+                                tint = if (uiState.episode?.favorite == true)
+                                    MaterialTheme.colorScheme.primary
+                                else
                                     MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -87,7 +87,7 @@ fun PodcastPlayerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(modifier = Modifier.weight(0.5f))
-                    
+
                     // Episode Artwork
                     MetallicCard(
                         modifier = Modifier
@@ -101,9 +101,9 @@ fun PodcastPlayerScreen(
                             contentScale = ContentScale.Crop
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(32.dp))
-                    
+
                     // Episode Info
                     MetallicText(
                         text = uiState.episode?.title ?: "",
@@ -111,9 +111,9 @@ fun PodcastPlayerScreen(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     Text(
                         text = uiState.episode?.description ?: "",
                         style = MaterialTheme.typography.bodyMedium,
@@ -122,22 +122,22 @@ fun PodcastPlayerScreen(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-                    
+
                     Spacer(modifier = Modifier.weight(1f))
-                    
+
                     // Progress Bar
                     val progress = if (uiState.episode?.duration ?: 0 > 0) {
                         uiState.currentPosition.toFloat() / (uiState.episode?.duration ?: 1).toFloat()
                     } else 0f
-                    
+
                     Column(modifier = Modifier.fillMaxWidth()) {
                         MetallicProgressBar(
                             progress = progress,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -154,9 +154,9 @@ fun PodcastPlayerScreen(
                             )
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(32.dp))
-                    
+
                     // Playback Controls
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -170,7 +170,7 @@ fun PodcastPlayerScreen(
                                 Icon(Icons.Default.Replay, "Skip Back 15s")
                             }
                         )
-                        
+
                         // Play/Pause
                         MetallicFAB(
                             onClick = { viewModel.togglePlayPause() },
@@ -182,7 +182,7 @@ fun PodcastPlayerScreen(
                                 )
                             }
                         )
-                        
+
                         // Skip Forward 30s
                         MetallicIconButton(
                             onClick = { viewModel.skipForward() },
@@ -191,16 +191,16 @@ fun PodcastPlayerScreen(
                             }
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     // Mark as Played button
                     MetallicButton(
                         text = "Mark as Played",
                         onClick = { viewModel.markAsPlayed() },
                         modifier = Modifier.fillMaxWidth(0.6f)
                     )
-                    
+
                     Spacer(modifier = Modifier.weight(0.5f))
                 }
             } else {
@@ -236,7 +236,7 @@ fun PodcastPlayerScreen(
                     }
                 }
             }
-            
+
             // Error message
             uiState.error?.let { error ->
                 Snackbar(
@@ -253,7 +253,7 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = (milliseconds / 1000).toInt()
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
-    
+
     return if (minutes >= 60) {
         val hours = minutes / 60
         val remainingMinutes = minutes % 60

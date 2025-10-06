@@ -47,7 +47,7 @@ fun PodcastManagerScreen(
         Scaffold(
             topBar = {
                 MetallicTopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             "Podcast Manager",
                             fontWeight = FontWeight.Medium
@@ -676,7 +676,7 @@ private fun formatDuration(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val secs = seconds % 60
-    
+
     return if (hours > 0) {
         String.format("%d:%02d:%02d", hours, minutes, secs)
     } else {
@@ -688,7 +688,7 @@ private fun formatTime(milliseconds: Long): String {
     val seconds = (milliseconds / 1000).toInt()
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
-    
+
     return if (minutes >= 60) {
         val hours = minutes / 60
         val remainingMinutes = minutes % 60

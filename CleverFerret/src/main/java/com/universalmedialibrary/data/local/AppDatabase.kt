@@ -59,9 +59,10 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
         PodcastEntity::class,
         PodcastEpisodeEntity::class,
         PodcastSubscriptionEntity::class,
-        PodcastChapterEntity::class
+        PodcastChapterEntity::class,
 
-        ,
+        // Radio
+        RadioStation::class,
         // Maintenance proposals
         MaintenanceChange::class,
 
@@ -103,7 +104,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun podcastEpisodeDao(): PodcastEpisodeDao
     abstract fun podcastSubscriptionDao(): PodcastSubscriptionDao
     abstract fun podcastChapterDao(): PodcastChapterDao
-    
+
     // Radio DAO
     abstract fun radioStationDao(): RadioStationDao
 

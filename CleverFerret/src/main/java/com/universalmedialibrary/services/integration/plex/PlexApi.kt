@@ -9,7 +9,7 @@ import retrofit2.http.*
 interface PlexApi {
 
     @GET("/")
-    suspend fun getServerInfo(): PlexServerInfo
+    suspend fun getServerInfo(): PlexApiServerInfo
 
     @GET("/library/sections")
     suspend fun getLibraries(): PlexLibrariesResponse
@@ -60,7 +60,7 @@ interface PlexApi {
 }
 
 // Data models for Plex API responses
-data class PlexServerInfo(
+data class PlexApiServerInfo(
     val friendlyName: String,
     val machineIdentifier: String,
     val version: String,

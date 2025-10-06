@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
 import com.universalmedialibrary.services.podcast.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,7 +16,7 @@ import javax.inject.Singleton
 /**
  * Repository for podcast data
  * Based on AntennaPod's repository pattern for clean architecture
- * 
+ *
  * Coordinates between:
  * - Local database (Room)
  * - Remote RSS feeds (PodcastService)
@@ -28,49 +29,49 @@ class PodcastRepository @Inject constructor(
     private val subscriptionDao: PodcastSubscriptionDao,
     private val podcastService: PodcastService
 ) {
-    
+
     // ===== Podcast Operations =====
-    
+
     fun getAllPodcasts(): Flow<List<Podcast>> =
         podcastDao.getAllPodcasts().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun getSubscribedPodcasts(): Flow<List<Podcast>> =
         podcastDao.getSubscribedPodcasts().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun getPodcastById(id: Long): Flow<Podcast?> =
         podcastDao.getPodcastById(id).map { it?.toDomain() }
-    
+
     fun getFavoritePodcasts(): Flow<List<Podcast>> =
         podcastDao.getFavoritePodcasts().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun getPodcastsWithNewEpisodes(): Flow<List<Podcast>> =
         podcastDao.getPodcastsWithNewEpisodes().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun searchPodcasts(query: String): Flow<List<Podcast>> =
         podcastDao.searchPodcasts(query).map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     suspend fun insertPodcast(podcast: Podcast): Long {
         return podcastDao.insertPodcast(podcast.toEntity())
     }
-    
+
     suspend fun updatePodcast(podcast: Podcast) {
         podcastDao.updatePodcast(podcast.toEntity())
     }
-    
+
     suspend fun deletePodcast(podcast: Podcast) {
         podcastDao.deletePodcast(podcast.toEntity())
     }
-    
+
     suspend fun subscribeToPodcast(feedUrl: String): PodcastOperationResult {
         return try {
             // Check if already subscribed
@@ -78,10 +79,10 @@ class PodcastRepository @Inject constructor(
             if (existing != null && existing.isSubscribed) {
                 return PodcastOperationResult.Error("Already subscribed to this podcast")
             }
-            
+
             // Parse RSS feed
             val rssFeed = podcastService.parseRSSFeed(feedUrl)
-            
+
             // Create podcast entity
             val podcastEntity = PodcastEntity(
                 title = rssFeed.title,
@@ -98,7 +99,7 @@ class PodcastRepository @Inject constructor(
                 lastUpdated = System.currentTimeMillis(),
                 totalEpisodes = rssFeed.items.size
             )
-            
+
             // Insert podcast
             val podcastId = if (existing != null) {
                 podcastDao.subscribe(existing.id)
@@ -106,7 +107,7 @@ class PodcastRepository @Inject constructor(
             } else {
                 podcastDao.insertPodcast(podcastEntity)
             }
-            
+
             // Insert episodes with stable GUIDs
             val episodeEntities = rssFeed.items.map { item ->
                 val guid = item.guid ?: item.audioUrl ?: "${feedUrl}-${item.title}-${item.pubDate}"
@@ -126,103 +127,103 @@ class PodcastRepository @Inject constructor(
                 )
             }
             episodeDao.insertEpisodes(episodeEntities)
-            
+
             // Create subscription settings
             val subscription = PodcastSubscriptionEntity(
                 podcastId = podcastId,
                 subscribedAt = System.currentTimeMillis()
             )
             subscriptionDao.insertSubscription(subscription)
-            
+
             PodcastOperationResult.Success("Subscribed to ${rssFeed.title}")
         } catch (e: Exception) {
             PodcastOperationResult.Error("Failed to subscribe: ${e.message}", e)
         }
     }
-    
+
     suspend fun unsubscribe(podcastId: Long) {
         podcastDao.unsubscribe(podcastId)
     }
-    
+
     suspend fun toggleFavorite(podcastId: Long, favorite: Boolean) {
         podcastDao.updateFavoriteStatus(podcastId, favorite)
     }
-    
+
     // ===== Episode Operations =====
-    
+
     fun getEpisodesByPodcast(podcastId: Long): Flow<List<PodcastEpisode>> =
         episodeDao.getEpisodesByPodcast(podcastId).map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun getEpisodeById(id: Long): Flow<PodcastEpisode?> =
         episodeDao.getEpisodeById(id).map { it?.toDomain() }
-    
+
     fun getDownloadedEpisodes(): Flow<List<PodcastEpisode>> =
         episodeDao.getDownloadedEpisodes().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun getNewEpisodes(): Flow<List<PodcastEpisode>> =
         episodeDao.getNewEpisodes().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun getFavoriteEpisodes(): Flow<List<PodcastEpisode>> =
         episodeDao.getFavoriteEpisodes().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     fun getQueuedEpisodes(): Flow<List<PodcastEpisode>> =
         episodeDao.getQueuedEpisodes().map { entities ->
             entities.map { it.toDomain() }
         }
-    
+
     suspend fun updateEpisode(episode: PodcastEpisode) {
         episodeDao.updateEpisode(episode.toEntity())
     }
-    
+
     suspend fun markEpisodeAsPlayed(episodeId: Long) {
         episodeDao.markAsPlayed(episodeId)
     }
-    
+
     suspend fun markEpisodeAsUnplayed(episodeId: Long) {
         episodeDao.markAsUnplayed(episodeId)
     }
-    
+
     suspend fun updatePlayPosition(episodeId: Long, position: Long) {
         episodeDao.updatePlayPosition(episodeId, position)
     }
-    
+
     suspend fun toggleEpisodeFavorite(episodeId: Long, favorite: Boolean) {
         episodeDao.updateFavoriteStatus(episodeId, favorite)
     }
-    
+
     // ===== Search Operations =====
-    
+
     suspend fun searchPodcastsOnline(query: String, apiKeys: Map<String, String> = emptyMap()): List<PodcastSearchResult> {
         return podcastService.searchPodcasts(query, apiKeys)
     }
-    
+
     // ===== Refresh Operations =====
-    
+
     suspend fun refreshPodcast(podcastId: Long): PodcastOperationResult {
         return try {
             val podcast = podcastDao.getPodcastById(podcastId)
                 .map { it?.toDomain() }
                 .firstOrNull()
                 ?: return PodcastOperationResult.Error("Podcast not found")
-            
+
             val rssFeed = podcastService.parseRSSFeed(podcast.feedUrl)
-            
+
             // Update podcast info
             podcastDao.updateLastUpdated(podcastId, System.currentTimeMillis(), rssFeed.items.size)
-            
+
             // Get existing episodes
             val existingGuids = episodeDao.getEpisodesByPodcast(podcastId)
                 .map { episodes -> episodes.map { it.guid }.toSet() }
                 .firstOrNull() ?: emptySet()
-            
+
             // Find new episodes with stable GUIDs
             val newEpisodes = rssFeed.items
                 .map { item ->
@@ -245,28 +246,28 @@ class PodcastRepository @Inject constructor(
                         fileSize = item.fileSize ?: 0
                     )
                 }
-            
+
             if (newEpisodes.isNotEmpty()) {
                 episodeDao.insertEpisodes(newEpisodes)
-                
+
                 // Update new episode count
                 val newCount = episodeDao.getNewEpisodeCountForPodcast(podcastId)
                 podcastDao.updateNewEpisodeCount(podcastId, newCount)
             }
-            
+
             podcastDao.updateLastChecked(podcastId, System.currentTimeMillis())
-            
+
             PodcastOperationResult.Success("Found ${newEpisodes.size} new episodes")
         } catch (e: Exception) {
             PodcastOperationResult.Error("Failed to refresh: ${e.message}", e)
         }
     }
-    
+
     // ===== Helper Methods =====
-    
+
     private fun parseDuration(durationStr: String?): Long {
         if (durationStr.isNullOrEmpty()) return 0L
-        
+
         return try {
             if (durationStr.contains(":")) {
                 val parts = durationStr.split(":")
@@ -292,10 +293,10 @@ class PodcastRepository @Inject constructor(
             0L
         }
     }
-    
+
     private fun parsePublishDate(dateStr: String?): Long {
         if (dateStr.isNullOrEmpty()) return System.currentTimeMillis()
-        
+
         return try {
             val format = java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", java.util.Locale.ENGLISH)
             format.parse(dateStr)?.time ?: System.currentTimeMillis()
@@ -303,5 +304,4 @@ class PodcastRepository @Inject constructor(
             System.currentTimeMillis()
         }
     }
-}
 }

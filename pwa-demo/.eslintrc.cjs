@@ -21,10 +21,12 @@ module.exports = {
   rules: {
     'prettier/prettier': 'warn',
     'no-console': ['warn', { allow: ['warn', 'error'] }],
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
     '@typescript-eslint/no-explicit-any': 'off',
-    'react-hooks/exhaustive-deps': 'warn'
+    'react-hooks/exhaustive-deps': 'warn',
   },
   ignorePatterns: ['dist', 'build', 'node_modules', 'coverage'],
 };
-

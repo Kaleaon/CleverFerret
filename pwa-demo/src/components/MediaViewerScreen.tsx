@@ -13,6 +13,7 @@ import {
   Fab,
   Menu,
   MenuItem,
+  Button,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -33,7 +34,7 @@ interface MediaViewerProps {
 }
 
 const EBookViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
-  const { mediaItem, metadata } = props;
+  const { metadata } = props;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages] = useState(250);
   const { readerPreferences, setReaderFontSize } = useAppStore();
@@ -184,7 +185,7 @@ const EBookViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
 };
 
 const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
-  const { mediaItem, metadata } = props;
+  const { metadata } = props;
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime] = useState(0);
   const [duration] = useState(7200); // 2 hours demo
@@ -274,12 +275,7 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
             {isPlaying ? <PauseIcon sx={{ fontSize: 40 }} /> : <PlayIcon sx={{ fontSize: 40 }} />}
           </IconButton>
           {/* Minimal <video> element to leverage MediaSession on supported browsers */}
-          <video
-            id="cf-video"
-            style={{ display: 'none' }}
-            controls
-            src={undefined}
-          />
+          <video id="cf-video" style={{ display: 'none' }} controls src={undefined} />
         </Box>
       </Box>
 
@@ -341,7 +337,7 @@ const VideoPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
 };
 
 const PDFViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
-  const { mediaItem, metadata } = props;
+  const { metadata } = props;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages] = useState(42);
   const [zoom, setZoom] = useState(100);
@@ -451,7 +447,7 @@ const PDFViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
 };
 
 const ComicViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
-  const { mediaItem, metadata } = props;
+  const { metadata } = props;
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages] = useState(24);
   const [viewMode, setViewMode] = useState<'single' | 'double'>('single');
@@ -599,7 +595,7 @@ const ComicViewer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
 };
 
 const AudioPlayer: React.FC<MediaViewerProps> = (props: MediaViewerProps) => {
-  const { mediaItem, metadata } = props;
+  const { metadata } = props;
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime] = useState(0);
   const [duration] = useState(180); // 3 minutes demo
@@ -750,6 +746,7 @@ export const MediaViewerScreen: React.FC = () => {
 
   useEffect(() => {
     loadMediaItem();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mediaId]);
 
   const loadMediaItem = async () => {
@@ -806,12 +803,17 @@ export const MediaViewerScreen: React.FC = () => {
     // Check for specific file types
     const fileName = mediaItem.fileName?.toLowerCase() || '';
     const isPDF = fileName.endsWith('.pdf') || mediaItem.mimeType === 'application/pdf';
-    const isComic = 
-      fileName.endsWith('.cbz') || 
-      fileName.endsWith('.cbr') || 
+    const isComic =
+      fileName.endsWith('.cbz') ||
+      fileName.endsWith('.cbr') ||
       fileName.endsWith('.cbt') ||
+      fileName.endsWith('.cb7') ||
       mediaItem.mimeType === 'application/x-cbz' ||
-      mediaItem.mimeType === 'application/x-cbr';
+      mediaItem.mimeType === 'application/x-cbr' ||
+      mediaItem.mimeType === 'application/x-cbt' ||
+      mediaItem.mimeType === 'application/x-cb7' ||
+      mediaItem.mimeType === 'application/vnd.comicbook+zip' ||
+      mediaItem.mimeType === 'application/vnd.comicbook-rar';
 
     // Override mediaType for specific formats
     if (isPDF) {
