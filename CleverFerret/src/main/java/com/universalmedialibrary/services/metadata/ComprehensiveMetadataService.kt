@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.metadata
 
+import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -536,7 +537,8 @@ class ComprehensiveMetadataService @Inject constructor(
                     coverUrl = book.image,
                     rating = book.rating,
                     isbn = book.isbn,
-                    source = MetadataSource.HARDCOVER
+                    mediaType = MediaType.BOOK,
+                    source = MetadataSource.HARDCOVER.name
                 )
             }
         } catch (e: Exception) {
@@ -555,7 +557,8 @@ class ComprehensiveMetadataService @Inject constructor(
                     description = response.book.subjects.joinToString(", "),
                     coverUrl = response.book.image,
                     isbn = isbn,
-                    source = MetadataSource.ISBN_DB
+                    mediaType = MediaType.BOOK,
+                    source = MetadataSource.ISBN_DB.name
                 )
             )
         } catch (e: Exception) {
@@ -586,7 +589,8 @@ class ComprehensiveMetadataService @Inject constructor(
                     description = volume.description,
                     coverUrl = volume.image?.medium_url,
                     year = volume.start_year?.toIntOrNull(),
-                    source = MetadataSource.COMICVINE
+                    mediaType = MediaType.COMIC,
+                    source = MetadataSource.COMICVINE.name
                 )
             }
         } catch (e: Exception) {
@@ -605,7 +609,8 @@ class ComprehensiveMetadataService @Inject constructor(
                     description = result.record.description,
                     coverUrl = result.record.image?.url?.original,
                     genres = result.record.genres.map { it.genre },
-                    source = MetadataSource.MANGA_UPDATES
+                    mediaType = MediaType.COMIC,
+                    source = MetadataSource.MANGA_UPDATES.name
                 )
             }
         } catch (e: Exception) {
