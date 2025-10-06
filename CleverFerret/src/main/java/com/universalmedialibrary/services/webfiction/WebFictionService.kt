@@ -16,19 +16,22 @@ import javax.inject.Singleton
 // WebFictionStory, WebFictionChapter models are defined in WebFictionModels.kt
 
 // WebFictionSite enum - site definitions
-enum class WebFictionSiteType {
-    ARCHIVE_OF_OUR_OWN,
-    FANFICTION_NET,
-    ROYAL_ROAD,
-    WEBNOVEL,
-    WATTPAD,
-    SCRIBBLE_HUB,
-    SPACEBATTLES,
-    SUFFICIENT_VELOCITY,
-    QUESTIONABLE_QUESTING,
-    FIMFICTION,
-    LITEROTICA,
-    GENERIC
+enum class WebFictionSiteType(
+    val displayName: String,
+    val baseUrl: String
+) {
+    ARCHIVE_OF_OUR_OWN("Archive of Our Own", "https://archiveofourown.org"),
+    FANFICTION_NET("FanFiction.Net", "https://www.fanfiction.net"),
+    ROYAL_ROAD("Royal Road", "https://www.royalroad.com"),
+    WEBNOVEL("WebNovel", "https://www.webnovel.com"),
+    WATTPAD("Wattpad", "https://www.wattpad.com"),
+    SCRIBBLE_HUB("Scribble Hub", "https://www.scribblehub.com"),
+    SPACEBATTLES("SpaceBattles", "https://forums.spacebattles.com"),
+    SUFFICIENT_VELOCITY("Sufficient Velocity", "https://forums.sufficientvelocity.com"),
+    QUESTIONABLE_QUESTING("Questionable Questing", "https://forum.questionablequesting.com"),
+    FIMFICTION("Fimfiction", "https://www.fimfiction.net"),
+    LITEROTICA("Literotica", "https://www.literotica.com"),
+    GENERIC("Generic Web Fiction", "")
 }
 
 // API interfaces for sites that have them

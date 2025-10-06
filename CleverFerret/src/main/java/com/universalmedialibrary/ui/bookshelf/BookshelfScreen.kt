@@ -28,6 +28,9 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.data.local.entity.BookDetails
 import com.universalmedialibrary.ui.theme.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 

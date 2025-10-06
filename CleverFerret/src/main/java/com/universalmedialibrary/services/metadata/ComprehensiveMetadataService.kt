@@ -309,6 +309,147 @@ data class MangaUpdatesGenre(
     val genre: String
 )
 
+// Missing Response Data Classes
+data class GoodreadsSearchResponse(
+    val search: GoodreadsSearch? = null
+)
+
+data class GoodreadsSearch(
+    val results: List<GoodreadsWork>? = null
+)
+
+data class GoodreadsWork(
+    val best_book: GoodreadsBestBook? = null
+)
+
+data class GoodreadsBestBook(
+    val id: String,
+    val title: String,
+    val author: GoodreadsAuthor,
+    val image_url: String? = null
+)
+
+data class GoodreadsAuthor(
+    val id: String,
+    val name: String
+)
+
+data class GoodreadsBookResponse(
+    val book: GoodreadsBookDetails
+)
+
+data class GoodreadsBookDetails(
+    val id: String,
+    val title: String,
+    val description: String? = null,
+    val authors: List<GoodreadsAuthor>? = null,
+    val average_rating: Float? = null,
+    val publication_year: String? = null,
+    val publisher: String? = null,
+    val isbn: String? = null,
+    val num_pages: Int? = null
+)
+
+data class ISFDBAuthorsResponse(
+    val authors: List<ISFDBAuthor>? = null
+)
+
+data class ISFDBAuthor(
+    val id: String,
+    val name: String,
+    val birthdate: String? = null,
+    val birthplace: String? = null
+)
+
+data class ISFDBTitleResponse(
+    val titles: List<ISFDBTitle>? = null
+)
+
+data class ISFDBTitle(
+    val id: String,
+    val title: String,
+    val authors: List<String>? = null,
+    val year: String? = null,
+    val type: String? = null
+)
+
+data class DiscogsSearchResponse(
+    val results: List<DiscogsRelease>? = null
+)
+
+data class DiscogsRelease(
+    val id: Long,
+    val title: String,
+    val year: String? = null,
+    val thumb: String? = null,
+    val cover_image: String? = null,
+    val genre: List<String>? = null,
+    val style: List<String>? = null,
+    val label: List<String>? = null
+)
+
+data class LastFmSearchResponse(
+    val results: LastFmResults? = null
+)
+
+data class LastFmResults(
+    val albummatches: LastFmAlbumMatches? = null
+)
+
+data class LastFmAlbumMatches(
+    val album: List<LastFmAlbum>? = null
+)
+
+data class LastFmAlbum(
+    val name: String,
+    val artist: String,
+    val url: String? = null,
+    val image: List<LastFmImage>? = null,
+    val streamable: String? = null,
+    val mbid: String? = null
+)
+
+data class LastFmImage(
+    val text: String,
+    val size: String
+)
+
+data class LibriVoxSearchResponse(
+    val books: List<LibriVoxBook>? = null
+)
+
+data class LibriVoxBook(
+    val id: String,
+    val title: String,
+    val authors: List<LibriVoxAuthor>? = null,
+    val description: String? = null,
+    val url_librivox: String? = null,
+    val url_zip_file: String? = null,
+    val language: String? = null,
+    val totaltime: String? = null
+)
+
+data class LibriVoxAuthor(
+    val first_name: String? = null,
+    val last_name: String? = null
+)
+
+data class WorldCatSearchResponse(
+    val entries: List<WorldCatEntry>? = null
+)
+
+data class WorldCatEntry(
+    val id: String,
+    val title: String,
+    val author: String? = null,
+    val content: WorldCatContent? = null
+)
+
+data class WorldCatContent(
+    val type: String? = null,
+    val text: String? = null
+)
+
 data class TVDBCredentials(
     val apikey: String,
     val username: String?,

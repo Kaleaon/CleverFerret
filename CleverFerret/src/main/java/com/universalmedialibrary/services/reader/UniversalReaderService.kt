@@ -3,7 +3,7 @@ package com.universalmedialibrary.services.reader
 import android.content.Context
 import android.net.Uri
 import com.universalmedialibrary.data.local.entity.ReadingProgress
-import com.universalmedialibrary.data.local.dao.BookmarkDao
+import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.services.reader.core.BookSource
 import com.universalmedialibrary.services.reader.core.Locator
 import com.universalmedialibrary.services.reader.core.ReaderEngine
@@ -33,7 +33,7 @@ import javax.inject.Singleton
 class EnhancedUniversalReaderService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val readerEngineFactory: ReaderEngineFactory,
-    private val bookmarkDao: BookmarkDao
+    private val readingProgressDao: ReadingProgressDao
 ) {
 
     private val gson = Gson()
@@ -197,10 +197,10 @@ class EnhancedUniversalReaderService @Inject constructor(
 
     private suspend fun loadReadingProgress(bookId: Long) {
         try {
-            val progress = bookmarkDao.getReadingProgress(bookId)
+            val progress = readingProgressDao.getProgress(bookId).first()
             progress?.let {
                 // Parse the saved locator and navigate to it
-                val locator = gson.fromJson(it.notes ?: "{}", Locator::class.java)
+                val locator = gson.fromJson(it.locator ?: "{}", Locator::class.java)
                 currentEngine?.goTo(locator)
             }
         } catch (e: Exception) {
@@ -221,32 +221,16 @@ class EnhancedUniversalReaderService @Inject constructor(
                 (currentPage.toFloat() / totalPages.toFloat())
             } else 0f
 
-            // Check if progress exists
-            val existingProgress = bookmarkDao.getReadingProgress(currentBookId)
+            // Use upsert to insert or update progress
+            val progress = ReadingProgress(
+                itemId = currentBookId,
+                currentPage = currentPage,
+                percentage = progressPercentage,
+                locator = locatorJson,
+                lastUpdate = System.currentTimeMillis()
+            )
 
-            if (existingProgress != null) {
-                // Update existing progress
-                bookmarkDao.updateReadingProgress(
-                    existingProgress.copy(
-                        currentPage = currentPage,
-                        percentage = progressPercentage,
-                        notes = locatorJson,
-                        lastUpdate = System.currentTimeMillis()
-                    )
-                )
-            } else {
-                // Create new progress
-                val progress = ReadingProgress(
-                    itemId = currentBookId,
-                    currentPage = currentPage,
-                    percentage = progressPercentage,
-                    notes = locatorJson,
-                    lastUpdate = System.currentTimeMillis(),
-                    startedDate = System.currentTimeMillis()
-                )
-
-                bookmarkDao.insertReadingProgress(progress)
-            }
+            readingProgressDao.upsert(progress)
 
         } catch (e: Exception) {
             // Failed to save progress, continue reading

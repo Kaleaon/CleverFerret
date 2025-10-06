@@ -26,7 +26,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionSite
+import com.universalmedialibrary.services.webfiction.WebFictionSiteType
 import com.universalmedialibrary.services.webfiction.WebFictionStory
+import com.universalmedialibrary.services.webfiction.StoryStatus
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
@@ -312,7 +314,7 @@ fun WebFictionStoryCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = story.author,
+                    text = story.author ?: "Unknown Author",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -323,19 +325,20 @@ fun WebFictionStoryCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Site badge
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = MaterialTheme.shapes.small
-                    ) {
-                        Text(
-                            text = story.site.displayName,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                        )
+                    story.site?.let { siteName ->
+                        Surface(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = siteName,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
-
-                    Spacer(modifier = Modifier.width(8.dp))
 
                     // Chapter count
                     Text(
@@ -348,12 +351,12 @@ fun WebFictionStoryCard(
 
                     // Status
                     Text(
-                        text = story.status,
+                        text = story.status.name,
                         style = MaterialTheme.typography.bodySmall,
-                        color = when (story.status.lowercase()) {
-                            "complete" -> MaterialTheme.colorScheme.primary
-                            "in-progress" -> Color(0xFF4CAF50)
-                            "hiatus" -> Color(0xFFFF9800)
+                        color = when (story.status) {
+                            StoryStatus.COMPLETED -> MaterialTheme.colorScheme.primary
+                            StoryStatus.ONGOING -> Color(0xFF4CAF50)
+                            StoryStatus.HIATUS -> Color(0xFFFF9800)
                             else -> MaterialTheme.colorScheme.onSurfaceVariant
                         }
                     )
@@ -500,11 +503,11 @@ fun SupportedSitesDialog(
                 modifier = Modifier.height(400.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(WebFictionSite.values().filter { it != WebFictionSite.GENERIC }) { site ->
+                items(WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC }) { siteType ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onSiteClick(site) },
+                            .clickable { onSiteClick(createWebFictionSiteFromType(siteType)) },
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant
                         )
@@ -521,12 +524,12 @@ fun SupportedSitesDialog(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = site.displayName,
+                                    text = getSiteDisplayName(siteType),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    text = site.baseUrl,
+                                    text = getSiteBaseUrl(siteType),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -541,5 +544,49 @@ fun SupportedSitesDialog(
                 Text("Close")
             }
         }
+    )
+}
+
+// Helper functions for WebFictionSiteType
+private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
+    return when (siteType) {
+        WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "Archive of Our Own"
+        WebFictionSiteType.FANFICTION_NET -> "FanFiction.Net"
+        WebFictionSiteType.ROYAL_ROAD -> "Royal Road"
+        WebFictionSiteType.WEBNOVEL -> "WebNovel"
+        WebFictionSiteType.WATTPAD -> "Wattpad"
+        WebFictionSiteType.SCRIBBLE_HUB -> "Scribble Hub"
+        WebFictionSiteType.SPACEBATTLES -> "SpaceBattles"
+        WebFictionSiteType.SUFFICIENT_VELOCITY -> "Sufficient Velocity"
+        WebFictionSiteType.QUESTIONABLE_QUESTING -> "Questionable Questing"
+        WebFictionSiteType.FIMFICTION -> "FimFiction"
+        WebFictionSiteType.LITEROTICA -> "Literotica"
+        WebFictionSiteType.GENERIC -> "Generic Site"
+    }
+}
+
+private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
+    return when (siteType) {
+        WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "archiveofourown.org"
+        WebFictionSiteType.FANFICTION_NET -> "fanfiction.net"
+        WebFictionSiteType.ROYAL_ROAD -> "royalroad.com"
+        WebFictionSiteType.WEBNOVEL -> "webnovel.com"
+        WebFictionSiteType.WATTPAD -> "wattpad.com"
+        WebFictionSiteType.SCRIBBLE_HUB -> "scribblehub.com"
+        WebFictionSiteType.SPACEBATTLES -> "forums.spacebattles.com"
+        WebFictionSiteType.SUFFICIENT_VELOCITY -> "forums.sufficientvelocity.com"
+        WebFictionSiteType.QUESTIONABLE_QUESTING -> "forum.questionablequesting.com"
+        WebFictionSiteType.FIMFICTION -> "fimfiction.net"
+        WebFictionSiteType.LITEROTICA -> "literotica.com"
+        WebFictionSiteType.GENERIC -> ""
+    }
+}
+
+private fun createWebFictionSiteFromType(siteType: WebFictionSiteType): WebFictionSite {
+    return WebFictionSite(
+        id = siteType.name.lowercase(),
+        name = getSiteDisplayName(siteType),
+        baseUrl = getSiteBaseUrl(siteType),
+        supportedTypes = listOf("fanfiction", "original")
     )
 }

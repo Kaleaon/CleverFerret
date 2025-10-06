@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.SharingRepository
 import fi.iki.elonen.NanoHTTPD
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,7 +47,7 @@ class OpdsServer @Inject constructor(
 
         return try {
             when {
-                session.uri == "/opds" -> newFixedLengthResponse(MIME_XML, opdsService.generateCatalogFeed())
+                session.uri == "/opds" -> newFixedLengthResponse(Response.Status.OK, MIME_XML, opdsService.generateCatalogFeed())
                 session.uri.startsWith("/opds/libraries") -> serveLibraries(session)
                 session.uri.startsWith("/opds/library/") -> serveLibraryItems(session)
                 session.uri.startsWith("/opds/download/") -> serveDownload(session)
@@ -83,7 +84,7 @@ class OpdsServer @Inject constructor(
             </feed>
             """.trimIndent()
         }
-        return newFixedLengthResponse(MIME_XML, xml)
+        return newFixedLengthResponse(Response.Status.OK, MIME_XML, xml)
     }
 
     private fun serveLibraryItems(session: IHTTPSession): Response {
@@ -127,7 +128,7 @@ class OpdsServer @Inject constructor(
             </feed>
             """.trimIndent()
         }
-        return newFixedLengthResponse(MIME_XML, xml)
+        return newFixedLengthResponse(Response.Status.OK, MIME_XML, xml)
     }
 
     private fun serveDownload(session: IHTTPSession): Response {
