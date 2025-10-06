@@ -454,10 +454,15 @@ class AdvancedDocumentReaderViewModel @Inject constructor(
         }
 
         val stats = ReadingStats(
-            timeSpent = sessionDuration,
-            pagesRead = _uiState.value.currentPage,
-            wordsPerMinute = wordsPerMinute,
-            sessionStartTime = sessionStartTime
+            totalPages = documentPages.size,
+            currentPage = _uiState.value.currentPage,
+            readingProgress = if (documentPages.isNotEmpty()) _uiState.value.currentPage.toFloat() / documentPages.size else 0f,
+            timeSpentReading = sessionDuration,
+            averageReadingSpeed = if (sessionDuration > 0) (_uiState.value.currentPage * 3600000f) / sessionDuration else 0f,
+            sessionStartTime = sessionStartTime,
+            totalReadingTime = sessionDuration,
+            wordsRead = wordsRead,
+            averageWordsPerMinute = wordsPerMinute
         )
 
         _uiState.value = _uiState.value.copy(readingStats = stats)
@@ -505,7 +510,12 @@ data class AdvancedDocumentReaderUiState(
     val bookmarks: List<Bookmark> = emptyList(),
 
     // Reading statistics
-    val readingStats: ReadingStats = ReadingStats(0, 0, 0f, 0),
+    val readingStats: ReadingStats = ReadingStats(
+        totalPages = 0,
+        currentPage = 0,
+        readingProgress = 0f,
+        timeSpentReading = 0
+    ),
 
     // Settings
     val settings: ViewerSettings = ViewerSettings()
