@@ -89,14 +89,7 @@ data class PodcastDownloadProgress(
     val status: DownloadStatus
 )
 
-enum class DownloadStatus {
-    PENDING,
-    DOWNLOADING,
-    COMPLETED,
-    FAILED,
-    CANCELLED,
-    PAUSED
-}
+// DownloadStatus is defined in PodcastDownloadManager.kt as a sealed class
 
 // Mapper extensions to convert between domain models and entities
 fun PodcastEntity.toDomain() = Podcast(
