@@ -235,9 +235,9 @@ class SharingService @Inject constructor(
         
         words.forEach { word ->
             val testLine = if (line.isEmpty()) word else "$line $word"
-            val width = textPaint.measureText(testLine)
+            val lineWidth = textPaint.measureText(testLine)
             
-            if (width > 900) {
+            if (lineWidth > 900) {
                 canvas.drawText(line, width / 2f, y, textPaint)
                 line = word
                 y += lineHeight

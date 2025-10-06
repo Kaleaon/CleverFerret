@@ -71,7 +71,7 @@ fun AdvancedLayoutPanel(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var settings by remember { mutableStateOf(layoutSettings) }
+    var settings by remember(layoutSettings) { mutableStateOf(layoutSettings) }
 
     Surface(
         modifier = modifier.fillMaxSize(),

@@ -17,7 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.*
+import java.util.Locale
 import kotlin.math.roundToInt
 
 /**
@@ -142,6 +142,11 @@ class TextToSpeechController(
     }
 
     fun loadText(text: String) {
+        // Stop any active playback before loading new text
+        if (_playbackState.value.state == TtsState.PLAYING) {
+            stop()
+        }
+        
         currentText = text
         sentences = text.split(Regex("[.!?]+"))
             .map { it.trim() }
@@ -407,7 +412,7 @@ fun TextToSpeechControlPanel(
             ) {
                 Icon(Icons.Default.Speed, null, modifier = Modifier.size(20.dp))
                 Text(
-                    text = "${String.format("%.1f", settings.speed)}x",
+                    text = "${String.format(Locale.US, "%.1f", settings.speed)}x",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.width(50.dp)
                 )
@@ -454,7 +459,7 @@ private fun TtsSettingsPanel(
         ) {
             Icon(Icons.Default.GraphicEq, null, modifier = Modifier.size(20.dp))
             Text(
-                text = "Pitch: ${String.format("%.1f", settings.pitch)}",
+                text = "Pitch: ${String.format(Locale.US, "%.1f", settings.pitch)}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.width(80.dp)
             )

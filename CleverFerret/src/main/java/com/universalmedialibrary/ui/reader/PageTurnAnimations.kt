@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 import kotlin.math.*
 
 /**
@@ -343,7 +344,7 @@ private fun AdditionalAnimationOptions(
 
             if (settings.animation == PageTurnAnimation.CURL) {
                 Text(
-                    text = "Curl Intensity: ${String.format("%.1f", settings.curlIntensity)}",
+                    text = "Curl Intensity: ${String.format(Locale.US, "%.1f", settings.curlIntensity)}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Slider(

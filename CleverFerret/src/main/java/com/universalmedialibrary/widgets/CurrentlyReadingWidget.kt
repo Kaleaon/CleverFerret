@@ -277,6 +277,11 @@ class QuickAccessRemoteViewsFactory(
     override fun getCount(): Int = books.size
 
     override fun getViewAt(position: Int): RemoteViews {
+        // Bounds checking to prevent crashes
+        if (position < 0 || position >= books.size) {
+            return RemoteViews(context.packageName, R.layout.widget_book_item)
+        }
+        
         val book = books[position]
         
         return RemoteViews(context.packageName, R.layout.widget_book_item).apply {
@@ -297,7 +302,9 @@ class QuickAccessRemoteViewsFactory(
 
     override fun getViewTypeCount(): Int = 1
 
-    override fun getItemId(position: Int): Long = books[position].id
+    override fun getItemId(position: Int): Long {
+        return books.getOrNull(position)?.id ?: -1L
+    }
 
     override fun hasStableIds(): Boolean = true
 

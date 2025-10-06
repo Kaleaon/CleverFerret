@@ -433,7 +433,7 @@ private fun LineHeightControl(
     ControlSection(
         title = "Line Height",
         icon = Icons.Default.FormatLineSpacing,
-        value = String.format("%.1f", lineHeight)
+        value = String.format(java.util.Locale.US, "%.1f", lineHeight)
     ) {
         Slider(
             value = lineHeight,
@@ -459,7 +459,7 @@ private fun ParagraphSpacingControl(
     ControlSection(
         title = "Paragraph Spacing",
         icon = Icons.Default.Subject,
-        value = String.format("%.1f", paragraphSpacing)
+        value = String.format(java.util.Locale.US, "%.1f", paragraphSpacing)
     ) {
         Slider(
             value = paragraphSpacing,
