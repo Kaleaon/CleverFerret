@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.settings
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -174,6 +177,7 @@ fun ApiProviderCard(
     onToggle: (Boolean) -> Unit,
     onApiKeyChange: (String) -> Unit
 ) {
+    val context = LocalContext.current
     var showApiKey by remember { mutableStateOf(false) }
     var apiKeyText by remember { mutableStateOf(provider.apiKey) }
 
@@ -235,7 +239,14 @@ fun ApiProviderCard(
                 if (provider.website.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(
-                        onClick = { /* Open website */ }
+                        onClick = {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(provider.website))
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                // Handle error - could show a toast or snackbar
+                            }
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Launch,
