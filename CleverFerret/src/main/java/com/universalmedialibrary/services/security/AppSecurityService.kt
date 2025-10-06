@@ -318,7 +318,13 @@ class AppSecurityService @Inject constructor(
      * Handle app going to background
      */
     fun onAppPause() {
-        if (_securitySettings.value.lockOnAppSwitch) {
+```kotlin
+fun onAppPause() {
+    if (_securitySettings.value.lockOnAppSwitch) {
+        // Lock immediately when the app goes to background
+        lock()
+    }
+}
             lastActivityTime = System.currentTimeMillis()
             // Will lock on next checkAutoLock() call
         }
