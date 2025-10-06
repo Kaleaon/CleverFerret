@@ -125,7 +125,9 @@ class WebFictionService @Inject constructor() {
     suspend fun downloadAllChapters(story: WebFictionStory): List<WebFictionChapter> {
         return withContext(Dispatchers.IO) {
             try {
-                when (story.site) {
+                // Parse site from URL if site string is not available
+                val siteType = detectSite(story.url)
+                when (siteType) {
                     WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
                     WebFictionSiteType.FANFICTION_NET -> downloadFFNChapters(story)
                     WebFictionSiteType.ROYAL_ROAD -> downloadRoyalRoadChapters(story)
@@ -156,6 +158,35 @@ class WebFictionService @Inject constructor() {
         }
     }
 
+    private fun parseStoryStatus(statusText: String?): StoryStatus {
+        if (statusText == null) return StoryStatus.UNKNOWN
+        val normalized = statusText.lowercase()
+        return when {
+            "complete" in normalized || "completed" in normalized -> StoryStatus.COMPLETED
+            "ongoing" in normalized || "in-progress" in normalized || "in progress" in normalized -> StoryStatus.ONGOING
+            "hiatus" in normalized -> StoryStatus.HIATUS
+            "cancelled" in normalized || "abandoned" in normalized -> StoryStatus.CANCELLED
+            else -> StoryStatus.UNKNOWN
+        }
+    }
+
+    private fun siteTypeToString(siteType: WebFictionSiteType): String {
+        return when (siteType) {
+            WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> "Archive of Our Own"
+            WebFictionSiteType.FANFICTION_NET -> "FanFiction.Net"
+            WebFictionSiteType.ROYAL_ROAD -> "Royal Road"
+            WebFictionSiteType.WEBNOVEL -> "WebNovel"
+            WebFictionSiteType.WATTPAD -> "Wattpad"
+            WebFictionSiteType.SCRIBBLE_HUB -> "ScribbleHub"
+            WebFictionSiteType.SPACEBATTLES -> "SpaceBattles"
+            WebFictionSiteType.SUFFICIENT_VELOCITY -> "Sufficient Velocity"
+            WebFictionSiteType.QUESTIONABLE_QUESTING -> "Questionable Questing"
+            WebFictionSiteType.FIMFICTION -> "FimFiction"
+            WebFictionSiteType.LITEROTICA -> "Literotica"
+            WebFictionSiteType.GENERIC -> "Generic"
+        }
+    }
+
     // Archive of Our Own scraper
     private suspend fun extractFromAO3(url: String): WebFictionStory? {
         val doc = Jsoup.connect(url)
@@ -168,22 +199,31 @@ class WebFictionService @Inject constructor() {
         val description = doc.select("div.summary blockquote").text()
         val tags = doc.select("dd.freeform a.tag").map { it.text() }
         val rating = doc.select("dd.rating a.tag").text()
-        val status = doc.select("dd.status a.tag").text()
+        val statusText = doc.select("dd.status a.tag").text()
         val chapterCount = doc.select("dd.chapters").text().split("/")[0].toIntOrNull() ?: 1
+        val language = doc.select("dd.language").text()
+        val wordCountText = doc.select("dd.words").text().replace(",", "")
+        val wordCount = wordCountText.toLongOrNull()
 
         val storyId = extractAO3Id(url)
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSiteType.ARCHIVE_OF_OUR_OWN,
-            totalChapters = chapterCount,
-            status = status,
-            rating = rating,
-            tags = tags
+            status = parseStoryStatus(statusText),
+            genre = null,
+            fandom = null,
+            language = language.ifEmpty { null },
+            wordCount = wordCount,
+            chapterCount = chapterCount,
+            lastUpdated = null,
+            rating = rating.ifEmpty { null },
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.ARCHIVE_OF_OUR_OWN),
+            totalChapters = chapterCount
         )
     }
 
@@ -201,19 +241,31 @@ class WebFictionService @Inject constructor() {
 
         // Parse story info (Rating, Language, Chapters, etc.)
         val chapterCount = Regex("Chapters: (\\d+)").find(storyInfo)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-        val status = if ("Complete" in storyInfo) "Complete" else "In-Progress"
+        val statusText = if ("Complete" in storyInfo) "Complete" else "In-Progress"
+        val language = Regex("Language: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
+        val wordCountText = Regex("Words: ([0-9,]+)").find(storyInfo)?.groupValues?.get(1)?.replace(",", "")
+        val wordCount = wordCountText?.toLongOrNull()
+        val rating = Regex("Rated: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
+        val genre = Regex("Genre: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
 
         val storyId = extractFFNId(url)
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSiteType.FANFICTION_NET,
-            totalChapters = chapterCount,
-            status = status
+            status = parseStoryStatus(statusText),
+            genre = genre,
+            fandom = null,
+            language = language,
+            wordCount = wordCount,
+            chapterCount = chapterCount,
+            lastUpdated = null,
+            rating = rating,
+            site = siteTypeToString(WebFictionSiteType.FANFICTION_NET),
+            totalChapters = chapterCount
         )
     }
 
@@ -229,21 +281,28 @@ class WebFictionService @Inject constructor() {
         val description = doc.select("div.description").text()
         val coverUrl = doc.select("img.thumbnail").attr("src")
         val tags = doc.select("span.tags a").map { it.text() }
-        val status = doc.select("span.label").text()
+        val statusText = doc.select("span.label").text()
         val chapterCount = doc.select("tbody tr").size
 
         val storyId = extractRoyalRoadId(url)
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSiteType.ROYAL_ROAD,
-            totalChapters = chapterCount,
-            status = status,
+            status = parseStoryStatus(statusText),
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = "English",
+            wordCount = null,
+            chapterCount = chapterCount,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.ROYAL_ROAD),
+            totalChapters = chapterCount,
             coverUrl = coverUrl
         )
     }
@@ -265,12 +324,20 @@ class WebFictionService @Inject constructor() {
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSiteType.WEBNOVEL,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.WEBNOVEL),
             coverUrl = coverUrl
         )
     }
@@ -293,12 +360,20 @@ class WebFictionService @Inject constructor() {
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSiteType.WATTPAD,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.WATTPAD),
             coverUrl = coverUrl
         )
     }
@@ -315,19 +390,26 @@ class WebFictionService @Inject constructor() {
         val description = doc.select("div.wi_fic_desc").text()
         val coverUrl = doc.select("div.fic_image img").attr("src")
         val tags = doc.select("a.fic_genre").map { it.text() }
-        val status = doc.select("span.pub_status").text()
+        val statusText = doc.select("span.pub_status").text()
 
         val storyId = extractScribbleHubId(url)
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSiteType.SCRIBBLE_HUB,
-            status = status,
+            status = parseStoryStatus(statusText),
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.SCRIBBLE_HUB),
             coverUrl = coverUrl
         )
     }
@@ -344,19 +426,26 @@ class WebFictionService @Inject constructor() {
         val description = doc.select("div.description").text()
         val coverUrl = doc.select("div.story_image img").attr("src")
         val tags = doc.select("a.character_tag, a.content_tag").map { it.text() }
-        val status = doc.select("span.completion_status").text()
+        val statusText = doc.select("span.completion_status").text()
 
         val storyId = extractFimFictionId(url)
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = author,
             description = description,
-            url = url,
-            site = WebFictionSiteType.FIMFICTION,
-            status = status,
+            status = parseStoryStatus(statusText),
+            genre = null,
+            fandom = "My Little Pony",
+            language = "English",
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
             tags = tags,
+            site = siteTypeToString(WebFictionSiteType.FIMFICTION),
             coverUrl = coverUrl
         )
     }
@@ -376,11 +465,19 @@ class WebFictionService @Inject constructor() {
 
         return WebFictionStory(
             id = storyId,
+            url = url,
             title = title,
             author = "Unknown",
             description = description,
-            url = url,
-            site = WebFictionSiteType.GENERIC
+            status = StoryStatus.UNKNOWN,
+            genre = null,
+            fandom = null,
+            language = null,
+            wordCount = null,
+            chapterCount = null,
+            lastUpdated = null,
+            rating = null,
+            site = siteTypeToString(WebFictionSiteType.GENERIC)
         )
     }
 
@@ -403,10 +500,13 @@ class WebFictionService @Inject constructor() {
             chapters.add(
                 WebFictionChapter(
                     id = "${story.id}_${index + 1}",
+                    storyId = story.id,
+                    number = index + 1,
                     title = chapterTitle.ifEmpty { "Chapter ${index + 1}" },
-                    url = "${story.url}#chapter-${index + 1}",
                     content = content,
-                    chapterNumber = index + 1
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
                 )
             )
         }
@@ -417,7 +517,8 @@ class WebFictionService @Inject constructor() {
     private suspend fun downloadFFNChapters(story: WebFictionStory): List<WebFictionChapter> {
         val chapters = mutableListOf<WebFictionChapter>()
 
-        for (chapterNum in 1..story.totalChapters) {
+        val totalChapters = story.totalChapters ?: story.chapterCount ?: 1
+        for (chapterNum in 1..totalChapters) {
             // Build chapter URL by replacing the last path segment
             val baseUrl = story.url.substringBeforeLast("/")
             val chapterUrl = "$baseUrl/$chapterNum"
@@ -432,10 +533,13 @@ class WebFictionService @Inject constructor() {
             chapters.add(
                 WebFictionChapter(
                     id = "${story.id}_$chapterNum",
+                    storyId = story.id,
+                    number = chapterNum,
                     title = chapterTitle.ifEmpty { "Chapter $chapterNum" },
-                    url = chapterUrl,
                     content = content,
-                    chapterNumber = chapterNum
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
                 )
             )
         }
@@ -468,10 +572,13 @@ class WebFictionService @Inject constructor() {
             chapters.add(
                 WebFictionChapter(
                     id = "${story.id}_${index + 1}",
+                    storyId = story.id,
+                    number = index + 1,
                     title = chapterTitle,
-                    url = chapterUrl,
                     content = content,
-                    chapterNumber = index + 1
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
                 )
             )
         }
