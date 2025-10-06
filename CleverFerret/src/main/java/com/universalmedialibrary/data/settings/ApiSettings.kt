@@ -73,7 +73,14 @@ data class MovieTvApiSettings(
     val imdbApiKey: String = "",
     val tvdbEnabled: Boolean = false,
     val tvdbApiKey: String = "",
-    val priority: List<String> = listOf("TMDB", "OMDb", "IMDB", "TVDB")
+    // Reviews and trailers
+    val nytMovieReviewsEnabled: Boolean = true,
+    val nytApiKey: String = "",
+    val youtubeTrailersEnabled: Boolean = true,
+    val youtubeApiKey: String = "",
+    val guideboxEnabled: Boolean = false,
+    val guideboxApiKey: String = "",
+    val priority: List<String> = listOf("TMDB", "OMDb", "IMDB", "TVDB", "NYT Reviews", "YouTube Trailers", "Guidebox")
 )
 
 @Serializable

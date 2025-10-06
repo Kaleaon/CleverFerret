@@ -166,6 +166,15 @@ class SettingsViewModel @Inject constructor(
             if (settings.tvdbApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("tvdb", settings.tvdbApiKey, "movies")
             }
+            if (settings.nytApiKey.isNotBlank()) {
+                apiKeyRepository.saveAPIKey("nyt_reviews", settings.nytApiKey, "movies")
+            }
+            if (settings.youtubeApiKey.isNotBlank()) {
+                apiKeyRepository.saveAPIKey("youtube", settings.youtubeApiKey, "movies")
+            }
+            if (settings.guideboxApiKey.isNotBlank()) {
+                apiKeyRepository.saveAPIKey("guidebox", settings.guideboxApiKey, "movies")
+            }
         }
     }
 

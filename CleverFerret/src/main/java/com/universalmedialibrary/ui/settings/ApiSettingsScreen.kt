@@ -315,6 +315,9 @@ private fun updateProviderSettings(
                 "OMDb" -> current.copy(omdbEnabled = enabled, omdbApiKey = apiKey)
                 "IMDB" -> current.copy(imdbEnabled = enabled, imdbApiKey = apiKey)
                 "TVDB" -> current.copy(tvdbEnabled = enabled, tvdbApiKey = apiKey)
+                "NYT Movie Reviews" -> current.copy(nytMovieReviewsEnabled = enabled, nytApiKey = apiKey)
+                "YouTube Trailers" -> current.copy(youtubeTrailersEnabled = enabled, youtubeApiKey = apiKey)
+                "Guidebox" -> current.copy(guideboxEnabled = enabled, guideboxApiKey = apiKey)
                 else -> current
             }
             viewModel.updateMovieTvApiSettings(updated)
@@ -526,6 +529,33 @@ private fun getMoviesProviders(settings: MovieTvApiSettings): List<ApiProvider> 
         isEnabled = settings.tvdbEnabled,
         apiKey = settings.tvdbApiKey,
         website = "https://thetvdb.com/api-information",
+        mediaType = MediaType.MOVIES_TV
+    ),
+    ApiProvider(
+        name = "NYT Movie Reviews",
+        description = "New York Times movie reviews and critics picks",
+        requiresApiKey = true,
+        isEnabled = settings.nytMovieReviewsEnabled,
+        apiKey = settings.nytApiKey,
+        website = "https://developer.nytimes.com/docs/movie-reviews-api/1/overview",
+        mediaType = MediaType.MOVIES_TV
+    ),
+    ApiProvider(
+        name = "YouTube Trailers",
+        description = "Official movie trailers from YouTube",
+        requiresApiKey = true,
+        isEnabled = settings.youtubeTrailersEnabled,
+        apiKey = settings.youtubeApiKey,
+        website = "https://developers.google.com/youtube/v3/getting-started",
+        mediaType = MediaType.MOVIES_TV
+    ),
+    ApiProvider(
+        name = "Guidebox",
+        description = "Movie trailers and streaming availability",
+        requiresApiKey = true,
+        isEnabled = settings.guideboxEnabled,
+        apiKey = settings.guideboxApiKey,
+        website = "https://www.guidebox.com/",
         mediaType = MediaType.MOVIES_TV
     )
 )

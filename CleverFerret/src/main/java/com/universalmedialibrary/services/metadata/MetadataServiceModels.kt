@@ -80,6 +80,9 @@ enum class MetadataSource {
     OMDB,
     IMDB,
     TVDB,
+    NYT_MOVIE_REVIEWS,
+    YOUTUBE_TRAILERS,
+    GUIDEBOX,
 
     // Music sources
     MUSICBRAINZ,
@@ -183,6 +186,125 @@ data class OMDbResponse(
     val Runtime: String? = null,
     val Genre: String? = null,
     val Response: String? = null
+)
+
+// NYT Movie Reviews API Models
+data class NYTReviewsResponse(
+    val status: String? = null,
+    val copyright: String? = null,
+    val has_more: Boolean = false,
+    val num_results: Int = 0,
+    val results: List<NYTReview>? = null
+)
+
+data class NYTReview(
+    val display_title: String,
+    val mpaa_rating: String? = null,
+    val critics_pick: Int = 0,
+    val byline: String? = null,
+    val headline: String? = null,
+    val summary_short: String? = null,
+    val publication_date: String? = null,
+    val opening_date: String? = null,
+    val date_updated: String? = null,
+    val link: NYTLink? = null,
+    val multimedia: NYTMultimedia? = null
+)
+
+data class NYTLink(
+    val type: String? = null,
+    val url: String? = null,
+    val suggested_link_text: String? = null
+)
+
+data class NYTMultimedia(
+    val type: String? = null,
+    val src: String? = null,
+    val width: Int = 0,
+    val height: Int = 0
+)
+
+// YouTube API Models
+data class YouTubeSearchResponse(
+    val kind: String? = null,
+    val etag: String? = null,
+    val nextPageToken: String? = null,
+    val prevPageToken: String? = null,
+    val pageInfo: YouTubePageInfo? = null,
+    val items: List<YouTubeSearchResult>? = null
+)
+
+data class YouTubePageInfo(
+    val totalResults: Int = 0,
+    val resultsPerPage: Int = 0
+)
+
+data class YouTubeSearchResult(
+    val kind: String? = null,
+    val etag: String? = null,
+    val id: YouTubeVideoId? = null,
+    val snippet: YouTubeSnippet? = null
+)
+
+data class YouTubeVideoId(
+    val kind: String? = null,
+    val videoId: String? = null
+)
+
+data class YouTubeSnippet(
+    val publishedAt: String? = null,
+    val channelId: String? = null,
+    val title: String? = null,
+    val description: String? = null,
+    val thumbnails: YouTubeThumbnails? = null,
+    val channelTitle: String? = null
+)
+
+data class YouTubeThumbnails(
+    val default: YouTubeThumbnail? = null,
+    val medium: YouTubeThumbnail? = null,
+    val high: YouTubeThumbnail? = null
+)
+
+data class YouTubeThumbnail(
+    val url: String? = null,
+    val width: Int = 0,
+    val height: Int = 0
+)
+
+// Guidebox API Models
+data class GuideboxSearchResponse(
+    val results: List<GuideboxMovie>? = null
+)
+
+data class GuideboxMovie(
+    val id: Int,
+    val title: String,
+    val release_year: Int? = null,
+    val rating: String? = null,
+    val poster: String? = null,
+    val overview: String? = null,
+    val trailers: GuideboxTrailers? = null,
+    val free_web_sources: List<GuideboxSource>? = null,
+    val subscription_web_sources: List<GuideboxSource>? = null
+)
+
+data class GuideboxTrailers(
+    val web: List<GuideboxTrailer>? = null
+)
+
+data class GuideboxTrailer(
+    val type: String? = null,
+    val source: String? = null,
+    val display_name: String? = null,
+    val link: String? = null,
+    val embed: String? = null
+)
+
+data class GuideboxSource(
+    val source: String? = null,
+    val display_name: String? = null,
+    val link: String? = null
 )
 
 data class MusicBrainzResponse(
@@ -338,6 +460,48 @@ interface OMDbApi {
         @Query("apikey") apiKey: String,
         @Query("i") imdbId: String
     ): OMDbResponse
+}
+
+// New York Times Movie Reviews API
+interface NYTMovieReviewsApi {
+    @GET("svc/movies/v2/reviews/search.json")
+    suspend fun searchReviews(
+        @Query("api-key") apiKey: String,
+        @Query("query") query: String
+    ): NYTReviewsResponse
+    
+    @GET("svc/movies/v2/reviews/picks.json")
+    suspend fun getCriticsPicks(
+        @Query("api-key") apiKey: String
+    ): NYTReviewsResponse
+}
+
+// YouTube Data API for trailers
+interface YouTubeTrailersApi {
+    @GET("youtube/v3/search")
+    suspend fun searchVideos(
+        @Query("key") apiKey: String,
+        @Query("q") query: String,
+        @Query("part") part: String = "snippet",
+        @Query("type") type: String = "video",
+        @Query("videoDefinition") definition: String = "high",
+        @Query("maxResults") maxResults: Int = 10
+    ): YouTubeSearchResponse
+}
+
+// Guidebox API for streaming availability and trailers
+interface GuideboxApi {
+    @GET("v2/movies/search/title/{title}")
+    suspend fun searchMovieByTitle(
+        @Path("title") title: String,
+        @Query("api_key") apiKey: String
+    ): GuideboxSearchResponse
+    
+    @GET("v2/movies/{id}")
+    suspend fun getMovieDetails(
+        @Path("id") movieId: String,
+        @Query("api_key") apiKey: String
+    ): GuideboxMovie
 }
 
 interface MusicBrainzApi {
