@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.SettingsRepository
+import com.universalmedialibrary.data.settings.*
 import com.universalmedialibrary.ui.theme.ThemePalette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,9 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    private val _apiSettings = MutableStateFlow(ApiSettings())
+    val apiSettings: StateFlow<ApiSettings> = _apiSettings.asStateFlow()
 
     init {
         // Load settings from repository
@@ -39,6 +43,13 @@ class SettingsViewModel @Inject constructor(
                 )
             }.collect { newState ->
                 _uiState.value = newState
+            }
+        }
+        
+        // Load API settings
+        viewModelScope.launch {
+            settingsRepository.apiSettingsFlow.collect { settings ->
+                _apiSettings.value = settings
             }
         }
     }
@@ -70,6 +81,51 @@ class SettingsViewModel @Inject constructor(
     fun setNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setNotificationsEnabled(enabled)
+        }
+    }
+
+    fun updateBookApiSettings(settings: BookApiSettings) {
+        viewModelScope.launch {
+            val current = _apiSettings.value
+            val updated = current.copy(bookApis = settings)
+            settingsRepository.setApiSettings(updated)
+            _apiSettings.value = updated
+        }
+    }
+
+    fun updateComicApiSettings(settings: ComicApiSettings) {
+        viewModelScope.launch {
+            val current = _apiSettings.value
+            val updated = current.copy(comicApis = settings)
+            settingsRepository.setApiSettings(updated)
+            _apiSettings.value = updated
+        }
+    }
+
+    fun updateAudiobookApiSettings(settings: AudiobookApiSettings) {
+        viewModelScope.launch {
+            val current = _apiSettings.value
+            val updated = current.copy(audiobookApis = settings)
+            settingsRepository.setApiSettings(updated)
+            _apiSettings.value = updated
+        }
+    }
+
+    fun updateMovieTvApiSettings(settings: MovieTvApiSettings) {
+        viewModelScope.launch {
+            val current = _apiSettings.value
+            val updated = current.copy(movieTvApis = settings)
+            settingsRepository.setApiSettings(updated)
+            _apiSettings.value = updated
+        }
+    }
+
+    fun updateMusicApiSettings(settings: MusicApiSettings) {
+        viewModelScope.launch {
+            val current = _apiSettings.value
+            val updated = current.copy(musicApis = settings)
+            settingsRepository.setApiSettings(updated)
+            _apiSettings.value = updated
         }
     }
 }

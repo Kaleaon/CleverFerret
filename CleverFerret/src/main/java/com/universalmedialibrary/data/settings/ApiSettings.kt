@@ -19,27 +19,48 @@ data class ApiSettings(
 
 @Serializable
 data class BookApiSettings(
+    // Free APIs
     val openLibraryEnabled: Boolean = true,
     val googleBooksEnabled: Boolean = true,
     val googleBooksApiKey: String = "",
     val hardcoverEnabled: Boolean = true,
-    val priority: List<String> = listOf("Open Library", "Google Books", "Hardcover")
+    val isbnDbEnabled: Boolean = false,
+    val isbnDbApiKey: String = "",
+    
+    // Additional book sources
+    val goodreadsEnabled: Boolean = false,
+    val goodreadsApiKey: String = "",
+    val amazonEnabled: Boolean = false,
+    val amazonApiKey: String = "",
+    val isfdbEnabled: Boolean = false,
+    val fantasticFictionEnabled: Boolean = true,
+    val fictionDbEnabled: Boolean = false,
+    val libraryThingEnabled: Boolean = false,
+    val libraryThingApiKey: String = "",
+    val worldCatEnabled: Boolean = false,
+    val worldCatApiKey: String = "",
+    
+    val priority: List<String> = listOf("Open Library", "Google Books", "Hardcover", "ISBN DB", "Goodreads", "Amazon", "ISFDB", "Fantastic Fiction", "FictionDB", "Library Thing", "WorldCat")
 )
 
 @Serializable
 data class ComicApiSettings(
     val comicVineEnabled: Boolean = false,
     val comicVineApiKey: String = "",
+    val mangaUpdatesEnabled: Boolean = true,
     val geminiBubbleTranslationEnabled: Boolean = false,
     val geminiTargetLanguage: String = "en",
-    val priority: List<String> = listOf("ComicVine")
+    val priority: List<String> = listOf("ComicVine", "Manga Updates")
 )
 
 @Serializable
 data class AudiobookApiSettings(
     val overDriveEnabled: Boolean = false,
     val overDriveApiKey: String = "",
-    val priority: List<String> = listOf("OverDrive")
+    val audibleEnabled: Boolean = false,
+    val audibleApiKey: String = "",
+    val librivoxEnabled: Boolean = true,
+    val priority: List<String> = listOf("OverDrive", "Audible", "LibriVox")
 )
 
 @Serializable
@@ -48,7 +69,11 @@ data class MovieTvApiSettings(
     val tmdbApiKey: String = "",
     val omdbEnabled: Boolean = true,
     val omdbApiKey: String = "",
-    val priority: List<String> = listOf("TMDB", "OMDb")
+    val imdbEnabled: Boolean = false,
+    val imdbApiKey: String = "",
+    val tvdbEnabled: Boolean = false,
+    val tvdbApiKey: String = "",
+    val priority: List<String> = listOf("TMDB", "OMDb", "IMDB", "TVDB")
 )
 
 @Serializable
@@ -57,7 +82,11 @@ data class MusicApiSettings(
     val spotifyEnabled: Boolean = false,
     val spotifyClientId: String = "",
     val spotifyClientSecret: String = "",
-    val priority: List<String> = listOf("MusicBrainz", "Spotify")
+    val discogsEnabled: Boolean = false,
+    val discogsApiKey: String = "",
+    val lastFmEnabled: Boolean = false,
+    val lastFmApiKey: String = "",
+    val priority: List<String> = listOf("MusicBrainz", "Spotify", "Discogs", "Last.fm")
 )
 
 @Serializable

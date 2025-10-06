@@ -265,6 +265,14 @@ private fun updateProviderSettings(
                 "Open Library" -> current.copy(openLibraryEnabled = enabled)
                 "Google Books" -> current.copy(googleBooksEnabled = enabled, googleBooksApiKey = apiKey)
                 "Hardcover" -> current.copy(hardcoverEnabled = enabled)
+                "ISBN DB" -> current.copy(isbnDbEnabled = enabled, isbnDbApiKey = apiKey)
+                "Goodreads" -> current.copy(goodreadsEnabled = enabled, goodreadsApiKey = apiKey)
+                "Amazon Product Advertising" -> current.copy(amazonEnabled = enabled, amazonApiKey = apiKey)
+                "ISFDB" -> current.copy(isfdbEnabled = enabled)
+                "Fantastic Fiction" -> current.copy(fantasticFictionEnabled = enabled)
+                "FictionDB" -> current.copy(fictionDbEnabled = enabled)
+                "Library Thing" -> current.copy(libraryThingEnabled = enabled, libraryThingApiKey = apiKey)
+                "WorldCat" -> current.copy(worldCatEnabled = enabled, worldCatApiKey = apiKey)
                 else -> current
             }
             viewModel.updateBookApiSettings(updated)
@@ -273,6 +281,7 @@ private fun updateProviderSettings(
             val current = viewModel.apiSettings.value.comicApis
             val updated = when (providerName) {
                 "ComicVine" -> current.copy(comicVineEnabled = enabled, comicVineApiKey = apiKey)
+                "Manga Updates" -> current.copy(mangaUpdatesEnabled = enabled)
                 "Gemini 2.5 Bubble Translation" -> current.copy(geminiBubbleTranslationEnabled = enabled)
                 else -> current
             }
@@ -280,7 +289,12 @@ private fun updateProviderSettings(
         }
         "audiobooks" -> {
             val current = viewModel.apiSettings.value.audiobookApis
-            val updated = current.copy(overDriveEnabled = enabled, overDriveApiKey = apiKey)
+            val updated = when (providerName) {
+                "OverDrive" -> current.copy(overDriveEnabled = enabled, overDriveApiKey = apiKey)
+                "Audible" -> current.copy(audibleEnabled = enabled, audibleApiKey = apiKey)
+                "LibriVox" -> current.copy(librivoxEnabled = enabled)
+                else -> current
+            }
             viewModel.updateAudiobookApiSettings(updated)
         }
         "movies" -> {
@@ -288,6 +302,8 @@ private fun updateProviderSettings(
             val updated = when (providerName) {
                 "TMDB" -> current.copy(tmdbEnabled = enabled, tmdbApiKey = apiKey)
                 "OMDb" -> current.copy(omdbEnabled = enabled, omdbApiKey = apiKey)
+                "IMDB" -> current.copy(imdbEnabled = enabled, imdbApiKey = apiKey)
+                "TVDB" -> current.copy(tvdbEnabled = enabled, tvdbApiKey = apiKey)
                 else -> current
             }
             viewModel.updateMovieTvApiSettings(updated)
@@ -297,6 +313,8 @@ private fun updateProviderSettings(
             val updated = when (providerName) {
                 "MusicBrainz" -> current.copy(musicBrainzEnabled = enabled)
                 "Spotify" -> current.copy(spotifyEnabled = enabled, spotifyClientId = apiKey)
+                "Discogs" -> current.copy(discogsEnabled = enabled, discogsApiKey = apiKey)
+                "Last.fm" -> current.copy(lastFmEnabled = enabled, lastFmApiKey = apiKey)
                 else -> current
             }
             viewModel.updateMusicApiSettings(updated)
@@ -329,6 +347,75 @@ private fun getBooksProviders(settings: BookApiSettings): List<ApiProvider> = li
         isEnabled = settings.hardcoverEnabled,
         website = "https://hardcover.app/graphql",
         mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "ISBN DB",
+        description = "ISBN database lookup",
+        requiresApiKey = true,
+        isEnabled = settings.isbnDbEnabled,
+        apiKey = settings.isbnDbApiKey,
+        website = "https://isbndb.com/apidocs",
+        mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "Goodreads",
+        description = "Community book recommendations",
+        requiresApiKey = true,
+        isEnabled = settings.goodreadsEnabled,
+        apiKey = settings.goodreadsApiKey,
+        website = "https://www.goodreads.com/api",
+        mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "Amazon Product Advertising",
+        description = "Amazon book metadata",
+        requiresApiKey = true,
+        isEnabled = settings.amazonEnabled,
+        apiKey = settings.amazonApiKey,
+        website = "https://webservices.amazon.com/paapi5/documentation/",
+        mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "ISFDB",
+        description = "Internet Speculative Fiction Database",
+        requiresApiKey = false,
+        isEnabled = settings.isfdbEnabled,
+        website = "http://www.isfdb.org/wiki/index.php/Web_API",
+        mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "Fantastic Fiction",
+        description = "Author and series information",
+        requiresApiKey = false,
+        isEnabled = settings.fantasticFictionEnabled,
+        website = "https://www.fantasticfiction.com/",
+        mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "FictionDB",
+        description = "Romance and fiction database",
+        requiresApiKey = false,
+        isEnabled = settings.fictionDbEnabled,
+        website = "https://www.fictiondb.com/",
+        mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "Library Thing",
+        description = "Social cataloging website",
+        requiresApiKey = true,
+        isEnabled = settings.libraryThingEnabled,
+        apiKey = settings.libraryThingApiKey,
+        website = "https://www.librarything.com/services/",
+        mediaType = MediaType.BOOKS
+    ),
+    ApiProvider(
+        name = "WorldCat",
+        description = "OCLC global library catalog",
+        requiresApiKey = true,
+        isEnabled = settings.worldCatEnabled,
+        apiKey = settings.worldCatApiKey,
+        website = "https://www.oclc.org/developer/develop/web-services.en.html",
+        mediaType = MediaType.BOOKS
     )
 )
 
@@ -340,6 +427,14 @@ private fun getComicsProviders(settings: ComicApiSettings): List<ApiProvider> = 
         isEnabled = settings.comicVineEnabled,
         apiKey = settings.comicVineApiKey,
         website = "https://comicvine.gamespot.com/api/",
+        mediaType = MediaType.COMICS
+    ),
+    ApiProvider(
+        name = "Manga Updates",
+        description = "Manga and light novel database",
+        requiresApiKey = false,
+        isEnabled = settings.mangaUpdatesEnabled,
+        website = "https://www.mangaupdates.com/",
         mediaType = MediaType.COMICS
     ),
     ApiProvider(
@@ -360,6 +455,23 @@ private fun getAudiobooksProviders(settings: AudiobookApiSettings): List<ApiProv
         isEnabled = settings.overDriveEnabled,
         apiKey = settings.overDriveApiKey,
         website = "https://developer.overdrive.com/",
+        mediaType = MediaType.AUDIOBOOKS
+    ),
+    ApiProvider(
+        name = "Audible",
+        description = "Amazon Audible audiobook database",
+        requiresApiKey = true,
+        isEnabled = settings.audibleEnabled,
+        apiKey = settings.audibleApiKey,
+        website = "https://www.audible.com/",
+        mediaType = MediaType.AUDIOBOOKS
+    ),
+    ApiProvider(
+        name = "LibriVox",
+        description = "Free public domain audiobooks",
+        requiresApiKey = false,
+        isEnabled = settings.librivoxEnabled,
+        website = "https://librivox.org/api/info",
         mediaType = MediaType.AUDIOBOOKS
     )
 )
@@ -382,6 +494,24 @@ private fun getMoviesProviders(settings: MovieTvApiSettings): List<ApiProvider> 
         apiKey = settings.omdbApiKey,
         website = "https://www.omdbapi.com/",
         mediaType = MediaType.MOVIES_TV
+    ),
+    ApiProvider(
+        name = "IMDB",
+        description = "Internet Movie Database",
+        requiresApiKey = true,
+        isEnabled = settings.imdbEnabled,
+        apiKey = settings.imdbApiKey,
+        website = "https://developer.imdb.com/",
+        mediaType = MediaType.MOVIES_TV
+    ),
+    ApiProvider(
+        name = "TVDB",
+        description = "TheTVDB - TV series database",
+        requiresApiKey = true,
+        isEnabled = settings.tvdbEnabled,
+        apiKey = settings.tvdbApiKey,
+        website = "https://thetvdb.com/api-information",
+        mediaType = MediaType.MOVIES_TV
     )
 )
 
@@ -401,6 +531,24 @@ private fun getMusicProviders(settings: MusicApiSettings): List<ApiProvider> = l
         isEnabled = settings.spotifyEnabled,
         apiKey = settings.spotifyClientId,
         website = "https://developer.spotify.com/documentation/web-api",
+        mediaType = MediaType.MUSIC
+    ),
+    ApiProvider(
+        name = "Discogs",
+        description = "Music database and marketplace",
+        requiresApiKey = true,
+        isEnabled = settings.discogsEnabled,
+        apiKey = settings.discogsApiKey,
+        website = "https://www.discogs.com/developers",
+        mediaType = MediaType.MUSIC
+    ),
+    ApiProvider(
+        name = "Last.fm",
+        description = "Music metadata and scrobbling",
+        requiresApiKey = true,
+        isEnabled = settings.lastFmEnabled,
+        apiKey = settings.lastFmApiKey,
+        website = "https://www.last.fm/api",
         mediaType = MediaType.MUSIC
     )
 )
