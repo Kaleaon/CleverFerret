@@ -26,7 +26,7 @@ data class BookApiSettings(
     val hardcoverEnabled: Boolean = true,
     val isbnDbEnabled: Boolean = false,
     val isbnDbApiKey: String = "",
-    
+
     // Additional book sources
     val goodreadsEnabled: Boolean = false,
     val goodreadsApiKey: String = "",
@@ -39,7 +39,7 @@ data class BookApiSettings(
     val libraryThingApiKey: String = "",
     val worldCatEnabled: Boolean = false,
     val worldCatApiKey: String = "",
-    
+
     val priority: List<String> = listOf("Open Library", "Google Books", "Hardcover", "ISBN DB", "Goodreads", "Amazon", "ISFDB", "Fantastic Fiction", "FictionDB", "Library Thing", "WorldCat")
 )
 

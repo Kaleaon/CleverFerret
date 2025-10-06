@@ -17,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val readerSettingsRepository: com.universalmedialibrary.data.repository.ReaderSettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -25,6 +26,15 @@ class SettingsViewModel @Inject constructor(
 
     private val _apiSettings = MutableStateFlow(ApiSettings())
     val apiSettings: StateFlow<ApiSettings> = _apiSettings.asStateFlow()
+
+    private val _readerSettings = MutableStateFlow(ReaderSettings())
+    val readerSettings: StateFlow<ReaderSettings> = _readerSettings.asStateFlow()
+
+    private val _securitySettings = MutableStateFlow(SecuritySettings())
+    val securitySettings: StateFlow<SecuritySettings> = _securitySettings.asStateFlow()
+
+    private val _generalSettings = MutableStateFlow(GeneralSettings())
+    val generalSettings: StateFlow<GeneralSettings> = _generalSettings.asStateFlow()
 
     init {
         // Load settings from repository
@@ -47,7 +57,7 @@ class SettingsViewModel @Inject constructor(
                 _uiState.value = newState
             }
         }
-        
+
         // Load API settings
         viewModelScope.launch {
             settingsRepository.apiSettingsFlow.collect { settings ->
@@ -92,7 +102,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(bookApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.googleBooksApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("google_books", settings.googleBooksApiKey, "books")
@@ -121,7 +131,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(comicApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.comicVineApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("comicvine", settings.comicVineApiKey, "comics")
@@ -135,7 +145,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(audiobookApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.overDriveApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("overdrive", settings.overDriveApiKey, "audiobooks")
@@ -152,7 +162,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(movieTvApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.tmdbApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("tmdb", settings.tmdbApiKey, "movies")
@@ -184,7 +194,7 @@ class SettingsViewModel @Inject constructor(
             val updated = current.copy(musicApis = settings)
             settingsRepository.setApiSettings(updated)
             _apiSettings.value = updated
-            
+
             // Also save to APIKeyRepository for actual service usage
             if (settings.spotifyClientId.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("spotify", settings.spotifyClientId, "music")
@@ -201,6 +211,44 @@ class SettingsViewModel @Inject constructor(
             if (settings.napsterApiKey.isNotBlank()) {
                 apiKeyRepository.saveAPIKey("napster", settings.napsterApiKey, "music")
             }
+        }
+    }
+
+    fun updateReaderSettings(settings: ReaderSettings) {
+        viewModelScope.launch {
+            _readerSettings.value = settings
+            // Persist to repository - convert settings data class to ReaderSettingsEntity
+            val entity = com.universalmedialibrary.data.local.entity.ReaderSettingsEntity(
+                id = 1L, // Global settings always use ID 1
+                fontSize = settings.fontSize.toInt(),
+                lineSpacing = settings.lineSpacing,
+                theme = settings.theme.name,
+                marginLeft = settings.marginHorizontal.toInt(),
+                marginRight = settings.marginHorizontal.toInt(),
+                marginTop = settings.marginVertical.toInt(),
+                marginBottom = settings.marginVertical.toInt(),
+                keepScreenOn = settings.keepScreenOn,
+                fullscreen = settings.fullScreenMode
+            )
+            readerSettingsRepository.updateGlobalSettings(entity)
+        }
+    }
+
+    fun updateSecuritySettings(settings: SecuritySettings) {
+        viewModelScope.launch {
+            _securitySettings.value = settings
+            // Persist security settings - update individual settings in repository
+            // For now, just update in-memory state since SecuritySettings hasn't been fully integrated
+            // TODO: Add SecuritySettingsEntity and DAO for full persistence
+        }
+    }
+
+    fun updateGeneralSettings(settings: GeneralSettings) {
+        viewModelScope.launch {
+            _generalSettings.value = settings
+            // Persist general settings - update individual settings in repository
+            // For now, just update in-memory state since GeneralSettings hasn't been fully integrated
+            // TODO: Add GeneralSettingsEntity and DAO for full persistence
         }
     }
 }

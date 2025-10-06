@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 /**
  * CleverFerret Theme System with Metallic Accents
@@ -20,6 +21,20 @@ import androidx.compose.ui.text.font.FontWeight
 
 // Local composition for metallic effects
 val LocalMetallicGradient = staticCompositionLocalOf { MetallicEffects.Gold }
+
+/**
+ * Get metallic effect for a theme palette
+ */
+private fun getMetallicEffectForTheme(palette: ThemePalette): MetallicGradient {
+    return when (palette) {
+        ThemePalette.NAVY_GOLD -> MetallicEffects.Gold
+        ThemePalette.ROYAL_SILVER -> MetallicEffects.Silver
+        ThemePalette.FOREST_COPPER -> MetallicEffects.Copper
+        ThemePalette.BURGUNDY_ROSE_GOLD -> MetallicEffects.RoseGold
+        ThemePalette.CHARCOAL_CHAMPAGNE -> MetallicEffects.Champagne
+        ThemePalette.SLATE_GUNMETAL -> MetallicEffects.Gunmetal
+    }
+}
 
 @Composable
 fun CleverFerretTheme(
@@ -79,90 +94,75 @@ fun CleverFerretUnifiedTheme(
     }
 }
 
-// Backward compatibility alias
-@Composable
-fun PlexTheme(
-    darkTheme: Boolean = true,
-    dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
-) {
-    CleverFerretTheme(
-        palette = ThemePalette.NAVY_GOLD,
-        darkTheme = darkTheme,
-        dynamicColor = dynamicColor,
-        content = content
-    )
-}
-
 // Beautiful typography with proper hierarchy
 private val CleverFerretTypography = Typography(
     // Display styles - for hero sections
     displayLarge = Typography().displayLarge.copy(
         fontWeight = FontWeight.Bold,
-        letterSpacing = androidx.compose.ui.unit.sp(-0.5)
+        letterSpacing = (-0.5).sp
     ),
     displayMedium = Typography().displayMedium.copy(
         fontWeight = FontWeight.Bold,
-        letterSpacing = androidx.compose.ui.unit.sp(-0.25)
+        letterSpacing = (-0.25).sp
     ),
     displaySmall = Typography().displaySmall.copy(
         fontWeight = FontWeight.SemiBold,
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+        letterSpacing = 0.sp
     ),
 
     // Headline styles - for section headers
     headlineLarge = Typography().headlineLarge.copy(
         fontWeight = FontWeight.Bold,
-        letterSpacing = androidx.compose.ui.unit.sp(-0.25)
+        letterSpacing = (-0.25).sp
     ),
     headlineMedium = Typography().headlineMedium.copy(
         fontWeight = FontWeight.Bold,
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+        letterSpacing = 0.sp
     ),
     headlineSmall = Typography().headlineSmall.copy(
         fontWeight = FontWeight.SemiBold,
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+        letterSpacing = 0.sp
     ),
 
     // Title styles - for cards and list items
     titleLarge = Typography().titleLarge.copy(
         fontWeight = FontWeight.SemiBold,
-        letterSpacing = androidx.compose.ui.unit.sp(0)
+        letterSpacing = 0.sp
     ),
     titleMedium = Typography().titleMedium.copy(
         fontWeight = FontWeight.Medium,
-        letterSpacing = androidx.compose.ui.unit.sp(0.15)
+        letterSpacing = 0.15.sp
     ),
     titleSmall = Typography().titleSmall.copy(
         fontWeight = FontWeight.Medium,
-        letterSpacing = androidx.compose.ui.unit.sp(0.1)
+        letterSpacing = 0.1.sp
     ),
 
     // Body styles - for paragraphs and content
     bodyLarge = Typography().bodyLarge.copy(
         fontWeight = FontWeight.Normal,
-        letterSpacing = androidx.compose.ui.unit.sp(0.5)
+        letterSpacing = 0.5.sp
     ),
     bodyMedium = Typography().bodyMedium.copy(
         fontWeight = FontWeight.Normal,
-        letterSpacing = androidx.compose.ui.unit.sp(0.25)
+        letterSpacing = 0.25.sp
     ),
     bodySmall = Typography().bodySmall.copy(
         fontWeight = FontWeight.Normal,
-        letterSpacing = androidx.compose.ui.unit.sp(0.4)
+        letterSpacing = 0.4.sp
     ),
 
     // Label styles - for buttons and small text
     labelLarge = Typography().labelLarge.copy(
         fontWeight = FontWeight.Medium,
-        letterSpacing = androidx.compose.ui.unit.sp(0.5)
+        letterSpacing = 0.5.sp
     ),
     labelMedium = Typography().labelMedium.copy(
         fontWeight = FontWeight.Medium,
-        letterSpacing = androidx.compose.ui.unit.sp(0.5)
+        letterSpacing = 0.5.sp
     ),
     labelSmall = Typography().labelSmall.copy(
         fontWeight = FontWeight.Medium,
-        letterSpacing = androidx.compose.ui.unit.sp(0.5)
+        letterSpacing = 0.5.sp
     )
 )

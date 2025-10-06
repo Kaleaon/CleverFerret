@@ -84,4 +84,58 @@ interface MetadataDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItemGenre(itemGenre: ItemGenre)
+
+    // Missing methods for MetadataEditorViewModel
+    @Query("""
+        SELECT p.name FROM people p
+        INNER JOIN item_person_role ipr ON p.personId = ipr.personId
+        WHERE ipr.itemId = :itemId AND ipr.role = 'AUTHOR'
+    """)
+    suspend fun getAuthorsByItemId(itemId: Long): List<String>
+
+    @Query("""
+        SELECT s.name FROM series s
+        INNER JOIN metadata_book mb ON s.seriesId = mb.series
+        WHERE mb.itemId = :itemId
+        LIMIT 1
+    """)
+    suspend fun getSeriesByItemId(itemId: Long): String?
+
+    @Query("""
+        SELECT g.name FROM genre g
+        INNER JOIN item_genre ig ON g.genreId = ig.genreId
+        WHERE ig.itemId = :itemId
+    """)
+    suspend fun getGenresByItemId(itemId: Long): List<String>
+
+    @Query("DELETE FROM item_person_role WHERE itemId = :itemId AND role = 'AUTHOR'")
+    suspend fun deleteAuthorsByItemId(itemId: Long)
+
+    @Query("DELETE FROM item_genre WHERE itemId = :itemId")
+    suspend fun deleteGenresByItemId(itemId: Long)
+
+    @Query("""
+        UPDATE metadata_common
+        SET title = :title, sortTitle = :sortTitle, summary = :summary, rating = :rating
+        WHERE itemId = :itemId
+    """)
+    suspend fun updateMetadataCommon(
+        itemId: Long,
+        title: String,
+        sortTitle: String?,
+        summary: String?,
+        rating: Float?
+    )
+
+    @Query("""
+        UPDATE metadata_book
+        SET subtitle = :subtitle, publisher = :publisher, isbn = :isbn
+        WHERE itemId = :itemId
+    """)
+    suspend fun updateMetadataBook(
+        itemId: Long,
+        subtitle: String?,
+        publisher: String?,
+        isbn: String?
+    )
 }

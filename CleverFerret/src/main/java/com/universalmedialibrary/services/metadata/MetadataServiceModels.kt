@@ -469,7 +469,7 @@ interface NYTMovieReviewsApi {
         @Query("api-key") apiKey: String,
         @Query("query") query: String
     ): NYTReviewsResponse
-    
+
     @GET("svc/movies/v2/reviews/picks.json")
     suspend fun getCriticsPicks(
         @Query("api-key") apiKey: String
@@ -496,7 +496,7 @@ interface GuideboxApi {
         @Path("title") title: String,
         @Query("api_key") apiKey: String
     ): GuideboxSearchResponse
-    
+
     @GET("v2/movies/{id}")
     suspend fun getMovieDetails(
         @Path("id") movieId: String,
@@ -520,7 +520,7 @@ interface RadioBrowserApi {
         @Query("name") name: String,
         @Query("limit") limit: Int = 10
     ): List<RadioStation>
-    
+
     @GET("json/stations/bygenre/{genre}")
     suspend fun getStationsByGenre(
         @Path("genre") genre: String,
@@ -535,7 +535,7 @@ interface AudioDBApi {
         @Path("apiKey") apiKey: String,
         @Query("s") artist: String
     ): AudioDBResponse
-    
+
     @GET("api/v1/json/{apiKey}/searchalbum.php")
     suspend fun searchAlbum(
         @Path("apiKey") apiKey: String,
@@ -551,7 +551,7 @@ interface DeezerApi {
         @Query("q") query: String,
         @Query("limit") limit: Int = 10
     ): DeezerArtistResponse
-    
+
     @GET("search/album")
     suspend fun searchAlbum(
         @Query("q") query: String,

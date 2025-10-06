@@ -3,6 +3,7 @@ package com.universalmedialibrary.services.podcast
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.firstOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
@@ -270,7 +271,8 @@ data class TaddyPodcast(
  */
 @Singleton
 class PodcastService @Inject constructor(
-    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
+    private val podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository
 ) {
 
     private val httpClient = OkHttpClient.Builder().build()
@@ -393,7 +395,9 @@ class PodcastService @Inject constructor(
                 feedUrl = feed.url,
                 imageUrl = feed.image.ifEmpty { feed.artwork },
                 episodeCount = feed.episodeCount,
-                category = feed.categories.values.firstOrNull()
+                category = feed.categories.values.firstOrNull(),
+                lastEpisodeDate = null, // Not available in API response
+                source = "podcast_index"
             )
         }
     }
@@ -409,7 +413,9 @@ class PodcastService @Inject constructor(
                 feedUrl = podcast.feedUrl,
                 imageUrl = podcast.artworkUrl600 ?: podcast.artworkUrl100,
                 episodeCount = podcast.trackCount ?: 0,
-                category = podcast.primaryGenreName
+                category = podcast.primaryGenreName,
+                lastEpisodeDate = null, // Not available in search results
+                source = "itunes"
             )
         }
     }
@@ -441,7 +447,9 @@ class PodcastService @Inject constructor(
                 feedUrl = podcast.rss,
                 imageUrl = podcast.image,
                 episodeCount = podcast.total_episodes,
-                category = podcast.genres.firstOrNull()?.name
+                category = podcast.genres.firstOrNull()?.name,
+                lastEpisodeDate = null, // Not consistently available
+                source = "listennotes"
             )
         }
     }
@@ -457,7 +465,9 @@ class PodcastService @Inject constructor(
                 feedUrl = "", // Spotify doesn't provide RSS feeds
                 imageUrl = show.images.firstOrNull()?.url,
                 episodeCount = show.total_episodes,
-                category = null
+                category = null,
+                lastEpisodeDate = null,
+                source = "spotify"
             )
         }
     }
@@ -473,7 +483,9 @@ class PodcastService @Inject constructor(
                 feedUrl = podcast.feedUrl,
                 imageUrl = podcast.imageUrl,
                 episodeCount = podcast.episodeCount,
-                category = podcast.categories.firstOrNull()
+                category = podcast.categories.firstOrNull(),
+                lastEpisodeDate = null,
+                source = "taddy"
             )
         }
     }
@@ -487,10 +499,10 @@ class PodcastService @Inject constructor(
             if (feedUrl.isNotEmpty()) {
                 // Take the result with most complete information
                 val best = podcasts.maxByOrNull {
-                    (if (it.description.isNotEmpty()) 1 else 0) +
+                    (if (it.description?.isNotEmpty() == true) 1 else 0) +
                     (if (it.imageUrl != null) 1 else 0) +
                     (if (it.category != null) 1 else 0) +
-                    it.episodeCount
+                    (it.episodeCount ?: 0)
                 }
                 best?.let { deduplicated.add(it) }
             } else {
@@ -510,10 +522,10 @@ class PodcastService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val rssFeed = parseRSSFeed(feedUrl)
-                val podcastId = generatePodcastId(feedUrl)
+                val tempPodcastId = generatePodcastId(feedUrl)
 
-                Podcast(
-                    id = podcastId,
+                val podcast = Podcast(
+                    id = tempPodcastId,
                     title = rssFeed.title,
                     description = rssFeed.description,
                     author = rssFeed.author ?: "Unknown",
@@ -522,12 +534,20 @@ class PodcastService @Inject constructor(
                     imageUrl = rssFeed.imageUrl,
                     category = rssFeed.category,
                     language = rssFeed.language ?: "en",
-                    isSubscribed = true,
-                    lastUpdated = Date(),
-                    episodes = convertRSSItemsToEpisodes(rssFeed.items, podcastId),
-                    totalEpisodes = rssFeed.items.size,
+                    subscribed = true,
+                    lastUpdated = System.currentTimeMillis(),
+                    episodeCount = rssFeed.items.size,
                     explicit = rssFeed.explicit
                 )
+
+                // Store podcast in database via Repository
+                val newPodcastId = podcastRepository.insertPodcast(podcast)
+                val episodes = convertRSSItemsToEpisodes(rssFeed.items, newPodcastId)
+                for (episode in episodes) {
+                    podcastRepository.updateEpisode(episode)
+                }
+
+                podcast.copy(id = newPodcastId)
             } catch (e: Exception) {
                 null
             }
@@ -543,9 +563,10 @@ class PodcastService @Inject constructor(
                 val rssFeed = parseRSSFeed(podcast.feedUrl)
                 val currentEpisodes = convertRSSItemsToEpisodes(rssFeed.items, podcast.id)
 
-                // Find episodes not in the existing list
-                val existingGuids = podcast.episodes.map { it.id }.toSet()
-                currentEpisodes.filter { it.id !in existingGuids }
+                // Find new episodes not in the existing list via Repository
+                val existingEpisodes = podcastRepository.getEpisodesByPodcast(podcast.id)
+                val existingGuids = existingEpisodes.firstOrNull()?.map { it.guid }?.toSet() ?: emptySet()
+                currentEpisodes.filter { it.guid !in existingGuids }
             } catch (e: Exception) {
                 emptyList()
             }
@@ -642,7 +663,7 @@ class PodcastService @Inject constructor(
                 seasonNumber = item.select("itunes|season").text().toIntOrNull(),
                 imageUrl = item.select("itunes|image").attr("href")
             )
-        }.filter { it.audioUrl.isNotEmpty() } // Only include items with audio
+        }.filter { !it.audioUrl.isNullOrEmpty() } // Only include items with audio
 
         return RSSFeed(
             title = title,
@@ -660,26 +681,28 @@ class PodcastService @Inject constructor(
     /**
      * Convert RSS items to podcast episodes
      */
-    private fun convertRSSItemsToEpisodes(items: List<RSSItem>, podcastId: String): List<PodcastEpisode> {
+    private fun convertRSSItemsToEpisodes(items: List<RSSItem>, podcastId: Long): List<PodcastEpisode> {
         val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
 
         return items.mapIndexed { index, item ->
             val publishDate = try {
-                dateFormat.parse(item.pubDate ?: "")
+                dateFormat.parse(item.pubDate ?: "")?.time
             } catch (e: Exception) {
-                Date() // Fallback to current date
-            }
+                System.currentTimeMillis() // Fallback to current time
+            } ?: System.currentTimeMillis()
 
             val duration = parseDuration(item.duration)
 
             PodcastEpisode(
-                id = item.guid ?: "${podcastId}_$index",
+                id = 0, // Auto-generated by database
+                podcastId = podcastId,
+                guid = item.guid ?: "${podcastId}_$index",
                 title = item.title,
                 description = item.description,
                 audioUrl = item.audioUrl ?: "",
                 duration = duration,
                 fileSize = item.fileSize ?: 0,
-                publishDate = publishDate ?: Date(),
+                publishDate = publishDate,
                 episodeNumber = item.episodeNumber,
                 seasonNumber = item.seasonNumber,
                 imageUrl = item.imageUrl
@@ -731,8 +754,8 @@ class PodcastService @Inject constructor(
     /**
      * Generate podcast ID from feed URL
      */
-    private fun generatePodcastId(feedUrl: String): String {
-        return "podcast_${feedUrl.hashCode().toString().replace("-", "")}"
+    private fun generatePodcastId(feedUrl: String): Long {
+        return feedUrl.hashCode().toLong().let { if (it < 0) -it else it }
     }
 
     /**

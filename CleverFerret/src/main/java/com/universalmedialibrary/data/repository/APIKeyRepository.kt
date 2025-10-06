@@ -159,6 +159,9 @@ class APIKeyRepository @Inject constructor(
         saveAPIKey("gemini", apiKey, "AI", false)
     }
 
+    // Last.fm API key convenience method
+    suspend fun getLastFmApiKey(): String? = getAPIKeyValue("lastfm")
+
     // Image generator type persistence methods
     suspend fun saveImageGeneratorType(type: ImageGeneratorType) {
         // Store as a special API key entry with the enum name as the value
