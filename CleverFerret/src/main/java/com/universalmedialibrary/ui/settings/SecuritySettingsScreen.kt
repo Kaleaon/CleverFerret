@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.settings.SecuritySettings
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +24,7 @@ fun SecuritySettingsScreen(
 ) {
     val securitySettings by viewModel.securitySettings.collectAsState()
 
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         Scaffold(
             topBar = {
                 TopAppBar(

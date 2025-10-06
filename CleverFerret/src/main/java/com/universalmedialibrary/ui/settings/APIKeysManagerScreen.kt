@@ -17,7 +17,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 
 data class APIKeyConfig(
     val key: String,
@@ -45,7 +46,7 @@ fun APIKeysManagerScreen(
     navController: NavController,
     viewModel: APIKeysViewModel = hiltViewModel()
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         var selectedCategory by remember { mutableStateOf<APICategory?>(null) }
         var showInstructions by remember { mutableStateOf<APIKeyConfig?>(null) }

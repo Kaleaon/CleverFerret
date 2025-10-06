@@ -15,7 +15,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.integration.plex.PlexConnectionResult
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +26,7 @@ fun PlexIntegrationScreen(
     val plexState by viewModel.plexState.collectAsState()
     var showAddServerDialog by remember { mutableStateOf(false) }
 
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background

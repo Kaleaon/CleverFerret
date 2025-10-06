@@ -100,6 +100,7 @@ fun ApiSettingsScreen(
 
             if (mediaType == "comics") {
                 item {
+                    val targetLang = remember { mutableStateOf(apiSettings.comicApis.geminiTargetLanguage) }
                     Card(
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -112,15 +113,14 @@ fun ApiSettingsScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(Modifier.height(8.dp))
-                            var lang by remember { mutableStateOf(apiSettings.comicApis.geminiTargetLanguage) }
                             OutlinedTextField(
-                                value = lang,
+                                value = targetLang.value,
                                 onValueChange = {
-                                    lang = it
+                                    targetLang.value = it
                                     val current = viewModel.apiSettings.value.comicApis
                                     viewModel.updateComicApiSettings(current.copy(geminiTargetLanguage = it.take(8)))
                                 },
-                                label = { Text("Target language code") },
+                                label = { Text(text = "Target language code") },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth()
                             )

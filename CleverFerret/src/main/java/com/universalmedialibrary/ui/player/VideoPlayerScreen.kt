@@ -21,7 +21,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -35,7 +36,7 @@ fun VideoPlayerScreen(
     onBack: () -> Unit,
     viewModel: VideoPlayerViewModel = hiltViewModel()
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
         var showControls by remember { mutableStateOf(true) }

@@ -26,7 +26,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.metadata.MetadataApiService
 import com.universalmedialibrary.services.metadata.UnifiedMetadataSearchResult
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +37,7 @@ fun EnhancedMetadataEditorScreen(
     navController: NavController,
     metadataApiService: MetadataApiService = hiltViewModel<EnhancedMetadataViewModel>().metadataApiService
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         var title by remember { mutableStateOf("") }
         var author by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
