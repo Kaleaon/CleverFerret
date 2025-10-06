@@ -328,32 +328,24 @@ fun MediaType.displayName(): String {
         MediaType.MOVIE -> "Movies"
         MediaType.TV_SHOW -> "TV Shows"
         MediaType.DOCUMENTARY -> "Documentaries"
-        MediaType.MUSIC_TRACK -> "Music"
+        MediaType.MUSIC -> "Music"
+        MediaType.MUSIC_TRACK -> "Music Tracks"
         MediaType.MUSIC_ALBUM -> "Albums"
-        MediaType.PODCAST_EPISODE -> "Podcasts"
+        MediaType.PODCAST -> "Podcasts"
+        MediaType.PODCAST_EPISODE -> "Podcast Episodes"
         MediaType.PODCAST_SERIES -> "Podcast Series"
         MediaType.COMIC -> "Comics"
         MediaType.MANGA -> "Manga"
         MediaType.MAGAZINE -> "Magazines"
         MediaType.NEWSPAPER -> "Newspapers"
         MediaType.JOURNAL -> "Journals"
-        MediaType.NEWS_ARTICLE -> "News"
-        MediaType.ACADEMIC_PAPER -> "Papers"
+        MediaType.NEWS_ARTICLE -> "News Articles"
+        MediaType.ACADEMIC_PAPER -> "Academic Papers"
         MediaType.REPORT -> "Reports"
         MediaType.PRESENTATION -> "Presentations"
-        MediaType.SPREADSHEET -> "Spreadsheets"
-        MediaType.IMAGE -> "Images"
-        MediaType.PHOTO_ALBUM -> "Photo Albums"
-        MediaType.VIDEO_CLIP -> "Video Clips"
-        MediaType.ANIMATION -> "Animations"
-        MediaType.GAME -> "Games"
-        MediaType.SOFTWARE -> "Software"
-        MediaType.ARCHIVE -> "Archives"
         MediaType.DOCUMENT -> "Documents"
-        MediaType.NOTE -> "Notes"
-        MediaType.RECIPE -> "Recipes"
-        MediaType.MANUAL -> "Manuals"
-        MediaType.TUTORIAL -> "Tutorials"
+        MediaType.WEB_FICTION -> "Web Fiction"
+        MediaType.UNKNOWN -> "Unknown"
     }
 }
 
@@ -363,28 +355,18 @@ fun MediaType.getIcon(): ImageVector {
         MediaType.AUDIOBOOK -> Icons.Default.Headphones
         MediaType.MOVIE, MediaType.DOCUMENTARY -> Icons.Default.Movie
         MediaType.TV_SHOW -> Icons.Default.Tv
-        MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM -> Icons.Default.MusicNote
-        MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES -> Icons.Default.MusicNote // Use MusicNote as fallback for Podcast
+        MediaType.MUSIC, MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM -> Icons.Default.MusicNote
+        MediaType.PODCAST, MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES -> Icons.Default.MusicNote
         MediaType.COMIC, MediaType.MANGA -> Icons.Default.AutoStories
         MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.Default.Article
         MediaType.JOURNAL -> Icons.Default.Book
-        MediaType.NEWS_ARTICLE -> Icons.Default.Article // Use Article as fallback for Newspaper
+        MediaType.NEWS_ARTICLE -> Icons.Default.Article
         MediaType.ACADEMIC_PAPER -> Icons.Default.School
         MediaType.REPORT -> Icons.Default.Assessment
         MediaType.PRESENTATION -> Icons.Default.Slideshow
-        MediaType.SPREADSHEET -> Icons.Default.TableChart
-        MediaType.IMAGE -> Icons.Default.Image
-        MediaType.PHOTO_ALBUM -> Icons.Default.PhotoAlbum
-        MediaType.VIDEO_CLIP -> Icons.Default.VideoFile
-        MediaType.ANIMATION -> Icons.Default.Movie // Use Movie as fallback for Animation
-        MediaType.GAME -> Icons.Default.SportsEsports
-        MediaType.SOFTWARE -> Icons.Default.Apps
-        MediaType.ARCHIVE -> Icons.Default.FolderZip // Use FolderZip as fallback for Archive
         MediaType.DOCUMENT -> Icons.Default.Description
-        MediaType.NOTE -> Icons.Default.Note
-        MediaType.RECIPE -> Icons.Default.Restaurant
-        MediaType.MANUAL -> Icons.Default.Help
-        MediaType.TUTORIAL -> Icons.Default.School // Use School as fallback for PlayLesson
+        MediaType.WEB_FICTION -> Icons.Default.AutoStories
+        MediaType.UNKNOWN -> Icons.Default.QuestionMark
     }
 }
 
