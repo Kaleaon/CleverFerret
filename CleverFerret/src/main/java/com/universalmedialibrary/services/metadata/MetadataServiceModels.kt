@@ -162,6 +162,7 @@ data class TMDBResult(
     val release_date: String? = null,
     val first_air_date: String? = null, // For TV shows
     val poster_path: String? = null,
+    val backdrop_path: String? = null,
     val genre_ids: List<Int>? = null,
     val vote_average: Float? = null
 )
