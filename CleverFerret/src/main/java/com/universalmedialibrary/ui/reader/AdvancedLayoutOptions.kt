@@ -714,7 +714,7 @@ private fun MaxWidthControl(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Width,
+                        imageVector = Icons.Default.FormatSize,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.primary

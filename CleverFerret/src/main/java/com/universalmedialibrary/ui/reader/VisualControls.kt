@@ -352,7 +352,6 @@ private fun FontFamilyControl(
         "SERIF" to "Serif",
         "SANS_SERIF" to "Sans Serif",
         "MONOSPACE" to "Monospace",
-```suggestion
         "CUSTOM" to "Custom"
     )
 
@@ -382,7 +381,7 @@ private fun LetterSpacingControl(
     ControlSection(
         title = "Letter Spacing",
         icon = Icons.Default.SpaceBar,
-        value = String.format("%.2f", letterSpacing)
+        value = String.format(java.util.Locale.US, "%.2f", letterSpacing)
     ) {
         Slider(
             value = letterSpacing,
@@ -408,7 +407,7 @@ private fun WordSpacingControl(
     ControlSection(
         title = "Word Spacing",
         icon = Icons.Default.Dehaze,
-        value = String.format("%.2f", wordSpacing)
+        value = String.format(java.util.Locale.US, "%.2f", wordSpacing)
     ) {
         Slider(
             value = wordSpacing,

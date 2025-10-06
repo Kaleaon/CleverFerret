@@ -217,7 +217,7 @@ class CloudSyncService @Inject constructor(
             val itemsToSync = pendingSyncItems.toList()
             val totalItems = itemsToSync.size
             
-            itemsToSync.forEachIndexed { index, item ->
+            for ((index, item) in itemsToSync.withIndex()) {
                 uploadItem(item)
                 _syncState.value = _syncState.value.copy(
                     progress = (index + 1).toFloat() / totalItems,
@@ -227,7 +227,7 @@ class CloudSyncService @Inject constructor(
             }
 
             // Step 4: Pull remote changes
-            remoteItems.forEach { item ->
+            for (item in remoteItems) {
                 applyRemoteChange(item)
             }
 

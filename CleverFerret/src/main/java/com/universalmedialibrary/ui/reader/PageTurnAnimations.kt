@@ -511,10 +511,18 @@ private fun SlideAnimation(
     settings: AnimationSettings
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.offset(x = (-progress * 100).dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { translationX = -progress * size.width }
+        ) {
             currentPage()
         }
-        Box(modifier = Modifier.offset(x = ((1 - progress) * 100).dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { translationX = (1f - progress) * size.width }
+        ) {
             nextPage()
         }
     }

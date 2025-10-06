@@ -173,7 +173,9 @@ class SharingService @Inject constructor(
         }
         
         if (intent != null) {
-            context.startActivity(Intent.createChooser(intent, "Share via"))
+            val chooser = Intent.createChooser(intent, "Share via")
+            chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(chooser)
         }
     }
 
@@ -434,7 +436,9 @@ class SharingService @Inject constructor(
             putExtra(Intent.EXTRA_TEXT, text)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        context.startActivity(Intent.createChooser(intent, "Share via"))
+        val chooser = Intent.createChooser(intent, "Share via")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
     }
 
     /**
