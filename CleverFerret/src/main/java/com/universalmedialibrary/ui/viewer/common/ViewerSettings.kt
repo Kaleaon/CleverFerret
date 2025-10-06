@@ -43,7 +43,11 @@ data class ComicSettings(
     val enablePageTurn: Boolean = true,
     val doubleTapZoom: Boolean = true,
     val panelDetection: Boolean = true,
-    val smoothScrolling: Boolean = true
+    val smoothScrolling: Boolean = true,
+    val panelByPanelMode: Boolean = false,
+    val showPanelBorders: Boolean = false,
+    val panelTransitionDuration: Long = 300L,
+    val panelNavigationHints: Boolean = true
 )
 
 enum class ReadingMode {
