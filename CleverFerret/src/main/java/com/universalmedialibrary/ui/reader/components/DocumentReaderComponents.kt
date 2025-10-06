@@ -404,81 +404,81 @@ fun DocumentReaderSettingsSheet(
                                 steps = 19
                             )
 
-                            // Font family - TODO: Add fontFamily to ViewerSettings
-                            // Text("Font Family")
-                            // Row(
-                            //     modifier = Modifier.fillMaxWidth(),
-                            //     horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            // ) {
-                            //     FilterChip(
-                            //         onClick = {
-                            //             onSettingsChanged(settings.copy(fontFamily = FontFamily.Default))
-                            //         },
-                            //         label = { Text("Default") },
-                            //         selected = settings.fontFamily == FontFamily.Default
-                            //     )
-                            //     FilterChip(
-                            //         onClick = {
-                            //             onSettingsChanged(settings.copy(fontFamily = FontFamily.Serif))
-                            //         },
-                            //         label = { Text("Serif") },
-                            //         selected = settings.fontFamily == FontFamily.Serif
-                            //     )
-                            //     FilterChip(
-                            //         onClick = {
-                            //             onSettingsChanged(settings.copy(fontFamily = FontFamily.SansSerif))
-                            //         },
-                            //         label = { Text("Sans Serif") },
-                            //         selected = settings.fontFamily == FontFamily.SansSerif
-                            //     )
-                            //     FilterChip(
-                            //         onClick = {
-                            //             onSettingsChanged(settings.copy(fontFamily = FontFamily.Monospace))
-                            //         },
-                            //         label = { Text("Mono") },
-                            //         selected = settings.fontFamily == FontFamily.Monospace
-                            //     )
-                            // }
+                            // Font family
+                            Text("Font Family")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                FilterChip(
+                                    onClick = {
+                                        onSettingsChanged(settings.copy(fontFamily = FontFamily.Default))
+                                    },
+                                    label = { Text("Default") },
+                                    selected = settings.fontFamily == FontFamily.Default
+                                )
+                                FilterChip(
+                                    onClick = {
+                                        onSettingsChanged(settings.copy(fontFamily = FontFamily.Serif))
+                                    },
+                                    label = { Text("Serif") },
+                                    selected = settings.fontFamily == FontFamily.Serif
+                                )
+                                FilterChip(
+                                    onClick = {
+                                        onSettingsChanged(settings.copy(fontFamily = FontFamily.SansSerif))
+                                    },
+                                    label = { Text("Sans Serif") },
+                                    selected = settings.fontFamily == FontFamily.SansSerif
+                                )
+                                FilterChip(
+                                    onClick = {
+                                        onSettingsChanged(settings.copy(fontFamily = FontFamily.Monospace))
+                                    },
+                                    label = { Text("Mono") },
+                                    selected = settings.fontFamily == FontFamily.Monospace
+                                )
+                            }
 
-                            // Text alignment - TODO: Add to ViewerSettings
-                            // Text("Text Alignment")
-                            // Row(
-                            //     modifier = Modifier.fillMaxWidth(),
-                            //     horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            // ) {
-                            //     FilterChip(
-                            //         onClick = {
-                            //             onSettingsChanged(settings.copy(textAlignment = TextAlignment.LEFT))
-                            //         },
-                            //         label = { Text("Left") },
-                            //         selected = settings.textAlignment == TextAlignment.LEFT
-                            //     )
-                            //     FilterChip(
-                            //         onClick = {
-                            //             onSettingsChanged(settings.copy(textAlignment = TextAlignment.CENTER))
-                            //         },
-                            //         label = { Text("Center") },
-                            //         selected = settings.textAlignment == TextAlignment.CENTER
-                            //     )
-                            //     FilterChip(
-                            //         onClick = {
-                            //             onSettingsChanged(settings.copy(textAlignment = TextAlignment.JUSTIFY))
-                            //         },
-                            //         label = { Text("Justify") },
-                            //         selected = settings.textAlignment == TextAlignment.JUSTIFY
-                            //     )
-                            // }
+                            // Text alignment
+                            Text("Text Alignment")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                FilterChip(
+                                    onClick = {
+                                        onSettingsChanged(settings.copy(textAlignment = TextAlignment.LEFT))
+                                    },
+                                    label = { Text("Left") },
+                                    selected = settings.textAlignment == TextAlignment.LEFT
+                                )
+                                FilterChip(
+                                    onClick = {
+                                        onSettingsChanged(settings.copy(textAlignment = TextAlignment.CENTER))
+                                    },
+                                    label = { Text("Center") },
+                                    selected = settings.textAlignment == TextAlignment.CENTER
+                                )
+                                FilterChip(
+                                    onClick = {
+                                        onSettingsChanged(settings.copy(textAlignment = TextAlignment.JUSTIFY))
+                                    },
+                                    label = { Text("Justify") },
+                                    selected = settings.textAlignment == TextAlignment.JUSTIFY
+                                )
+                            }
 
-                            // Margins - TODO: Add to ViewerSettings
-                            // Text("Horizontal Margin: ${settings.marginHorizontal.toInt()}dp")
-                            // Slider(
-                            //     value = settings.marginHorizontal,
-                            //     onValueChange = {
-                            //         onSettingsChanged(settings.copy(marginHorizontal = it))
-                            //     },
-                            //     valueRange = 8f..48f,
-                            //     steps = 39
-                            // )
+                            // Margins
+                            Text("Horizontal Margin: ${settings.marginHorizontal.toInt()}dp")
+                            Slider(
+                                value = settings.marginHorizontal,
+                                onValueChange = {
+                                    onSettingsChanged(settings.copy(marginHorizontal = it))
+                                },
+                                valueRange = 8f..48f,
+                                steps = 39
+                            )
                         }
                     }
                 }
@@ -490,141 +490,148 @@ fun DocumentReaderSettingsSheet(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Reading mode - TODO: ViewerSettings doesn't have readingMode
-                        // Text("Reading Mode")
-                        // Row(
-                        //     modifier = Modifier.fillMaxWidth(),
-                        //     horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        // ) {
-                        //     FilterChip(
-                        //         onClick = {
-                        //             onSettingsChanged(settings.copy(readingMode = ReadingMode.SINGLE_PAGE))
-                        //         },
-                        //         label = { Text("Single") },
-                        //         selected = settings.readingMode == ReadingMode.SINGLE_PAGE
-                        //     )
-                        //     FilterChip(
-                        //         onClick = {
-                        //             onSettingsChanged(settings.copy(readingMode = ReadingMode.DOUBLE_PAGE))
-                        //         },
-                        //         label = { Text("Double") },
-                        //         selected = settings.readingMode == ReadingMode.DOUBLE_PAGE
-                        //     )
-                        //     FilterChip(
-                        //         onClick = {
-                        //             onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_SCROLL))
-                        //         },
-                        //         label = { Text("Scroll") },
-                        //         selected = settings.readingMode == ReadingMode.CONTINUOUS_SCROLL
-                        //     )
-                        // }
+                        // Reading mode
+                        Text("Reading Mode")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                onClick = {
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.PAGE_BY_PAGE))
+                                },
+                                label = { Text("Page") },
+                                selected = settings.readingMode == ReadingMode.PAGE_BY_PAGE
+                            )
+                            FilterChip(
+                                onClick = {
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_VERTICAL))
+                                },
+                                label = { Text("Vertical") },
+                                selected = settings.readingMode == ReadingMode.CONTINUOUS_VERTICAL
+                            )
+                            FilterChip(
+                                onClick = {
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.CONTINUOUS_HORIZONTAL))
+                                },
+                                label = { Text("Horizontal") },
+                                selected = settings.readingMode == ReadingMode.CONTINUOUS_HORIZONTAL
+                            )
+                            FilterChip(
+                                onClick = {
+                                    onSettingsChanged(settings.copy(readingMode = ReadingMode.WEBTOON))
+                                },
+                                label = { Text("Webtoon") },
+                                selected = settings.readingMode == ReadingMode.WEBTOON
+                            )
+                        }
 
-                        // Reading direction - TODO: ViewerSettings doesn't have readingDirection
-                        // Text("Reading Direction")
-                        // Row(
-                        //     modifier = Modifier.fillMaxWidth(),
-                        //     horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        // ) {
-                        //     FilterChip(
-                        //         onClick = {
-                        //             onSettingsChanged(settings.copy(readingDirection = ReadingDirection.LEFT_TO_RIGHT))
-                        //         },
-                        //         label = { Text("L → R") },
-                        //         selected = settings.readingDirection == ReadingDirection.LEFT_TO_RIGHT
-                        //     )
-                        //     FilterChip(
-                        //         onClick = {
-                        //             onSettingsChanged(settings.copy(readingDirection = ReadingDirection.RIGHT_TO_LEFT))
-                        //         },
-                        //         label = { Text("R → L") },
-                        //         selected = settings.readingDirection == ReadingDirection.RIGHT_TO_LEFT
-                        //     )
-                        // }
+                        // Reading direction
+                        Text("Reading Direction")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                onClick = {
+                                    onSettingsChanged(settings.copy(readingDirection = ReadingDirection.LEFT_TO_RIGHT))
+                                },
+                                label = { Text("L → R") },
+                                selected = settings.readingDirection == ReadingDirection.LEFT_TO_RIGHT
+                            )
+                            FilterChip(
+                                onClick = {
+                                    onSettingsChanged(settings.copy(readingDirection = ReadingDirection.RIGHT_TO_LEFT))
+                                },
+                                label = { Text("R → L") },
+                                selected = settings.readingDirection == ReadingDirection.RIGHT_TO_LEFT
+                            )
+                        }
 
-                        // Volume keys navigation - TODO: Add to ViewerSettings
-                        // Row(
-                        //     modifier = Modifier.fillMaxWidth(),
-                        //     horizontalArrangement = Arrangement.SpaceBetween,
-                        //     verticalAlignment = Alignment.CenterVertically
-                        // ) {
-                        //     Text("Volume Keys Navigation")
-                        //     Switch(
-                        //         checked = settings.volumeKeysForNavigation,
-                        //         onCheckedChange = {
-                        //             onSettingsChanged(settings.copy(volumeKeysForNavigation = it))
-                        //         }
-                        //     )
-                        // }
+                        // Volume keys navigation
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Volume Keys Navigation")
+                            Switch(
+                                checked = settings.volumeKeysForNavigation,
+                                onCheckedChange = {
+                                    onSettingsChanged(settings.copy(volumeKeysForNavigation = it))
+                                }
+                            )
+                        }
 
-                        // Auto bookmarks - TODO: Add to ViewerSettings
-                        // Row(
-                        //     modifier = Modifier.fillMaxWidth(),
-                        //     horizontalArrangement = Arrangement.SpaceBetween,
-                        //     verticalAlignment = Alignment.CenterVertically
-                        // ) {
-                        //     Text("Auto Bookmarks")
-                        //     Switch(
-                        //         checked = settings.autoBookmarks,
-                        //         onCheckedChange = {
-                        //             onSettingsChanged(settings.copy(autoBookmarks = it))
-                        //         }
-                        //     )
-                        // }
+                        // Auto bookmarks
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Auto Bookmarks")
+                            Switch(
+                                checked = settings.autoBookmarks,
+                                onCheckedChange = {
+                                    onSettingsChanged(settings.copy(autoBookmarks = it))
+                                }
+                            )
+                        }
 
-                        // Reading analytics - TODO: Add to ViewerSettings
-                        // Row(
-                        //     modifier = Modifier.fillMaxWidth(),
-                        //     horizontalArrangement = Arrangement.SpaceBetween,
-                        //     verticalAlignment = Alignment.CenterVertically
-                        // ) {
-                        //     Text("Reading Analytics")
-                        //     Switch(
-                        //         checked = settings.readingAnalytics,
-                        //         onCheckedChange = {
-                        //             onSettingsChanged(settings.copy(readingAnalytics = it))
-                        //         }
-                        //     )
-                        // }
+                        // Reading analytics
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Reading Analytics")
+                            Switch(
+                                checked = settings.readingAnalytics,
+                                onCheckedChange = {
+                                    onSettingsChanged(settings.copy(readingAnalytics = it))
+                                }
+                            )
+                        }
                     }
                 }
             }
 
-            // Gestures - TODO: Add doubleTapToZoom and pinchToZoom to ViewerSettings
-            // item {
-            //     SettingsCard(title = "Gestures") {
-            //         Column(
-            //             verticalArrangement = Arrangement.spacedBy(16.dp)
-            //         ) {
-            //             Row(
-            //                 modifier = Modifier.fillMaxWidth(),
-            //                 horizontalArrangement = Arrangement.SpaceBetween,
-            //                 verticalAlignment = Alignment.CenterVertically
-            //             ) {
-            //                 Text("Double Tap to Zoom")
-            //                 Switch(
-            //                     checked = settings.doubleTapToZoom,
-            //                     onCheckedChange = {
-            //                         onSettingsChanged(settings.copy(doubleTapToZoom = it))
-            //                     }
-            //                 )
-            //             }
+            // Gestures
+            item {
+                SettingsCard(title = "Gestures") {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Double Tap to Zoom")
+                            Switch(
+                                checked = settings.doubleTapToZoom,
+                                onCheckedChange = {
+                                    onSettingsChanged(settings.copy(doubleTapToZoom = it))
+                                }
+                            )
+                        }
 
-            //             Row(
-            //                 modifier = Modifier.fillMaxWidth(),
-            //                 horizontalArrangement = Arrangement.SpaceBetween,
-            //                 verticalAlignment = Alignment.CenterVertically
-            //             ) {
-            //                 Text("Pinch to Zoom")
-            //                 Switch(
-            //                     checked = settings.pinchToZoom,
-            //                     onCheckedChange = {
-            //                         onSettingsChanged(settings.copy(pinchToZoom = it))
-            //                     }
-            //                 )
-            //             }
-            //         }
-            //     }
-            // }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Pinch to Zoom")
+                            Switch(
+                                checked = settings.pinchToZoom,
+                                onCheckedChange = {
+                                    onSettingsChanged(settings.copy(pinchToZoom = it))
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
