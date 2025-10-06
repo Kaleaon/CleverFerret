@@ -46,6 +46,11 @@ import androidx.media3.ui.PlayerView
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.viewer.common.VideoSettings
+import com.universalmedialibrary.ui.player.components.TopControlsBar
+import com.universalmedialibrary.ui.player.components.BottomControlsBar
+import com.universalmedialibrary.ui.player.components.SubtitleTrack
+import com.universalmedialibrary.ui.player.components.AudioTrack
+import com.universalmedialibrary.ui.player.components.Chapter
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -128,13 +133,13 @@ fun AdvancedVideoPlayerScreen(
                             volumeAdjustment = 0f
                             brightnessAdjustment = 0f
                         }
-                    ) { change, _ ->
-                        val deltaX = change.x
-                        val deltaY = change.y
+                    ) { change, dragAmount ->
+                        val deltaX = dragAmount.x
+                        val deltaY = dragAmount.y
 
                         when {
                             // Horizontal drag for seeking
-                            abs(deltaX) > abs(deltaY) -> {
+                            kotlin.math.abs(deltaX) > kotlin.math.abs(deltaY) -> {
                                 val seekAmount = (deltaX / size.width) * uiState.duration
                                 seekPreview = (uiState.currentPosition + seekAmount.toLong())
                                     .coerceIn(0L, uiState.duration)
@@ -539,5 +544,135 @@ private fun enterPictureInPictureMode(context: Context) {
             .setAspectRatio(Rational(16, 9))
             .build()
         it.enterPictureInPictureMode(params)
+    }
+}
+
+// Placeholder sheet composables - to be fully implemented
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VideoSettingsSheet(
+    settings: VideoSettings,
+    onDismiss: () -> Unit,
+    onSettingsChanged: (VideoSettings) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                "Video Settings",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Text("Settings UI to be implemented", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SubtitleTracksSheet(
+    tracks: List<SubtitleTrack>,
+    selectedTrack: Int,
+    onDismiss: () -> Unit,
+    onTrackSelected: (Int) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                "Subtitle Tracks",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            LazyColumn {
+                items(tracks) { track ->
+                    Text(
+                        track.label ?: "Subtitle ${track.id}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onTrackSelected(track.id) }
+                            .padding(12.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AudioTracksSheet(
+    tracks: List<AudioTrack>,
+    selectedTrack: Int,
+    onDismiss: () -> Unit,
+    onTrackSelected: (Int) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                "Audio Tracks",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            LazyColumn {
+                items(tracks) { track ->
+                    Text(
+                        track.label ?: "Audio ${track.id}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onTrackSelected(track.id) }
+                            .padding(12.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChaptersSheet(
+    chapters: List<Chapter>,
+    currentChapter: String?,
+    onDismiss: () -> Unit,
+    onChapterSelected: (Chapter) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                "Chapters",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            LazyColumn {
+                items(chapters) { chapter ->
+                    Text(
+                        chapter.title ?: "Chapter",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onChapterSelected(chapter) }
+                            .padding(12.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
