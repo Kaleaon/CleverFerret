@@ -43,7 +43,8 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.viewer.common.VideoSettings
 import kotlinx.coroutines.delay
 import kotlin.math.abs
@@ -65,7 +66,7 @@ fun AdvancedVideoPlayerScreen(
     onBack: () -> Unit,
     viewModel: AdvancedVideoPlayerViewModel = hiltViewModel()
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
         val density = LocalDensity.current

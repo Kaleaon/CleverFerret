@@ -27,7 +27,8 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionSite
 import com.universalmedialibrary.services.webfiction.WebFictionStory
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +37,7 @@ fun WebFictionManagerScreen(
     navController: NavController,
     viewModel: WebFictionViewModel = hiltViewModel()
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         var showAddDialog by remember { mutableStateOf(false) }
         var showSiteInfoDialog by remember { mutableStateOf(false) }

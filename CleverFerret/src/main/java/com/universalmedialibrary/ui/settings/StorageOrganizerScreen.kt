@@ -22,6 +22,7 @@ fun StorageOrganizerScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
     var progress by remember { mutableStateOf("") }
     var movedCount by remember { mutableStateOf<Int?>(null) }
@@ -34,7 +35,7 @@ fun StorageOrganizerScreen(
             val service = EntryPointAccessors.fromApplication(appContext, OrganizerEntryPoint::class.java).storageService()
             service.persistUriPermission(context, uri)
             // Launch organize in coroutine
-            androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycleScope.launchWhenStarted {
+            lifecycleOwner.lifecycleScope.launchWhenStarted {
                 movedCount = service.organizeDirectory(context, uri) { msg -> progress = msg }
             }
         }

@@ -39,10 +39,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.universalmedialibrary.ui.theme.PlexTheme
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.viewer.common.ComicSettings
 import com.universalmedialibrary.ui.viewer.common.ReadingDirection
 import com.universalmedialibrary.ui.viewer.common.ReadingMode
+import com.universalmedialibrary.ui.viewer.common.ViewerSettings
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.max
@@ -65,7 +67,7 @@ fun AdvancedComicReader(
     onBack: () -> Unit,
     viewModel: AdvancedComicReaderViewModel = hiltViewModel()
 ) {
-    PlexTheme {
+    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
         val density = LocalDensity.current
@@ -140,8 +142,8 @@ fun AdvancedComicReader(
                 }
 
                 uiState.isLoaded -> {
-                    when (uiState.settings.readingMode) {
-                        ReadingMode.CONTINUOUS_SCROLL -> {
+                    when (uiState.comicSettings.readingMode) {
+                        ReadingMode.WEBTOON, ReadingMode.CONTINUOUS_VERTICAL -> {
                             WebtoonView(
                                 pages = uiState.pages,
                                 currentPage = uiState.currentPage,
@@ -150,7 +152,7 @@ fun AdvancedComicReader(
                             )
                         }
 
-                        ReadingMode.DOUBLE_PAGE -> {
+                        ReadingMode.CONTINUOUS_HORIZONTAL -> {
                             DoublePageView(
                                 pages = uiState.pages,
                                 currentPage = uiState.currentPage,
@@ -233,7 +235,7 @@ fun AdvancedComicReader(
                     currentPanel = uiState.currentPanel,
                     totalPanels = uiState.currentPagePanels.size,
                     panelByPanelMode = uiState.comicSettings.panelByPanelMode,
-                    readingDirection = uiState.settings.readingDirection,
+                    readingDirection = uiState.comicSettings.readingDirection,
                     canGoPrevious = uiState.currentPage > 1 || uiState.currentPanel > 0,
                     canGoNext = uiState.currentPage < uiState.totalPages ||
                                uiState.currentPanel < uiState.currentPagePanels.size - 1,
@@ -494,7 +496,7 @@ private fun WebtoonView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                contentScale = ContentScale.FitWidth
+                contentScale = ContentScale.FillWidth
             )
         }
     }
@@ -631,6 +633,175 @@ private fun ErrorState(
                 }
                 Button(onClick = onRetry) {
                     Text("Retry")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopComicControls(
+    title: String,
+    currentPage: Int,
+    totalPages: Int,
+    currentPanel: Int,
+    totalPanels: Int,
+    panelByPanelMode: Boolean,
+    onBack: () -> Unit,
+    onPanelBrowser: () -> Unit,
+    onSettings: () -> Unit
+) {
+    Surface(
+        color = Color.Black.copy(alpha = 0.7f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "Page $currentPage/$totalPages" + if (panelByPanelMode) " - Panel $currentPanel/$totalPanels" else "",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+            Row {
+                IconButton(onClick = onPanelBrowser) {
+                    Icon(Icons.Default.GridView, contentDescription = "Panel Browser", tint = Color.White)
+                }
+                IconButton(onClick = onSettings) {
+                    Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BottomComicControls(
+    currentPage: Int,
+    totalPages: Int,
+    currentPanel: Int,
+    totalPanels: Int,
+    panelByPanelMode: Boolean,
+    readingDirection: ReadingDirection,
+    canGoPrevious: Boolean,
+    canGoNext: Boolean,
+    onPreviousPage: () -> Unit,
+    onNextPage: () -> Unit,
+    onPreviousPanel: () -> Unit,
+    onNextPanel: () -> Unit,
+    onPageSeek: (Int) -> Unit,
+    onTogglePanelMode: () -> Unit
+) {
+    Surface(
+        color = Color.Black.copy(alpha = 0.7f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = if (panelByPanelMode) onPreviousPanel else onPreviousPage, enabled = canGoPrevious) {
+                    Icon(
+                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.Default.ArrowForward else Icons.Default.ArrowBack,
+                        contentDescription = "Previous",
+                        tint = if (canGoPrevious) Color.White else Color.Gray
+                    )
+                }
+                Text("$currentPage / $totalPages", color = Color.White)
+                IconButton(onClick = if (panelByPanelMode) onNextPanel else onNextPage, enabled = canGoNext) {
+                    Icon(
+                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.Default.ArrowBack else Icons.Default.ArrowForward,
+                        contentDescription = "Next",
+                        tint = if (canGoNext) Color.White else Color.Gray
+                    )
+                }
+                IconButton(onClick = onTogglePanelMode) {
+                    Icon(
+                        if (panelByPanelMode) Icons.Default.ViewAgenda else Icons.Default.Dashboard,
+                        contentDescription = "Toggle Panel Mode",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ComicReaderSettingsSheet(
+    settings: ViewerSettings,
+    comicSettings: ComicSettings,
+    onDismiss: () -> Unit,
+    onSettingsChanged: (ViewerSettings) -> Unit,
+    onComicSettingsChanged: (ComicSettings) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text("Comic Reader Settings", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Reading Mode", style = MaterialTheme.typography.titleMedium)
+            // Add basic settings UI - stub implementation
+            Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+                Text("Close")
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PanelBrowserSheet(
+    pages: List<String>,
+    currentPage: Int,
+    panels: Map<Int, List<Rect>>,
+    onDismiss: () -> Unit,
+    onPageSelected: (Int) -> Unit,
+    onPanelSelected: (Int, Int) -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text("Panel Browser", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Add thumbnail grid - stub implementation
+            LazyColumn {
+                items(pages.size) { index ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable { onPageSelected(index + 1) }
+                    ) {
+                        Text(
+                            "Page ${index + 1}",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 }
             }
         }

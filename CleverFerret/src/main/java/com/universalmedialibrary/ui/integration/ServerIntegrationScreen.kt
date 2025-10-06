@@ -46,13 +46,11 @@ fun ServerIntegrationScreen(
             )
         },
         floatingActionButton = {
-            MetallicButton(
+            FloatingActionButton(
                 onClick = { showAddDialog = true },
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(Icons.Default.Add, "Add Server")
-                Spacer(Modifier.width(8.dp))
-                Text("Add Server")
             }
         }
     ) { padding ->
@@ -321,7 +319,7 @@ fun AddServerDialog(
             }
         },
         confirmButton = {
-            MetallicButton(
+            Button(
                 onClick = { onAdd(serverUrl, username, password) },
                 enabled = serverUrl.isNotBlank() && username.isNotBlank()
             ) {
