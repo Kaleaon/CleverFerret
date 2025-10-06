@@ -468,7 +468,7 @@ private fun TtsSettingsPanel(
         }
 
         // Voice selection
-        val availableVoices = remember { controller.getAvailableVoices() }
+val availableVoices = controller.getAvailableVoices()
         if (availableVoices.isNotEmpty()) {
             Text(
                 text = "Voice",
