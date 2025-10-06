@@ -3,6 +3,7 @@ package com.universalmedialibrary.services.podcast
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.firstOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
@@ -270,7 +271,8 @@ data class TaddyPodcast(
  */
 @Singleton
 class PodcastService @Inject constructor(
-    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
+    private val podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository
 ) {
 
     private val httpClient = OkHttpClient.Builder().build()
@@ -520,10 +522,10 @@ class PodcastService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val rssFeed = parseRSSFeed(feedUrl)
-                val podcastId = generatePodcastId(feedUrl)
+                val tempPodcastId = generatePodcastId(feedUrl)
 
-                Podcast(
-                    id = podcastId,
+                val podcast = Podcast(
+                    id = tempPodcastId,
                     title = rssFeed.title,
                     description = rssFeed.description,
                     author = rssFeed.author ?: "Unknown",
@@ -537,9 +539,15 @@ class PodcastService @Inject constructor(
                     episodeCount = rssFeed.items.size,
                     explicit = rssFeed.explicit
                 )
-                // TODO: Store podcast and episodes in database via Repository
-                // val episodes = convertRSSItemsToEpisodes(rssFeed.items, podcastId)
-                // podcastRepository.insertPodcast(podcast, episodes)
+                
+                // Store podcast in database via Repository
+                val newPodcastId = podcastRepository.insertPodcast(podcast)
+                val episodes = convertRSSItemsToEpisodes(rssFeed.items, newPodcastId)
+                for (episode in episodes) {
+                    podcastRepository.updateEpisode(episode)
+                }
+                
+                podcast.copy(id = newPodcastId)
             } catch (e: Exception) {
                 null
             }
@@ -555,11 +563,10 @@ class PodcastService @Inject constructor(
                 val rssFeed = parseRSSFeed(podcast.feedUrl)
                 val currentEpisodes = convertRSSItemsToEpisodes(rssFeed.items, podcast.id)
 
-                // TODO: Find episodes not in the existing list via Repository
-                // val existingEpisodes = podcastRepository.getEpisodesByPodcastId(podcast.id)
-                // val existingGuids = existingEpisodes.map { it.guid }.toSet()
-                // currentEpisodes.filter { it.guid !in existingGuids }
-                currentEpisodes // Return all episodes for now
+                // Find new episodes not in the existing list via Repository
+                val existingEpisodes = podcastRepository.getEpisodesByPodcast(podcast.id)
+                val existingGuids = existingEpisodes.firstOrNull()?.map { it.guid }?.toSet() ?: emptySet()
+                currentEpisodes.filter { it.guid !in existingGuids }
             } catch (e: Exception) {
                 emptyList()
             }

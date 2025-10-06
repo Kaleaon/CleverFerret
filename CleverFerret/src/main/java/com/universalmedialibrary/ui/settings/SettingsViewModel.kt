@@ -17,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val readerSettingsRepository: com.universalmedialibrary.data.repository.ReaderSettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -216,21 +217,38 @@ class SettingsViewModel @Inject constructor(
     fun updateReaderSettings(settings: ReaderSettings) {
         viewModelScope.launch {
             _readerSettings.value = settings
-            // TODO: Persist to repository
+            // Persist to repository - convert settings data class to ReaderSettingsEntity
+            val entity = com.universalmedialibrary.data.local.entity.ReaderSettingsEntity(
+                id = 1L, // Global settings always use ID 1
+                fontSize = settings.fontSize.toInt(),
+                lineSpacing = settings.lineSpacing,
+                theme = settings.theme.name,
+                marginLeft = settings.marginHorizontal.toInt(),
+                marginRight = settings.marginHorizontal.toInt(),
+                marginTop = settings.marginVertical.toInt(),
+                marginBottom = settings.marginVertical.toInt(),
+                keepScreenOn = settings.keepScreenOn,
+                fullscreen = settings.fullScreenMode
+            )
+            readerSettingsRepository.updateGlobalSettings(entity)
         }
     }
 
     fun updateSecuritySettings(settings: SecuritySettings) {
         viewModelScope.launch {
             _securitySettings.value = settings
-            // TODO: Persist to repository
+            // Persist security settings - update individual settings in repository
+            // For now, just update in-memory state since SecuritySettings hasn't been fully integrated
+            // TODO: Add SecuritySettingsEntity and DAO for full persistence
         }
     }
 
     fun updateGeneralSettings(settings: GeneralSettings) {
         viewModelScope.launch {
             _generalSettings.value = settings
-            // TODO: Persist to repository
+            // Persist general settings - update individual settings in repository
+            // For now, just update in-memory state since GeneralSettings hasn't been fully integrated
+            // TODO: Add GeneralSettingsEntity and DAO for full persistence
         }
     }
 }
