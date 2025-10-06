@@ -196,7 +196,7 @@ fun EPUBReaderScreen(
             when {
                 readerState.error != null -> {
                     ErrorContent(
-                        error = readerState.error,
+                        error = readerState.error ?: "Unknown error",
                         onRetry = {
                             // Simple retry: re-trigger LaunchedEffect by updating settings
                             readerState = readerState.copy(error = null, isLoaded = true)
@@ -537,6 +537,18 @@ private fun buildHTMLContent(
         </html>
     """.trimIndent()
 }
+
+data class EpubReaderState(
+    val bookTitle: String = "",
+    val bookAuthor: String = "",
+    val isLoaded: Boolean = false,
+    val isBookmarked: Boolean = false,
+    val currentChapter: Int = 0,
+    val totalChapters: Int = 0,
+    val error: String? = null,
+    val currentContent: String = "",
+    val chapters: List<String> = emptyList()
+)
 
 data class ReaderSettings(
     val fontSize: Int = 16,
