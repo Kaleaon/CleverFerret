@@ -137,6 +137,7 @@ fun EnhancedBookshelfScreen(
                     }
                 }
             )
+            }
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -211,6 +212,7 @@ fun EnhancedBookshelfScreen(
                 }
             }
         }
+    }
     }
 }
 
@@ -399,6 +401,4 @@ enum class SortOption(val displayName: String, val icon: ImageVector) {
     DATE_ADDED("Date Added", Icons.Default.Schedule),
     RATING("Rating", Icons.Default.Star),
     RECENTLY_READ("Recently Read", Icons.Default.History)
-}
-tly Read", Icons.Default.History)
 }

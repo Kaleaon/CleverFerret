@@ -234,10 +234,10 @@ class PodcastDownloadManager @Inject constructor(
     }
 }
 
-sealed class DownloadStatus {
-    object NotDownloaded : DownloadStatus()
-    data class Downloading(val progress: Float) : DownloadStatus()
-    object Completed : DownloadStatus()
-    object Failed : DownloadStatus()
-    object Paused : DownloadStatus()
+sealed class EpisodeDownloadStatus {
+    object NotDownloaded : EpisodeDownloadStatus()
+    data class Downloading(val progress: Float) : EpisodeDownloadStatus()
+    object Completed : EpisodeDownloadStatus()
+    object Failed : EpisodeDownloadStatus()
+    object Paused : EpisodeDownloadStatus()
 }

@@ -101,7 +101,7 @@ class StorageAccessService @Inject constructor(
                 if (child.isDirectory) return@forEach
                 val name = child.name ?: return@forEach
                 val type = determineMediaType(name) ?: return@forEach
-                val destParent = targets[type] ?: return@forEach
+                val destParent = targets.get(type) ?: return@forEach
                 val result = moveDocumentFile(context, child, destParent)
                 if (result) {
                     moved++
