@@ -165,22 +165,3 @@ data class PlexConnection(
     val relay: Boolean?,
     val IPv6: Boolean?
 )
-olean?,
-    val relay: Boolean?,
-    val presence: Boolean?,
-    val httpsRequired: Boolean?,
-    val publicAddressMatches: Boolean?,
-    val dnsRebindingProtection: Boolean?,
-    val natLoopbackSupported: Boolean?,
-    val connections: List<PlexConnection>?
-)
-
-data class PlexConnection(
-    val protocol: String,
-    val address: String,
-    val port: Int,
-    val uri: String,
-    val local: Boolean,
-    val relay: Boolean?,
-    val IPv6: Boolean?
-)

@@ -286,7 +286,7 @@ class UniversalMediaNotificationManager @Inject constructor(
             .setContentIntent(contentIntent)
             .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(
                 context, 
-                androidx.media.session.PlaybackStateCompat.ACTION_STOP
+                android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP
             ))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -302,7 +302,7 @@ class UniversalMediaNotificationManager @Inject constructor(
             .setShowCancelButton(true)
             .setCancelButtonIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(
                 context,
-                androidx.media.session.PlaybackStateCompat.ACTION_STOP
+                android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP
             ))
 
         builder.setStyle(mediaStyle)
@@ -372,7 +372,7 @@ class UniversalMediaNotificationManager @Inject constructor(
         }
         return PendingIntent.getActivity(
             context,
-            0,
+            mediaType.hashCode(), // Unique request code per media type
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -384,7 +384,7 @@ class UniversalMediaNotificationManager @Inject constructor(
         }
         return PendingIntent.getBroadcast(
             context,
-            0,
+            action.hashCode(), // Unique request code per action
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

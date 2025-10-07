@@ -137,9 +137,9 @@ class StoryUpdateManager @Inject constructor(
         )
     }
 
-    suspend fun getAllStoriesFlow() = storyRepository.getAllStories()
+    fun getAllStoriesFlow() = storyRepository.getAllStories()
 
-    suspend fun getStoriesWithUpdatesFlow() = storyRepository.getStoriesWithUpdates()
+    fun getStoriesWithUpdatesFlow() = storyRepository.getStoriesWithUpdates()
 
     suspend fun getStoriesNeedingUpdateCheck(hoursAgo: Int = 24): List<DownloadedStory> {
         val cutoffTime = System.currentTimeMillis() - (hoursAgo * 3600000L)

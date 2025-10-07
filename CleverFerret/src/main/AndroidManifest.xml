@@ -109,9 +109,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.universalmedialibrary.MUSIC_PLAY_PAUSE" />
-                <action android:name="com.universalmedialibrary.MUSIC_NEXT" />
-                <action android:name="com.universalmedialibrary.MUSIC_PREV" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -124,10 +121,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.universalmedialibrary.AUDIOBOOK_PLAY_PAUSE" />
-                <action android:name="com.universalmedialibrary.AUDIOBOOK_REWIND" />
-                <action android:name="com.universalmedialibrary.AUDIOBOOK_FORWARD" />
-                <action android:name="com.universalmedialibrary.AUDIOBOOK_SPEED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -140,10 +133,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.universalmedialibrary.RADIO_PLAY_PAUSE" />
-                <action android:name="com.universalmedialibrary.RADIO_NEXT" />
-                <action android:name="com.universalmedialibrary.RADIO_PREV" />
-                <action android:name="com.universalmedialibrary.RADIO_FAVORITE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -156,10 +145,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.universalmedialibrary.PODCAST_PLAY_PAUSE" />
-                <action android:name="com.universalmedialibrary.PODCAST_REWIND" />
-                <action android:name="com.universalmedialibrary.PODCAST_FORWARD" />
-                <action android:name="com.universalmedialibrary.PODCAST_SPEED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -172,10 +157,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.universalmedialibrary.TTS_PLAY_PAUSE" />
-                <action android:name="com.universalmedialibrary.TTS_PREV" />
-                <action android:name="com.universalmedialibrary.TTS_NEXT" />
-                <action android:name="com.universalmedialibrary.TTS_SPEED" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

@@ -39,6 +39,10 @@ data class DuplicateGroup(
     val reason: String
 )
 
+/**
+ * Status of Plex connections
+ * Single source of truth for connection status
+ */
 data class PlexConnectionStatus(
     val connectedServers: List<String>,
     val hasActiveConnections: Boolean,

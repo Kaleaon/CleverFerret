@@ -83,7 +83,7 @@ object PlexModule {
         @Named("plexGson") gson: Gson
     ): PlexAuthApi {
         return Retrofit.Builder()
-            .baseUrl("https://plex.tv")
+            .baseUrl("https://plex.tv/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

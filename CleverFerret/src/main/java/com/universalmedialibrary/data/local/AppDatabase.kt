@@ -150,8 +150,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .fallbackToDestructiveMigration() // Fallback strategy for schema changes (v20→v21: story entities)
-                // TODO: Add proper migrations for production to preserve user data
+                .addMigrations(AppDatabaseMigrations.MIGRATION_20_21)
+                .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
                 INSTANCE = instance
                 instance
