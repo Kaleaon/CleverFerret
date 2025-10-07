@@ -39,6 +39,33 @@ class PlexIntegrationService @Inject constructor(
     private val plexApis = mutableMapOf<String, PlexApi>()
 
     /**
+     * Request a PIN for Plex authentication
+     */
+    suspend fun requestPIN(): String = withContext(Dispatchers.IO) {
+        // Simplified PIN request - in production would call Plex.tv API
+        "1234" // Placeholder
+    }
+
+    /**
+     * Sync libraries from connected servers
+     */
+    suspend fun syncLibraries() {
+        // Iterate through all connected servers and sync their libraries
+        connectedServers.values.forEach { server ->
+            // Sync logic here
+        }
+    }
+
+    /**
+     * Disconnect from server
+     */
+    suspend fun disconnectServer() {
+        connectedServers.clear()
+        plexApis.clear()
+        updateConnectionStatus()
+    }
+
+    /**
      * Connect to a Plex server
      */
     suspend fun connectToServer(
@@ -430,7 +457,8 @@ data class PlexIntegrationState(
     val lastSyncTime: Long = 0L,
     val lastConnectionResult: String = "",
     val lastEnhancementResult: String = "",
-    val error: String? = null
+    val error: String? = null,
+    val connectedServer: com.universalmedialibrary.data.local.entity.PlexServer? = null
 )
 
 data class PlexServerConnection(

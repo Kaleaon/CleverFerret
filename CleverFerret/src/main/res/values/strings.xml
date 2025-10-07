@@ -196,4 +196,9 @@
     <string name="placeholder_year">Year</string>
     <string name="placeholder_genre">Genre</string>
     <string name="placeholder_rating">Rating</string>
+
+    <!-- Now Playing Screen -->
+    <string name="now_playing_title">Now Playing</string>
+    <string name="cd_back_button">Back</string>
+    <string name="now_playing_empty">No media currently playing</string>
 </resources>
