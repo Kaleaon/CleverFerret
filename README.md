@@ -37,8 +37,13 @@ CleverFerret is a comprehensive, self-contained Android app for managing your co
 ### For Users
 
 1. **Download** the latest APK from [Releases](https://github.com/Kaleaon/CleverFerret/releases)
-2. **Install** following the instructions in [docs/INSTALLATION.md](docs/INSTALLATION.md)
-3. **Launch** the app and create your first library or import from Calibre
+   - Choose `CleverFerret-vX.X-release.apk` for the optimized version
+   - Or `CleverFerret-vX.X-debug.apk` for the debug version
+2. **Install** following the instructions in [docs/INSTALL.md](docs/INSTALL.md)
+3. **Verify** the APK checksum (optional but recommended) - see installation guide
+4. **Launch** the app and create your first library or import from Calibre
+
+> **Note**: CleverFerret is not yet available on Google Play Store. Direct APK installation is required.
 
 ### For Developers
 

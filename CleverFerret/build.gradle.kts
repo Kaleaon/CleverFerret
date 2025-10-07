@@ -12,6 +12,9 @@ plugins {
 
 }
 
+// Apply version management script
+apply(from = "version.gradle")
+
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36
@@ -29,13 +32,37 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            // Read signing configuration from environment variables or gradle properties
+            storeFile = System.getenv("KEYSTORE_FILE")?.let { file(it) }
+                ?: findProperty("KEYSTORE_FILE")?.let { file(it.toString()) }
+            storePassword = System.getenv("KEYSTORE_PASSWORD")?.toString()
+                ?: findProperty("KEYSTORE_PASSWORD")?.toString()
+            keyAlias = System.getenv("KEY_ALIAS")?.toString()
+                ?: findProperty("KEY_ALIAS")?.toString()
+            keyPassword = System.getenv("KEY_PASSWORD")?.toString()
+                ?: findProperty("KEY_PASSWORD")?.toString()
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Use signing config if available, otherwise APK will be unsigned
+            if (signingConfigs.findByName("release")?.storeFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+        debug {
+            // Debug builds use default debug signing
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
     }
 
