@@ -43,25 +43,7 @@ import coil.compose.AsyncImage
  * - Infinite scroll/pagination
  */
 
-enum class ViewMode {
-    GRID_SMALL,
-    GRID_LARGE,
-    LIST,
-    COMFORTABLE
-}
-
-enum class SortOption {
-    TITLE_ASC,
-    TITLE_DESC,
-    AUTHOR_ASC,
-    AUTHOR_DESC,
-    DATE_ADDED_NEW,
-    DATE_ADDED_OLD,
-    RECENTLY_READ,
-    PROGRESS,
-    RATING,
-    FILE_SIZE
-}
+// ViewMode and SortOption are now defined in BookshelfModels.kt
 
 data class FilterOptions(
     val readStatus: Set<ReadStatus> = emptySet(),

@@ -162,6 +162,12 @@ dependencies {
     // Security for encrypted token storage
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
+    // Biometric authentication
+    implementation("androidx.biometric:biometric:1.4.0-alpha02")
+
+    // WorkManager for background tasks
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+    implementation("androidx.hilt:hilt-work:1.3.0")
 
     // Image loading - Use stable version
     implementation("io.coil-kt:coil-compose:2.7.0")
