@@ -239,62 +239,59 @@ class PlexSyncService @Inject constructor(
      * Sync playback progress
      */
     private suspend fun syncProgress(server: PlexServer, api: PlexApi) {
+        // TODO: Implement when PlexSyncDao and PlexMediaItemDao are enabled
         // Get items that need progress sync
-        // TODO: Implement when PlexSyncDao is enabled
-        val progressItems = emptyList<Any>() // plexSyncDao.getProgressNeedingSync()
-
-        for (progressItem in progressItems) {
-            try {
-                val plexItem = plexMediaItemDao.getMediaItemByRatingKey(progressItem.plexMediaItemId.toString())
-                if (plexItem != null) {
-                    // Update progress on Plex
-                    if (progressItem.localProgress > progressItem.plexProgress) {
-                        api.updateProgress(
-                            token = server.token,
-                            time = progressItem.localProgress,
-                            state = "paused",
-                            ratingKey = plexItem.plexRatingKey,
-                            key = "/library/metadata/${plexItem.plexRatingKey}"
-                        )
-                    }
-
-                    // Mark as synced
-                    plexSyncDao.markProgressSynced(progressItem.id, System.currentTimeMillis())
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error syncing progress for item ${progressItem.id}", e)
-            }
-        }
-        */
+        // val progressItems = plexSyncDao.getProgressNeedingSync()
+        //
+        // for (progressItem in progressItems) {
+        //     try {
+        //         val plexItem = plexMediaItemDao.getMediaItemByRatingKey(progressItem.plexMediaItemId.toString())
+        //         if (plexItem != null) {
+        //             // Update progress on Plex
+        //             if (progressItem.localProgress > progressItem.plexProgress) {
+        //                 api.updateProgress(
+        //                     token = server.token,
+        //                     time = progressItem.localProgress,
+        //                     state = "paused",
+        //                     ratingKey = plexItem.plexRatingKey,
+        //                     key = "/library/metadata/${plexItem.plexRatingKey}"
+        //                 )
+        //             }
+        //
+        //             // Mark as synced
+        //             plexSyncDao.markProgressSynced(progressItem.id, System.currentTimeMillis())
+        //         }
+        //     } catch (e: Exception) {
+        //         Log.e(TAG, "Error syncing progress for item ${progressItem.id}", e)
+        //     }
+        // }
     }
 
     /**
      * Sync ratings
      */
     private suspend fun syncRatings(server: PlexServer, api: PlexApi) {
-        // TODO: Implement when PlexSyncDao is enabled
-        val ratingItems = emptyList<Any>() // plexSyncDao.getRatingsNeedingSync()
-        /*
-
-        for (ratingItem in ratingItems) {
-            try {
-                val plexItem = plexMediaItemDao.getMediaItemByRatingKey(ratingItem.plexMediaItemId.toString())
-                if (plexItem != null && ratingItem.localRating != null) {
-                    // Update rating on Plex
-                    api.updateMediaItem(
-                        ratingKey = plexItem.plexRatingKey,
-                        token = server.token,
-                        rating = ratingItem.localRating
-                    )
-
-                    // Mark as synced
-                    plexSyncDao.markRatingSynced(ratingItem.id, System.currentTimeMillis())
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error syncing rating for item ${ratingItem.id}", e)
-            }
-        }
-        */
+        // TODO: Implement when PlexSyncDao and PlexMediaItemDao are enabled
+        // val ratingItems = plexSyncDao.getRatingsNeedingSync()
+        //
+        // for (ratingItem in ratingItems) {
+        //     try {
+        //         val plexItem = plexMediaItemDao.getMediaItemByRatingKey(ratingItem.plexMediaItemId.toString())
+        //         if (plexItem != null && ratingItem.localRating != null) {
+        //             // Update rating on Plex
+        //             api.updateMediaItem(
+        //                 ratingKey = plexItem.plexRatingKey,
+        //                 token = server.token,
+        //                 rating = ratingItem.localRating
+        //             )
+        //
+        //             // Mark as synced
+        //             plexSyncDao.markRatingSynced(ratingItem.id, System.currentTimeMillis())
+        //         }
+        //     } catch (e: Exception) {
+        //         Log.e(TAG, "Error syncing rating for item ${ratingItem.id}", e)
+        //     }
+        // }
     }
 
     /**
@@ -423,11 +420,12 @@ class PlexSyncService @Inject constructor(
 /**
  * Sync status sealed class
  */
+/**
+ * Sync status sealed class
+ */
 sealed class PlexSyncStatus {
     object Idle : PlexSyncStatus()
     data class Syncing(val message: String) : PlexSyncStatus()
     data class Success(val message: String) : PlexSyncStatus()
     data class Error(val message: String) : PlexSyncStatus()
-}
-
 }
