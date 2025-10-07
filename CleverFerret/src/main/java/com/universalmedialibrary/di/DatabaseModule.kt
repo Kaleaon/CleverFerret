@@ -52,4 +52,20 @@ object DatabaseModule {
         return database.readingProgressDao()
     }
 
+    // Plex DAOs
+    @Provides
+    fun providePlexServerDao(database: AppDatabase): PlexServerDao {
+        return database.plexServerDao()
+    }
+
+    @Provides
+    fun providePlexMediaItemDao(database: AppDatabase): PlexMediaItemDao {
+        return database.plexMediaItemDao()
+    }
+
+    @Provides
+    fun providePlexSyncDao(database: AppDatabase): PlexSyncDao {
+        return database.plexSyncDao()
+    }
+
 }
