@@ -25,7 +25,10 @@ data class Podcast(
     val subscribed: Boolean = false,
     val autoDownload: Boolean = false,
     val isFavorite: Boolean = false
-)
+) {
+    // Computed property for UI compatibility
+    val totalEpisodes: Int get() = episodeCount
+}
 
 // Domain model for PodcastEpisode (maps to PodcastEpisodeEntity)
 data class PodcastEpisode(
