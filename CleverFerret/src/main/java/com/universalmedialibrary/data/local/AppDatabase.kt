@@ -81,6 +81,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
     version = 21, // Incremented for story management entities
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -145,7 +146,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .fallbackToDestructiveMigration() // Explicitly enabled for podcast entities addition (v18→v19)
+                .fallbackToDestructiveMigration() // Fallback strategy for schema changes (v20→v21: story entities)
+                // TODO: Add proper migrations for production to preserve user data
                 .build()
                 INSTANCE = instance
                 instance

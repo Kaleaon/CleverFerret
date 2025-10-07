@@ -3,7 +3,9 @@ package com.universalmedialibrary.services.contentcreation
 import com.universalmedialibrary.data.local.entity.DownloadedStory
 import com.universalmedialibrary.data.local.entity.StoryUpdate
 import com.universalmedialibrary.data.repository.StoryRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.io.File
 import javax.inject.Inject
@@ -41,8 +43,8 @@ class StoryUpdateManager @Inject constructor(
         return story?.toTrackedStory()
     }
 
-    suspend fun checkForUpdates(story: TrackedStory): UpdateCheck {
-        return try {
+    suspend fun checkForUpdates(story: TrackedStory): UpdateCheck = withContext(Dispatchers.IO) {
+        return@withContext try {
             // Fetch the story page to check current chapter count
             val currentChapters = fetchCurrentChapterCount(story.url)
             

@@ -40,10 +40,10 @@ class PlexIntegrationService @Inject constructor(
 
     /**
      * Request a PIN for Plex authentication
+     * TODO: Implement actual Plex.tv API call for PIN request
      */
     suspend fun requestPIN(): String = withContext(Dispatchers.IO) {
-        // Simplified PIN request - in production would call Plex.tv API
-        "1234" // Placeholder
+        throw NotImplementedError("requestPIN() requires Plex.tv API integration")
     }
 
     /**
@@ -57,11 +57,21 @@ class PlexIntegrationService @Inject constructor(
     }
 
     /**
-     * Disconnect from server
+     * Disconnect from all servers
+     * Clears all connected servers and their API instances
      */
-    suspend fun disconnectServer() {
+    suspend fun disconnectAllServers() {
         connectedServers.clear()
         plexApis.clear()
+        updateConnectionStatus()
+    }
+
+    /**
+     * Disconnect from a specific server
+     */
+    suspend fun disconnectServer(serverName: String) {
+        connectedServers.remove(serverName)
+        plexApis.remove(serverName)
         updateConnectionStatus()
     }
 
@@ -457,8 +467,7 @@ data class PlexIntegrationState(
     val lastSyncTime: Long = 0L,
     val lastConnectionResult: String = "",
     val lastEnhancementResult: String = "",
-    val error: String? = null,
-    val connectedServer: com.universalmedialibrary.data.local.entity.PlexServer? = null
+    val error: String? = null
 )
 
 data class PlexServerConnection(

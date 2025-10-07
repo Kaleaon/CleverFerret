@@ -81,8 +81,16 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
             val intent = Intent(context, AudiobookPlayerWidget::class.java).apply {
                 this.action = action
             }
+            // Use unique request code per action to avoid PendingIntent reuse
+            val requestCode = when (action) {
+                ACTION_PLAY_PAUSE -> 2001
+                ACTION_REWIND -> 2002
+                ACTION_FORWARD -> 2003
+                ACTION_SPEED -> 2004
+                else -> 2000
+            }
             return PendingIntent.getBroadcast(
-                context, 0, intent,
+                context, requestCode, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         }

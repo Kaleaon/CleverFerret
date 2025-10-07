@@ -81,8 +81,16 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             val intent = Intent(context, PodcastPlayerWidget::class.java).apply {
                 this.action = action
             }
+            // Use unique request code per action to avoid PendingIntent reuse
+            val requestCode = when (action) {
+                ACTION_PLAY_PAUSE -> 3001
+                ACTION_REWIND -> 3002
+                ACTION_FORWARD -> 3003
+                ACTION_SPEED -> 3004
+                else -> 3000
+            }
             return PendingIntent.getBroadcast(
-                context, 0, intent,
+                context, requestCode, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         }
