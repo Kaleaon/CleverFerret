@@ -108,6 +108,17 @@
 
     <!-- Widget descriptions -->
     <string name="media_playback_widget_description">Controls media playback</string>
+    <string name="widget_music_player_description">Music player with playback controls</string>
+    <string name="widget_audiobook_player_description">Audiobook player with chapter navigation</string>
+    <string name="widget_radio_player_description">Radio player for live streaming</string>
+    <string name="widget_podcast_player_description">Podcast player with episode controls</string>
+    <string name="widget_tts_player_description">Text-to-Speech reader controls</string>
+    <string name="widget_comic_reader_description">Quick access to current comic</string>
+    <string name="widget_video_player_description">Resume watching your videos</string>
+    <string name="widget_currently_reading_description">Shows your current book</string>
+    <string name="widget_reading_stats_description">Your reading statistics</string>
+    <string name="widget_reading_goal_description">Reading goal progress tracker</string>
+    <string name="widget_quick_access_description">Quick access to recent books</string>
 
     <!-- Media notifications -->
     <string name="media_notification_title">Media Player</string>
