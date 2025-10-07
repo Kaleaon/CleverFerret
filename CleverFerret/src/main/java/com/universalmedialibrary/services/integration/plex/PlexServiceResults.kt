@@ -40,9 +40,7 @@ data class DuplicateGroup(
 )
 
 data class PlexConnectionStatus(
-    val isConnected: Boolean,
-    val serverName: String,
-    val serverUrl: String,
-    val libraryCount: Int,
-    val lastSync: Long = 0L
+    val connectedServers: List<String>,
+    val hasActiveConnections: Boolean,
+    val totalLibraries: Int
 )

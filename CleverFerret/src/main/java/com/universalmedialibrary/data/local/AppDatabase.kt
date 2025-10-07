@@ -8,6 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.dao.PlexServerDao
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
@@ -75,7 +76,10 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
 
         // Fanfiction/Story Management
         DownloadedStory::class,
-        StoryUpdate::class
+        StoryUpdate::class,
+
+        // Plex Integration
+        PlexServer::class
 
     ],
     version = 21, // Incremented for story management entities
@@ -122,8 +126,8 @@ abstract class AppDatabase : RoomDatabase() {
     // abstract fun searchIndexDao(): SearchIndexDao
     // abstract fun readingStatisticsDao(): ReadingStatisticsDao
 
-    // Plex DAOs - Temporarily disabled
-    // abstract fun plexServerDao(): PlexServerDao
+    // Plex DAOs
+    abstract fun plexServerDao(): PlexServerDao
     // abstract fun plexMediaItemDao(): PlexMediaItemDao
     // abstract fun plexSyncDao(): PlexSyncDao
 

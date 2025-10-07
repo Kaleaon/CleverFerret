@@ -19,12 +19,12 @@ import javax.inject.Singleton
 @Singleton
 class PlexAuthService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val tokenStorage: SecureTokenStorage
+    private val tokenStorage: SecureTokenStorage,
+    private val authApi: PlexAuthApi
 ) {
 
     companion object {
         private const val TAG = "PlexAuthService"
-        private const val PLEX_TV_BASE_URL = "https://plex.tv"
         private const val PIN_POLL_INTERVAL_MS = 1000L
         private const val PIN_MAX_POLL_ATTEMPTS = 300 // 5 minutes
     }
@@ -40,14 +40,6 @@ class PlexAuthService @Inject constructor(
             prefs.edit().putString("client_id", newId).apply()
             newId
         }
-    }
-
-    private val authApi: PlexAuthApi by lazy {
-        Retrofit.Builder()
-            .baseUrl(PLEX_TV_BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(PlexAuthApi::class.java)
     }
 
     /**

@@ -118,7 +118,7 @@ class QuickAccessWidget : AppWidgetProvider() {
             }
             val clickPendingIntent = PendingIntent.getActivity(
                 context,
-                0,
+                8001, // Unique request code for book click
                 clickIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             )
