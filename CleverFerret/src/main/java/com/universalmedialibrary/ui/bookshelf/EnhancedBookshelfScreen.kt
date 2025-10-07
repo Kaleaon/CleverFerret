@@ -116,7 +116,7 @@ fun EnhancedBookshelfScreen(
         books
             .filter { book ->
                 // Search filter
-                (searchQuery.isEmpty() || 
+                (searchQuery.isEmpty() ||
                     book.title.contains(searchQuery, ignoreCase = true) ||
                     book.author.contains(searchQuery, ignoreCase = true))
             }
@@ -206,7 +206,7 @@ fun EnhancedBookshelfScreen(
                                 "View Mode"
                             )
                         }
-                        
+
                         // Sort menu
                         IconButton(onClick = { showSortMenu = true }) {
                             Icon(Icons.Default.Sort, "Sort")
@@ -230,7 +230,7 @@ fun EnhancedBookshelfScreen(
                                 )
                             }
                         }
-                        
+
                         // Filter button
                         IconButton(onClick = { showFilterSheet = true }) {
                             Badge(
@@ -303,7 +303,7 @@ fun EnhancedBookshelfScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 // Quick filter chips
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ReadStatus.values().forEach { status ->

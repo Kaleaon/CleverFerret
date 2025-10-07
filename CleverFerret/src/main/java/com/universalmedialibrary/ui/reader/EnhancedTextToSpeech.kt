@@ -69,20 +69,20 @@ class TextToSpeechController(
 ) {
     private var tts: TextToSpeech? = null
     private var isInitialized = false
-    
+
     private val _settings = MutableStateFlow(TtsSettings())
     val settings: StateFlow<TtsSettings> = _settings.asStateFlow()
-    
+
     private val _playbackState = MutableStateFlow(TtsPlaybackState())
     val playbackState: StateFlow<TtsPlaybackState> = _playbackState.asStateFlow()
-    
+
     private var currentText: String = ""
     private var sentences: List<String> = emptyList()
     private var currentSentenceIndex = 0
 
     fun initialize(onInitialized: (Boolean) -> Unit) {
         _playbackState.value = _playbackState.value.copy(state = TtsState.INITIALIZING)
-        
+
         tts = TextToSpeech(context) { status ->
             isInitialized = status == TextToSpeech.SUCCESS
             if (isInitialized) {
@@ -104,15 +104,15 @@ class TextToSpeechController(
             setSpeechRate(_settings.value.speed)
             setPitch(_settings.value.pitch)
             language = Locale.getDefault()
-            
+
             setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) {
                     currentSentenceIndex = utteranceId?.toIntOrNull() ?: 0
                     _playbackState.value = _playbackState.value.copy(
                         state = TtsState.PLAYING,
                         currentSentenceIndex = currentSentenceIndex,
-                        progress = if (sentences.isNotEmpty()) 
-                            currentSentenceIndex.toFloat() / sentences.size 
+                        progress = if (sentences.isNotEmpty())
+                            currentSentenceIndex.toFloat() / sentences.size
                         else 0f
                     )
                 }
@@ -146,13 +146,13 @@ class TextToSpeechController(
         if (_playbackState.value.state == TtsState.PLAYING) {
             stop()
         }
-        
+
         currentText = text
         sentences = text.split(Regex("[.!?]+"))
             .map { it.trim() }
             .filter { it.isNotEmpty() }
         currentSentenceIndex = 0
-        
+
         _playbackState.value = _playbackState.value.copy(
             totalSentences = sentences.size,
             currentSentenceIndex = 0,
@@ -162,7 +162,7 @@ class TextToSpeechController(
 
     fun play() {
         if (!isInitialized) return
-        
+
         if (_playbackState.value.state == TtsState.PAUSED) {
             resume()
         } else {
@@ -172,7 +172,7 @@ class TextToSpeechController(
 
     private fun playSentence(index: Int) {
         if (index >= sentences.size) return
-        
+
         currentSentenceIndex = index
         tts?.speak(
             sentences[index],
@@ -255,7 +255,7 @@ fun TextToSpeechControlPanel(
     val settings by controller.settings.collectAsState()
     val playbackState by controller.playbackState.collectAsState()
     val context = LocalContext.current
-    
+
     var showSettings by remember { mutableStateOf(false) }
     var sleepTimerMinutes by remember { mutableStateOf(0) }
 
@@ -310,7 +310,7 @@ fun TextToSpeechControlPanel(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                
+
                 IconButton(onClick = { showSettings = !showSettings }) {
                     Icon(
                         if (showSettings) Icons.Default.ExpandLess else Icons.Default.Settings,
@@ -489,11 +489,11 @@ val availableVoices = controller.getAvailableVoices()
                     FilterChip(
                         selected = settings.voice == voice,
                         onClick = { controller.setVoice(voice) },
-                        label = { 
+                        label = {
                             Text(
                                 voice.take(15),
                                 style = MaterialTheme.typography.bodySmall
-                            ) 
+                            )
                         },
                         modifier = Modifier.weight(1f)
                     )
@@ -541,11 +541,11 @@ val availableVoices = controller.getAvailableVoices()
                 FilterChip(
                     selected = sleepTimer == minutes,
                     onClick = { onSleepTimerChange(minutes) },
-                    label = { 
+                    label = {
                         Text(
                             if (minutes == 0) "Off" else "${minutes}min",
                             style = MaterialTheme.typography.bodySmall
-                        ) 
+                        )
                     },
                     modifier = Modifier.weight(1f)
                 )

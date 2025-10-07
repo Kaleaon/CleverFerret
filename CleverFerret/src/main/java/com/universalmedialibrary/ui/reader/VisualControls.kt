@@ -62,7 +62,7 @@ fun VisualControlsPanel(
             TopAppBar(
                 title = { Text("Visual Controls") },
                 navigationIcon = {
-                    IconButton(onClick = { 
+                    IconButton(onClick = {
                         onSettingsChanged(settings)
                         onDismiss()
                     }) {
@@ -548,7 +548,7 @@ private fun PreviewSection(settings: VisualSettings) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

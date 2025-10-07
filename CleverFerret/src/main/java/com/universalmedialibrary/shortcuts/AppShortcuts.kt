@@ -23,7 +23,7 @@ import com.universalmedialibrary.R
 @RequiresApi(Build.VERSION_CODES.N_MR1)
 class AppShortcutsManager(private val context: Context) {
 
-    private val shortcutManager: ShortcutManager? = 
+    private val shortcutManager: ShortcutManager? =
         context.getSystemService(Context.SHORTCUT_SERVICE) as? ShortcutManager
 
     /**
@@ -276,7 +276,7 @@ object ShortcutsXmlGenerator {
         </intent>
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
-    
+
     <shortcut
         android:shortcutId="search_books"
         android:enabled="true"
@@ -290,7 +290,7 @@ object ShortcutsXmlGenerator {
             <extra android:name="action" android:value="search" />
         </intent>
     </shortcut>
-    
+
     <shortcut
         android:shortcutId="reading_stats"
         android:enabled="true"
@@ -321,7 +321,7 @@ object ShortcutsXmlGenerator {
             <parameter-mapping intentParameter="feature" urlParameter="action"/>
         </fulfillment>
     </action>
-    
+
     <action intentName="actions.intent.SEARCH">
         <fulfillment urlTemplate="cleverferret://search?q={query}">
             <parameter-mapping intentParameter="query" urlParameter="q"/>

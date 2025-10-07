@@ -60,12 +60,12 @@ class SharingService @Inject constructor(
         onImageGenerated: ((Uri) -> Unit)? = null
     ) {
         val shareText = buildQuoteText(quote)
-        
+
         if (includeImage) {
             // Generate quote image
             val bitmap = generateQuoteImage(quote)
             val imageUri = saveBitmapToCache(bitmap, "quote_${System.currentTimeMillis()}.png")
-            
+
             // Share with image
             shareImageWithText(imageUri, shareText)
             onImageGenerated?.invoke(imageUri)
@@ -81,7 +81,7 @@ class SharingService @Inject constructor(
     fun shareReadingProgress(progress: ReadingProgress) {
         val bitmap = generateProgressImage(progress)
         val imageUri = saveBitmapToCache(bitmap, "progress_${System.currentTimeMillis()}.png")
-        
+
         val shareText = "I'm ${(progress.progress * 100).toInt()}% through \"${progress.bookTitle}\" by ${progress.author}! 📚"
         shareImageWithText(imageUri, shareText)
     }
@@ -106,7 +106,7 @@ class SharingService @Inject constructor(
             }
             append("Shared from CleverFerret")
         }
-        
+
         shareText(shareText)
     }
 
@@ -116,7 +116,7 @@ class SharingService @Inject constructor(
     fun shareReadingStats(stats: ReadingStats) {
         val bitmap = generateStatsImage(stats)
         val imageUri = saveBitmapToCache(bitmap, "stats_${System.currentTimeMillis()}.png")
-        
+
         val shareText = buildString {
             append("📊 My Reading Stats\n\n")
             append("📚 Books Read: ${stats.booksRead}\n")
@@ -125,7 +125,7 @@ class SharingService @Inject constructor(
             append("🎯 Favorite Genre: ${stats.favoriteGenre}\n")
             append("🔥 Longest Streak: ${stats.longestStreak} days")
         }
-        
+
         shareImageWithText(imageUri, shareText)
     }
 
@@ -138,7 +138,7 @@ class SharingService @Inject constructor(
     ): Uri {
         val fileName = "annotations_${bookTitle.replace(" ", "_")}.txt"
         val file = File(context.cacheDir, fileName)
-        
+
         file.writer().use { writer ->
             writer.write("Annotations from \"$bookTitle\"\n\n")
             annotations.forEachIndexed { index, (text, note) ->
@@ -149,7 +149,7 @@ class SharingService @Inject constructor(
                 writer.write("\n")
             }
         }
-        
+
         return FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",
@@ -171,7 +171,7 @@ class SharingService @Inject constructor(
             SocialPlatform.INSTAGRAM -> createInstagramIntent(imageUri)
             SocialPlatform.GOODREADS -> createGoodreadsIntent(content)
         }
-        
+
         if (intent != null) {
             val chooser = Intent.createChooser(intent, "Share via")
             chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -201,7 +201,7 @@ class SharingService @Inject constructor(
         val height = 1080
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bitmap)
-        
+
         // Background gradient
         val gradient = android.graphics.LinearGradient(
             0f, 0f, 0f, height.toFloat(),
@@ -216,7 +216,7 @@ class SharingService @Inject constructor(
             shader = gradient
         }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
-        
+
         // Quote text
         val textPaint = android.graphics.Paint().apply {
             color = android.graphics.Color.WHITE
@@ -228,17 +228,17 @@ class SharingService @Inject constructor(
             isAntiAlias = true
             textAlign = android.graphics.Paint.Align.CENTER
         }
-        
+
         // Draw quote (word wrap)
         val words = quote.text.split(" ")
         var line = ""
         var y = height / 3f
         val lineHeight = 60f
-        
+
         words.forEach { word ->
             val testLine = if (line.isEmpty()) word else "$line $word"
             val lineWidth = textPaint.measureText(testLine)
-            
+
             if (lineWidth > 900) {
                 canvas.drawText(line, width / 2f, y, textPaint)
                 line = word
@@ -250,7 +250,7 @@ class SharingService @Inject constructor(
         if (line.isNotEmpty()) {
             canvas.drawText(line, width / 2f, y, textPaint)
         }
-        
+
         // Author and book
         val attributionPaint = android.graphics.Paint().apply {
             color = android.graphics.Color.WHITE
@@ -262,7 +262,7 @@ class SharingService @Inject constructor(
             isAntiAlias = true
             textAlign = android.graphics.Paint.Align.CENTER
         }
-        
+
         canvas.drawText(
             "— ${quote.author}",
             width / 2f,
@@ -275,7 +275,7 @@ class SharingService @Inject constructor(
             height * 0.75f + 45f,
             attributionPaint
         )
-        
+
         return bitmap
     }
 
@@ -287,15 +287,15 @@ class SharingService @Inject constructor(
         val height = 1080
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bitmap)
-        
+
         // Background
         canvas.drawColor(android.graphics.Color.parseColor("#f8f9fa"))
-        
+
         // Progress circle
         val centerX = width / 2f
         val centerY = height / 2f
         val radius = 300f
-        
+
         val backgroundPaint = android.graphics.Paint().apply {
             color = android.graphics.Color.parseColor("#e9ecef")
             style = android.graphics.Paint.Style.STROKE
@@ -303,7 +303,7 @@ class SharingService @Inject constructor(
             isAntiAlias = true
         }
         canvas.drawCircle(centerX, centerY, radius, backgroundPaint)
-        
+
         val progressPaint = android.graphics.Paint().apply {
             color = android.graphics.Color.parseColor("#4CAF50")
             style = android.graphics.Paint.Style.STROKE
@@ -311,7 +311,7 @@ class SharingService @Inject constructor(
             strokeCap = android.graphics.Paint.Cap.ROUND
             isAntiAlias = true
         }
-        
+
         val rect = android.graphics.RectF(
             centerX - radius,
             centerY - radius,
@@ -319,7 +319,7 @@ class SharingService @Inject constructor(
             centerY + radius
         )
         canvas.drawArc(rect, -90f, progress.progress * 360f, false, progressPaint)
-        
+
         // Progress percentage
         val percentPaint = android.graphics.Paint().apply {
             color = android.graphics.Color.parseColor("#212529")
@@ -337,7 +337,7 @@ class SharingService @Inject constructor(
             centerY + 40f,
             percentPaint
         )
-        
+
         // Book title
         val titlePaint = android.graphics.Paint().apply {
             color = android.graphics.Color.parseColor("#495057")
@@ -347,7 +347,7 @@ class SharingService @Inject constructor(
         }
         canvas.drawText(progress.bookTitle, centerX, centerY + 400f, titlePaint)
         canvas.drawText(progress.author, centerX, centerY + 450f, titlePaint)
-        
+
         return bitmap
     }
 
@@ -359,7 +359,7 @@ class SharingService @Inject constructor(
         val height = 1080
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bitmap)
-        
+
         // Background
         val gradient = android.graphics.LinearGradient(
             0f, 0f, 0f, height.toFloat(),
@@ -374,7 +374,7 @@ class SharingService @Inject constructor(
             shader = gradient
         }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
-        
+
         // Title
         val titlePaint = android.graphics.Paint().apply {
             color = android.graphics.Color.WHITE
@@ -387,17 +387,17 @@ class SharingService @Inject constructor(
             isAntiAlias = true
         }
         canvas.drawText("My Reading Stats", width / 2f, 150f, titlePaint)
-        
+
         // Stats
         val statPaint = android.graphics.Paint().apply {
             color = android.graphics.Color.WHITE
             textSize = 48f
             isAntiAlias = true
         }
-        
+
         var y = 300f
         val lineHeight = 100f
-        
+
         canvas.drawText("📚 Books Read: ${stats.booksRead}", 100f, y, statPaint)
         y += lineHeight
         canvas.drawText("📄 Pages Read: ${stats.pagesRead}", 100f, y, statPaint)
@@ -407,7 +407,7 @@ class SharingService @Inject constructor(
         canvas.drawText("🎯 Favorite: ${stats.favoriteGenre}", 100f, y, statPaint)
         y += lineHeight
         canvas.drawText("🔥 Streak: ${stats.longestStreak} days", 100f, y, statPaint)
-        
+
         return bitmap
     }
 
@@ -419,7 +419,7 @@ class SharingService @Inject constructor(
         FileOutputStream(file).use { out ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
-        
+
         return FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",
@@ -486,7 +486,7 @@ class SharingService @Inject constructor(
      */
     private fun createInstagramIntent(imageUri: Uri?): Intent? {
         if (imageUri == null) return null
-        
+
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "image/*"
             putExtra(Intent.EXTRA_STREAM, imageUri)
