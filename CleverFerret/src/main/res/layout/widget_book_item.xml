@@ -4,21 +4,21 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="8dp">
-    
+
     <ImageView
         android:id="@+id/book_cover"
         android:layout_width="40dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"
         android:contentDescription="Book Cover" />
-    
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
         android:layout_marginStart="8dp">
-        
+
         <TextView
             android:id="@+id/book_title"
             android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Book Title" />
-        
+
         <TextView
             android:id="@+id/book_author"
             android:layout_width="match_parent"

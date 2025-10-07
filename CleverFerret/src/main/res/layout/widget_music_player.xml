@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@drawable/widget_background">
-    
+
     <ImageView
         android:id="@+id/widget_album_art"
         android:layout_width="80dp"
@@ -15,7 +15,7 @@
         android:scaleType="centerCrop"
         android:contentDescription="Album Art"
         android:background="#333333" />
-    
+
     <TextView
         android:id="@+id/widget_track_title"
         android:layout_width="match_parent"
@@ -27,7 +27,7 @@
         android:ellipsize="marquee"
         android:maxLines="1"
         android:text="Track Title" />
-    
+
     <TextView
         android:id="@+id/widget_artist_name"
         android:layout_width="match_parent"
@@ -38,7 +38,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="Artist Name" />
-    
+
     <TextView
         android:id="@+id/widget_album_name"
         android:layout_width="match_parent"
@@ -50,14 +50,14 @@
         android:maxLines="1"
         android:alpha="0.7"
         android:text="Album Name" />
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="12dp"
         android:gravity="center">
-        
+
         <ImageButton
             android:id="@+id/widget_prev_btn"
             android:layout_width="40dp"
@@ -65,7 +65,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_skip_previous"
             android:contentDescription="Previous" />
-        
+
         <ImageButton
             android:id="@+id/widget_play_pause_btn"
             android:layout_width="48dp"
@@ -75,7 +75,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_play"
             android:contentDescription="Play/Pause" />
-        
+
         <ImageButton
             android:id="@+id/widget_next_btn"
             android:layout_width="40dp"
