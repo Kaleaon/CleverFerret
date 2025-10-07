@@ -51,7 +51,10 @@ data class PodcastEpisode(
     val playPosition: Long = 0L,
     val favorite: Boolean = false,
     val isNew: Boolean = true
-)
+) {
+    // Computed property for UI compatibility
+    val isDownloaded: Boolean get() = downloaded
+}
 
 // Domain model for search results
 data class PodcastSearchResult(
