@@ -80,8 +80,8 @@ fun EnhancedBookshelfScreen(
                     IconButton(onClick = { showViewModeMenu = true }) {
                         Icon(
                             when (viewMode) {
-                                ViewMode.GRID -> Icons.Default.GridView
-                                ViewMode.LIST -> Icons.AutoMirrored.Filled.List
+                                ViewMode.GRID_SMALL, ViewMode.GRID_LARGE -> Icons.Default.GridView
+                                ViewMode.LIST, ViewMode.COMFORTABLE -> Icons.AutoMirrored.Filled.List
                                 ViewMode.COVER_FLOW -> Icons.Default.ViewCarousel
                             },
                             contentDescription = "View Mode"
@@ -181,7 +181,7 @@ fun EnhancedBookshelfScreen(
 
             // Main Content
             when (viewMode) {
-                ViewMode.GRID -> {
+                ViewMode.GRID_SMALL, ViewMode.GRID_LARGE -> {
                     GridBookView(
                         books = books,
                         progressMap = progressMap,
@@ -192,7 +192,7 @@ fun EnhancedBookshelfScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-                ViewMode.LIST -> {
+                ViewMode.LIST, ViewMode.COMFORTABLE -> {
                     ListBookView(
                         books = books,
                         progressMap = progressMap,
