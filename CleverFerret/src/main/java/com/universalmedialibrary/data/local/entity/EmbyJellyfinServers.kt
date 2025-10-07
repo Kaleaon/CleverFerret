@@ -18,7 +18,11 @@ data class EmbyServer(
     val userId: String? = null,
     val lastSynced: Long = 0,
     val isActive: Boolean = true
-)
+) {
+    val serverId: Long get() = id
+    val url: String get() = "http://$host:$port"
+    val accessToken: String? get() = apiKey
+}
 
 @Entity(
     tableName = "jellyfin_servers",
@@ -34,4 +38,8 @@ data class JellyfinServer(
     val userId: String? = null,
     val lastSynced: Long = 0,
     val isActive: Boolean = true
-)
+) {
+    val serverId: Long get() = id
+    val url: String get() = "http://$host:$port"
+    val accessToken: String? get() = apiKey
+}

@@ -134,7 +134,7 @@ class MetadataApiService @Inject constructor(
         val results = mutableListOf<UnifiedMetadataSearchResult>()
 
         try {
-            val music = musicBrainzApi.searchMusic(query)
+            val music = musicBrainzApi.searchReleases(query)
             music.releases?.forEach { release ->
                 results.add(
                     UnifiedMetadataSearchResult(
