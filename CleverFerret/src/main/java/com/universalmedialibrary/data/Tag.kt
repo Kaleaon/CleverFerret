@@ -6,7 +6,7 @@ import androidx.room.Index
 
 /**
  * Tag entity for categorizing and organizing media items
- * 
+ *
  * Tags can be used for:
  * - Genre classification (e.g., "Science Fiction", "Mystery")
  * - Custom collections (e.g., "To Read", "Favorites")

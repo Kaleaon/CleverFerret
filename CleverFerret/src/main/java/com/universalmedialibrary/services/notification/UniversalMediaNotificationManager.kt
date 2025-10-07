@@ -32,14 +32,14 @@ class UniversalMediaNotificationManager @Inject constructor(
         const val CHANNEL_ID_RADIO = "radio_playback"
         const val CHANNEL_ID_TTS = "tts_playback"
         const val CHANNEL_ID_VIDEO = "video_playback"
-        
+
         const val NOTIFICATION_ID_MUSIC = 1001
         const val NOTIFICATION_ID_AUDIOBOOK = 1002
         const val NOTIFICATION_ID_PODCAST = 1003
         const val NOTIFICATION_ID_RADIO = 1004
         const val NOTIFICATION_ID_TTS = 1005
         const val NOTIFICATION_ID_VIDEO = 1006
-        
+
         // Actions
         const val ACTION_PLAY = "com.universalmedialibrary.action.PLAY"
         const val ACTION_PAUSE = "com.universalmedialibrary.action.PAUSE"
@@ -285,14 +285,14 @@ class UniversalMediaNotificationManager @Inject constructor(
             .setSmallIcon(R.drawable.ic_media_notification)
             .setContentIntent(contentIntent)
             .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(
-                context, 
+                context,
                 android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP
             ))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
-            
+
         // Add media style with session
         val mediaStyle = androidx.media.app.NotificationCompat.MediaStyle()
             .setMediaSession(mediaSession.sessionToken)
@@ -315,7 +315,7 @@ class UniversalMediaNotificationManager @Inject constructor(
                 createActionIntent(ACTION_PREV)
             )
         }
-        
+
         if (showRewind) {
             builder.addAction(
                 android.R.drawable.ic_media_rew,

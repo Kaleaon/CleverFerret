@@ -307,7 +307,7 @@ fun AutoScrollControl(
 
             // Settings (collapsible)
             var showSettings by remember { mutableStateOf(false) }
-            
+
             TextButton(
                 onClick = { showSettings = !showSettings },
                 modifier = Modifier.fillMaxWidth()
@@ -502,8 +502,8 @@ fun AutoScrollEffect(
 
     LaunchedEffect(state, currentSpeed) {
         var lastFrameTime = System.currentTimeMillis()
-        
-        while (isActive && (state == AutoScrollState.SCROLLING || 
+
+        while (isActive && (state == AutoScrollState.SCROLLING ||
                            state == AutoScrollState.ACCELERATING ||
                            state == AutoScrollState.CHAPTER_END_PAUSE)) {
             val currentTime = System.currentTimeMillis()

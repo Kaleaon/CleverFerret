@@ -150,7 +150,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun readerSettingsDao(): ReaderSettingsDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
-    
+
     // Tag DAO
     abstract fun tagDao(): TagDao
 
