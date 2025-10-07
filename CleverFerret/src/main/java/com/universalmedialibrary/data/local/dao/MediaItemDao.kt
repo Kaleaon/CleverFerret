@@ -64,4 +64,12 @@ interface MediaItemDao {
      */
     @Query("SELECT * FROM media_items WHERE libraryId = :libraryId AND mediaType = 'BOOK' ORDER BY dateAdded DESC")
     fun getBookDetailsForLibrary(libraryId: Long): Flow<List<MediaItem>>
+
+    /**
+     * Get book details by ID
+     * Note: This returns MediaItem, not BookDetails. The repository layer
+     * should combine MediaItem with metadata to create BookDetails
+     */
+    @Query("SELECT * FROM media_items WHERE itemId = :bookId AND mediaType = 'BOOK'")
+    suspend fun getBookDetailsById(bookId: Long): MediaItem?
 }

@@ -103,6 +103,138 @@
                 android:resource="@xml/media_playback_widget_info" />
         </receiver>
         
+        <!-- Music Player Widget -->
+        <receiver
+            android:name=".widgets.MusicPlayerWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_player_info" />
+        </receiver>
+        
+        <!-- Audiobook Player Widget -->
+        <receiver
+            android:name=".widgets.AudiobookPlayerWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_audiobook_player_info" />
+        </receiver>
+        
+        <!-- Radio Player Widget -->
+        <receiver
+            android:name=".widgets.RadioPlayerWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_radio_player_info" />
+        </receiver>
+        
+        <!-- Podcast Player Widget -->
+        <receiver
+            android:name=".widgets.PodcastPlayerWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_podcast_player_info" />
+        </receiver>
+        
+        <!-- Text-to-Speech Widget -->
+        <receiver
+            android:name=".widgets.TextToSpeechWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_tts_player_info" />
+        </receiver>
+        
+        <!-- Comic Reader Widget -->
+        <receiver
+            android:name=".widgets.ComicReaderWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_comic_reader_info" />
+        </receiver>
+        
+        <!-- Video Player Widget -->
+        <receiver
+            android:name=".widgets.VideoPlayerWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_video_player_info" />
+        </receiver>
+        
+        <!-- Currently Reading Widget -->
+        <receiver
+            android:name=".widgets.CurrentlyReadingWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_currently_reading_info" />
+        </receiver>
+        
+        <!-- Quick Access Widget -->
+        <receiver
+            android:name=".widgets.QuickAccessWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_access_info" />
+        </receiver>
+        
+        <!-- Reading Stats Widget -->
+        <receiver
+            android:name=".widgets.ReadingStatsWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_reading_stats_info" />
+        </receiver>
+        
+        <!-- Reading Goal Widget -->
+        <receiver
+            android:name=".widgets.ReadingGoalWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_reading_goal_info" />
+        </receiver>
+        
         <!-- File Provider for sharing files -->
         <provider
             android:name="androidx.core.content.FileProvider"

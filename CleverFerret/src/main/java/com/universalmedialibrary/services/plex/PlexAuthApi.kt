@@ -22,11 +22,14 @@ interface PlexAuthApi {
     /**
      * Check PIN status to get auth token
      * GET https://plex.tv/api/v2/pins/{pinId}
+     * 
+     * Polls this endpoint until authToken is populated (user authenticated)
      */
     @GET("/api/v2/pins/{pinId}")
     suspend fun checkPin(
         @Path("pinId") pinId: String,
-        @Header("X-Plex-Client-Identifier") clientId: String
+        @Header("X-Plex-Client-Identifier") clientId: String,
+        @Header("X-Plex-Product") product: String = "CleverFerret"
     ): Response<PlexPinResponse>
 
     /**
@@ -39,19 +42,25 @@ interface PlexAuthApi {
     ): Response<PlexUserResponse>
 
     /**
-     * Get list of servers accessible to the user
+     * Get list of servers accessible to the user (devices)
      * GET https://plex.tv/api/v2/resources
+     * 
+     * @param includeHttps 1 to include HTTPS connections, 0 to exclude
+     * @param includeRelay 1 to include relay connections, 0 to exclude
      */
     @GET("/api/v2/resources")
     suspend fun getResources(
         @Header("X-Plex-Token") token: String,
+        @Header("X-Plex-Client-Identifier") clientId: String,
         @Query("includeHttps") includeHttps: Int = 1,
-        @Query("includeRelay") includeRelay: Int = 0
+        @Query("includeRelay") includeRelay: Int = 0,
+        @Query("includeIPv6") includeIPv6: Int = 0
     ): Response<List<PlexResourceResponse>>
 }
 
 /**
  * Response models for Plex.tv API
+ * Based on official OpenAPI spec from https://github.com/LukeHagar/plex-docs
  */
 data class PlexPinResponse(
     val id: Int,
@@ -64,7 +73,9 @@ data class PlexPinResponse(
     val createdAt: String,
     val expiresAt: String,
     val authToken: String?,
-    val newRegistration: Boolean?
+    val newRegistration: Boolean?,
+    // Additional fields from official spec
+    val qr: String? = null // QR code URL for mobile auth
 )
 
 data class PlexPinLocation(
