@@ -79,7 +79,7 @@ data class BookItem(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun EnhancedBookshelfScreen(
+fun EnhancedBookshelfScreenDemo(
     navController: NavController,
     libraryId: Long,
     modifier: Modifier = Modifier
