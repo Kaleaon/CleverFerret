@@ -21,8 +21,6 @@ import javax.inject.Singleton
 class PlexSyncService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val plexServerDao: PlexServerDao,
-    private val plexMediaItemDao: PlexMediaItemDao,
-    private val plexSyncDao: PlexSyncDao,
     private val mediaItemDao: MediaItemDao,
     private val libraryDao: LibraryDao,
     private val authService: PlexAuthService
@@ -80,7 +78,7 @@ class PlexSyncService @Inject constructor(
         return try {
             _syncStatus.value = PlexSyncStatus.Syncing("Starting sync...")
 
-            plexServerDao.getAllActiveServers().collect { servers ->
+            plexServerDao.getActiveServers().collect { servers ->
                 for (server in servers) {
                     syncServer(server)
                 }
@@ -242,7 +240,8 @@ class PlexSyncService @Inject constructor(
      */
     private suspend fun syncProgress(server: PlexServer, api: PlexApi) {
         // Get items that need progress sync
-        val progressItems = plexSyncDao.getProgressNeedingSync()
+        // TODO: Implement when PlexSyncDao is enabled
+        val progressItems = emptyList<Any>() // plexSyncDao.getProgressNeedingSync()
 
         for (progressItem in progressItems) {
             try {
@@ -266,13 +265,16 @@ class PlexSyncService @Inject constructor(
                 Log.e(TAG, "Error syncing progress for item ${progressItem.id}", e)
             }
         }
+        */
     }
 
     /**
      * Sync ratings
      */
     private suspend fun syncRatings(server: PlexServer, api: PlexApi) {
-        val ratingItems = plexSyncDao.getRatingsNeedingSync()
+        // TODO: Implement when PlexSyncDao is enabled
+        val ratingItems = emptyList<Any>() // plexSyncDao.getRatingsNeedingSync()
+        /*
 
         for (ratingItem in ratingItems) {
             try {
@@ -292,6 +294,7 @@ class PlexSyncService @Inject constructor(
                 Log.e(TAG, "Error syncing rating for item ${ratingItem.id}", e)
             }
         }
+        */
     }
 
     /**
@@ -425,4 +428,6 @@ sealed class PlexSyncStatus {
     data class Syncing(val message: String) : PlexSyncStatus()
     data class Success(val message: String) : PlexSyncStatus()
     data class Error(val message: String) : PlexSyncStatus()
+}
+
 }

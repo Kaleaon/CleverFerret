@@ -23,4 +23,7 @@ data class PlexServer(
     val lastSynced: Long = 0,
 
     val dateAdded: Long = System.currentTimeMillis()
-)
+) {
+    val url: String get() = "https://$host:$port"
+    val accessToken: String get() = token
+}

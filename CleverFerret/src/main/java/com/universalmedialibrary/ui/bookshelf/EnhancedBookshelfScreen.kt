@@ -137,18 +137,7 @@ fun EnhancedBookshelfScreen(
                 book.rating >= filterOptions.minRating
             }
             .sortedWith(
-                when (sortOption) {
-                    SortOption.TITLE_ASC -> compareBy { it.title }
-                    SortOption.TITLE_DESC -> compareByDescending { it.title }
-                    SortOption.AUTHOR_ASC -> compareBy { it.author }
-                    SortOption.AUTHOR_DESC -> compareByDescending { it.author }
-                    SortOption.DATE_ADDED_NEW -> compareByDescending { it.dateAdded }
-                    SortOption.DATE_ADDED_OLD -> compareBy { it.dateAdded }
-                    SortOption.RECENTLY_READ -> compareByDescending { it.lastRead ?: 0L }
-                    SortOption.PROGRESS -> compareByDescending { it.progress }
-                    SortOption.RATING -> compareByDescending { it.rating }
-                    SortOption.FILE_SIZE -> compareByDescending { it.fileSize }
-                }
+                getBookComparator(sortOption)
             )
     }
 
@@ -233,11 +222,15 @@ fun EnhancedBookshelfScreen(
                         
                         // Filter button
                         IconButton(onClick = { showFilterSheet = true }) {
-                            Badge(
-                                content = if (isFilterActive(filterOptions)) {
-                                    { Text("!") }
-                                } else null
-                            ) {
+                            if (isFilterActive(filterOptions)) {
+                                BadgedBox(
+                                    badge = {
+                                        Badge { Text("!") }
+                                    }
+                                ) {
+                                    Icon(Icons.Default.FilterList, "Filter")
+                                }
+                            } else {
                                 Icon(Icons.Default.FilterList, "Filter")
                             }
                         }
@@ -860,4 +853,27 @@ private fun isFilterActive(options: FilterOptions): Boolean {
            options.formats.isNotEmpty() ||
            options.minRating > 0 ||
            options.hasProgress != null
+}
+
+/**
+ * Get comparator for sorting books
+ * Extracted to help with type inference
+ */
+private fun getBookComparator(sortOption: SortOption): Comparator<BookItem> {
+    return when (sortOption) {
+        SortOption.TITLE_ASC -> compareBy { it.title }
+        SortOption.TITLE_DESC -> compareByDescending { it.title }
+        SortOption.AUTHOR_ASC -> compareBy { it.author }
+        SortOption.AUTHOR_DESC -> compareByDescending { it.author }
+        SortOption.DATE_ADDED_NEW -> compareByDescending { it.dateAdded }
+        SortOption.DATE_ADDED_OLD -> compareBy { it.dateAdded }
+        SortOption.RECENTLY_READ -> compareByDescending { it.lastRead ?: 0L }
+        SortOption.PROGRESS -> compareByDescending { it.progress }
+        SortOption.RATING -> compareByDescending { it.rating }
+        SortOption.FILE_SIZE -> compareByDescending { it.fileSize }
+        // Handle remaining enum values with default sorting
+        SortOption.RATING_HIGH -> compareByDescending { it.rating }
+        SortOption.RATING_LOW -> compareBy { it.rating }
+        else -> compareBy { it.title }
+    }
 }
