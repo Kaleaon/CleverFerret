@@ -45,7 +45,17 @@ object PlexModule {
     @Provides
     @Singleton
     @Named("plexOkHttp")
-    fun providePlexOkHttpClient(): OkHttpClient {
+    fun providePlexOkHttpClient(
+        @ApplicationContext context: Context
+    ): OkHttpClient {
+        // Generate or retrieve persistent client identifier
+        val prefs = context.getSharedPreferences("plex_client", Context.MODE_PRIVATE)
+        val clientId = prefs.getString("client_id", null) ?: run {
+            val newId = java.util.UUID.randomUUID().toString()
+            prefs.edit().putString("client_id", newId).apply()
+            newId
+        }
+
         return OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -57,6 +67,9 @@ object PlexModule {
                     .addHeader("X-Plex-Product", "CleverFerret")
                     .addHeader("X-Plex-Version", "1.0.0")
                     .addHeader("X-Plex-Platform", "Android")
+                    .addHeader("X-Plex-Device", "Android")
+                    .addHeader("X-Plex-Device-Name", "CleverFerret Media Library")
+                    .addHeader("X-Plex-Client-Identifier", clientId)
                     .build()
                 chain.proceed(request)
             }

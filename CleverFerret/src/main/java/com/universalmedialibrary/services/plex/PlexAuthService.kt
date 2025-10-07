@@ -45,12 +45,18 @@ class PlexAuthService @Inject constructor(
     /**
      * Start the PIN authentication flow
      * Returns the PIN code that the user needs to enter at plex.tv/link
+     * 
+     * Uses official Plex.tv API: POST /api/v2/pins
      */
     suspend fun startPinAuth(): Result<PlexPinAuthData> {
         return try {
             _authState.value = PlexAuthState.RequestingPin
 
-            val response = authApi.requestPin(clientId = clientIdentifier)
+            // Request PIN with all required headers per official API spec
+            val response = authApi.requestPin(
+                strong = false, // false = 4-digit code for plex.tv/link
+                clientId = clientIdentifier
+            )
 
             if (response.isSuccessful && response.body() != null) {
                 val pinData = response.body()!!
@@ -61,9 +67,11 @@ class PlexAuthService @Inject constructor(
                 )
 
                 _authState.value = PlexAuthState.WaitingForUser(authData)
+                Log.d(TAG, "PIN requested successfully: ${authData.pinCode}")
                 Result.success(authData)
             } else {
-                val error = "Failed to request PIN: ${response.message()}"
+                val error = "Failed to request PIN: ${response.code()} ${response.message()}"
+                Log.e(TAG, error)
                 _authState.value = PlexAuthState.Error(error)
                 Result.failure(Exception(error))
             }
@@ -77,9 +85,14 @@ class PlexAuthService @Inject constructor(
     /**
      * Poll for PIN authentication completion
      * This should be called in a loop after startPinAuth
+     * 
+     * Polls GET /api/v2/pins/{pinId} until authToken is populated
+     * Max 300 attempts (5 minutes) at 1 second intervals
      */
     suspend fun pollForAuth(pinId: String): Result<PlexAuthResult> {
         var attempts = 0
+
+        Log.d(TAG, "Starting PIN polling for ID: $pinId")
 
         while (attempts < PIN_MAX_POLL_ATTEMPTS) {
             try {
@@ -121,8 +134,10 @@ class PlexAuthService @Inject constructor(
         return try {
             _authState.value = PlexAuthState.FetchingUserInfo
 
-            // Get user information
-            val userResponse = authApi.getUserInfo(token)
+            Log.d(TAG, "Fetching user info with token")
+
+            // Get user information with all required headers
+            val userResponse = authApi.getUserInfo(token, clientIdentifier)
 
             if (userResponse.isSuccessful && userResponse.body() != null) {
                 val user = userResponse.body()!!
@@ -158,17 +173,28 @@ class PlexAuthService @Inject constructor(
 
     /**
      * Discover available Plex servers for the authenticated user
+     * 
+     * Uses GET /api/v2/resources to find all owned and shared servers
+     * Filters for devices that provide "server" capability
      */
     suspend fun discoverServers(): Result<List<PlexDiscoveredServer>> {
         return try {
             val token = tokenStorage.getAuthToken()
             if (token.isNullOrEmpty()) {
+                Log.e(TAG, "Cannot discover servers: Not authenticated")
                 return Result.failure(Exception("Not authenticated"))
             }
 
             _authState.value = PlexAuthState.DiscoveringServers
+            Log.d(TAG, "Discovering Plex servers...")
 
-            val response = authApi.getResources(token)
+            val response = authApi.getResources(
+                token = token,
+                clientId = clientIdentifier,
+                includeHttps = 1,
+                includeRelay = 0,
+                includeIPv6 = 0
+            )
 
             if (response.isSuccessful && response.body() != null) {
                 val servers = response.body()!!
