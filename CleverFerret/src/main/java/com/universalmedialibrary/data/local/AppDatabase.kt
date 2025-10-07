@@ -3,11 +3,13 @@ package com.universalmedialibrary.data.local
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.data.local.entity.Converters
 import com.universalmedialibrary.data.local.dao.PlexServerDao
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
