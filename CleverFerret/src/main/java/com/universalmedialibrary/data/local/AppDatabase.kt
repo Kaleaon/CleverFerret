@@ -68,14 +68,17 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
 
         // Emby/Jellyfin servers
         EmbyServer::class,
-        JellyfinServer::class
+        JellyfinServer::class,
 
-        ,
         // Sharing
-        SharedLink::class
+        SharedLink::class,
+
+        // Fanfiction/Story Management
+        DownloadedStory::class,
+        StoryUpdate::class
 
     ],
-    version = 20, // Incremented for podcast entities + radio station
+    version = 21, // Incremented for story management entities
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -107,6 +110,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Radio DAO
     abstract fun radioStationDao(): RadioStationDao
+
+    // Story Management DAOs
+    abstract fun downloadedStoryDao(): DownloadedStoryDao
+    abstract fun storyUpdateDao(): StoryUpdateDao
 
     // Additional DAOs - Temporarily disabled until entities are properly configured
     // abstract fun readerSettingsDao(): ReaderSettingsDao
