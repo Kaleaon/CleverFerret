@@ -68,4 +68,30 @@ object DatabaseModule {
         return database.plexSyncDao()
     }
 
+    // Reader enhancement DAOs
+    @Provides
+    fun provideAnnotationDao(database: AppDatabase): AnnotationDao {
+        return database.annotationDao()
+    }
+
+    @Provides
+    fun provideSearchIndexDao(database: AppDatabase): SearchIndexDao {
+        return database.searchIndexDao()
+    }
+
+    @Provides
+    fun provideReadingStatisticsDao(database: AppDatabase): ReadingStatisticsDao {
+        return database.readingStatisticsDao()
+    }
+
+    @Provides
+    fun provideReaderSettingsDao(database: AppDatabase): ReaderSettingsDao {
+        return database.readerSettingsDao()
+    }
+
+    @Provides
+    fun provideTagDao(database: AppDatabase): TagDao {
+        return database.tagDao()
+    }
+
 }

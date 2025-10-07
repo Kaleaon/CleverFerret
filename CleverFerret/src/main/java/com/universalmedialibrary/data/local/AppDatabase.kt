@@ -140,12 +140,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun downloadedStoryDao(): DownloadedStoryDao
     abstract fun storyUpdateDao(): StoryUpdateDao
 
-    // Additional DAOs - Temporarily disabled until entities are properly configured
-    // abstract fun readerSettingsDao(): ReaderSettingsDao
-    // abstract fun annotationDao(): AnnotationDao
-    // abstract fun searchIndexDao(): SearchIndexDao
-    // abstract fun readingStatisticsDao(): ReadingStatisticsDao
-
     // Plex DAOs
     abstract fun plexServerDao(): PlexServerDao
     abstract fun plexMediaItemDao(): PlexMediaItemDao
