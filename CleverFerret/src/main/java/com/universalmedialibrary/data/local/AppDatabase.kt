@@ -35,11 +35,13 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
         APIKey::class,
         Bookmark::class,
         ReadingProgress::class,
+        ReadingSession::class,
 
-        // Person, Series, and Genre entities for metadata
+        // Person, Series, Album, and Genre entities for metadata
         People::class,
         ItemPersonRole::class,
         Series::class,
+        Album::class,
         Genre::class,
         ItemGenre::class,
 
