@@ -87,7 +87,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture infor
 - **[Architecture Guide](docs/ARCHITECTURE.md)** - Technical architecture details
 - **[Resources](docs/RESOURCES.md)** - External APIs, tools, and references
 - **[Release Process](docs/RELEASE.md)** - Creating and publishing releases
-- **[Import Logic](IMPORT_LOGIC.md)** - Calibre import technical details
+- **[Import Logic](docs/analysis/IMPORT_LOGIC.md)** - Calibre import technical details
 
 For a complete documentation index, see [docs/README.md](docs/README.md).
 

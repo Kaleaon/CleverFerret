@@ -20,7 +20,7 @@ This is the central index for all CleverFerret documentation. Use this as your s
 ## 🏗️ Architecture & Design
 
 ### Core Architecture
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture overview
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture overview
 - [DATABASE_SCHEMA.md](docs/analysis/DATABASE_SCHEMA.md) - Database schema documentation
 - [IMPORT_LOGIC.md](docs/analysis/IMPORT_LOGIC.md) - Import system design
 
@@ -251,7 +251,7 @@ All documentation should include:
 
 ### For New Features
 1. Check [FEATURES_TO_IMPLEMENT.md](FEATURES_TO_IMPLEMENT.md)
-2. Review [ARCHITECTURE.md](ARCHITECTURE.md)
+2. Review [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 3. See relevant feature docs in [docs/features/](docs/features/)
 
 ### For AI Assistants

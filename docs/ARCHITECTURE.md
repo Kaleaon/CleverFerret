@@ -291,7 +291,7 @@ UI Feedback (Success/Error)
 - Conflict resolution for existing data
 - File path resolution and validation
 
-**Key File**: `IMPORT_LOGIC.md` - Detailed import logic
+**Key File**: `analysis/IMPORT_LOGIC.md` - Detailed import logic
 
 ---
 
