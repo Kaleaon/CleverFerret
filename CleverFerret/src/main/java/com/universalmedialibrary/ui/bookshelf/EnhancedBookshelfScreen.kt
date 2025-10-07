@@ -222,11 +222,15 @@ fun EnhancedBookshelfScreen(
                         
                         // Filter button
                         IconButton(onClick = { showFilterSheet = true }) {
-                            Badge(
-                                content = if (isFilterActive(filterOptions)) {
-                                    { Text("!") }
-                                } else null
-                            ) {
+                            if (isFilterActive(filterOptions)) {
+                                BadgedBox(
+                                    badge = {
+                                        Badge { Text("!") }
+                                    }
+                                ) {
+                                    Icon(Icons.Default.FilterList, "Filter")
+                                }
+                            } else {
                                 Icon(Icons.Default.FilterList, "Filter")
                             }
                         }

@@ -107,9 +107,8 @@ fun PodcastPlayerScreen(
                     // Episode Info
                     MetallicText(
                         text = uiState.episode?.title ?: "",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                        style = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center),
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))

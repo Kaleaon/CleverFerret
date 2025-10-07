@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.StorageAccessService
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,6 +24,7 @@ fun StorageOrganizerScreen(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
     var progress by remember { mutableStateOf("") }
     var movedCount by remember { mutableStateOf<Int?>(null) }
@@ -35,7 +37,7 @@ fun StorageOrganizerScreen(
             val service = EntryPointAccessors.fromApplication(appContext, OrganizerEntryPoint::class.java).storageService()
             service.persistUriPermission(context, uri)
             // Launch organize in coroutine
-            lifecycleOwner.lifecycleScope.launchWhenStarted {
+            scope.launch {
                 movedCount = service.organizeDirectory(context, uri) { msg -> progress = msg }
             }
         }
