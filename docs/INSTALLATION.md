@@ -1,5 +1,13 @@
 # Installation Guide
 
+> **Note**: This document has been superseded by [INSTALL.md](INSTALL.md) which includes updated instructions for the automated build system.
+> 
+> For the latest installation instructions, please see **[INSTALL.md](INSTALL.md)**.
+
+---
+
+## Legacy Installation Guide
+
 Complete guide to installing CleverFerret on your Android device.
 
 ---
