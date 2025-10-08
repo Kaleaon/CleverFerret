@@ -38,4 +38,12 @@
         android:layout_marginTop="4dp"
         android:textSize="14sp"
         android:text="Reading Time: 0h" />
+
+    <TextView
+        android:id="@+id/widget_streak"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="14sp"
+        android:text="0 day streak 🔥" />
 </LinearLayout>
