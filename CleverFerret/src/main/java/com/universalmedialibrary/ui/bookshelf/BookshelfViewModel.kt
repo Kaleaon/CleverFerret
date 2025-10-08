@@ -92,7 +92,8 @@ class BookshelfViewModel @Inject constructor(
             SortOption.RATING_LOW -> filteredBooks.sortedBy { it.metadata.rating ?: 0f }
             SortOption.RATING -> filteredBooks.sortedByDescending { it.metadata.rating ?: 0f }
             SortOption.RECENTLY_READ -> filteredBooks.sortedByDescending { it.mediaItem.lastScanned }
-            else -> filteredBooks
+            SortOption.PROGRESS -> filteredBooks.sortedByDescending { it.progress }
+            SortOption.FILE_SIZE -> filteredBooks.sortedByDescending { it.fileSize }
         }
     }.stateIn(
         scope = viewModelScope,
