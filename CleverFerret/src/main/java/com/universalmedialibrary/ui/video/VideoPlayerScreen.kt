@@ -87,7 +87,6 @@ fun VideoPlayerScreen(
 /**
  * Simple video player ViewModel
  */
-@androidx.lifecycle.ViewModel
 class VideoPlayerViewModel @javax.inject.Inject constructor() : androidx.lifecycle.ViewModel() {
     // Placeholder for future enhancements
 }
