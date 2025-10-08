@@ -208,6 +208,11 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0")
+    implementation("androidx.media3:media3-cast:1.8.0")
+
+    // Google Cast SDK for Chromecast
+    implementation("com.google.android.gms:play-services-cast-framework:21.5.0")
+    implementation("com.google.android.gms:play-services-cast:21.5.0")
 
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")

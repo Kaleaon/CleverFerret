@@ -48,6 +48,19 @@
         android:theme="@style/Theme.CleverFerretMediaLibrary"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true">
+
+        <!-- Chromecast Configuration -->
+        <meta-data
+            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+            android:value="com.universalmedialibrary.services.cast.CastOptionsProvider" />
+        <!-- Cast Expanded Controls Activity -->
+        <activity
+            android:name=".ui.cast.ExpandedControlsActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CleverFerretMediaLibrary" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
