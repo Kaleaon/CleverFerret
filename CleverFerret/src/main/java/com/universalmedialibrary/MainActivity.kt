@@ -220,6 +220,13 @@ fun AppNavigation() {
                 onBack = { navController.navigateUp() }
             )
         }
+
+        // Visualizer route
+        composable("visualizer") {
+            com.universalmedialibrary.ui.visualizer.VisualizerScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
     }
 }
 
@@ -429,6 +436,16 @@ fun LibraryListScreen(
                     icon = Icons.Default.VideoLibrary,
                     colors = listOf(Color(0xFF0D47A1), Color(0xFF2196F3)),
                     onClick = { navController.navigate("videos") }
+                )
+            }
+
+            // Audio Visualizer Card
+            item {
+                FeatureCard(
+                    title = "Visualizer",
+                    icon = Icons.Default.GraphicEq,
+                    colors = listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)),
+                    onClick = { navController.navigate("visualizer") }
                 )
             }
 
