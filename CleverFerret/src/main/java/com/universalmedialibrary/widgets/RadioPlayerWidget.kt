@@ -82,8 +82,8 @@ class RadioPlayerWidget : AppWidgetProvider() {
             // Use unique request code per action to avoid PendingIntent reuse
             val requestCode = when (action) {
                 ACTION_PLAY_PAUSE -> 4001
-                ACTION_NEXT -> 4002
-                ACTION_PREV -> 4003
+                ACTION_NEXT_STATION -> 4002
+                ACTION_PREV_STATION -> 4003
                 else -> 4000
             }
             return PendingIntent.getBroadcast(

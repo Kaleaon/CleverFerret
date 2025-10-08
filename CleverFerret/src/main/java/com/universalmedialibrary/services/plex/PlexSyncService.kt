@@ -242,6 +242,7 @@ class PlexSyncService @Inject constructor(
      */
     private suspend fun syncProgress(server: PlexServer, api: PlexApi) {
         // Get items that need progress sync
+
         val progressItems = plexSyncDao.getProgressNeedingSync()
 
         for (progressItem in progressItems) {
@@ -266,12 +267,14 @@ class PlexSyncService @Inject constructor(
                 Log.e(TAG, "Error syncing progress for item ${progressItem.id}", e)
             }
         }
+
     }
 
     /**
      * Sync ratings
      */
     private suspend fun syncRatings(server: PlexServer, api: PlexApi) {
+
         val ratingItems = plexSyncDao.getRatingsNeedingSync()
 
         for (ratingItem in ratingItems) {

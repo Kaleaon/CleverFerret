@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.local
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
@@ -13,6 +14,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
+import com.universalmedialibrary.data.Tag
 
 
 /**
@@ -99,7 +101,10 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
 
         // Unified tagging
         UnifiedTag::class,
-        ItemTag::class
+        ItemTag::class,
+
+        // Simple tagging
+        Tag::class
 
     ],
     version = 22, // Incremented for Plex entities and reader enhancements

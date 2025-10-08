@@ -8,7 +8,7 @@
     android:background="@drawable/widget_background">
 
     <TextView
-        android:id="@+id/widget_title"
+        android:id="@+id/widget_goal_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Reading Goal"
@@ -16,15 +16,15 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/widget_goal_text"
+        android:id="@+id/widget_goal_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textSize="14sp"
-        android:text="Goal: 0/0 books" />
+        android:text="0/0 books" />
 
     <ProgressBar
-        android:id="@+id/widget_goal_progress"
+        android:id="@+id/widget_goal_progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,11 +33,18 @@
         android:progress="0" />
 
     <TextView
-        android:id="@+id/widget_goal_percentage"
+        android:id="@+id/widget_days_remaining"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="12sp"
+        android:text="0 days remaining" />
+
+    <TextView
+        android:id="@+id/widget_pace"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="12sp"
-        android:gravity="end"
-        android:text="0%" />
+        android:text="0.0 books/week needed" />
 </LinearLayout>
