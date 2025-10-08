@@ -27,6 +27,11 @@ fun ProjectMVisualizer(
     modifier: Modifier = Modifier,
     style: VisualizerStyle = VisualizerStyle.SPECTRUM_BARS
 ) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+    val backgroundColor = MaterialTheme.colorScheme.background
+    
     val infiniteTransition = rememberInfiniteTransition(label = "visualizer")
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -41,15 +46,15 @@ fun ProjectMVisualizer(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(backgroundColor.copy(alpha = 0.95f)),
         contentAlignment = Alignment.Center
     ) {
         when (style) {
-            VisualizerStyle.SPECTRUM_BARS -> SpectrumBarsVisualizer(visualizerState)
-            VisualizerStyle.WAVEFORM -> WaveformVisualizer(visualizerState)
-            VisualizerStyle.CIRCULAR -> CircularVisualizer(visualizerState, rotation)
-            VisualizerStyle.PARTICLES -> ParticleVisualizer(visualizerState)
-            VisualizerStyle.FREQUENCY_RINGS -> FrequencyRingsVisualizer(visualizerState, rotation)
+            VisualizerStyle.SPECTRUM_BARS -> SpectrumBarsVisualizer(visualizerState, primaryColor, secondaryColor)
+            VisualizerStyle.WAVEFORM -> WaveformVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
+            VisualizerStyle.CIRCULAR -> CircularVisualizer(visualizerState, rotation, primaryColor)
+            VisualizerStyle.PARTICLES -> ParticleVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
+            VisualizerStyle.FREQUENCY_RINGS -> FrequencyRingsVisualizer(visualizerState, rotation, primaryColor, secondaryColor, tertiaryColor)
         }
     }
 }
@@ -58,7 +63,11 @@ fun ProjectMVisualizer(
  * Spectrum bars visualization (classic frequency bars)
  */
 @Composable
-private fun SpectrumBarsVisualizer(state: VisualizerState) {
+private fun SpectrumBarsVisualizer(
+    state: VisualizerState,
+    primaryColor: Color,
+    secondaryColor: Color
+) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
@@ -68,13 +77,13 @@ private fun SpectrumBarsVisualizer(state: VisualizerState) {
         spectrum.forEachIndexed { index, magnitude ->
             val barHeight = magnitude * maxHeight
             val x = index * barWidth
-            val hue = (index.toFloat() / spectrum.size) * 360f
+            val progress = index.toFloat() / spectrum.size
 
             drawRect(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.hsv(hue, 0.8f, 1f),
-                        Color.hsv(hue, 0.6f, 0.8f)
+                        androidx.compose.ui.graphics.lerp(primaryColor, secondaryColor, progress),
+                        primaryColor.copy(alpha = 0.6f)
                     )
                 ),
                 topLeft = Offset(x, maxHeight - barHeight),
@@ -88,7 +97,12 @@ private fun SpectrumBarsVisualizer(state: VisualizerState) {
  * Waveform visualization (time-domain)
  */
 @Composable
-private fun WaveformVisualizer(state: VisualizerState) {
+private fun WaveformVisualizer(
+    state: VisualizerState,
+    primaryColor: Color,
+    secondaryColor: Color,
+    tertiaryColor: Color
+) {
     val waveform = state.waveform.ifEmpty { List(128) { 0f } }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
@@ -108,9 +122,9 @@ private fun WaveformVisualizer(state: VisualizerState) {
             path = path,
             brush = Brush.horizontalGradient(
                 colors = listOf(
-                    Color(0xFF00FF00),
-                    Color(0xFF00FFFF),
-                    Color(0xFF0000FF)
+                    primaryColor,
+                    secondaryColor,
+                    tertiaryColor
                 )
             ),
             style = Stroke(width = 3f)
@@ -122,7 +136,11 @@ private fun WaveformVisualizer(state: VisualizerState) {
  * Circular visualization (radial spectrum)
  */
 @Composable
-private fun CircularVisualizer(state: VisualizerState, rotation: Float) {
+private fun CircularVisualizer(
+    state: VisualizerState,
+    rotation: Float,
+    primaryColor: Color
+) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
 
     Canvas(modifier = Modifier.fillMaxSize()) {
@@ -141,13 +159,13 @@ private fun CircularVisualizer(state: VisualizerState, rotation: Float) {
             val endX = centerX + cos(angle) * endRadius
             val endY = centerY + sin(angle) * endRadius
 
-            val hue = (index.toFloat() / spectrum.size) * 360f
+            val alpha = 0.6f + (magnitude * 0.4f)
 
             drawLine(
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        Color.hsv(hue, 0.8f, 0.6f),
-                        Color.hsv(hue, 1f, 1f)
+                        primaryColor.copy(alpha = alpha * 0.6f),
+                        primaryColor.copy(alpha = alpha)
                     )
                 ),
                 start = Offset(startX, startY),
@@ -163,7 +181,12 @@ private fun CircularVisualizer(state: VisualizerState, rotation: Float) {
  * Particle visualization (reactive particles)
  */
 @Composable
-private fun ParticleVisualizer(state: VisualizerState) {
+private fun ParticleVisualizer(
+    state: VisualizerState,
+    primaryColor: Color,
+    secondaryColor: Color,
+    tertiaryColor: Color
+) {
     val bass = state.frequencyBands.bass
     val mid = state.frequencyBands.mid
     val treble = state.frequencyBands.treble
@@ -172,32 +195,32 @@ private fun ParticleVisualizer(state: VisualizerState) {
         val centerX = size.width / 2
         val centerY = size.height / 2
 
-        // Bass particles (large, red)
+        // Bass particles (large)
         drawCircle(
-            color = Color(0xFFFF0000).copy(alpha = bass),
+            color = primaryColor.copy(alpha = bass),
             radius = bass * 100f,
             center = Offset(centerX, centerY)
         )
 
-        // Mid particles (medium, green)
+        // Mid particles (medium)
         drawCircle(
-            color = Color(0xFF00FF00).copy(alpha = mid),
+            color = secondaryColor.copy(alpha = mid),
             radius = mid * 80f,
             center = Offset(centerX - 100f, centerY)
         )
         drawCircle(
-            color = Color(0xFF00FF00).copy(alpha = mid),
+            color = secondaryColor.copy(alpha = mid),
             radius = mid * 80f,
             center = Offset(centerX + 100f, centerY)
         )
 
-        // Treble particles (small, blue)
+        // Treble particles (small)
         for (i in 0..7) {
             val angle = (i / 8f) * 2 * PI.toFloat()
             val x = centerX + cos(angle) * 150f
             val y = centerY + sin(angle) * 150f
             drawCircle(
-                color = Color(0xFF00FFFF).copy(alpha = treble),
+                color = tertiaryColor.copy(alpha = treble),
                 radius = treble * 40f,
                 center = Offset(x, y)
             )
@@ -209,7 +232,13 @@ private fun ParticleVisualizer(state: VisualizerState) {
  * Frequency rings visualization (concentric reactive rings)
  */
 @Composable
-private fun FrequencyRingsVisualizer(state: VisualizerState, rotation: Float) {
+private fun FrequencyRingsVisualizer(
+    state: VisualizerState,
+    rotation: Float,
+    primaryColor: Color,
+    secondaryColor: Color,
+    tertiaryColor: Color
+) {
     val bass = state.frequencyBands.bass
     val mid = state.frequencyBands.mid
     val treble = state.frequencyBands.treble
@@ -223,8 +252,8 @@ private fun FrequencyRingsVisualizer(state: VisualizerState, rotation: Float) {
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    Color(0xFFFF0000).copy(alpha = 0f),
-                    Color(0xFFFF0000).copy(alpha = bass * 0.8f)
+                    primaryColor.copy(alpha = 0f),
+                    primaryColor.copy(alpha = bass * 0.8f)
                 ),
                 center = Offset(centerX, centerY)
             ),
@@ -237,8 +266,8 @@ private fun FrequencyRingsVisualizer(state: VisualizerState, rotation: Float) {
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    Color(0xFF00FF00).copy(alpha = 0f),
-                    Color(0xFF00FF00).copy(alpha = mid * 0.8f)
+                    secondaryColor.copy(alpha = 0f),
+                    secondaryColor.copy(alpha = mid * 0.8f)
                 ),
                 center = Offset(centerX, centerY)
             ),
@@ -251,8 +280,8 @@ private fun FrequencyRingsVisualizer(state: VisualizerState, rotation: Float) {
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    Color(0xFF00FFFF).copy(alpha = treble * 0.8f),
-                    Color(0xFF00FFFF).copy(alpha = 0f)
+                    tertiaryColor.copy(alpha = treble * 0.8f),
+                    tertiaryColor.copy(alpha = 0f)
                 ),
                 center = Offset(centerX, centerY)
             ),

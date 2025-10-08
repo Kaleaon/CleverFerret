@@ -49,7 +49,12 @@ fun VisualizerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Audio Visualizer") },
+                title = { 
+                    Text(
+                        text = "Audio Visualizer",
+                        style = MaterialTheme.typography.titleMedium
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, "Back")
@@ -63,16 +68,15 @@ fun VisualizerScreen(
                                 if (castState.isConnected) {
                                     viewModel.stopCasting()
                                 } else {
-                                    // Open cast dialog - would need MediaRouteButton for full implementation
                                     viewModel.startCasting()
                                 }
                             }
                         ) {
                             Icon(
                                 imageVector = if (castState.isConnected)
-                                    Icons.Default.Cast
+                                    Icons.Default.CastConnected
                                 else
-                                    Icons.Default.CastConnected,
+                                    Icons.Default.Cast,
                                 contentDescription = "Cast",
                                 tint = if (castState.isConnected)
                                     MaterialTheme.colorScheme.primary
@@ -97,7 +101,10 @@ fun VisualizerScreen(
                                 "Start Visualizer"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
         }
     ) { padding ->
@@ -115,22 +122,31 @@ fun VisualizerScreen(
                     .fillMaxWidth()
             )
 
-            // Cast status
+            // Cast status banner
             if (castState.isConnected) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    tonalElevation = 2.dp
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(12.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Cast, "Casting")
+                        Icon(
+                            Icons.Default.CastConnected, 
+                            "Casting",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Casting to ${castState.deviceName ?: "Chromecast"}")
+                        Text(
+                            text = "Casting to ${castState.deviceName ?: "Chromecast"}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
                 }
             }
@@ -139,16 +155,20 @@ fun VisualizerScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
                         text = "Visualizer Style",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -159,11 +179,16 @@ fun VisualizerScreen(
                                 onClick = { currentStyle = style },
                                 label = {
                                     Text(
-                                        text = style.name.replace("_", " "),
-                                        style = MaterialTheme.typography.bodySmall
+                                        text = style.name.replace("_", " ").lowercase()
+                                            .replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                )
                             )
                         }
                     }
@@ -178,11 +203,16 @@ fun VisualizerScreen(
                                 onClick = { currentStyle = style },
                                 label = {
                                     Text(
-                                        text = style.name.replace("_", " "),
-                                        style = MaterialTheme.typography.bodySmall
+                                        text = style.name.replace("_", " ").lowercase()
+                                            .replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                )
                             )
                         }
                     }
@@ -193,7 +223,10 @@ fun VisualizerScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Row(
                     modifier = Modifier
@@ -203,15 +236,18 @@ fun VisualizerScreen(
                 ) {
                     FrequencyMeter(
                         label = "Bass",
-                        level = visualizerState.frequencyBands.bass
+                        level = visualizerState.frequencyBands.bass,
+                        color = MaterialTheme.colorScheme.primary
                     )
                     FrequencyMeter(
                         label = "Mid",
-                        level = visualizerState.frequencyBands.mid
+                        level = visualizerState.frequencyBands.mid,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                     FrequencyMeter(
                         label = "Treble",
-                        level = visualizerState.frequencyBands.treble
+                        level = visualizerState.frequencyBands.treble,
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
             }
@@ -222,26 +258,31 @@ fun VisualizerScreen(
 @Composable
 private fun FrequencyMeter(
     label: String,
-    level: Float
+    level: Float,
+    color: Color
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         LinearProgressIndicator(
             progress = { level },
             modifier = Modifier
-                .width(60.dp)
-                .height(8.dp),
+                .width(70.dp)
+                .height(10.dp),
+            color = color,
+            trackColor = color.copy(alpha = 0.2f)
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "${(level * 100).toInt()}%",
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

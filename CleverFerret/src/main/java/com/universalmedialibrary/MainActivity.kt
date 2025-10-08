@@ -148,7 +148,8 @@ fun AppNavigation() {
             val episodeId = backStackEntry.arguments?.getString("episodeId")?.toLongOrNull() ?: -1L
             com.universalmedialibrary.ui.podcast.PodcastPlayerScreen(
                 episodeId = episodeId,
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                onNavigateToVisualizer = { navController.navigate("visualizer") }
             )
         }
 
@@ -160,7 +161,8 @@ fun AppNavigation() {
             com.universalmedialibrary.ui.music.MusicPlayerScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToQueue = { navController.navigate("queue") },
-                onNavigateToAlbum = { albumId -> navController.navigate("album/$albumId") }
+                onNavigateToAlbum = { albumId -> navController.navigate("album/$albumId") },
+                onNavigateToVisualizer = { navController.navigate("visualizer") }
             )
         }
 

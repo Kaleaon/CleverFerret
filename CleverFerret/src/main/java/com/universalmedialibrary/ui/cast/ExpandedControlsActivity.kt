@@ -38,7 +38,7 @@ class ExpandedControlsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            CleverFerretMediaLibraryTheme {
+            com.universalmedialibrary.ui.theme.CleverFerretTheme {
                 ExpandedControlsScreen(
                     chromecastManager = chromecastManager,
                     visualizerService = visualizerService,
@@ -64,7 +64,12 @@ private fun ExpandedControlsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Casting to ${castState.deviceName ?: "Chromecast"}") },
+                title = { 
+                    Text(
+                        text = "Casting to ${castState.deviceName ?: "Chromecast"}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, "Back")
@@ -72,9 +77,15 @@ private fun ExpandedControlsScreen(
                 },
                 actions = {
                     TextButton(onClick = { showVisualizer = !showVisualizer }) {
-                        Text(if (showVisualizer) "Hide Visualizer" else "Show Visualizer")
+                        Text(
+                            text = if (showVisualizer) "Hide Visualizer" else "Show Visualizer",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
         }
     ) { padding ->
@@ -95,18 +106,62 @@ private fun ExpandedControlsScreen(
                 )
 
                 // Visualizer style selector
-                Row(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    VisualizerStyle.values().forEach { style ->
-                        FilterChip(
-                            selected = visualizerStyle == style,
-                            onClick = { visualizerStyle = style },
-                            label = { Text(style.name.replace("_", " ")) }
+                    Column(
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        Text(
+                            text = "Visualizer Style",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            VisualizerStyle.values().take(3).forEach { style ->
+                                FilterChip(
+                                    selected = visualizerStyle == style,
+                                    onClick = { visualizerStyle = style },
+                                    label = { 
+                                        Text(
+                                            style.name.replace("_", " ").lowercase()
+                                                .replaceFirstChar { it.uppercase() },
+                                            style = MaterialTheme.typography.labelSmall
+                                        ) 
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            VisualizerStyle.values().drop(3).forEach { style ->
+                                FilterChip(
+                                    selected = visualizerStyle == style,
+                                    onClick = { visualizerStyle = style },
+                                    label = { 
+                                        Text(
+                                            style.name.replace("_", " ").lowercase()
+                                                .replaceFirstChar { it.uppercase() },
+                                            style = MaterialTheme.typography.labelSmall
+                                        ) 
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
                     }
                 }
             } else {

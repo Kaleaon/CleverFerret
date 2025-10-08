@@ -39,6 +39,7 @@ fun MusicPlayerScreen(
     onNavigateBack: () -> Unit,
     onNavigateToQueue: () -> Unit,
     onNavigateToAlbum: (String) -> Unit,
+    onNavigateToVisualizer: () -> Unit = {},
     viewModel: MusicPlayerViewModel = hiltViewModel()
 ) {
     val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()
@@ -84,6 +85,9 @@ fun MusicPlayerScreen(
                         }
                         Icon(PhosphorIcons.QueueMusic, contentDescription = "Queue")
                     }
+                    com.universalmedialibrary.ui.visualizer.VisualizerButton(
+                        onClick = onNavigateToVisualizer
+                    )
                     IconButton(onClick = { /* TODO: Show more options */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
