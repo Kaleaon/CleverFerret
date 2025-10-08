@@ -241,7 +241,6 @@ class PlexSyncService @Inject constructor(
      * Sync playback progress
      */
     private suspend fun syncProgress(server: PlexServer, api: PlexApi) {
-        // TODO: Implement when PlexSyncDao and PlexMediaItemDao are enabled
         // Get items that need progress sync
 
         val progressItems = plexSyncDao.getProgressNeedingSync()
