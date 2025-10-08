@@ -44,7 +44,7 @@ class PlexIntegrationViewModel @Inject constructor(
                 isAuthenticated = isAuthenticated,
                 isLoading = false
             )
-            
+
             if (isAuthenticated) {
                 // Auto-discover servers if already authenticated
                 discoverServers()
@@ -63,7 +63,7 @@ class PlexIntegrationViewModel @Inject constructor(
             )
 
             val result = plexService.requestPIN()
-            
+
             result.onSuccess { pinData ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -71,10 +71,10 @@ class PlexIntegrationViewModel @Inject constructor(
                     pinId = pinData.pinId,
                     showPinDialog = true
                 )
-                
+
                 // Start polling for authentication
                 pollForAuthentication(pinData.pinId)
-                
+
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -90,7 +90,7 @@ class PlexIntegrationViewModel @Inject constructor(
     private fun pollForAuthentication(pinId: String) {
         viewModelScope.launch {
             val result = plexService.pollForAuth(pinId)
-            
+
             result.onSuccess { authResult ->
                 _uiState.value = _uiState.value.copy(
                     isAuthenticated = true,
@@ -99,10 +99,10 @@ class PlexIntegrationViewModel @Inject constructor(
                     pinId = null,
                     username = authResult.username
                 )
-                
+
                 // Automatically discover servers after authentication
                 discoverServers()
-                
+
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -124,7 +124,7 @@ class PlexIntegrationViewModel @Inject constructor(
             )
 
             val result = plexService.discoverServers()
-            
+
             result.onSuccess { servers ->
                 _uiState.value = _uiState.value.copy(
                     isDiscovering = false,
@@ -151,7 +151,7 @@ class PlexIntegrationViewModel @Inject constructor(
             )
 
             val result = plexService.connectToDiscoveredServer(server)
-            
+
             when (result) {
                 is PlexConnectionResult.Success -> {
                     _uiState.value = _uiState.value.copy(
@@ -182,7 +182,7 @@ class PlexIntegrationViewModel @Inject constructor(
 
             try {
                 val result = plexService.syncAllLibraries()
-                
+
                 _uiState.value = _uiState.value.copy(
                     isSyncing = false,
                     syncSuccess = result.successful,
@@ -227,25 +227,25 @@ data class PlexIntegrationUiState(
     val isLoading: Boolean = true,
     val isAuthenticated: Boolean = false,
     val username: String? = null,
-    
+
     // PIN authentication
     val showPinDialog: Boolean = false,
     val pinCode: String? = null,
     val pinId: String? = null,
-    
+
     // Server discovery
     val isDiscovering: Boolean = false,
     val discoveredServers: List<PlexDiscoveredServer> = emptyList(),
-    
+
     // Server connection
     val isConnecting: Boolean = false,
     val connectedServerName: String? = null,
     val connectionSuccess: Boolean = false,
-    
+
     // Library sync
     val isSyncing: Boolean = false,
     val syncSuccess: Boolean = false,
-    
+
     // Error handling
     val error: String? = null
 )

@@ -112,7 +112,7 @@ fun ReadingRulerOverlay(
         // Draw dimmed surroundings if enabled
         if (settings.dimSurroundings) {
             val dimColor = Color.Black.copy(alpha = settings.dimOpacity)
-            
+
             // Top dim area
             if (rulerTop > 0) {
                 drawRect(
@@ -217,7 +217,7 @@ fun ReadingRulerOverlay(
         if (isDragging) {
             val indicatorSize = 40f
             val indicatorX = canvasWidth / 2 - indicatorSize / 2
-            
+
             // Draw small drag indicator
             drawCircle(
                 color = settings.color,
@@ -225,7 +225,7 @@ fun ReadingRulerOverlay(
                 center = Offset(canvasWidth / 2, rulerTop + rulerHeight / 2),
                 alpha = 0.8f
             )
-            
+
             // Draw drag lines
             drawLine(
                 color = Color.White,
@@ -333,7 +333,7 @@ fun ReadingRulerSettingsPanel(
                         )
                     }
                 }
-                
+
                 // Second row: Gradient, Underline
                 Row(
                     modifier = Modifier.fillMaxWidth(),

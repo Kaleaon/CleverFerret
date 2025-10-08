@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * Preserves user data across schema changes
  */
 object AppDatabaseMigrations {
-    
+
     /**
      * Migration from version 20 to 21
      * Adds: DownloadedStory, StoryUpdate, and PlexServer entities
@@ -52,7 +52,7 @@ object AppDatabaseMigrations {
 
             // Create index for story updates
             database.execSQL("""
-                CREATE INDEX IF NOT EXISTS `index_story_updates_storyId` 
+                CREATE INDEX IF NOT EXISTS `index_story_updates_storyId`
                 ON `story_updates` (`storyId`)
             """.trimIndent())
 

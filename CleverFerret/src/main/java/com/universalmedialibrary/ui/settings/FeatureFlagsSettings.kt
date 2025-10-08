@@ -15,10 +15,10 @@ import com.universalmedialibrary.core.FeatureFlags
 
 /**
  * Feature Flags Settings Screen
- * 
+ *
  * Allows users to toggle experimental and optional features at runtime.
  * All changes are persisted to SharedPreferences.
- * 
+ *
  * Usage in navigation:
  * ```
  * composable("settings/features") {
@@ -147,8 +147,8 @@ fun FeatureFlagsSettingsScreen(
             onDismissRequest = { showExperimentalWarning = false },
             icon = { Icon(Icons.Default.Warning, null, tint = MaterialTheme.colorScheme.error) },
             title = { Text("Enable Experimental Features?") },
-            text = { 
-                Text("Experimental features are unstable and may cause crashes or data loss. Only enable for testing purposes.") 
+            text = {
+                Text("Experimental features are unstable and may cause crashes or data loss. Only enable for testing purposes.")
             },
             confirmButton = {
                 TextButton(

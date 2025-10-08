@@ -116,7 +116,7 @@ fun EnhancedBookshelfScreenDemo(
         books
             .filter { book ->
                 // Search filter
-                (searchQuery.isEmpty() || 
+                (searchQuery.isEmpty() ||
                     book.title.contains(searchQuery, ignoreCase = true) ||
                     book.author.contains(searchQuery, ignoreCase = true))
             }
@@ -195,7 +195,7 @@ fun EnhancedBookshelfScreenDemo(
                                 "View Mode"
                             )
                         }
-                        
+
                         // Sort menu
                         IconButton(onClick = { showSortMenu = true }) {
                             Icon(Icons.Default.Sort, "Sort")
@@ -219,7 +219,7 @@ fun EnhancedBookshelfScreenDemo(
                                 )
                             }
                         }
-                        
+
                         // Filter button
                         IconButton(onClick = { showFilterSheet = true }) {
                             if (isFilterActive(filterOptions)) {
@@ -296,7 +296,7 @@ fun EnhancedBookshelfScreenDemo(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 // Quick filter chips
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ReadStatus.values().forEach { status ->

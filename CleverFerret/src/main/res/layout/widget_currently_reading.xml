@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@drawable/widget_background">
-    
+
     <TextView
         android:id="@+id/widget_book_title"
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
         android:ellipsize="end"
         android:maxLines="2"
         android:text="Book Title" />
-    
+
     <TextView
         android:id="@+id/widget_author"
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="Author Name" />
-    
+
     <ImageView
         android:id="@+id/widget_book_cover"
         android:layout_width="80dp"
@@ -35,13 +35,13 @@
         android:layout_marginTop="8dp"
         android:scaleType="centerCrop"
         android:contentDescription="Book Cover" />
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="8dp">
-        
+
         <ProgressBar
             android:id="@+id/widget_progress_bar"
             style="?android:attr/progressBarStyleHorizontal"
@@ -51,7 +51,7 @@
             android:layout_gravity="center_vertical"
             android:max="100"
             android:progress="0" />
-        
+
         <TextView
             android:id="@+id/widget_progress_text"
             android:layout_width="wrap_content"
