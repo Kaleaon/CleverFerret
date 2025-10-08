@@ -226,7 +226,19 @@ fun AppNavigation() {
         // Visualizer route
         composable("visualizer") {
             com.universalmedialibrary.ui.visualizer.VisualizerScreen(
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                onNavigateToPresets = { navController.navigate("visualizer_presets") }
+            )
+        }
+        
+        // Visualizer presets browser
+        composable("visualizer_presets") {
+            com.universalmedialibrary.ui.visualizer.PresetBrowserScreen(
+                onBack = { navController.navigateUp() },
+                onPresetSelected = { preset ->
+                    // TODO: Pass preset back to visualizer
+                    navController.navigateUp()
+                }
             )
         }
     }
