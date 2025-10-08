@@ -109,7 +109,7 @@ class QuickAccessWidget : AppWidgetProvider() {
             val intent = Intent(context, QuickAccessWidgetService::class.java).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             }
-            
+
             views.setRemoteAdapter(R.id.widget_book_list, intent)
 
             // Template intent for clicking items
@@ -214,7 +214,7 @@ class ReadingGoalWidget : AppWidgetProvider() {
                 setTextViewText(R.id.widget_goal_progress, "$booksRead / $goalBooks books")
                 setProgressBar(R.id.widget_goal_progress_bar, 100, progress, false)
                 setTextViewText(R.id.widget_days_remaining, "$daysRemaining days remaining")
-                
+
                 // Calculate pace
                 val booksPerDay = (goalBooks - booksRead).toFloat() / daysRemaining
                 val paceText = String.format("%.1f books/week needed", booksPerDay * 7)
@@ -281,9 +281,9 @@ class QuickAccessRemoteViewsFactory(
         if (position < 0 || position >= books.size) {
             return RemoteViews(context.packageName, R.layout.widget_book_item)
         }
-        
+
         val book = books[position]
-        
+
         return RemoteViews(context.packageName, R.layout.widget_book_item).apply {
             setTextViewText(R.id.widget_item_title, book.title)
             setTextViewText(R.id.widget_item_author, book.author)

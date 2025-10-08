@@ -47,11 +47,11 @@ class StoryUpdateManager @Inject constructor(
         return@withContext try {
             // Fetch the story page to check current chapter count
             val currentChapters = fetchCurrentChapterCount(story.url)
-            
+
             if (currentChapters > story.lastKnownChapters) {
                 // Mark as having updates
                 storyRepository.markUpdateStatus(story.id, hasUpdates = true)
-                
+
                 UpdateCheck(
                     hasUpdates = true,
                     newChapters = currentChapters - story.lastKnownChapters
@@ -91,7 +91,7 @@ class StoryUpdateManager @Inject constructor(
     ): String {
         val id = "$site-$siteStoryId"
         val file = File(filePath)
-        
+
         val story = DownloadedStory(
             id = id,
             url = url,
@@ -110,9 +110,9 @@ class StoryUpdateManager @Inject constructor(
             hasUpdates = false,
             autoUpdateEnabled = true
         )
-        
+
         storyRepository.insertStory(story)
-        
+
         // Record the initial download in update history
         val update = StoryUpdate(
             storyId = id,
@@ -123,7 +123,7 @@ class StoryUpdateManager @Inject constructor(
             wasSuccessful = true
         )
         storyRepository.insertUpdate(update)
-        
+
         return id
     }
 
@@ -153,7 +153,7 @@ class StoryUpdateManager @Inject constructor(
     private suspend fun fetchCurrentChapterCount(url: String): Int {
         return try {
             val doc = Jsoup.connect(url).get()
-            
+
             when {
                 url.contains("archiveofourown.org") -> {
                     // AO3: Look for chapter count in metadata

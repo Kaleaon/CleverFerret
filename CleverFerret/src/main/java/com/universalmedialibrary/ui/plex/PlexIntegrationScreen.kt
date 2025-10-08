@@ -56,21 +56,21 @@ fun PlexIntegrationScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
+
                 !uiState.isAuthenticated -> {
                     AuthenticationView(
                         onStartAuth = { viewModel.startAuthentication() },
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
+
                 uiState.discoveredServers.isEmpty() && !uiState.isDiscovering -> {
                     ServerDiscoveryView(
                         onDiscover = { viewModel.discoverServers() },
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
+
                 else -> {
                     ServerListView(
                         servers = uiState.discoveredServers,
@@ -127,21 +127,21 @@ fun AuthenticationView(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        
+
         Text(
             "Connect to Plex",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        
+
         Text(
             "Access your Plex Media Server libraries and sync your content",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Button(
             onClick = onStartAuth,
             modifier = Modifier.fillMaxWidth()
@@ -169,21 +169,21 @@ fun ServerDiscoveryView(
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        
+
         Text(
             "Discover Servers",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        
+
         Text(
             "Find available Plex servers on your network",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Button(
             onClick = onDiscover,
             modifier = Modifier.fillMaxWidth()
@@ -231,7 +231,7 @@ fun ServerListView(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    
+
                     Button(
                         onClick = onSyncLibraries,
                         enabled = !isSyncing
@@ -294,13 +294,13 @@ fun ServerCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     Text(
                         if (server.owned) "Owned" else "Shared",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     if (server.connections.isNotEmpty()) {
                         Text(
                             "${server.connections.size} connection(s)",
@@ -309,7 +309,7 @@ fun ServerCard(
                         )
                     }
                 }
-                
+
                 if (isConnected) {
                     Icon(
                         Icons.Default.CheckCircle,
@@ -356,7 +356,7 @@ fun PlexPinDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text("Go to plex.tv/link and enter this PIN:")
-                
+
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer,
                     shape = MaterialTheme.shapes.medium
@@ -369,13 +369,13 @@ fun PlexPinDialog(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                
+
                 Text(
                     "Waiting for authentication...",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     strokeWidth = 2.dp

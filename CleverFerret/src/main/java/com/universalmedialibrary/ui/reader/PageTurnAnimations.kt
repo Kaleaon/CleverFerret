@@ -671,12 +671,12 @@ private fun CurlAnimation(
     Box(modifier = Modifier.fillMaxSize()) {
         // Show next page as background
         nextPage()
-        
+
         // Show current page fading out as it curls
         Box(modifier = Modifier.alpha(1f - progress)) {
             currentPage()
         }
-        
+
         // Draw curl overlay
         Canvas(
             modifier = Modifier.fillMaxSize()

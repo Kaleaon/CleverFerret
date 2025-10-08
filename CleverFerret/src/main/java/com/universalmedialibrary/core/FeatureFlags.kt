@@ -9,7 +9,7 @@ import androidx.core.content.edit
  *
  * This object controls which features are enabled in the application.
  * Features can be toggled at runtime and persisted to SharedPreferences.
- * 
+ *
  * Usage:
  *   FeatureFlags.init(context)
  *   if (FeatureFlags.USE_EPUB4J) { ... }

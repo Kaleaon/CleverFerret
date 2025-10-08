@@ -22,7 +22,7 @@ interface PlexAuthApi {
     /**
      * Check PIN status to get auth token
      * GET https://plex.tv/api/v2/pins/{pinId}
-     * 
+     *
      * Polls this endpoint until authToken is populated (user authenticated)
      */
     @GET("/api/v2/pins/{pinId}")
@@ -44,7 +44,7 @@ interface PlexAuthApi {
     /**
      * Get list of servers accessible to the user (devices)
      * GET https://plex.tv/api/v2/resources
-     * 
+     *
      * @param includeHttps 1 to include HTTPS connections, 0 to exclude
      * @param includeRelay 1 to include relay connections, 0 to exclude
      */
