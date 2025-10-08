@@ -82,11 +82,17 @@ class BookshelfViewModel @Inject constructor(
 
         // Apply sorting
         when (sort) {
-            SortOption.TITLE -> filteredBooks.sortedBy { it.metadata.title }
-            SortOption.AUTHOR -> filteredBooks.sortedBy { it.authorName ?: "" }
-            SortOption.DATE_ADDED -> filteredBooks.sortedByDescending { it.mediaItem.dateAdded }
+            SortOption.TITLE_ASC -> filteredBooks.sortedBy { it.metadata.title }
+            SortOption.TITLE_DESC -> filteredBooks.sortedByDescending { it.metadata.title }
+            SortOption.AUTHOR_ASC -> filteredBooks.sortedBy { it.authorName ?: "" }
+            SortOption.AUTHOR_DESC -> filteredBooks.sortedByDescending { it.authorName ?: "" }
+            SortOption.DATE_ADDED_NEW -> filteredBooks.sortedByDescending { it.mediaItem.dateAdded }
+            SortOption.DATE_ADDED_OLD -> filteredBooks.sortedBy { it.mediaItem.dateAdded }
+            SortOption.RATING_HIGH -> filteredBooks.sortedByDescending { it.metadata.rating ?: 0f }
+            SortOption.RATING_LOW -> filteredBooks.sortedBy { it.metadata.rating ?: 0f }
             SortOption.RATING -> filteredBooks.sortedByDescending { it.metadata.rating ?: 0f }
             SortOption.RECENTLY_READ -> filteredBooks.sortedByDescending { it.mediaItem.lastScanned }
+            else -> filteredBooks
         }
     }.stateIn(
         scope = viewModelScope,

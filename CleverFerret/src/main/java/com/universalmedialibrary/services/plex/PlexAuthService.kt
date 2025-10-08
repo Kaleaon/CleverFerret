@@ -54,7 +54,6 @@ class PlexAuthService @Inject constructor(
 
             // Request PIN with all required headers per official API spec
             val response = authApi.requestPin(
-                strong = false, // false = 4-digit code for plex.tv/link
                 clientId = clientIdentifier
             )
 
@@ -137,7 +136,7 @@ class PlexAuthService @Inject constructor(
             Log.d(TAG, "Fetching user info with token")
 
             // Get user information with all required headers
-            val userResponse = authApi.getUserInfo(token, clientIdentifier)
+            val userResponse = authApi.getUserInfo(token)
 
             if (userResponse.isSuccessful && userResponse.body() != null) {
                 val user = userResponse.body()!!

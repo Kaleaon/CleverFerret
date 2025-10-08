@@ -97,7 +97,7 @@ class AdvancedPodcastPlayerService @Inject constructor(
     }
 
     fun removeFromQueue(episodeId: String) {
-        val updated = _episodeQueue.value.filterNot { it.episode.id == episodeId }
+        val updated = _episodeQueue.value.filterNot { it.episode.id == episodeId.toLongOrNull() }
         _episodeQueue.value = updated
         if (updated.isEmpty()) {
             currentQueueIndex = -1
