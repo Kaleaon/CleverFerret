@@ -5,6 +5,7 @@ import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.data.repository.StoryRepository
 import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
 import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
@@ -34,7 +35,9 @@ object ServicesModule {
 
     @Provides
     @Singleton
-    fun provideStoryUpdateManager(): StoryUpdateManager = StoryUpdateManager()
+    fun provideStoryUpdateManager(
+        storyRepository: StoryRepository
+    ): StoryUpdateManager = StoryUpdateManager(storyRepository)
 
     @Provides
     @Singleton

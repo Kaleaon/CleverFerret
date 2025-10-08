@@ -79,7 +79,7 @@ class PlexIntegrationService @Inject constructor(
     /**
      * Sign out from Plex
      */
-    fun signOut() {
+    suspend fun signOut() {
         plexAuthService.signOut()
         disconnectAllServers()
     }

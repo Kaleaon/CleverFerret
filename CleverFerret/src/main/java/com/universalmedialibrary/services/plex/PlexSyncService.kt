@@ -400,7 +400,7 @@ class PlexSyncService @Inject constructor(
      * Get all active servers
      */
     fun getAllServers(): Flow<List<PlexServer>> {
-        return plexServerDao.getAllActiveServers()
+        return plexServerDao.getAllServers()
     }
 
     /**
