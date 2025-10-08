@@ -424,9 +424,6 @@ class PlexSyncService @Inject constructor(
 /**
  * Sync status sealed class
  */
-/**
- * Sync status sealed class
- */
 sealed class PlexSyncStatus {
     object Idle : PlexSyncStatus()
     data class Syncing(val message: String) : PlexSyncStatus()
