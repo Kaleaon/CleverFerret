@@ -13,8 +13,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.data.local.entity.CollectionType
-
-@OptIn(ExperimentalMaterial3Api::class)
 import com.universalmedialibrary.data.local.entity.UnifiedCollection
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -72,6 +72,7 @@ fun PageTurnAnimationSettings(
             modifier = Modifier.fillMaxSize()
         ) {
             // Top bar
+            @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
                 title = { Text("Page Animations") },
                 navigationIcon = {
