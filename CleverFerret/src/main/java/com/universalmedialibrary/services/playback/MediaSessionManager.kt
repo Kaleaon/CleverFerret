@@ -144,13 +144,13 @@ class MediaSessionManager @Inject constructor(
 
             val mediaMetadata = metadataBuilder.build()
             
-            // Update player's media metadata
+            // Update player's media metadata in-place without disrupting playback
             val currentMediaItem = player.currentMediaItem
-            if (currentMediaItem != null) {
+            if (currentMediaItem != null && player.currentMediaItemIndex >= 0) {
                 val updatedMediaItem = currentMediaItem.buildUpon()
                     .setMediaMetadata(mediaMetadata)
                     .build()
-                player.setMediaItem(updatedMediaItem)
+                player.replaceMediaItem(player.currentMediaItemIndex, updatedMediaItem)
             }
 
             updateSessionState(

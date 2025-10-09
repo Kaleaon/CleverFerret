@@ -1,6 +1,8 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
@@ -66,7 +68,21 @@ data class ReaderSettingsEntity(
 /**
  * Book-specific reader settings that override global settings
  */
-@Entity(tableName = "book_reader_settings")
+@Entity(
+    tableName = "book_reader_settings",
+    foreignKeys = [
+        ForeignKey(
+            entity = MediaItem::class,
+            parentColumns = ["itemId"],
+            childColumns = ["bookId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["bookId"], unique = true),
+        Index(value = ["lastReadAt"])
+    ]
+)
 data class BookReaderSettingsEntity(
     @PrimaryKey
     val bookId: Long,

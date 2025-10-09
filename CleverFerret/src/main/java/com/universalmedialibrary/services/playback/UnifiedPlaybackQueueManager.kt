@@ -343,7 +343,13 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         // Find current item index
         val currentIndex = items.indexOfFirst { it.isCurrentlyPlaying }
         
-        if (currentIndex <= 0) {
+        if (currentIndex < 0) {
+            // No current item; start from end
+            playQueueItemAtIndex(items.size - 1)
+            return@withContext
+        }
+        
+        if (currentIndex == 0) {
             // At beginning, restart current track or go to end based on repeat mode
             val currentQueue = _currentQueue.value
             if (currentQueue?.repeatMode == "ALL" || currentQueue?.repeatMode == "SHUFFLE") {

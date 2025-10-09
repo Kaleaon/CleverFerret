@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.repository.MediaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,29 +50,33 @@ class UniversalMediaLibraryViewModel @Inject constructor(
             try {
                 // Load media items from repository
                 mediaRepository.getMediaItemsByLibrary(libraryId).collect { mediaItems ->
-                    // Convert MediaItems to MediaItemWithMetadata
-                    allMediaItems = mediaItems.map { mediaItem ->
-                        // Get metadata for each item
-                        val metadata = mediaRepository.getCommonMetadata(mediaItem.itemId)
-                        
-                        MediaItemWithMetadata(
-                            itemId = mediaItem.itemId,
-                            title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
-                            mediaType = parseMediaType(mediaItem.mediaType),
-                            author = metadata?.creator ?: extractAuthorFromFileName(mediaItem.fileName),
-                            dateAdded = mediaItem.dateAdded,
-                            isFavorite = false, // TODO: Add favorite tracking
-                            progress = 0f // TODO: Add progress tracking from reading progress repository
-                        )
+                    withContext(Dispatchers.IO) {
+                        // Convert MediaItems to MediaItemWithMetadata on background thread
+                        allMediaItems = mediaItems.map { mediaItem ->
+                            // Get metadata for each item
+                            val metadata = mediaRepository.getCommonMetadata(mediaItem.itemId)
+                            
+                            MediaItemWithMetadata(
+                                itemId = mediaItem.itemId,
+                                title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
+                                mediaType = parseMediaType(mediaItem.mediaType),
+                                author = metadata?.creator ?: extractAuthorFromFileName(mediaItem.fileName),
+                                dateAdded = mediaItem.dateAdded,
+                                isFavorite = false, // TODO: Add favorite tracking
+                                progress = 0f // TODO: Add progress tracking from reading progress repository
+                            )
+                        }
                     }
                     
                     // Apply filters and sorting
                     applyFiltersAndSort()
+                    
+                    // Turn off loading after first emission
+                    _isLoading.value = false
                 }
             } catch (e: Exception) {
                 // Log error and show empty list
                 _mediaItems.value = emptyList()
-            } finally {
                 _isLoading.value = false
             }
         }

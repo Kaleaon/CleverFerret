@@ -109,7 +109,7 @@ fun PageSelectorDialog(
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         LinearProgressIndicator(
-                            progress = currentPage.toFloat() / totalPages.toFloat(),
+                            progress = if (totalPages > 0) currentPage.toFloat() / totalPages.toFloat() else 0f,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp)

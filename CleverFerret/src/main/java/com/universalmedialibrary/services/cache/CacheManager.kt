@@ -123,10 +123,10 @@ class CacheManager @Inject constructor(
         
         val cacheDir = getCacheDirectory()
         val maxSizeMB = settingsRepository.maxCacheSizeMBFlow.first()
-        val targetSizeBytes = maxSizeMB * 1024L * 1024L * 0.8 // Clean to 80% of max
+        val targetSizeBytes = (maxSizeMB.toLong() * 1024L * 1024L * 8L) / 10L // Clean to 80% of max
         
-        // Get all files sorted by last modified (oldest first)
-        val files = cacheDir.listFiles()?.sortedBy { it.lastModified() } ?: return
+        // Get all files recursively sorted by last modified (oldest first)
+        val files = getAllFilesRecursively(cacheDir).sortedBy { it.lastModified() }
         
         var currentSize = calculateDirectorySize(cacheDir)
         
@@ -229,6 +229,21 @@ class CacheManager @Inject constructor(
             }
         }
         return size
+    }
+
+    /**
+     * Get all files recursively from a directory
+     */
+    private fun getAllFilesRecursively(directory: File): List<File> {
+        val files = mutableListOf<File>()
+        directory.listFiles()?.forEach { file ->
+            if (file.isDirectory) {
+                files.addAll(getAllFilesRecursively(file))
+            } else {
+                files.add(file)
+            }
+        }
+        return files
     }
 }
 

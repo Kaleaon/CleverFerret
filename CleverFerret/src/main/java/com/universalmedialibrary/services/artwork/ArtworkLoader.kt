@@ -314,8 +314,8 @@ class ArtworkLoader @Inject constructor(
             // Get disk cache directory from cache manager
             val diskCacheDir = cacheManager.getCacheDirectory()
             
-            // Create disk cache file based on URL hash
-            val urlHash = url.hashCode().toString()
+            // Create disk cache file based on stable URL hash
+            val urlHash = generateStableHash(url)
             val diskCacheFile = File(diskCacheDir, "url_${urlHash}_${maxWidth}x${maxHeight}.jpg")
             
             // Try disk cache
@@ -566,6 +566,21 @@ class ArtworkLoader @Inject constructor(
         }
 
         return inSampleSize
+    }
+
+    /**
+     * Generate a stable hash for cache keys
+     * Uses SHA-256 for stability across processes and low collision risk
+     */
+    private fun generateStableHash(input: String): String {
+        return try {
+            val digest = java.security.MessageDigest.getInstance("SHA-256")
+            val hashBytes = digest.digest(input.toByteArray())
+            hashBytes.joinToString("") { "%02x".format(it) }.substring(0, 16)
+        } catch (e: Exception) {
+            // Fallback to simple hash if SHA-256 unavailable
+            input.hashCode().toString()
+        }
     }
 }
 
