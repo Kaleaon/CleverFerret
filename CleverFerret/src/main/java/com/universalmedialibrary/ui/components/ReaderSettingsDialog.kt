@@ -227,7 +227,9 @@ private fun TypographySettings(
             Text(
                 text = "Preview: The quick brown fox jumps over the lazy dog. This text demonstrates the current typography settings.",
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = androidx.compose.ui.unit.TextUnit(fontSize.toFloat(), androidx.compose.ui.unit.TextUnitType.Sp),
+```suggestion
+                    fontSize = fontSize.sp,
+                    lineHeight = (fontSize * lineHeight).sp
                     lineHeight = androidx.compose.ui.unit.TextUnit(fontSize * lineHeight, androidx.compose.ui.unit.TextUnitType.Sp)
                 ),
                 modifier = Modifier.padding(16.dp)
