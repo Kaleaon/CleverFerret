@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.BookDetails
-import com.universalmedialibrary.data.local.entity.MediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +19,7 @@ class LibraryDetailsViewModel @Inject constructor(
 
     private val libraryId: Long = savedStateHandle.get<String>("libraryId")?.toLong() ?: 0
 
-    val bookDetails: StateFlow<List<MediaItem>> = mediaItemDao.getBookDetailsForLibrary(libraryId)
+    val bookDetails: StateFlow<List<com.universalmedialibrary.data.local.entity.MediaItem>> = mediaItemDao.getBookDetailsForLibrary(libraryId)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
