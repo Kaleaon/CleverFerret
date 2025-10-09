@@ -48,21 +48,7 @@ object PodcastModule {
         return database.podcastChapterDao()
     }
 
-    @Provides
-    @Singleton
-    fun providePodcastRepository(
-        podcastDao: PodcastDao,
-        episodeDao: PodcastEpisodeDao,
-        subscriptionDao: PodcastSubscriptionDao,
-        podcastService: PodcastService
-    ): PodcastRepository {
-        return PodcastRepository(
-            podcastDao = podcastDao,
-            episodeDao = episodeDao,
-            subscriptionDao = subscriptionDao,
-            podcastService = podcastService
-        )
-    }
+    // PodcastRepository is provided via @Inject constructor to avoid circular dependency with PodcastService
 
     @Provides
     @Singleton

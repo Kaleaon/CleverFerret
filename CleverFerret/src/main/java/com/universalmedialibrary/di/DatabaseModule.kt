@@ -94,4 +94,19 @@ object DatabaseModule {
         return database.tagDao()
     }
 
+    @Provides
+    fun provideSharedLinkDao(database: AppDatabase): SharedLinkDao {
+        return database.sharedLinkDao()
+    }
+
+    @Provides
+    fun provideUnifiedCollectionDao(database: AppDatabase): UnifiedCollectionDao {
+        return database.unifiedCollectionDao()
+    }
+
+    @Provides
+    fun provideMaintenanceChangeDao(database: AppDatabase): MaintenanceChangeDao {
+        return database.maintenanceChangeDao()
+    }
+
 }

@@ -39,12 +39,7 @@ object ServicesModule {
         storyRepository: StoryRepository
     ): StoryUpdateManager = StoryUpdateManager(storyRepository)
 
-    @Provides
-    @Singleton
-    fun providePodcastService(
-        @ApplicationContext context: Context,
-        podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository
-    ): PodcastService = PodcastService(context, podcastRepository)
+    // PodcastService is provided via @Inject constructor - removed manual provider to break circular dependency
 
     @Provides
     @Singleton

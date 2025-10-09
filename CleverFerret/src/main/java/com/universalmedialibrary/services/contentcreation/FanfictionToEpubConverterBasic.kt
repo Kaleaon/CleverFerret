@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.contentcreation
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -8,13 +9,14 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import com.universalmedialibrary.services.webfiction.RedditFanficDownloader
+import javax.inject.Inject
 
 /**
  * Basic Fanfiction to EPUB converter without update detection dependencies
  * Used internally by StoryUpdateManager to avoid circular dependencies
  */
-class FanfictionToEpubConverterBasic(
-    private val context: Context
+class FanfictionToEpubConverterBasic @Inject constructor(
+    @ApplicationContext private val context: Context
 ) {
 
     data class ConversionResult(
