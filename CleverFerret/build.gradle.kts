@@ -148,6 +148,13 @@ dependencies {
     // ML Kit for OCR and text recognition
     implementation("com.google.mlkit:text-recognition:16.0.0")
     
+    // Media metadata extraction libraries
+    // EPUB parsing for cover extraction
+    implementation("nl.siegmann.epublib:epublib-core:3.1") {
+        exclude(group = "org.slf4j")
+        exclude(group = "xmlpull")
+    }
+    
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -158,6 +158,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Tag DAO
     abstract fun tagDao(): TagDao
+    
+    // Unified Tag DAO
+    abstract fun unifiedTagDao(): UnifiedTagDao
 
 
     companion object {
