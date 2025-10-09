@@ -221,10 +221,3 @@ class PDFSearchEngine @Inject constructor(
         emptyList()
     }
 }
-
-/**
- * Helper extension to check if character is a letter or digit
- */
-private fun Char.isLetterOrDigit(): Boolean {
-    return this.isLetter() || this.isDigit()
-}
