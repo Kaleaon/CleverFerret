@@ -157,7 +157,8 @@ fun rememberPermissionsHandler(
         
         if (allGranted) {
             // Still need to check for MANAGE_EXTERNAL_STORAGE on Android 11+
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+```kotlin
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !Environment.isExternalStorageManager()) {
                 PermissionsHandler.requestStorageManagement(context)
             } else {
                 onAllPermissionsGranted()
