@@ -22,6 +22,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Setup required labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Create 'epic' label if it doesn't exist
+          gh label list --repo "${{ github.repository }}" | grep -q "^epic" || \
+            gh label create "epic" \
+              --repo "${{ github.repository }}" \
+              --color "9333EA" \
+              --description "Large feature or project that spans multiple issues"
+          
+          # Create 'priority: critical' label if it doesn't exist
+          gh label list --repo "${{ github.repository }}" | grep -q "^priority: critical" || \
+            gh label create "priority: critical" \
+              --repo "${{ github.repository }}" \
+              --color "D73A4A" \
+              --description "Critical priority - must be addressed immediately"
+      
       - name: Create Epic Issue
         env:
           GH_TOKEN: ${{ github.token }}
