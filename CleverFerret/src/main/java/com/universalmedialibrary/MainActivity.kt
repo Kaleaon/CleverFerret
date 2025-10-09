@@ -266,6 +266,53 @@ fun AppNavigation() {
             )
         }
 
+        // Storage Browser route
+        composable("storage_browser") {
+            com.universalmedialibrary.ui.filepicker.StorageBrowserScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onFileSelected = { file ->
+                    // Determine file type and navigate to appropriate player/reader
+                    when (file.extension.lowercase()) {
+                        "epub", "pdf", "mobi", "azw", "azw3" -> {
+                            navController.navigate("reader/${file.absolutePath}")
+                        }
+                        "mp3", "m4a", "flac", "wav", "ogg" -> {
+                            navController.navigate("audio_player/${file.absolutePath}")
+                        }
+                        "mp4", "mkv", "avi", "mov", "webm" -> {
+                            navController.navigate("video_player/${file.absolutePath}")
+                        }
+                    }
+                }
+            )
+        }
+
+        // Enhanced eBook Reader route
+        composable("reader/{bookPath}") { backStackEntry ->
+            val bookPath = backStackEntry.arguments?.getString("bookPath") ?: ""
+            com.universalmedialibrary.ui.reader.EnhancedEReaderScreen(
+                bookFilePath = bookPath,
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        // Modern Audio Player route
+        composable("audio_player/{audioPath}") { backStackEntry ->
+            val audioPath = backStackEntry.arguments?.getString("audioPath") ?: ""
+            com.universalmedialibrary.ui.player.ModernAudioPlayerScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // Modern Video Player route
+        composable("video_player/{videoPath}") { backStackEntry ->
+            val videoPath = backStackEntry.arguments?.getString("videoPath") ?: ""
+            com.universalmedialibrary.ui.player.ModernVideoPlayerScreen(
+                videoPath = videoPath,
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
         // Theme preview for testing
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()

@@ -110,6 +110,27 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
     fun previousChapter() {
         // Placeholder for multi-chapter support
     }
+
+    /**
+     * Jump to a specific chapter
+     */
+    fun jumpToChapter(index: Int) {
+        // Placeholder for multi-chapter support
+    }
+
+    /**
+     * Previous page (for pagination)
+     */
+    fun previousPage() {
+        // Placeholder for page turning
+    }
+
+    /**
+     * Next page (for pagination)
+     */
+    fun nextPage() {
+        // Placeholder for page turning
+    }
 }
 
 /**

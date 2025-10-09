@@ -1,0 +1,419 @@
+package com.universalmedialibrary.ui.filepicker
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
+
+/**
+ * Storage Browser Screen - Moon+ Reader style file navigation
+ * Beautiful interface for browsing device storage and selecting media files
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun StorageBrowserScreen(
+    onNavigateBack: () -> Unit,
+    onFileSelected: (File) -> Unit,
+    filterMediaTypes: List<String> = listOf("epub", "pdf", "mp3", "mp4", "mkv", "cbz", "cbr"),
+    viewModel: StorageBrowserViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("Storage Browser", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = uiState.currentPath,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        if (viewModel.canNavigateUp()) {
+                            viewModel.navigateUp()
+                        } else {
+                            onNavigateBack()
+                        }
+                    }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    // View mode toggle
+                    var showMenu by remember { mutableStateOf(false) }
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Options")
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Grid View") },
+                            onClick = {
+                                viewModel.setViewMode(ViewMode.GRID)
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.GridView, contentDescription = null)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("List View") },
+                            onClick = {
+                                viewModel.setViewMode(ViewMode.LIST)
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.ViewList, contentDescription = null)
+                            }
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text("Show Hidden Files") },
+                            onClick = {
+                                viewModel.toggleShowHidden()
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    if (uiState.showHidden) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Quick access shortcuts
+            QuickAccessBar(
+                onPathSelected = { path -> viewModel.navigateTo(path) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            HorizontalDivider()
+
+            // File list
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                uiState.error != null -> {
+                    ErrorView(
+                        message = uiState.error!!,
+                        onRetry = { viewModel.refresh() }
+                    )
+                }
+                uiState.files.isEmpty() -> {
+                    EmptyFolderView()
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = uiState.files,
+                            key = { it.absolutePath }
+                        ) { file ->
+                            FileItem(
+                                file = file,
+                                viewMode = uiState.viewMode,
+                                onClick = {
+                                    if (file.isDirectory) {
+                                        viewModel.navigateInto(file)
+                                    } else {
+                                        onFileSelected(file)
+                                    }
+                                },
+                                modifier = Modifier.animateItemPlacement()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickAccessBar(
+    onPathSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .padding(8.dp)
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        QuickAccessChip(
+            label = "Internal",
+            icon = Icons.Default.PhoneAndroid,
+            onClick = { onPathSelected("/storage/emulated/0") }
+        )
+        QuickAccessChip(
+            label = "Downloads",
+            icon = Icons.Default.Download,
+            onClick = { onPathSelected("/storage/emulated/0/Download") }
+        )
+        QuickAccessChip(
+            label = "Documents",
+            icon = Icons.Default.Folder,
+            onClick = { onPathSelected("/storage/emulated/0/Documents") }
+        )
+        QuickAccessChip(
+            label = "DCIM",
+            icon = Icons.Default.PhotoLibrary,
+            onClick = { onPathSelected("/storage/emulated/0/DCIM") }
+        )
+        QuickAccessChip(
+            label = "Music",
+            icon = Icons.Default.MusicNote,
+            onClick = { onPathSelected("/storage/emulated/0/Music") }
+        )
+    }
+}
+
+@Composable
+private fun QuickAccessChip(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label) },
+        leadingIcon = {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+    )
+}
+
+@Composable
+private fun FileItem(
+    file: File,
+    viewMode: ViewMode,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icon
+            FileIcon(file = file)
+
+            // File info
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = file.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (file.isFile) {
+                        Text(
+                            text = formatFileSize(file.length()),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        val itemCount = file.listFiles()?.size ?: 0
+                        Text(
+                            text = "$itemCount items",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Text(
+                        text = formatDate(file.lastModified()),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // Chevron for folders
+            if (file.isDirectory) {
+                Icon(
+                    Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FileIcon(file: File) {
+    val (icon, gradient) = when {
+        file.isDirectory -> Icons.Default.Folder to listOf(Color(0xFFFFA726), Color(0xFFFF6F00))
+        file.extension.lowercase() in listOf("epub", "pdf", "txt", "mobi") -> 
+            Icons.Default.Book to listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))
+        file.extension.lowercase() in listOf("mp3", "m4a", "flac", "wav") -> 
+            Icons.Default.MusicNote to listOf(Color(0xFF4A148C), Color(0xFF9C27B0))
+        file.extension.lowercase() in listOf("mp4", "mkv", "avi", "mov") -> 
+            Icons.Default.Movie to listOf(Color(0xFF0D47A1), Color(0xFF2196F3))
+        file.extension.lowercase() in listOf("cbz", "cbr", "cb7") -> 
+            Icons.Default.AutoStories to listOf(Color(0xFFE65100), Color(0xFFFF9800))
+        file.extension.lowercase() in listOf("jpg", "jpeg", "png", "gif") -> 
+            Icons.Default.Image to listOf(Color(0xFF006064), Color(0xFF00BCD4))
+        else -> Icons.Default.InsertDriveFile to listOf(Color(0xFF37474F), Color(0xFF78909C))
+    }
+
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .background(Brush.linearGradient(gradient)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Composable
+private fun EmptyFolderView() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                Icons.Default.FolderOpen,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Empty Folder",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorView(message: String, onRetry: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(
+                Icons.Default.Error,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(onClick = onRetry) {
+                Icon(Icons.Default.Refresh, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Retry")
+            }
+        }
+    }
+}
+
+private fun formatFileSize(bytes: Long): String {
+    if (bytes <= 0) return "0 B"
+    val units = arrayOf("B", "KB", "MB", "GB", "TB")
+    val digitGroups = (Math.log10(bytes.toDouble()) / Math.log10(1024.0)).toInt()
+    return String.format(
+        "%.1f %s",
+        bytes / Math.pow(1024.0, digitGroups.toDouble()),
+        units[digitGroups]
+    )
+}
+
+private fun formatDate(timestamp: Long): String {
+    val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    return sdf.format(Date(timestamp))
+}
+
+enum class ViewMode {
+    LIST, GRID
+}
