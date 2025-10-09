@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.playback
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.services.playback.RepeatMode
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import com.universalmedialibrary.data.repository.PlaylistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

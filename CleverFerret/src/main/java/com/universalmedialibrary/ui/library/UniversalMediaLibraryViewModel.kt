@@ -3,16 +3,18 @@ package com.universalmedialibrary.ui.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.MediaType
+import com.universalmedialibrary.data.repository.MediaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class UniversalMediaLibraryViewModel @Inject constructor(
-    // TODO: Inject repository when available
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
 
     private val _mediaItems = MutableStateFlow<List<MediaItemWithMetadata>>(emptyList())
@@ -33,11 +35,44 @@ class UniversalMediaLibraryViewModel @Inject constructor(
     private val _showFilters = MutableStateFlow(false)
     val showFilters: StateFlow<Boolean> = _showFilters.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private var currentLibraryId: Long = -1
+    private var allMediaItems: List<MediaItemWithMetadata> = emptyList()
+
     fun loadMediaItems(libraryId: Long) {
+        currentLibraryId = libraryId
         viewModelScope.launch {
-            // TODO: Load from repository
-            // For now, create mock data to demonstrate the UI
-            _mediaItems.value = createMockMediaItems()
+            _isLoading.value = true
+            try {
+                // Load media items from repository
+                mediaRepository.getMediaItemsByLibrary(libraryId).collect { mediaItems ->
+                    // Convert MediaItems to MediaItemWithMetadata
+                    allMediaItems = mediaItems.map { mediaItem ->
+                        // Get metadata for each item
+                        val metadata = mediaRepository.getCommonMetadata(mediaItem.itemId)
+                        
+                        MediaItemWithMetadata(
+                            itemId = mediaItem.itemId,
+                            title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
+                            mediaType = parseMediaType(mediaItem.mediaType),
+                            author = metadata?.creator ?: extractAuthorFromFileName(mediaItem.fileName),
+                            dateAdded = mediaItem.dateAdded,
+                            isFavorite = false, // TODO: Add favorite tracking
+                            progress = 0f // TODO: Add progress tracking from reading progress repository
+                        )
+                    }
+                    
+                    // Apply filters and sorting
+                    applyFiltersAndSort()
+                }
+            } catch (e: Exception) {
+                // Log error and show empty list
+                _mediaItems.value = emptyList()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
@@ -47,127 +82,81 @@ class UniversalMediaLibraryViewModel @Inject constructor(
 
     fun setSortOption(option: SortOption) {
         _sortOption.value = option
-        // TODO: Re-sort media items based on the selected option
+        applyFiltersAndSort()
     }
 
     fun setSearchQuery(query: String) {
         _searchQuery.value = query
-        // TODO: Filter media items based on search query
+        applyFiltersAndSort()
     }
 
     fun setSelectedMediaType(mediaType: MediaType) {
         _selectedMediaType.value = mediaType
+        if (currentLibraryId != -1L) {
+            loadMediaItems(currentLibraryId)
+        }
     }
 
     fun toggleFilters() {
         _showFilters.value = !_showFilters.value
     }
 
-    private fun createMockMediaItems(): List<MediaItemWithMetadata> {
-        return listOf(
-            // Books
-            MediaItemWithMetadata(
-                itemId = 1L,
-                title = "The Great Gatsby",
-                mediaType = MediaType.BOOK,
-                author = "F. Scott Fitzgerald",
-                dateAdded = System.currentTimeMillis(),
-                isFavorite = true,
-                progress = 0.65f
-            ),
-            MediaItemWithMetadata(
-                itemId = 2L,
-                title = "Digital Fortress",
-                mediaType = MediaType.EBOOK,
-                author = "Dan Brown",
-                dateAdded = System.currentTimeMillis() - 86400000,
-                isFavorite = false,
-                progress = 0.23f
-            ),
+    /**
+     * Apply current search query and sort option to the media items
+     */
+    private fun applyFiltersAndSort() {
+        var filtered = allMediaItems
 
-            // Movies
-            MediaItemWithMetadata(
-                itemId = 3L,
-                title = "Inception",
-                mediaType = MediaType.MOVIE,
-                author = "Christopher Nolan",
-                dateAdded = System.currentTimeMillis() - 172800000,
-                isFavorite = true,
-                progress = 1.0f
-            ),
-            MediaItemWithMetadata(
-                itemId = 4L,
-                title = "The Office - Season 1",
-                mediaType = MediaType.TV_SHOW,
-                author = "NBC",
-                dateAdded = System.currentTimeMillis() - 259200000,
-                isFavorite = false,
-                progress = 0.45f
-            ),
+        // Apply search filter
+        val query = _searchQuery.value
+        if (query.isNotBlank()) {
+            filtered = filtered.filter { item ->
+                item.title.contains(query, ignoreCase = true) ||
+                item.author?.contains(query, ignoreCase = true) == true
+            }
+        }
 
-            // Music
-            MediaItemWithMetadata(
-                itemId = 5L,
-                title = "Bohemian Rhapsody",
-                mediaType = MediaType.MUSIC_TRACK,
-                author = "Queen",
-                dateAdded = System.currentTimeMillis() - 345600000,
-                isFavorite = true,
-                progress = 1.0f
-            ),
-            MediaItemWithMetadata(
-                itemId = 6L,
-                title = "Abbey Road",
-                mediaType = MediaType.MUSIC_ALBUM,
-                author = "The Beatles",
-                dateAdded = System.currentTimeMillis() - 432000000,
-                isFavorite = true,
-                progress = 0.8f
-            ),
+        // Apply media type filter
+        val selectedType = _selectedMediaType.value
+        filtered = filtered.filter { it.mediaType == selectedType }
 
-            // Podcasts
-            MediaItemWithMetadata(
-                itemId = 7L,
-                title = "The Joe Rogan Experience #1234",
-                mediaType = MediaType.PODCAST_EPISODE,
-                author = "Joe Rogan",
-                dateAdded = System.currentTimeMillis() - 518400000,
-                isFavorite = false,
-                progress = 0.33f
-            ),
+        // Apply sorting
+        filtered = when (_sortOption.value) {
+            SortOption.TITLE -> filtered.sortedBy { it.title.lowercase() }
+            SortOption.AUTHOR -> filtered.sortedBy { it.author?.lowercase() ?: "" }
+            SortOption.DATE_ADDED -> filtered.sortedByDescending { it.dateAdded }
+            SortOption.RECENTLY_PLAYED -> filtered.sortedByDescending { it.dateAdded } // TODO: Sort by last played when available
+        }
 
-            // Magazines
-            MediaItemWithMetadata(
-                itemId = 8L,
-                title = "National Geographic - March 2024",
-                mediaType = MediaType.MAGAZINE,
-                author = "National Geographic Society",
-                dateAdded = System.currentTimeMillis() - 604800000,
-                isFavorite = false,
-                progress = 0.15f
-            ),
-
-            // Documents
-            MediaItemWithMetadata(
-                itemId = 9L,
-                title = "Project Proposal Q2 2024",
-                mediaType = MediaType.DOCUMENT,
-                author = "Corporate Team",
-                dateAdded = System.currentTimeMillis() - 691200000,
-                isFavorite = false,
-                progress = 0.95f
-            ),
-
-            // Academic Papers
-            MediaItemWithMetadata(
-                itemId = 10L,
-                title = "Machine Learning in Healthcare",
-                mediaType = MediaType.ACADEMIC_PAPER,
-                author = "Dr. Jane Smith et al.",
-                dateAdded = System.currentTimeMillis() - 777600000,
-                isFavorite = true,
-                progress = 0.7f
-            )
-        )
+        _mediaItems.value = filtered
     }
+
+    /**
+     * Parse string media type to MediaType enum
+     */
+    private fun parseMediaType(mediaType: String): MediaType {
+        return try {
+            MediaType.valueOf(mediaType)
+        } catch (e: IllegalArgumentException) {
+            // Fallback mapping for common types
+            when (mediaType.uppercase()) {
+                "EBOOK" -> MediaType.BOOK
+                "MUSIC_TRACK" -> MediaType.MUSIC_TRACK
+                "MUSIC_ALBUM" -> MediaType.MUSIC_ALBUM
+                "VIDEO" -> MediaType.MOVIE
+                "AUDIOBOOK" -> MediaType.BOOK
+                else -> MediaType.DOCUMENT
+            }
+        }
+    }
+
+    /**
+     * Extract author from filename (basic heuristic)
+     */
+    private fun extractAuthorFromFileName(fileName: String): String? {
+        // Try to extract author from common filename patterns like "Author - Title.ext"
+        val parts = fileName.substringBeforeLast('.').split(" - ", limit = 2)
+        return if (parts.size > 1) parts[0] else null
+    }
+
 }
