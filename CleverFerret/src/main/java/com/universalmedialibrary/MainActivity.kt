@@ -148,7 +148,8 @@ fun AppNavigation() {
             val episodeId = backStackEntry.arguments?.getString("episodeId")?.toLongOrNull() ?: -1L
             com.universalmedialibrary.ui.podcast.PodcastPlayerScreen(
                 episodeId = episodeId,
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                onNavigateToVisualizer = { navController.navigate("visualizer") }
             )
         }
 
@@ -160,7 +161,8 @@ fun AppNavigation() {
             com.universalmedialibrary.ui.music.MusicPlayerScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToQueue = { navController.navigate("queue") },
-                onNavigateToAlbum = { albumId -> navController.navigate("album/$albumId") }
+                onNavigateToAlbum = { albumId -> navController.navigate("album/$albumId") },
+                onNavigateToVisualizer = { navController.navigate("visualizer") }
             )
         }
 
@@ -218,6 +220,25 @@ fun AppNavigation() {
         composable("servers") {
             com.universalmedialibrary.ui.integration.ServerIntegrationScreen(
                 onBack = { navController.navigateUp() }
+            )
+        }
+
+        // Visualizer route
+        composable("visualizer") {
+            com.universalmedialibrary.ui.visualizer.VisualizerScreen(
+                onBack = { navController.navigateUp() },
+                onNavigateToPresets = { navController.navigate("visualizer_presets") }
+            )
+        }
+        
+        // Visualizer presets browser
+        composable("visualizer_presets") {
+            com.universalmedialibrary.ui.visualizer.PresetBrowserScreen(
+                onBack = { navController.navigateUp() },
+                onPresetSelected = { preset ->
+                    // TODO: Pass preset back to visualizer
+                    navController.navigateUp()
+                }
             )
         }
     }
@@ -429,6 +450,16 @@ fun LibraryListScreen(
                     icon = Icons.Default.VideoLibrary,
                     colors = listOf(Color(0xFF0D47A1), Color(0xFF2196F3)),
                     onClick = { navController.navigate("videos") }
+                )
+            }
+
+            // Audio Visualizer Card
+            item {
+                FeatureCard(
+                    title = "Visualizer",
+                    icon = Icons.Default.GraphicEq,
+                    colors = listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)),
+                    onClick = { navController.navigate("visualizer") }
                 )
             }
 
