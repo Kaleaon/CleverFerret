@@ -11,6 +11,7 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.20"
 }
 
 android {
@@ -95,6 +96,9 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.2")
     implementation("androidx.room:room-ktx:2.8.2")
     kapt("androidx.room:room-compiler:2.8.2")
+    
+    // DataStore for settings persistence
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
     
     // Basic networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
