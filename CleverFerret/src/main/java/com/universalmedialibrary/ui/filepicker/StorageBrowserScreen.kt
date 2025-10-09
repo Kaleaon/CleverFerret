@@ -177,11 +177,28 @@ fun StorageBrowserScreen(
     }
 }
 
+import android.os.Environment
+
 @Composable
 private fun QuickAccessBar(
     onPathSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Retrieve standard external storage paths via Android APIs
+    val externalStorage = Environment.getExternalStorageDirectory().absolutePath
+    val downloadsDir = Environment
+        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        .absolutePath
+    val documentsDir = Environment
+        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        .absolutePath
+    val dcimDir = Environment
+        .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+        .absolutePath
+    val musicDir = Environment
+        .getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+        .absolutePath
+
     Row(
         modifier = modifier
             .padding(8.dp)
@@ -191,27 +208,27 @@ private fun QuickAccessBar(
         QuickAccessChip(
             label = "Internal",
             icon = Icons.Default.PhoneAndroid,
-            onClick = { onPathSelected("/storage/emulated/0") }
+            onClick = { onPathSelected(externalStorage) }
         )
         QuickAccessChip(
             label = "Downloads",
             icon = Icons.Default.Download,
-            onClick = { onPathSelected("/storage/emulated/0/Download") }
+            onClick = { onPathSelected(downloadsDir) }
         )
         QuickAccessChip(
             label = "Documents",
             icon = Icons.Default.Folder,
-            onClick = { onPathSelected("/storage/emulated/0/Documents") }
+            onClick = { onPathSelected(documentsDir) }
         )
         QuickAccessChip(
             label = "DCIM",
             icon = Icons.Default.PhotoLibrary,
-            onClick = { onPathSelected("/storage/emulated/0/DCIM") }
+            onClick = { onPathSelected(dcimDir) }
         )
         QuickAccessChip(
             label = "Music",
             icon = Icons.Default.MusicNote,
-            onClick = { onPathSelected("/storage/emulated/0/Music") }
+            onClick = { onPathSelected(musicDir) }
         )
     }
 }
