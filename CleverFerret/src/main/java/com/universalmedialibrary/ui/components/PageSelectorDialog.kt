@@ -216,7 +216,7 @@ fun CompactPageSelector(
     onPageSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var pageInput by remember { mutableStateOf(currentPage.toString()) }
+    var pageInput by remember(currentPage) { mutableStateOf(currentPage.toString()) }
 
     Row(
         modifier = modifier

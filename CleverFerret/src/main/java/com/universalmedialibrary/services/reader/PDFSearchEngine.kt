@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Log
-import com.universalmedialibrary.ui.components.SearchResult
+import com.universalmedialibrary.data.model.SearchResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -89,17 +89,14 @@ class PDFSearchEngine @Inject constructor(
                             
                             matches.forEach { matchIndex ->
                                 val context = extractContext(pageText, matchIndex, query.length)
+                                val highlightStartPos = context.indexOf(query, ignoreCase = !matchCase)
                                 results.add(
                                     SearchResult(
                                         pageNumber = pageIndex + 1,
                                         context = context,
                                         matchPosition = matchIndex,
-                                        highlightStart = context.indexOf(
-                                            if (matchCase) query else query.lowercase()
-                                        ),
-                                        highlightEnd = context.indexOf(
-                                            if (matchCase) query else query.lowercase()
-                                        ) + query.length
+                                        highlightStart = highlightStartPos,
+                                        highlightEnd = highlightStartPos + query.length
                                     )
                                 )
                             }

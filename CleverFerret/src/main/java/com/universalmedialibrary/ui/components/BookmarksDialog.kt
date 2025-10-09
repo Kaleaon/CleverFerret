@@ -84,7 +84,7 @@ fun BookmarksDialog(
                     }
                 }
 
-                Divider()
+                HorizontalDivider()
 
                 // Bookmarks list
                 if (bookmarks.isEmpty()) {

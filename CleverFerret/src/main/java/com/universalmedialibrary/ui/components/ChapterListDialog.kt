@@ -70,7 +70,7 @@ fun ChapterListDialog(
                     }
                 }
 
-                Divider()
+                HorizontalDivider()
 
                 // Chapter list
                 LazyColumn(

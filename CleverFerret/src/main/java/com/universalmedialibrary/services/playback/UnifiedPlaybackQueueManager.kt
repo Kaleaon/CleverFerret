@@ -393,18 +393,20 @@ class UnifiedPlaybackQueueManager @Inject constructor(
         val updatedItems = queueItemDao.getQueueItems(currentQueue.queueId)
         _queueItems.value = updatedItems
         
-        // If we removed the current item, play the next one at the same position
-        if (wasCurrentlyPlaying && updatedItems.isNotEmpty()) {
-            // Find item at the same position (which is now the "next" item)
-            val nextItem = updatedItems.find { it.queuePosition == removedPosition }
-                ?: updatedItems.firstOrNull()
-            
-            nextItem?.let {
-                playQueueItem(it.queueItemId)
-            } ?: run {
+        // If we removed the current item, handle playback state
+        if (wasCurrentlyPlaying) {
+            if (updatedItems.isEmpty()) {
                 // Queue is now empty
                 stop()
                 _currentItem.value = null
+            } else {
+                // Find item at the same position (which is now the "next" item)
+                val nextItem = updatedItems.find { it.queuePosition == removedPosition }
+                    ?: updatedItems.firstOrNull()
+                
+                nextItem?.let {
+                    playQueueItem(it.queueItemId)
+                }
             }
         }
         

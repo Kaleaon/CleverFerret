@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.universalmedialibrary.data.model.SearchResult
 
 /**
  * PDF Search Dialog
@@ -165,7 +166,7 @@ fun PDFSearchDialog(
                     }
                 }
 
-                Divider()
+                HorizontalDivider()
 
                 // Results
                 when {
@@ -350,14 +351,3 @@ private fun SearchResultItem(
         }
     }
 }
-
-/**
- * Data class representing a search result
- */
-data class SearchResult(
-    val pageNumber: Int,
-    val context: String,  // Surrounding text context
-    val matchPosition: Int = 0,  // Position of match within page
-    val highlightStart: Int = 0,  // Start of highlight in context
-    val highlightEnd: Int = 0     // End of highlight in context
-)
