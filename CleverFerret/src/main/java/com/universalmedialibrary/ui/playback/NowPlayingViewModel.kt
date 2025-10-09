@@ -44,8 +44,7 @@ class NowPlayingViewModel @Inject constructor(
      */
     fun skipToNext() {
         viewModelScope.launch {
-            // TODO: Implement skipToNext in queue manager
-            // playbackQueueManager.skipToNext()
+            playbackQueueManager.skipToNext()
         }
     }
 
@@ -54,8 +53,7 @@ class NowPlayingViewModel @Inject constructor(
      */
     fun skipToPrevious() {
         viewModelScope.launch {
-            // TODO: Implement skipToPrevious in queue manager
-            // playbackQueueManager.skipToPrevious()
+            playbackQueueManager.skipToPrevious()
         }
     }
 
@@ -78,8 +76,7 @@ class NowPlayingViewModel @Inject constructor(
      */
     fun playQueueItem(queueItemId: Long) {
         viewModelScope.launch {
-            // TODO: Implement playQueueItem in queue manager
-            // playbackQueueManager.playQueueItem(queueItemId)
+            playbackQueueManager.playQueueItem(queueItemId)
         }
     }
 
@@ -88,8 +85,7 @@ class NowPlayingViewModel @Inject constructor(
      */
     fun removeFromQueue(queueItemId: Long) {
         viewModelScope.launch {
-            // TODO: Implement removeFromQueue in queue manager
-            // playbackQueueManager.removeFromQueue(queueItemId)
+            playbackQueueManager.removeFromQueue(queueItemId)
         }
     }
 
@@ -97,7 +93,7 @@ class NowPlayingViewModel @Inject constructor(
      * Toggle queue visibility (for future implementation)
      */
     fun toggleQueue() {
-        // TODO: Implement queue toggle functionality
+        // This is a UI state toggle, can be implemented when needed
     }
 
     /**
@@ -105,16 +101,15 @@ class NowPlayingViewModel @Inject constructor(
      */
     fun toggleRepeatMode() {
         viewModelScope.launch {
-            // TODO: Implement repeat mode cycling
-            // val currentMode = currentQueue.value?.repeatMode
-            // val nextMode = when (currentMode) {
-            //     "NONE" -> RepeatMode.ALL
-            //     "ALL" -> RepeatMode.ONE
-            //     "ONE" -> RepeatMode.SHUFFLE
-            //     "SHUFFLE" -> RepeatMode.NONE
-            //     else -> RepeatMode.NONE
-            // }
-            // playbackQueueManager.setRepeatMode(nextMode)
+            val currentMode = currentQueue.value?.repeatMode ?: "NONE"
+            val nextMode = when (currentMode) {
+                "NONE" -> RepeatMode.ALL
+                "ALL" -> RepeatMode.ONE
+                "ONE" -> RepeatMode.SHUFFLE
+                "SHUFFLE" -> RepeatMode.NONE
+                else -> RepeatMode.NONE
+            }
+            playbackQueueManager.setRepeatMode(nextMode)
         }
     }
 
@@ -123,9 +118,8 @@ class NowPlayingViewModel @Inject constructor(
      */
     fun toggleShuffle() {
         viewModelScope.launch {
-            // TODO: Implement shuffle toggle
-            // val currentShuffle = currentQueue.value?.shuffleEnabled ?: false
-            // playbackQueueManager.setShuffleMode(!currentShuffle)
+            val currentShuffle = currentQueue.value?.shuffleEnabled ?: false
+            playbackQueueManager.setShuffleMode(!currentShuffle)
         }
     }
 
