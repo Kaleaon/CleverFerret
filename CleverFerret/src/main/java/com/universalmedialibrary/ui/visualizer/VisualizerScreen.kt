@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,9 @@ import com.universalmedialibrary.services.cast.ChromecastManager
 import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,7 +39,7 @@ fun VisualizerScreen(
     val visualizerState by viewModel.visualizerState.collectAsState()
     val castState by viewModel.castState.collectAsState()
     val isVisualizerEnabled by viewModel.isVisualizerEnabled.collectAsState()
-    val currentPreset by viewModel.currentPreset.collectAsState()
+    val currentPreset by viewModel.currentPreset.collectAsState(initial = null)
     var currentStyle by remember { mutableStateOf(VisualizerStyle.SPECTRUM_BARS) }
     var showPresetBrowser by remember { mutableStateOf(false) }
 
