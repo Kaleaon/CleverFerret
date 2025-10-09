@@ -160,8 +160,8 @@ class MetadataEditorViewModel @Inject constructor(
                 }
 
                 // Update series
-var seriesId = metadataDao.findSeriesIdByNameAndType(metadata.series, mediaType)
-                    var seriesId = metadataDao.findSeriesByName(metadata.series)
+                if (metadata.series.isNotBlank()) {
+                    var seriesId: Long? = metadataDao.findSeriesByName(metadata.series)
                     if (seriesId == null) {
                         seriesId = metadataDao.insertSeries(
                             Series(name = metadata.series, mediaType = mediaType)

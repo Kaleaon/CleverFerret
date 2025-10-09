@@ -233,7 +233,7 @@ private fun getIconForFlag(flag: FeatureFlags.FeatureFlag) = when (flag) {
     FeatureFlags.FeatureFlag.ENABLE_GEMINI -> Icons.Default.AutoAwesome
     FeatureFlags.FeatureFlag.ENABLE_CLOUD_TTS -> Icons.Default.RecordVoiceOver
     FeatureFlags.FeatureFlag.ENABLE_EXOPLAYER -> Icons.Default.PlayCircle
-    FeatureFlags.FeatureFlag.ENABLE_PODCASTS -> Icons.Default.Podcast
+    FeatureFlags.FeatureFlag.ENABLE_PODCASTS -> Icons.Default.MusicNote
     FeatureFlags.FeatureFlag.ENABLE_ADVANCED_READER -> Icons.Default.MenuBook
     FeatureFlags.FeatureFlag.ENABLE_AI_METADATA -> Icons.Default.Psychology
     FeatureFlags.FeatureFlag.ENABLE_AUDIOBOOK_PLAYER -> Icons.Default.Headphones

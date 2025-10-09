@@ -56,6 +56,10 @@ class ChromecastManager @Inject constructor(
             )
         }
 
+        override fun onSessionResuming(session: CastSession, sessionId: String) {
+            _castState.value = _castState.value.copy(isConnecting = true)
+        }
+
         override fun onSessionResumed(session: CastSession, wasSuspended: Boolean) {
             _castState.value = _castState.value.copy(
                 isConnected = true,

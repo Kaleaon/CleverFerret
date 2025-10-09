@@ -9,65 +9,125 @@ Configuration on demand is an incubating feature.
 > Task :buildSrc:processResources NO-SOURCE
 > Task :buildSrc:classes UP-TO-DATE
 > Task :buildSrc:jar UP-TO-DATE
-Checking the license for package Android SDK Build-Tools 35 in /home/ubuntu/android-sdk/licenses
-License for package Android SDK Build-Tools 35 accepted.
-Preparing "Install Android SDK Build-Tools 35 v.35.0.0".
-"Install Android SDK Build-Tools 35 v.35.0.0" ready.
-Installing Android SDK Build-Tools 35 in /home/ubuntu/android-sdk/build-tools/35.0.0
-"Install Android SDK Build-Tools 35 v.35.0.0" complete.
-"Install Android SDK Build-Tools 35 v.35.0.0" finished.
 > Task :CleverFerret:preBuild UP-TO-DATE
 > Task :CleverFerret:preDebugBuild UP-TO-DATE
 > Task :CleverFerret:mergeDebugNativeDebugMetadata NO-SOURCE
 > Task :CleverFerret:checkKotlinGradlePluginConfigurationErrors SKIPPED
-
-> Task :CleverFerret:checkDebugAarMetadata
-WARNING: [Processor] Library '/home/ubuntu/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.8.0/e28b8a1b7941dd4c4da264d5e622274e7c8e6488/media3-session-1.8.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
- Example of androidX reference: 'androidx/media3/session/legacy/LegacyParcelableUtil'
- Example of support library reference: 'android/support/v4/media/MediaDescriptionCompat'
-WARNING: [Processor] Library '/home/ubuntu/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-cast-framework/21.5.0/b54e012f75c1af1a7a50f79398dec65df2a80398/play-services-cast-framework-21.5.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
- Example of androidX reference: 'androidx/core/app/TaskStackBuilder'
- Example of support library reference: 'android/support/v4/media/session/MediaSessionCompat$Token'
-
-> Task :CleverFerret:processDebugNavigationResources
-> Task :CleverFerret:generateDebugResValues
-> Task :CleverFerret:compileDebugNavigationResources
-> Task :CleverFerret:mapDebugSourceSetPaths
-> Task :CleverFerret:generateDebugResources
-> Task :CleverFerret:packageDebugResources
-> Task :CleverFerret:createDebugCompatibleScreenManifests
-> Task :CleverFerret:extractDeepLinksDebug
-> Task :CleverFerret:parseDebugLocalResources
-> Task :CleverFerret:mergeDebugResources
-> Task :CleverFerret:processDebugMainManifest
-> Task :CleverFerret:processDebugManifest
-> Task :CleverFerret:processDebugManifestForPackage
-> Task :CleverFerret:processDebugResources
-> Task :CleverFerret:javaPreCompileDebug
-> Task :CleverFerret:mergeDebugShaders
+> Task :CleverFerret:checkDebugAarMetadata UP-TO-DATE
+> Task :CleverFerret:processDebugNavigationResources UP-TO-DATE
+> Task :CleverFerret:compileDebugNavigationResources UP-TO-DATE
+> Task :CleverFerret:generateDebugResValues UP-TO-DATE
+> Task :CleverFerret:mapDebugSourceSetPaths UP-TO-DATE
+> Task :CleverFerret:generateDebugResources UP-TO-DATE
+> Task :CleverFerret:mergeDebugResources UP-TO-DATE
+> Task :CleverFerret:packageDebugResources UP-TO-DATE
+> Task :CleverFerret:parseDebugLocalResources UP-TO-DATE
+> Task :CleverFerret:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :CleverFerret:extractDeepLinksDebug UP-TO-DATE
+> Task :CleverFerret:processDebugMainManifest UP-TO-DATE
+> Task :CleverFerret:processDebugManifest UP-TO-DATE
+> Task :CleverFerret:processDebugManifestForPackage UP-TO-DATE
+> Task :CleverFerret:processDebugResources UP-TO-DATE
+> Task :CleverFerret:javaPreCompileDebug UP-TO-DATE
+> Task :CleverFerret:mergeDebugShaders UP-TO-DATE
 > Task :CleverFerret:compileDebugShaders NO-SOURCE
 > Task :CleverFerret:generateDebugAssets UP-TO-DATE
-> Task :CleverFerret:mergeDebugAssets
-> Task :CleverFerret:desugarDebugFileDependencies
-> Task :CleverFerret:compressDebugAssets
-> Task :CleverFerret:mergeDebugJniLibFolders
-> Task :CleverFerret:checkDebugDuplicateClasses
-> Task :CleverFerret:mergeDebugNativeLibs
-> Task :CleverFerret:kspDebugKotlin
-> Task :CleverFerret:mergeExtDexDebug
+> Task :CleverFerret:mergeDebugAssets UP-TO-DATE
+> Task :CleverFerret:compressDebugAssets UP-TO-DATE
+> Task :CleverFerret:desugarDebugFileDependencies UP-TO-DATE
+> Task :CleverFerret:checkDebugDuplicateClasses UP-TO-DATE
+> Task :CleverFerret:mergeExtDexDebug UP-TO-DATE
+> Task :CleverFerret:mergeDebugJniLibFolders UP-TO-DATE
+> Task :CleverFerret:mergeDebugNativeLibs UP-TO-DATE
+> Task :CleverFerret:mergeLibDexDebug
 
-> Task :CleverFerret:kspDebugKotlin
-e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:171:18 Expecting 'catch' or 'finally'
-e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:189:23 Expecting ')'
-e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:189:23 Unexpected tokens (use ';' to separate expressions on the same line)
-e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:209:1 Expecting a top level declaration
+> Task :CleverFerret:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so, libmlkit_google_ocr_pipeline.so, libtextclassifier3_jni_tclib.so. Run with --info option to learn more.
 
-> Task :CleverFerret:kspDebugKotlin FAILED
+> Task :CleverFerret:validateSigningDebug
+> Task :CleverFerret:writeDebugAppMetadata
+> Task :CleverFerret:writeDebugSigningConfigVersions
+> Task :CleverFerret:kspDebugKotlin
+> Task :CleverFerret:compileDebugKotlin
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/cast/ChromecastManager.kt:34:42 Class '<anonymous>' is not abstract and does not implement abstract member 'onSessionResuming'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/cast/ExpandedControlsActivity.kt:17:43 Unresolved reference 'CleverFerretMediaLibraryTheme'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/collections/CollectionsScreen.kt:110:17 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/details/BookDetailsViewModel.kt:30:87 Argument type mismatch: actual type is 'com.universalmedialibrary.data.local.entity.MediaItem', but 'com.universalmedialibrary.data.local.entity.BookDetails?' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/details/BookDetailsViewModel.kt:39:82 Unresolved reference 'model'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/details/LibraryDetailsViewModel.kt:22:53 Type mismatch: inferred type is 'kotlin.collections.List<com.universalmedialibrary.data.local.entity.MediaItem>', but 'kotlin.collections.List<com.universalmedialibrary.data.local.entity.BookDetails>' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/home/ContinueReadingSection.kt:30:21 Unresolved reference 'viewModelScope'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryListViewModel.kt:144:48 Operator call is prohibited on a nullable receiver of type 'kotlin.Long?'. Use '?.'-qualified call instead.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryListViewModel.kt:145:32 Argument type mismatch: actual type is 'kotlin.Long?', but 'kotlin.Long' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/library/UniversalMediaLibraryScreen.kt:324:12 'when' expression must be exhaustive. Add the 'RADIO' branch or an 'else' branch.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/library/UniversalMediaLibraryScreen.kt:353:12 'when' expression must be exhaustive. Add the 'RADIO' branch or an 'else' branch.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:164:48 Unresolved reference 'findSeriesIdByNameAndType'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:170:62 Argument type mismatch: actual type is 'kotlin.Any', but 'kotlin.Long' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/QueueScreen.kt:22:25 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/UniversalVideoPlayerScreen.kt:133:54 Unresolved reference 'switchToAlternativePlayer'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/UniversalVideoPlayerViewModel.kt:130:50 Argument type mismatch: actual type is 'kotlin.Array<T>', but 'kotlin.Array<java.lang.Class<*>>' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/UniversalVideoPlayerViewModel.kt:173:69 Argument type mismatch: actual type is 'kotlin.Array<T>', but 'kotlin.Array<java.lang.Class<*>>' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/UniversalVideoPlayerViewModel.kt:181:71 Argument type mismatch: actual type is 'kotlin.Array<T>', but 'kotlin.Array<java.lang.Class<*>>' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/UniversalVideoPlayerViewModel.kt:190:69 Argument type mismatch: actual type is 'kotlin.Array<T>', but 'kotlin.Array<java.lang.Class<*>>' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/UniversalVideoPlayerViewModel.kt:207:75 Argument type mismatch: actual type is 'kotlin.Array<T>', but 'kotlin.Array<java.lang.Class<*>>' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/plex/PlexIntegrationViewModel.kt:204:21 Suspend function 'suspend fun signOut(): Unit' should be called only from a coroutine or another suspend function.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/podcast/PodcastManagerScreen.kt:353:28 Argument type mismatch: actual type is 'kotlin.String?', but 'kotlin.String' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/podcast/PodcastManagerScreen.kt:388:28 Argument type mismatch: actual type is 'kotlin.String?', but 'kotlin.String' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/podcast/PodcastManagerScreen.kt:621:48 Argument type mismatch: actual type is 'kotlin.String?', but 'kotlin.String' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/podcast/PodcastPlayerViewModel.kt:99:30 Unresolved reference 'pause'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/radio/RadioViewModel.kt:57:33 Unresolved reference 'stop'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/radio/RadioViewModel.kt:78:25 Unresolved reference 'stop'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/AdvancedDocumentReaderViewModel.kt:517:9 No value passed for parameter 'averageReadingSpeed'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/DictionaryTranslation.kt:579:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/PageTurnAnimations.kt:75:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/series/SeriesDetailScreen.kt:54:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/FeatureFlagsSettings.kt:236:63 Unresolved reference 'Podcast'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/OpdsSettingsScreen.kt:39:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/PlaylistSettingsScreen.kt:13:22 Unresolved reference 'android'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/PlaylistSettingsScreen.kt:23:17 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/PlaylistSettingsScreen.kt:24:9 Unresolved reference 'EntryPointAccessors'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/PlaylistSettingsScreen.kt:30:28 Unresolved reference 'exportQueueAsM3U'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/PlaylistSettingsScreen.kt:37:28 Unresolved reference 'importM3UToQueue'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/SettingsScreen.kt:129:45 None of the following candidates is applicable:
+fun Modifier.padding(start: Dp = ..., top: Dp = ..., end: Dp = ..., bottom: Dp = ...): Modifier
+fun Modifier.padding(horizontal: Dp = ..., vertical: Dp = ...): Modifier
+fun Modifier.padding(all: Dp): Modifier
+fun Modifier.padding(paddingValues: PaddingValues): Modifier
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/SettingsScreen.kt:200:45 None of the following candidates is applicable:
+fun Modifier.padding(start: Dp = ..., top: Dp = ..., end: Dp = ..., bottom: Dp = ...): Modifier
+fun Modifier.padding(horizontal: Dp = ..., vertical: Dp = ...): Modifier
+fun Modifier.padding(all: Dp): Modifier
+fun Modifier.padding(paddingValues: PaddingValues): Modifier
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/SettingsScreen.kt:239:45 None of the following candidates is applicable:
+fun Modifier.padding(start: Dp = ..., top: Dp = ..., end: Dp = ..., bottom: Dp = ...): Modifier
+fun Modifier.padding(horizontal: Dp = ..., vertical: Dp = ...): Modifier
+fun Modifier.padding(all: Dp): Modifier
+fun Modifier.padding(paddingValues: PaddingValues): Modifier
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/theme/CleverFerretTheme.kt:88:61 Argument type mismatch: actual type is 'kotlin.collections.List<androidx.compose.ui.graphics.Color>', but 'com.universalmedialibrary.ui.theme.MetallicGradient' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/ProjectMVisualizer.kt:130:21 Unresolved reference 'Stroke'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/ProjectMVisualizer.kt:262:21 Unresolved reference 'Stroke'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/ProjectMVisualizer.kt:276:21 Unresolved reference 'Stroke'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/ProjectMVisualizer.kt:290:21 Unresolved reference 'Stroke'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:38:23 Property delegate must have a 'getValue(Nothing?, KProperty0<ERROR CLASS: Cannot infer argument for type parameter T>)' method. None of the following functions is applicable:
+fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>): T
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:38:26 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:38:26 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:38:50 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:38:50 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:183:40 Not enough information to infer type argument for 'K'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:183:56 Unresolved reference 'name'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:188:46 Not enough information to infer type argument for 'K'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:188:62 Unresolved reference 'author'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:317:12 Unresolved reference 'Color'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:334:32 Unresolved reference 'copy'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:356:34 Unresolved reference 'MutableStateFlow'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/VisualizerScreen.kt:357:24 Unresolved reference 'StateFlow'.
+
+> Task :CleverFerret:compileDebugKotlin FAILED
 
 FAILURE: Build failed with an exception.
 
 * What went wrong:
-Execution failed for task ':CleverFerret:kspDebugKotlin'.
+Execution failed for task ':CleverFerret:compileDebugKotlin'.
 > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
    > Compilation error. See log for more details
 
@@ -77,7 +137,7 @@ Execution failed for task ':CleverFerret:kspDebugKotlin'.
 > Get more help at https://help.gradle.org.
 
 * Exception is:
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':CleverFerret:kspDebugKotlin'.
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':CleverFerret:compileDebugKotlin'.
 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.lambda$executeIfValid$1(ExecuteActionsTaskExecuter.java:130)
 	at org.gradle.internal.Try$Failure.ifSuccessfulOrElse(Try.java:293)
 	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:128)
@@ -108,35 +168,6 @@ org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':CleverF
 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
-	at org.gradle.execution.plan.DefaultPlanExecutor.process(DefaultPlanExecutor.java:111)
-	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.executeWithServices(DefaultTaskExecutionGraph.java:138)
-	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.execute(DefaultTaskExecutionGraph.java:123)
-	at org.gradle.execution.SelectedTaskExecutionAction.execute(SelectedTaskExecutionAction.java:35)
-	at org.gradle.execution.DryRunBuildExecutionAction.execute(DryRunBuildExecutionAction.java:51)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:54)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:43)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor.execute(BuildOperationFiringBuildWorkerExecutor.java:40)
-	at org.gradle.internal.build.DefaultBuildLifecycleController.lambda$executeTasks$10(DefaultBuildLifecycleController.java:313)
-	at org.gradle.internal.model.StateTransitionController.doTransition(StateTransitionController.java:266)
-	at org.gradle.internal.model.StateTransitionController.lambda$tryTransition$8(StateTransitionController.java:177)
-	at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)
-	at org.gradle.internal.model.StateTransitionController.tryTransition(StateTransitionController.java:177)
-	at org.gradle.internal.build.DefaultBuildLifecycleController.executeTasks(DefaultBuildLifecycleController.java:304)
-	at org.gradle.internal.build.DefaultBuildWorkGraphController$DefaultBuildWorkGraph.runWork(DefaultBuildWorkGraphController.java:220)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:263)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:127)
-	at org.gradle.composite.internal.DefaultBuildController.doRun(DefaultBuildController.java:181)
-	at org.gradle.composite.internal.DefaultBuildController.access$000(DefaultBuildController.java:50)
-	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.lambda$run$0(DefaultBuildController.java:198)
-	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
-	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.run(DefaultBuildController.java:198)
 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
 Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionException: A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
@@ -267,35 +298,6 @@ Caused by: org.gradle.workers.internal.DefaultWorkerExecutor$WorkExecutionExcept
 	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
 	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
-	at org.gradle.execution.plan.DefaultPlanExecutor.process(DefaultPlanExecutor.java:111)
-	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.executeWithServices(DefaultTaskExecutionGraph.java:138)
-	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph.execute(DefaultTaskExecutionGraph.java:123)
-	at org.gradle.execution.SelectedTaskExecutionAction.execute(SelectedTaskExecutionAction.java:35)
-	at org.gradle.execution.DryRunBuildExecutionAction.execute(DryRunBuildExecutionAction.java:51)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:54)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor$ExecuteTasks.call(BuildOperationFiringBuildWorkerExecutor.java:43)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
-	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
-	at org.gradle.execution.BuildOperationFiringBuildWorkerExecutor.execute(BuildOperationFiringBuildWorkerExecutor.java:40)
-	at org.gradle.internal.build.DefaultBuildLifecycleController.lambda$executeTasks$10(DefaultBuildLifecycleController.java:313)
-	at org.gradle.internal.model.StateTransitionController.doTransition(StateTransitionController.java:266)
-	at org.gradle.internal.model.StateTransitionController.lambda$tryTransition$8(StateTransitionController.java:177)
-	at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)
-	at org.gradle.internal.model.StateTransitionController.tryTransition(StateTransitionController.java:177)
-	at org.gradle.internal.build.DefaultBuildLifecycleController.executeTasks(DefaultBuildLifecycleController.java:304)
-	at org.gradle.internal.build.DefaultBuildWorkGraphController$DefaultBuildWorkGraph.runWork(DefaultBuildWorkGraphController.java:220)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:263)
-	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:127)
-	at org.gradle.composite.internal.DefaultBuildController.doRun(DefaultBuildController.java:181)
-	at org.gradle.composite.internal.DefaultBuildController.access$000(DefaultBuildController.java:50)
-	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.lambda$run$0(DefaultBuildController.java:198)
-	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
-	at org.gradle.composite.internal.DefaultBuildController$BuildOpRunnable.run(DefaultBuildController.java:198)
 	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
 	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
 Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilation error. See log for more details
@@ -331,5 +333,5 @@ Caused by: org.jetbrains.kotlin.gradle.tasks.CompilationErrorException: Compilat
 	... 2 more
 
 
-BUILD FAILED in 4m 38s
-28 actionable tasks: 25 executed, 3 up-to-date
+BUILD FAILED in 1m 29s
+34 actionable tasks: 7 executed, 27 up-to-date

@@ -19,7 +19,7 @@ class LibraryDetailsViewModel @Inject constructor(
 
     private val libraryId: Long = savedStateHandle.get<String>("libraryId")?.toLong() ?: 0
 
-    val bookDetails: StateFlow<List<BookDetails>> = mediaItemDao.getBookDetailsForLibrary(libraryId)
+    val bookDetails: StateFlow<List<MediaItem>> = mediaItemDao.getBookDetailsForLibrary(libraryId)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
