@@ -124,6 +124,10 @@ class MetadataEditorViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+                // Get media item to determine type
+                val mediaItem = mediaItemDao.getMediaItemById(itemId)
+                val mediaType = mediaItem?.mediaType ?: "BOOK"
+                
                 // Update metadata_common table
                 metadataDao.updateMetadataCommon(
                     itemId = itemId,
@@ -156,10 +160,12 @@ class MetadataEditorViewModel @Inject constructor(
                 }
 
                 // Update series
-                if (metadata.series.isNotBlank()) {
+var seriesId = metadataDao.findSeriesIdByNameAndType(metadata.series, mediaType)
                     var seriesId = metadataDao.findSeriesByName(metadata.series)
                     if (seriesId == null) {
-                        seriesId = metadataDao.insertSeries(Series(name = metadata.series))
+                        seriesId = metadataDao.insertSeries(
+                            Series(name = metadata.series, mediaType = mediaType)
+                        )
                     }
                     metadataDao.updateBookWithSeries(itemId, seriesId)
                 }
