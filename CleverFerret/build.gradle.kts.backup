@@ -12,6 +12,9 @@ plugins {
 
 }
 
+// Apply version management script
+apply(from = "version.gradle")
+
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36
@@ -29,13 +32,37 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            // Read signing configuration from environment variables or gradle properties
+            storeFile = System.getenv("KEYSTORE_FILE")?.let { file(it) }
+                ?: findProperty("KEYSTORE_FILE")?.let { file(it.toString()) }
+            storePassword = System.getenv("KEYSTORE_PASSWORD")?.toString()
+                ?: findProperty("KEYSTORE_PASSWORD")?.toString()
+            keyAlias = System.getenv("KEY_ALIAS")?.toString()
+                ?: findProperty("KEY_ALIAS")?.toString()
+            keyPassword = System.getenv("KEY_PASSWORD")?.toString()
+                ?: findProperty("KEY_PASSWORD")?.toString()
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Use signing config if available, otherwise APK will be unsigned
+            if (signingConfigs.findByName("release")?.storeFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+        debug {
+            // Debug builds use default debug signing
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
     }
 
@@ -46,6 +73,7 @@ android {
     kotlin {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            freeCompilerArgs.add("-opt-in=androidx.compose.material3.ExperimentalMaterial3Api")
         }
     }
     buildFeatures {
@@ -115,8 +143,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
     // Hilt dependency injection - Updated to modern version
-    implementation("com.google.dagger:hilt-android:2.54")
-    ksp("com.google.dagger:hilt-compiler:2.54")
+    implementation("com.google.dagger:hilt-android:2.52")
+    ksp("com.google.dagger:hilt-compiler:2.52")
 
 
     // ViewModel and LiveData
@@ -181,6 +209,11 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0")
+    implementation("androidx.media3:media3-cast:1.8.0")
+
+    // Google Cast SDK for Chromecast
+    implementation("com.google.android.gms:play-services-cast-framework:21.5.0")
+    implementation("com.google.android.gms:play-services-cast:21.5.0")
 
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")

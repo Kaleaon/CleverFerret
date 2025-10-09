@@ -49,7 +49,7 @@ interface RadioStationDao {
     @Query("UPDATE radio_stations SET lastPlayedAt = :timestamp, playCount = playCount + 1 WHERE id = :id")
     suspend fun recordPlay(id: Long, timestamp: Long)
 
-    @Query("SELECT * FROM radio_stations ORDER BY lastPlayedAt DESC NULLS LAST LIMIT :limit")
+    @Query("SELECT * FROM radio_stations ORDER BY CASE WHEN lastPlayedAt IS NULL THEN 1 ELSE 0 END, lastPlayedAt DESC LIMIT :limit")
     fun getRecentlyPlayed(limit: Int = 10): Flow<List<RadioStation>>
 
     @Query("SELECT * FROM radio_stations ORDER BY playCount DESC LIMIT :limit")

@@ -22,9 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import dagger.hilt.android.AndroidEntryPoint
-
 /**
  * Foreground service for media playback notifications
  *
@@ -38,12 +35,14 @@ import dagger.hilt.android.AndroidEntryPoint
  * - Android Auto/TV compatibility
  * - High-importance notification channel
  * - Smart notification management
+ *
+ * Note: Hilt dependency injection is not used for MediaSessionService compatibility.
+ * Dependencies should be manually initialized when needed.
  */
-@AndroidEntryPoint
 class MediaNotificationService : MediaSessionService() {
 
-    @Inject
-    lateinit var artworkLoader: ArtworkLoader
+    // TODO: Initialize manually when artwork loading is implemented
+    private var artworkLoader: ArtworkLoader? = null
 
     private var mediaSession: MediaSession? = null
 
@@ -165,7 +164,8 @@ class MediaNotificationService : MediaSessionService() {
     ) {
         serviceScope.launch {
             // Load artwork with notification-appropriate size (512x512)
-            val artwork = artworkLoader.loadArtwork(
+            // TODO: Initialize artworkLoader properly when this feature is implemented
+            val artwork = artworkLoader?.loadArtwork(
                 mediaItem = mediaItem,
                 maxWidth = 512,
                 maxHeight = 512
