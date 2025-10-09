@@ -54,4 +54,11 @@ class CollectionRepository @Inject constructor(
             collectionDao.updateItemSortOrder(collectionId, itemId, index)
         }
     }
+
+    suspend fun deleteCollection(collectionId: Long) {
+        val collection = collectionDao.getCollection(collectionId).first()
+        collection?.let {
+            collectionDao.delete(it)
+        }
+    }
 }

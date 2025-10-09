@@ -2,6 +2,8 @@ package com.universalmedialibrary.ui.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -54,6 +56,9 @@ fun MediaItemDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { viewModel.showAddToCollectionDialog() }) {
+                        Icon(Icons.Default.PlaylistAdd, contentDescription = "Add to Collection")
+                    }
                     IconButton(
                         onClick = { viewModel.fetchMetadata() },
                         enabled = !uiState.isFetchingMetadata
@@ -202,6 +207,17 @@ fun MediaItemDetailScreen(
                 }
             }
         }
+    }
+
+    // Add to Collection Dialog
+    if (uiState.showAddToCollectionDialog) {
+        AddToCollectionDialog(
+            collections = uiState.availableCollections,
+            onDismiss = { viewModel.hideAddToCollectionDialog() },
+            onAddToCollection = { collectionId ->
+                viewModel.addToCollection(collectionId)
+            }
+        )
     }
 }
 
@@ -606,4 +622,87 @@ private fun ErrorMessage(message: String, onDismiss: () -> Unit) {
             }
         }
     }
+}
+
+@Composable
+fun AddToCollectionDialog(
+    collections: List<com.universalmedialibrary.data.local.entity.UnifiedCollection>,
+    onDismiss: () -> Unit,
+    onAddToCollection: (Long) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(Icons.Default.PlaylistAdd, contentDescription = null)
+                Text("Add to Collection")
+            }
+        },
+        text = {
+            if (collections.isEmpty()) {
+                Text("No collections found. Create a collection first.")
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp)
+                ) {
+                    items(collections) { collection ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable {
+                                    onAddToCollection(collection.collectionId)
+                                    onDismiss()
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = when (collection.type) {
+                                        com.universalmedialibrary.data.local.entity.CollectionType.PLAYLIST -> Icons.Default.PlaylistPlay
+                                        com.universalmedialibrary.data.local.entity.CollectionType.SERIES -> Icons.Default.ViewList
+                                        com.universalmedialibrary.data.local.entity.CollectionType.READING_LIST -> Icons.Default.MenuBook
+                                        com.universalmedialibrary.data.local.entity.CollectionType.WATCH_LIST -> Icons.Default.Visibility
+                                        com.universalmedialibrary.data.local.entity.CollectionType.USER_DEFINED -> Icons.Default.Folder
+                                        com.universalmedialibrary.data.local.entity.CollectionType.SMART -> Icons.Default.AutoAwesome
+                                    },
+                                    contentDescription = null
+                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = collection.name,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = "${collection.type.name.replace('_', ' ').lowercase().replaceFirstChar { it.uppercase() }} • ${collection.itemCount} items",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Icon(Icons.Default.ChevronRight, contentDescription = null)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

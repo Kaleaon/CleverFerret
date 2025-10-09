@@ -170,7 +170,22 @@ fun AppNavigation() {
             MaintenanceScreen(onBack = { navController.navigateUp() })
         }
         composable("collections") {
-            CollectionsScreen(onOpenCollection = { /* TODO: navigate to collection detail */ })
+            CollectionsScreen(onOpenCollection = { collectionId -> 
+                navController.navigate("collection_detail/$collectionId")
+            })
+        }
+        
+        composable("collection_detail/{collectionId}") { backStackEntry ->
+            val collectionId = backStackEntry.arguments?.getString("collectionId")?.toLongOrNull() ?: -1L
+            if (collectionId > 0) {
+                com.universalmedialibrary.ui.collections.CollectionDetailScreen(
+                    collectionId = collectionId,
+                    onNavigateBack = { navController.navigateUp() },
+                    onOpenItem = { itemId -> navController.navigate("open/$itemId") }
+                )
+            } else {
+                Text("Invalid collection")
+            }
         }
 
         // Podcast routes
@@ -241,6 +256,13 @@ fun AppNavigation() {
         composable("settings") {
             com.universalmedialibrary.ui.settings.SettingsScreen(
                 onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Import/Export route
+        composable("settings/import_export") {
+            com.universalmedialibrary.ui.settings.ImportExportScreen(
+                onNavigateBack = { navController.navigateUp() }
             )
         }
 

@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.repository.MetadataFetchRepository
 import com.universalmedialibrary.data.repository.SearchRepository
+import com.universalmedialibrary.data.repository.ImportExportRepository
 import com.universalmedialibrary.services.metadata.RealMetadataService
 import dagger.Module
 import dagger.Provides
@@ -160,6 +161,31 @@ object DatabaseModule {
         metadataDao: MetadataDao
     ): SearchRepository {
         return SearchRepository(mediaItemDao, metadataDao)
+    }
+
+    // Import/Export Repository
+    @Provides
+    @Singleton
+    fun provideImportExportRepository(
+        @ApplicationContext context: Context,
+        libraryDao: LibraryDao,
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao,
+        readingProgressDao: ReadingProgressDao,
+        bookmarkDao: BookmarkDao,
+        collectionDao: UnifiedCollectionDao,
+        settingsRepository: com.universalmedialibrary.data.repository.SettingsRepository
+    ): ImportExportRepository {
+        return ImportExportRepository(
+            context,
+            libraryDao,
+            mediaItemDao,
+            metadataDao,
+            readingProgressDao,
+            bookmarkDao,
+            collectionDao,
+            settingsRepository
+        )
     }
 
 }

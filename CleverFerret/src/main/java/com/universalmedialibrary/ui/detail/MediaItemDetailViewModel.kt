@@ -8,8 +8,10 @@ import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.ReadingProgress
+import com.universalmedialibrary.data.local.entity.UnifiedCollection
 import com.universalmedialibrary.data.repository.MetadataFetchRepository
 import com.universalmedialibrary.data.repository.MetadataFetchResult
+import com.universalmedialibrary.data.repository.CollectionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +27,8 @@ class MediaItemDetailViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao,
     private val readingProgressDao: ReadingProgressDao,
-    private val metadataFetchRepository: MetadataFetchRepository
+    private val metadataFetchRepository: MetadataFetchRepository,
+    private val collectionRepository: CollectionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MediaItemDetailUiState())
@@ -131,6 +134,50 @@ class MediaItemDetailViewModel @Inject constructor(
     fun refresh(itemId: Long) {
         loadMediaItem(itemId)
     }
+
+    fun loadCollections() {
+        viewModelScope.launch {
+            try {
+                collectionRepository.getCollections().collect { collections ->
+                    _uiState.value = _uiState.value.copy(availableCollections = collections)
+                }
+            } catch (e: Exception) {
+                // Silently fail for collections
+            }
+        }
+    }
+
+    fun showAddToCollectionDialog() {
+        _uiState.value = _uiState.value.copy(showAddToCollectionDialog = true)
+        loadCollections()
+    }
+
+    fun hideAddToCollectionDialog() {
+        _uiState.value = _uiState.value.copy(showAddToCollectionDialog = false)
+    }
+
+    fun addToCollection(collectionId: Long) {
+        viewModelScope.launch {
+            try {
+                val itemId = _uiState.value.mediaItem?.itemId ?: return@launch
+                collectionRepository.addItem(collectionId, itemId)
+                _uiState.value = _uiState.value.copy(
+                    addToCollectionSuccess = "Added to collection"
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    addToCollectionError = e.message ?: "Failed to add to collection"
+                )
+            }
+        }
+    }
+
+    fun clearAddToCollectionStatus() {
+        _uiState.value = _uiState.value.copy(
+            addToCollectionSuccess = null,
+            addToCollectionError = null
+        )
+    }
 }
 
 data class MediaItemDetailUiState(
@@ -142,5 +189,9 @@ data class MediaItemDetailUiState(
     val error: String? = null,
     val isFetchingMetadata: Boolean = false,
     val metadataFetchError: String? = null,
-    val metadataFetchSuccess: String? = null
+    val metadataFetchSuccess: String? = null,
+    val showAddToCollectionDialog: Boolean = false,
+    val availableCollections: List<UnifiedCollection> = emptyList(),
+    val addToCollectionSuccess: String? = null,
+    val addToCollectionError: String? = null
 )
