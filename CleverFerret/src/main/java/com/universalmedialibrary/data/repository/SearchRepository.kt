@@ -64,8 +64,9 @@ class SearchRepository @Inject constructor(
                 item.fileName.lowercase().contains(lowerQuery) ||
                 // Search in file path
                 item.filePath.lowercase().contains(lowerQuery) ||
-                // Search in metadata
+                // Search in metadata - skip DB call if item has no metadata
                 run {
+                    if (!item.hasMetadata) return@run false
                     val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
                     metadata?.let {
                         it.title?.lowercase()?.contains(lowerQuery) == true ||

@@ -174,12 +174,14 @@ fun EnhancedEReaderScreen(
                 shadowElevation = 8.dp
             ) {
                 Column {
-                    // Chapter slider
+                    // Chapter slider - guard against invalid ranges
+                    val totalChapters = uiState.totalChapters.coerceAtLeast(1)
+                    val currentChapter = uiState.currentChapterIndex.coerceIn(0, totalChapters - 1)
                     Slider(
-                        value = uiState.currentChapterIndex.toFloat(),
+                        value = currentChapter.toFloat(),
                         onValueChange = { viewModel.jumpToChapter(it.toInt()) },
-                        valueRange = 0f..(uiState.totalChapters - 1).toFloat(),
-                        steps = uiState.totalChapters - 2,
+                        valueRange = 0f..(totalChapters - 1).toFloat(),
+                        steps = (totalChapters - 2).coerceAtLeast(0),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)

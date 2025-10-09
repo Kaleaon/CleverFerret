@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.player
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -33,6 +34,19 @@ class ModernVideoPlayerViewModel @Inject constructor(
                     prepare()
                     
                     addListener(object : Player.Listener {
+                        override fun onEvents(player: Player, events: Player.Events) {
+                            val durationMs = player.duration.takeIf { it > 0 && it != C.TIME_UNSET } 
+                                ?: _uiState.value.duration
+                            val positionMs = player.currentPosition.coerceAtLeast(0)
+                            val progress = if (durationMs > 0) positionMs.toFloat() / durationMs else 0f
+                            
+                            _uiState.value = _uiState.value.copy(
+                                duration = durationMs,
+                                currentPosition = positionMs,
+                                progress = progress
+                            )
+                        }
+
                         override fun onIsPlayingChanged(isPlaying: Boolean) {
                             _uiState.value = _uiState.value.copy(isPlaying = isPlaying)
                         }
@@ -86,8 +100,15 @@ class ModernVideoPlayerViewModel @Inject constructor(
 
     fun seekTo(progress: Float) {
         exoPlayer?.let {
-            val position = (it.duration * progress).toLong()
-            it.seekTo(position)
+            val duration = it.duration
+            if (duration > 0 && duration != C.TIME_UNSET) {
+                val position = (duration * progress).toLong().coerceIn(0L, duration)
+                it.seekTo(position)
+                _uiState.value = _uiState.value.copy(
+                    currentPosition = position,
+                    progress = progress
+                )
+            }
         }
     }
 

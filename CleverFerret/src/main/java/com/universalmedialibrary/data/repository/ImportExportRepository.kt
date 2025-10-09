@@ -90,7 +90,7 @@ class ImportExportRepository @Inject constructor(
                 metadata = metadata,
                 progress = progress,
                 bookmarks = bookmarks,
-                collections = collections.first()
+                collections = collections
             )
 
             // Serialize to JSON
