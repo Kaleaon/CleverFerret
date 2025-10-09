@@ -46,6 +46,8 @@ import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.utils.rememberPermissionsHandler
+import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -91,6 +93,24 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    
+    // Permission handling
+    val permissionState = rememberPermissionsHandler(
+        onAllPermissionsGranted = {
+            // Permissions granted - continue normal flow
+        },
+        onPermissionsDenied = { denied ->
+            // Handle denied permissions
+        }
+    )
+    
+    // Show permission dialog if needed
+    if (!permissionState.hasAllPermissions) {
+        PermissionDialog(
+            permissionState = permissionState
+        )
+    }
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -105,6 +125,19 @@ fun AppNavigation() {
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToMediaViewer = { id -> navController.navigate("open/$id") }
             )
+        }
+        composable("detail/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
+            if (itemId > 0) {
+                com.universalmedialibrary.ui.detail.MediaItemDetailScreen(
+                    itemId = itemId,
+                    onNavigateBack = { navController.navigateUp() },
+                    onOpenMedia = { id -> navController.navigate("open/$id") },
+                    onEditMetadata = { id -> /* TODO: Navigate to metadata editor */ }
+                )
+            } else {
+                Text("Invalid media item")
+            }
         }
         composable("open/{itemId}") { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
@@ -707,5 +740,89 @@ private fun getIconForLibraryType(type: String): ImageVector {
         "MOVIE" -> Icons.Default.Movie
         "MUSIC" -> Icons.Default.MusicNote
         else -> Icons.Default.Book
+    }
+}
+
+/**
+ * Permission request dialog
+ */
+@Composable
+fun PermissionDialog(
+    permissionState: com.universalmedialibrary.utils.PermissionState
+) {
+    AlertDialog(
+        onDismissRequest = { /* Cannot dismiss - permissions required */ },
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text("Storage Permissions Required")
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = "CleverFerret needs access to your device storage to:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                PermissionItem("📚", "Access your books and documents")
+                PermissionItem("🎵", "Play your music and audiobooks")
+                PermissionItem("🎬", "View your videos and movies")
+                PermissionItem("📸", "Display cover images and artwork")
+                
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "You'll also be asked for notification permission to show playback controls.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                if (permissionState.showRationale) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
+                        Text(
+                            text = "⚠️ Some permissions were denied. CleverFerret requires these permissions to function properly.",
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { permissionState.requestPermissions() }
+            ) {
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Grant Permissions")
+            }
+        }
+    )
+}
+
+@Composable
+private fun PermissionItem(emoji: String, text: String) {
+    Row(
+        modifier = Modifier.padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(emoji, style = MaterialTheme.typography.bodyLarge)
+        Text(text, style = MaterialTheme.typography.bodyMedium)
     }
 }
