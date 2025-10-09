@@ -150,7 +150,7 @@ class ArtworkLoader @Inject constructor(
      * Extract cover from EPUB using epublib
      */
     private fun extractEpubCover(file: File): Bitmap? {
-        return try {
+val book = FileInputStream(file).use { epubReader.readEpub(it) }
             val epubReader = EpubReader()
             val book = epubReader.readEpub(FileInputStream(file))
             
