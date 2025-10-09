@@ -59,21 +59,28 @@ class ImportExportRepository @Inject constructor(
             }
 
             val metadata = if (includeMetadata) {
-                mediaItems.mapNotNull { item ->
-                    metadataDao.getMetadataCommonByItemId(item.itemId)
-                }
+                mediaItems.asSequence()
+                    .filter { it.hasMetadata }
+                    .mapNotNull { item ->
+                        metadataDao.getMetadataCommonByItemId(item.itemId)
+                    }
+                    .toList()
             } else emptyList()
 
             val progress = if (includeProgress) {
-                mediaItems.mapNotNull { item ->
-                    readingProgressDao.getProgressByItemId(item.itemId)
-                }
+                mediaItems.asSequence()
+                    .mapNotNull { item ->
+                        readingProgressDao.getProgressByItemId(item.itemId)
+                    }
+                    .toList()
             } else emptyList()
 
             val bookmarks = if (includeBookmarks) {
-                mediaItems.flatMap { item ->
-                    bookmarkDao.getBookmarksForItem(item.itemId)
-                }
+                mediaItems.asSequence()
+                    .flatMap { item ->
+                        bookmarkDao.getBookmarksForItem(item.itemId)
+                    }
+                    .toList()
             } else emptyList()
 
             val collections = if (includeCollections) {
@@ -98,7 +105,8 @@ class ImportExportRepository @Inject constructor(
 
             // Save to file
             val fileName = "cleverferret_backup_${getTimestamp()}.json"
-            val exportFile = File(context.getExternalFilesDir(null), "exports")
+            val baseDir = context.getExternalFilesDir(null) ?: context.filesDir
+            val exportFile = File(baseDir, "exports")
             exportFile.mkdirs()
             val file = File(exportFile, fileName)
             file.writeText(jsonString)
@@ -133,6 +141,9 @@ class ImportExportRepository @Inject constructor(
             var skippedItems = 0
             var errors = 0
 
+            // Map old itemIds to new itemIds for foreign key remapping
+            val itemIdMap = mutableMapOf<Long, Long>()
+
             // Import libraries
             importData.libraries.forEach { library ->
                 try {
@@ -149,18 +160,23 @@ class ImportExportRepository @Inject constructor(
                 }
             }
 
-            // Import media items
+            // Import media items and track ID mapping
             importData.mediaItems.forEach { item ->
                 try {
                     val existing = mediaItemDao.getItemByPath(item.filePath)
                     if (existing == null || overwriteExisting) {
-                        if (existing != null) {
+                        val newItemId = if (existing != null) {
                             mediaItemDao.updateMediaItem(item.copy(itemId = existing.itemId))
+                            existing.itemId
                         } else {
                             mediaItemDao.insertMediaItem(item)
                         }
+                        // Map old ID to new ID
+                        itemIdMap[item.itemId] = newItemId
                         importedItems++
                     } else {
+                        // Track existing mapping for skipped items
+                        itemIdMap[item.itemId] = existing.itemId
                         skippedItems++
                     }
                 } catch (e: Exception) {
@@ -168,28 +184,37 @@ class ImportExportRepository @Inject constructor(
                 }
             }
 
-            // Import metadata
+            // Import metadata with remapped itemIds
             importData.metadata.forEach { metadata ->
                 try {
-                    metadataDao.insertMetadataCommon(metadata)
+                    val newItemId = itemIdMap[metadata.itemId]
+                    if (newItemId != null) {
+                        metadataDao.insertMetadataCommon(metadata.copy(itemId = newItemId))
+                    }
                 } catch (e: Exception) {
                     // Continue on metadata errors
                 }
             }
 
-            // Import progress
+            // Import progress with remapped itemIds
             importData.progress.forEach { progress ->
                 try {
-                    readingProgressDao.insertProgress(progress)
+                    val newItemId = itemIdMap[progress.itemId]
+                    if (newItemId != null) {
+                        readingProgressDao.insertProgress(progress.copy(itemId = newItemId))
+                    }
                 } catch (e: Exception) {
                     // Continue on progress errors
                 }
             }
 
-            // Import bookmarks
+            // Import bookmarks with remapped itemIds
             importData.bookmarks.forEach { bookmark ->
                 try {
-                    bookmarkDao.insertBookmark(bookmark)
+                    val newItemId = itemIdMap[bookmark.itemId]
+                    if (newItemId != null) {
+                        bookmarkDao.insertBookmark(bookmark.copy(itemId = newItemId))
+                    }
                 } catch (e: Exception) {
                     // Continue on bookmark errors
                 }
@@ -234,9 +259,17 @@ class ImportExportRepository @Inject constructor(
             val csvBuilder = StringBuilder()
             csvBuilder.append("Title,Type,File Path,File Size,Has Metadata,Date Added,Library\n")
 
+            // Create library name lookup map to avoid N+1 queries
+            val libraryMap = libraries.associateBy { it.libraryId }
+
             mediaItems.forEach { item ->
-                val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
-                val library = libraryDao.getLibraryById(item.libraryId)
+                // Skip DB call for items without metadata
+                val metadata = if (item.hasMetadata) {
+                    metadataDao.getMetadataCommonByItemId(item.itemId)
+                } else null
+                
+                // Use cached library lookup
+                val library = libraryMap[item.libraryId]
 
                 csvBuilder.append(
                     listOf(
@@ -253,7 +286,8 @@ class ImportExportRepository @Inject constructor(
 
             // Save to file
             val fileName = "cleverferret_export_${getTimestamp()}.csv"
-            val exportFile = File(context.getExternalFilesDir(null), "exports")
+            val baseDir = context.getExternalFilesDir(null) ?: context.filesDir
+            val exportFile = File(baseDir, "exports")
             exportFile.mkdirs()
             val file = File(exportFile, fileName)
             file.writeText(csvBuilder.toString())
@@ -272,7 +306,8 @@ class ImportExportRepository @Inject constructor(
      * Get list of available backups
      */
     suspend fun getAvailableBackups(): List<BackupInfo> = withContext(Dispatchers.IO) {
-        val exportDir = File(context.getExternalFilesDir(null), "exports")
+        val baseDir = context.getExternalFilesDir(null) ?: context.filesDir
+        val exportDir = File(baseDir, "exports")
         if (!exportDir.exists()) return@withContext emptyList()
 
         exportDir.listFiles { file ->

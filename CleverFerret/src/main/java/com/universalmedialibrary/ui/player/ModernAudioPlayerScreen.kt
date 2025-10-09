@@ -408,8 +408,8 @@ private fun VinylRecord(
         val center = Offset(size.width / 2, size.height / 2)
         val radius = size.minDimension / 2
 
-        // Draw vinyl grooves
-        for (i in 10 until radius.toInt() step 8) {
+        // Draw vinyl grooves - reduced iterations for better performance on low-end devices
+        for (i in 10 until radius.toInt() step 16) {
             drawCircle(
                 color = Color.Black.copy(alpha = 0.3f),
                 radius = i.toFloat(),

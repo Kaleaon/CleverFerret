@@ -59,17 +59,9 @@ object PermissionsHandler {
      * Check if all required permissions are granted
      */
     fun hasAllPermissions(context: Context): Boolean {
-        // Check for MANAGE_EXTERNAL_STORAGE on Android 11+
-if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    if (!Environment.isExternalStorageManager()) {
-        return false
-    }
-}
-if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-    if (!Environment.isExternalStorageManager()) {
-        return false
-    }
-}
+        // Check for MANAGE_EXTERNAL_STORAGE only on Android 11-12 (API 30-32)
+        // Android 13+ uses granular READ_MEDIA_* permissions instead
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             if (!Environment.isExternalStorageManager()) {
                 return false
             }
@@ -93,15 +85,18 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Bu
      */
     fun hasStoragePermissions(context: Context): Boolean {
         return when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                Environment.isExternalStorageManager()
-            }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                // Android 13+ - Check granular media permissions only
                 hasPermission(context, Manifest.permission.READ_MEDIA_IMAGES) &&
                 hasPermission(context, Manifest.permission.READ_MEDIA_VIDEO) &&
                 hasPermission(context, Manifest.permission.READ_MEDIA_AUDIO)
             }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                // Android 11-12 - Check MANAGE_EXTERNAL_STORAGE
+                Environment.isExternalStorageManager()
+            }
             else -> {
+                // Android 10 and below
                 hasPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
@@ -119,10 +114,11 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Bu
     }
 
     /**
-     * Launch storage permission request (for Android 11+)
+     * Launch storage permission request (for Android 11-12 only)
+     * Android 13+ uses granular READ_MEDIA_* permissions instead
      */
     fun requestStorageManagement(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             try {
                 val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                 intent.data = Uri.parse("package:${context.packageName}")

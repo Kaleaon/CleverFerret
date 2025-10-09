@@ -242,11 +242,11 @@ class MetadataFetchRepository @Inject constructor(
     /**
      * Fetch metadata based on media type
      */
-    suspend fun fetchMetadataForItem(itemId: Long): MetadataFetchResult {
+    suspend fun fetchMetadataForItem(itemId: Long): MetadataFetchResult = withContext(Dispatchers.IO) {
         val mediaItem = mediaItemDao.getItemById(itemId)
-            ?: return MetadataFetchResult.Error("Media item not found")
+            ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
-        return when (mediaItem.mediaType.uppercase()) {
+        return@withContext when (mediaItem.mediaType.uppercase()) {
             "BOOK" -> fetchAndSaveBookMetadata(itemId)
             "MOVIE", "VIDEO" -> fetchAndSaveMovieMetadata(itemId)
             "MUSIC", "AUDIO" -> fetchAndSaveMusicMetadata(itemId)
