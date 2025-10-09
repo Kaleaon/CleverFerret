@@ -155,12 +155,6 @@ dependencies {
         exclude(group = "xmlpull")
     }
     
-    // MP3 ID3 tag reading
-    implementation("com.mpatric:mp3agic:0.9.1")
-    
-    // MP4/M4A metadata extraction
-    implementation("org.jaudiotagger:jaudiotagger:2.2.5")
-    
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
