@@ -16,7 +16,7 @@ plugins {
 
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
@@ -154,10 +154,11 @@ dependencies {
     
     // Media metadata extraction libraries
     // EPUB parsing for cover extraction
-    implementation("nl.siegmann.epublib:epublib-core:3.1") {
-        exclude(group = "org.slf4j")
-        exclude(group = "xmlpull")
-    }
+    // Temporarily commented out due to JitPack 401 error - TODO: Find alternative or fix repo
+    // implementation("nl.siegmann.epublib:epublib-core:3.1") {
+    //     exclude(group = "org.slf4j")
+    //     exclude(group = "xmlpull")
+    // }
     
     // Testing
     testImplementation("junit:junit:4.13.2")

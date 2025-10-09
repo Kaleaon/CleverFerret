@@ -13,7 +13,8 @@ import com.universalmedialibrary.services.cache.CacheManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import nl.siegmann.epublib.epub.EpubReader
+// Temporarily commented out due to JitPack dependency issue
+// import nl.siegmann.epublib.epub.EpubReader
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -148,9 +149,14 @@ class ArtworkLoader @Inject constructor(
 
     /**
      * Extract cover from EPUB using epublib
+     * Temporarily disabled due to JitPack dependency issue
      */
     private fun extractEpubCover(file: File): Bitmap? {
-val book = FileInputStream(file).use { epubReader.readEpub(it) }
+        // TODO: Re-enable when epublib dependency is fixed
+        Log.w(TAG, "EPUB cover extraction disabled - dependency issue")
+        return null
+        /* Temporarily commented out
+        return try {
             val epubReader = EpubReader()
             val book = epubReader.readEpub(FileInputStream(file))
             
@@ -177,6 +183,7 @@ val book = FileInputStream(file).use { epubReader.readEpub(it) }
             Log.e(TAG, "Error extracting EPUB cover from ${file.name}", e)
             null
         }
+        */
     }
 
     /**
