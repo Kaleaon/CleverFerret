@@ -73,15 +73,13 @@ echo "Labels: $LABELS"
 echo ""
 
 # Create the issue
-ISSUE_URL=$(gh issue create \
+if ISSUE_URL=$(gh issue create \
     --repo "Kaleaon/CleverFerret" \
     --title "$TITLE" \
     --assignee "$ASSIGNEE" \
     --label "epic" \
     --label "priority: critical" \
-    --body "$BODY")
-
-if [ $? -eq 0 ]; then
+    --body "$BODY"); then
     echo "✅ Issue created successfully!"
     echo "URL: $ISSUE_URL"
 else
