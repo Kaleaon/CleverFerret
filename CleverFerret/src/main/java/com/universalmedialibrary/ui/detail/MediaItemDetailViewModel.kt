@@ -8,6 +8,8 @@ import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.ReadingProgress
+import com.universalmedialibrary.data.repository.MetadataFetchRepository
+import com.universalmedialibrary.data.repository.MetadataFetchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +24,8 @@ import javax.inject.Inject
 class MediaItemDetailViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
     private val metadataDao: MetadataDao,
-    private val readingProgressDao: ReadingProgressDao
+    private val readingProgressDao: ReadingProgressDao,
+    private val metadataFetchRepository: MetadataFetchRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MediaItemDetailUiState())
@@ -81,6 +84,50 @@ class MediaItemDetailViewModel @Inject constructor(
         }
     }
 
+    fun fetchMetadata() {
+        viewModelScope.launch {
+            try {
+                val mediaItem = _uiState.value.mediaItem ?: return@launch
+                
+                _uiState.value = _uiState.value.copy(isFetchingMetadata = true, metadataFetchError = null)
+                
+                val result = metadataFetchRepository.fetchMetadataForItem(mediaItem.itemId)
+                
+                when (result) {
+                    is MetadataFetchResult.Success -> {
+                        _uiState.value = _uiState.value.copy(
+                            isFetchingMetadata = false,
+                            metadata = result.metadata,
+                            metadataFetchError = null,
+                            metadataFetchSuccess = "Metadata fetched from: ${result.sources.joinToString(", ")}"
+                        )
+                        // Reload item to get updated hasMetadata flag
+                        loadMediaItem(mediaItem.itemId)
+                    }
+                    is MetadataFetchResult.Error -> {
+                        _uiState.value = _uiState.value.copy(
+                            isFetchingMetadata = false,
+                            metadataFetchError = result.message,
+                            metadataFetchSuccess = null
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isFetchingMetadata = false,
+                    metadataFetchError = e.message ?: "Failed to fetch metadata"
+                )
+            }
+        }
+    }
+
+    fun clearMetadataFetchStatus() {
+        _uiState.value = _uiState.value.copy(
+            metadataFetchError = null,
+            metadataFetchSuccess = null
+        )
+    }
+
     fun refresh(itemId: Long) {
         loadMediaItem(itemId)
     }
@@ -92,5 +139,8 @@ data class MediaItemDetailUiState(
     val metadata: MetadataCommon? = null,
     val progress: ReadingProgress? = null,
     val isFavorite: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val isFetchingMetadata: Boolean = false,
+    val metadataFetchError: String? = null,
+    val metadataFetchSuccess: String? = null
 )

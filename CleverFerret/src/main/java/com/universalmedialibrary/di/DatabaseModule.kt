@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
+import com.universalmedialibrary.data.repository.MetadataFetchRepository
+import com.universalmedialibrary.data.repository.SearchRepository
+import com.universalmedialibrary.services.metadata.RealMetadataService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -136,6 +139,27 @@ object DatabaseModule {
     @Provides
     fun provideMaintenanceChangeDao(database: AppDatabase): MaintenanceChangeDao {
         return database.maintenanceChangeDao()
+    }
+
+    // Metadata Fetch Repository
+    @Provides
+    @Singleton
+    fun provideMetadataFetchRepository(
+        realMetadataService: RealMetadataService,
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao
+    ): MetadataFetchRepository {
+        return MetadataFetchRepository(realMetadataService, mediaItemDao, metadataDao)
+    }
+
+    // Search Repository
+    @Provides
+    @Singleton
+    fun provideSearchRepository(
+        mediaItemDao: MediaItemDao,
+        metadataDao: MetadataDao
+    ): SearchRepository {
+        return SearchRepository(mediaItemDao, metadataDao)
     }
 
 }

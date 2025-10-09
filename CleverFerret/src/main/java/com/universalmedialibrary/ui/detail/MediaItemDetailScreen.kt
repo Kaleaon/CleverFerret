@@ -54,6 +54,19 @@ fun MediaItemDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { viewModel.fetchMetadata() },
+                        enabled = !uiState.isFetchingMetadata
+                    ) {
+                        if (uiState.isFetchingMetadata) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(Icons.Default.CloudDownload, contentDescription = "Fetch Metadata")
+                        }
+                    }
                     IconButton(onClick = { viewModel.toggleFavorite() }) {
                         Icon(
                             if (uiState.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -135,6 +148,14 @@ fun MediaItemDetailScreen(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        // Metadata fetch status messages
+                        uiState.metadataFetchSuccess?.let { message ->
+                            SuccessMessage(message = message, onDismiss = { viewModel.clearMetadataFetchStatus() })
+                        }
+                        
+                        uiState.metadataFetchError?.let { error ->
+                            ErrorMessage(message = error, onDismiss = { viewModel.clearMetadataFetchStatus() })
+                        }
                         // Cover/Thumbnail Section
                         CoverSection(
                             coverPath = uiState.metadata?.coverImagePath,
@@ -501,4 +522,88 @@ private fun formatTime(milliseconds: Long): String {
 private fun formatDate(timestamp: Long): String {
     val sdf = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
     return sdf.format(java.util.Date(timestamp))
+}
+
+@Composable
+private fun SuccessMessage(message: String, onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2E7D32)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+                Text(
+                    text = message,
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Dismiss",
+                    tint = Color.White
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ErrorMessage(message: String, onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    Icons.Default.Error,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer
+                )
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Dismiss",
+                    tint = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+        }
+    }
 }
