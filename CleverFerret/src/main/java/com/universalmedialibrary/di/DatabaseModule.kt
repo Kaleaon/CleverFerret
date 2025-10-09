@@ -96,21 +96,43 @@ object DatabaseModule {
         return database.readerSettingsDao()
     }
 
+    /**
+     * Provides the TagDao instance from the application database.
+     *
+     * @return The TagDao used for tag-related persistence operations.
+     */
     @Provides
     fun provideTagDao(database: AppDatabase): TagDao {
         return database.tagDao()
     }
 
+    /**
+     * Exposes the SharedLinkDao from the provided AppDatabase for injection.
+     *
+     * @return The SharedLinkDao instance backed by the given AppDatabase.
+     */
     @Provides
     fun provideSharedLinkDao(database: AppDatabase): SharedLinkDao {
         return database.sharedLinkDao()
     }
 
+    /**
+     * Exposes the UnifiedCollectionDao instance from the provided AppDatabase for dependency injection.
+     *
+     * @param database The app database to obtain the DAO from.
+     * @return The UnifiedCollectionDao instance.
+     */
     @Provides
     fun provideUnifiedCollectionDao(database: AppDatabase): UnifiedCollectionDao {
         return database.unifiedCollectionDao()
     }
 
+    /**
+     * Obtains the MaintenanceChangeDao instance from the provided AppDatabase for dependency injection.
+     *
+     * @param database AppDatabase instance to retrieve the DAO from.
+     * @return The MaintenanceChangeDao backed by the given database.
+     */
     @Provides
     fun provideMaintenanceChangeDao(database: AppDatabase): MaintenanceChangeDao {
         return database.maintenanceChangeDao()
