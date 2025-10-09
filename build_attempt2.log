@@ -1,0 +1,65 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources NO-SOURCE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+Checking the license for package Android SDK Build-Tools 35 in /home/ubuntu/android-sdk/licenses
+License for package Android SDK Build-Tools 35 accepted.
+Preparing "Install Android SDK Build-Tools 35 v.35.0.0".
+"Install Android SDK Build-Tools 35 v.35.0.0" ready.
+Installing Android SDK Build-Tools 35 in /home/ubuntu/android-sdk/build-tools/35.0.0
+"Install Android SDK Build-Tools 35 v.35.0.0" complete.
+"Install Android SDK Build-Tools 35 v.35.0.0" finished.
+> Task :CleverFerret:preBuild UP-TO-DATE
+> Task :CleverFerret:preDebugBuild UP-TO-DATE
+> Task :CleverFerret:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :CleverFerret:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+> Task :CleverFerret:checkDebugAarMetadata
+WARNING: [Processor] Library '/home/ubuntu/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.8.0/e28b8a1b7941dd4c4da264d5e622274e7c8e6488/media3-session-1.8.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
+ Example of androidX reference: 'androidx/media3/session/legacy/LegacyParcelableUtil'
+ Example of support library reference: 'android/support/v4/media/MediaDescriptionCompat'
+WARNING: [Processor] Library '/home/ubuntu/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-cast-framework/21.5.0/b54e012f75c1af1a7a50f79398dec65df2a80398/play-services-cast-framework-21.5.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
+ Example of androidX reference: 'androidx/core/app/TaskStackBuilder'
+ Example of support library reference: 'android/support/v4/media/session/MediaSessionCompat$Token'
+
+> Task :CleverFerret:processDebugNavigationResources
+> Task :CleverFerret:generateDebugResValues
+> Task :CleverFerret:compileDebugNavigationResources
+> Task :CleverFerret:mapDebugSourceSetPaths
+> Task :CleverFerret:generateDebugResources
+> Task :CleverFerret:packageDebugResources
+> Task :CleverFerret:createDebugCompatibleScreenManifests
+> Task :CleverFerret:extractDeepLinksDebug
+> Task :CleverFerret:parseDebugLocalResources
+> Task :CleverFerret:mergeDebugResources
+> Task :CleverFerret:processDebugMainManifest
+> Task :CleverFerret:processDebugManifest
+> Task :CleverFerret:processDebugManifestForPackage
+> Task :CleverFerret:processDebugResources
+> Task :CleverFerret:javaPreCompileDebug
+> Task :CleverFerret:mergeDebugShaders
+> Task :CleverFerret:compileDebugShaders NO-SOURCE
+> Task :CleverFerret:generateDebugAssets UP-TO-DATE
+> Task :CleverFerret:mergeDebugAssets
+> Task :CleverFerret:desugarDebugFileDependencies
+> Task :CleverFerret:compressDebugAssets
+> Task :CleverFerret:mergeDebugJniLibFolders
+> Task :CleverFerret:checkDebugDuplicateClasses
+> Task :CleverFerret:mergeDebugNativeLibs
+> Task :CleverFerret:kspDebugKotlin
+> Task :CleverFerret:mergeExtDexDebug
+
+> Task :CleverFerret:kspDebugKotlin
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:171:18 Expecting 'catch' or 'finally'
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:189:23 Expecting ')'
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:189:23 Unexpected tokens (use ';' to separate expressions on the same line)
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/metadata/MetadataEditorViewModel.kt:209:1 Expecting a top level declaration
+
+> Task :CleverFerret:kspDebugKotlin FAILED
