@@ -11,86 +11,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.universalmedialibrary.ui.theme.MetallicCard
 
 /**
  * Enhanced Common Components with Metallic Styling
  * 
- * Beautiful, reusable UI components that use existing MetallicCard
- * and follow Material Design 3 guidelines.
+ * Additional UI components that complement the existing CommonCards.kt
+ * Note: EmptyStateCard, InfoBanner, SectionHeader, and StatsCard already exist in CommonCards.kt
  */
 
 /**
- * Empty State Card - shown when no data is available
+ * Enhanced Info Banner - dismissible notification/message banner with types
  */
 @Composable
-fun EmptyStateCard(
-    icon: ImageVector = Icons.Default.LibraryBooks,
-    title: String = "No Items",
-    message: String = "Add items to get started",
-    actionLabel: String? = null,
-    onActionClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
-) {
-    MetallicCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            if (actionLabel != null && onActionClick != null) {
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Button(
-                    onClick = onActionClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(actionLabel)
-                }
-            }
-        }
-    }
-}
-
-/**
- * Info Banner - dismissible notification/message banner
- */
-@Composable
-fun InfoBanner(
+fun DismissibleInfoBanner(
     message: String,
     type: BannerType = BannerType.INFO,
     dismissible: Boolean = true,
@@ -155,7 +89,7 @@ fun InfoBanner(
 }
 
 /**
- * Banner types for InfoBanner
+ * Banner types for DismissibleInfoBanner
  */
 enum class BannerType(
     val icon: ImageVector,
@@ -190,85 +124,6 @@ enum class BannerType(
 }
 
 /**
- * Section Header - titled section with optional action button
- */
-@Composable
-fun SectionHeader(
-    title: String,
-    actionLabel: String? = null,
-    onActionClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        
-        if (actionLabel != null && onActionClick != null) {
-            TextButton(onClick = onActionClick) {
-                Text(actionLabel)
-            }
-        }
-    }
-}
-
-/**
- * Stats Card - display statistical information with icon
- */
-@Composable
-fun StatsCard(
-    value: String,
-    label: String,
-    icon: ImageVector,
-    color: Color = MaterialTheme.colorScheme.primary,
-    modifier: Modifier = Modifier
-) {
-    MetallicCard(
-        modifier = modifier.width(140.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(32.dp)
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-/**
  * Tag Chip - small chip for labels and categories
  */
 @Composable
@@ -280,21 +135,22 @@ fun TagChip(
     onRemove: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    SuggestionChip(
-        onClick = { onClick?.invoke() },
-        label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium
-            )
-        },
-        modifier = modifier,
-        colors = SuggestionChipDefaults.suggestionChipColors(
-            containerColor = color,
-            labelColor = onTextColor
-        ),
-        trailingIcon = if (onRemove != null) {
-            {
+    if (onRemove != null) {
+        // Use AssistChip when removable
+        AssistChip(
+            onClick = { onClick?.invoke() },
+            label = {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            },
+            modifier = modifier,
+            colors = AssistChipDefaults.assistChipColors(
+                containerColor = color,
+                labelColor = onTextColor
+            ),
+            trailingIcon = {
                 IconButton(
                     onClick = onRemove,
                     modifier = Modifier.size(18.dp)
@@ -307,6 +163,22 @@ fun TagChip(
                     )
                 }
             }
-        } else null
-    )
+        )
+    } else {
+        // Use SuggestionChip when not removable
+        SuggestionChip(
+            onClick = { onClick?.invoke() },
+            label = {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium
+                )
+            },
+            modifier = modifier,
+            colors = SuggestionChipDefaults.suggestionChipColors(
+                containerColor = color,
+                labelColor = onTextColor
+            )
+        )
+    }
 }

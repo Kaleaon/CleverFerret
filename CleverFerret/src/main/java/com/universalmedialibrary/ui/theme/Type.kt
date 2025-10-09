@@ -11,10 +11,13 @@ import androidx.compose.ui.unit.sp
  * 
  * Updated to support the enhanced UI system with proper
  * font weights, sizes, and letter spacing for metallic themes.
+ * 
+ * Note: Main CleverFerretTypography is defined in CleverFerretTheme.kt
+ * This file provides additional typography utilities and extensions.
  */
 
-// Typography for CleverFerret
-val CleverFerretTypography = Typography(
+// Enhanced Typography definition (for reference/documentation)
+val EnhancedTypography = Typography(
     // Display styles - for hero sections and large headings
     displayLarge = TextStyle(
         fontFamily = FontFamily.Default,

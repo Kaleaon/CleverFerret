@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 /**
  * ViewModel for Media Library Screen
@@ -155,15 +156,16 @@ class MediaLibraryViewModel @Inject constructor(
      * Generate placeholder data for testing
      */
     private fun generatePlaceholderData(category: MediaCategory): List<MediaItemData> {
+        val random = Random.Default
         return List(20) { index ->
             MediaItemData(
                 id = index.toLong(),
                 title = "${category.label} Item ${index + 1}",
                 subtitle = "Artist or Author",
-                year = "202${(0..3).random()}",
+                year = "202${random.nextInt(0, 4)}",
                 imageUrl = null, // Use placeholder letters
-                progress = if (index % 3 == 0) (0.1f..0.9f).random() else null,
-                rating = if (index % 2 == 0) (3.0f..5.0f).random() else null,
+                progress = if (index % 3 == 0) random.nextFloat() * 0.8f + 0.1f else null,
+                rating = if (index % 2 == 0) random.nextFloat() * 2f + 3f else null,
                 mediaType = category.label.uppercase()
             )
         }

@@ -54,8 +54,11 @@ fun MediaGrid(
 ) {
     if (items.isEmpty()) {
         EmptyStateCard(
+            icon = Icons.Default.LibraryBooks,
             title = "No Media Items",
-            message = "Your library is empty. Add some media to get started!",
+            description = "Your library is empty. Add some media to get started!",
+            actionLabel = "Refresh",
+            onActionClick = { /* TODO: Add refresh action */ },
             modifier = modifier
         )
     } else {
