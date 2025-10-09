@@ -47,7 +47,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CleverFerretMediaLibrary"
         android:requestLegacyExternalStorage="true"
-        android:preserveLegacyExternalStorage="true">
+        android:preserveLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true">
 
         <!-- Chromecast Configuration -->
         <meta-data
