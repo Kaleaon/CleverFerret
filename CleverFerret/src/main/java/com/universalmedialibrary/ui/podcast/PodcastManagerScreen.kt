@@ -350,7 +350,7 @@ fun PodcastCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = podcast.author,
+                    text = podcast.author ?: "Unknown Author",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -385,7 +385,7 @@ fun PodcastCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = podcast.description,
+                    text = podcast.description ?: "No description available",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -618,7 +618,7 @@ fun PodcastSearchDialog(
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
-                                        text = result.author,
+                                        text = result.author ?: "Unknown Author",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

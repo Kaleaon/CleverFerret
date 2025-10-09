@@ -11,6 +11,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Hilt module providing database-related dependencies
+ * 
+ * Provides:
+ * - AppDatabase instance (singleton)
+ * - All DAO implementations from the database
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
@@ -50,6 +57,63 @@ object DatabaseModule {
     @Provides
     fun provideReadingProgressDao(database: AppDatabase): ReadingProgressDao {
         return database.readingProgressDao()
+    }
+
+    // Plex DAOs
+    @Provides
+    fun providePlexServerDao(database: AppDatabase): PlexServerDao {
+        return database.plexServerDao()
+    }
+
+    @Provides
+    fun providePlexMediaItemDao(database: AppDatabase): PlexMediaItemDao {
+        return database.plexMediaItemDao()
+    }
+
+    @Provides
+    fun providePlexSyncDao(database: AppDatabase): PlexSyncDao {
+        return database.plexSyncDao()
+    }
+
+    // Reader enhancement DAOs
+    @Provides
+    fun provideAnnotationDao(database: AppDatabase): AnnotationDao {
+        return database.annotationDao()
+    }
+
+    @Provides
+    fun provideSearchIndexDao(database: AppDatabase): SearchIndexDao {
+        return database.searchIndexDao()
+    }
+
+    @Provides
+    fun provideReadingStatisticsDao(database: AppDatabase): ReadingStatisticsDao {
+        return database.readingStatisticsDao()
+    }
+
+    @Provides
+    fun provideReaderSettingsDao(database: AppDatabase): ReaderSettingsDao {
+        return database.readerSettingsDao()
+    }
+
+    @Provides
+    fun provideTagDao(database: AppDatabase): TagDao {
+        return database.tagDao()
+    }
+
+    @Provides
+    fun provideSharedLinkDao(database: AppDatabase): SharedLinkDao {
+        return database.sharedLinkDao()
+    }
+
+    @Provides
+    fun provideUnifiedCollectionDao(database: AppDatabase): UnifiedCollectionDao {
+        return database.unifiedCollectionDao()
+    }
+
+    @Provides
+    fun provideMaintenanceChangeDao(database: AppDatabase): MaintenanceChangeDao {
+        return database.maintenanceChangeDao()
     }
 
 }

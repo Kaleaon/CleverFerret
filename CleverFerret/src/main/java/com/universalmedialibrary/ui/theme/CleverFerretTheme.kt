@@ -83,7 +83,17 @@ fun CleverFerretUnifiedTheme(
         UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> DeepPurplePlatinumUnified.darkScheme
     }
 
-    val metallicGradient = getMetallicEffectForTheme(palette)
+    val metallicColors = getMetallicEffectForTheme(palette)
+    val metallicGradient = if (metallicColors.isNotEmpty() && metallicColors.size >= 3) {
+        MetallicGradient(
+            base = metallicColors[0],
+            highlight = metallicColors[1],
+            shadow = metallicColors[2],
+            shimmer = metallicColors.getOrNull(3)
+        )
+    } else {
+        MetallicEffects.Gold
+    }
 
     CompositionLocalProvider(LocalMetallicGradient provides metallicGradient) {
         MaterialTheme(

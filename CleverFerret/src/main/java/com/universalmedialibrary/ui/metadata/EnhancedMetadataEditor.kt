@@ -415,7 +415,7 @@ fun EnhancedMetadataEditorScreen(
                                             )
                                         }
                                         Text(
-                                            text = "Source: ${result.source.name}",
+                                            text = "Source: ${result.source}",
                                             style = MaterialTheme.typography.labelSmall,
                                             color = MaterialTheme.colorScheme.primary
                                         )

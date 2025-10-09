@@ -25,7 +25,10 @@ data class Podcast(
     val subscribed: Boolean = false,
     val autoDownload: Boolean = false,
     val isFavorite: Boolean = false
-)
+) {
+    // Computed property for UI compatibility
+    val totalEpisodes: Int get() = episodeCount
+}
 
 // Domain model for PodcastEpisode (maps to PodcastEpisodeEntity)
 data class PodcastEpisode(
@@ -48,7 +51,10 @@ data class PodcastEpisode(
     val playPosition: Long = 0L,
     val favorite: Boolean = false,
     val isNew: Boolean = true
-)
+) {
+    // Computed property for UI compatibility
+    val isDownloaded: Boolean get() = downloaded
+}
 
 // Domain model for search results
 data class PodcastSearchResult(
@@ -89,14 +95,7 @@ data class PodcastDownloadProgress(
     val status: DownloadStatus
 )
 
-enum class DownloadStatus {
-    PENDING,
-    DOWNLOADING,
-    COMPLETED,
-    FAILED,
-    CANCELLED,
-    PAUSED
-}
+// DownloadStatus is defined in PodcastDownloadManager.kt as a sealed class
 
 // Mapper extensions to convert between domain models and entities
 fun PodcastEntity.toDomain() = Podcast(

@@ -5,10 +5,10 @@ import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.data.repository.StoryRepository
 import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
-import com.universalmedialibrary.services.contentcreation.FanfictionToEPUBConverter
-import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
+import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
 import com.universalmedialibrary.services.webfiction.RedditFanficDownloader
 import dagger.Module
 import dagger.Provides
@@ -35,28 +35,19 @@ object ServicesModule {
 
     @Provides
     @Singleton
-    fun providePodcastService(
-        @ApplicationContext context: Context
-    ): PodcastService = PodcastService(context)
+    fun provideStoryUpdateManager(
+        storyRepository: StoryRepository
+    ): StoryUpdateManager = StoryUpdateManager(storyRepository)
+
+    // Note: PodcastService uses @Inject constructor instead of @Provides
+    // to avoid circular dependency with PodcastRepository
 
     @Provides
     @Singleton
     fun provideFanfictionToEpubConverter(
         @ApplicationContext context: Context,
-        updateManager: com.universalmedialibrary.services.contentcreation.StoryUpdateManager
+        updateManager: StoryUpdateManager
     ): FanfictionToEpubConverter = FanfictionToEpubConverter(context, updateManager)
-
-    @Provides
-    @Singleton
-    fun provideFanfictionToEPUBConverter(
-        @ApplicationContext context: Context
-    ): FanfictionToEPUBConverter = FanfictionToEPUBConverter(context)
-
-    @Provides
-    @Singleton
-    fun provideFanfictionToEpubConverterBasic(
-        @ApplicationContext context: Context
-    ): FanfictionToEpubConverterBasic = FanfictionToEpubConverterBasic(context)
 
     @Provides
     @Singleton

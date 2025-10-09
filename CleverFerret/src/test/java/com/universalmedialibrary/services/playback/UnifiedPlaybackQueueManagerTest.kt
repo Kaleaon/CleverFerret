@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.universalmedialibrary.data.local.CleverFerretDatabase
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
@@ -35,7 +35,7 @@ class UnifiedPlaybackQueueManagerTest {
     @Mock
     private lateinit var mockExoPlayerService: ExoPlayerService
     
-    private lateinit var database: CleverFerretDatabase
+    private lateinit var database: AppDatabase
     private lateinit var queueManager: UnifiedPlaybackQueueManager
     private lateinit var context: Context
     
@@ -47,7 +47,7 @@ class UnifiedPlaybackQueueManagerTest {
         // Create in-memory database for testing
         database = Room.inMemoryDatabaseBuilder(
             context,
-            CleverFerretDatabase::class.java
+            AppDatabase::class.java
         ).allowMainThreadQueries().build()
         
         // Mock ExoPlayer service

@@ -22,7 +22,7 @@ fun MediaOpenScreen(
         uiState.isLoading -> CircularProgressIndicator()
         uiState.error != null -> Text(uiState.error ?: "Error")
         uiState.mediaItem != null -> {
-            val item = uiState.mediaItem
+            val item = uiState.mediaItem!!
             val path = item.filePath
             val name = item.fileName
             val ext = name.substringAfterLast('.', "").lowercase()

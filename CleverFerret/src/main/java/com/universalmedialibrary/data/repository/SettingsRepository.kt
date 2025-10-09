@@ -32,6 +32,8 @@ class SettingsRepository @Inject constructor(
         val WIFI_ONLY_DOWNLOADS = booleanPreferencesKey("wifi_only_downloads")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val API_SETTINGS = stringPreferencesKey("api_settings")
+        val CACHE_LOCATION = stringPreferencesKey("cache_location")
+        val MAX_CACHE_SIZE_MB = stringPreferencesKey("max_cache_size_mb")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -72,6 +74,19 @@ class SettingsRepository @Inject constructor(
         }
     }
 
+    val cacheLocationFlow: Flow<CacheLocation> = context.dataStore.data.map { preferences ->
+        val location = preferences[PreferencesKeys.CACHE_LOCATION] ?: CacheLocation.INTERNAL.name
+        try {
+            CacheLocation.valueOf(location)
+        } catch (e: IllegalArgumentException) {
+            CacheLocation.INTERNAL
+        }
+    }
+
+    val maxCacheSizeMBFlow: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.MAX_CACHE_SIZE_MB]?.toIntOrNull() ?: 500
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -107,4 +122,24 @@ class SettingsRepository @Inject constructor(
             preferences[PreferencesKeys.API_SETTINGS] = json.encodeToString(settings)
         }
     }
+
+    suspend fun setCacheLocation(location: CacheLocation) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.CACHE_LOCATION] = location.name
+        }
+    }
+
+    suspend fun setMaxCacheSizeMB(sizeMB: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.MAX_CACHE_SIZE_MB] = sizeMB.toString()
+        }
+    }
+}
+
+/**
+ * Cache storage location options
+ */
+enum class CacheLocation {
+    INTERNAL,  // Device internal storage
+    EXTERNAL   // SD card or external storage
 }

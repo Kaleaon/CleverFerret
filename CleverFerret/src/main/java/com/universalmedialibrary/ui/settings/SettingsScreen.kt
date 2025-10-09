@@ -126,7 +126,7 @@ fun SettingsScreen(
                     MetallicText(
                         text = "Podcasts",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                     )
                 }
 
@@ -197,7 +197,7 @@ fun SettingsScreen(
                     MetallicText(
                         text = "Notifications",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                     )
                 }
 
@@ -236,7 +236,7 @@ fun SettingsScreen(
                     MetallicText(
                         text = "About",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(vertical = 8.dp, top = 16.dp)
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                     )
                 }
 

@@ -96,7 +96,7 @@ class PodcastPlayerViewModel @Inject constructor(
     }
 
     fun pause() {
-        audioPlaybackManager.pause()
+        audioPlaybackManager.exoPlayer.pause()
         _uiState.value = _uiState.value.copy(isPlaying = false)
 
         // Save current position

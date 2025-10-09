@@ -56,8 +56,8 @@ class RedditFanficDownloader {
                 ?: ("https://www.reddit.com" + (post["permalink"]?.toString()?.trim('"') ?: return@mapNotNull null))
 
             // Heuristic to extract chapter number
-            val number = Regex("(?i)(?:chapter|ch\.?)[\s-_]*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
-                ?: Regex("(?i)(?:part)[\s-_]*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
+            val number = Regex("(?i)(?:chapter|ch\\.?)[\\s-_]*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
+                ?: Regex("(?i)(?:part)[\\s-_]*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
                 ?: 0
 
             val html = fetchPostHtml(url)
