@@ -9,6 +9,7 @@ import android.util.Log
 import android.util.LruCache
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.PlexMediaItem
+import com.universalmedialibrary.services.cache.CacheManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,25 +33,22 @@ import javax.inject.Singleton
  *
  * Features:
  * - Memory cache for loaded artwork (LRU cache)
- * - Disk cache for network-loaded and extracted artwork
+ * - Disk cache for network-loaded and extracted artwork (configurable location)
  * - Automatic bitmap downscaling for widgets/notifications
  * - Support for both MediaItem and PlexMediaItem
  * - Async loading with coroutines
  * - MediaMetadataRetriever for audio/video embedded artwork
  * - EPUB cover extraction from OPF manifest
+ * - Supports internal storage or SD card for cache
  */
 @Singleton
 class ArtworkLoader @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient,
+    private val cacheManager: CacheManager
 ) {
 
     private val TAG = "ArtworkLoader"
-
-    // Disk cache directory
-    private val diskCacheDir = File(context.cacheDir, "artwork").apply {
-        if (!exists()) mkdirs()
-    }
 
     // Memory cache for loaded artwork
     // Cache size: 20% of available memory, in kilobytes
@@ -81,6 +79,9 @@ class ArtworkLoader @Inject constructor(
             val cacheKey = getCacheKey(mediaItem.itemId.toString(), maxWidth, maxHeight)
             memoryCache.get(cacheKey)?.let { return@withContext it }
 
+            // Get disk cache directory from cache manager
+            val diskCacheDir = cacheManager.getCacheDirectory()
+            
             // Try disk cache
             val diskCacheFile = File(diskCacheDir, "${mediaItem.itemId}_${maxWidth}x${maxHeight}.jpg")
             if (diskCacheFile.exists()) {
@@ -111,6 +112,9 @@ class ArtworkLoader @Inject constructor(
                 
                 // Cache to disk
                 saveToDiskCache(diskCacheFile, finalBitmap)
+                
+                // Clean cache if needed
+                cacheManager.cleanCacheIfNeeded()
                 
                 return@withContext finalBitmap
             }
@@ -253,6 +257,9 @@ class ArtworkLoader @Inject constructor(
             val cacheKey = getCacheKey("plex_${plexItem.plexRatingKey}", maxWidth, maxHeight)
             memoryCache.get(cacheKey)?.let { return@withContext it }
 
+            // Get disk cache directory from cache manager
+            val diskCacheDir = cacheManager.getCacheDirectory()
+            
             // Try disk cache
             val diskCacheFile = File(diskCacheDir, "plex_${plexItem.plexRatingKey}_${maxWidth}x${maxHeight}.jpg")
             if (diskCacheFile.exists()) {
@@ -304,6 +311,9 @@ class ArtworkLoader @Inject constructor(
             val cacheKey = getCacheKey(url, maxWidth, maxHeight)
             memoryCache.get(cacheKey)?.let { return@withContext it }
 
+            // Get disk cache directory from cache manager
+            val diskCacheDir = cacheManager.getCacheDirectory()
+            
             // Create disk cache file based on URL hash
             val urlHash = url.hashCode().toString()
             val diskCacheFile = File(diskCacheDir, "url_${urlHash}_${maxWidth}x${maxHeight}.jpg")
@@ -399,13 +409,13 @@ class ArtworkLoader @Inject constructor(
     /**
      * Clear all cached artwork (memory and disk)
      */
-    fun clearCache() {
+    suspend fun clearCache() {
         // Clear memory cache
         memoryCache.evictAll()
         
-        // Clear disk cache
+        // Clear disk cache using cache manager
         try {
-            diskCacheDir.listFiles()?.forEach { it.delete() }
+            cacheManager.clearAllCache()
             Log.d(TAG, "Artwork cache cleared (memory + disk)")
         } catch (e: Exception) {
             Log.e(TAG, "Error clearing disk cache", e)
@@ -429,25 +439,16 @@ class ArtworkLoader @Inject constructor(
     /**
      * Get disk cache size in MB
      */
-    fun getDiskCacheSizeMB(): Float {
-        var totalSize = 0L
-        diskCacheDir.listFiles()?.forEach { file ->
-            totalSize += file.length()
-        }
-        return totalSize / (1024f * 1024f)
+    suspend fun getDiskCacheSizeMB(): Long {
+        return cacheManager.getCurrentCacheSizeMB()
     }
 
     /**
      * Clean up old disk cache files (older than 30 days)
      */
-    fun cleanOldDiskCache(maxAgeMillis: Long = 30L * 24 * 60 * 60 * 1000) {
+    suspend fun cleanOldDiskCache(maxAgeDays: Int = 30) {
         try {
-            val now = System.currentTimeMillis()
-            diskCacheDir.listFiles()?.forEach { file ->
-                if (now - file.lastModified() > maxAgeMillis) {
-                    file.delete()
-                }
-            }
+            cacheManager.clearOldCache(maxAgeDays)
         } catch (e: Exception) {
             Log.e(TAG, "Error cleaning old disk cache", e)
         }
