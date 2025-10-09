@@ -21,13 +21,17 @@ import javax.inject.Singleton
  * - Local database (Room)
  * - Remote RSS feeds (PodcastService)
  * - Search APIs
+ *
+ * Note: Uses Lazy<PodcastService> to break circular dependency:
+ * PodcastRepository -> PodcastService -> PodcastRepository
+ * The service is only resolved when actually needed.
  */
 @Singleton
 class PodcastRepository @Inject constructor(
     private val podcastDao: PodcastDao,
     private val episodeDao: PodcastEpisodeDao,
     private val subscriptionDao: PodcastSubscriptionDao,
-    private val podcastService: PodcastService
+    private val podcastService: dagger.Lazy<PodcastService>
 ) {
 
     // ===== Podcast Operations =====
@@ -81,7 +85,7 @@ class PodcastRepository @Inject constructor(
             }
 
             // Parse RSS feed
-            val rssFeed = podcastService.parseRSSFeed(feedUrl)
+            val rssFeed = podcastService.get().parseRSSFeed(feedUrl)
 
             // Create podcast entity
             val podcastEntity = PodcastEntity(
@@ -202,7 +206,7 @@ class PodcastRepository @Inject constructor(
     // ===== Search Operations =====
 
     suspend fun searchPodcastsOnline(query: String, apiKeys: Map<String, String> = emptyMap()): List<PodcastSearchResult> {
-        return podcastService.searchPodcasts(query, apiKeys)
+        return podcastService.get().searchPodcasts(query, apiKeys)
     }
 
     // ===== Refresh Operations =====
@@ -214,7 +218,7 @@ class PodcastRepository @Inject constructor(
                 .firstOrNull()
                 ?: return PodcastOperationResult.Error("Podcast not found")
 
-            val rssFeed = podcastService.parseRSSFeed(podcast.feedUrl)
+            val rssFeed = podcastService.get().parseRSSFeed(podcast.feedUrl)
 
             // Update podcast info
             podcastDao.updateLastUpdated(podcastId, System.currentTimeMillis(), rssFeed.items.size)

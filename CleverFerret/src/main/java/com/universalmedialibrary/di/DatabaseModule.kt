@@ -11,6 +11,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Hilt module providing database-related dependencies
+ * 
+ * Provides:
+ * - AppDatabase instance (singleton)
+ * - All DAO implementations from the database
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
@@ -92,6 +99,21 @@ object DatabaseModule {
     @Provides
     fun provideTagDao(database: AppDatabase): TagDao {
         return database.tagDao()
+    }
+
+    @Provides
+    fun provideSharedLinkDao(database: AppDatabase): SharedLinkDao {
+        return database.sharedLinkDao()
+    }
+
+    @Provides
+    fun provideUnifiedCollectionDao(database: AppDatabase): UnifiedCollectionDao {
+        return database.unifiedCollectionDao()
+    }
+
+    @Provides
+    fun provideMaintenanceChangeDao(database: AppDatabase): MaintenanceChangeDao {
+        return database.maintenanceChangeDao()
     }
 
 }
