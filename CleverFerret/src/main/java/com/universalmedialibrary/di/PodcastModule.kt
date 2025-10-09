@@ -48,12 +48,25 @@ object PodcastModule {
         return database.podcastSubscriptionDao()
     }
 
+    /**
+     * Provides the PodcastChapterDao instance obtained from the application database.
+     *
+     * @param database The application database used to obtain DAO instances.
+     * @return The PodcastChapterDao backed by the provided AppDatabase.
+     */
     @Provides
     @Singleton
     fun providePodcastChapterDao(database: AppDatabase): PodcastChapterDao {
         return database.podcastChapterDao()
     }
 
+    /**
+     * Creates a PodcastDownloadManager for managing podcast episode downloads.
+     *
+     * @param context The application Context used for file and system access.
+     * @param episodeDao DAO for accessing and updating podcast episode data needed by the download manager.
+     * @return A configured PodcastDownloadManager instance.
+     */
     @Provides
     @Singleton
     fun providePodcastDownloadManager(
