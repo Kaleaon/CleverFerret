@@ -165,7 +165,11 @@ fun rememberPermissionsHandler(
 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && !Environment.isExternalStorageManager()) {
                 PermissionsHandler.requestStorageManagement(context)
             } else {
-                onAllPermissionsGranted()
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    if (!Environment.isExternalStorageManager()) {
+        return false
+    }
+}
             }
         } else {
             onPermissionsDenied(denied)
