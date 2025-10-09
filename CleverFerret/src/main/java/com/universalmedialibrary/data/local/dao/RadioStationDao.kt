@@ -49,6 +49,15 @@ interface RadioStationDao {
     @Query("UPDATE radio_stations SET lastPlayedAt = :timestamp, playCount = playCount + 1 WHERE id = :id")
     suspend fun recordPlay(id: Long, timestamp: Long)
 
+    /**
+     * Get recently played radio stations.
+     * 
+     * Sorts stations by last played time (most recent first), with stations
+     * that have never been played appearing last.
+     * 
+     * Note: Uses CASE expression for NULL ordering because SQLite doesn't
+     * support NULLS LAST syntax.
+     */
     @Query("SELECT * FROM radio_stations ORDER BY CASE WHEN lastPlayedAt IS NULL THEN 1 ELSE 0 END, lastPlayedAt DESC LIMIT :limit")
     fun getRecentlyPlayed(limit: Int = 10): Flow<List<RadioStation>>
 

@@ -18,7 +18,13 @@ import javax.inject.Singleton
 
 /**
  * Hilt module for podcast-related dependencies
- * Provides DAOs and Repository for dependency injection
+ * 
+ * Provides:
+ * - Podcast DAOs (singleton)
+ * - PodcastDownloadManager (singleton)
+ * 
+ * Note: PodcastRepository and PodcastService use @Inject constructors
+ * instead of @Provides to avoid circular dependency issues.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -47,8 +53,6 @@ object PodcastModule {
     fun providePodcastChapterDao(database: AppDatabase): PodcastChapterDao {
         return database.podcastChapterDao()
     }
-
-    // PodcastRepository is provided via @Inject constructor to avoid circular dependency with PodcastService
 
     @Provides
     @Singleton

@@ -1,3 +1,10 @@
+/**
+ * CleverFerret Module Build Configuration
+ * 
+ * Universal Media Library - Android application module
+ * Architecture: Kotlin + Jetpack Compose + Material 3 + Hilt + Room
+ */
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -40,7 +47,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
         freeCompilerArgs += listOf(
-            "-opt-in=androidx.compose.material.ExperimentalMaterialApi",
             "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
         )
     }
@@ -102,7 +108,7 @@ dependencies {
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.media3:media3-exoplayer:1.3.0")
     implementation("androidx.media3:media3-ui:1.3.0")
-    implementation("androidx.media3:media3-session:1.3.0")
+    implementation("androidx.media3:media3-session:1.3.0") // Required for MediaSessionService
     
     // File handling
     implementation("androidx.documentfile:documentfile:1.0.1")

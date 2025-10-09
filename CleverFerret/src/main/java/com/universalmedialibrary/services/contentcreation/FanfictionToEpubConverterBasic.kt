@@ -15,6 +15,7 @@ import javax.inject.Inject
  * Basic Fanfiction to EPUB converter without update detection dependencies
  * Used internally by StoryUpdateManager to avoid circular dependencies
  */
+@javax.inject.Singleton
 class FanfictionToEpubConverterBasic @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

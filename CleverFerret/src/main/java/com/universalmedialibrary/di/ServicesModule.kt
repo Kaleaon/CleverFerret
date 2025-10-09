@@ -39,7 +39,8 @@ object ServicesModule {
         storyRepository: StoryRepository
     ): StoryUpdateManager = StoryUpdateManager(storyRepository)
 
-    // PodcastService is provided via @Inject constructor - removed manual provider to break circular dependency
+    // Note: PodcastService uses @Inject constructor instead of @Provides
+    // to avoid circular dependency with PodcastRepository
 
     @Provides
     @Singleton

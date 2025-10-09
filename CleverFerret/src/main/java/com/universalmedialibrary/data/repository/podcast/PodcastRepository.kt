@@ -21,6 +21,10 @@ import javax.inject.Singleton
  * - Local database (Room)
  * - Remote RSS feeds (PodcastService)
  * - Search APIs
+ *
+ * Note: Uses Lazy<PodcastService> to break circular dependency:
+ * PodcastRepository -> PodcastService -> PodcastRepository
+ * The service is only resolved when actually needed.
  */
 @Singleton
 class PodcastRepository @Inject constructor(

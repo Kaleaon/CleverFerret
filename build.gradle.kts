@@ -1,6 +1,18 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+/**
+ * Universal Media Library - Root Build Configuration
+ * 
+ * Top-level build file for project-wide plugin versions and configuration.
+ * Individual module configurations are in their respective build.gradle.kts files.
+ * 
+ * Pinned Versions (per project standards):
+ * - Kotlin: 1.9.23
+ * - Android Gradle Plugin: 8.4.1
+ * - Hilt: 2.51.1
+ * - Gradle: 8.8
+ */
+
 plugins {
-    id("com.android.application") version "8.5.1" apply false
+    id("com.android.application") version "8.4.1" apply false
     id("org.jetbrains.kotlin.android") version "1.9.23" apply false
     id("org.jetbrains.kotlin.kapt") version "1.9.23" apply false
     id("com.google.dagger.hilt.android") version "2.51.1" apply false

@@ -36,12 +36,19 @@ import kotlinx.coroutines.launch
  * - High-importance notification channel
  * - Smart notification management
  *
- * Note: Hilt dependency injection is not used for MediaSessionService compatibility.
- * Dependencies should be manually initialized when needed.
+ * Note: Does not use Hilt @AndroidEntryPoint due to MediaSessionService
+ * incompatibility. Manual dependency initialization is used instead.
+ * 
+ * Implementation Note: Artwork loading is currently a stub pending
+ * proper ArtworkLoader initialization strategy.
  */
 class MediaNotificationService : MediaSessionService() {
 
-    // TODO: Initialize manually when artwork loading is implemented
+    /**
+     * Artwork loader for notification images.
+     * Currently null - requires manual initialization when artwork feature is implemented.
+     * TODO: Implement proper initialization strategy (manual factory or lazy initialization)
+     */
     private var artworkLoader: ArtworkLoader? = null
 
     private var mediaSession: MediaSession? = null
@@ -165,11 +172,13 @@ class MediaNotificationService : MediaSessionService() {
         serviceScope.launch {
             // Load artwork with notification-appropriate size (512x512)
             // TODO: Initialize artworkLoader properly when this feature is implemented
-            val artwork = artworkLoader?.loadArtwork(
-                mediaItem = mediaItem,
-                maxWidth = 512,
-                maxHeight = 512
-            )
+            val artwork = artworkLoader?.let { loader ->
+                loader.loadArtwork(
+                    mediaItem = mediaItem,
+                    maxWidth = 512,
+                    maxHeight = 512
+                )
+            }
 
             // Update notification with loaded artwork
             updateNotification(
