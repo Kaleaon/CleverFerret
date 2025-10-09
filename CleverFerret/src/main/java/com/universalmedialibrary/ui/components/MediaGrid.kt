@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -54,7 +55,7 @@ fun MediaGrid(
 ) {
     if (items.isEmpty()) {
         EmptyStateCard(
-            icon = Icons.Default.LibraryBooks,
+            icon = Icons.AutoMirrored.Filled.LibraryBooks,
             title = "No Media Items",
             description = "Your library is empty. Add some media to get started!",
             actionLabel = "Refresh",
