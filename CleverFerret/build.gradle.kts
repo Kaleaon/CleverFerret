@@ -10,7 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
 }
 
 android {
@@ -114,7 +114,7 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
     
     // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     
     // Glance for widgets
     implementation("androidx.glance:glance-appwidget:1.0.0")
@@ -147,6 +147,13 @@ dependencies {
     
     // ML Kit for OCR and text recognition
     implementation("com.google.mlkit:text-recognition:16.0.0")
+    
+    // Media metadata extraction libraries
+    // EPUB parsing for cover extraction
+    implementation("nl.siegmann.epublib:epublib-core:3.1") {
+        exclude(group = "org.slf4j")
+        exclude(group = "xmlpull")
+    }
     
     // Testing
     testImplementation("junit:junit:4.13.2")

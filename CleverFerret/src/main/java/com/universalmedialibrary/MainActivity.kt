@@ -216,6 +216,15 @@ fun AppNavigation() {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
         }
 
+        // Enhanced Media Library Screen route
+        composable("media_library") {
+            com.universalmedialibrary.ui.screens.MediaLibraryScreen(
+                onNavigateToItem = { itemId ->
+                    navController.navigate("open/$itemId")
+                }
+            )
+        }
+
         // Server integration route
         composable("servers") {
             com.universalmedialibrary.ui.integration.ServerIntegrationScreen(
@@ -470,6 +479,16 @@ fun LibraryListScreen(
                     icon = Icons.Default.Palette,
                     colors = listOf(Color(0xFFD4AF37), Color(0xFFFFD700)),
                     onClick = { navController.navigate("theme_preview") }
+                )
+            }
+
+            // Enhanced Media Library Card (NEW!)
+            item {
+                FeatureCard(
+                    title = "Media Library",
+                    icon = Icons.Default.LibraryBooks,
+                    colors = listOf(Color(0xFF0A1630), Color(0xFFD4AF37)),
+                    onClick = { navController.navigate("media_library") }
                 )
             }
         }
