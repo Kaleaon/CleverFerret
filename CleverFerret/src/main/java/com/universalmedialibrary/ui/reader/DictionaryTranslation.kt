@@ -566,6 +566,7 @@ private fun LanguageSelector(
 /**
  * Dictionary history and favorites screen
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DictionaryHistoryScreen(
     service: DictionaryService,

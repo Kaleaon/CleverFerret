@@ -51,6 +51,7 @@ fun SeriesDetailScreen(
 
     Scaffold(
         topBar = {
+            @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(title = { Text(uiSeries?.name ?: "Series") })
         }
     ) { padding ->

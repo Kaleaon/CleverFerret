@@ -54,7 +54,7 @@ class RadioViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 // Stop current playback
-                playbackManager.stop()
+                playbackManager.exoPlayer.stop()
 
                 // Play new station
                 val uri = Uri.parse(station.streamUrl)
@@ -75,7 +75,7 @@ class RadioViewModel @Inject constructor(
     }
 
     fun stop() {
-        playbackManager.stop()
+        playbackManager.exoPlayer.stop()
         _currentStation.value = null
     }
 

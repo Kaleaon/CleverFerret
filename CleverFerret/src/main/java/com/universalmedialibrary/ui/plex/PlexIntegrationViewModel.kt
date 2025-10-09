@@ -201,8 +201,10 @@ class PlexIntegrationViewModel @Inject constructor(
      * Sign out from Plex
      */
     fun signOut() {
-        plexService.signOut()
-        _uiState.value = PlexIntegrationUiState()
+        viewModelScope.launch {
+            plexService.signOut()
+            _uiState.value = PlexIntegrationUiState()
+        }
     }
 
     /**

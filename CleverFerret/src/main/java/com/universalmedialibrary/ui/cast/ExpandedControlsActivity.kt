@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.cast.ChromecastManager
 import com.universalmedialibrary.services.visualizer.AudioVisualizerService
-import com.universalmedialibrary.ui.theme.CleverFerretMediaLibraryTheme
 import com.universalmedialibrary.ui.visualizer.ProjectMVisualizer
 import com.universalmedialibrary.ui.visualizer.VisualizerStyle
 import dagger.hilt.android.AndroidEntryPoint
