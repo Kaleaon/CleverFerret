@@ -60,7 +60,11 @@ object PermissionsHandler {
      */
     fun hasAllPermissions(context: Context): Boolean {
         // Check for MANAGE_EXTERNAL_STORAGE on Android 11+
-```kotlin
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    if (!Environment.isExternalStorageManager()) {
+        return false
+    }
+}
 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
     if (!Environment.isExternalStorageManager()) {
         return false
