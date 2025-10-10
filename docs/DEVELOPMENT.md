@@ -190,16 +190,17 @@ CleverFerret/
 
 - **Min SDK**: 26 (Android 8.0)
 - **Target SDK**: 34 (Android 14)
-- **Compile SDK**: 34
-- **Kotlin**: 1.9.23
-- **Gradle**: 8.8
-- **Android Gradle Plugin**: 8.4.1
+- **Compile SDK**: 36
+- **Kotlin**: 2.0.20
+- **Gradle**: 8.13
+- **Android Gradle Plugin**: 8.13.0
 
 ### Key Dependencies
 
-- **Jetpack Compose BOM**: 2024.05.00
-- **Hilt**: 2.51.1
-- **Room**: 2.6.1
+- **Jetpack Compose BOM**: 2025.10.00
+- **Hilt**: 2.52
+- **Room**: 2.8.2
+- **kotlinx-serialization-json**: 1.7.3
 - **AndroidX Core**: Latest stable
 
 See `build.gradle.kts` for complete dependency list.
