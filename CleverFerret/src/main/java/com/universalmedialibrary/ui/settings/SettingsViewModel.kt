@@ -4,7 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.repository.SettingsRepository
-import com.universalmedialibrary.data.settings.*
+import com.universalmedialibrary.data.local.entity.ReaderSettingsEntity
+import com.universalmedialibrary.data.settings.ApiSettings
+import com.universalmedialibrary.data.settings.MusicApiSettings
+import com.universalmedialibrary.data.settings.SecuritySettings
+import com.universalmedialibrary.data.settings.GeneralSettings
 import com.universalmedialibrary.ui.theme.ThemePalette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,8 +31,8 @@ class SettingsViewModel @Inject constructor(
     private val _apiSettings = MutableStateFlow(ApiSettings())
     val apiSettings: StateFlow<ApiSettings> = _apiSettings.asStateFlow()
 
-    private val _readerSettings = MutableStateFlow(ReaderSettings())
-    val readerSettings: StateFlow<ReaderSettings> = _readerSettings.asStateFlow()
+    private val _readerSettings = MutableStateFlow(ReaderSettingsEntity())
+    val readerSettings: StateFlow<ReaderSettingsEntity> = _readerSettings.asStateFlow()
 
     private val _securitySettings = MutableStateFlow(SecuritySettings())
     val securitySettings: StateFlow<SecuritySettings> = _securitySettings.asStateFlow()
@@ -214,23 +218,11 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateReaderSettings(settings: ReaderSettings) {
+    fun updateReaderSettings(settings: ReaderSettingsEntity) {
         viewModelScope.launch {
             _readerSettings.value = settings
-            // Persist to repository - convert settings data class to ReaderSettingsEntity
-            val entity = com.universalmedialibrary.data.local.entity.ReaderSettingsEntity(
-                id = 1L, // Global settings always use ID 1
-                fontSize = settings.fontSize.toInt(),
-                lineSpacing = settings.lineSpacing,
-                theme = settings.theme.name,
-                marginLeft = settings.marginHorizontal.toInt(),
-                marginRight = settings.marginHorizontal.toInt(),
-                marginTop = settings.marginVertical.toInt(),
-                marginBottom = settings.marginVertical.toInt(),
-                keepScreenOn = settings.keepScreenOn,
-                fullscreen = settings.fullScreenMode
-            )
-            readerSettingsRepository.updateGlobalSettings(entity)
+            // Persist to repository
+            readerSettingsRepository.updateGlobalSettings(settings)
         }
     }
 

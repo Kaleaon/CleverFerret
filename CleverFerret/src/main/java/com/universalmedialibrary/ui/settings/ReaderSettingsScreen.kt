@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.local.entity.ReaderSettings
-import com.universalmedialibrary.data.settings.AutoScrollMode
-import com.universalmedialibrary.data.settings.PageAnimation
-import com.universalmedialibrary.data.settings.ReaderTheme
+import com.universalmedialibrary.data.local.entity.ReaderSettingsEntity
+import com.universalmedialibrary.data.local.entity.AutoScrollMode
+import com.universalmedialibrary.data.local.entity.ReadingTheme
 import java.util.Locale
 import androidx.compose.foundation.layout.ColumnScope
 
