@@ -63,10 +63,8 @@ class ReaderSettingsViewModel @Inject constructor(
                 val mediaId = _currentMediaId.value
                 readerSettingsRepository.updateTheme(mediaId, theme)
 
-                // Apply preset colors based on theme
-                val (backgroundColor, textColor) = getThemeColors(theme)
-                updateBackgroundColorInternal(mediaId, backgroundColor)
-                updateTextColorInternal(mediaId, textColor)
+                // Apply theme (unified theming replaces backgroundColor/textColor)
+                updateThemeInternal(mediaId, theme)
 
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to update theme: ${e.message}") }
@@ -75,27 +73,14 @@ class ReaderSettingsViewModel @Inject constructor(
     }
 
     /**
-     * Update background color
+     * Update theme (replaces background/text color)
      */
-    fun updateBackgroundColor(color: String) {
+    fun updateTheme(theme: String) {
         viewModelScope.launch {
             try {
-                updateBackgroundColorInternal(_currentMediaId.value, color)
+                updateThemeInternal(_currentMediaId.value, theme)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Failed to update background color: ${e.message}") }
-            }
-        }
-    }
-
-    /**
-     * Update text color
-     */
-    fun updateTextColor(color: String) {
-        viewModelScope.launch {
-            try {
-                updateTextColorInternal(_currentMediaId.value, color)
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Failed to update text color: ${e.message}") }
+                _uiState.update { it.copy(error = "Failed to update theme: ${e.message}") }
             }
         }
     }
@@ -129,10 +114,10 @@ class ReaderSettingsViewModel @Inject constructor(
     /**
      * Update line spacing
      */
-    fun updateLineSpacing(lineSpacing: Float) {
+    fun updateLineHeight(lineHeight: Float) {
         viewModelScope.launch {
             try {
-                readerSettingsRepository.updateLineSpacing(_currentMediaId.value, lineSpacing)
+                readerSettingsRepository.updateLineHeight(_currentMediaId.value, lineHeight)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to update line spacing: ${e.message}") }
             }

@@ -8,7 +8,13 @@ import com.universalmedialibrary.data.local.entity.ReaderSettingsEntity
 import com.universalmedialibrary.data.local.entity.ReaderSettings
 import com.universalmedialibrary.data.local.entity.toEntity
 import com.universalmedialibrary.data.settings.ApiSettings
+import com.universalmedialibrary.data.settings.BookApiSettings
+import com.universalmedialibrary.data.settings.ComicApiSettings
+import com.universalmedialibrary.data.settings.AudiobookApiSettings
+import com.universalmedialibrary.data.settings.MovieTvApiSettings
 import com.universalmedialibrary.data.settings.MusicApiSettings
+import com.universalmedialibrary.data.settings.ArtworkApiSettings
+import com.universalmedialibrary.data.settings.LyricsApiSettings
 import com.universalmedialibrary.data.settings.SecuritySettings
 import com.universalmedialibrary.data.settings.GeneralSettings
 import com.universalmedialibrary.ui.theme.ThemePalette
