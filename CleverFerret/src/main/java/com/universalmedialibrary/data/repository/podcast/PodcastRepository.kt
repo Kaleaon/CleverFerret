@@ -21,13 +21,17 @@ import javax.inject.Singleton
  * - Local database (Room)
  * - Remote RSS feeds (PodcastService)
  * - Search APIs
+ *
+ * Note: Uses Lazy<PodcastService> to break circular dependency:
+ * PodcastRepository -> PodcastService -> PodcastRepository
+ * The service is only resolved when actually needed.
  */
 @Singleton
 class PodcastRepository @Inject constructor(
     private val podcastDao: PodcastDao,
     private val episodeDao: PodcastEpisodeDao,
     private val subscriptionDao: PodcastSubscriptionDao,
-    private val podcastService: PodcastService
+    private val podcastService: dagger.Lazy<PodcastService>
 ) {
 
     // ===== Podcast Operations =====
@@ -72,6 +76,13 @@ class PodcastRepository @Inject constructor(
         podcastDao.deletePodcast(podcast.toEntity())
     }
 
+    /**
+     * Subscribes to a podcast by parsing its RSS feed and saving the podcast, episodes, and subscription.
+     *
+     * @param feedUrl The RSS feed URL of the podcast to subscribe to.
+     * @return `PodcastOperationResult.Success` with a confirmation message when subscription succeeds, or
+     * `PodcastOperationResult.Error` with an error message and optional cause when subscription fails or the feed is already subscribed.
+     */
     suspend fun subscribeToPodcast(feedUrl: String): PodcastOperationResult {
         return try {
             // Check if already subscribed
@@ -81,7 +92,7 @@ class PodcastRepository @Inject constructor(
             }
 
             // Parse RSS feed
-            val rssFeed = podcastService.parseRSSFeed(feedUrl)
+            val rssFeed = podcastService.get().parseRSSFeed(feedUrl)
 
             // Create podcast entity
             val podcastEntity = PodcastEntity(
@@ -199,13 +210,28 @@ class PodcastRepository @Inject constructor(
         episodeDao.updateFavoriteStatus(episodeId, favorite)
     }
 
-    // ===== Search Operations =====
+    /**
+     * Searches for podcasts online matching the given query.
+     *
+     * @param query Text to search for (title, author, or keyword).
+     * @param apiKeys Optional map of provider identifiers to API keys for remote search services.
+     * @return A list of matching `PodcastSearchResult` objects; empty if no matches are found.
+     */
 
     suspend fun searchPodcastsOnline(query: String, apiKeys: Map<String, String> = emptyMap()): List<PodcastSearchResult> {
-        return podcastService.searchPodcasts(query, apiKeys)
+        return podcastService.get().searchPodcasts(query, apiKeys)
     }
 
-    // ===== Refresh Operations =====
+    /**
+     * Refreshes a local podcast by fetching its RSS feed, inserting any newly discovered episodes, and updating related metadata.
+     *
+     * This updates the podcast's lastUpdated and lastChecked timestamps, inserts new episode records when found,
+     * and updates the podcast's new-episode count.
+     *
+     * @param podcastId The local database ID of the podcast to refresh.
+     * @return A PodcastOperationResult: `Success` with a message that includes the number of new episodes when the refresh completes,
+     *         or `Error` with details if the refresh fails.
+     */
 
     suspend fun refreshPodcast(podcastId: Long): PodcastOperationResult {
         return try {
@@ -214,7 +240,7 @@ class PodcastRepository @Inject constructor(
                 .firstOrNull()
                 ?: return PodcastOperationResult.Error("Podcast not found")
 
-            val rssFeed = podcastService.parseRSSFeed(podcast.feedUrl)
+            val rssFeed = podcastService.get().parseRSSFeed(podcast.feedUrl)
 
             // Update podcast info
             podcastDao.updateLastUpdated(podcastId, System.currentTimeMillis(), rssFeed.items.size)

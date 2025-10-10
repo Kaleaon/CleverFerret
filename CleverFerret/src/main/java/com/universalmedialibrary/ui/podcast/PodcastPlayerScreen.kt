@@ -26,6 +26,7 @@ import com.universalmedialibrary.ui.theme.*
 fun PodcastPlayerScreen(
     episodeId: Long,
     onBack: () -> Unit,
+    onNavigateToVisualizer: () -> Unit = {},
     viewModel: PodcastPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,6 +63,9 @@ fun PodcastPlayerScreen(
                                     MaterialTheme.colorScheme.onSurface
                             )
                         }
+                        com.universalmedialibrary.ui.visualizer.VisualizerButton(
+                            onClick = onNavigateToVisualizer
+                        )
                         IconButton(onClick = { /* TODO: Share */ }) {
                             Icon(Icons.Default.Share, contentDescription = "Share")
                         }

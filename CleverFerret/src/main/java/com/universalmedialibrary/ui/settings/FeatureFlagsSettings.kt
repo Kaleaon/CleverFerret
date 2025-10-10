@@ -15,10 +15,10 @@ import com.universalmedialibrary.core.FeatureFlags
 
 /**
  * Feature Flags Settings Screen
- * 
+ *
  * Allows users to toggle experimental and optional features at runtime.
  * All changes are persisted to SharedPreferences.
- * 
+ *
  * Usage in navigation:
  * ```
  * composable("settings/features") {
@@ -147,8 +147,8 @@ fun FeatureFlagsSettingsScreen(
             onDismissRequest = { showExperimentalWarning = false },
             icon = { Icon(Icons.Default.Warning, null, tint = MaterialTheme.colorScheme.error) },
             title = { Text("Enable Experimental Features?") },
-            text = { 
-                Text("Experimental features are unstable and may cause crashes or data loss. Only enable for testing purposes.") 
+            text = {
+                Text("Experimental features are unstable and may cause crashes or data loss. Only enable for testing purposes.")
             },
             confirmButton = {
                 TextButton(
@@ -233,7 +233,7 @@ private fun getIconForFlag(flag: FeatureFlags.FeatureFlag) = when (flag) {
     FeatureFlags.FeatureFlag.ENABLE_GEMINI -> Icons.Default.AutoAwesome
     FeatureFlags.FeatureFlag.ENABLE_CLOUD_TTS -> Icons.Default.RecordVoiceOver
     FeatureFlags.FeatureFlag.ENABLE_EXOPLAYER -> Icons.Default.PlayCircle
-    FeatureFlags.FeatureFlag.ENABLE_PODCASTS -> Icons.Default.Podcast
+    FeatureFlags.FeatureFlag.ENABLE_PODCASTS -> Icons.Default.MusicNote
     FeatureFlags.FeatureFlag.ENABLE_ADVANCED_READER -> Icons.Default.MenuBook
     FeatureFlags.FeatureFlag.ENABLE_AI_METADATA -> Icons.Default.Psychology
     FeatureFlags.FeatureFlag.ENABLE_AUDIOBOOK_PLAYER -> Icons.Default.Headphones

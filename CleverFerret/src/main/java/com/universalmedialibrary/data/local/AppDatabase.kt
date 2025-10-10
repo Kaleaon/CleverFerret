@@ -3,6 +3,7 @@ package com.universalmedialibrary.data.local
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
@@ -13,6 +14,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
+import com.universalmedialibrary.data.Tag
 
 
 /**
@@ -35,11 +37,13 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
         APIKey::class,
         Bookmark::class,
         ReadingProgress::class,
+        ReadingSession::class,
 
-        // Person, Series, and Genre entities for metadata
+        // Person, Series, Album, and Genre entities for metadata
         People::class,
         ItemPersonRole::class,
         Series::class,
+        Album::class,
         Genre::class,
         ItemGenre::class,
 
@@ -79,10 +83,31 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
         StoryUpdate::class,
 
         // Plex Integration
-        PlexServer::class
+        PlexServer::class,
+        PlexMediaItem::class,
+        PlexProgress::class,
+        PlexRating::class,
+        PlexCollection::class,
+        PlexCollectionItem::class,
+        PlexTag::class,
+        PlexMediaTag::class,
+
+        // Reader enhancements
+        TextAnnotation::class,
+        SearchIndex::class,
+        ReadingStatistics::class,
+        ReaderSettingsEntity::class,
+        BookReaderSettingsEntity::class,
+
+        // Unified tagging
+        UnifiedTag::class,
+        ItemTag::class,
+
+        // Simple tagging
+        Tag::class
 
     ],
-    version = 21, // Incremented for story management entities
+    version = 22, // Incremented for Plex entities and reader enhancements
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -120,21 +145,22 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun downloadedStoryDao(): DownloadedStoryDao
     abstract fun storyUpdateDao(): StoryUpdateDao
 
-    // Additional DAOs - Temporarily disabled until entities are properly configured
-    // abstract fun readerSettingsDao(): ReaderSettingsDao
-    // abstract fun annotationDao(): AnnotationDao
-    // abstract fun searchIndexDao(): SearchIndexDao
-    // abstract fun readingStatisticsDao(): ReadingStatisticsDao
-
     // Plex DAOs
     abstract fun plexServerDao(): PlexServerDao
-    // abstract fun plexMediaItemDao(): PlexMediaItemDao
-    // abstract fun plexSyncDao(): PlexSyncDao
+    abstract fun plexMediaItemDao(): PlexMediaItemDao
+    abstract fun plexSyncDao(): PlexSyncDao
 
-    // Playback queue DAOs - Temporarily disabled
-    // abstract fun playbackQueueDao(): PlaybackQueueDao
-    // abstract fun queueItemDao(): QueueItemDao
-    // abstract fun playbackSessionDao(): PlaybackSessionDao
+    // Reader enhancement DAOs
+    abstract fun annotationDao(): AnnotationDao
+    abstract fun readerSettingsDao(): ReaderSettingsDao
+    abstract fun searchIndexDao(): SearchIndexDao
+    abstract fun readingStatisticsDao(): ReadingStatisticsDao
+
+    // Tag DAO
+    abstract fun tagDao(): TagDao
+    
+    // Unified Tag DAO
+    abstract fun unifiedTagDao(): UnifiedTagDao
 
 
     companion object {

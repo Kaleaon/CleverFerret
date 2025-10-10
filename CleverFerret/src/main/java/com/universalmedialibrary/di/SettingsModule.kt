@@ -1,7 +1,7 @@
 package com.universalmedialibrary.di
 
 import android.content.Context
-// import com.universalmedialibrary.data.settings.SettingsRepository
+import com.universalmedialibrary.data.repository.SettingsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,12 +13,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object SettingsModule {
 
-    // Temporarily disabled until SettingsRepository is fixed
-    // @Provides
-    // @Singleton
-    // fun provideSettingsRepository(
-    //     @ApplicationContext context: Context
-    // ): SettingsRepository {
-    //     return SettingsRepository(context)
-    // }
+    @Provides
+    @Singleton
+    fun provideSettingsRepository(
+        @ApplicationContext context: Context
+    ): SettingsRepository {
+        return SettingsRepository(context)
+    }
 }

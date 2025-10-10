@@ -45,7 +45,7 @@ class PlexAuthService @Inject constructor(
     /**
      * Start the PIN authentication flow
      * Returns the PIN code that the user needs to enter at plex.tv/link
-     * 
+     *
      * Uses official Plex.tv API: POST /api/v2/pins
      */
     suspend fun startPinAuth(): Result<PlexPinAuthData> {
@@ -54,7 +54,6 @@ class PlexAuthService @Inject constructor(
 
             // Request PIN with all required headers per official API spec
             val response = authApi.requestPin(
-                strong = false, // false = 4-digit code for plex.tv/link
                 clientId = clientIdentifier
             )
 
@@ -85,7 +84,7 @@ class PlexAuthService @Inject constructor(
     /**
      * Poll for PIN authentication completion
      * This should be called in a loop after startPinAuth
-     * 
+     *
      * Polls GET /api/v2/pins/{pinId} until authToken is populated
      * Max 300 attempts (5 minutes) at 1 second intervals
      */
@@ -137,7 +136,7 @@ class PlexAuthService @Inject constructor(
             Log.d(TAG, "Fetching user info with token")
 
             // Get user information with all required headers
-            val userResponse = authApi.getUserInfo(token, clientIdentifier)
+            val userResponse = authApi.getUserInfo(token)
 
             if (userResponse.isSuccessful && userResponse.body() != null) {
                 val user = userResponse.body()!!
@@ -173,7 +172,7 @@ class PlexAuthService @Inject constructor(
 
     /**
      * Discover available Plex servers for the authenticated user
-     * 
+     *
      * Uses GET /api/v2/resources to find all owned and shared servers
      * Filters for devices that provide "server" capability
      */

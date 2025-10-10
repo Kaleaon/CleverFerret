@@ -79,7 +79,7 @@ class PlexIntegrationService @Inject constructor(
     /**
      * Sign out from Plex
      */
-    fun signOut() {
+    suspend fun signOut() {
         plexAuthService.signOut()
         disconnectAllServers()
     }
@@ -120,12 +120,12 @@ class PlexIntegrationService @Inject constructor(
     ): PlexConnectionResult = withContext(Dispatchers.IO) {
         // Try connections in order: local first, then remote
         val sortedConnections = server.connections.sortedByDescending { it.local }
-        
+
         for (connection in sortedConnections) {
             try {
                 val serverUrl = connection.uri
                 val result = connectToServer(server.name, serverUrl, server.accessToken)
-                
+
                 if (result is PlexConnectionResult.Success) {
                     return@withContext result
                 }
@@ -134,7 +134,7 @@ class PlexIntegrationService @Inject constructor(
                 continue
             }
         }
-        
+
         PlexConnectionResult.Error("Failed to connect to any of the server's connections")
     }
 

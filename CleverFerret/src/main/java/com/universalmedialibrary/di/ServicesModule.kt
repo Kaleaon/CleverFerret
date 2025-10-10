@@ -5,6 +5,7 @@ import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.data.repository.APIKeyRepository
+import com.universalmedialibrary.data.repository.StoryRepository
 import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
 import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
@@ -32,16 +33,26 @@ object ServicesModule {
     @Singleton
     fun provideAPIKeyRepository(apiKeyDao: APIKeyDao): APIKeyRepository = APIKeyRepository(apiKeyDao)
 
+    /**
+     * Creates a singleton StoryUpdateManager using the provided StoryRepository.
+     *
+     * @param storyRepository Repository used by the manager to fetch, update, and persist stories.
+     * @return The configured `StoryUpdateManager` instance.
+     */
     @Provides
     @Singleton
-    fun provideStoryUpdateManager(): StoryUpdateManager = StoryUpdateManager()
+    fun provideStoryUpdateManager(
+        storyRepository: StoryRepository
+    ): StoryUpdateManager = StoryUpdateManager(storyRepository)
 
-    @Provides
-    @Singleton
-    fun providePodcastService(
-        @ApplicationContext context: Context,
-        podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository
-    ): PodcastService = PodcastService(context, podcastRepository)
+    // Note: PodcastService uses @Inject constructor instead of @Provides
+    /**
+     * Provides a singleton FanfictionToEpubConverter configured with the application context and a StoryUpdateManager.
+     *
+     * @param context The application Context used for file and resource access.
+     * @param updateManager Manager responsible for fetching or updating story content used during conversion.
+     * @return A FanfictionToEpubConverter instance that converts fanfiction stories into EPUB format.
+     */
 
     @Provides
     @Singleton

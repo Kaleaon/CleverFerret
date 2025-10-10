@@ -115,11 +115,11 @@ class CloudSyncService @Inject constructor(
      */
     suspend fun initialize(settings: SyncSettings) = withContext(Dispatchers.IO) {
         _settings.value = settings
-        
+
         if (settings.enabled && settings.autoSync) {
             schedulePeriodicSync()
         }
-        
+
         // Authenticate with cloud provider
         authenticateProvider(settings.provider)
     }
@@ -181,13 +181,13 @@ class CloudSyncService @Inject constructor(
         try {
             // Step 1: Fetch remote changes
             val remoteItems = fetchRemoteChanges()
-            
+
             // Step 2: Identify conflicts
             val conflicts = identifyConflicts(pendingSyncItems, remoteItems)
-            
+
             if (conflicts.isNotEmpty()) {
                 _conflicts.value = conflicts
-                
+
                 // Handle conflicts based on resolution strategy
                 when (_settings.value.conflictResolution) {
                     ConflictResolution.LAST_WRITE_WINS -> {
@@ -216,7 +216,7 @@ class CloudSyncService @Inject constructor(
             // Create snapshot to avoid concurrent modification
             val itemsToSync = pendingSyncItems.toList()
             val totalItems = itemsToSync.size
-            
+
             for ((index, item) in itemsToSync.withIndex()) {
                 uploadItem(item)
                 _syncState.value = _syncState.value.copy(
@@ -256,9 +256,9 @@ class CloudSyncService @Inject constructor(
      */
     suspend fun queueForSync(item: SyncItem) = withContext(Dispatchers.IO) {
         pendingSyncItems.add(item)
-        
+
         // If auto-sync is enabled and we're not currently syncing, trigger sync
-        if (_settings.value.enabled && _settings.value.autoSync && 
+        if (_settings.value.enabled && _settings.value.autoSync &&
             _syncState.value.status != SyncStatus.SYNCING) {
             syncNow()
         }
@@ -387,9 +387,9 @@ class CloudSyncService @Inject constructor(
         remoteItems: List<SyncItem>
     ): List<SyncConflict> {
         val conflicts = mutableListOf<SyncConflict>()
-        
+
         val remoteMap = remoteItems.associateBy { it.id }
-        
+
         localItems.forEach { local ->
             val remote = remoteMap[local.id]
             if (remote != null && remote.timestamp != local.timestamp) {
@@ -425,7 +425,7 @@ class CloudSyncService @Inject constructor(
                     deviceId = ""
                 )
                 applyRemoteChange(remoteItem)
-                
+
                 // Remove from pending
                 pendingSyncItems.removeAll { it.id == conflict.itemId }
             }
@@ -478,7 +478,7 @@ class CloudSyncService @Inject constructor(
         // Use the furthest reading position
         val localProgress = (conflict.localData as Map<*, *>)["progress"] as? Float ?: 0f
         val remoteProgress = (conflict.remoteData as Map<*, *>)["progress"] as? Float ?: 0f
-        
+
         return if (remoteProgress > localProgress) {
             SyncItem(
                 id = conflict.itemId,
@@ -501,9 +501,9 @@ class CloudSyncService @Inject constructor(
         // Merge settings by combining non-conflicting values
         val local = conflict.localData as? Map<*, *> ?: return null
         val remote = conflict.remoteData as? Map<*, *> ?: return null
-        
+
         val merged = mutableMapOf<String, Any>()
-        
+
         // Add remote settings first
         remote.forEach { (key, value) ->
             val strKey = key as? String
@@ -511,7 +511,7 @@ class CloudSyncService @Inject constructor(
                 merged[strKey] = value
             }
         }
-        
+
         // Add local settings that don't conflict
         local.forEach { (key, value) ->
             val strKey = key as? String
@@ -555,7 +555,7 @@ class CloudSyncService @Inject constructor(
 
             // Remove from conflicts list
             _conflicts.value = _conflicts.value.filter { it.itemId != conflictId }
-            
+
             // Update conflict count
             _syncState.value = _syncState.value.copy(
                 conflictsCount = _conflicts.value.size
@@ -569,9 +569,9 @@ class CloudSyncService @Inject constructor(
     private fun schedulePeriodicSync() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(
-                if (_settings.value.syncOnWifiOnly) 
-                    NetworkType.UNMETERED 
-                else 
+                if (_settings.value.syncOnWifiOnly)
+                    NetworkType.UNMETERED
+                else
                     NetworkType.CONNECTED
             )
             .build()
@@ -602,7 +602,7 @@ class CloudSyncService @Inject constructor(
      */
     fun updateSettings(newSettings: SyncSettings) {
         _settings.value = newSettings
-        
+
         if (newSettings.enabled && newSettings.autoSync) {
             schedulePeriodicSync()
         } else {
@@ -616,7 +616,7 @@ class CloudSyncService @Inject constructor(
         if (deviceId != null) {
             return deviceId
         }
-        
+
         // Generate new stable UUID for this device
         val newDeviceId = "device_${java.util.UUID.randomUUID()}"
         prefs.edit().putString("device_id", newDeviceId).apply()
@@ -627,17 +627,17 @@ class CloudSyncService @Inject constructor(
         try {
             // Serialize data to JSON
             val jsonData = serializeToJson(item.data)
-            
+
             // Encrypt using AES-GCM
             val cipher = getCipher()
             val secretKey = getOrCreateSecretKey()
             cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKey)
-            
+
             val iv = cipher.iv
             val encrypted = cipher.doFinal(jsonData.toByteArray())
             val combined = iv + encrypted
             val encryptedString = android.util.Base64.encodeToString(combined, android.util.Base64.DEFAULT)
-            
+
             // Return item with encrypted data
             return item.copy(
                 data = mapOf("encrypted" to encryptedString)
@@ -651,59 +651,59 @@ class CloudSyncService @Inject constructor(
     private fun decryptData(item: SyncItem): SyncItem {
         try {
             val encryptedString = item.data["encrypted"] as? String ?: return item
-            
+
             // Decrypt using AES-GCM
             val cipher = getCipher()
             val secretKey = getOrCreateSecretKey()
-            
+
             val decoded = android.util.Base64.decode(encryptedString, android.util.Base64.DEFAULT)
             val iv = decoded.copyOfRange(0, 12)
             val ciphertext = decoded.copyOfRange(12, decoded.size)
-            
+
             val gcmSpec = javax.crypto.spec.GCMParameterSpec(128, iv)
             cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey, gcmSpec)
-            
+
             val decrypted = cipher.doFinal(ciphertext)
             val jsonData = String(decrypted)
-            
+
             // Deserialize JSON back to map
             val originalData = deserializeFromJson(jsonData)
-            
+
             return item.copy(data = originalData)
         } catch (e: Exception) {
             // Return original if decryption fails
             return item
         }
     }
-    
+
     private fun getOrCreateSecretKey(): javax.crypto.SecretKey {
         val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
         keyStore.load(null)
-        
+
         val alias = "cleverferret_sync_key"
-        
+
         if (!keyStore.containsAlias(alias)) {
             val keyGenerator = javax.crypto.KeyGenerator.getInstance(
                 android.security.keystore.KeyProperties.KEY_ALGORITHM_AES,
                 "AndroidKeyStore"
             )
-            
+
             val keyGenParameterSpec = android.security.keystore.KeyGenParameterSpec.Builder(
                 alias,
-                android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or 
+                android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or
                 android.security.keystore.KeyProperties.PURPOSE_DECRYPT
             )
                 .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
                 .build()
-            
+
             keyGenerator.init(keyGenParameterSpec)
             return keyGenerator.generateKey()
         }
-        
+
         return keyStore.getKey(alias, null) as javax.crypto.SecretKey
     }
-    
+
     private fun getCipher(): javax.crypto.Cipher {
         return javax.crypto.Cipher.getInstance(
             android.security.keystore.KeyProperties.KEY_ALGORITHM_AES + "/" +
@@ -711,14 +711,14 @@ class CloudSyncService @Inject constructor(
             android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE
         )
     }
-    
+
     private fun serializeToJson(data: Map<String, Any>): String {
         // Simple JSON serialization
         return data.entries.joinToString(",", "{", "}") { (key, value) ->
             "\"$key\":\"$value\""
         }
     }
-    
+
     private fun deserializeFromJson(json: String): Map<String, Any> {
         // Simple JSON deserialization
         val entries = json.removeSurrounding("{", "}")
@@ -731,7 +731,7 @@ class CloudSyncService @Inject constructor(
             }
         return entries.toMap()
     }
-    
+
     private val prefs by lazy {
         context.getSharedPreferences("cloud_sync_prefs", Context.MODE_PRIVATE)
     }

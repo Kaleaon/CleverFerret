@@ -79,7 +79,7 @@ data class BookItem(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun EnhancedBookshelfScreen(
+fun EnhancedBookshelfScreenDemo(
     navController: NavController,
     libraryId: Long,
     modifier: Modifier = Modifier
@@ -116,7 +116,7 @@ fun EnhancedBookshelfScreen(
         books
             .filter { book ->
                 // Search filter
-                (searchQuery.isEmpty() || 
+                (searchQuery.isEmpty() ||
                     book.title.contains(searchQuery, ignoreCase = true) ||
                     book.author.contains(searchQuery, ignoreCase = true))
             }
@@ -182,7 +182,8 @@ fun EnhancedBookshelfScreen(
                                 ViewMode.GRID_SMALL -> ViewMode.GRID_LARGE
                                 ViewMode.GRID_LARGE -> ViewMode.LIST
                                 ViewMode.LIST -> ViewMode.COMFORTABLE
-                                ViewMode.COMFORTABLE -> ViewMode.GRID_SMALL
+                                ViewMode.COMFORTABLE -> ViewMode.COVER_FLOW
+                                ViewMode.COVER_FLOW -> ViewMode.GRID_SMALL
                             }
                         }) {
                             Icon(
@@ -191,11 +192,12 @@ fun EnhancedBookshelfScreen(
                                     ViewMode.GRID_LARGE -> Icons.Default.ViewModule
                                     ViewMode.LIST -> Icons.Default.ViewList
                                     ViewMode.COMFORTABLE -> Icons.Default.ViewComfy
+                                    ViewMode.COVER_FLOW -> Icons.Default.ViewCarousel
                                 },
                                 "View Mode"
                             )
                         }
-                        
+
                         // Sort menu
                         IconButton(onClick = { showSortMenu = true }) {
                             Icon(Icons.Default.Sort, "Sort")
@@ -219,7 +221,7 @@ fun EnhancedBookshelfScreen(
                                 )
                             }
                         }
-                        
+
                         // Filter button
                         IconButton(onClick = { showFilterSheet = true }) {
                             if (isFilterActive(filterOptions)) {
@@ -296,7 +298,7 @@ fun EnhancedBookshelfScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 // Quick filter chips
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ReadStatus.values().forEach { status ->
@@ -346,7 +348,7 @@ fun EnhancedBookshelfScreen(
                                     isSelectionMode = true
                                     selectedBooks = setOf(book.id)
                                 },
-                                modifier = Modifier.animateItemPlacement()
+                                modifier = Modifier
                             )
                         }
                     }
@@ -377,9 +379,15 @@ fun EnhancedBookshelfScreen(
                                     isSelectionMode = true
                                     selectedBooks = setOf(book.id)
                                 },
-                                modifier = Modifier.animateItemPlacement()
+                                modifier = Modifier
                             )
                         }
+                    }
+                }
+                ViewMode.COVER_FLOW -> {
+                    // Cover flow view - placeholder for now
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Cover Flow View - Coming Soon")
                     }
                 }
             }
@@ -843,6 +851,8 @@ private fun formatSortOption(option: SortOption): String = when (option) {
     SortOption.RECENTLY_READ -> "Recently Read"
     SortOption.PROGRESS -> "Reading Progress"
     SortOption.RATING -> "Highest Rated"
+    SortOption.RATING_HIGH -> "Rating (High to Low)"
+    SortOption.RATING_LOW -> "Rating (Low to High)"
     SortOption.FILE_SIZE -> "File Size"
 }
 

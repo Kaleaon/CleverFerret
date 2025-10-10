@@ -14,6 +14,7 @@ import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueueScreen(
     viewModel: QueueViewModel = hiltViewModel()

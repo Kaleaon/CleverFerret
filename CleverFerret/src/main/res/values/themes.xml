@@ -6,6 +6,12 @@
         <item name="colorPrimaryDark">@color/primary_container</item>
         <item name="colorAccent">@color/secondary</item>
 
+        <!-- Material 3 color attributes -->
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+
         <!-- Background colors -->
         <item name="android:colorBackground">@color/background</item>
         <item name="android:windowBackground">@color/background</item>

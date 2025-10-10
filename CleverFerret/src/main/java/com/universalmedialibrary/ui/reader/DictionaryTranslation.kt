@@ -252,7 +252,7 @@ fun QuickLookupPopup(
                             }
                         ) {
                             Icon(
-                                imageVector = if (service.isFavorite(selectedText)) 
+                                imageVector = if (service.isFavorite(selectedText))
                                     Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorite",
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -471,7 +471,7 @@ private fun TranslationContent(result: TranslationResult) {
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
-        
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -566,6 +566,7 @@ private fun LanguageSelector(
 /**
  * Dictionary history and favorites screen
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DictionaryHistoryScreen(
     service: DictionaryService,

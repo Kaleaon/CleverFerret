@@ -22,9 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import dagger.hilt.android.AndroidEntryPoint
-
 /**
  * Foreground service for media playback notifications
  *
@@ -38,12 +35,21 @@ import dagger.hilt.android.AndroidEntryPoint
  * - Android Auto/TV compatibility
  * - High-importance notification channel
  * - Smart notification management
+ *
+ * Note: Does not use Hilt @AndroidEntryPoint due to MediaSessionService
+ * incompatibility. Manual dependency initialization is used instead.
+ * 
+ * Implementation Note: Artwork loading is currently a stub pending
+ * proper ArtworkLoader initialization strategy.
  */
-@AndroidEntryPoint
 class MediaNotificationService : MediaSessionService() {
 
-    @Inject
-    lateinit var artworkLoader: ArtworkLoader
+    /**
+     * Artwork loader for notification images.
+     * Currently null - requires manual initialization when artwork feature is implemented.
+     * TODO: Implement proper initialization strategy (manual factory or lazy initialization)
+     */
+    private var artworkLoader: ArtworkLoader? = null
 
     private var mediaSession: MediaSession? = null
 
@@ -151,10 +157,16 @@ class MediaNotificationService : MediaSessionService() {
 
 
     /**
-     * Update notification with artwork loading from MediaItem
+     * Refreshes the media playback notification using artwork loaded for the given MediaItem.
      *
-     * TODO: This is a scaffolding method that will load artwork via ArtworkLoader
-     * and update the notification. Currently not fully wired up.
+     * Loads artwork for the provided MediaItem (if available) and updates the persistent media notification
+     * to reflect the supplied title, artist, album, and playback state once loading completes.
+     *
+     * @param mediaItem The MediaItem whose artwork should be loaded for the notification.
+     * @param title The notification title (typically the track title).
+     * @param artist Optional artist text to display; when `null` a default "unknown artist" will be used.
+     * @param album Optional album text to display beneath the artist.
+     * @param isPlaying Whether the playback is currently active; controls whether the notification shows play or pause.
      */
     fun updateNotificationWithArtwork(
         mediaItem: MediaItem,
@@ -165,11 +177,14 @@ class MediaNotificationService : MediaSessionService() {
     ) {
         serviceScope.launch {
             // Load artwork with notification-appropriate size (512x512)
-            val artwork = artworkLoader.loadArtwork(
-                mediaItem = mediaItem,
-                maxWidth = 512,
-                maxHeight = 512
-            )
+            // TODO: Initialize artworkLoader properly when this feature is implemented
+            val artwork = artworkLoader?.let { loader ->
+                loader.loadArtwork(
+                    mediaItem = mediaItem,
+                    maxWidth = 512,
+                    maxHeight = 512
+                )
+            }
 
             // Update notification with loaded artwork
             updateNotification(

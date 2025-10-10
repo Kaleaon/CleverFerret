@@ -32,6 +32,7 @@ class OpdsSettingsViewModel @Inject constructor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OpdsSettingsScreen(onBack: () -> Unit, viewModel: OpdsSettingsViewModel = hiltViewModel()) {
     Scaffold(

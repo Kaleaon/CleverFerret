@@ -94,8 +94,9 @@ object PlexModule {
     @Singleton
     fun providePlexAuthService(
         @ApplicationContext context: Context,
-        tokenStorage: SecureTokenStorage
+        tokenStorage: SecureTokenStorage,
+        authApi: PlexAuthApi
     ): PlexAuthService {
-        return PlexAuthService(context, tokenStorage)
+        return PlexAuthService(context, tokenStorage, authApi)
     }
 }
