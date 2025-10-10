@@ -52,7 +52,7 @@ Our branch has **4 commits** with:
 ## 📊 Detailed Comparison
 
 ### Android Files Changed in Main
-```
+```text
 CleverFerret/src/main/java/.../repository/ImportExportRepository.kt
 CleverFerret/src/main/java/.../repository/MetadataFetchRepository.kt
 CleverFerret/src/main/java/.../repository/ReaderSettingsRepository.kt
@@ -63,7 +63,7 @@ CleverFerret/src/main/java/.../ui/reader/ReaderSettingsViewModel.kt
 ```
 
 ### PWA Files in Our Branch
-```
+```text
 pwa-demo/src/data/repository/LibraryRepository.ts
 pwa-demo/src/data/repository/MediaRepository.ts
 pwa-demo/src/ui/library/LibraryListScreen.tsx

@@ -31,11 +31,11 @@ export class ReadingProgressRepository {
    * Get completed items
    */
   async getCompleted(): Promise<ReadingProgress[]> {
-    return db.readingProgress
+    const items = await db.readingProgress
       .where('isCompleted')
       .equals(true)
-      .reverse()
       .sortBy('completedDate');
+    return items.reverse();
   }
 
   /**

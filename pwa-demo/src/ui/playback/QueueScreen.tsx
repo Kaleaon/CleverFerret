@@ -60,7 +60,8 @@ export const QueueScreen: React.FC = () => {
   };
 
   const handlePlayTrack = (index: number) => {
-    // TODO: Implement playing track at specific index
+    const state = audioPlayerService.getState();
+    audioPlayerService.loadPlaylist(state.playlist, index);
   };
 
   return (

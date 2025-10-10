@@ -12,12 +12,12 @@ export class BookmarkRepository {
    * Get all bookmarks for an item
    */
   async getBookmarksForItem(itemId: number): Promise<Bookmark[]> {
-    return db.bookmarks
+    const items = await db.bookmarks
       .where('itemId')
       .equals(itemId)
       .and(b => b.isActive === true)
-      .reverse()
       .sortBy('dateCreated');
+    return items.reverse();
   }
 
   /**

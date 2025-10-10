@@ -29,6 +29,7 @@ import {
   DialogContent,
   DialogActions,
   Chip,
+  FormControlLabel,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -69,7 +70,6 @@ export const PlexIntegrationScreen: React.FC = () => {
 
     try {
       await db.plexServers.add({
-        serverId: 0,
         name: serverName,
         host: serverHost,
         port: serverPort,
@@ -80,7 +80,7 @@ export const PlexIntegrationScreen: React.FC = () => {
         lastConnected: 0,
         lastSynced: 0,
         dateAdded: Date.now(),
-      });
+      } as any);
 
       setShowAddDialog(false);
       setServerName('');

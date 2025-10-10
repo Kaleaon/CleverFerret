@@ -144,6 +144,7 @@ export class AudioPlayerService {
   loadPlaylist(tracks: AudioTrack[], startIndex: number = 0): void {
     this.playlist = tracks;
     this.currentIndex = startIndex;
+    this.emit('trackchange', this.currentTrack);
     if (this.currentTrack) {
       this.loadTrack(this.currentTrack, true);
     }
@@ -167,6 +168,7 @@ export class AudioPlayerService {
       return; // End of playlist
     }
 
+    this.emit('trackchange', this.currentTrack);
     if (this.currentTrack) {
       await this.loadTrack(this.currentTrack, true);
     }
@@ -181,6 +183,7 @@ export class AudioPlayerService {
       await this.seek(0);
     } else if (this.currentIndex > 0) {
       this.currentIndex--;
+      this.emit('trackchange', this.currentTrack);
       if (this.currentTrack) {
         await this.loadTrack(this.currentTrack, true);
       }

@@ -46,16 +46,19 @@ export const AudioPlayerScreen: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    // Subscribe to playback state changes
-    const unsubscribe = audioPlayerService.on('timeupdate', () => {
-      setPlaybackState(audioPlayerService.getState());
-    });
+    // Subscribe to all relevant playback events
+    const events = ['timeupdate', 'play', 'pause', 'loadedmetadata', 'repeatchange', 'shufflechange', 'trackend', 'trackchange'];
+    const unsubscribes = events.map(evt => 
+      audioPlayerService.on(evt, () => {
+        setPlaybackState(audioPlayerService.getState());
+      })
+    );
 
     // Initial state
     setPlaybackState(audioPlayerService.getState());
 
     return () => {
-      unsubscribe();
+      unsubscribes.forEach(unsub => unsub());
     };
   }, []);
 

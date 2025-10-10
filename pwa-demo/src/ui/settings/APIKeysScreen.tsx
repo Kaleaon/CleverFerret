@@ -62,7 +62,6 @@ export const APIKeysScreen: React.FC = () => {
     if (keys.length === 0) {
       for (const provider of apiKeyProviders) {
         await db.apiKeys.add({
-          keyId: 0,
           provider: provider.provider,
           keyValue: '',
           displayName: provider.displayName,
@@ -80,7 +79,7 @@ export const APIKeysScreen: React.FC = () => {
           dateAdded: Date.now(),
           lastUsed: undefined,
           lastError: undefined,
-        });
+        } as any);
       }
       loadAPIKeys();
     }
