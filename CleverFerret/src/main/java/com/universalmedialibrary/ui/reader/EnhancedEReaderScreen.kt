@@ -49,7 +49,7 @@ fun EnhancedEReaderScreen(
 
     // Reader settings
     var fontSize by remember { mutableStateOf(18.sp) }
-    var fontFamily by remember { mutableStateOf<GenericFontFamily>(FontFamily.Serif) }
+    var fontFamily by remember { mutableStateOf(FontFamily.Serif) }
     var backgroundColor by remember { mutableStateOf(Color(0xFFFFFBF0)) } // Sepia
     var textColor by remember { mutableStateOf(Color(0xFF3E2723)) }
     var brightness by remember { mutableStateOf(1f) }

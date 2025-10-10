@@ -179,9 +179,9 @@ fun MediaItemDetailScreen(
                         // Progress Section
                         uiState.progress?.let { progress ->
                             ProgressSection(
-                                progress = progress.progress,
-                                lastPosition = progress.lastPosition,
-                                totalDuration = progress.duration
+                                progress = progress.percentage,
+                                lastPosition = progress.currentPosition,
+                                totalDuration = null // Duration not stored in ReadingProgress
                             )
                         }
 
