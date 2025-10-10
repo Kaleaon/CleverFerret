@@ -316,7 +316,7 @@ private fun TitleSection(
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
-                        text = String.format("%.1f", it),
+                        text = String.format(java.util.Locale.US, "%.1f", it),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -531,8 +531,8 @@ private fun formatTime(milliseconds: Long): String {
     val hours = minutes / 60
     
     return when {
-        hours > 0 -> String.format("%d:%02d:%02d", hours, minutes % 60, seconds % 60)
-        else -> String.format("%d:%02d", minutes, seconds % 60)
+        hours > 0 -> String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes % 60, seconds % 60)
+        else -> String.format(java.util.Locale.US, "%d:%02d", minutes, seconds % 60)
     }
 }
 

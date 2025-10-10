@@ -421,6 +421,7 @@ private fun formatFileSize(bytes: Long): String {
     val units = arrayOf("B", "KB", "MB", "GB", "TB")
     val digitGroups = (Math.log10(bytes.toDouble()) / Math.log10(1024.0)).toInt()
     return String.format(
+        java.util.Locale.US,
         "%.1f %s",
         bytes / Math.pow(1024.0, digitGroups.toDouble()),
         units[digitGroups]

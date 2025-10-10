@@ -118,7 +118,7 @@ data class MediaPlaybackWidgetState(
         val seconds = milliseconds / 1000
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
-        return String.format("%d:%02d", minutes, remainingSeconds)
+        return String.format(java.util.Locale.US, "%d:%02d", minutes, remainingSeconds)
     }
 
     /**

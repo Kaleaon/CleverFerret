@@ -531,9 +531,9 @@ private fun formatTime(milliseconds: Long): String {
     val secs = seconds % 60
 
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, secs)
+        String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, secs)
     } else {
-        String.format("%d:%02d", minutes, secs)
+        String.format(java.util.Locale.US, "%d:%02d", minutes, secs)
     }
 }
 
