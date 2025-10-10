@@ -370,3 +370,72 @@ warning: [options] To suppress warnings about obsolete options, use -Xlint:-opti
 > Task :CleverFerret:lintAnalyzeDebug
 > Task :CleverFerret:lintAnalyzeDebugAndroidTest
 > Task :CleverFerret:lintAnalyzeDebugUnitTest
+
+> Task :CleverFerret:lintReportDebug
+Wrote HTML report to file:///workspace/CleverFerret/build/reports/lint-results-debug.html
+Lint found 90 errors, 434 warnings and 13 hints. First failure:
+/workspace/CleverFerret/src/main/AndroidManifest.xml:28: Error: Permission is only granted to system apps [ProtectedPermissions]
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+> Task :CleverFerret:lintDebug FAILED
+Lint found 90 errors, 434 warnings, 13 hints. First failure:
+
+/workspace/CleverFerret/src/main/AndroidManifest.xml:28: Error: Permission is only granted to system apps [ProtectedPermissions]
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "ProtectedPermissions":
+   Permissions with the protection level signature, privileged or
+   signatureOrSystem are only granted to system apps (unless they also include
+   appop). If an app is a regular non-system app, it will never be able to use
+   these permissions.
+
+
+The full lint text report is located at:
+  /workspace/CleverFerret/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+
+[Incubating] Problems report is available at: file:///workspace/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':CleverFerret:lintDebug'.
+> Lint found errors in the project; aborting build.
+  
+  Fix the issues identified by lint, or create a baseline to see only new errors.
+  To create a baseline, run `gradlew updateLintBaseline` after adding the following to the module's build.gradle file:
+  ```
+  android {
+      lint {
+          baseline = file("lint-baseline.xml")
+      }
+  }
+  ```
+  For more details, see https://developer.android.com/studio/write/lint#snapshot
+  
+  Lint found 90 errors, 434 warnings, 13 hints. First failure:
+  
+  /workspace/CleverFerret/src/main/AndroidManifest.xml:28: Error: Permission is only granted to system apps [ProtectedPermissions]
+      <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+     Explanation for issues of type "ProtectedPermissions":
+     Permissions with the protection level signature, privileged or
+     signatureOrSystem are only granted to system apps (unless they also include
+     appop). If an app is a regular non-system app, it will never be able to use
+     these permissions.
+  
+  
+  The full lint text report is located at:
+    /workspace/CleverFerret/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 19m 39s
+35 actionable tasks: 31 executed, 1 from cache, 3 up-to-date
