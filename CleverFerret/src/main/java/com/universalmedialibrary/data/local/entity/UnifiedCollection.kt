@@ -1,8 +1,11 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
+import kotlinx.serialization.Serializable
 import androidx.room.Index
+import kotlinx.serialization.Serializable
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 /**
  * Unified collection system for cross-media organization
@@ -20,6 +23,7 @@ import androidx.room.PrimaryKey
  * TODO: Add collection sharing between users
  * TODO: Add collection sync with external services
  */
+@Serializable
 @Entity(
     tableName = "unified_collections",
     indices = [

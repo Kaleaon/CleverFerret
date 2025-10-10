@@ -52,7 +52,7 @@ class ImportExportRepository @Inject constructor(
             val libraries = if (libraryIds != null) {
                 libraryIds.mapNotNull { libraryDao.getLibraryById(it) }
             } else {
-                libraryDao.getAllLibraries()
+                libraryDao.getAllLibraries().first()
             }
 
             val mediaItems = libraries.map { library ->
@@ -80,7 +80,7 @@ class ImportExportRepository @Inject constructor(
             } else emptyList()
 
             val collections = if (includeCollections) {
-                collectionDao.getAllCollections()
+                collectionDao.getAllCollections().first()
             } else emptyList()
 
             // Create export data
@@ -245,12 +245,12 @@ class ImportExportRepository @Inject constructor(
             val libraries = if (libraryIds != null) {
                 libraryIds.mapNotNull { libraryDao.getLibraryById(it) }
             } else {
-                libraryDao.getAllLibraries()
+                libraryDao.getAllLibraries().first()
             }
 
-            val mediaItems = libraries.flatMap { library ->
+            val mediaItems = libraries.map { library ->
                 mediaItemDao.getMediaItemsByLibrary(library.libraryId).first()
-            }
+            }.flatten()
 
             val csvBuilder = StringBuilder()
             csvBuilder.append("Title,Type,File Path,File Size,Has Metadata,Date Added,Library\n")

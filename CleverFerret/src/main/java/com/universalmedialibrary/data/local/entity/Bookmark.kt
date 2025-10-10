@@ -1,13 +1,18 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
+import kotlinx.serialization.Serializable
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import androidx.room.ForeignKey
+import kotlinx.serialization.Serializable
 import androidx.room.Index
+import kotlinx.serialization.Serializable
 
 /**
  * Entity for storing bookmarks and reading progress
  */
+@Serializable
 @Entity(
     tableName = "bookmarks",
     foreignKeys = [
@@ -51,6 +56,7 @@ data class Bookmark(
 /**
  * Entity for detailed reading progress tracking
  */
+@Serializable
 @Entity(
     tableName = "reading_progress",
     foreignKeys = [
@@ -103,6 +109,7 @@ data class ReadingProgress(
 /**
  * Entity for individual reading sessions
  */
+@Serializable
 @Entity(
     tableName = "reading_sessions",
     foreignKeys = [

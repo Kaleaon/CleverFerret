@@ -1,8 +1,11 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
+import kotlinx.serialization.Serializable
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import androidx.room.ForeignKey
+import kotlinx.serialization.Serializable
 
 /**
  * Common metadata fields shared across all media types
@@ -10,6 +13,7 @@ import androidx.room.ForeignKey
  * This table stores metadata that applies to books, movies, music, etc.
  * Type-specific metadata is stored in separate tables.
  */
+@Serializable
 @Entity(
     tableName = "metadata_common",
     foreignKeys = [
