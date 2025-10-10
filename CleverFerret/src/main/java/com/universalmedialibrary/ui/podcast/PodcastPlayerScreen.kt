@@ -26,6 +26,7 @@ import com.universalmedialibrary.ui.theme.*
 fun PodcastPlayerScreen(
     episodeId: Long,
     onBack: () -> Unit,
+    onNavigateToVisualizer: () -> Unit = {},
     viewModel: PodcastPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,6 +63,9 @@ fun PodcastPlayerScreen(
                                     MaterialTheme.colorScheme.onSurface
                             )
                         }
+                        com.universalmedialibrary.ui.visualizer.VisualizerButton(
+                            onClick = onNavigateToVisualizer
+                        )
                         IconButton(onClick = { /* TODO: Share */ }) {
                             Icon(Icons.Default.Share, contentDescription = "Share")
                         }
@@ -107,9 +111,8 @@ fun PodcastPlayerScreen(
                     // Episode Info
                     MetallicText(
                         text = uiState.episode?.title ?: "",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                        style = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center),
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))

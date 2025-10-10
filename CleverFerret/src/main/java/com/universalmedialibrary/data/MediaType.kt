@@ -13,6 +13,7 @@ enum class MediaType {
     PODCAST,
     PODCAST_EPISODE,  // Individual podcast episode
     PODCAST_SERIES,   // Podcast series
+    RADIO,  // Radio stream
     COMIC,
     MANGA,  // Japanese comics
     MAGAZINE,
@@ -42,6 +43,7 @@ fun MediaType.getDisplayName(): String {
         MediaType.PODCAST -> "Podcast"
         MediaType.PODCAST_EPISODE -> "Podcast Episode"
         MediaType.PODCAST_SERIES -> "Podcast Series"
+        MediaType.RADIO -> "Radio"
         MediaType.COMIC -> "Comic"
         MediaType.MANGA -> "Manga"
         MediaType.MAGAZINE -> "Magazine"
@@ -71,6 +73,7 @@ fun MediaType.getIcon(): String {
         MediaType.PODCAST -> "🎙️"
         MediaType.PODCAST_EPISODE -> "🎧"
         MediaType.PODCAST_SERIES -> "📻"
+        MediaType.RADIO -> "📻"
         MediaType.COMIC -> "💭"
         MediaType.MANGA -> "📔"
         MediaType.MAGAZINE -> "📰"

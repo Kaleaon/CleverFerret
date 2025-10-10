@@ -29,7 +29,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class PlexIntegrationService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val plexAuthService: com.universalmedialibrary.services.plex.PlexAuthService
 ) {
 
     private val _plexState = MutableStateFlow(PlexIntegrationState())
@@ -39,7 +40,106 @@ class PlexIntegrationService @Inject constructor(
     private val plexApis = mutableMapOf<String, PlexApi>()
 
     /**
-     * Connect to a Plex server
+     * Request a PIN for Plex authentication
+     * Delegates to PlexAuthService which handles the full PIN flow
+     */
+    suspend fun requestPIN(): Result<com.universalmedialibrary.services.plex.PlexPinAuthData> = withContext(Dispatchers.IO) {
+        return@withContext plexAuthService.startPinAuth()
+    }
+
+    /**
+     * Poll for PIN authentication completion
+     * Should be called after requestPIN() to wait for user authentication
+     */
+    suspend fun pollForAuth(pinId: String): Result<com.universalmedialibrary.services.plex.PlexAuthResult> = withContext(Dispatchers.IO) {
+        return@withContext plexAuthService.pollForAuth(pinId)
+    }
+
+    /**
+     * Discover available Plex servers for the authenticated user
+     */
+    suspend fun discoverServers(): Result<List<com.universalmedialibrary.services.plex.PlexDiscoveredServer>> = withContext(Dispatchers.IO) {
+        return@withContext plexAuthService.discoverServers()
+    }
+
+    /**
+     * Check if user is authenticated with Plex
+     */
+    fun isAuthenticated(): Boolean {
+        return plexAuthService.isAuthenticated()
+    }
+
+    /**
+     * Get stored authentication token
+     */
+    fun getStoredToken(): String? {
+        return plexAuthService.getStoredToken()
+    }
+
+    /**
+     * Sign out from Plex
+     */
+    suspend fun signOut() {
+        plexAuthService.signOut()
+        disconnectAllServers()
+    }
+
+    /**
+     * Sync libraries from all connected servers
+     * Delegates to the comprehensive syncAllLibraries method
+     */
+    suspend fun syncLibraries() {
+        syncAllLibraries()
+    }
+
+    /**
+     * Disconnect from all servers
+     * Clears all connected servers and their API instances
+     */
+    suspend fun disconnectAllServers() {
+        connectedServers.clear()
+        plexApis.clear()
+        updateConnectionStatus()
+    }
+
+    /**
+     * Disconnect from a specific server
+     */
+    suspend fun disconnectServer(serverName: String) {
+        connectedServers.remove(serverName)
+        plexApis.remove(serverName)
+        updateConnectionStatus()
+    }
+
+    /**
+     * Connect to a discovered Plex server
+     * This is the recommended method for connecting after discovery
+     */
+    suspend fun connectToDiscoveredServer(
+        server: com.universalmedialibrary.services.plex.PlexDiscoveredServer
+    ): PlexConnectionResult = withContext(Dispatchers.IO) {
+        // Try connections in order: local first, then remote
+        val sortedConnections = server.connections.sortedByDescending { it.local }
+
+        for (connection in sortedConnections) {
+            try {
+                val serverUrl = connection.uri
+                val result = connectToServer(server.name, serverUrl, server.accessToken)
+
+                if (result is PlexConnectionResult.Success) {
+                    return@withContext result
+                }
+            } catch (e: Exception) {
+                // Try next connection
+                continue
+            }
+        }
+
+        PlexConnectionResult.Error("Failed to connect to any of the server's connections")
+    }
+
+    /**
+     * Connect to a Plex server with explicit parameters
      */
     suspend fun connectToServer(
         serverName: String,

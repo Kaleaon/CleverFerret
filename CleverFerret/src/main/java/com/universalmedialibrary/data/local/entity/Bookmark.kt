@@ -94,6 +94,9 @@ data class ReadingProgress(
     val chaptersRead: Int = 0,
     val readingSpeed: Float? = null, // Pages per minute or WPM
 
+    // Locator for precise position tracking (JSON string)
+    val locator: String? = null,
+
     val notes: String? = null
 )
 

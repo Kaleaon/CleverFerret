@@ -141,8 +141,8 @@ fun LibraryListViewModel.LibraryWithCount.toLibraryItem(): LibraryItem {
         },
         itemCount = itemCount,
         isActive = library.isActive,
-        lastSyncTime = if (library.lastScanned > 0) {
-            formatLastSyncTime(library.lastScanned)
+        lastSyncTime = if (library.lastScanned?.let { it > 0 } == true) {
+            formatLastSyncTime(library.lastScanned!!)
         } else {
             "Never synced"
         }

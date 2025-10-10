@@ -22,7 +22,7 @@ data class EnhancedReaderUiState(
     val error: String? = null
 )
 
-data class TtsState(
+data class SimpleTtsState(
     val isPlaying: Boolean = false,
     val speed: Float = 1.0f
 )
@@ -36,8 +36,8 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
     private val _readerSettings = MutableStateFlow(ReaderSettings())
     val readerSettings: StateFlow<ReaderSettings> = _readerSettings.asStateFlow()
 
-    private val _ttsState = MutableStateFlow(TtsState())
-    val ttsState: StateFlow<TtsState> = _ttsState.asStateFlow()
+    private val _ttsState = MutableStateFlow(SimpleTtsState())
+    val ttsState: StateFlow<SimpleTtsState> = _ttsState.asStateFlow()
 
     fun loadBook(context: Context, bookFilePath: String) {
         viewModelScope.launch {

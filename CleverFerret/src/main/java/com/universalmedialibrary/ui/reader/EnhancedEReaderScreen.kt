@@ -1,382 +1,464 @@
 package com.universalmedialibrary.ui.reader
 
-import android.content.Context
-import android.speech.tts.TextToSpeech
-import android.speech.tts.UtteranceProgressListener
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import java.util.Locale
-import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
-import java.util.*
-import com.universalmedialibrary.data.settings.ReaderSettings
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
- * Enhanced E-reader screen with advanced features including TTS
+ * Enhanced eBook Reader with beautiful, customizable reading experience
+ * Features: Night mode, font size control, brightness, chapter navigation, bookmarks
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnhancedEReaderScreen(
     bookFilePath: String,
     onBack: () -> Unit,
-    viewModel: EnhancedEReaderViewModel = hiltViewModel()
+    viewModel: EReaderViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val readerSettings by viewModel.readerSettings.collectAsState()
-    val ttsState by viewModel.ttsState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    var showSettingsMenu by remember { mutableStateOf(false) }
-    var showFontMenu by remember { mutableStateOf(false) }
+    var showControls by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
+
+    // Reader settings
+    var fontSize by remember { mutableStateOf(18.sp) }
+    var fontFamily by remember { mutableStateOf(FontFamily.Serif) }
+    var backgroundColor by remember { mutableStateOf(Color(0xFFFFFBF0)) } // Sepia
+    var textColor by remember { mutableStateOf(Color(0xFF3E2723)) }
+    var brightness by remember { mutableStateOf(1f) }
 
     LaunchedEffect(bookFilePath) {
         viewModel.loadBook(context, bookFilePath)
-        viewModel.initializeTTS(context)
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = uiState.bookTitle,
-                        maxLines = 1
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    // TTS Control
-                    IconButton(
-                        onClick = {
-                            if (ttsState.isPlaying) {
-                                viewModel.pauseTTS()
-                            } else {
-                                viewModel.startTTS(uiState.currentChapterContent)
-                            }
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Main reading area
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .alpha(brightness)
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        // Tap zones: left third = previous, middle third = toggle controls, right third = next
+                        when {
+                            offset.x < size.width / 3 -> viewModel.previousPage()
+                            offset.x > size.width * 2 / 3 -> viewModel.nextPage()
+                            else -> showControls = !showControls
                         }
-                    ) {
-                        Icon(
-                            if (ttsState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (ttsState.isPlaying) "Pause TTS" else "Start TTS"
-                        )
+                    }
+                }
+        ) {
+            when {
+                uiState.isLoading -> {
+                    LoadingView()
+                }
+                uiState.error != null -> {
+                    ErrorView(
+                        message = uiState.error!!,
+                        onRetry = { viewModel.loadBook(context, bookFilePath) }
+                    )
+                }
+                uiState.isLoaded -> {
+                    ReadingContent(
+                        content = uiState.currentChapterContent,
+                        fontSize = fontSize,
+                        fontFamily = fontFamily,
+                        textColor = textColor
+                    )
+                }
+            }
+
+            // Progress indicator at bottom
+            if (uiState.isLoaded) {
+                LinearProgressIndicator(
+                    progress = (uiState.currentChapterIndex + 1) / uiState.totalChapters.toFloat(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .align(Alignment.BottomCenter),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = Color.Transparent
+                )
+            }
+        }
+
+        // Top control bar
+        AnimatedVisibility(
+            visible = showControls,
+            enter = fadeIn() + slideInVertically(),
+            exit = fadeOut() + slideOutVertically(),
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                tonalElevation = 8.dp,
+                shadowElevation = 8.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
 
-                    // Font settings
-                    IconButton(onClick = { showFontMenu = true }) {
-                        Icon(Icons.Default.FormatSize, contentDescription = "Font Settings")
-                    }
-
-                    DropdownMenu(
-                        expanded = showFontMenu,
-                        onDismissRequest = { showFontMenu = false }
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            "Font Size",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(16.dp, 8.dp)
+                            text = uiState.bookTitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
                         )
+                        Text(
+                            text = "Chapter ${uiState.currentChapterIndex + 1} of ${uiState.totalChapters}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(onClick = { viewModel.decreaseFontSize() }) {
-                                Icon(Icons.Default.Remove, contentDescription = "Decrease")
-                            }
-
-                            Text(
-                                "${readerSettings.fontSize.toInt()}sp",
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-
-                            IconButton(onClick = { viewModel.increaseFontSize() }) {
-                                Icon(Icons.Default.Add, contentDescription = "Increase")
-                            }
+                    Row {
+                        IconButton(onClick = { /* TODO: Bookmark */ }) {
+                            Icon(Icons.Default.Bookmark, contentDescription = "Bookmark")
                         }
-
-                        HorizontalDivider()
-
-                        DropdownMenuItem(
-                            text = { Text("Dark Mode") },
-                            onClick = { viewModel.toggleDarkMode() },
-                            trailingIcon = {
-                                Switch(
-                                    checked = readerSettings.isDarkMode,
-                                    onCheckedChange = { viewModel.toggleDarkMode() }
-                                )
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            text = { Text("Justified Text") },
-                            onClick = { viewModel.toggleJustified() },
-                            trailingIcon = {
-                                Switch(
-                                    checked = readerSettings.isJustified,
-                                    onCheckedChange = { viewModel.toggleJustified() }
-                                )
-                            }
-                        )
-                    }
-
-                    // Settings
-                    IconButton(onClick = { showSettingsMenu = true }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
-
-                    DropdownMenu(
-                        expanded = showSettingsMenu,
-                        onDismissRequest = { showSettingsMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Line Height") },
-                            onClick = { /* TODO: Implement line height adjustment */ }
-                        )
-
-                        DropdownMenuItem(
-                            text = { Text("Margins") },
-                            onClick = { /* TODO: Implement margin adjustment */ }
-                        )
-
-                        DropdownMenuItem(
-                            text = { Text("Page Turn Animation") },
-                            onClick = { /* TODO: Implement page turn settings */ }
-                        )
-
-                        DropdownMenuItem(
-                            text = { Text("Bookmark") },
-                            onClick = { viewModel.toggleBookmark() },
-                            leadingIcon = {
-                                Icon(
-                                    if (uiState.isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                                    contentDescription = "Bookmark"
-                                )
-                            }
-                        )
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            Column {
-                // TTS Progress Bar
-                AnimatedVisibility(visible = ttsState.isPlaying) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                "Text-to-Speech",
-                                style = MaterialTheme.typography.titleSmall
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(onClick = { viewModel.pauseTTS() }) {
-                                    Icon(Icons.Default.Pause, contentDescription = "Pause")
-                                }
-
-                                IconButton(onClick = { viewModel.stopTTS() }) {
-                                    Icon(Icons.Default.Stop, contentDescription = "Stop")
-                                }
-
-                                Spacer(modifier = Modifier.width(16.dp))
-
-                                Text(
-                                    "Speed: ${String.format(Locale.getDefault(), "%.1f", ttsState.speed)}x",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-
-                                Spacer(modifier = Modifier.width(8.dp))
-
-                                Button(
-                                    onClick = { viewModel.adjustTTSSpeed(-0.1f) },
-                                    modifier = Modifier.size(32.dp),
-                                    contentPadding = PaddingValues(0.dp)
-                                ) {
-                                    Text("-", fontSize = 12.sp)
-                                }
-
-                                Spacer(modifier = Modifier.width(4.dp))
-
-                                Button(
-                                    onClick = { viewModel.adjustTTSSpeed(0.1f) },
-                                    modifier = Modifier.size(32.dp),
-                                    contentPadding = PaddingValues(0.dp)
-                                ) {
-                                    Text("+", fontSize = 12.sp)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Navigation Bar
-                if (uiState.isLoaded && !uiState.isLoading) {
-                    BottomAppBar {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(
-                                onClick = { viewModel.previousChapter() },
-                                enabled = uiState.currentChapterIndex > 0
-                            ) {
-                                Icon(Icons.Default.NavigateBefore, contentDescription = "Previous Chapter")
-                            }
-
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "Chapter ${uiState.currentChapterIndex + 1} of ${uiState.totalChapters}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-
-                                LinearProgressIndicator(
-                                    progress = { (uiState.currentChapterIndex + 1f) / uiState.totalChapters.coerceAtLeast(1) },
-                                    modifier = Modifier
-                                        .width(120.dp)
-                                        .padding(top = 4.dp),
-                                )
-                            }
-
-                            IconButton(
-                                onClick = { viewModel.nextChapter() },
-                                enabled = uiState.currentChapterIndex < uiState.totalChapters - 1
-                            ) {
-                                Icon(Icons.Default.NavigateNext, contentDescription = "Next Chapter")
-                            }
+                        IconButton(onClick = { showSettings = true }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings")
                         }
                     }
                 }
             }
         }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
 
-                uiState.error != null -> {
-                    Column(
+        // Bottom navigation bar
+        AnimatedVisibility(
+            visible = showControls,
+            enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+            exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                tonalElevation = 8.dp,
+                shadowElevation = 8.dp
+            ) {
+                Column {
+                    // Chapter slider - guard against invalid ranges
+                    val totalChapters = uiState.totalChapters.coerceAtLeast(1)
+                    val currentChapter = uiState.currentChapterIndex.coerceIn(0, totalChapters - 1)
+                    Slider(
+                        value = currentChapter.toFloat(),
+                        onValueChange = { viewModel.jumpToChapter(it.toInt()) },
+                        valueRange = 0f..(totalChapters - 1).toFloat(),
+                        steps = (totalChapters - 2).coerceAtLeast(0),
                         modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Error loading book",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = uiState.error ?: "Unknown error",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
+                        IconButton(
+                            onClick = { viewModel.previousChapter() },
+                            enabled = uiState.currentChapterIndex > 0
+                        ) {
+                            Icon(Icons.Default.SkipPrevious, contentDescription = "Previous Chapter")
+                        }
+
+                        IconButton(onClick = { /* TODO: Table of contents */ }) {
+                            Icon(Icons.Default.MenuBook, contentDescription = "Table of Contents")
+                        }
+
+                        IconButton(onClick = { /* TODO: Search in book */ }) {
+                            Icon(Icons.Default.Search, contentDescription = "Search")
+                        }
+
+                        IconButton(
+                            onClick = { viewModel.nextChapter() },
+                            enabled = uiState.currentChapterIndex < uiState.totalChapters - 1
+                        ) {
+                            Icon(Icons.Default.SkipNext, contentDescription = "Next Chapter")
+                        }
                     }
                 }
+            }
+        }
 
-                uiState.isLoaded -> {
-                    EnhancedReaderContent(
-                        content = uiState.currentChapterContent,
-                        settings = readerSettings,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+        // Reading settings sheet
+        if (showSettings) {
+            ReadingSettingsSheet(
+                fontSize = fontSize,
+                onFontSizeChange = { fontSize = it },
+                fontFamily = fontFamily,
+                onFontFamilyChange = { fontFamily = it },
+                backgroundColor = backgroundColor,
+                onBackgroundChange = { bg, text ->
+                    backgroundColor = bg
+                    textColor = text
+                },
+                brightness = brightness,
+                onBrightnessChange = { brightness = it },
+                onDismiss = { showSettings = false }
+            )
+        }
+    }
+}
 
-                else -> {
-                    Text(
-                        text = "No book loaded",
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+@Composable
+private fun ReadingContent(
+    content: String,
+    fontSize: TextUnit,
+    fontFamily: FontFamily,
+    textColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp)
+    ) {
+        Text(
+            text = content,
+            fontSize = fontSize,
+            fontFamily = fontFamily,
+            color = textColor,
+            lineHeight = fontSize * 1.6f,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun LoadingView() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            CircularProgressIndicator()
+            Text(
+                text = "Loading book...",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorView(message: String, onRetry: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(
+                Icons.Default.Error,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
+            )
+            Button(onClick = onRetry) {
+                Icon(Icons.Default.Refresh, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Retry")
             }
         }
     }
 }
 
-/**
- * Enhanced reading content with customizable formatting
- */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EnhancedReaderContent(
-    content: String,
-    settings: ReaderSettings,
-    modifier: Modifier = Modifier
+private fun ReadingSettingsSheet(
+    fontSize: TextUnit,
+    onFontSizeChange: (TextUnit) -> Unit,
+    fontFamily: FontFamily,
+    onFontFamilyChange: (FontFamily) -> Unit,
+    backgroundColor: Color,
+    onBackgroundChange: (Color, Color) -> Unit,
+    brightness: Float,
+    onBrightnessChange: (Float) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val backgroundColor = if (settings.isDarkMode) Color(0xFF1A1A1A) else Color.White
-    val textColor = if (settings.isDarkMode) Color(0xFFE0E0E0) else Color.Black
-
-    Column(
-        modifier = modifier
-            .background(backgroundColor)
-            .verticalScroll(rememberScrollState())
-            .padding(
-                horizontal = settings.margins.dp,
-                vertical = settings.margins.dp
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                text = "Reading Settings",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
+
+            // Font size
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Font Size", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { onFontSizeChange((fontSize.value - 2).sp) }) {
+                        Icon(Icons.Default.Remove, contentDescription = "Decrease")
+                    }
+                    Text(
+                        text = "${fontSize.value.toInt()} sp",
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                    IconButton(onClick = { onFontSizeChange((fontSize.value + 2).sp) }) {
+                        Icon(Icons.Default.Add, contentDescription = "Increase")
+                    }
+                }
+            }
+
+            // Font family
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Font", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = fontFamily == FontFamily.Serif,
+                        onClick = { onFontFamilyChange(FontFamily.Serif) },
+                        label = { Text("Serif") }
+                    )
+                    FilterChip(
+                        selected = fontFamily == FontFamily.SansSerif,
+                        onClick = { onFontFamilyChange(FontFamily.SansSerif) },
+                        label = { Text("Sans") }
+                    )
+                    FilterChip(
+                        selected = fontFamily == FontFamily.Monospace,
+                        onClick = { onFontFamilyChange(FontFamily.Monospace) },
+                        label = { Text("Mono") }
+                    )
+                }
+            }
+
+            // Theme
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Theme", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ThemeButton(
+                        name = "Sepia",
+                        backgroundColor = Color(0xFFFFFBF0),
+                        textColor = Color(0xFF3E2723),
+                        isSelected = backgroundColor == Color(0xFFFFFBF0),
+                        onClick = { onBackgroundChange(Color(0xFFFFFBF0), Color(0xFF3E2723)) }
+                    )
+                    ThemeButton(
+                        name = "Night",
+                        backgroundColor = Color(0xFF1A1A1A),
+                        textColor = Color(0xFFE0E0E0),
+                        isSelected = backgroundColor == Color(0xFF1A1A1A),
+                        onClick = { onBackgroundChange(Color(0xFF1A1A1A), Color(0xFFE0E0E0)) }
+                    )
+                    ThemeButton(
+                        name = "White",
+                        backgroundColor = Color.White,
+                        textColor = Color.Black,
+                        isSelected = backgroundColor == Color.White,
+                        onClick = { onBackgroundChange(Color.White, Color.Black) }
+                    )
+                }
+            }
+
+            // Brightness
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Brightness", style = MaterialTheme.typography.titleMedium)
+                Slider(
+                    value = brightness,
+                    onValueChange = onBrightnessChange,
+                    valueRange = 0.3f..1f
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun ThemeButton(
+    name: String,
+    backgroundColor: Color,
+    textColor: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .size(80.dp, 60.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick),
+        color = backgroundColor,
+        border = if (isSelected) ButtonDefaults.outlinedButtonBorder else null
     ) {
-        Text(
-            text = content,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = settings.fontSize.sp,
-                lineHeight = (settings.fontSize * settings.lineSpacing).sp,
-                fontFamily = if (settings.dyslexiaFont) FontFamily.Monospace else FontFamily.Default,
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = name,
                 color = textColor,
-                textAlign = if (settings.isJustified) TextAlign.Justify else TextAlign.Start,
-                fontWeight = if (settings.isBold) FontWeight.Bold else FontWeight.Normal
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
     }
 }

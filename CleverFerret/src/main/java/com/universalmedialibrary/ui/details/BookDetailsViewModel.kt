@@ -25,32 +25,28 @@ class BookDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val details = mediaItemDao.getBookDetailsById(bookId)
-                if (details != null) {
-                    _uiState.value = _uiState.value.copy(isLoading = false, details = details)
-                } else {
-                    // Fallback: build minimal details from metadata tables if projection is missing
+                val mediaItem = mediaItemDao.getBookDetailsById(bookId)
+                if (mediaItem != null) {
+                    // Build details from media item and metadata
                     val common = metadataDao.getMetadataCommonByItemId(bookId)
                     val author = metadataDao.getAuthorsByItemId(bookId).firstOrNull()
+                    val seriesName = metadataDao.getSeriesByItemId(bookId)
+                    
                     if (common != null) {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             details = BookDetails(
-                                mediaItem = com.universalmedialibrary.data.local.model.MediaItem(
-                                    itemId = bookId,
-                                    libraryId = 0,
-                                    filePath = "",
-                                    dateAdded = 0L,
-                                    lastScanned = 0L,
-                                    fileHash = ""
-                                ),
+                                mediaItem = mediaItem,
                                 metadata = common,
-                                authorName = author
+                                authorName = author,
+                                seriesName = seriesName
                             )
                         )
                     } else {
-                        _uiState.value = _uiState.value.copy(isLoading = false, error = "Book not found")
+                        _uiState.value = _uiState.value.copy(isLoading = false, error = "Book metadata not found")
                     }
+                } else {
+                    _uiState.value = _uiState.value.copy(isLoading = false, error = "Book not found")
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message ?: "Error loading book")

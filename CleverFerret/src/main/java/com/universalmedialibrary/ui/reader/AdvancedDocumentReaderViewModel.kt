@@ -514,7 +514,8 @@ data class AdvancedDocumentReaderUiState(
         totalPages = 0,
         currentPage = 0,
         readingProgress = 0f,
-        timeSpentReading = 0
+        timeSpentReading = 0,
+        averageReadingSpeed = 0f
     ),
 
     // Settings
