@@ -55,7 +55,7 @@ class ImportExportRepository @Inject constructor(
             }
 
             val mediaItems = libraries.flatMap { library ->
-                mediaItemDao.getItemsByLibrary(library.libraryId)
+                mediaItemDao.getMediaItemsByLibrary(library.libraryId)
             }
 
             val metadata = if (includeMetadata) {
@@ -253,7 +253,7 @@ class ImportExportRepository @Inject constructor(
             }
 
             val mediaItems = libraries.flatMap { library ->
-                mediaItemDao.getItemsByLibrary(library.libraryId)
+                mediaItemDao.getMediaItemsByLibrary(library.libraryId)
             }
 
             val csvBuilder = StringBuilder()

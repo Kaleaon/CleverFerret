@@ -36,9 +36,9 @@ class SearchRepository @Inject constructor(
     ): List<MediaItemWithMetadata> = withContext(Dispatchers.IO) {
         // Get all media items
         val items = if (libraryId != null) {
-            mediaItemDao.getItemsByLibrary(libraryId)
+            mediaItemDao.getMediaItemsByLibrary(libraryId)
         } else {
-            mediaItemDao.getAllMediaItems()
+            mediaItemDao.getMediaItemsForLibrary(libraryId)
         }
 
         // Apply filters
@@ -109,7 +109,7 @@ class SearchRepository @Inject constructor(
         val suggestions = mutableSetOf<String>()
 
         // Get all items
-        val items = mediaItemDao.getAllMediaItems()
+        val items = mediaItemDao.getMediaItemsForLibrary(libraryId)
         
         // Collect filename suggestions
         items.forEach { item ->
@@ -136,9 +136,9 @@ class SearchRepository @Inject constructor(
      */
     suspend fun getAvailableFilters(libraryId: Long? = null): FilterOptions = withContext(Dispatchers.IO) {
         val items = if (libraryId != null) {
-            mediaItemDao.getItemsByLibrary(libraryId)
+            mediaItemDao.getMediaItemsByLibrary(libraryId)
         } else {
-            mediaItemDao.getAllMediaItems()
+            mediaItemDao.getMediaItemsForLibrary(libraryId)
         }
 
         val mediaTypes = items.map { it.mediaType }.distinct().sorted()

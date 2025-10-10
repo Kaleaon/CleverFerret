@@ -438,7 +438,3 @@ private fun formatTime(ms: Long): String {
         String.format(Locale.US, "%d:%02d", minutes, seconds)
     }
 }
-
-enum class RepeatMode {
-    OFF, ALL, ONE
-}

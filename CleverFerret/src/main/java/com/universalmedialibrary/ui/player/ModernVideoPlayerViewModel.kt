@@ -20,8 +20,8 @@ class ModernVideoPlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(VideoPlayerUiState())
-    val uiState: StateFlow<VideoPlayerUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(ModernVideoPlayerUiState())
+    val uiState: StateFlow<ModernVideoPlayerUiState> = _uiState.asStateFlow()
 
     private var exoPlayer: ExoPlayer? = null
 
@@ -163,7 +163,7 @@ class ModernVideoPlayerViewModel @Inject constructor(
     }
 }
 
-data class VideoPlayerUiState(
+data class ModernModernVideoPlayerUiState(
     val player: ExoPlayer? = null,
     val videoTitle: String = "",
     val videoQuality: String = "1080p",
