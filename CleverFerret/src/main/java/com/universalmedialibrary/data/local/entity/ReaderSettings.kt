@@ -177,7 +177,14 @@ data class ReaderSettings(
     val fullScreenMode: Boolean,
     val enablePageNumbers: Boolean = true,
     val enableProgressIndicator: Boolean = true,
-    val enableHyphenation: Boolean = true
+    val enableHyphenation: Boolean = true,
+    val tapToTurnPages: Boolean = true,
+    val swipeToTurnPages: Boolean = true,
+    val volumeKeysToTurnPages: Boolean = true,
+    val enableGestures: Boolean = true,
+    val pageAnimation: String = "None",
+    val autoScrollSpeed: Int = 30,
+    val autoScrollMode: String = "OFF"
 ) {
     companion object {
         /**
@@ -209,7 +216,14 @@ data class ReaderSettings(
                 fullScreenMode = entity.fullScreenMode,
                 enablePageNumbers = entity.enablePageNumbers,
                 enableProgressIndicator = entity.enableProgressIndicator,
-                enableHyphenation = entity.enableHyphenation
+                enableHyphenation = entity.enableHyphenation,
+                tapToTurnPages = entity.tapToTurnPages,
+                swipeToTurnPages = entity.swipeToTurnPages,
+                volumeKeysToTurnPages = entity.volumeKeysToTurnPages,
+                enableGestures = entity.tapToTurnPages || entity.swipeToTurnPages, // Derived from other fields
+                pageAnimation = entity.pageTurnAnimation,
+                autoScrollSpeed = 30, // Default - not in entity
+                autoScrollMode = "OFF" // Default - not in entity
             )
         }
 
@@ -236,7 +250,14 @@ data class ReaderSettings(
                 fullScreenMode = global.fullScreenMode,
                 enablePageNumbers = global.enablePageNumbers,
                 enableProgressIndicator = global.enableProgressIndicator,
-                enableHyphenation = global.enableHyphenation
+                enableHyphenation = global.enableHyphenation,
+                tapToTurnPages = global.tapToTurnPages,
+                swipeToTurnPages = global.swipeToTurnPages,
+                volumeKeysToTurnPages = global.volumeKeysToTurnPages,
+                enableGestures = global.tapToTurnPages || global.swipeToTurnPages, // Derived
+                pageAnimation = global.pageTurnAnimation,
+                autoScrollSpeed = 30, // Default - not in entity
+                autoScrollMode = "OFF" // Default - not in entity
             )
         }
     }
@@ -261,6 +282,11 @@ fun ReaderSettings.toEntity(): ReaderSettingsEntity {
         fullScreenMode = this.fullScreenMode,
         enablePageNumbers = this.enablePageNumbers,
         enableProgressIndicator = this.enableProgressIndicator,
-        enableHyphenation = this.enableHyphenation
+        enableHyphenation = this.enableHyphenation,
+        tapToTurnPages = this.tapToTurnPages,
+        swipeToTurnPages = this.swipeToTurnPages,
+        volumeKeysToTurnPages = this.volumeKeysToTurnPages,
+        pageTurnAnimation = this.pageAnimation
+        // Note: enableGestures, autoScrollSpeed, autoScrollMode are UI-only fields not persisted
     )
 }

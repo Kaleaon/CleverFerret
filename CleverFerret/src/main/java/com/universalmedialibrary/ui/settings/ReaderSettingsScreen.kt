@@ -198,7 +198,7 @@ fun ThemeSection(
     ) {
         SettingsGroupCard("Theme Mode") {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                ReaderTheme.values().forEach { theme ->
+                listOf("Auto", "Light", "Dark", "Sepia").forEach { themeName ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -206,11 +206,11 @@ fun ThemeSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = settings.theme == theme,
-                            onClick = { onSettingsChange(settings.copy(theme = theme)) }
+                            selected = settings.theme == themeName,
+                            onClick = { onSettingsChange(settings.copy(theme = themeName)) }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = theme.name)
+                        Text(text = themeName)
                     }
                 }
             }
@@ -230,20 +230,20 @@ fun PagingSection(
             SwitchSetting(
                 title = "Tap to Turn",
                 subtitle = "Tap screen edges to turn pages",
-                checked = settings.tapToTurn,
-                onCheckedChange = { onSettingsChange(settings.copy(tapToTurn = it)) }
+                checked = settings.tapToTurnPages,
+                onCheckedChange = { onSettingsChange(settings.copy(tapToTurnPages = it)) }
             )
             SwitchSetting(
                 title = "Swipe to Turn",
                 subtitle = "Swipe horizontally to turn pages",
-                checked = settings.swipeToTurn,
-                onCheckedChange = { onSettingsChange(settings.copy(swipeToTurn = it)) }
+                checked = settings.swipeToTurnPages,
+                onCheckedChange = { onSettingsChange(settings.copy(swipeToTurnPages = it)) }
             )
             SwitchSetting(
                 title = "Volume Key Navigation",
                 subtitle = "Use volume keys to turn pages",
-                checked = settings.volumeKeyNavigation,
-                onCheckedChange = { onSettingsChange(settings.copy(volumeKeyNavigation = it)) }
+                checked = settings.volumeKeysToTurnPages,
+                onCheckedChange = { onSettingsChange(settings.copy(volumeKeysToTurnPages = it)) }
             )
             SwitchSetting(
                 title = "Enable Gestures",
@@ -254,9 +254,9 @@ fun PagingSection(
         }
 
         SettingsGroupCard("Page Turn Animation") {
-            val animations = PageAnimation.values()
+            val animations = listOf("None", "Slide", "Fade", "Curl")
             Column {
-                animations.forEach { anim ->
+                animations.forEach { animName ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -264,11 +264,11 @@ fun PagingSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = settings.pageAnimation == anim,
-                            onClick = { onSettingsChange(settings.copy(pageAnimation = anim)) }
+                            selected = settings.pageAnimation == animName,
+                            onClick = { onSettingsChange(settings.copy(pageAnimation = animName)) }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = anim.name)
+                        Text(text = animName)
                     }
                 }
             }
