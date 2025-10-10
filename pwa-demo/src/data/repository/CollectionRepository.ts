@@ -73,9 +73,15 @@ export class CollectionRepository {
    * Add item to collection
    */
   async addItem(collectionId: number, itemId: number): Promise<void> {
-    // Find next sort order
-    const currentItems = await this.getItemsInCollection(collectionId);
-    const nextOrder = currentItems.length;
+    // Find next sort order efficiently
+    const maxSortOrder = await db.itemCollections
+      .where('collectionId')
+      .equals(collectionId)
+      .reverse()
+      .sortBy('sortOrder')
+      .then(items => items.length > 0 ? items[0].sortOrder : -1);
+
+    const nextOrder = maxSortOrder + 1;
 
     const itemCollection: ItemCollection = {
       itemId,
@@ -110,17 +116,10 @@ export class CollectionRepository {
    */
   async reorderItems(collectionId: number, orderedItemIds: number[]): Promise<void> {
     const updates = orderedItemIds.map(async (itemId, index) => {
-      const itemCollection = await db.itemCollections
+      await db.itemCollections
         .where('[collectionId+itemId]')
         .equals([collectionId, itemId])
-        .first();
-
-      if (itemCollection) {
-        return db.itemCollections.update(
-          [itemCollection.itemId, itemCollection.collectionId],
-          { sortOrder: index }
-        );
-      }
+        .modify({ sortOrder: index });
     });
 
     await Promise.all(updates);

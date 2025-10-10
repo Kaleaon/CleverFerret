@@ -109,6 +109,7 @@
 ## 📊 DETAILED STATISTICS
 
 ### Files Created
+
 | Category | Files | Lines of Code |
 |----------|-------|---------------|
 | Data Entities | 4 | ~2,785 |

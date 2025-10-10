@@ -89,7 +89,8 @@ export class NetworkManager {
     const headers = { ...this.defaultHeaders, ...(options?.headers || {}) };
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const timeoutMs = options?.timeout ?? this.timeout;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const response = await fetch(url, {

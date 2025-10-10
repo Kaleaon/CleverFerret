@@ -20,7 +20,7 @@ export class MetadataApiService {
     try {
       let query = '';
       if (isbn) {
-        query = `isbn:${isbn}`;
+        query = `isbn:${encodeURIComponent(isbn)}`;
       } else {
         query = `intitle:${encodeURIComponent(title)}`;
         if (author) {
@@ -116,14 +116,14 @@ export class MetadataApiService {
           originalTitle: movie.original_title,
           overview: movie.overview,
           releaseDate: movie.release_date,
-          year: parseInt(movie.release_date?.substring(0, 4) || '0'),
+          year: movie.release_date ? parseInt(movie.release_date.substring(0, 4)) : undefined,
           posterUrl: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
           backdropUrl: movie.backdrop_path ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}` : undefined,
           voteAverage: movie.vote_average,
           voteCount: movie.vote_count,
           popularity: movie.popularity,
           tmdbId: movie.id?.toString(),
-          imdbId: undefined,
+          imdbId: imdbId || undefined,
         },
         sources: ['TMDB'],
       };
@@ -144,10 +144,11 @@ export class MetadataApiService {
     track?: string
   ): Promise<MusicMetadataResult> {
     try {
-      let query = '';
-      if (track) query += `recording:"${track}"`;
-      if (artist) query += ` AND artist:"${artist}"`;
-      if (album) query += ` AND release:"${album}"`;
+      const parts: string[] = [];
+      if (track) parts.push(`recording:"${track}"`);
+      if (artist) parts.push(`artist:"${artist}"`);
+      if (album) parts.push(`release:"${album}"`);
+      const query = parts.join(' AND ');
 
       const response = await networkManager.get<MusicBrainzResponse>(
         `${API_ENDPOINTS.MUSICBRAINZ}/recording?query=${encodeURIComponent(query)}&fmt=json&limit=5`
@@ -197,7 +198,8 @@ export class MetadataApiService {
       }
 
       return null;
-    } catch {
+    } catch (error) {
+      console.warn(`Failed to fetch cover art for MBID: ${mbid}`, error);
       return null;
     }
   }

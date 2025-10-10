@@ -64,16 +64,16 @@ export class SearchRepository {
       if (query.trim() && metadata) {
         const lowerQuery = query.toLowerCase();
         const matchesMetadata =
-          metadata.title?.toLowerCase().includes(lowerQuery) ||
-          metadata.summary?.toLowerCase().includes(lowerQuery) ||
-          metadata.originalTitle?.toLowerCase().includes(lowerQuery);
+          metadata.title?.toLowerCase()?.includes(lowerQuery) ||
+          metadata.summary?.toLowerCase()?.includes(lowerQuery) ||
+          metadata.originalTitle?.toLowerCase()?.includes(lowerQuery);
 
         if (!matchesMetadata) continue;
       }
 
       // Apply rating filter
       if (minRating !== undefined || maxRating !== undefined) {
-        const rating = metadata?.rating || metadata?.userRating;
+        const rating = metadata?.rating ?? metadata?.userRating;
         if (rating === undefined) continue;
         if (minRating !== undefined && rating < minRating) continue;
         if (maxRating !== undefined && rating > maxRating) continue;
@@ -117,12 +117,14 @@ export class SearchRepository {
 
     // Get metadata title suggestions
     const metadata = await db.metadataCommon
-      .filter(meta => meta.title.toLowerCase().includes(lowerQuery))
+      .filter(meta => meta.title?.toLowerCase().includes(lowerQuery))
       .limit(limit)
       .toArray();
 
     metadata.forEach(meta => {
-      suggestions.add(meta.title);
+      if (meta.title) {
+        suggestions.add(meta.title);
+      }
     });
 
     return Array.from(suggestions).slice(0, limit);

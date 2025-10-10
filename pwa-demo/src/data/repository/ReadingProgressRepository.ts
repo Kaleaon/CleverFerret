@@ -33,7 +33,7 @@ export class ReadingProgressRepository {
   async getCompleted(): Promise<ReadingProgress[]> {
     return db.readingProgress
       .where('isCompleted')
-      .equals(1)
+      .equals(true)
       .reverse()
       .sortBy('completedDate');
   }
@@ -72,26 +72,35 @@ export class ReadingProgressRepository {
       notes: existing?.notes,
     };
 
-    await db.readingProgress.put(updated);
+    if (existing) {
+      await db.readingProgress.put(updated);
+    } else {
+      // Omit progressId for new records to let Dexie auto-generate
+      const { progressId, ...newRecord } = updated;
+      await db.readingProgress.add(newRecord as ReadingProgress);
+    }
   }
 
   /**
    * Mark item as read
    */
   async markAsRead(itemId: number): Promise<void> {
-    await db.readingProgress.update(itemId, {
-      isCompleted: true,
-      percentage: 1.0,
-      completedDate: Date.now(),
-      lastUpdate: Date.now(),
-    });
+    await db.readingProgress
+      .where('itemId')
+      .equals(itemId)
+      .modify({
+        isCompleted: true,
+        percentage: 1.0,
+        completedDate: Date.now(),
+        lastUpdate: Date.now(),
+      });
   }
 
   /**
    * Mark item as unread (delete progress)
    */
   async markAsUnread(itemId: number): Promise<void> {
-    await db.readingProgress.where('itemId').equals(itemId).delete();
+    await this.deleteProgress(itemId);
   }
 
   /**

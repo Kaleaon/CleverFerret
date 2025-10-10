@@ -15,7 +15,7 @@ export class BookmarkRepository {
     return db.bookmarks
       .where('itemId')
       .equals(itemId)
-      .and(b => b.isActive)
+      .and(b => b.isActive === true)
       .reverse()
       .sortBy('dateCreated');
   }
@@ -63,7 +63,7 @@ export class BookmarkRepository {
     return db.bookmarks
       .where('itemId')
       .equals(itemId)
-      .and(b => b.bookmarkType === 'AUTO' && b.isActive)
+      .and(b => b.bookmarkType === 'AUTO' && b.isActive === true)
       .last();
   }
 
@@ -108,7 +108,7 @@ export class BookmarkRepository {
    * Get all active bookmarks
    */
   async getAllActiveBookmarks(): Promise<Bookmark[]> {
-    return db.bookmarks.where('isActive').equals(1).toArray();
+    return db.bookmarks.where('isActive').equals(true).toArray();
   }
 
   /**
@@ -125,7 +125,7 @@ export class BookmarkRepository {
     return db.bookmarks
       .where('itemId')
       .equals(itemId)
-      .and(b => b.isActive)
+      .and(b => b.isActive === true)
       .count();
   }
 }
