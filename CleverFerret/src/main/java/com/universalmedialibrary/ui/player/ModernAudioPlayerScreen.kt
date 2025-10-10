@@ -53,7 +53,7 @@ fun ModernAudioPlayerScreen(
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
             animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
         ),
         label = "rotation"
     )

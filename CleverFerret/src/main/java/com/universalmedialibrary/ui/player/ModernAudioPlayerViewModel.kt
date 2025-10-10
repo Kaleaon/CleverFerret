@@ -62,7 +62,7 @@ class ModernAudioPlayerViewModel @Inject constructor(
     }
 }
 
-data class ModernModernAudioPlayerUiState(
+data class ModernAudioPlayerUiState(
     val currentTrack: AudioTrack? = null,
     val isPlaying: Boolean = false,
     val currentPosition: Long = 0L,

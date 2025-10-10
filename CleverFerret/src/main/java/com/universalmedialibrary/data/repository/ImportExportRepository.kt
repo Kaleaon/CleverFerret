@@ -5,6 +5,7 @@ import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -55,7 +56,7 @@ class ImportExportRepository @Inject constructor(
             }
 
             val mediaItems = libraries.flatMap { library ->
-                mediaItemDao.getMediaItemsByLibrary(library.libraryId)
+                mediaItemDao.getMediaItemsByLibrary(library.libraryId).first()
             }
 
             val metadata = if (includeMetadata) {
@@ -68,17 +69,15 @@ class ImportExportRepository @Inject constructor(
             } else emptyList()
 
             val progress = if (includeProgress) {
-                mediaItems.asSequence()
-                    .mapNotNull { item ->
-                        readingProgressDao.getProgressByItemId(item.itemId)
-                    }
-                    .toList()
+                mediaItems.mapNotNull { item ->
+                    readingProgressDao.getProgress(item.itemId).first()
+                }
             } else emptyList()
 
             val bookmarks = if (includeBookmarks) {
                 mediaItems.asSequence()
                     .flatMap { item ->
-                        bookmarkDao.getBookmarksForItem(item.itemId)
+                        bookmarkDao.getBookmarksForItem(item.itemId).first()
                     }
                     .toList()
             } else emptyList()
@@ -201,7 +200,7 @@ class ImportExportRepository @Inject constructor(
                 try {
                     val newItemId = itemIdMap[progress.itemId]
                     if (newItemId != null) {
-                        readingProgressDao.insertProgress(progress.copy(itemId = newItemId))
+                        readingProgressDao.upsert(progress.copy(itemId = newItemId))
                     }
                 } catch (e: Exception) {
                     // Continue on progress errors
@@ -253,7 +252,7 @@ class ImportExportRepository @Inject constructor(
             }
 
             val mediaItems = libraries.flatMap { library ->
-                mediaItemDao.getMediaItemsByLibrary(library.libraryId)
+                mediaItemDao.getMediaItemsByLibrary(library.libraryId).first()
             }
 
             val csvBuilder = StringBuilder()
