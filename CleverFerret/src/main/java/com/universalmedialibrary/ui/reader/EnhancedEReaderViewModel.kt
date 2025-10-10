@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.universalmedialibrary.data.local.entity.ReaderSettings
+import com.universalmedialibrary.data.local.entity.ReaderSettings as ReaderSettingsModel
 
 data class EnhancedReaderUiState(
     val bookTitle: String = "",
@@ -33,8 +33,8 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(EnhancedReaderUiState())
     val uiState: StateFlow<EnhancedReaderUiState> = _uiState.asStateFlow()
 
-    private val _readerSettings = MutableStateFlow(ReaderSettings())
-    val readerSettings: StateFlow<ReaderSettings> = _readerSettings.asStateFlow()
+    private val _readerSettings = MutableStateFlow(ReaderSettingsModel.fromEntity(com.universalmedialibrary.data.local.entity.ReaderSettingsEntity()))
+    val readerSettings: StateFlow<ReaderSettingsModel> = _readerSettings.asStateFlow()
 
     private val _ttsState = MutableStateFlow(SimpleTtsState())
     val ttsState: StateFlow<SimpleTtsState> = _ttsState.asStateFlow()
@@ -94,20 +94,22 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
     }
 
     fun increaseFontSize() {
-        val size = _readerSettings.value.fontSize + 1f
+        val size = _readerSettings.value.fontSize + 1
         _readerSettings.value = _readerSettings.value.copy(fontSize = size)
     }
 
     fun decreaseFontSize() {
-        val size = (_readerSettings.value.fontSize - 1f).coerceAtLeast(10f)
+        val size = (_readerSettings.value.fontSize - 1).coerceAtLeast(10)
         _readerSettings.value = _readerSettings.value.copy(fontSize = size)
     }
 
     fun toggleDarkMode() {
-        _readerSettings.value = _readerSettings.value.copy(isDarkMode = !_readerSettings.value.isDarkMode)
+        val newTheme = if (_readerSettings.value.theme == "Dark") "Light" else "Dark"
+        _readerSettings.value = _readerSettings.value.copy(theme = newTheme)
     }
 
     fun toggleJustified() {
-        _readerSettings.value = _readerSettings.value.copy(isJustified = !_readerSettings.value.isJustified)
+        val newAlignment = if (_readerSettings.value.textAlignment == "Justify") "Left" else "Justify"
+        _readerSettings.value = _readerSettings.value.copy(textAlignment = newAlignment)
     }
 }

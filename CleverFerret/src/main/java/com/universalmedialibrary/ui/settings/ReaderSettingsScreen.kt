@@ -287,10 +287,10 @@ fun AutoScrollSection(
         SettingsGroupCard("Auto-Scroll") {
             SliderSetting(
                 title = "Scroll Speed",
-                value = settings.autoScrollSpeed,
+                value = settings.autoScrollSpeed.toFloat(),
                 range = 10f..100f,
-                onValueChange = { onSettingsChange(settings.copy(autoScrollSpeed = it)) },
-                valueDisplay = "${'$'}{settings.autoScrollSpeed.toInt()} px/s"
+                onValueChange = { onSettingsChange(settings.copy(autoScrollSpeed = it.toInt())) },
+                valueDisplay = "${'$'}{settings.autoScrollSpeed} px/s"
             )
 
             // Scroll Mode
@@ -308,8 +308,8 @@ fun AutoScrollSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = settings.autoScrollMode == mode,
-                            onClick = { onSettingsChange(settings.copy(autoScrollMode = mode)) }
+                            selected = settings.autoScrollMode == mode.name,
+                            onClick = { onSettingsChange(settings.copy(autoScrollMode = mode.name)) }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = mode.name)

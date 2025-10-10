@@ -184,8 +184,26 @@ data class ReaderSettings(
     val enableGestures: Boolean = true,
     val pageAnimation: String = "None",
     val autoScrollSpeed: Int = 30,
-    val autoScrollMode: String = "OFF"
+    val autoScrollMode: String = "OFF",
+    val textAlignment: String = "Left"
 ) {
+    // Computed properties for backward compatibility with old UI code
+    val backgroundColor: String
+        get() = when (theme) {
+            "Dark" -> "#000000"
+            "Sepia" -> "#F4ECD8"
+            "Light" -> "#FFFFFF"
+            else -> "#FFFFFF" // Auto defaults to light
+        }
+    
+    val textColor: String
+        get() = when (theme) {
+            "Dark" -> "#FFFFFF"
+            "Sepia" -> "#5F4B32"
+            "Light" -> "#000000"
+            else -> "#000000" // Auto defaults to dark text
+        }
+    
     companion object {
         /**
          * Create default settings from global settings only
@@ -223,7 +241,8 @@ data class ReaderSettings(
                 enableGestures = entity.tapToTurnPages || entity.swipeToTurnPages, // Derived from other fields
                 pageAnimation = entity.pageTurnAnimation,
                 autoScrollSpeed = 30, // Default - not in entity
-                autoScrollMode = "OFF" // Default - not in entity
+                autoScrollMode = "OFF", // Default - not in entity
+                textAlignment = entity.textAlignment
             )
         }
 
@@ -257,7 +276,8 @@ data class ReaderSettings(
                 enableGestures = global.tapToTurnPages || global.swipeToTurnPages, // Derived
                 pageAnimation = global.pageTurnAnimation,
                 autoScrollSpeed = 30, // Default - not in entity
-                autoScrollMode = "OFF" // Default - not in entity
+                autoScrollMode = "OFF", // Default - not in entity
+                textAlignment = global.textAlignment
             )
         }
     }
@@ -286,7 +306,8 @@ fun ReaderSettings.toEntity(): ReaderSettingsEntity {
         tapToTurnPages = this.tapToTurnPages,
         swipeToTurnPages = this.swipeToTurnPages,
         volumeKeysToTurnPages = this.volumeKeysToTurnPages,
-        pageTurnAnimation = this.pageAnimation
+        pageTurnAnimation = this.pageAnimation,
+        textAlignment = this.textAlignment
         // Note: enableGestures, autoScrollSpeed, autoScrollMode are UI-only fields not persisted
     )
 }
