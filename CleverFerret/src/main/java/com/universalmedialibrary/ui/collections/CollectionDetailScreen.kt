@@ -172,7 +172,7 @@ fun CollectionDetailScreen(
                                 isEditMode = uiState.isEditMode,
                                 onClick = { onOpenItem(item.itemId) },
                                 onRemove = { viewModel.removeItem(item.itemId) },
-                                modifier = Modifier.animateItemPlacement()
+                                modifier = Modifier
                             )
                         }
                     }

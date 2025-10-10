@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.GenericFontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,7 @@ fun EnhancedEReaderScreen(
 
     // Reader settings
     var fontSize by remember { mutableStateOf(18.sp) }
-    var fontFamily by remember { mutableStateOf(FontFamily.Serif) }
+    var fontFamily by remember { mutableStateOf<GenericFontFamily>(FontFamily.Serif) }
     var backgroundColor by remember { mutableStateOf(Color(0xFFFFFBF0)) } // Sepia
     var textColor by remember { mutableStateOf(Color(0xFF3E2723)) }
     var brightness by remember { mutableStateOf(1f) }
@@ -321,8 +322,8 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
 private fun ReadingSettingsSheet(
     fontSize: TextUnit,
     onFontSizeChange: (TextUnit) -> Unit,
-    fontFamily: FontFamily,
-    onFontFamilyChange: (FontFamily) -> Unit,
+    fontFamily: GenericFontFamily,
+    onFontFamilyChange: (GenericFontFamily) -> Unit,
     backgroundColor: Color,
     onBackgroundChange: (Color, Color) -> Unit,
     brightness: Float,

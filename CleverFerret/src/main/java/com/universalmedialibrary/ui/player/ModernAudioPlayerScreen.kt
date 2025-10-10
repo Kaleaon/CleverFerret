@@ -146,9 +146,10 @@ fun ModernAudioPlayerScreen(
                     tonalElevation = 16.dp,
                     shadowElevation = 24.dp
                 ) {
-                    if (uiState.currentTrack?.coverUrl != null) {
+                    val currentTrack = uiState.currentTrack
+                    if (currentTrack?.coverUrl != null) {
                         AsyncImage(
-                            model = uiState.currentTrack.coverUrl,
+                            model = currentTrack.coverUrl,
                             contentDescription = "Album Art",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
