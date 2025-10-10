@@ -101,7 +101,12 @@ data class ReadingProgress(
     val locator: String? = null,
 
     val notes: String? = null
-)
+) {
+    // Computed properties for compatibility with UI
+    val progress: Float get() = percentage
+    val lastPosition: Long get() = currentPosition
+    val duration: Long? get() = null // Duration is not tracked in ReadingProgress, would need to come from MediaItem
+}
 
 /**
  * Entity for individual reading sessions

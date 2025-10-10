@@ -51,4 +51,9 @@ data class MediaItem(
     val hasMetadata: Boolean = false,
     val hasThumbnail: Boolean = false,
     val thumbnailPath: String? = null
-)
+) {
+    // Computed properties for compatibility with UI - these need to be fetched from metadata tables
+    val creator: String? get() = null // Should be fetched from MetadataCommon
+    val rating: Float? get() = null // Should be fetched from MetadataCommon
+    val lastViewed: Long? get() = null // Should be fetched from ReadingProgress or viewing history
+}
