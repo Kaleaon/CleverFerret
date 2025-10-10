@@ -130,6 +130,9 @@ class UniversalMediaLibraryViewModel @Inject constructor(
             SortOption.TITLE -> filtered.sortedBy { it.title.lowercase() }
             SortOption.AUTHOR -> filtered.sortedBy { it.author?.lowercase() ?: "" }
             SortOption.DATE_ADDED -> filtered.sortedByDescending { it.dateAdded }
+            SortOption.DATE_MODIFIED -> filtered.sortedByDescending { it.lastModified ?: 0 }
+            SortOption.RATING -> filtered.sortedByDescending { it.rating ?: 0f }
+            SortOption.RECENTLY_VIEWED -> filtered.sortedByDescending { it.lastViewed ?: 0 }
             SortOption.RECENTLY_PLAYED -> filtered.sortedByDescending { it.dateAdded } // TODO: Sort by last played when available
         }
 

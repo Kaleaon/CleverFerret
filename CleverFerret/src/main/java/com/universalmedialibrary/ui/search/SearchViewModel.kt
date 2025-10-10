@@ -132,7 +132,9 @@ class SearchViewModel @Inject constructor(
     private fun loadSuggestions(query: String) {
         viewModelScope.launch {
             try {
-                val suggestions = searchRepository.getSearchSuggestions(query)
+                // Use libraryId from filters, or 0 for all libraries
+                val libraryId = _filters.value.libraryId ?: 0L
+                val suggestions = searchRepository.getSearchSuggestions(query, libraryId)
                 _uiState.value = _uiState.value.copy(suggestions = suggestions)
             } catch (e: Exception) {
                 // Silently fail for suggestions
