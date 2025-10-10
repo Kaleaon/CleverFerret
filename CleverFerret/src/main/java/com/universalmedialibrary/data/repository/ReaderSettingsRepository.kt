@@ -131,11 +131,11 @@ class ReaderSettingsRepository @Inject constructor(
                 BookReaderSettingsEntity(
                     bookId = mediaId,
                     currentChapter = chapter,
-                    currentPosition = progress
+                    currentPosition = progress  // currentPosition is Float in entity
                 )
             )
         } else {
-            readerSettingsDao.updateReadingProgress(mediaId, chapter, progress)
+            readerSettingsDao.updateReadingProgress(mediaId, chapter, position, progress)
         }
     }
 
@@ -199,24 +199,19 @@ class ReaderSettingsRepository @Inject constructor(
         }
     }
 
-    suspend fun updateLineSpacing(mediaId: Long?, lineSpacing: Float) {
+    suspend fun updateLineHeight(mediaId: Long?, lineHeight: Float) {
         if (mediaId != null) {
             updateBookSetting(mediaId) { current ->
-                (current ?: BookReaderSettingsEntity(mediaId = mediaId)).copy(lineSpacing = lineSpacing)
+                (current ?: BookReaderSettingsEntity(bookId = mediaId)).copy(lineHeight = lineHeight)
             }
         } else {
-            updateGlobalSetting { it.copy(lineSpacing = lineSpacing) }
+            updateGlobalSetting { it.copy(lineHeight = lineHeight) }
         }
     }
 
     suspend fun updateTextAlignment(mediaId: Long?, alignment: String) {
-        if (mediaId != null) {
-            updateBookSetting(mediaId) { current ->
-                (current ?: BookReaderSettingsEntity(mediaId = mediaId)).copy(textAlignment = alignment)
-            }
-        } else {
-            updateGlobalSetting { it.copy(textAlignment = alignment) }
-        }
+        // textAlignment is global only, not per-book
+        updateGlobalSetting { it.copy(textAlignment = alignment) }
     }
 }
 

@@ -5,7 +5,9 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.services.metadata.RealMetadataService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -66,7 +68,7 @@ class MetadataFetchRepository @Inject constructor(
                     sortTitle = null,
                     originalTitle = null,
                     year = bookMetadata.publishedDate?.take(4)?.toIntOrNull(),
-                    releaseDate = bookMetadata.publishedDate,
+                    releaseDate = null, // TODO: Parse publishedDate string to timestamp
                     rating = bookMetadata.averageRating,
                     userRating = null,
                     communityRating = null,
@@ -198,7 +200,7 @@ class MetadataFetchRepository @Inject constructor(
                 existingMetadata.copy(
                     title = musicMetadata.title,
                     coverImagePath = musicMetadata.coverUrl,
-                    releaseDate = musicMetadata.releaseDate,
+                    releaseDate = null, // TODO: Parse releaseDate string to timestamp
                     lastUpdated = System.currentTimeMillis(),
                     metadataSource = result.sources.joinToString(", "),
                     externalId = musicMetadata.mbid
@@ -210,7 +212,7 @@ class MetadataFetchRepository @Inject constructor(
                     sortTitle = null,
                     originalTitle = null,
                     year = musicMetadata.releaseDate?.take(4)?.toIntOrNull(),
-                    releaseDate = musicMetadata.releaseDate,
+                    releaseDate = null, // TODO: Parse releaseDate string to timestamp
                     rating = null,
                     userRating = null,
                     communityRating = null,
@@ -258,7 +260,7 @@ class MetadataFetchRepository @Inject constructor(
      * Batch fetch metadata for multiple items
      */
     suspend fun fetchMetadataForLibrary(libraryId: Long): BatchMetadataFetchResult = withContext(Dispatchers.IO) {
-        val items = mediaItemDao.getMediaItemsByLibrary(libraryId)
+        val items = mediaItemDao.getMediaItemsByLibrary(libraryId).first()
         val results = mutableListOf<MetadataFetchResult>()
         var successCount = 0
         var failureCount = 0
