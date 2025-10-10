@@ -1,11 +1,8 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
-import kotlinx.serialization.Serializable
 import androidx.room.PrimaryKey
-import kotlinx.serialization.Serializable
 import androidx.room.ForeignKey
-import kotlinx.serialization.Serializable
 import androidx.room.Index
 import kotlinx.serialization.Serializable
 

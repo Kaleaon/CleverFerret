@@ -163,7 +163,7 @@ class ModernVideoPlayerViewModel @Inject constructor(
     }
 }
 
-data class ModernModernVideoPlayerUiState(
+data class ModernVideoPlayerUiState(
     val player: ExoPlayer? = null,
     val videoTitle: String = "",
     val videoQuality: String = "1080p",
