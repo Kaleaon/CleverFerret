@@ -200,7 +200,7 @@ class MediaSessionManager @Inject constructor(
     /**
      * Get MediaSession token for service binding
      */
-    fun getSessionToken(): SessionToken? = mediaSession?.token
+    fun getSessionToken(): SessionToken? = mediaSession?.getToken()
 
     /**
      * Get the MediaSession instance
