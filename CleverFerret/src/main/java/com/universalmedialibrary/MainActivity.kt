@@ -2,6 +2,7 @@ package com.universalmedialibrary
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -46,6 +47,8 @@ import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.utils.rememberPermissionsHandler
+import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -91,6 +94,24 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    
+    // Permission handling
+    val permissionState = rememberPermissionsHandler(
+        onAllPermissionsGranted = {
+            // Permissions granted - continue normal flow
+        },
+        onPermissionsDenied = { denied ->
+            // Handle denied permissions
+        }
+    )
+    
+    // Show permission dialog if needed
+    if (!permissionState.hasAllPermissions) {
+        PermissionDialog(
+            permissionState = permissionState
+        )
+    }
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -105,6 +126,19 @@ fun AppNavigation() {
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToMediaViewer = { id -> navController.navigate("open/$id") }
             )
+        }
+        composable("detail/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
+            if (itemId > 0) {
+                com.universalmedialibrary.ui.detail.MediaItemDetailScreen(
+                    itemId = itemId,
+                    onNavigateBack = { navController.navigateUp() },
+                    onOpenMedia = { id -> navController.navigate("open/$id") },
+                    onEditMetadata = { id -> /* TODO: Navigate to metadata editor */ }
+                )
+            } else {
+                Text("Invalid media item")
+            }
         }
         composable("open/{itemId}") { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
@@ -137,7 +171,22 @@ fun AppNavigation() {
             MaintenanceScreen(onBack = { navController.navigateUp() })
         }
         composable("collections") {
-            CollectionsScreen(onOpenCollection = { /* TODO: navigate to collection detail */ })
+            CollectionsScreen(onOpenCollection = { collectionId -> 
+                navController.navigate("collection_detail/$collectionId")
+            })
+        }
+        
+        composable("collection_detail/{collectionId}") { backStackEntry ->
+            val collectionId = backStackEntry.arguments?.getString("collectionId")?.toLongOrNull() ?: -1L
+            if (collectionId > 0) {
+                com.universalmedialibrary.ui.collections.CollectionDetailScreen(
+                    collectionId = collectionId,
+                    onNavigateBack = { navController.navigateUp() },
+                    onOpenItem = { itemId -> navController.navigate("open/$itemId") }
+                )
+            } else {
+                Text("Invalid collection")
+            }
         }
 
         // Podcast routes
@@ -208,6 +257,60 @@ fun AppNavigation() {
         composable("settings") {
             com.universalmedialibrary.ui.settings.SettingsScreen(
                 onBack = { navController.navigateUp() }
+            )
+        }
+        
+        // Import/Export route
+        composable("settings/import_export") {
+            com.universalmedialibrary.ui.settings.ImportExportScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // Storage Browser route
+        composable("storage_browser") {
+            com.universalmedialibrary.ui.filepicker.StorageBrowserScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onFileSelected = { file ->
+                    // Determine file type and navigate to appropriate player/reader
+                    when (file.extension.lowercase()) {
+                        "epub", "pdf", "mobi", "azw", "azw3" -> {
+                            navController.navigate("reader/${file.absolutePath}")
+                        }
+                        "mp3", "m4a", "flac", "wav", "ogg" -> {
+                            navController.navigate("audio_player/${file.absolutePath}")
+                        }
+                        "mp4", "mkv", "avi", "mov", "webm" -> {
+                            navController.navigate("video_player/${file.absolutePath}")
+                        }
+                    }
+                }
+            )
+        }
+
+        // Enhanced eBook Reader route
+        composable("reader/{bookPath}") { backStackEntry ->
+            val bookPath = backStackEntry.arguments?.getString("bookPath") ?: ""
+            com.universalmedialibrary.ui.reader.EnhancedEReaderScreen(
+                bookFilePath = bookPath,
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        // Modern Audio Player route
+        composable("audio_player/{audioPath}") { backStackEntry ->
+            val audioPath = backStackEntry.arguments?.getString("audioPath") ?: ""
+            com.universalmedialibrary.ui.player.ModernAudioPlayerScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // Modern Video Player route
+        composable("video_player/{videoPath}") { backStackEntry ->
+            val videoPath = backStackEntry.arguments?.getString("videoPath") ?: ""
+            com.universalmedialibrary.ui.player.ModernVideoPlayerScreen(
+                videoPath = videoPath,
+                onNavigateBack = { navController.navigateUp() }
             )
         }
 
@@ -707,5 +810,89 @@ private fun getIconForLibraryType(type: String): ImageVector {
         "MOVIE" -> Icons.Default.Movie
         "MUSIC" -> Icons.Default.MusicNote
         else -> Icons.Default.Book
+    }
+}
+
+/**
+ * Permission request dialog
+ */
+@Composable
+fun PermissionDialog(
+    permissionState: com.universalmedialibrary.utils.PermissionState
+) {
+    AlertDialog(
+        onDismissRequest = { /* Cannot dismiss - permissions required */ },
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Default.Lock,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text("Storage Permissions Required")
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = "CleverFerret needs access to your device storage to:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                PermissionItem("📚", "Access your books and documents")
+                PermissionItem("🎵", "Play your music and audiobooks")
+                PermissionItem("🎬", "View your videos and movies")
+                PermissionItem("📸", "Display cover images and artwork")
+                
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "You'll also be asked for notification permission to show playback controls.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                if (permissionState.showRationale) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer
+                        )
+                    ) {
+                        Text(
+                            text = "⚠️ Some permissions were denied. CleverFerret requires these permissions to function properly.",
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { permissionState.requestPermissions() }
+            ) {
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Grant Permissions")
+            }
+        }
+    )
+}
+
+@Composable
+private fun PermissionItem(emoji: String, text: String) {
+    Row(
+        modifier = Modifier.padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(emoji, style = MaterialTheme.typography.bodyLarge)
+        Text(text, style = MaterialTheme.typography.bodyMedium)
     }
 }

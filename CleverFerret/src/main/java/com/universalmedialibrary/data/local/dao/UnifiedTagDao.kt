@@ -93,7 +93,7 @@ interface UnifiedTagDao {
     @Query("""
         SELECT it.itemId FROM item_tags it
         WHERE it.tagId = :tagId
-        ORDER BY it.appliedAt DESC
+        ORDER BY it.id DESC
     """)
     suspend fun getItemIdsForTag(tagId: Long): List<Long>
 

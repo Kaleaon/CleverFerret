@@ -10,12 +10,12 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
@@ -96,6 +96,9 @@ dependencies {
     implementation("androidx.room:room-ktx:2.8.2")
     kapt("androidx.room:room-compiler:2.8.2")
     
+    // DataStore for settings persistence
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    
     // Basic networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -150,10 +153,11 @@ dependencies {
     
     // Media metadata extraction libraries
     // EPUB parsing for cover extraction
-    implementation("nl.siegmann.epublib:epublib-core:3.1") {
-        exclude(group = "org.slf4j")
-        exclude(group = "xmlpull")
-    }
+    // Temporarily commented out due to JitPack 401 error - TODO: Find alternative or fix repo
+    // implementation("nl.siegmann.epublib:epublib-core:3.1") {
+    //     exclude(group = "org.slf4j")
+    //     exclude(group = "xmlpull")
+    // }
     
     // Testing
     testImplementation("junit:junit:4.13.2")
