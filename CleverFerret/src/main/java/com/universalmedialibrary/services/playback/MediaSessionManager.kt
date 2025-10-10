@@ -8,6 +8,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
 import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
+import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -199,7 +200,7 @@ class MediaSessionManager @Inject constructor(
     /**
      * Get MediaSession token for service binding
      */
-    fun getSessionToken(): MediaSession.Token? = mediaSession?.token
+    fun getSessionToken(): SessionToken? = mediaSession?.token
 
     /**
      * Get the MediaSession instance

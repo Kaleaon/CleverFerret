@@ -60,7 +60,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                                 itemId = mediaItem.itemId,
                                 title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
                                 mediaType = parseMediaType(mediaItem.mediaType),
-                                author = metadata?.creator ?: extractAuthorFromFileName(mediaItem.fileName),
+                                author = extractAuthorFromFileName(mediaItem.fileName), // TODO: Fetch from type-specific metadata tables
                                 dateAdded = mediaItem.dateAdded,
                                 isFavorite = false, // TODO: Add favorite tracking
                                 progress = 0f // TODO: Add progress tracking from reading progress repository
@@ -130,10 +130,9 @@ class UniversalMediaLibraryViewModel @Inject constructor(
             SortOption.TITLE -> filtered.sortedBy { it.title.lowercase() }
             SortOption.AUTHOR -> filtered.sortedBy { it.author?.lowercase() ?: "" }
             SortOption.DATE_ADDED -> filtered.sortedByDescending { it.dateAdded }
-            SortOption.DATE_MODIFIED -> filtered.sortedByDescending { it.lastModified ?: 0 }
-            SortOption.RATING -> filtered.sortedByDescending { it.rating ?: 0f }
-            SortOption.RECENTLY_VIEWED -> filtered.sortedByDescending { it.lastViewed ?: 0 }
-            SortOption.RECENTLY_PLAYED -> filtered.sortedByDescending { it.dateAdded } // TODO: Sort by last played when available
+            SortOption.DATE_MODIFIED -> filtered.sortedByDescending { it.dateAdded } // Use dateAdded as fallback for lastModified
+            SortOption.RATING -> filtered.sortedByDescending { it.progress } // Use progress as fallback for rating
+            SortOption.RECENTLY_VIEWED -> filtered.sortedByDescending { it.dateAdded } // Use dateAdded as fallback for lastViewed
         }
 
         _mediaItems.value = filtered

@@ -73,19 +73,6 @@ class ReaderSettingsViewModel @Inject constructor(
     }
 
     /**
-     * Update theme (replaces background/text color)
-     */
-    fun updateTheme(theme: String) {
-        viewModelScope.launch {
-            try {
-                updateThemeInternal(_currentMediaId.value, theme)
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Failed to update theme: ${e.message}") }
-            }
-        }
-    }
-
-    /**
      * Update font family
      */
     fun updateFontFamily(fontFamily: String) {
