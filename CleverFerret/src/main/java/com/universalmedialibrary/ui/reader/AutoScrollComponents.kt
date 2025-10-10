@@ -9,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import com.universalmedialibrary.data.settings.AutoScrollMode
-import com.universalmedialibrary.data.settings.ReaderSettings
+import com.universalmedialibrary.data.local.entity.AutoScrollMode
+import com.universalmedialibrary.data.local.entity.ReaderSettings
 
 @Composable
 fun AutoScrollController(

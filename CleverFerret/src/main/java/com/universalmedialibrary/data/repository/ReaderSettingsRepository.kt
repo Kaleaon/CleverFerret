@@ -62,7 +62,7 @@ class ReaderSettingsRepository @Inject constructor(
      */
     suspend fun updateGlobalSettings(settings: ReaderSettingsEntity) {
         readerSettingsDao.insertOrUpdateGlobalSettings(
-            settings.copy(lastModified = System.currentTimeMillis())
+            settings.copy(updatedAt = System.currentTimeMillis())
         )
     }
 
@@ -71,7 +71,7 @@ class ReaderSettingsRepository @Inject constructor(
      */
     suspend fun updateGlobalSetting(update: (ReaderSettingsEntity) -> ReaderSettingsEntity) {
         val current = getGlobalSettings()
-        val updated = update(current).copy(lastModified = System.currentTimeMillis())
+        val updated = update(current).copy(updatedAt = System.currentTimeMillis())
         readerSettingsDao.insertOrUpdateGlobalSettings(updated)
     }
 
@@ -88,8 +88,8 @@ class ReaderSettingsRepository @Inject constructor(
     suspend fun updateBookSettings(mediaId: Long, settings: BookReaderSettingsEntity) {
         readerSettingsDao.insertOrUpdateBookSettings(
             settings.copy(
-                mediaId = mediaId,
-                lastModified = System.currentTimeMillis()
+                bookId = mediaId,
+                updatedAt = System.currentTimeMillis()
             )
         )
     }
@@ -103,8 +103,8 @@ class ReaderSettingsRepository @Inject constructor(
     ) {
         val current = readerSettingsDao.getBookSettings(mediaId)
         val updated = update(current).copy(
-            mediaId = mediaId,
-            lastModified = System.currentTimeMillis()
+            bookId = mediaId,
+            updatedAt = System.currentTimeMillis()
         )
         readerSettingsDao.insertOrUpdateBookSettings(updated)
     }
@@ -129,14 +129,13 @@ class ReaderSettingsRepository @Inject constructor(
         if (readerSettingsDao.getBookSettings(mediaId) == null) {
             readerSettingsDao.insertOrUpdateBookSettings(
                 BookReaderSettingsEntity(
-                    mediaId = mediaId,
+                    bookId = mediaId,
                     currentChapter = chapter,
-                    currentPosition = position,
-                    totalProgress = progress
+                    currentPosition = progress
                 )
             )
         } else {
-            readerSettingsDao.updateReadingProgress(mediaId, chapter, position, progress)
+            readerSettingsDao.updateReadingProgress(mediaId, chapter, progress)
         }
     }
 
@@ -183,7 +182,7 @@ class ReaderSettingsRepository @Inject constructor(
     suspend fun updateTheme(mediaId: Long?, theme: String) {
         if (mediaId != null) {
             updateBookSetting(mediaId) { current ->
-                (current ?: BookReaderSettingsEntity(mediaId = mediaId)).copy(theme = theme)
+                (current ?: BookReaderSettingsEntity(bookId = mediaId)).copy(theme = theme)
             }
         } else {
             updateGlobalSetting { it.copy(theme = theme) }
@@ -193,7 +192,7 @@ class ReaderSettingsRepository @Inject constructor(
     suspend fun updateFontSize(mediaId: Long?, fontSize: Int) {
         if (mediaId != null) {
             updateBookSetting(mediaId) { current ->
-                (current ?: BookReaderSettingsEntity(mediaId = mediaId)).copy(fontSize = fontSize)
+                (current ?: BookReaderSettingsEntity(bookId = mediaId)).copy(fontSize = fontSize)
             }
         } else {
             updateGlobalSetting { it.copy(fontSize = fontSize) }

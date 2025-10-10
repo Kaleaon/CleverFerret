@@ -8,7 +8,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
     id("org.jetbrains.kotlin.plugin.compose")
@@ -82,7 +82,7 @@ dependencies {
     
     // Hilt dependency injection
     implementation("com.google.dagger:hilt-android:2.52")
-    kapt("com.google.dagger:hilt-compiler:2.52")
+    ksp("com.google.dagger:hilt-compiler:2.52")
     
     // ViewModel and LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
@@ -92,7 +92,7 @@ dependencies {
     // Room database
     implementation("androidx.room:room-runtime:2.8.2")
     implementation("androidx.room:room-ktx:2.8.2")
-    kapt("androidx.room:room-compiler:2.8.2")
+    ksp("androidx.room:room-compiler:2.8.2")
     
     // DataStore for settings persistence
     implementation("androidx.datastore:datastore-preferences:1.1.1")

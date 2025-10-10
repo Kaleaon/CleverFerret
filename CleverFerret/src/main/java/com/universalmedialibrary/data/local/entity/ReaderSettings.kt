@@ -143,3 +143,69 @@ enum class TextAlignment {
     RIGHT,
     JUSTIFY
 }
+
+/**
+ * Auto scroll mode options
+ */
+enum class AutoScrollMode {
+    OFF,
+    SLOW,
+    MEDIUM,
+    FAST,
+    CUSTOM
+}
+
+/**
+ * Combined reader settings (view model)
+ * Merges global and book-specific settings for UI
+ */
+data class ReaderSettings(
+    val fontSize: Int,
+    val fontFamily: String,
+    val lineHeight: Float,
+    val theme: String,
+    val brightness: Float,
+    val currentPage: Int,
+    val currentChapter: Int,
+    val currentPosition: Float,
+    val lastReadAt: Long,
+    val marginTop: Int,
+    val marginBottom: Int,
+    val marginLeft: Int,
+    val marginRight: Int,
+    val keepScreenOn: Boolean,
+    val fullScreenMode: Boolean
+) {
+    companion object {
+        /**
+         * Create default settings from global settings only
+         */
+        fun default(): ReaderSettingsEntity {
+            return ReaderSettingsEntity()
+        }
+
+        /**
+         * Merge global and book-specific settings
+         * Book settings override global where specified
+         */
+        fun merge(global: ReaderSettingsEntity, book: BookReaderSettingsEntity?): ReaderSettings {
+            return ReaderSettings(
+                fontSize = book?.fontSize ?: global.fontSize,
+                fontFamily = book?.fontFamily ?: global.fontFamily,
+                lineHeight = book?.lineHeight ?: global.lineHeight,
+                theme = book?.theme ?: global.theme,
+                brightness = book?.brightness ?: global.brightness,
+                currentPage = book?.currentPage ?: 0,
+                currentChapter = book?.currentChapter ?: 0,
+                currentPosition = book?.currentPosition ?: 0f,
+                lastReadAt = book?.lastReadAt ?: 0,
+                marginTop = global.marginTop,
+                marginBottom = global.marginBottom,
+                marginLeft = global.marginLeft,
+                marginRight = global.marginRight,
+                keepScreenOn = global.keepScreenOn,
+                fullScreenMode = global.fullScreenMode
+            )
+        }
+    }
+}
