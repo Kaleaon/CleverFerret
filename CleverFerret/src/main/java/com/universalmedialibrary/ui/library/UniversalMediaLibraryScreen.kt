@@ -345,6 +345,7 @@ fun MediaType.displayName(): String {
         MediaType.PRESENTATION -> "Presentations"
         MediaType.DOCUMENT -> "Documents"
         MediaType.WEB_FICTION -> "Web Fiction"
+        MediaType.RADIO -> "Radio"
         MediaType.UNKNOWN -> "Unknown"
     }
 }
@@ -357,6 +358,7 @@ fun MediaType.getIcon(): ImageVector {
         MediaType.TV_SHOW -> Icons.Default.Tv
         MediaType.MUSIC, MediaType.MUSIC_TRACK, MediaType.MUSIC_ALBUM -> Icons.Default.MusicNote
         MediaType.PODCAST, MediaType.PODCAST_EPISODE, MediaType.PODCAST_SERIES -> Icons.Default.MusicNote
+        MediaType.RADIO -> Icons.Default.Radio
         MediaType.COMIC, MediaType.MANGA -> Icons.Default.AutoStories
         MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.Default.Article
         MediaType.JOURNAL -> Icons.Default.Book

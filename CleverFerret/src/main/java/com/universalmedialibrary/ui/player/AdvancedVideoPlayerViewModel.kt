@@ -158,7 +158,8 @@ class AdvancedVideoPlayerViewModel @Inject constructor() : ViewModel() {
                                 id = i,
                                 language = format.language ?: "Unknown",
                                 label = format.label ?: "Subtitle ${i + 1}",
-                                isSelected = trackGroupInfo.isSelected
+                                isDefault = trackGroupInfo.isSelected,
+                                format = format.sampleMimeType
                             )
                         )
                     }
@@ -172,8 +173,9 @@ class AdvancedVideoPlayerViewModel @Inject constructor() : ViewModel() {
                                 id = i,
                                 language = format.language ?: "Unknown",
                                 label = format.label ?: "Audio ${i + 1}",
-                                channels = "${format.channelCount}ch",
-                                isSelected = trackGroupInfo.isSelected
+                                isDefault = trackGroupInfo.isSelected,
+                                channels = format.channelCount ?: 2,
+                                sampleRate = format.sampleRate ?: 44100
                             )
                         )
                     }

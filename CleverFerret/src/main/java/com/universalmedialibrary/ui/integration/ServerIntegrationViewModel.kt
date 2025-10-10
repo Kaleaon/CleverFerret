@@ -34,7 +34,7 @@ class ServerIntegrationViewModel @Inject constructor(
                 embyService.syncState
             ) { plexState, jellyfinState, embyState ->
                 ServerIntegrationState(
-                    plexServers = listOfNotNull(plexState.connectedServer),
+                    plexServers = emptyList(), // Plex uses server names list, not entity objects
                     jellyfinServers = listOfNotNull(jellyfinState.currentServer),
                     embyServers = listOfNotNull(embyState.currentServer)
                 )
@@ -61,7 +61,7 @@ class ServerIntegrationViewModel @Inject constructor(
 
     fun disconnectPlexServer(serverId: Long) {
         viewModelScope.launch {
-            plexService.disconnectServer()
+            plexService.disconnectAllServers()
         }
     }
 

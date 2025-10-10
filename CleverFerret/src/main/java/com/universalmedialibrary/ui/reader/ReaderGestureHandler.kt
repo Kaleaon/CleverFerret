@@ -147,13 +147,7 @@ fun ReaderGestureOverlay(
 /**
  * Page turning animations
  */
-enum class PageTurnAnimation {
-    NONE,
-    SLIDE,
-    FADE,
-    CURL,
-    FLIP
-}
+// PageTurnAnimation is defined in PageTurnAnimations.kt
 
 /**
  * Touch zones configuration

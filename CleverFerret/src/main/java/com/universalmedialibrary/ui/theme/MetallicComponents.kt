@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * Beautiful metallic UI components with gradient effects
@@ -56,7 +57,7 @@ fun MetallicButton(
         Text(
             text = text,
             fontWeight = FontWeight.Medium,
-            letterSpacing = androidx.compose.ui.unit.sp(0.5)
+            letterSpacing = 0.5.sp
         )
     }
 }

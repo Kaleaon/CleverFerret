@@ -11,14 +11,13 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
- * Phase 2 Hilt module - Basic setup
- * Testing Hilt compilation first before adding Room
+ * Main application module for dependency injection
+ * Provides core application-level dependencies
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    // Phase 2: Start with basic context provision
     @Provides
     @Singleton
     fun provideApplicationContext(@ApplicationContext context: Context): Context {

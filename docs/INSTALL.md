@@ -1,84 +1,202 @@
-# CleverFerret Universal Media Library - Installation Guide
+# Installation Guide
 
-## System Requirements
+This guide explains how to download and install CleverFerret on your Android device.
 
-- Android 8.0 (API level 26) or higher
-- At least 100 MB of free storage space
+---
 
-## Installation
+## Prerequisites
 
-1. Download the latest APK from the [Releases](https://github.com/Kaleaon/CleverFerret/releases) section
-2. Enable "Install from unknown sources" in your Android settings if not already enabled
-3. Open the downloaded APK file and follow the installation prompts
+- Android 8.0 (Oreo) or higher (API level 26+)
+- ~100 MB of free storage space
+- Internet connection (for initial download)
+
+---
+
+## Installation Steps
+
+### 1. Download the APK
+
+Go to the [Releases page](https://github.com/Kaleaon/CleverFerret/releases) and download the latest APK file:
+
+- **Recommended**: `CleverFerret-vX.X-release.apk` - Optimized production version
+- **Alternative**: `CleverFerret-vX.X-debug.apk` - Debug version (larger file size)
+
+### 2. Enable Installation from Unknown Sources
+
+Since CleverFerret is not on the Google Play Store, you need to enable installation from unknown sources:
+
+#### Android 8.0 - 10:
+1. Go to **Settings** → **Security** (or **Lock screen and security**)
+2. Enable **Unknown sources** or **Install unknown apps**
+3. Find your browser or file manager in the list
+4. Enable **Allow from this source**
+
+#### Android 11+:
+1. Try to install the APK
+2. When prompted, tap **Settings**
+3. Enable **Allow from this source**
+4. Go back and try installing again
+
+### 3. Install the APK
+
+1. Open the downloaded APK file
+   - From your browser's downloads
+   - From your file manager app
+   - From the notification bar
+2. Tap **Install**
+3. Wait for installation to complete
+4. Tap **Open** to launch the app
+
+---
+
+## Verification
+
+### Verify APK Authenticity (Optional but Recommended)
+
+Before installing, you can verify the APK hasn't been tampered with:
+
+1. Download the corresponding `.sha256` checksum file from the release
+2. Calculate the checksum of your downloaded APK:
+
+**On Linux/Mac:**
+```bash
+sha256sum CleverFerret-vX.X-release.apk
+```
+
+**On Windows (PowerShell):**
+```powershell
+Get-FileHash CleverFerret-vX.X-release.apk -Algorithm SHA256
+```
+
+**On Android (using Termux):**
+```bash
+sha256sum /sdcard/Download/CleverFerret-vX.X-release.apk
+```
+
+3. Compare the output with the checksum in the `.sha256` file or release notes
+
+### Verify Installation
+
+After installation:
+1. Launch CleverFerret
+2. You should see the main library screen
+3. Check the app version in **Settings** → **About**
+
+---
 
 ## First Run
 
-When you first open the CleverFerret app, you'll see an empty library screen. This is the intended first-run state.
+When you first launch CleverFerret:
 
-### Getting Started
+1. **Empty Library**: The app starts with no data
+2. **Create a Library**: Tap the **+** button to create your first library
+3. **Import from Calibre**: Use the menu option to import an existing Calibre library (optional)
+4. **Grant Permissions**: Allow storage permissions when prompted to access your media files
 
-You have two main options to populate your library:
+---
 
-#### Option 1: Create a New Library
-1. Tap the "+" button to create a new library
-2. Enter a name for your library
-3. Start adding media items manually
+## Updating
 
-#### Option 2: Import from Calibre
-1. Tap the menu button (⋮) in the top bar
-2. Select "Import Calibre Library"
-3. Choose your Calibre `metadata.db` file
-4. Select the root folder of your Calibre library
-5. The app will import your existing books and metadata
+To update to a newer version:
 
-### Features Available in v1.0
+1. Download the new APK from the [Releases page](https://github.com/Kaleaon/CleverFerret/releases)
+2. Install the new APK over the existing installation
+3. Your data and settings will be preserved
 
-- ✅ Basic library management interface
-- ✅ Calibre library import
-- ✅ Modern Material You design
-- ✅ Local database storage
-- ⏳ More features coming in future releases
+**Note**: Make sure to download the same variant (release or debug) that you originally installed.
+
+---
+
+## Uninstalling
+
+To uninstall CleverFerret:
+
+1. Go to **Settings** → **Apps**
+2. Find **CleverFerret** in the list
+3. Tap **Uninstall**
+4. Confirm the uninstallation
+
+**Note**: Uninstalling will delete all app data. If you want to keep your library, consider backing it up first.
+
+---
 
 ## Troubleshooting
 
-### App Won't Install
+### Installation Failed
 
-#### Most Common Fixes:
-1. **Enable "Install from unknown sources"**: Go to Settings > Security > Unknown Sources (or Apps > Special access > Install unknown apps on newer Android versions)
-2. **Check storage space**: Ensure you have at least 100 MB of free storage space
-3. **Verify Android version**: Make sure your device runs Android 7.0 (API level 24) or higher
-4. **Clear package installer cache**: Go to Settings > Apps > Package Installer > Storage > Clear Cache
+**Problem**: "App not installed" or "Installation blocked"
 
-#### APK Signing Issues (RESOLVED in latest version):
-- ✅ **Fixed**: Previous versions had unsigned APKs which caused installation failures
-- ✅ **Fixed**: All APKs are now properly signed with debug certificates for installation
-- ✅ **Fixed**: Missing permissions for Android 13+ devices have been added
+**Solutions**:
+1. Ensure you have enough storage space
+2. Enable installation from unknown sources (see step 2 above)
+3. If updating, try uninstalling the old version first
+4. Download the APK again (file might be corrupted)
 
-#### For Android 13+ Devices:
-The app now properly requests notification permissions required for the import service.
+### App Crashes on Launch
 
-#### If Installation Still Fails:
-1. Try downloading the APK again (it may have been corrupted)
-2. Restart your device and try installing again
-3. Check if you have any security software blocking the installation
-4. Try installing using a different file manager app
+**Problem**: App crashes immediately after opening
 
-### App Permissions
+**Solutions**:
+1. Restart your device
+2. Clear the app cache: **Settings** → **Apps** → **CleverFerret** → **Storage** → **Clear Cache**
+3. Reinstall the app
+4. Check if your Android version is 8.0 or higher
 
-The app requests the following permissions:
-- **Internet**: For potential future online metadata fetching
-- **Record Audio**: For text-to-speech functionality  
-- **Post Notifications** (Android 13+): For import progress notifications
-- **Foreground Service**: For long-running import operations
+### Cannot Import Calibre Library
 
-All permissions are used only for their stated purposes and no data is sent to external servers.
+**Problem**: Import fails or doesn't show files
 
-### Empty Library
-This is expected behavior on first run. Use one of the methods above to add content to your library.
+**Solutions**:
+1. Grant storage permissions: **Settings** → **Apps** → **CleverFerret** → **Permissions** → **Storage**
+2. Ensure your Calibre library is accessible on your device
+3. Check that the Calibre library folder contains a `metadata.db` file
+
+### "Unknown Source" Warning
+
+**Problem**: Google Play Protect warns about unknown source
+
+**Solutions**:
+- This is expected for apps not from Google Play Store
+- You can verify the APK checksum (see Verification section)
+- Tap **Install anyway** if you trust the source
+- CleverFerret is open source - you can review the code on GitHub
+
+---
+
+## Security Considerations
+
+### Safe Installation
+
+- ✅ **Download only from official sources**: GitHub releases page
+- ✅ **Verify checksums**: Compare SHA256 checksums before installing
+- ✅ **Review permissions**: CleverFerret only requests necessary permissions
+- ❌ **Avoid unofficial sources**: Don't download from third-party app stores
+
+### Permissions
+
+CleverFerret requests:
+- **Storage**: To read and manage your media library
+- **Internet**: To sync with Calibre servers (if configured)
+- **Notifications**: To show import/sync progress
+
+---
 
 ## Getting Help
 
 If you encounter issues:
-1. Check the [Issues](https://github.com/Kaleaon/Android-calibre/issues) section on GitHub
-2. Create a new issue if your problem isn't already reported
-3. Include your Android version and steps to reproduce the issue
+
+1. Check the [Troubleshooting](#troubleshooting) section above
+2. Search [existing issues](https://github.com/Kaleaon/CleverFerret/issues) on GitHub
+3. Create a [new issue](https://github.com/Kaleaon/CleverFerret/issues/new) with:
+   - Your Android version
+   - CleverFerret version
+   - Steps to reproduce the problem
+   - Any error messages or screenshots
+
+---
+
+## Additional Resources
+
+- [User Guide](./USER_GUIDE.md) - Learn how to use CleverFerret
+- [Development Guide](./DEVELOPMENT.md) - Build from source
+- [Release Notes](https://github.com/Kaleaon/CleverFerret/releases) - What's new in each version

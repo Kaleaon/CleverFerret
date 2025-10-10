@@ -1591,6 +1591,68 @@ object PhosphorIcons {
             return _caretDown!!
         }
 
+    val Info: ImageVector
+        get() {
+            if (_info != null) {
+                return _info!!
+            }
+            _info = materialIcon(name = "Info") {
+                materialPath {
+                    moveTo(12.0f, 2.0f)
+                    curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                    reflectiveCurveTo(6.48f, 22.0f, 12.0f, 22.0f)
+                    reflectiveCurveTo(22.0f, 17.52f, 22.0f, 12.0f)
+                    reflectiveCurveTo(17.52f, 2.0f, 12.0f, 2.0f)
+                    close()
+                    moveTo(13.0f, 17.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(11.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(17.0f)
+                    close()
+                    moveTo(13.0f, 9.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(7.0f)
+                    horizontalLineTo(13.0f)
+                    verticalLineTo(9.0f)
+                    close()
+                }
+            }
+            return _info!!
+        }
+
+    val Podcast: ImageVector
+        get() {
+            if (_podcast != null) {
+                return _podcast!!
+            }
+            _podcast = materialIcon(name = "Podcast") {
+                materialPath {
+                    moveTo(12.0f, 2.0f)
+                    curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                    curveTo(2.0f, 17.52f, 6.48f, 22.0f, 12.0f, 22.0f)
+                    curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
+                    curveTo(22.0f, 6.48f, 17.52f, 2.0f, 12.0f, 2.0f)
+                    close()
+                    moveTo(12.0f, 5.5f)
+                    curveTo(13.79f, 5.5f, 15.25f, 6.96f, 15.25f, 8.75f)
+                    curveTo(15.25f, 10.54f, 13.79f, 12.0f, 12.0f, 12.0f)
+                    curveTo(10.21f, 12.0f, 8.75f, 10.54f, 8.75f, 8.75f)
+                    curveTo(8.75f, 6.96f, 10.21f, 5.5f, 12.0f, 5.5f)
+                    close()
+                    moveTo(17.0f, 18.0f)
+                    curveTo(17.0f, 19.66f, 14.76f, 21.0f, 12.0f, 21.0f)
+                    curveTo(9.24f, 21.0f, 7.0f, 19.66f, 7.0f, 18.0f)
+                    verticalLineTo(15.0f)
+                    curveTo(7.0f, 13.34f, 9.24f, 12.0f, 12.0f, 12.0f)
+                    curveTo(14.76f, 12.0f, 17.0f, 13.34f, 17.0f, 15.0f)
+                    verticalLineTo(18.0f)
+                    close()
+                }
+            }
+            return _podcast!!
+        }
+
     private var _lightbulb: ImageVector? = null
     private var _note: ImageVector? = null
     private var _bookmark: ImageVector? = null
@@ -1598,4 +1660,6 @@ object PhosphorIcons {
     private var _equalizer: ImageVector? = null
     private var _caretUp: ImageVector? = null
     private var _caretDown: ImageVector? = null
+    private var _info: ImageVector? = null
+    private var _podcast: ImageVector? = null
 }

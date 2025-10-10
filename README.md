@@ -4,144 +4,139 @@
 
 <h1 align="center">CleverFerret</h1>
 
-<p align="center">A comprehensive Universal Media Library for Android</p>
+<p align="center">
+  <strong>Universal Media Library for Android</strong><br>
+  Manage books, music, movies, and more — all on your device
+</p>
 
-## 1. High-Level Vision
-
-CleverFerret is a fully self-contained, native Android application for managing a user's complete media library directly on their device. This includes books, comics, music, movies, podcasts, and more. The application features a modern, extensible, and user-friendly interface for organizing, viewing, and consuming all types of media, with powerful tools for metadata management.
-
----
-
-## 2. Core Principles
-
-*   **On-Device First:** The entire library and its database are managed on the user's device. No external server or desktop application is required.
-*   **Extensible by Design:** The database schema and application architecture are designed from the ground up to support a wide variety of media types.
-*   **User-Centric Metadata:** The user has full control over their metadata, with powerful tools for manual editing and automatic fetching from multiple online sources.
-*   **Modern Native UI:** The application is built with the latest Android technologies (Kotlin, Jetpack Compose, Material You).
-*   **Open Source:** The project is developed as a Free and Open Source Software (FOSS) project.
+<p align="center">
+  <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-system-requirements">Requirements</a> •
+  <a href="#-documentation">Documentation</a>
+</p>
 
 ---
 
-## 2.1. Current Status
+## 📖 About
 
-The project is currently in the early stages of development. The following features are implemented:
+CleverFerret is a comprehensive, self-contained Android app for managing your complete media library directly on your device. No external servers or desktop applications required — everything works offline with a modern, Material You interface.
 
-*   **Core Database Layer:** A robust database layer built with **Room** to manage libraries, media items, and metadata.
-*   **Calibre Import:** A service to import book libraries from an existing Calibre `metadata.db` file.
-*   **Basic UI:** A simple user interface built with **Jetpack Compose** that allows users to view their libraries and the books within them.
-*   **Dependency Injection:** Using **Hilt** for dependency management.
+### 🎯 Key Features
+
+- **📚 Universal Library** - Books, comics, music, movies, podcasts in one place
+- **📥 Calibre Import** - Seamlessly import your existing Calibre library
+- **🎨 Material You** - Modern Android design with dynamic theming
+- **💾 Local-First** - All data stored on your device with Room database
+- **🔧 Extensible** - Architecture designed to support any media type
 
 ---
 
-## 2.2. Getting Started (Developers)
+## 🚀 Quick Start
 
-### Prerequisites
+### For Users
 
-*   Android Studio (latest version recommended)
-*   Java Development Kit (JDK) 17 or higher
+1. **Download** the latest APK from [Releases](https://github.com/Kaleaon/CleverFerret/releases)
+   - Choose `CleverFerret-vX.X-release.apk` for the optimized version
+   - Or `CleverFerret-vX.X-debug.apk` for the debug version
+2. **Install** following the instructions in [docs/INSTALL.md](docs/INSTALL.md)
+3. **Verify** the APK checksum (optional but recommended) - see installation guide
+4. **Launch** the app and create your first library or import from Calibre
 
-### Building the Project
+> **Note**: CleverFerret is not yet available on Google Play Store. Direct APK installation is required.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/Kaleaon/CleverFerret.git
-    ```
-2.  **Open the project in Android Studio.**
-3.  **Build the project:**
-    *   Use the "Build" menu in Android Studio (Build > Make Project).
-    *   Or run the following command in the terminal:
-        ```bash
-        ./gradlew clean assembleDebug
-        ```
-4.  **Run the application on an emulator or a physical device.**
+### For Developers
 
-### Code Quality and Formatting
-
-The project uses **Spotless** with **ktlint** for code formatting and style enforcement.
-
-**Run formatting checks:**
 ```bash
-./gradlew spotlessCheck
+# Clone the repository
+git clone https://github.com/Kaleaon/CleverFerret.git
+cd CleverFerret
+
+# Build the project
+./gradlew clean assembleDebug
+
+# Run tests
+./gradlew testDebugUnitTest
 ```
 
-**Auto-format code:**
-```bash
-./gradlew spotlessApply
-```
-
-**Run Android Lint:**
-```bash
-./gradlew lint
-```
-
-**Note:** Spotless checks will fail the build if code is not properly formatted. Always run `spotlessApply` before committing code.
-
-### Project Structure
-
-The project is organized into the following main packages:
-
-*   `com.universalmedialibrary.data.local`: Contains all data-related classes for the Room database, including entities, DAOs, and the database definition.
-*   `com.universalmedialibrary.di`: Contains the Hilt dependency injection modules.
-*   `com.universalmedialibrary.services`: Contains services for background tasks, such as the Calibre import service.
-*   `com.universalmedialibrary.ui`: Contains the Jetpack Compose UI code and ViewModels.
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for complete setup instructions.
 
 ---
 
-## 3. Architecture
+## 📱 System Requirements
 
-The project follows a standard Android architecture pattern with a UI layer, a data layer, and a service layer.
-
-### 3.1. Database Layer
-
-The database is built using the **Room Persistence Library**, which provides an abstraction layer over SQLite. This allows for compile-time query validation, easier migrations, and less boilerplate code. The database schema is designed to be extensible to support a wide variety of media types.
-
-### 3.2. Architectural Concerns
-
-During a recent code audit, a significant architectural issue was identified: the presence of two parallel database implementations.
-*   A modern Room-based implementation in `com.universalmedialibrary.data.local`.
-*   An older, manual `SQLiteOpenHelper`-based implementation in `com.universalmedialibrary.data`.
-
-**It is strongly recommended to consolidate the codebase to use only the Room implementation.** The older implementation should be removed to avoid confusion and potential bugs. For a detailed breakdown of this and other issues, please see the [**BUGS_AND_ISSUES.md**](BUGS_AND_ISSUES.md) file.
+- **Android**: 8.0+ (API level 26 or higher)
+- **Storage**: 100 MB for app + space for your media
+- **RAM**: 2GB minimum (4GB recommended)
 
 ---
 
-## 4. Features
+## 🏗️ Architecture
 
-### 4.1. Implemented Features
-*   **Library Management:** Users can create libraries to organize their media.
-*   **Calibre Import:** A robust import feature that allows users to import their existing book library from a Calibre `metadata.db` file. The import runs as a foreground service to handle large libraries without being killed by the OS.
-*   **Basic UI:** A functional UI built with Jetpack Compose that allows users to view their libraries and the books within them.
+CleverFerret uses modern Android development practices:
 
-### 4.2. Planned Features
-The `README.md` previously contained a large section of planned features and architecture. While the high-level vision remains, the detailed plans are outdated. The following is a summary of the intended direction:
+- **Language**: Kotlin
+- **UI**: Jetpack Compose with Material 3
+- **Architecture**: MVVM with Hilt dependency injection
+- **Database**: Room (SQLite)
+- **Async**: Kotlin Coroutines and Flow
 
-*   **Expanded Media Support:** Add full support for movies, music, comics, and podcasts.
-*   **Advanced Metadata:** Implement automatic metadata fetching from online sources (e.g., TMDB, MusicBrainz) and tools for manual editing.
-*   **In-App Readers/Players:** Integrate media viewers and players (e.g., `epubj4`, `ExoPlayer`) for a seamless experience.
-*   **Content Creation:** Features to download and format content from external sources (e.g., news, fanfiction) into epub files.
-
-For more detailed planning, please refer to the project's issue tracker.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture information.
 
 ---
 
-## 5. Documentation & Planning
+## 📚 Documentation
 
-*   **[CODE_QUALITY.md](CODE_QUALITY.md)**: Code formatting, linting, and quality standards.
-*   **[BUGS_AND_ISSUES.md](BUGS_AND_ISSUES.md)**: A summary of identified bugs, architectural concerns, and potential improvements.
-*   **[PROJECT_ROADMAP.md](PROJECT_ROADMAP.md)**: For development status and issue tracking.
-*   **[CONTRIBUTING.md](CONTRIBUTING.md)**: Contribution guidelines and developer setup.
-*   **[docs/README.md](docs/README.md)**: Complete documentation index.
-*   **[issues/](issues/)**: Structured development issues.
+- **[Installation Guide](docs/INSTALLATION.md)** - Installing the app on your device
+- **[Development Guide](docs/DEVELOPMENT.md)** - Building, testing, and contributing
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Technical architecture details
+- **[Resources](docs/RESOURCES.md)** - External APIs, tools, and references
+- **[Release Process](docs/RELEASE.md)** - Creating and publishing releases
+- **[Import Logic](docs/analysis/IMPORT_LOGIC.md)** - Calibre import technical details
+
+For a complete documentation index, see [docs/README.md](docs/README.md).
 
 ---
 
-## 6. Current Build Status
+## 🤝 Contributing
 
-For the current build state and prioritized repair plan, refer to the repair documentation:
+We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
-- [REPAIR_DOCUMENTATION_INDEX.md](REPAIR_DOCUMENTATION_INDEX.md)
-- [docs/CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md](docs/CURRENT_DISABLED_BROKEN_CODE_ANALYSIS.md)
+- Code style guidelines
+- Development workflow
+- Pull request process
+- Issue reporting
 
-These documents are the single source of truth. This README intentionally avoids duplicating counts or timelines to prevent drift.
+---
 
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/Kaleaon/CleverFerret?utm_source=oss&utm_medium=github&utm_campaign=Kaleaon%2FCleverFerret&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+## 📊 Project Status
+
+CleverFerret is in active development. Current implementation status:
+
+✅ Core database layer (Room)  
+✅ Calibre import functionality  
+✅ Modern Jetpack Compose UI  
+✅ Basic library management  
+⏳ Advanced metadata fetching  
+⏳ In-app media players  
+⏳ Multi-format support expansion
+
+For detailed status and roadmap, see [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md).
+
+---
+
+## 📝 License
+
+This project is Free and Open Source Software (FOSS). See [LICENSE](LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with modern Android technologies and inspired by the best media management tools. Special thanks to the open source community for libraries and tools that make this possible.
+
+---
+
+<p align="center">
+  <sub>Made with ❤️ for the Android community</sub>
+</p>

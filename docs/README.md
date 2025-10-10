@@ -4,12 +4,17 @@ This directory contains organized project documentation for CleverFerret, the Un
 
 ## 📋 Quick Navigation
 
-- **[🗺️ PROJECT ROADMAP](../PROJECT_ROADMAP.md)** - Complete development roadmap and current status
+### Core Documentation
 - **[📖 Main README](../README.md)** - Project overview and getting started
-- **[⚙️ Installation Guide](INSTALL.md)** - Setup instructions
-- **[🚀 Release Process](../RELEASE.md)** - Release and deployment guide
-- **[🔗 Resources](../RESOURCES.md)** - External resources and references
- - **[🛠️ Repair Documentation Index](../REPAIR_DOCUMENTATION_INDEX.md)** - Current build analysis and plan
+- **[📱 Installation Guide](INSTALLATION.md)** - Complete installation instructions
+- **[💻 Development Guide](DEVELOPMENT.md)** - Building, testing, and contributing
+- **[🏗️ Architecture Guide](ARCHITECTURE.md)** - Technical architecture and design
+- **[🔗 Resources](RESOURCES.md)** - External APIs, tools, and references
+- **[🚀 Release Process](RELEASE.md)** - Creating and publishing releases
+
+### Additional Resources
+- **[🗺️ PROJECT ROADMAP](../PROJECT_ROADMAP.md)** - Development roadmap and status
+- **[🛠️ Repair Documentation Index](../REPAIR_DOCUMENTATION_INDEX.md)** - Build analysis and repair plan
 
 ## 📁 Documentation Categories
 
