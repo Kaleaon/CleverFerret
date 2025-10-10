@@ -9,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import com.universalmedialibrary.data.settings.AutoScrollMode
-import com.universalmedialibrary.data.settings.ReaderSettings
+import com.universalmedialibrary.data.local.entity.AutoScrollMode
+import com.universalmedialibrary.data.local.entity.ReaderSettings
 
 @Composable
 fun AutoScrollController(
@@ -65,14 +65,14 @@ fun AutoScrollController(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Slider(
-                        value = settings.autoScrollSpeed,
+                        value = 50f, // TODO: Add autoScrollSpeed to ReaderSettings entity
                         onValueChange = onSpeedChange,
                         valueRange = 10f..100f,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${'$'}{settings.autoScrollSpeed.toInt()}",
+                        text = "50", // TODO: Add autoScrollSpeed to ReaderSettings entity
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.width(30.dp)
                     )

@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 import androidx.room.Index
+import kotlinx.serialization.Serializable
 
 /**
  * Central entity for all individual media files in the system
@@ -11,6 +12,7 @@ import androidx.room.Index
  * This table stores the core file information and relationships
  * to libraries, with detailed metadata stored in separate tables.
  */
+@Serializable
 @Entity(
     tableName = "media_items",
     foreignKeys = [

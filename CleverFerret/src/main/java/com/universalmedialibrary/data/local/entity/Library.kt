@@ -2,6 +2,7 @@ package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 /**
  * Entity representing a media library in the Universal Media Library system
@@ -9,6 +10,7 @@ import androidx.room.PrimaryKey
  * Each library represents a collection of media items of a specific type
  * (books, movies, music, etc.) stored in a particular file system location.
  */
+@Serializable
 @Entity(tableName = "libraries")
 data class Library(
     @PrimaryKey(autoGenerate = true)

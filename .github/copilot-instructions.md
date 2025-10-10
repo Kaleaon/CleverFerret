@@ -99,12 +99,13 @@ The app is designed to start in a clean, first-run state:
 
 ### Development Dependencies
 The project uses standard Android development dependencies:
-- **Kotlin**: 1.9.23
-- **Android Gradle Plugin**: 8.4.1  
-- **Gradle**: 8.8
-- **Jetpack Compose BOM**: 2024.05.00
-- **Hilt**: 2.51.1
-- **Room**: 2.6.1
+- **Kotlin**: 2.0.20
+- **Android Gradle Plugin**: 8.13.0  
+- **Gradle**: 8.13
+- **Jetpack Compose BOM**: 2025.10.00
+- **Hilt**: 2.52
+- **Room**: 2.8.2
+- **kotlinx-serialization-json**: 1.7.3
 - **AndroidX**: Latest stable versions
 
 ### Common Build Issues

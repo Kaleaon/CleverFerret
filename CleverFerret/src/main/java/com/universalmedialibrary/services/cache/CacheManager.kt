@@ -133,12 +133,8 @@ class CacheManager @Inject constructor(
         for (file in files) {
             if (currentSize <= targetSizeBytes) break
             
-```kotlin
-val fileSize = if (file.isDirectory) calculateDirectorySize(file) else file.length()
-if (file.deleteRecursively()) {
-    currentSize -= fileSize
-}
-            if (file.delete()) {
+            val fileSize = if (file.isDirectory) calculateDirectorySize(file) else file.length()
+            if (file.deleteRecursively()) {
                 currentSize -= fileSize
             }
         }

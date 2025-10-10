@@ -143,3 +143,171 @@ enum class TextAlignment {
     RIGHT,
     JUSTIFY
 }
+
+/**
+ * Auto scroll mode options
+ */
+enum class AutoScrollMode {
+    OFF,
+    SLOW,
+    MEDIUM,
+    FAST,
+    CUSTOM
+}
+
+/**
+ * Combined reader settings (view model)
+ * Merges global and book-specific settings for UI
+ */
+data class ReaderSettings(
+    val fontSize: Int,
+    val fontFamily: String,
+    val lineHeight: Float,
+    val theme: String,
+    val brightness: Float,
+    val currentPage: Int,
+    val currentChapter: Int,
+    val currentPosition: Float,
+    val lastReadAt: Long,
+    val marginTop: Int,
+    val marginBottom: Int,
+    val marginLeft: Int,
+    val marginRight: Int,
+    val keepScreenOn: Boolean,
+    val fullScreenMode: Boolean,
+    val enablePageNumbers: Boolean = true,
+    val enableProgressIndicator: Boolean = true,
+    val enableHyphenation: Boolean = true,
+    val tapToTurnPages: Boolean = true,
+    val swipeToTurnPages: Boolean = true,
+    val volumeKeysToTurnPages: Boolean = true,
+    val enableGestures: Boolean = true,
+    val pageAnimation: String = "None",
+    val autoScrollSpeed: Int = 30,
+    val autoScrollMode: String = "OFF",
+    val textAlignment: String = "Left"
+) {
+    // Computed properties for backward compatibility with old UI code
+    val backgroundColor: String
+        get() = when (theme) {
+            "Dark" -> "#000000"
+            "Sepia" -> "#F4ECD8"
+            "Light" -> "#FFFFFF"
+            else -> "#FFFFFF" // Auto defaults to light
+        }
+    
+    val textColor: String
+        get() = when (theme) {
+            "Dark" -> "#FFFFFF"
+            "Sepia" -> "#5F4B32"
+            "Light" -> "#000000"
+            else -> "#000000" // Auto defaults to dark text
+        }
+    
+    companion object {
+        /**
+         * Create default settings from global settings only
+         */
+        fun default(): ReaderSettingsEntity {
+            return ReaderSettingsEntity()
+        }
+
+        /**
+         * Convert global entity to view model (for UI that doesn't need book-specific settings)
+         */
+        fun fromEntity(entity: ReaderSettingsEntity): ReaderSettings {
+            return ReaderSettings(
+                fontSize = entity.fontSize,
+                fontFamily = entity.fontFamily,
+                lineHeight = entity.lineHeight,
+                theme = entity.theme,
+                brightness = entity.brightness,
+                currentPage = 0,
+                currentChapter = 0,
+                currentPosition = 0f,
+                lastReadAt = 0,
+                marginTop = entity.marginTop,
+                marginBottom = entity.marginBottom,
+                marginLeft = entity.marginLeft,
+                marginRight = entity.marginRight,
+                keepScreenOn = entity.keepScreenOn,
+                fullScreenMode = entity.fullScreenMode,
+                enablePageNumbers = entity.enablePageNumbers,
+                enableProgressIndicator = entity.enableProgressIndicator,
+                enableHyphenation = entity.enableHyphenation,
+                tapToTurnPages = entity.tapToTurnPages,
+                swipeToTurnPages = entity.swipeToTurnPages,
+                volumeKeysToTurnPages = entity.volumeKeysToTurnPages,
+                enableGestures = entity.tapToTurnPages || entity.swipeToTurnPages, // Derived from other fields
+                pageAnimation = entity.pageTurnAnimation,
+                autoScrollSpeed = 30, // Default - not in entity
+                autoScrollMode = "OFF", // Default - not in entity
+                textAlignment = entity.textAlignment
+            )
+        }
+
+        /**
+         * Merge global and book-specific settings
+         * Book settings override global where specified
+         */
+        fun merge(global: ReaderSettingsEntity, book: BookReaderSettingsEntity?): ReaderSettings {
+            return ReaderSettings(
+                fontSize = book?.fontSize ?: global.fontSize,
+                fontFamily = book?.fontFamily ?: global.fontFamily,
+                lineHeight = book?.lineHeight ?: global.lineHeight,
+                theme = book?.theme ?: global.theme,
+                brightness = book?.brightness ?: global.brightness,
+                currentPage = book?.currentPage ?: 0,
+                currentChapter = book?.currentChapter ?: 0,
+                currentPosition = book?.currentPosition ?: 0f,
+                lastReadAt = book?.lastReadAt ?: 0,
+                marginTop = global.marginTop,
+                marginBottom = global.marginBottom,
+                marginLeft = global.marginLeft,
+                marginRight = global.marginRight,
+                keepScreenOn = global.keepScreenOn,
+                fullScreenMode = global.fullScreenMode,
+                enablePageNumbers = global.enablePageNumbers,
+                enableProgressIndicator = global.enableProgressIndicator,
+                enableHyphenation = global.enableHyphenation,
+                tapToTurnPages = global.tapToTurnPages,
+                swipeToTurnPages = global.swipeToTurnPages,
+                volumeKeysToTurnPages = global.volumeKeysToTurnPages,
+                enableGestures = global.tapToTurnPages || global.swipeToTurnPages, // Derived
+                pageAnimation = global.pageTurnAnimation,
+                autoScrollSpeed = 30, // Default - not in entity
+                autoScrollMode = "OFF", // Default - not in entity
+                textAlignment = global.textAlignment
+            )
+        }
+    }
+}
+
+/**
+ * Convert ReaderSettings view model back to entity for persistence
+ */
+fun ReaderSettings.toEntity(): ReaderSettingsEntity {
+    return ReaderSettingsEntity(
+        id = 1L, // Global settings always use ID 1
+        fontSize = this.fontSize,
+        fontFamily = this.fontFamily,
+        lineHeight = this.lineHeight,
+        theme = this.theme,
+        brightness = this.brightness,
+        marginTop = this.marginTop,
+        marginBottom = this.marginBottom,
+        marginLeft = this.marginLeft,
+        marginRight = this.marginRight,
+        keepScreenOn = this.keepScreenOn,
+        fullScreenMode = this.fullScreenMode,
+        enablePageNumbers = this.enablePageNumbers,
+        enableProgressIndicator = this.enableProgressIndicator,
+        enableHyphenation = this.enableHyphenation,
+        tapToTurnPages = this.tapToTurnPages,
+        swipeToTurnPages = this.swipeToTurnPages,
+        volumeKeysToTurnPages = this.volumeKeysToTurnPages,
+        pageTurnAnimation = this.pageAnimation,
+        textAlignment = this.textAlignment
+        // Note: enableGestures, autoScrollSpeed, autoScrollMode are UI-only fields not persisted
+    )
+}

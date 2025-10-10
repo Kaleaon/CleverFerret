@@ -108,14 +108,8 @@ fun PageSelectorDialog(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
-```kotlin
-LinearProgressIndicator(
-    progress = if (totalPages > 0) currentPage.toFloat() / totalPages.toFloat() else 0f,
-    modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 8.dp)
-)
-                            progress = if (totalPages > 0) currentPage.toFloat() / totalPages.toFloat() else 0f,
+                        LinearProgressIndicator(
+                            progress = { if (totalPages > 0) currentPage.toFloat() / totalPages.toFloat() else 0f },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp)

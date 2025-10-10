@@ -53,7 +53,7 @@ fun ModernAudioPlayerScreen(
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
             animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
         ),
         label = "rotation"
     )
@@ -437,8 +437,4 @@ private fun formatTime(ms: Long): String {
     } else {
         String.format(Locale.US, "%d:%02d", minutes, seconds)
     }
-}
-
-enum class RepeatMode {
-    OFF, ALL, ONE
 }
