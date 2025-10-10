@@ -442,3 +442,5 @@ android_sdk/platform-tools/mke2fs.conf
 android_sdk/platform-tools/package.xml
 android_sdk/platform-tools/source.properties
 android_sdk/platform-tools/sqlite3*.disabled
+# Kotlin compiler errors
+.kotlin/
