@@ -55,17 +55,16 @@ class ImportExportRepository @Inject constructor(
                 libraryDao.getAllLibraries()
             }
 
-            val mediaItems = libraries.flatMap { library ->
+            val mediaItems = libraries.map { library ->
                 mediaItemDao.getMediaItemsByLibrary(library.libraryId).first()
-            }
+            }.flatten()
 
             val metadata = if (includeMetadata) {
-                mediaItems.asSequence()
+                mediaItems
                     .filter { it.hasMetadata }
                     .mapNotNull { item ->
                         metadataDao.getMetadataCommonByItemId(item.itemId)
                     }
-                    .toList()
             } else emptyList()
 
             val progress = if (includeProgress) {
@@ -75,11 +74,9 @@ class ImportExportRepository @Inject constructor(
             } else emptyList()
 
             val bookmarks = if (includeBookmarks) {
-                mediaItems.asSequence()
-                    .flatMap { item ->
-                        bookmarkDao.getBookmarksForItem(item.itemId).first()
-                    }
-                    .toList()
+                mediaItems.map { item ->
+                    bookmarkDao.getBookmarksByMediaItem(item.itemId)
+                }.flatten()
             } else emptyList()
 
             val collections = if (includeCollections) {
