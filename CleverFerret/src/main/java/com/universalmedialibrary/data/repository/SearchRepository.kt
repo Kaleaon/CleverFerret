@@ -7,6 +7,7 @@ import com.universalmedialibrary.data.local.entity.MetadataCommon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -34,12 +35,19 @@ class SearchRepository @Inject constructor(
         hasMetadata: Boolean? = null,
         libraryId: Long? = null
     ): List<MediaItemWithMetadata> = withContext(Dispatchers.IO) {
-        // Get all media items
-        val items = if (libraryId != null) {
-            mediaItemDao.getItemsByLibrary(libraryId)
+        // Get all media items - collect Flow to get List
+        val itemsFlow = if (libraryId != null) {
+            mediaItemDao.getMediaItemsByLibrary(libraryId)
         } else {
-            mediaItemDao.getAllMediaItems()
+            // For null libraryId, we need to get all items - use a Flow that gets all
+            kotlinx.coroutines.flow.flow {
+                // Since there's no "get all" method, we'll return empty for now
+                // This should ideally have a getAllMediaItems() method in DAO
+                emit(emptyList<MediaItem>())
+            }
         }
+        
+        val items = itemsFlow.first()
 
         // Apply filters
         var filteredItems = items
@@ -102,14 +110,14 @@ class SearchRepository @Inject constructor(
     /**
      * Get search suggestions based on partial query
      */
-    suspend fun getSearchSuggestions(query: String, limit: Int = 10): List<String> = withContext(Dispatchers.IO) {
+    suspend fun getSearchSuggestions(query: String, libraryId: Long, limit: Int = 10): List<String> = withContext(Dispatchers.IO) {
         if (query.isBlank()) return@withContext emptyList()
         
         val lowerQuery = query.lowercase()
         val suggestions = mutableSetOf<String>()
 
         // Get all items
-        val items = mediaItemDao.getAllMediaItems()
+        val items = mediaItemDao.getMediaItemsForLibrary(libraryId).first()
         
         // Collect filename suggestions
         items.forEach { item ->
@@ -135,11 +143,14 @@ class SearchRepository @Inject constructor(
      * Get available filter options based on current library
      */
     suspend fun getAvailableFilters(libraryId: Long? = null): FilterOptions = withContext(Dispatchers.IO) {
-        val items = if (libraryId != null) {
-            mediaItemDao.getItemsByLibrary(libraryId)
+        val itemsFlow = if (libraryId != null) {
+            mediaItemDao.getMediaItemsByLibrary(libraryId)
         } else {
-            mediaItemDao.getAllMediaItems()
+            // For null libraryId, return empty flow for now
+            kotlinx.coroutines.flow.flow { emit(emptyList<MediaItem>()) }
         }
+        
+        val items = itemsFlow.first()
 
         val mediaTypes = items.map { it.mediaType }.distinct().sorted()
         

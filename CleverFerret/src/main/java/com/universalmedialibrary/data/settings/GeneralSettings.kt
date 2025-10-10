@@ -38,6 +38,6 @@ enum class BackupFrequency {
 
 data class AppSettings(
     val general: GeneralSettings,
-    val reader: ReaderSettings,
+    val reader: com.universalmedialibrary.data.local.entity.ReaderSettingsEntity,
     val security: SecuritySettings
 )

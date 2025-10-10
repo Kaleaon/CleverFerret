@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
@@ -227,10 +228,8 @@ private fun TypographySettings(
             Text(
                 text = "Preview: The quick brown fox jumps over the lazy dog. This text demonstrates the current typography settings.",
                 style = MaterialTheme.typography.bodyLarge.copy(
-```suggestion
                     fontSize = fontSize.sp,
                     lineHeight = (fontSize * lineHeight).sp
-                    lineHeight = androidx.compose.ui.unit.TextUnit(fontSize * lineHeight, androidx.compose.ui.unit.TextUnitType.Sp)
                 ),
                 modifier = Modifier.padding(16.dp)
             )

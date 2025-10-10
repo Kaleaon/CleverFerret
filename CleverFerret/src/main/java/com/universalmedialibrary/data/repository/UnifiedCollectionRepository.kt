@@ -209,7 +209,7 @@ class UnifiedCollectionRepository @Inject constructor(
     ): Long {
         val collectionId = createCollection(
             name = name,
-            type = CollectionType.WATCHLIST,
+            type = CollectionType.WATCH_LIST,
             description = description
         )
         

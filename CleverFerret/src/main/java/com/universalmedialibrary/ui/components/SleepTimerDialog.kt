@@ -146,6 +146,7 @@ fun SleepTimerDialog(
                                 text = when (option) {
                                     is SleepTimerOption.Preset -> option.label
                                     SleepTimerOption.EndOfChapter -> "End of chapter"
+                                    SleepTimerOption.Custom -> "Custom"
                                 },
                                 style = MaterialTheme.typography.bodyLarge
                             )

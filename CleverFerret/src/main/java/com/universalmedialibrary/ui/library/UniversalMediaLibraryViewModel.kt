@@ -75,8 +75,6 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                     _isLoading.value = false
                 }
             } catch (e: Exception) {
-```kotlin
-applyFiltersAndSort(); _isLoading.value = false
                 _mediaItems.value = emptyList()
                 _isLoading.value = false
             }
@@ -132,6 +130,9 @@ applyFiltersAndSort(); _isLoading.value = false
             SortOption.TITLE -> filtered.sortedBy { it.title.lowercase() }
             SortOption.AUTHOR -> filtered.sortedBy { it.author?.lowercase() ?: "" }
             SortOption.DATE_ADDED -> filtered.sortedByDescending { it.dateAdded }
+            SortOption.DATE_MODIFIED -> filtered.sortedByDescending { it.lastModified ?: 0 }
+            SortOption.RATING -> filtered.sortedByDescending { it.rating ?: 0f }
+            SortOption.RECENTLY_VIEWED -> filtered.sortedByDescending { it.lastViewed ?: 0 }
             SortOption.RECENTLY_PLAYED -> filtered.sortedByDescending { it.dateAdded } // TODO: Sort by last played when available
         }
 

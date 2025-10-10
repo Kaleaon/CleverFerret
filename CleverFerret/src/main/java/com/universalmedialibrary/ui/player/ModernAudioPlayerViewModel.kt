@@ -14,8 +14,8 @@ class ModernAudioPlayerViewModel @Inject constructor(
     // TODO: Inject MusicPlaybackService when available
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AudioPlayerUiState())
-    val uiState: StateFlow<AudioPlayerUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(ModernAudioPlayerUiState())
+    val uiState: StateFlow<ModernAudioPlayerUiState> = _uiState.asStateFlow()
 
     fun togglePlayPause() {
         _uiState.value = _uiState.value.copy(
@@ -62,7 +62,7 @@ class ModernAudioPlayerViewModel @Inject constructor(
     }
 }
 
-data class AudioPlayerUiState(
+data class ModernAudioPlayerUiState(
     val currentTrack: AudioTrack? = null,
     val isPlaying: Boolean = false,
     val currentPosition: Long = 0L,

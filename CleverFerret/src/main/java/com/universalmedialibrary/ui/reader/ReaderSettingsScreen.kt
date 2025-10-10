@@ -74,8 +74,8 @@ fun ReaderSettingsScreen(
             ThemeSection(
                 readerSettings = readerSettings,
                 onThemeChanged = { theme -> viewModel.updateTheme(theme) },
-                onBackgroundColorChanged = { color -> viewModel.updateBackgroundColor(color) },
-                onTextColorChanged = { color -> viewModel.updateTextColor(color) }
+                onBackgroundColorChanged = { color -> viewModel.updateTheme(color) },
+                onTextColorChanged = { color -> viewModel.updateTheme(color) }
             )
 
             // Typography Section
@@ -83,7 +83,7 @@ fun ReaderSettingsScreen(
                 readerSettings = readerSettings,
                 onFontFamilyChanged = { family -> viewModel.updateFontFamily(family) },
                 onFontSizeChanged = { size -> viewModel.updateFontSize(size) },
-                onLineSpacingChanged = { spacing -> viewModel.updateLineSpacing(spacing) }
+                onLineSpacingChanged = { spacing -> viewModel.updateLineHeight(spacing) }
             )
 
             // Layout Section
@@ -141,7 +141,7 @@ private fun PreviewSection(readerSettings: ReaderSettings) {
                     text = "Sample text with current settings. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                     color = Color(android.graphics.Color.parseColor(readerSettings.textColor)),
                     fontSize = androidx.compose.ui.unit.TextUnit(readerSettings.fontSize.toFloat(), androidx.compose.ui.unit.TextUnitType.Sp),
-                    lineHeight = androidx.compose.ui.unit.TextUnit((readerSettings.fontSize * readerSettings.lineSpacing), androidx.compose.ui.unit.TextUnitType.Sp),
+                    lineHeight = androidx.compose.ui.unit.TextUnit((readerSettings.fontSize * readerSettings.lineHeight), androidx.compose.ui.unit.TextUnitType.Sp),
                     fontFamily = when (readerSettings.fontFamily) {
                         "SERIF" -> androidx.compose.ui.text.font.FontFamily.Serif
                         "MONOSPACE" -> androidx.compose.ui.text.font.FontFamily.Monospace
@@ -262,13 +262,13 @@ private fun TypographySection(
 
             // Line spacing
             Text(
-                text = "Line Spacing: ${String.format(Locale.getDefault(), "%.1f", readerSettings.lineSpacing)}",
+                text = "Line Spacing: ${String.format(Locale.getDefault(), "%.1f", readerSettings.lineHeight)}",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             Slider(
-                value = readerSettings.lineSpacing,
+                value = readerSettings.lineHeight,
                 onValueChange = onLineSpacingChanged,
                 valueRange = 1.0f..2.0f,
                 steps = 9

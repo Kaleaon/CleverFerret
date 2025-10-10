@@ -5,6 +5,7 @@ import com.universalmedialibrary.data.local.dao.*
 import com.universalmedialibrary.data.local.entity.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -51,40 +52,35 @@ class ImportExportRepository @Inject constructor(
             val libraries = if (libraryIds != null) {
                 libraryIds.mapNotNull { libraryDao.getLibraryById(it) }
             } else {
-                libraryDao.getAllLibraries()
+                libraryDao.getAllLibraries().first()
             }
 
-            val mediaItems = libraries.flatMap { library ->
-                mediaItemDao.getItemsByLibrary(library.libraryId)
-            }
+            val mediaItems = libraries.map { library ->
+                mediaItemDao.getMediaItemsByLibrary(library.libraryId).first()
+            }.flatten()
 
             val metadata = if (includeMetadata) {
-                mediaItems.asSequence()
+                mediaItems
                     .filter { it.hasMetadata }
                     .mapNotNull { item ->
                         metadataDao.getMetadataCommonByItemId(item.itemId)
                     }
-                    .toList()
             } else emptyList()
 
             val progress = if (includeProgress) {
-                mediaItems.asSequence()
-                    .mapNotNull { item ->
-                        readingProgressDao.getProgressByItemId(item.itemId)
-                    }
-                    .toList()
+                mediaItems.mapNotNull { item ->
+                    readingProgressDao.getProgress(item.itemId).first()
+                }
             } else emptyList()
 
             val bookmarks = if (includeBookmarks) {
-                mediaItems.asSequence()
-                    .flatMap { item ->
-                        bookmarkDao.getBookmarksForItem(item.itemId)
-                    }
-                    .toList()
+                mediaItems.map { item ->
+                    bookmarkDao.getBookmarksByMediaItem(item.itemId)
+                }.flatten()
             } else emptyList()
 
             val collections = if (includeCollections) {
-                collectionDao.getAllCollections()
+                collectionDao.getAllCollections().first()
             } else emptyList()
 
             // Create export data
@@ -201,7 +197,7 @@ class ImportExportRepository @Inject constructor(
                 try {
                     val newItemId = itemIdMap[progress.itemId]
                     if (newItemId != null) {
-                        readingProgressDao.insertProgress(progress.copy(itemId = newItemId))
+                        readingProgressDao.upsert(progress.copy(itemId = newItemId))
                     }
                 } catch (e: Exception) {
                     // Continue on progress errors
@@ -249,12 +245,12 @@ class ImportExportRepository @Inject constructor(
             val libraries = if (libraryIds != null) {
                 libraryIds.mapNotNull { libraryDao.getLibraryById(it) }
             } else {
-                libraryDao.getAllLibraries()
+                libraryDao.getAllLibraries().first()
             }
 
-            val mediaItems = libraries.flatMap { library ->
-                mediaItemDao.getItemsByLibrary(library.libraryId)
-            }
+            val mediaItems = libraries.map { library ->
+                mediaItemDao.getMediaItemsByLibrary(library.libraryId).first()
+            }.flatten()
 
             val csvBuilder = StringBuilder()
             csvBuilder.append("Title,Type,File Path,File Size,Has Metadata,Date Added,Library\n")

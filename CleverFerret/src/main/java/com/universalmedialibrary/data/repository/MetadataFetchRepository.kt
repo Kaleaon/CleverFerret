@@ -5,7 +5,9 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.services.metadata.RealMetadataService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,7 +33,7 @@ class MetadataFetchRepository @Inject constructor(
     ): MetadataFetchResult = withContext(Dispatchers.IO) {
         try {
             // Get existing media item
-            val mediaItem = mediaItemDao.getItemById(itemId)
+            val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
             // Fetch metadata from APIs
@@ -66,7 +68,7 @@ class MetadataFetchRepository @Inject constructor(
                     sortTitle = null,
                     originalTitle = null,
                     year = bookMetadata.publishedDate?.take(4)?.toIntOrNull(),
-                    releaseDate = bookMetadata.publishedDate,
+                    releaseDate = null, // TODO: Parse publishedDate string to timestamp
                     rating = bookMetadata.averageRating,
                     userRating = null,
                     communityRating = null,
@@ -108,7 +110,7 @@ class MetadataFetchRepository @Inject constructor(
         imdbId: String? = null
     ): MetadataFetchResult = withContext(Dispatchers.IO) {
         try {
-            val mediaItem = mediaItemDao.getItemById(itemId)
+            val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
             val result = realMetadataService.searchMovieMetadata(
@@ -180,7 +182,7 @@ class MetadataFetchRepository @Inject constructor(
         track: String? = null
     ): MetadataFetchResult = withContext(Dispatchers.IO) {
         try {
-            val mediaItem = mediaItemDao.getItemById(itemId)
+            val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
             val result = realMetadataService.searchMusicMetadata(
@@ -198,7 +200,7 @@ class MetadataFetchRepository @Inject constructor(
                 existingMetadata.copy(
                     title = musicMetadata.title,
                     coverImagePath = musicMetadata.coverUrl,
-                    releaseDate = musicMetadata.releaseDate,
+                    releaseDate = null, // TODO: Parse releaseDate string to timestamp
                     lastUpdated = System.currentTimeMillis(),
                     metadataSource = result.sources.joinToString(", "),
                     externalId = musicMetadata.mbid
@@ -210,7 +212,7 @@ class MetadataFetchRepository @Inject constructor(
                     sortTitle = null,
                     originalTitle = null,
                     year = musicMetadata.releaseDate?.take(4)?.toIntOrNull(),
-                    releaseDate = musicMetadata.releaseDate,
+                    releaseDate = null, // TODO: Parse releaseDate string to timestamp
                     rating = null,
                     userRating = null,
                     communityRating = null,
@@ -243,7 +245,7 @@ class MetadataFetchRepository @Inject constructor(
      * Fetch metadata based on media type
      */
     suspend fun fetchMetadataForItem(itemId: Long): MetadataFetchResult = withContext(Dispatchers.IO) {
-        val mediaItem = mediaItemDao.getItemById(itemId)
+        val mediaItem = mediaItemDao.getMediaItemById(itemId)
             ?: return@withContext MetadataFetchResult.Error("Media item not found")
 
         return@withContext when (mediaItem.mediaType.uppercase()) {
@@ -258,7 +260,7 @@ class MetadataFetchRepository @Inject constructor(
      * Batch fetch metadata for multiple items
      */
     suspend fun fetchMetadataForLibrary(libraryId: Long): BatchMetadataFetchResult = withContext(Dispatchers.IO) {
-        val items = mediaItemDao.getItemsByLibrary(libraryId)
+        val items = mediaItemDao.getMediaItemsByLibrary(libraryId).first()
         val results = mutableListOf<MetadataFetchResult>()
         var successCount = 0
         var failureCount = 0

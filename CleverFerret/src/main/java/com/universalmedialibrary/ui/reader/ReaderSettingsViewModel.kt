@@ -63,10 +63,8 @@ class ReaderSettingsViewModel @Inject constructor(
                 val mediaId = _currentMediaId.value
                 readerSettingsRepository.updateTheme(mediaId, theme)
 
-                // Apply preset colors based on theme
-                val (backgroundColor, textColor) = getThemeColors(theme)
-                updateBackgroundColorInternal(mediaId, backgroundColor)
-                updateTextColorInternal(mediaId, textColor)
+                // Apply theme (unified theming replaces backgroundColor/textColor)
+                updateThemeInternal(mediaId, theme)
 
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to update theme: ${e.message}") }
@@ -75,27 +73,14 @@ class ReaderSettingsViewModel @Inject constructor(
     }
 
     /**
-     * Update background color
+     * Update theme (replaces background/text color)
      */
-    fun updateBackgroundColor(color: String) {
+    fun updateTheme(theme: String) {
         viewModelScope.launch {
             try {
-                updateBackgroundColorInternal(_currentMediaId.value, color)
+                updateThemeInternal(_currentMediaId.value, theme)
             } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Failed to update background color: ${e.message}") }
-            }
-        }
-    }
-
-    /**
-     * Update text color
-     */
-    fun updateTextColor(color: String) {
-        viewModelScope.launch {
-            try {
-                updateTextColorInternal(_currentMediaId.value, color)
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = "Failed to update text color: ${e.message}") }
+                _uiState.update { it.copy(error = "Failed to update theme: ${e.message}") }
             }
         }
     }
@@ -129,10 +114,10 @@ class ReaderSettingsViewModel @Inject constructor(
     /**
      * Update line spacing
      */
-    fun updateLineSpacing(lineSpacing: Float) {
+    fun updateLineHeight(lineHeight: Float) {
         viewModelScope.launch {
             try {
-                readerSettingsRepository.updateLineSpacing(_currentMediaId.value, lineSpacing)
+                readerSettingsRepository.updateLineHeight(_currentMediaId.value, lineHeight)
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to update line spacing: ${e.message}") }
             }
@@ -145,25 +130,14 @@ class ReaderSettingsViewModel @Inject constructor(
     fun updateMargins(margins: Margins) {
         viewModelScope.launch {
             try {
-                val mediaId = _currentMediaId.value
-                if (mediaId != null) {
-                    readerSettingsRepository.updateBookSetting(mediaId) { current ->
-                        (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(mediaId = mediaId)).copy(
-                            marginLeft = margins.left,
-                            marginRight = margins.right,
-                            marginTop = margins.top,
-                            marginBottom = margins.bottom
-                        )
-                    }
-                } else {
-                    readerSettingsRepository.updateGlobalSetting { current ->
-                        current.copy(
-                            marginLeft = margins.left,
-                            marginRight = margins.right,
-                            marginTop = margins.top,
-                            marginBottom = margins.bottom
-                        )
-                    }
+                // Margins are global settings only, not per-book
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(
+                        marginLeft = margins.left,
+                        marginRight = margins.right,
+                        marginTop = margins.top,
+                        marginBottom = margins.bottom
+                    )
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to update margins: ${e.message}") }
@@ -193,7 +167,7 @@ class ReaderSettingsViewModel @Inject constructor(
                 val mediaId = _currentMediaId.value
                 if (mediaId != null) {
                     readerSettingsRepository.updateBookSetting(mediaId) { current ->
-                        (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(mediaId = mediaId)).copy(
+                        (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(bookId = mediaId)).copy(
                             brightness = brightness
                         )
                     }
@@ -214,17 +188,9 @@ class ReaderSettingsViewModel @Inject constructor(
     fun updateKeepScreenOn(keepScreenOn: Boolean) {
         viewModelScope.launch {
             try {
-                val mediaId = _currentMediaId.value
-                if (mediaId != null) {
-                    readerSettingsRepository.updateBookSetting(mediaId) { current ->
-                        (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(mediaId = mediaId)).copy(
-                            keepScreenOn = keepScreenOn
-                        )
-                    }
-                } else {
-                    readerSettingsRepository.updateGlobalSetting { current ->
-                        current.copy(keepScreenOn = keepScreenOn)
-                    }
+                // keepScreenOn is global setting only, not per-book
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(keepScreenOn = keepScreenOn)
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Failed to update keep screen on: ${e.message}") }
@@ -233,35 +199,18 @@ class ReaderSettingsViewModel @Inject constructor(
     }
 
     /**
-     * Update background color setting
+     * Update theme setting (replaces background/text color)
      */
-    private suspend fun updateBackgroundColorInternal(mediaId: Long?, color: String) {
+    private suspend fun updateThemeInternal(mediaId: Long?, theme: String) {
         if (mediaId != null) {
             readerSettingsRepository.updateBookSetting(mediaId) { current ->
-                (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(mediaId = mediaId)).copy(
-                    backgroundColor = color
+                (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(bookId = mediaId)).copy(
+                    theme = theme
                 )
             }
         } else {
             readerSettingsRepository.updateGlobalSetting { current ->
-                current.copy(backgroundColor = color)
-            }
-        }
-    }
-
-    /**
-     * Update text color setting
-     */
-    private suspend fun updateTextColorInternal(mediaId: Long?, color: String) {
-        if (mediaId != null) {
-            readerSettingsRepository.updateBookSetting(mediaId) { current ->
-                (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(mediaId = mediaId)).copy(
-                    textColor = color
-                )
-            }
-        } else {
-            readerSettingsRepository.updateGlobalSetting { current ->
-                current.copy(textColor = color)
+                current.copy(theme = theme)
             }
         }
     }
@@ -272,7 +221,7 @@ class ReaderSettingsViewModel @Inject constructor(
     private suspend fun updateFontFamilyInternal(mediaId: Long?, fontFamily: String) {
         if (mediaId != null) {
             readerSettingsRepository.updateBookSetting(mediaId) { current ->
-                (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(mediaId = mediaId)).copy(
+                (current ?: com.universalmedialibrary.data.local.entity.BookReaderSettingsEntity(bookId = mediaId)).copy(
                     fontFamily = fontFamily
                 )
             }

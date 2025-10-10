@@ -14,9 +14,13 @@ import com.universalmedialibrary.data.repository.MetadataFetchResult
 import com.universalmedialibrary.data.repository.CollectionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 /**
@@ -40,7 +44,7 @@ class MediaItemDetailViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
                 
                 // Load media item
-                val mediaItem = mediaItemDao.getItemById(itemId)
+                val mediaItem = mediaItemDao.getMediaItemById(itemId)
                 if (mediaItem == null) {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -53,7 +57,7 @@ class MediaItemDetailViewModel @Inject constructor(
                 val metadata = metadataDao.getMetadataCommonByItemId(itemId)
                 
                 // Load progress
-                val progress = readingProgressDao.getProgressByItemId(itemId)
+                val progress = readingProgressDao.getProgress(itemId).first()
                 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
