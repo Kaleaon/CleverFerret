@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.data.local.entity.ReaderSettingsEntity
+import com.universalmedialibrary.data.local.entity.ReaderSettings
+import com.universalmedialibrary.data.local.entity.toEntity
 import com.universalmedialibrary.data.settings.ApiSettings
 import com.universalmedialibrary.data.settings.MusicApiSettings
 import com.universalmedialibrary.data.settings.SecuritySettings
@@ -31,8 +33,8 @@ class SettingsViewModel @Inject constructor(
     private val _apiSettings = MutableStateFlow(ApiSettings())
     val apiSettings: StateFlow<ApiSettings> = _apiSettings.asStateFlow()
 
-    private val _readerSettings = MutableStateFlow(ReaderSettingsEntity())
-    val readerSettings: StateFlow<ReaderSettingsEntity> = _readerSettings.asStateFlow()
+    private val _readerSettings = MutableStateFlow(ReaderSettings.fromEntity(ReaderSettingsEntity()))
+    val readerSettings: StateFlow<ReaderSettings> = _readerSettings.asStateFlow()
 
     private val _securitySettings = MutableStateFlow(SecuritySettings())
     val securitySettings: StateFlow<SecuritySettings> = _securitySettings.asStateFlow()
@@ -218,11 +220,11 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateReaderSettings(settings: ReaderSettingsEntity) {
+    fun updateReaderSettings(settings: ReaderSettings) {
         viewModelScope.launch {
             _readerSettings.value = settings
-            // Persist to repository
-            readerSettingsRepository.updateGlobalSettings(settings)
+            // Persist to repository - convert view model to entity
+            readerSettingsRepository.updateGlobalSettings(settings.toEntity())
         }
     }
 

@@ -112,36 +112,50 @@ fun VisualControlsSection(
             // Font Size
             SliderSetting(
                 title = "Font Size",
-                value = settings.fontSize,
+                value = settings.fontSize.toFloat(),
                 range = 8f..32f,
-                onValueChange = { onSettingsChange(settings.copy(fontSize = it)) },
-                valueDisplay = "${'$'}{settings.fontSize.toInt()}sp"
+                onValueChange = { onSettingsChange(settings.copy(fontSize = it.toInt())) },
+                valueDisplay = "${'$'}{settings.fontSize}sp"
             )
 
-            // Line Spacing
+            // Line Height (formerly Line Spacing)
             SliderSetting(
-                title = "Line Spacing",
-                value = settings.lineSpacing,
+                title = "Line Height",
+                value = settings.lineHeight,
                 range = 1.0f..3.0f,
-                onValueChange = { onSettingsChange(settings.copy(lineSpacing = it)) },
-                valueDisplay = "${'$'}{String.format(Locale.getDefault(), \"%.1f\", settings.lineSpacing)}x"
+                onValueChange = { onSettingsChange(settings.copy(lineHeight = it)) },
+                valueDisplay = "${'$'}{String.format(Locale.getDefault(), \"%.1f\", settings.lineHeight)}x"
             )
         }
 
         SettingsGroupCard("Margins") {
             SliderSetting(
-                title = "Horizontal Margin",
-                value = settings.marginHorizontal,
+                title = "Left Margin",
+                value = settings.marginLeft.toFloat(),
                 range = 0f..48f,
-                onValueChange = { onSettingsChange(settings.copy(marginHorizontal = it)) },
-                valueDisplay = "${'$'}{settings.marginHorizontal.toInt()}dp"
+                onValueChange = { onSettingsChange(settings.copy(marginLeft = it.toInt())) },
+                valueDisplay = "${'$'}{settings.marginLeft}dp"
             )
             SliderSetting(
-                title = "Vertical Margin",
-                value = settings.marginVertical,
+                title = "Right Margin",
+                value = settings.marginRight.toFloat(),
                 range = 0f..48f,
-                onValueChange = { onSettingsChange(settings.copy(marginVertical = it)) },
-                valueDisplay = "${'$'}{settings.marginVertical.toInt()}dp"
+                onValueChange = { onSettingsChange(settings.copy(marginRight = it.toInt())) },
+                valueDisplay = "${'$'}{settings.marginRight}dp"
+            )
+            SliderSetting(
+                title = "Top Margin",
+                value = settings.marginTop.toFloat(),
+                range = 0f..48f,
+                onValueChange = { onSettingsChange(settings.copy(marginTop = it.toInt())) },
+                valueDisplay = "${'$'}{settings.marginTop}dp"
+            )
+            SliderSetting(
+                title = "Bottom Margin",
+                value = settings.marginBottom.toFloat(),
+                range = 0f..48f,
+                onValueChange = { onSettingsChange(settings.copy(marginBottom = it.toInt())) },
+                valueDisplay = "${'$'}{settings.marginBottom}dp"
             )
         }
 
@@ -161,14 +175,14 @@ fun VisualControlsSection(
             SwitchSetting(
                 title = "Show Page Numbers",
                 subtitle = "Display current page indicator",
-                checked = settings.showPageNumbers,
-                onCheckedChange = { onSettingsChange(settings.copy(showPageNumbers = it)) }
+                checked = settings.enablePageNumbers,
+                onCheckedChange = { onSettingsChange(settings.copy(enablePageNumbers = it)) }
             )
             SwitchSetting(
                 title = "Show Progress Bar",
                 subtitle = "Display reading progress",
-                checked = settings.showProgressBar,
-                onCheckedChange = { onSettingsChange(settings.copy(showProgressBar = it)) }
+                checked = settings.enableProgressIndicator,
+                onCheckedChange = { onSettingsChange(settings.copy(enableProgressIndicator = it)) }
             )
         }
     }

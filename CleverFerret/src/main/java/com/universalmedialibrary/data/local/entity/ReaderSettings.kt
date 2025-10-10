@@ -174,7 +174,10 @@ data class ReaderSettings(
     val marginLeft: Int,
     val marginRight: Int,
     val keepScreenOn: Boolean,
-    val fullScreenMode: Boolean
+    val fullScreenMode: Boolean,
+    val enablePageNumbers: Boolean = true,
+    val enableProgressIndicator: Boolean = true,
+    val enableHyphenation: Boolean = true
 ) {
     companion object {
         /**
@@ -182,6 +185,32 @@ data class ReaderSettings(
          */
         fun default(): ReaderSettingsEntity {
             return ReaderSettingsEntity()
+        }
+
+        /**
+         * Convert global entity to view model (for UI that doesn't need book-specific settings)
+         */
+        fun fromEntity(entity: ReaderSettingsEntity): ReaderSettings {
+            return ReaderSettings(
+                fontSize = entity.fontSize,
+                fontFamily = entity.fontFamily,
+                lineHeight = entity.lineHeight,
+                theme = entity.theme,
+                brightness = entity.brightness,
+                currentPage = 0,
+                currentChapter = 0,
+                currentPosition = 0f,
+                lastReadAt = 0,
+                marginTop = entity.marginTop,
+                marginBottom = entity.marginBottom,
+                marginLeft = entity.marginLeft,
+                marginRight = entity.marginRight,
+                keepScreenOn = entity.keepScreenOn,
+                fullScreenMode = entity.fullScreenMode,
+                enablePageNumbers = entity.enablePageNumbers,
+                enableProgressIndicator = entity.enableProgressIndicator,
+                enableHyphenation = entity.enableHyphenation
+            )
         }
 
         /**
@@ -204,8 +233,34 @@ data class ReaderSettings(
                 marginLeft = global.marginLeft,
                 marginRight = global.marginRight,
                 keepScreenOn = global.keepScreenOn,
-                fullScreenMode = global.fullScreenMode
+                fullScreenMode = global.fullScreenMode,
+                enablePageNumbers = global.enablePageNumbers,
+                enableProgressIndicator = global.enableProgressIndicator,
+                enableHyphenation = global.enableHyphenation
             )
         }
     }
+}
+
+/**
+ * Convert ReaderSettings view model back to entity for persistence
+ */
+fun ReaderSettings.toEntity(): ReaderSettingsEntity {
+    return ReaderSettingsEntity(
+        id = 1L, // Global settings always use ID 1
+        fontSize = this.fontSize,
+        fontFamily = this.fontFamily,
+        lineHeight = this.lineHeight,
+        theme = this.theme,
+        brightness = this.brightness,
+        marginTop = this.marginTop,
+        marginBottom = this.marginBottom,
+        marginLeft = this.marginLeft,
+        marginRight = this.marginRight,
+        keepScreenOn = this.keepScreenOn,
+        fullScreenMode = this.fullScreenMode,
+        enablePageNumbers = this.enablePageNumbers,
+        enableProgressIndicator = this.enableProgressIndicator,
+        enableHyphenation = this.enableHyphenation
+    )
 }
