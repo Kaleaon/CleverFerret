@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.filepicker
 
+import android.os.Environment
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -176,8 +177,6 @@ fun StorageBrowserScreen(
         }
     }
 }
-
-import android.os.Environment
 
 @Composable
 private fun QuickAccessBar(

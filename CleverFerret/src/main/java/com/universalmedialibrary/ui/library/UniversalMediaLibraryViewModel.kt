@@ -75,8 +75,6 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                     _isLoading.value = false
                 }
             } catch (e: Exception) {
-```kotlin
-applyFiltersAndSort(); _isLoading.value = false
                 _mediaItems.value = emptyList()
                 _isLoading.value = false
             }
