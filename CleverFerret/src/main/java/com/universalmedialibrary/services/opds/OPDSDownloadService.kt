@@ -41,7 +41,7 @@ class OPDSDownloadService @Inject constructor(
         .build()
     
     private val downloadScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val activeDownloads = mutableMapOf<Long, Job>()
+private val activeDownloads = java.util.concurrent.ConcurrentHashMap<Long, Job>()
 
     /**
      * Queue a publication for download
