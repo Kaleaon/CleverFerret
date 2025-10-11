@@ -61,7 +61,8 @@ class ReadiumAudiobookService @Inject constructor(
      */
     fun isReadiumAudiobook(filePath: String): Boolean {
         val extension = File(filePath).extension.lowercase()
-        return extension in listOf("audiobook", "lcpa", "lcpdf")
+        // Note: lcpdf is an LCP-protected PDF, not an audiobook
+        return extension in listOf("audiobook", "lcpa")
     }
 
     /**

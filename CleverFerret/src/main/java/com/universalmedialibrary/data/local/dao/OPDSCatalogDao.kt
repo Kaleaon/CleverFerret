@@ -85,11 +85,16 @@ interface OPDSCatalogDao {
     @Query("SELECT * FROM opds_downloads WHERE status = :status ORDER BY createdAt DESC")
     fun getDownloadsByStatus(status: DownloadStatus): Flow<List<OPDSDownload>>
     
-    @Query("SELECT * FROM opds_downloads WHERE status = 'DOWNLOADING' OR status = 'PENDING' ORDER BY createdAt ASC")
-    fun getActiveDownloads(): Flow<List<OPDSDownload>>
+    @Query("SELECT * FROM opds_downloads WHERE status = :downloading OR status = :pending ORDER BY createdAt ASC")
+    fun getActiveDownloads(
+        downloading: DownloadStatus = DownloadStatus.DOWNLOADING,
+        pending: DownloadStatus = DownloadStatus.PENDING
+    ): Flow<List<OPDSDownload>>
     
-    @Query("SELECT * FROM opds_downloads WHERE status = 'COMPLETED' ORDER BY completedAt DESC")
-    fun getCompletedDownloads(): Flow<List<OPDSDownload>>
+    @Query("SELECT * FROM opds_downloads WHERE status = :completed ORDER BY completedAt DESC")
+    fun getCompletedDownloads(
+        completed: DownloadStatus = DownloadStatus.COMPLETED
+    ): Flow<List<OPDSDownload>>
     
     @Query("UPDATE opds_downloads SET status = :status, progress = :progress, downloadedBytes = :downloadedBytes WHERE id = :downloadId")
     suspend fun updateDownloadProgress(downloadId: Long, status: DownloadStatus, progress: Int, downloadedBytes: Long)
@@ -103,15 +108,26 @@ interface OPDSCatalogDao {
     @Query("UPDATE opds_downloads SET status = 'CANCELLED' WHERE id = :downloadId")
     suspend fun markDownloadCancelled(downloadId: Long)
     
-    @Query("SELECT COUNT(*) FROM opds_downloads WHERE status = 'DOWNLOADING' OR status = 'PENDING'")
-    suspend fun getActiveDownloadCount(): Int
+    @Query("SELECT COUNT(*) FROM opds_downloads WHERE status = :downloading OR status = :pending")
+    suspend fun getActiveDownloadCount(
+        downloading: DownloadStatus = DownloadStatus.DOWNLOADING,
+        pending: DownloadStatus = DownloadStatus.PENDING
+    ): Int
     
-    @Query("SELECT COUNT(*) FROM opds_downloads WHERE status = 'COMPLETED'")
-    suspend fun getCompletedDownloadCount(): Int
+    @Query("SELECT COUNT(*) FROM opds_downloads WHERE status = :completed")
+    suspend fun getCompletedDownloadCount(
+        completed: DownloadStatus = DownloadStatus.COMPLETED
+    ): Int
     
-    @Query("DELETE FROM opds_downloads WHERE status = 'COMPLETED' AND completedAt < :beforeTimestamp")
-    suspend fun deleteOldCompletedDownloads(beforeTimestamp: Long)
+    @Query("DELETE FROM opds_downloads WHERE status = :completed AND completedAt < :beforeTimestamp")
+    suspend fun deleteOldCompletedDownloads(
+        beforeTimestamp: Long,
+        completed: DownloadStatus = DownloadStatus.COMPLETED
+    )
     
-    @Query("DELETE FROM opds_downloads WHERE status = 'FAILED' OR status = 'CANCELLED'")
-    suspend fun clearFailedDownloads()
+    @Query("DELETE FROM opds_downloads WHERE status = :failed OR status = :cancelled")
+    suspend fun clearFailedDownloads(
+        failed: DownloadStatus = DownloadStatus.FAILED,
+        cancelled: DownloadStatus = DownloadStatus.CANCELLED
+    )
 }

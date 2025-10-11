@@ -191,7 +191,12 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .addMigrations(AppDatabaseMigrations.MIGRATION_20_21)
+                .addMigrations(
+                    AppDatabaseMigrations.MIGRATION_20_21,
+                    AppDatabaseMigrations.MIGRATION_21_22,
+                    AppDatabaseMigrations.MIGRATION_22_23,
+                    AppDatabaseMigrations.MIGRATION_23_24
+                )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
                 INSTANCE = instance

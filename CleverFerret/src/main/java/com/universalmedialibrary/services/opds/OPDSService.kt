@@ -144,7 +144,16 @@ class OPDSService @Inject constructor(
                 else -> fetchOPDS1Feed(catalog.url)
             }
             
-            Log.d(TAG, "✅ Fetched feed from ${catalog.name}: ${result.publications.size} items")
+            // Log result safely
+            when (result) {
+                is OPDSFeedResult.Success -> {
+                    Log.d(TAG, "✅ Fetched feed from ${catalog.name}: ${result.publications.size} items")
+                }
+                is OPDSFeedResult.Error -> {
+                    Log.e(TAG, "❌ Failed to fetch feed from ${catalog.name}: ${result.message}")
+                }
+            }
+            
             result
         } catch (e: Exception) {
             Log.e(TAG, "Failed to fetch feed from ${catalog.name}: ${e.message}", e)
@@ -310,11 +319,12 @@ class OPDSService @Inject constructor(
         password: String? = null
     ): Long? = withContext(Dispatchers.IO) {
         try {
-            // Validate URL by attempting to fetch
-            val testResult = try {
-                fetchOPDS1Feed(url)
-            } catch (e: Exception) {
+            // Validate URL by attempting to fetch - try both versions
+            val testResult1 = fetchOPDS1Feed(url)
+            val testResult = if (testResult1 is OPDSFeedResult.Error) {
                 fetchOPDS2Feed(url)
+            } else {
+                testResult1
             }
             
             if (testResult is OPDSFeedResult.Error) {
@@ -322,8 +332,11 @@ class OPDSService @Inject constructor(
                 return@withContext null
             }
             
-            // Detect OPDS version
-            val opdsVersion = if (url.contains(".json")) "2.0" else "1.2"
+            // Detect OPDS version from successful probe
+            val opdsVersion = when (testResult) {
+                is OPDSFeedResult.Success -> if (testResult1 is OPDSFeedResult.Success) "1.2" else "2.0"
+                else -> "1.2"
+            }
             
             // Create catalog
             val catalog = OPDSCatalog(
