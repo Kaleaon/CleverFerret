@@ -104,10 +104,15 @@ import com.universalmedialibrary.data.Tag
         ItemTag::class,
 
         // Simple tagging
-        Tag::class
+        Tag::class,
+
+        // Comic panel detection and translation
+        ComicPanelData::class,
+        ComicTranslation::class,
+        ComicReadingSession::class
 
     ],
-    version = 22, // Incremented for Plex entities and reader enhancements
+    version = 23, // Incremented for comic panel detection and translation features
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -161,6 +166,9 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Unified Tag DAO
     abstract fun unifiedTagDao(): UnifiedTagDao
+    
+    // Comic Panel DAO
+    abstract fun comicPanelDao(): ComicPanelDao
 
 
     companion object {

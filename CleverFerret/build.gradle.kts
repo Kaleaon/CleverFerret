@@ -160,6 +160,10 @@ dependencies {
     
     // ML Kit for OCR and text recognition
     implementation("com.google.mlkit:text-recognition:16.0.1")
+    implementation("com.google.mlkit:translate:17.0.3")
+    
+    // OpenCV for image processing and edge detection
+    implementation("org.opencv:opencv:4.10.0")
     
     // Media metadata extraction libraries
     // EPUB parsing for cover extraction
