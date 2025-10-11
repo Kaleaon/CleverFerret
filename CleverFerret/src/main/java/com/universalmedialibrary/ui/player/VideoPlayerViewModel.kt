@@ -19,6 +19,7 @@ import java.io.File
  * ViewModel for the video player
  */
 @HiltViewModel
+@androidx.media3.common.util.UnstableApi
 class VideoPlayerViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(VideoPlayerUiState())

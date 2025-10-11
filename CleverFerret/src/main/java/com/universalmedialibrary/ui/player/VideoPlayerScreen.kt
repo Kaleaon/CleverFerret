@@ -29,7 +29,8 @@ import java.util.Locale
 /**
  * Enhanced Video player screen using ExoPlayer with Plex-inspired UI
  */
-@OptIn(ExperimentalMaterial3Api::class, UnstableApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
+@androidx.media3.common.util.UnstableApi
 @Composable
 fun VideoPlayerScreen(
     videoFilePath: String,

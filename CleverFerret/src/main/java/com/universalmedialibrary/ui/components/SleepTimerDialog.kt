@@ -234,9 +234,9 @@ private fun formatRemainingTime(seconds: Int): String {
     val secs = seconds % 60
     
     return when {
-        hours > 0 -> String.format("%d:%02d:%02d remaining", hours, minutes, secs)
-        minutes > 0 -> String.format("%d:%02d remaining", minutes, secs)
-        else -> String.format("%d seconds remaining", secs)
+        hours > 0 -> String.format(java.util.Locale.US, "%d:%02d:%02d remaining", hours, minutes, secs)
+        minutes > 0 -> String.format(java.util.Locale.US, "%d:%02d remaining", minutes, secs)
+        else -> String.format(java.util.Locale.US, "%d seconds remaining", secs)
     }
 }
 

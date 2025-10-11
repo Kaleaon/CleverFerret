@@ -22,6 +22,7 @@ import javax.inject.Singleton
  * and audio visualizations
  */
 @Singleton
+@androidx.media3.common.util.UnstableApi
 class ChromecastManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

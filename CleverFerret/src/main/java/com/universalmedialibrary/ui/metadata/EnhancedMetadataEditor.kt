@@ -288,7 +288,7 @@ fun EnhancedMetadataEditorScreen(
                             modifier = Modifier.padding(16.dp)
                         ) {
                             Text(
-                                text = "Rating: ${String.format("%.1f", rating)} / 5.0",
+                                text = "Rating: ${String.format(java.util.Locale.US, "%.1f", rating)} / 5.0",
                                 style = MaterialTheme.typography.titleSmall
                             )
                             Spacer(modifier = Modifier.height(8.dp))

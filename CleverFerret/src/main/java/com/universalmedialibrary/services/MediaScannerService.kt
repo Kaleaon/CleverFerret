@@ -324,17 +324,21 @@ class MediaScannerService : Service() {
 
     private suspend fun scanStandardDirectories() {
         // Scan common directories for media files
-        val directories = listOf(
+        val directories = mutableListOf(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC),
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS),
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_AUDIOBOOKS),
             File(Environment.getExternalStorageDirectory(), "Books"),
             File(Environment.getExternalStorageDirectory(), "Calibre"),
             File(Environment.getExternalStorageDirectory(), "Comics")
         )
+        
+        // Add DIRECTORY_AUDIOBOOKS only on API 29+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            directories.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_AUDIOBOOKS))
+        }
 
         directories.forEach { dir ->
             if (dir.exists() && dir.isDirectory) {

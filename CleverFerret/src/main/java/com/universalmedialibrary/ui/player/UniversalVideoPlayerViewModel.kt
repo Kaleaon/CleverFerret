@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@androidx.media3.common.util.UnstableApi
 class UniversalVideoPlayerViewModel @Inject constructor(
     private val videoService: ComprehensiveVideoService
 ) : ViewModel() {

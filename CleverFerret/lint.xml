@@ -63,9 +63,19 @@
         <ignore path="**/generated/**" />
     </issue>
     
-    <!-- Room database issues -->
-    <issue id="RoomDatabaseConstructor" severity="warning" />
-    <issue id="UnusedParameter" severity="warning" />
+    <!-- DefaultLocale - format strings with locales -->
+    <issue id="DefaultLocale" severity="warning" />
+    
+    <!-- Gradle and dependency updates -->
+    <issue id="GradleDependency" severity="warning" />
+    <issue id="AndroidGradlePluginVersion" severity="warning" />
+    <issue id="NewerVersionAvailable" severity="warning" />
+    
+    <!-- Screen orientation - acceptable for some activities -->
+    <issue id="LockedOrientationActivity" severity="warning" />
+    
+    <!-- Media3 experimental APIs -->
+    <issue id="UnsafeOptInUsageError" severity="warning" />
     
     <!-- Retrofit and networking -->
     <issue id="TrustAllX509TrustManager" severity="warning" />
