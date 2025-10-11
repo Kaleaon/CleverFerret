@@ -331,7 +331,13 @@ class GeminiTTSService @Inject constructor(
         }
     }
     
-    private fun extractJsonValue(json: String, key: String): String? {
+```suggestion
+private fun extractJsonValue(json: String, key: String): String? {
+    val quoted = ("\"$key\"\\s*:\\s*\"([^\"]*)\"".toRegex().find(json))?.groupValues?.getOrNull(1)
+    if (quoted != null) return quoted
+    val numeric = ("\"$key\"\\s*:\\s*([-+]?[0-9]*\\.?[0-9]+)".toRegex().find(json))?.groupValues?.getOrNull(1)
+    return numeric
+}
         val regex = """"$key"\s*:\s*"([^"]*)"""".toRegex()
         val match = regex.find(json)
         return match?.groupValues?.getOrNull(1)
