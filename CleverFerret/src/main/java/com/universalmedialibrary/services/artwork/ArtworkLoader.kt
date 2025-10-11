@@ -13,8 +13,6 @@ import com.universalmedialibrary.services.cache.CacheManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-// Temporarily commented out due to JitPack dependency issue
-// import nl.siegmann.epublib.epub.EpubReader
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -97,7 +95,7 @@ class ArtworkLoader @Inject constructor(
                 }
             }
 
-            // Extract from media file based on type
+            // Extract from media file based on type (now async with Readium)
             val bitmap = extractArtworkFromFile(mediaItem.filePath, mediaItem.fileName)
             
             if (bitmap != null) {
@@ -131,7 +129,7 @@ class ArtworkLoader @Inject constructor(
     /**
      * Extract artwork from a media file based on its type
      */
-    private fun extractArtworkFromFile(filePath: String, fileName: String): Bitmap? {
+    private suspend fun extractArtworkFromFile(filePath: String, fileName: String): Bitmap? {
         val file = File(filePath)
         if (!file.exists()) return null
 
@@ -139,6 +137,8 @@ class ArtworkLoader @Inject constructor(
         
         return when (extension) {
             "epub" -> extractEpubCover(file)
+            "pdf" -> extractPdfThumbnail(file)
+            "audiobook", "lcpa" -> extractAudiobookCover(file)
             "mp3", "m4a", "mp4", "flac", "ogg", "opus", "wma", "wav", "aac", "webm", "mkv", "avi" -> {
                 extractMediaMetadataArtwork(file)
             }
@@ -148,42 +148,62 @@ class ArtworkLoader @Inject constructor(
     }
 
     /**
-     * Extract cover from EPUB using epublib
-     * Temporarily disabled due to JitPack dependency issue
+     * Extract cover from EPUB using Readium Kotlin Toolkit
      */
-    private fun extractEpubCover(file: File): Bitmap? {
-        // TODO: Re-enable when epublib dependency is fixed
-        Log.w(TAG, "EPUB cover extraction disabled - dependency issue")
-        return null
-        /* Temporarily commented out
+    private suspend fun extractEpubCover(file: File): Bitmap? {
         return try {
-            val epubReader = EpubReader()
-            val book = epubReader.readEpub(FileInputStream(file))
+            val readiumEpubService = com.universalmedialibrary.services.epub.ReadiumEpubService(context)
+            val coverBitmap = readiumEpubService.extractCover(file.absolutePath)
             
-            // Try to get cover image from metadata
-            val coverImage = book.coverImage
-            if (coverImage != null) {
-                val bytes = coverImage.data
-                return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            if (coverBitmap != null) {
+                Log.d(TAG, "Successfully extracted EPUB cover with Readium: ${file.name}")
+            } else {
+                Log.w(TAG, "No cover found in EPUB: ${file.name}")
             }
             
-            // Fallback: look for common cover image names in the EPUB
-            val resources = book.resources
-            val coverNames = listOf("cover.jpg", "cover.png", "cover.jpeg", "Cover.jpg", "Cover.png")
-            for (name in coverNames) {
-                val resource = resources.getByHref(name)
-                if (resource != null) {
-                    val bytes = resource.data
-                    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                }
-            }
-            
-            null
+            coverBitmap
         } catch (e: Exception) {
-            Log.e(TAG, "Error extracting EPUB cover from ${file.name}", e)
+            Log.e(TAG, "Error extracting EPUB cover with Readium: ${e.message}", e)
             null
         }
-        */
+    }
+    
+    /**
+     * Extract thumbnail from PDF using Readium Kotlin Toolkit
+     */
+    private suspend fun extractPdfThumbnail(file: File): Bitmap? {
+        return try {
+            val readiumPdfService = com.universalmedialibrary.services.epub.ReadiumPdfService(context)
+            val thumbnail = readiumPdfService.extractThumbnail(file.absolutePath)
+            
+            if (thumbnail != null) {
+                Log.d(TAG, "Successfully extracted PDF thumbnail with Readium: ${file.name}")
+            }
+            
+            thumbnail
+        } catch (e: Exception) {
+            Log.e(TAG, "Error extracting PDF thumbnail with Readium: ${e.message}", e)
+            null
+        }
+    }
+    
+    /**
+     * Extract cover from Readium Audiobook using Readium Kotlin Toolkit
+     */
+    private suspend fun extractAudiobookCover(file: File): Bitmap? {
+        return try {
+            val readiumAudiobookService = com.universalmedialibrary.services.epub.ReadiumAudiobookService(context)
+            val coverBitmap = readiumAudiobookService.extractCover(file.absolutePath)
+            
+            if (coverBitmap != null) {
+                Log.d(TAG, "Successfully extracted audiobook cover with Readium: ${file.name}")
+            }
+            
+            coverBitmap
+        } catch (e: Exception) {
+            Log.e(TAG, "Error extracting audiobook cover with Readium: ${e.message}", e)
+            null
+        }
     }
 
     /**
