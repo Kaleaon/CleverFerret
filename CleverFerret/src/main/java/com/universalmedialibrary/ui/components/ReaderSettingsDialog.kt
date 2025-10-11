@@ -202,7 +202,7 @@ private fun TypographySettings(
                     Icon(Icons.Default.Remove, "Decrease line height")
                 }
                 Text(
-                    text = String.format("%.1fx", lineHeight),
+                    text = String.format(java.util.Locale.US, "%.1fx", lineHeight),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.width(60.dp)
                 )

@@ -24,6 +24,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@androidx.media3.common.util.UnstableApi
 class AudioPlaybackManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

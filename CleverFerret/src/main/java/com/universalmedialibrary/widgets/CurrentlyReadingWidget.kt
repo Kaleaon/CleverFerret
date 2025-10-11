@@ -217,7 +217,7 @@ class ReadingGoalWidget : AppWidgetProvider() {
 
                 // Calculate pace
                 val booksPerDay = (goalBooks - booksRead).toFloat() / daysRemaining
-                val paceText = String.format("%.1f books/week needed", booksPerDay * 7)
+                val paceText = String.format(java.util.Locale.US, "%.1f books/week needed", booksPerDay * 7)
                 setTextViewText(R.id.widget_pace, paceText)
             }
 

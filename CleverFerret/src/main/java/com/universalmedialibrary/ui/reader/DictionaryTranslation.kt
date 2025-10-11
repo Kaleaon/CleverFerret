@@ -100,7 +100,7 @@ class DictionaryService {
         if (word !in wordHistory) {
             wordHistory.add(0, word)
             if (wordHistory.size > 50) {
-                wordHistory.removeLast()
+                wordHistory.removeAt(wordHistory.lastIndex)
             }
         }
     }

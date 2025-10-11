@@ -177,8 +177,8 @@ private fun formatDuration(durationMs: Long): String {
     val seconds = totalSeconds % 60
     
     return when {
-        hours > 0 -> String.format("%d:%02d:%02d", hours, minutes, seconds)
-        else -> String.format("%d:%02d", minutes, seconds)
+        hours > 0 -> String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
+        else -> String.format(java.util.Locale.US, "%d:%02d", minutes, seconds)
     }
 }
 

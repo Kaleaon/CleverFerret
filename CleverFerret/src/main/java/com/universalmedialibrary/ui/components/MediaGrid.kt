@@ -199,7 +199,7 @@ fun MediaCard(
                             modifier = Modifier.size(12.dp)
                         )
                         Text(
-                            text = String.format("%.1f", rating),
+                            text = String.format(java.util.Locale.US, "%.1f", rating),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White
                         )

@@ -19,6 +19,7 @@ import kotlin.math.sqrt
  * for projectM-style visual effects that can be displayed and cast via Chromecast
  */
 @Singleton
+@androidx.media3.common.util.UnstableApi
 class AudioVisualizerService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

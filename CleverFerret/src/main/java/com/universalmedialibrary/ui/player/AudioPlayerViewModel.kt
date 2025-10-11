@@ -24,6 +24,7 @@ import java.io.FileOutputStream
  * ViewModel for the audio player with metadata extraction and playlist support
  */
 @HiltViewModel
+@androidx.media3.common.util.UnstableApi
 class AudioPlayerViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(AudioPlayerUiState())
