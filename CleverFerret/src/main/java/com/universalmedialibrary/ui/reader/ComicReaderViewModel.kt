@@ -28,15 +28,16 @@ import javax.inject.Inject
  * 
  * Features:
  * - Page-by-page and panel-by-panel reading modes
- * - Automatic panel detection using edge detection
- * - Speech bubble OCR and translation
+ * - Automatic panel detection using Gemini Vision
+ * - Speech bubble OCR and translation via Gemini
  * - Gemini-powered TTS for comic narration
  * - Export/import panel data
+ * 
+ * All powered by a single Gemini API - no ML Kit, no OpenCV!
  */
 @HiltViewModel
 class ComicReaderViewModel @Inject constructor(
-    private val comicPanelDetector: ComicPanelDetector,
-    private val comicTranslationService: ComicTranslationService,
+    private val geminiComicService: GeminiComicService,
     private val comicDataService: ComicDataService,
     private val geminiTTSService: GeminiTTSService,
     private val comicPanelDao: ComicPanelDao
@@ -58,10 +59,10 @@ class ComicReaderViewModel @Inject constructor(
             try {
                 currentComicId = comicId
                 
-                // Initialize services
+                // Initialize Gemini services
                 if (!geminiApiKey.isNullOrBlank()) {
                     geminiTTSService.initialize(geminiApiKey)
-                    comicTranslationService.initialize(geminiApiKey)
+                    geminiComicService.initialize(geminiApiKey)
                 }
                 
                 // Extract pages
@@ -135,7 +136,7 @@ class ComicReaderViewModel @Inject constructor(
     }
     
     /**
-     * Detect panels in current page
+     * Detect panels in current page using Gemini Vision
      */
     fun detectPanelsInCurrentPage() {
         viewModelScope.launch {
@@ -153,8 +154,8 @@ class ComicReaderViewModel @Inject constructor(
                     return@launch
                 }
                 
-                // Detect panels
-                val detectionResult = comicPanelDetector.detectPanels(pagePath, pageNumber)
+                // Detect panels using Gemini Vision
+                val detectionResult = geminiComicService.detectPanels(pagePath, pageNumber)
                 
                 // Save to database
                 comicDataService.savePanelData(
@@ -181,7 +182,7 @@ class ComicReaderViewModel @Inject constructor(
     }
     
     /**
-     * Translate current page
+     * Analyze and translate current page using Gemini Vision (one-shot)
      */
     fun translateCurrentPage(targetLanguage: String) {
         viewModelScope.launch {
@@ -199,43 +200,77 @@ class ComicReaderViewModel @Inject constructor(
                     return@launch
                 }
                 
-                // Get or detect panels
-                var panels = _uiState.value.panels
-                if (panels.isEmpty()) {
-                    detectPanelsInCurrentPage()
-                    panels = _uiState.value.panels
-                }
-                
-                // Convert to DetectedPanel format
-                val detectedPanels = panels.map { panel ->
-                    DetectedPanel(
-                        panelIndex = panel.panelIndex,
-                        pageNumber = panel.pageNumber,
-                        bounds = NormalizedRect(panel.x, panel.y, panel.width, panel.height),
-                        confidence = panel.confidence,
-                        area = panel.width * panel.height,
-                        readingOrder = panel.readingOrder
-                    )
-                }
-                
-                // Translate
-                val translationResult = comicTranslationService.translateComicPage(
+                // Use Gemini to analyze complete page (panels + OCR + translation all at once!)
+                val analysis = geminiComicService.analyzeCompletePage(
                     pagePath,
-                    detectedPanels,
+                    pageNumber,
                     targetLanguage,
                     _uiState.value.comicTitle
                 )
                 
-                // Save translations
-                comicDataService.saveTranslationData(currentComicId, translationResult)
+                // Save panels to database
+                val panelEntities = analysis.panels.map { panel ->
+                    ComicPanelData(
+                        comicId = currentComicId,
+                        comicFilePath = _uiState.value.readingSession?.comicFilePath ?: "",
+                        pageNumber = pageNumber,
+                        totalPages = _uiState.value.totalPages,
+                        panelIndex = panel.panelIndex,
+                        x = panel.bounds.x,
+                        y = panel.bounds.y,
+                        width = panel.bounds.width,
+                        height = panel.bounds.height,
+                        confidence = analysis.confidence,
+                        readingOrder = panel.readingOrder
+                    )
+                }
                 
-                // Reload translations
+                // Delete old and insert new
+                comicPanelDao.deletePanelsForPage(currentComicId, pageNumber)
+                comicPanelDao.insertPanels(panelEntities)
+                
+                // Save translations
+                val translationEntities = mutableListOf<ComicTranslation>()
+                val savedPanels = comicPanelDao.getPanelsForPage(currentComicId, pageNumber)
+                
+                for (panel in analysis.panels) {
+                    val panelEntity = savedPanels.find { it.panelIndex == panel.panelIndex }
+                    if (panelEntity != null) {
+                        for (bubble in panel.bubbles) {
+                            translationEntities.add(
+                                ComicTranslation(
+                                    panelId = panelEntity.id,
+                                    comicId = currentComicId,
+                                    pageNumber = pageNumber,
+                                    bubbleX = bubble.bounds.x,
+                                    bubbleY = bubble.bounds.y,
+                                    bubbleWidth = bubble.bounds.width,
+                                    bubbleHeight = bubble.bounds.height,
+                                    originalText = bubble.originalText,
+                                    detectedLanguage = bubble.detectedLanguage,
+                                    ocrConfidence = 0.9f,
+                                    translatedText = bubble.translatedText,
+                                    targetLanguage = targetLanguage
+                                )
+                            )
+                        }
+                    }
+                }
+                
+                if (translationEntities.isNotEmpty()) {
+                    comicPanelDao.insertTranslations(translationEntities)
+                }
+                
+                // Reload from database
+                val panels = comicDataService.getPanelDataForPage(currentComicId, pageNumber)
                 val translations = comicDataService.getTranslationsForPage(currentComicId, pageNumber)
                 
                 _uiState.value = _uiState.value.copy(
                     isTranslating = false,
+                    panels = panels,
                     translations = translations,
-                    translationLanguage = targetLanguage
+                    translationLanguage = targetLanguage,
+                    detectionConfidence = analysis.confidence
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -460,7 +495,6 @@ class ComicReaderViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         geminiTTSService.shutdown()
-        comicTranslationService.shutdown()
     }
 }
 
