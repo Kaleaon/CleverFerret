@@ -161,12 +161,12 @@ dependencies {
     // All OCR, translation, and image analysis handled by Gemini AI above
     
     // Media metadata extraction libraries
-    // EPUB parsing for cover extraction
-    // Temporarily commented out due to JitPack 401 error - TODO: Find alternative or fix repo
-    // implementation("nl.siegmann.epublib:epublib-core:3.1") {
-    //     exclude(group = "org.slf4j")
-    //     exclude(group = "xmlpull")
-    // }
+    // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library
+    // Replaces old epublib with actively-maintained, feature-rich toolkit
+    val readiumVersion = "3.1.2"
+    implementation("org.readium.kotlin-toolkit:readium-shared:$readiumVersion")
+    implementation("org.readium.kotlin-toolkit:readium-streamer:$readiumVersion")
+    implementation("org.readium.kotlin-toolkit:readium-navigator:$readiumVersion")
     
     // Testing
     testImplementation("junit:junit:4.13.2")
