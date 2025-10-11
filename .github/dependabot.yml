@@ -1,46 +1,81 @@
+# Dependabot Configuration
+# Automatically checks for dependency updates and creates PRs
+#
+# This ensures we stay up-to-date with:
+# - Readium Kotlin Toolkit releases
+# - All other dependencies
+# - Security patches
+
 version: 2
 updates:
-  # Enable version updates for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(deps-dev)"
-    reviewers:
-      - "Kaleaon"
-
-  # Enable version updates for Gradle dependencies
+  # Monitor Gradle dependencies
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
-    commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(deps-dev)"
-    reviewers:
-      - "Kaleaon"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    
+    # Group Readium updates together
     groups:
-      # Group Android dependencies
-      android:
+      readium:
         patterns:
-          - "androidx.*"
-          - "com.android.*"
-      # Group Kotlin dependencies
+          - "org.readium.kotlin-toolkit:*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Group Compose updates
+      compose:
+        patterns:
+          - "androidx.compose*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Group Kotlin updates
       kotlin:
         patterns:
           - "org.jetbrains.kotlin*"
-          - "org.jetbrains.kotlinx*"
-      # Group Compose dependencies
-      compose:
-        patterns:
-          - "*compose*"
-      # Group test dependencies
-      test:
-        patterns:
-          - "*test*"
-          - "*junit*"
-          - "*mockito*"
-          - "*robolectric*"
-          - "*truth*"
+        update-types:
+          - "minor"
+          - "patch"
+    
+    # Custom labels for easy filtering
+    labels:
+      - "dependencies"
+      - "automated"
+    
+    # Reviewers (optional - add your team)
+    # reviewers:
+    #   - "your-username"
+    
+    # Auto-merge settings (optional)
+    # assignees:
+    #   - "your-username"
+    
+    # Commit message prefix
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    
+    # Ignore specific versions if needed
+    ignore:
+      # Example: ignore alpha/beta versions
+      - dependency-name: "org.readium.kotlin-toolkit:*"
+        update-types: ["version-update:semver-major"]
+    
+    # Additional settings
+    rebase-strategy: "auto"
+    
+  # Monitor GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "github-actions"

@@ -1,0 +1,142 @@
+name: Check Readium Updates
+
+# Monitors Readium Kotlin Toolkit for new releases
+# and creates an issue if a new version is available
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Get current Readium version
+        id: current
+        run: |
+          VERSION=$(grep -oP 'val readiumVersion = "\K[^"]+' CleverFerret/build.gradle.kts)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current Readium version: $VERSION"
+      
+      - name: Check latest Readium release
+        id: latest
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/readium/kotlin-toolkit/releases/latest | jq -r .tag_name)
+          echo "version=$LATEST" >> $GITHUB_OUTPUT
+          echo "Latest Readium version: $LATEST"
+      
+      - name: Compare versions
+        id: compare
+        run: |
+          CURRENT="${{ steps.current.outputs.version }}"
+          LATEST="${{ steps.latest.outputs.version }}"
+          
+          if [ "$CURRENT" != "$LATEST" ]; then
+            echo "update_available=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Update available: $CURRENT → $LATEST"
+          else
+            echo "update_available=false" >> $GITHUB_OUTPUT
+            echo "✅ Already on latest version: $CURRENT"
+          fi
+      
+      - name: Get release notes
+        if: steps.compare.outputs.update_available == 'true'
+        id: release_notes
+        run: |
+          NOTES=$(curl -s https://api.github.com/repos/readium/kotlin-toolkit/releases/latest | jq -r .body)
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create issue for new version
+        if: steps.compare.outputs.update_available == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const currentVersion = '${{ steps.current.outputs.version }}';
+            const latestVersion = '${{ steps.latest.outputs.version }}';
+            const releaseNotes = `${{ steps.release_notes.outputs.notes }}`;
+            
+            const issueTitle = `📦 Readium Kotlin Toolkit ${latestVersion} Available`;
+            const issueBody = `## New Readium Version Available
+            
+            A new version of Readium Kotlin Toolkit is available!
+            
+            **Current Version:** ${currentVersion}  
+            **Latest Version:** ${latestVersion}
+            
+            ### Release Notes
+            
+            ${releaseNotes}
+            
+            ### Update Instructions
+            
+            1. Review the release notes above
+            2. Check for breaking changes
+            3. Update \`CleverFerret/build.gradle.kts\`:
+               \`\`\`kotlin
+               val readiumVersion = "${latestVersion}"
+               \`\`\`
+            4. Run tests to ensure compatibility
+            5. Update documentation if needed
+            
+            ### Testing Checklist
+            
+            - [ ] EPUB reading works
+            - [ ] PDF reading works
+            - [ ] Audiobook support works
+            - [ ] OPDS catalog browsing works
+            - [ ] Cover extraction works
+            - [ ] Metadata parsing works
+            - [ ] No compilation errors
+            - [ ] No runtime errors
+            
+            ### Related Links
+            
+            - [Readium Release](https://github.com/readium/kotlin-toolkit/releases/tag/${latestVersion})
+            - [Readium Documentation](https://readium.org/kotlin-toolkit)
+            - [Migration Guide](https://readium.org/kotlin-toolkit/migration-guide)
+            
+            ---
+            
+            This issue was automatically created by the Readium Update Checker workflow.
+            `;
+            
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'readium-update'
+            });
+            
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes(latestVersion)
+            );
+            
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['readium-update', 'dependencies', 'enhancement']
+              });
+              console.log(`✅ Created issue for Readium ${latestVersion}`);
+            } else {
+              console.log(`ℹ️ Issue already exists for Readium ${latestVersion}`);
+            }
+      
+      - name: Send notification (optional)
+        if: steps.compare.outputs.update_available == 'true'
+        run: |
+          echo "🔔 New Readium version available: ${{ steps.latest.outputs.version }}"
+          # Optional: Add Slack/Discord/Email notification here

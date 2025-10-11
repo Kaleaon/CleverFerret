@@ -109,10 +109,14 @@ import com.universalmedialibrary.data.Tag
         // Comic panel detection and translation
         ComicPanelData::class,
         ComicTranslation::class,
-        ComicReadingSession::class
+        ComicReadingSession::class,
+
+        // OPDS catalog support
+        OPDSCatalog::class,
+        OPDSDownload::class
 
     ],
-    version = 23, // Incremented for comic panel detection and translation features
+    version = 24, // Incremented for OPDS catalog support
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -169,6 +173,9 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Comic Panel DAO
     abstract fun comicPanelDao(): ComicPanelDao
+    
+    // OPDS Catalog DAO
+    abstract fun opdsCatalogDao(): OPDSCatalogDao
 
 
     companion object {

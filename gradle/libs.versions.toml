@@ -1,0 +1,194 @@
+# Gradle Version Catalog
+# Centralized dependency management for easier updates
+#
+# Benefits:
+# - Single source of truth for versions
+# - Easier to update dependencies
+# - Better IDE support
+# - Type-safe accessors
+
+[versions]
+# Kotlin & Compose
+kotlin = "2.1.21"
+compose-bom = "2025.10.00"
+compose-compiler = "2.1.21"
+
+# AndroidX Core
+core-ktx = "1.17.0"
+appcompat = "1.7.1"
+lifecycle = "2.9.4"
+activity-compose = "1.11.0"
+navigation-compose = "2.9.5"
+
+# Dependency Injection
+hilt = "2.57.2"
+hilt-navigation = "1.3.0"
+
+# Database & Storage
+room = "2.8.2"
+datastore = "1.1.7"
+
+# Networking
+retrofit = "2.11.0"
+okhttp = "4.12.0"
+
+# Media
+media3 = "1.8.0"
+media = "1.7.1"
+
+# Readium Toolkit - Modern EPUB/PDF/Audiobook/OPDS library
+# ⚠️ Check for updates: https://github.com/readium/kotlin-toolkit/releases
+readium = "3.1.2"
+
+# AI & ML
+gemini = "0.9.0"
+
+# Other Libraries
+coil = "2.7.0"
+serialization = "1.7.3"
+glance = "1.1.1"
+junrar = "7.5.5"
+jsoup = "1.21.2"
+security-crypto = "1.1.0"
+biometric = "1.4.0-alpha04"
+work = "2.10.5"
+nanohttpd = "2.3.1"
+cast = "22.1.0"
+
+[libraries]
+# Kotlin
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+# AndroidX Core
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+
+# Compose
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+
+# Navigation
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation" }
+
+# Hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+
+# Room
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+# DataStore
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+
+# Networking
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+
+# Media
+androidx-media = { module = "androidx.media:media", version.ref = "media" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
+androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
+androidx-media3-cast = { module = "androidx.media3:media3-cast", version.ref = "media3" }
+
+# Readium Kotlin Toolkit
+# Professional EPUB, PDF, Audiobook, and OPDS support
+readium-shared = { module = "org.readium.kotlin-toolkit:readium-shared", version.ref = "readium" }
+readium-streamer = { module = "org.readium.kotlin-toolkit:readium-streamer", version.ref = "readium" }
+readium-navigator = { module = "org.readium.kotlin-toolkit:readium-navigator", version.ref = "readium" }
+readium-opds = { module = "org.readium.kotlin-toolkit:readium-opds", version.ref = "readium" }
+
+# AI & ML
+gemini-ai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "gemini" }
+
+# Image Loading
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+
+# Other
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version = "1.1.0" }
+androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+androidx-glance-material3 = { module = "androidx.glance:glance-material3", version.ref = "glance" }
+junrar = { module = "com.github.junrar:junrar", version.ref = "junrar" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanohttpd" }
+google-cast-framework = { module = "com.google.android.gms:play-services-cast-framework", version.ref = "cast" }
+
+# Testing
+junit = { module = "junit:junit", version = "4.13.2" }
+androidx-test-ext-junit = { module = "androidx.test.ext:junit", version = "1.3.0" }
+androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version = "3.7.0" }
+
+[bundles]
+# Common bundle groups for easier dependency management
+compose = [
+    "androidx-compose-ui",
+    "androidx-compose-ui-graphics",
+    "androidx-compose-ui-tooling-preview",
+    "androidx-compose-material3",
+    "androidx-compose-material-icons-extended"
+]
+
+lifecycle = [
+    "androidx-lifecycle-runtime-ktx",
+    "androidx-lifecycle-viewmodel-compose",
+    "androidx-lifecycle-livedata-ktx",
+    "androidx-lifecycle-runtime-compose"
+]
+
+room = [
+    "androidx-room-runtime",
+    "androidx-room-ktx"
+]
+
+networking = [
+    "retrofit",
+    "retrofit-converter-gson",
+    "okhttp-logging-interceptor"
+]
+
+media3 = [
+    "androidx-media3-exoplayer",
+    "androidx-media3-ui",
+    "androidx-media3-session",
+    "androidx-media3-cast"
+]
+
+readium = [
+    "readium-shared",
+    "readium-streamer",
+    "readium-navigator",
+    "readium-opds"
+]
+
+glance = [
+    "androidx-glance-appwidget",
+    "androidx-glance-material3"
+]
+
+[plugins]
+android-application = { id = "com.android.application", version = "8.10.2" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version = "2.1.21-1.0.30" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
