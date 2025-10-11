@@ -8,6 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,6 +58,7 @@ class MetadataFetchRepository @Inject constructor(
                     summary = bookMetadata.description,
                     coverImagePath = bookMetadata.coverUrl,
                     year = bookMetadata.publishedDate?.take(4)?.toIntOrNull(),
+                    releaseDate = parseReleaseDate(bookMetadata.publishedDate),
                     language = bookMetadata.language,
                     rating = bookMetadata.averageRating,
                     lastUpdated = System.currentTimeMillis(),
@@ -68,7 +71,7 @@ class MetadataFetchRepository @Inject constructor(
                     sortTitle = null,
                     originalTitle = null,
                     year = bookMetadata.publishedDate?.take(4)?.toIntOrNull(),
-                    releaseDate = null, // TODO: Parse publishedDate string to timestamp
+                    releaseDate = parseReleaseDate(bookMetadata.publishedDate),
                     rating = bookMetadata.averageRating,
                     userRating = null,
                     communityRating = null,
@@ -200,7 +203,8 @@ class MetadataFetchRepository @Inject constructor(
                 existingMetadata.copy(
                     title = musicMetadata.title,
                     coverImagePath = musicMetadata.coverUrl,
-                    releaseDate = null, // TODO: Parse releaseDate string to timestamp
+                    year = musicMetadata.releaseDate?.take(4)?.toIntOrNull(),
+                    releaseDate = parseReleaseDate(musicMetadata.releaseDate),
                     lastUpdated = System.currentTimeMillis(),
                     metadataSource = result.sources.joinToString(", "),
                     externalId = musicMetadata.mbid
@@ -212,7 +216,7 @@ class MetadataFetchRepository @Inject constructor(
                     sortTitle = null,
                     originalTitle = null,
                     year = musicMetadata.releaseDate?.take(4)?.toIntOrNull(),
-                    releaseDate = null, // TODO: Parse releaseDate string to timestamp
+                    releaseDate = parseReleaseDate(musicMetadata.releaseDate),
                     rating = null,
                     userRating = null,
                     communityRating = null,
@@ -282,6 +286,35 @@ class MetadataFetchRepository @Inject constructor(
             failureCount = failureCount,
             results = results
         )
+    }
+
+    /**
+     * Parse release date from various string formats to timestamp
+     * Supports: "YYYY", "YYYY-MM-DD", "YYYY-MM", etc.
+     */
+    private fun parseReleaseDate(dateString: String?): Long? {
+        if (dateString.isNullOrBlank()) return null
+        
+        return try {
+            val formats = listOf(
+                "yyyy-MM-dd",
+                "yyyy-MM",
+                "yyyy"
+            )
+            
+            for (format in formats) {
+                try {
+                    val formatter = SimpleDateFormat(format, Locale.US)
+                    return formatter.parse(dateString)?.time
+                } catch (e: Exception) {
+                    // Try next format
+                    continue
+                }
+            }
+            null
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 

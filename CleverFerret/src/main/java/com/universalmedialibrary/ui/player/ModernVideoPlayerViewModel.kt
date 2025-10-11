@@ -18,15 +18,20 @@ import javax.inject.Inject
 @HiltViewModel
 @androidx.media3.common.util.UnstableApi
 class ModernVideoPlayerViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val chromecastManager: com.universalmedialibrary.services.cast.ChromecastManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ModernVideoPlayerUiState())
     val uiState: StateFlow<ModernVideoPlayerUiState> = _uiState.asStateFlow()
+    
+    val castState = chromecastManager.castState
 
     private var exoPlayer: ExoPlayer? = null
+    private var currentVideoUri: String? = null
 
     fun loadVideo(videoPath: String) {
+        currentVideoUri = videoPath
         viewModelScope.launch {
             try {
                 exoPlayer = ExoPlayer.Builder(context).build().apply {
@@ -194,6 +199,17 @@ class ModernVideoPlayerViewModel @Inject constructor(
                 trackSelector.setParameters(params.build())
             }
         }
+    }
+
+    fun startVideoCasting() {
+        currentVideoUri?.let { uri ->
+            val title = _uiState.value.videoTitle
+            chromecastManager.castVideo(uri, title)
+        }
+    }
+    
+    fun stopVideoCasting() {
+        chromecastManager.stopCasting()
     }
 
     override fun onCleared() {

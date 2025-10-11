@@ -168,11 +168,23 @@ fun ModernVideoPlayerScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                    IconButton(onClick = { /* TODO: Cast */ }) {
+                    IconButton(onClick = { 
+                        if (viewModel.castState.value.isConnected) {
+                            viewModel.stopVideoCasting()
+                        } else {
+                            viewModel.startVideoCasting()
+                        }
+                    }) {
                         Icon(
-                            Icons.Default.Cast,
+                            if (viewModel.castState.value.isConnected) 
+                                Icons.Default.CastConnected 
+                            else 
+                                Icons.Default.Cast,
                             contentDescription = "Cast",
-                            tint = Color.White,
+                            tint = if (viewModel.castState.value.isConnected)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                     }

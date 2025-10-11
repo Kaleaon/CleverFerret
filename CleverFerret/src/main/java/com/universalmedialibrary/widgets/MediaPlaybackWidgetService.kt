@@ -1,6 +1,7 @@
 package com.universalmedialibrary.widgets
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.MediaItem
@@ -15,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -123,11 +126,25 @@ class MediaPlaybackWidgetService @Inject constructor(
                     maxHeight = 256
                 )
 
-                // TODO: Save artwork to temporary file and update state with URI
-                // For now, just log
+                // Save artwork to temporary file for widget RemoteViews
                 if (artwork != null) {
-                    Log.d(TAG, "Artwork loaded for: ${mediaItem.fileName}")
-                    // _widgetState.value = _widgetState.value.copy(artworkUri = "path/to/artwork")
+                    try {
+                        val cacheDir = context.cacheDir
+                        val widgetArtworkFile = File(cacheDir, "widget_artwork_${mediaItem.itemId}.jpg")
+                        
+                        FileOutputStream(widgetArtworkFile).use { output ->
+                            artwork.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, output)
+                        }
+                        
+                        val artworkUri = Uri.fromFile(widgetArtworkFile).toString()
+                        
+                        // Update widget state with artwork URI
+                        _widgetState.value = _widgetState.value.copy(artworkUri = artworkUri)
+                        
+                        Log.d(TAG, "Artwork saved and URI updated for: ${mediaItem.fileName}")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to save artwork to cache: ${e.message}", e)
+                    }
                 } else {
                     Log.d(TAG, "No artwork available for: ${mediaItem.fileName}")
                 }
