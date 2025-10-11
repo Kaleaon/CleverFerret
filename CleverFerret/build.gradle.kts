@@ -167,6 +167,7 @@ dependencies {
     implementation("org.readium.kotlin-toolkit:readium-shared:$readiumVersion")
     implementation("org.readium.kotlin-toolkit:readium-streamer:$readiumVersion")
     implementation("org.readium.kotlin-toolkit:readium-navigator:$readiumVersion")
+    implementation("org.readium.kotlin-toolkit:readium-opds:$readiumVersion") // OPDS catalog support
     
     // Testing
     testImplementation("junit:junit:4.13.2")
