@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.reader
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.junrar.Archive
@@ -48,6 +49,7 @@ class ComicReaderViewModel @Inject constructor(
     
     private var comicPages = mutableListOf<String>()
     private var currentComicId = 0L
+    private val tempDirectories = mutableSetOf<File>()
     
     /**
      * Load comic file (CBZ, CBR, or directory of images)
@@ -75,6 +77,9 @@ class ComicReaderViewModel @Inject constructor(
                     comicTitle = File(comicPath).nameWithoutExtension,
                     totalPages = comicPages.size
                 )
+                
+                // Ensure session exists in database before updates
+                comicPanelDao.insertReadingSession(session)
                 
                 // Try to import existing panel data
                 comicDataService.importPanelDataFromFile(comicId, comicPath)
@@ -441,6 +446,7 @@ class ComicReaderViewModel @Inject constructor(
                     
                     val tempDir = File(file.parent, ".temp_${file.nameWithoutExtension}")
                     tempDir.mkdirs()
+                    tempDirectories.add(tempDir)
                     
                     entries.forEach { entry ->
                         val outputFile = File(tempDir, entry.name)
@@ -459,6 +465,7 @@ class ComicReaderViewModel @Inject constructor(
                     val archive = Archive(file)
                     val tempDir = File(file.parent, ".temp_${file.nameWithoutExtension}")
                     tempDir.mkdirs()
+                    tempDirectories.add(tempDir)
                     
                     archive.fileHeaders
                         .filter { !it.isDirectory && it.fileName.matches(Regex(".*\\.(jpg|jpeg|png|gif|bmp|webp)", RegexOption.IGNORE_CASE)) }
@@ -495,6 +502,21 @@ class ComicReaderViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         geminiTTSService.shutdown()
+        
+        // Clean up temp directories to prevent storage accumulation
+        viewModelScope.launch(Dispatchers.IO) {
+            tempDirectories.forEach { dir ->
+                try {
+                    if (dir.exists()) {
+                        dir.deleteRecursively()
+                        Log.d("ComicReaderViewModel", "Cleaned up temp directory: ${dir.absolutePath}")
+                    }
+                } catch (e: Exception) {
+                    Log.w("ComicReaderViewModel", "Failed to delete temp directory: ${dir.absolutePath}", e)
+                }
+            }
+            tempDirectories.clear()
+        }
     }
 }
 

@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
@@ -205,5 +206,11 @@ class RadioPlayerWidget : AppWidgetProvider() {
                 updateAppWidget(context, appWidgetManager, id, audioPlaybackManager, radioStationDao)
             }
         }
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        // Cancel coroutine scope when all widgets removed to prevent leaks
+        widgetScope.cancel()
     }
 }

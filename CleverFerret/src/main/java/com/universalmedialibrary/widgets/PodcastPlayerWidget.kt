@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -179,5 +180,11 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             android.content.ComponentName(context, PodcastPlayerWidget::class.java)
         )
         onUpdate(context, appWidgetManager, ids)
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        // Cancel coroutine scope when all widgets removed to prevent leaks
+        widgetScope.cancel()
     }
 }

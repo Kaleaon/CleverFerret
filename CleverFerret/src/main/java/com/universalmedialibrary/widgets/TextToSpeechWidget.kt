@@ -115,22 +115,25 @@ class TextToSpeechWidget : AppWidgetProvider() {
                 val isPlaying = prefs.getBoolean(PREF_IS_PLAYING, false)
                 prefs.edit().putBoolean(PREF_IS_PLAYING, !isPlaying).apply()
                 
-                // Broadcast intent to EnhancedEReaderViewModel to handle TTS
+                // Broadcast intent to EnhancedEReaderViewModel to handle TTS (explicit broadcast for security)
                 val ttsIntent = Intent("com.universalmedialibrary.TTS_CONTROL")
+                    .setPackage(context.packageName)
                 ttsIntent.putExtra("action", if (isPlaying) "pause" else "play")
                 context.sendBroadcast(ttsIntent)
                 
                 updateAllWidgets(context)
             }
             ACTION_PREV_SENTENCE -> {
-                // Broadcast to go to previous sentence/chapter
+                // Broadcast to go to previous sentence/chapter (explicit broadcast for security)
                 val ttsIntent = Intent("com.universalmedialibrary.TTS_CONTROL")
+                    .setPackage(context.packageName)
                 ttsIntent.putExtra("action", "previous")
                 context.sendBroadcast(ttsIntent)
             }
             ACTION_NEXT_SENTENCE -> {
-                // Broadcast to go to next sentence/chapter
+                // Broadcast to go to next sentence/chapter (explicit broadcast for security)
                 val ttsIntent = Intent("com.universalmedialibrary.TTS_CONTROL")
+                    .setPackage(context.packageName)
                 ttsIntent.putExtra("action", "next")
                 context.sendBroadcast(ttsIntent)
             }
@@ -145,8 +148,9 @@ class TextToSpeechWidget : AppWidgetProvider() {
                 }
                 prefs.edit().putFloat(PREF_TTS_SPEED, newSpeed).apply()
                 
-                // Broadcast speed change
+                // Broadcast speed change (explicit broadcast for security)
                 val ttsIntent = Intent("com.universalmedialibrary.TTS_CONTROL")
+                    .setPackage(context.packageName)
                 ttsIntent.putExtra("action", "speed")
                 ttsIntent.putExtra("speed", newSpeed)
                 context.sendBroadcast(ttsIntent)

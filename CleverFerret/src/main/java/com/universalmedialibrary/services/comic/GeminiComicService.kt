@@ -44,10 +44,17 @@ class GeminiComicService @Inject constructor(
     
     private var geminiModel: GenerativeModel? = null
     private var visionModel: GenerativeModel? = null
+    private var isInitialized = false
     
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
+    }
+    
+    private fun requireInitialized() {
+        if (!isInitialized) {
+            throw IllegalStateException("GeminiComicService must be initialized with an API key before use. Call initialize(apiKey) first.")
+        }
     }
     
     /**
@@ -75,15 +82,27 @@ class GeminiComicService @Inject constructor(
                 maxOutputTokens = MAX_OUTPUT_TOKENS
             }
         )
+        
+        isInitialized = true
     }
     
     /**
      * Detect all panels in a comic page using Gemini Vision
      */
     suspend fun detectPanels(imagePath: String, pageNumber: Int): PanelDetectionResult {
+        requireInitialized()
         return withContext(Dispatchers.IO) {
             try {
                 val bitmap = BitmapFactory.decodeFile(imagePath)
+                if (bitmap == null) {
+                    return@withContext PanelDetectionResult(
+                        pageNumber = pageNumber,
+                        panels = emptyList(),
+                        detectionMethod = "gemini_vision",
+                        confidence = 0.0f,
+                        error = "Failed to decode image at path: $imagePath"
+                    )
+                }
                 detectPanelsFromBitmap(bitmap, pageNumber)
             } catch (e: Exception) {
                 Log.e(TAG, "Error detecting panels: ${e.message}", e)
@@ -102,6 +121,7 @@ class GeminiComicService @Inject constructor(
      * Detect panels from bitmap using Gemini Vision
      */
     suspend fun detectPanelsFromBitmap(bitmap: Bitmap, pageNumber: Int): PanelDetectionResult {
+        requireInitialized()
         return withContext(Dispatchers.IO) {
             try {
                 val prompt = """
@@ -202,9 +222,14 @@ class GeminiComicService @Inject constructor(
         imagePath: String,
         panelBounds: NormalizedRect
     ): List<DetectedSpeechBubble> {
+        requireInitialized()
         return withContext(Dispatchers.IO) {
             try {
                 val bitmap = BitmapFactory.decodeFile(imagePath)
+                if (bitmap == null) {
+                    Log.e(TAG, "Failed to decode image at path: $imagePath")
+                    return@withContext emptyList()
+                }
                 val panelBitmap = cropBitmap(bitmap, panelBounds)
                 
                 val prompt = """
@@ -276,9 +301,20 @@ class GeminiComicService @Inject constructor(
         targetLanguage: String,
         context: String? = null
     ): BubbleTextResult {
+        requireInitialized()
         return withContext(Dispatchers.IO) {
             try {
                 val bitmap = BitmapFactory.decodeFile(imagePath)
+                if (bitmap == null) {
+                    return@withContext BubbleTextResult(
+                        originalText = "",
+                        detectedLanguage = "unknown",
+                        translatedText = "",
+                        ocrConfidence = 0.0f,
+                        translationConfidence = 0.0f,
+                        error = "Failed to decode image at path: $imagePath"
+                    )
+                }
                 
                 // Crop to bubble region
                 val bubbleBitmap = if (panelBounds != null) {
@@ -354,9 +390,19 @@ class GeminiComicService @Inject constructor(
         targetLanguage: String,
         comicTitle: String? = null
     ): CompletePageAnalysis {
+        requireInitialized()
         return withContext(Dispatchers.IO) {
             try {
                 val bitmap = BitmapFactory.decodeFile(imagePath)
+                if (bitmap == null) {
+                    return@withContext CompletePageAnalysis(
+                        pageNumber = pageNumber,
+                        isRightToLeft = false,
+                        confidence = 0.0f,
+                        panels = emptyList(),
+                        error = "Failed to decode image at path: $imagePath"
+                    )
+                }
                 
                 val prompt = """
                     Analyze this complete comic book page and provide comprehensive information.
@@ -469,6 +515,7 @@ class GeminiComicService @Inject constructor(
         comicContext: String,
         previousPanels: List<String> = emptyList()
     ): String {
+        requireInitialized()
         return withContext(Dispatchers.IO) {
             try {
                 val prompt = """
@@ -519,6 +566,11 @@ class GeminiComicService @Inject constructor(
         
         val safeWidth = width.coerceAtMost(bitmap.width - x)
         val safeHeight = height.coerceAtMost(bitmap.height - y)
+        
+        if (safeWidth <= 0 || safeHeight <= 0) {
+            Log.w(TAG, "Invalid crop dimensions: ${safeWidth}x${safeHeight}, returning 1x1 bitmap")
+            return Bitmap.createBitmap(1, 1, bitmap.config ?: Bitmap.Config.ARGB_8888)
+        }
         
         return Bitmap.createBitmap(bitmap, x, y, safeWidth, safeHeight)
     }

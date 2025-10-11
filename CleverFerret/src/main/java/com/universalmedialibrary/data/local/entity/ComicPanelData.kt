@@ -11,7 +11,7 @@ import androidx.room.Index
 @Entity(
     tableName = "comic_panels",
     indices = [
-        Index(value = ["comicId", "pageNumber"])
+        Index(value = ["comicId", "pageNumber", "panelIndex"], unique = true)
     ]
 )
 data class ComicPanelData(
