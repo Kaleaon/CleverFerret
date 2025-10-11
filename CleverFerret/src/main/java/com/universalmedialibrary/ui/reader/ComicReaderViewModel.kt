@@ -483,7 +483,14 @@ pages.add(destCanonical.absolutePath)
                         .filter { !it.isDirectory && it.fileName.matches(Regex(".*\\.(jpg|jpeg|png|gif|bmp|webp)", RegexOption.IGNORE_CASE)) }
                         .sortedBy { it.fileName }
                         .forEach { header ->
-                            val outputFile = File(tempDir, header.fileName)
+val dest = File(tempDir, header.fileName)
+val destCanonical = dest.canonicalFile
+val basePath = tempDir.canonicalPath + File.separator
+if (!destCanonical.path.startsWith(basePath)) {
+    throw SecurityException("RAR entry path traversal: ${header.fileName}")
+}
+archive.extractFile(header, destCanonical.absolutePath)
+pages.add(destCanonical.absolutePath)
                             outputFile.parentFile?.mkdirs()
                             archive.extractFile(header, outputFile.absolutePath)
                             pages.add(outputFile.absolutePath)
