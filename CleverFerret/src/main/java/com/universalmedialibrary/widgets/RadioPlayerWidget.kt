@@ -95,19 +95,41 @@ class RadioPlayerWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        
+        // Get AudioPlaybackManager from Hilt
+        val audioPlaybackManager = try {
+            dagger.hilt.android.EntryPointAccessors
+                .fromApplication(
+                    context.applicationContext,
+                    com.universalmedialibrary.widgets.WidgetEntryPoint::class.java
+                ).audioPlaybackManager()
+        } catch (e: Exception) {
+            null
+        }
+        
         when (intent.action) {
             ACTION_PLAY_PAUSE -> {
-                // Handle play/pause
+                audioPlaybackManager?.togglePlayPause()
             }
             ACTION_NEXT_STATION -> {
-                // Next station
+                audioPlaybackManager?.skipToNext()
             }
             ACTION_PREV_STATION -> {
-                // Previous station
+                audioPlaybackManager?.skipToPrevious()
             }
             ACTION_FAVORITE -> {
-                // Toggle favorite
+                // Toggle favorite - would need database integration
+                // For now, just update widget display
             }
+        }
+        
+        // Update widget after action
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val widgetIds = appWidgetManager.getAppWidgetIds(
+            android.content.ComponentName(context, RadioPlayerWidget::class.java)
+        )
+        for (widgetId in widgetIds) {
+            updateAppWidget(context, appWidgetManager, widgetId)
         }
     }
 }

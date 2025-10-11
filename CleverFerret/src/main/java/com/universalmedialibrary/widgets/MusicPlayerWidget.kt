@@ -90,17 +90,51 @@ class MusicPlayerWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        
+        // Get AudioPlaybackManager from Hilt
+        val appContext = context.applicationContext
+        val audioPlaybackManager = try {
+            (appContext as? com.universalmedialibrary.CleverFerretApplication)?.let { app ->
+                // Access via application's Hilt entry point
+                dagger.hilt.android.EntryPointAccessors
+                    .fromApplication(
+                        appContext,
+                        WidgetEntryPoint::class.java
+                    ).audioPlaybackManager()
+            }
+        } catch (e: Exception) {
+            null
+        }
+        
         when (intent.action) {
             ACTION_PLAY_PAUSE -> {
-                // Handle play/pause
-                // Send broadcast to music service
+                audioPlaybackManager?.togglePlayPause()
             }
             ACTION_NEXT -> {
-                // Handle next track
+                audioPlaybackManager?.skipToNext()
             }
             ACTION_PREV -> {
-                // Handle previous track
+                audioPlaybackManager?.skipToPrevious()
             }
         }
+        
+        // Update widget after action
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val widgetIds = appWidgetManager.getAppWidgetIds(
+            android.content.ComponentName(context, MusicPlayerWidget::class.java)
+        )
+        for (widgetId in widgetIds) {
+            updateAppWidget(context, appWidgetManager, widgetId)
+        }
     }
+}
+
+/**
+ * Hilt entry point for accessing dependencies in widget receiver
+ */
+@dagger.hilt.EntryPoint
+@dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+interface WidgetEntryPoint {
+    fun audioPlaybackManager(): com.universalmedialibrary.services.audio.AudioPlaybackManager
+    fun mediaPlaybackWidgetService(): com.universalmedialibrary.widgets.MediaPlaybackWidgetService
 }

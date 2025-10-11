@@ -96,19 +96,65 @@ class TextToSpeechWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        
+        // Get AudioPlaybackManager from Hilt for TTS audio
+        val audioPlaybackManager = try {
+            dagger.hilt.android.EntryPointAccessors
+                .fromApplication(
+                    context.applicationContext,
+                    com.universalmedialibrary.widgets.WidgetEntryPoint::class.java
+                ).audioPlaybackManager()
+        } catch (e: Exception) {
+            null
+        }
+        
         when (intent.action) {
             ACTION_PLAY_PAUSE -> {
-                // Handle play/pause
+                audioPlaybackManager?.togglePlayPause()
             }
             ACTION_PREV_SENTENCE -> {
-                // Previous sentence
+                // Rewind to previous sentence (approximate 5 seconds)
+                audioPlaybackManager?.let { manager ->
+                    val currentPosition = manager.exoPlayer.currentPosition
+                    val newPosition = (currentPosition - 5000).coerceAtLeast(0)
+                    manager.seekTo(newPosition)
+                }
             }
             ACTION_NEXT_SENTENCE -> {
-                // Next sentence
+                // Forward to next sentence (approximate 5 seconds)
+                audioPlaybackManager?.let { manager ->
+                    val currentPosition = manager.exoPlayer.currentPosition
+                    val duration = manager.exoPlayer.duration
+                    val newPosition = if (duration > 0) {
+                        (currentPosition + 5000).coerceAtMost(duration)
+                    } else {
+                        currentPosition + 5000
+                    }
+                    manager.seekTo(newPosition)
+                }
             }
             ACTION_SPEED -> {
-                // Cycle TTS speed
+                // Cycle TTS speed: 0.75x -> 1.0x -> 1.25x -> 1.5x -> 0.75x
+                audioPlaybackManager?.let { manager ->
+                    val currentSpeed = manager.exoPlayer.playbackParameters.speed
+                    val newSpeed = when {
+                        currentSpeed < 0.9f -> 1.0f
+                        currentSpeed < 1.2f -> 1.25f
+                        currentSpeed < 1.4f -> 1.5f
+                        else -> 0.75f
+                    }
+                    manager.exoPlayer.setPlaybackSpeed(newSpeed)
+                }
             }
+        }
+        
+        // Update widget after action
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val widgetIds = appWidgetManager.getAppWidgetIds(
+            android.content.ComponentName(context, TextToSpeechWidget::class.java)
+        )
+        for (widgetId in widgetIds) {
+            updateAppWidget(context, appWidgetManager, widgetId)
         }
     }
 }

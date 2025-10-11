@@ -168,7 +168,22 @@ class PlayPauseAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onPlayClicked() or onPauseClicked()
+        val widgetService = try {
+            dagger.hilt.android.EntryPointAccessors
+                .fromApplication(
+                    context.applicationContext,
+                    WidgetEntryPoint::class.java
+                ).mediaPlaybackWidgetService()
+        } catch (e: Exception) {
+            null
+        }
+        
+        val currentState = widgetService?.getCurrentState()
+        if (currentState?.isPlaying == true) {
+            widgetService.onPauseClicked()
+        } else {
+            widgetService?.onPlayClicked()
+        }
     }
 }
 
@@ -178,7 +193,17 @@ class PreviousAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onPreviousClicked()
+        val widgetService = try {
+            dagger.hilt.android.EntryPointAccessors
+                .fromApplication(
+                    context.applicationContext,
+                    WidgetEntryPoint::class.java
+                ).mediaPlaybackWidgetService()
+        } catch (e: Exception) {
+            null
+        }
+        
+        widgetService?.onPreviousClicked()
     }
 }
 
@@ -188,6 +213,16 @@ class NextAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onNextClicked()
+        val widgetService = try {
+            dagger.hilt.android.EntryPointAccessors
+                .fromApplication(
+                    context.applicationContext,
+                    WidgetEntryPoint::class.java
+                ).mediaPlaybackWidgetService()
+        } catch (e: Exception) {
+            null
+        }
+        
+        widgetService?.onNextClicked()
     }
 }

@@ -45,6 +45,9 @@ fun ModernAudioPlayerScreen(
     viewModel: ModernAudioPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showMoreOptions by remember { mutableStateOf(false) }
+    var showQueueDialog by remember { mutableStateOf(false) }
+    var showPlaylistDialog by remember { mutableStateOf(false) }
     
     // Animated vinyl rotation
     val infiniteTransition = rememberInfiniteTransition(label = "vinyl")
@@ -112,7 +115,7 @@ fun ModernAudioPlayerScreen(
                     letterSpacing = 2.sp
                 )
 
-                IconButton(onClick = { /* TODO: More options */ }) {
+                IconButton(onClick = { showMoreOptions = true }) {
                     Icon(
                         Icons.Default.MoreVert,
                         contentDescription = "More",
@@ -266,7 +269,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Queue */ }) {
+                IconButton(onClick = { showQueueDialog = true }) {
                     Icon(
                         Icons.Default.QueueMusic,
                         contentDescription = "Queue",
@@ -275,7 +278,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Add to playlist */ }) {
+                IconButton(onClick = { showPlaylistDialog = true }) {
                     Icon(
                         Icons.Default.PlaylistAdd,
                         contentDescription = "Add to Playlist",
@@ -284,7 +287,15 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Share */ }) {
+                IconButton(onClick = { 
+                    uiState.currentTrack?.let { track ->
+                        // Create share intent
+                        val shareText = "Now listening to: ${track.title} by ${track.artist}"
+                        // In a real app, would use Android's ShareSheet here
+                        // For now, just log
+                        android.util.Log.d("ModernAudioPlayer", "Share: $shareText")
+                    }
+                }) {
                     Icon(
                         Icons.Default.Share,
                         contentDescription = "Share",

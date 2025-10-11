@@ -66,16 +66,15 @@ class MediaPlaybackWidgetService @Inject constructor(
                 queueManager.playbackState
             ) { currentItem, queueItems, playbackState ->
 
-
-                // TODO: Uncomment when MediaItemDao is available
                 // Load media item if we have a current queue item
-                /*
-
                 val mediaItem = currentItem?.let { queueItem ->
-                    database.mediaItemDao().getMediaItemById(queueItem.mediaItemId)
+                    try {
+                        database.mediaItemDao().getMediaItemById(queueItem.mediaItemId)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error loading media item", e)
+                        null
+                    }
                 }
-                */
-                val mediaItem: com.universalmedialibrary.data.local.entity.MediaItem? = null
 
                 // Build widget state
                 val state = if (currentItem != null) {
@@ -99,15 +98,13 @@ class MediaPlaybackWidgetService @Inject constructor(
 
                 _widgetState.value = state
 
-                // TODO: Uncomment when MediaItemDao is available
                 // Load artwork asynchronously
-                /*
                 if (mediaItem != null) {
                     loadArtworkForCurrentItem(mediaItem)
                 }
-                */
 
-                // TODO: Trigger actual widget update via Glance or RemoteViews
+                // Trigger actual widget update via AppWidgetManager
+                updateWidget()
                 Log.d(TAG, "Widget state updated: ${state.displayTitle}")
 
             }.collect { /* State is updated via _widgetState above */ }
@@ -164,7 +161,6 @@ class MediaPlaybackWidgetService @Inject constructor(
      */
     fun onNextClicked() {
         Log.d(TAG, "Next clicked")
-        // TODO: Implement next track in UnifiedPlaybackQueueManager
         serviceScope.launch {
             val currentItems = queueManager.queueItems.value
             val currentItem = queueManager.currentItem.value
@@ -173,8 +169,16 @@ class MediaPlaybackWidgetService @Inject constructor(
                 val currentIndex = currentItems.indexOf(currentItem)
                 if (currentIndex < currentItems.size - 1) {
                     val nextItem = currentItems[currentIndex + 1]
-                    // TODO: Play next item
-                    Log.d(TAG, "Playing next: ${nextItem.title}")
+                    try {
+                        // Load and play next item
+                        val mediaItem = database.mediaItemDao().getMediaItemById(nextItem.mediaItemId)
+                        if (mediaItem != null) {
+                            queueManager.playItemById(nextItem.mediaItemId)
+                            Log.d(TAG, "Playing next: ${nextItem.title}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error playing next item", e)
+                    }
                 }
             }
         }
@@ -185,7 +189,6 @@ class MediaPlaybackWidgetService @Inject constructor(
      */
     fun onPreviousClicked() {
         Log.d(TAG, "Previous clicked")
-        // TODO: Implement previous track in UnifiedPlaybackQueueManager
         serviceScope.launch {
             val currentItems = queueManager.queueItems.value
             val currentItem = queueManager.currentItem.value
@@ -194,8 +197,16 @@ class MediaPlaybackWidgetService @Inject constructor(
                 val currentIndex = currentItems.indexOf(currentItem)
                 if (currentIndex > 0) {
                     val previousItem = currentItems[currentIndex - 1]
-                    // TODO: Play previous item
-                    Log.d(TAG, "Playing previous: ${previousItem.title}")
+                    try {
+                        // Load and play previous item
+                        val mediaItem = database.mediaItemDao().getMediaItemById(previousItem.mediaItemId)
+                        if (mediaItem != null) {
+                            queueManager.playItemById(previousItem.mediaItemId)
+                            Log.d(TAG, "Playing previous: ${previousItem.title}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error playing previous item", e)
+                    }
                 }
             }
         }
@@ -205,8 +216,23 @@ class MediaPlaybackWidgetService @Inject constructor(
      * Update widget for all instances
      */
     fun updateWidget() {
-        // TODO: Trigger widget update via Glance AppWidgetManager
-        Log.d(TAG, "Widget update requested")
+        try {
+            val appWidgetManager = android.appwidget.AppWidgetManager.getInstance(context)
+            val widgetIds = appWidgetManager.getAppWidgetIds(
+                android.content.ComponentName(context, MediaPlaybackWidgetReceiver::class.java)
+            )
+            
+            // Trigger update for all widget instances
+            val updateIntent = android.content.Intent(context, MediaPlaybackWidgetReceiver::class.java).apply {
+                action = android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+            }
+            context.sendBroadcast(updateIntent)
+            
+            Log.d(TAG, "Widget update triggered for ${widgetIds.size} instances")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating widget", e)
+        }
     }
 
     /**

@@ -2,31 +2,30 @@ package com.universalmedialibrary.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.ui.components.MediaItemData
 import com.universalmedialibrary.ui.models.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 /**
  * ViewModel for Media Library Screen
  * 
  * Manages state for:
  * - Selected media category
- * - Media items list
+ * - Media items list from database
  * - Loading state
  * - Settings dialog visibility
- * - App settings
+ * - App settings with persistence
  */
 @HiltViewModel
 class MediaLibraryViewModel @Inject constructor(
-    // Future: Inject repositories here
-    // private val mediaRepository: MediaRepository,
-    // private val settingsRepository: SettingsRepository
+    private val database: AppDatabase,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     
     // UI State
@@ -42,15 +41,35 @@ class MediaLibraryViewModel @Inject constructor(
     private val _showSettingsDialog = MutableStateFlow(false)
     val showSettingsDialog: StateFlow<Boolean> = _showSettingsDialog.asStateFlow()
     
-    // Settings State
+    // Settings State - loaded from DataStore
     private val _appSettings = MutableStateFlow(AppSettings())
     val appSettings: StateFlow<AppSettings> = _appSettings.asStateFlow()
     
     init {
         // Load initial data
         loadMediaItems()
-        // Future: Load settings from DataStore
-        // loadSettings()
+        loadSettings()
+    }
+    
+    /**
+     * Load settings from DataStore
+     */
+    private fun loadSettings() {
+        viewModelScope.launch {
+            combine(
+                settingsRepository.themeFlow,
+                settingsRepository.darkModeFlow,
+                settingsRepository.apiSettingsFlow
+            ) { theme, darkMode, apiSettings ->
+                _appSettings.value = _appSettings.value.copy(
+                    apiKeys = ApiKeys(
+                        googleBooksApiKey = apiSettings.googleBooksApiKey,
+                        tmdbApiKey = apiSettings.tmdbApiKey,
+                        tvdbApiKey = apiSettings.tvdbApiKey
+                    )
+                )
+            }.collect()
+        }
     }
     
     /**
@@ -62,20 +81,68 @@ class MediaLibraryViewModel @Inject constructor(
     }
     
     /**
-     * Load media items for current category
+     * Load media items for current category from database
      */
     fun loadMediaItems() {
         viewModelScope.launch {
             _isLoading.value = true
             
-            // TODO: Replace with actual database query
-            // val items = mediaRepository.getItemsByCategory(_selectedCategory.value)
-            
-            // Placeholder data for testing
-            _mediaItems.value = generatePlaceholderData(_selectedCategory.value)
-            
-            _isLoading.value = false
+            try {
+                // Map category to database media type
+                val mediaType = mapCategoryToMediaType(_selectedCategory.value)
+                
+                // Query database for items of this type
+                database.mediaItemDao().getMediaItemsByType(mediaType)
+                    .catch { e ->
+                        // On error, show empty list
+                        _mediaItems.value = emptyList()
+                        _isLoading.value = false
+                    }
+                    .collect { items ->
+                        // Map database entities to UI model
+                        _mediaItems.value = items.map { it.toMediaItemData() }
+                        _isLoading.value = false
+                    }
+            } catch (e: Exception) {
+                _mediaItems.value = emptyList()
+                _isLoading.value = false
+            }
         }
+    }
+    
+    /**
+     * Map MediaCategory to database media type string
+     */
+    private fun mapCategoryToMediaType(category: MediaCategory): String {
+        return when (category) {
+            MediaCategory.MUSIC -> "MUSIC"
+            MediaCategory.MOVIES -> "MOVIE"
+            MediaCategory.TV_SHOWS -> "TV_SHOW"
+            MediaCategory.RADIO -> "RADIO"
+            MediaCategory.EBOOKS -> "BOOK"
+            MediaCategory.COMICS -> "COMIC"
+            MediaCategory.AUDIOBOOKS -> "AUDIOBOOK"
+            MediaCategory.PODCASTS -> "PODCAST"
+            MediaCategory.MAGAZINES -> "MAGAZINE"
+            MediaCategory.NEWS -> "NEWS"
+            MediaCategory.FANFICTION -> "FANFICTION"
+        }
+    }
+    
+    /**
+     * Convert MediaItem entity to MediaItemData for UI
+     */
+    private fun MediaItem.toMediaItemData(): MediaItemData {
+        return MediaItemData(
+            id = itemId,
+            title = fileName.substringBeforeLast('.'),
+            subtitle = null, // TODO: Extract from metadata
+            year = null, // TODO: Extract from metadata  
+            imageUrl = null, // TODO: Extract from metadata or thumbnail
+            progress = null, // TODO: Load from progress tracking
+            rating = null, // TODO: Load from ratings
+            mediaType = mediaType
+        )
     }
     
     /**
@@ -93,13 +160,22 @@ class MediaLibraryViewModel @Inject constructor(
     }
     
     /**
-     * Update app settings
+     * Update app settings and persist to DataStore
      */
     fun updateSettings(settings: AppSettings) {
         viewModelScope.launch {
             _appSettings.value = settings
-            // TODO: Persist to DataStore
-            // settingsRepository.saveSettings(settings)
+            
+            // Persist API settings to DataStore
+            settingsRepository.setApiSettings(
+                com.universalmedialibrary.data.settings.ApiSettings(
+                    googleBooksApiKey = settings.apiKeys.googleBooksApiKey,
+                    tmdbApiKey = settings.apiKeys.tmdbApiKey,
+                    tvdbApiKey = settings.apiKeys.tvdbApiKey,
+                    plexServerUrl = "",
+                    plexAuthToken = ""
+                )
+            )
         }
     }
     
@@ -150,25 +226,6 @@ class MediaLibraryViewModel @Inject constructor(
      */
     fun updateImportSettings(importSettings: ImportSettings) {
         updateSettings(_appSettings.value.copy(import = importSettings))
-    }
-    
-    /**
-     * Generate placeholder data for testing
-     */
-    private fun generatePlaceholderData(category: MediaCategory): List<MediaItemData> {
-        val random = Random.Default
-        return List(20) { index ->
-            MediaItemData(
-                id = index.toLong(),
-                title = "${category.label} Item ${index + 1}",
-                subtitle = "Artist or Author",
-                year = "202${random.nextInt(0, 4)}",
-                imageUrl = null, // Use placeholder letters
-                progress = if (index % 3 == 0) random.nextFloat() * 0.8f + 0.1f else null,
-                rating = if (index % 2 == 0) random.nextFloat() * 2f + 3f else null,
-                mediaType = category.label.uppercase()
-            )
-        }
     }
     
     /**

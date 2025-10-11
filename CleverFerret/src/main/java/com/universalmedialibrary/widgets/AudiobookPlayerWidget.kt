@@ -98,19 +98,65 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        
+        // Get AudioPlaybackManager from Hilt
+        val audioPlaybackManager = try {
+            dagger.hilt.android.EntryPointAccessors
+                .fromApplication(
+                    context.applicationContext,
+                    com.universalmedialibrary.widgets.WidgetEntryPoint::class.java
+                ).audioPlaybackManager()
+        } catch (e: Exception) {
+            null
+        }
+        
         when (intent.action) {
             ACTION_PLAY_PAUSE -> {
-                // Handle play/pause
+                audioPlaybackManager?.togglePlayPause()
             }
             ACTION_REWIND -> {
                 // Rewind 30 seconds
+                audioPlaybackManager?.let { manager ->
+                    val currentPosition = manager.exoPlayer.currentPosition
+                    val newPosition = (currentPosition - 30000).coerceAtLeast(0)
+                    manager.seekTo(newPosition)
+                }
             }
             ACTION_FORWARD -> {
                 // Forward 30 seconds
+                audioPlaybackManager?.let { manager ->
+                    val currentPosition = manager.exoPlayer.currentPosition
+                    val duration = manager.exoPlayer.duration
+                    val newPosition = if (duration > 0) {
+                        (currentPosition + 30000).coerceAtMost(duration)
+                    } else {
+                        currentPosition + 30000
+                    }
+                    manager.seekTo(newPosition)
+                }
             }
             ACTION_SPEED -> {
                 // Cycle playback speed: 1.0x -> 1.25x -> 1.5x -> 2.0x -> 1.0x
+                audioPlaybackManager?.let { manager ->
+                    val currentSpeed = manager.exoPlayer.playbackParameters.speed
+                    val newSpeed = when {
+                        currentSpeed < 1.2f -> 1.25f
+                        currentSpeed < 1.4f -> 1.5f
+                        currentSpeed < 1.9f -> 2.0f
+                        else -> 1.0f
+                    }
+                    manager.exoPlayer.setPlaybackSpeed(newSpeed)
+                }
             }
+        }
+        
+        // Update widget after action
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val widgetIds = appWidgetManager.getAppWidgetIds(
+            android.content.ComponentName(context, AudiobookPlayerWidget::class.java)
+        )
+        for (widgetId in widgetIds) {
+            updateAppWidget(context, appWidgetManager, widgetId)
         }
     }
 }
