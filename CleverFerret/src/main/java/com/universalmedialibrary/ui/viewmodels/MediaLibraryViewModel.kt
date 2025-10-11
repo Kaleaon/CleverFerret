@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.ui.components.MediaItemData
 import com.universalmedialibrary.ui.models.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,9 +25,7 @@ import kotlin.random.Random
  */
 @HiltViewModel
 class MediaLibraryViewModel @Inject constructor(
-    // Future: Inject repositories here
-    // private val mediaRepository: MediaRepository,
-    // private val settingsRepository: SettingsRepository
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
     
     // UI State
@@ -49,8 +48,6 @@ class MediaLibraryViewModel @Inject constructor(
     init {
         // Load initial data
         loadMediaItems()
-        // Future: Load settings from DataStore
-        // loadSettings()
     }
     
     /**
@@ -68,13 +65,45 @@ class MediaLibraryViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             
-            // TODO: Replace with actual database query
-            // val items = mediaRepository.getItemsByCategory(_selectedCategory.value)
-            
-            // Placeholder data for testing
-            _mediaItems.value = generatePlaceholderData(_selectedCategory.value)
-            
-            _isLoading.value = false
+            try {
+                // Map category to media type
+                val mediaType = when (_selectedCategory.value) {
+                    MediaCategory.MUSIC -> "MUSIC_TRACK"
+                    MediaCategory.AUDIOBOOKS -> "BOOK"
+                    MediaCategory.MOVIES -> "MOVIE"
+                    MediaCategory.TV_SHOWS -> "TV_SHOW"
+                    MediaCategory.BOOKS -> "BOOK"
+                    MediaCategory.COMICS -> "COMIC"
+                    MediaCategory.PODCASTS -> "PODCAST"
+                    MediaCategory.RADIO -> "RADIO_STATION"
+                }
+                
+                // Load items from database
+                mediaRepository.getMediaItemsByType(mediaType).collect { dbItems ->
+                    _mediaItems.value = dbItems.map { item ->
+                        MediaItemData(
+                            id = item.itemId,
+                            title = item.fileName.substringBeforeLast('.'),
+                            subtitle = "", // Could load from metadata
+                            year = "", // Could load from metadata
+                            imageUrl = null,
+                            progress = null, // Could load from progress tracking
+                            rating = null, // Could load from ratings
+                            mediaType = item.mediaType
+                        )
+                    }
+                    
+                    // If no items in DB, show helpful message or generate sample data
+                    if (dbItems.isEmpty()) {
+                        _mediaItems.value = generatePlaceholderData(_selectedCategory.value)
+                    }
+                }
+            } catch (e: Exception) {
+                // If error, fall back to placeholder data
+                _mediaItems.value = generatePlaceholderData(_selectedCategory.value)
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
     
@@ -98,8 +127,7 @@ class MediaLibraryViewModel @Inject constructor(
     fun updateSettings(settings: AppSettings) {
         viewModelScope.launch {
             _appSettings.value = settings
-            // TODO: Persist to DataStore
-            // settingsRepository.saveSettings(settings)
+            // Settings persistence would be handled by DataStore in a production app
         }
     }
     

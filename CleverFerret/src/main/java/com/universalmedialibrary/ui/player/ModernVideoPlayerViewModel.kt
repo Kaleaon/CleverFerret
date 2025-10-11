@@ -128,10 +128,21 @@ class ModernVideoPlayerViewModel @Inject constructor(
     }
 
     fun toggleSubtitles() {
+        val newState = !_uiState.value.subtitlesEnabled
         _uiState.value = _uiState.value.copy(
-            subtitlesEnabled = !_uiState.value.subtitlesEnabled
+            subtitlesEnabled = newState
         )
-        // TODO: Toggle subtitle track
+        
+        // Toggle subtitle/text tracks in ExoPlayer
+        exoPlayer?.let { player ->
+            val trackSelector = player.trackSelector
+            if (trackSelector is androidx.media3.exoplayer.trackselection.DefaultTrackSelector) {
+                val params = trackSelector.parameters.buildUpon()
+                    .setRendererDisabled(C.TRACK_TYPE_TEXT, !newState)
+                    .build()
+                trackSelector.setParameters(params)
+            }
+        }
     }
 
     fun setPlaybackSpeed(speed: Float) {
@@ -150,11 +161,39 @@ class ModernVideoPlayerViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(
             isFullscreen = !_uiState.value.isFullscreen
         )
-        // TODO: Handle fullscreen
+        // Fullscreen is handled by the UI layer - this just tracks state
+        // The UI will react to this state change and enter/exit fullscreen mode
     }
 
     fun changeQuality() {
-        // TODO: Implement quality selection
+        // Quality selection in ExoPlayer requires adaptive streaming setup
+        // For local files, quality is determined by the source file
+        // For streaming, we'd need to configure track selection parameters
+        exoPlayer?.let { player ->
+            val trackSelector = player.trackSelector
+            if (trackSelector is androidx.media3.exoplayer.trackselection.DefaultTrackSelector) {
+                // Cycle through quality presets
+                val currentQuality = _uiState.value.videoQuality
+                val nextQuality = when (currentQuality) {
+                    "Auto" -> "1080p"
+                    "1080p" -> "720p"
+                    "720p" -> "480p"
+                    "480p" -> "Auto"
+                    else -> "Auto"
+                }
+                _uiState.value = _uiState.value.copy(videoQuality = nextQuality)
+                
+                // Set max video resolution based on selection
+                val params = trackSelector.parameters.buildUpon()
+                when (nextQuality) {
+                    "1080p" -> params.setMaxVideoSize(1920, 1080)
+                    "720p" -> params.setMaxVideoSize(1280, 720)
+                    "480p" -> params.setMaxVideoSize(854, 480)
+                    else -> params.clearVideoSizeConstraints()
+                }
+                trackSelector.setParameters(params.build())
+            }
+        }
     }
 
     override fun onCleared() {
@@ -167,7 +206,7 @@ class ModernVideoPlayerViewModel @Inject constructor(
 data class ModernVideoPlayerUiState(
     val player: ExoPlayer? = null,
     val videoTitle: String = "",
-    val videoQuality: String = "1080p",
+    val videoQuality: String = "Auto",
     val isPlaying: Boolean = false,
     val isLoading: Boolean = false,
     val currentPosition: Long = 0L,
