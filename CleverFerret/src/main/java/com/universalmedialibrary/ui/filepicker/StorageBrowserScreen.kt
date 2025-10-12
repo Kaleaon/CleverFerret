@@ -28,6 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.log10
+import kotlin.math.pow
 
 /**
  * Storage Browser Screen - Moon+ Reader style file navigation
@@ -419,13 +421,11 @@ private fun ErrorView(message: String, onRetry: () -> Unit) {
 private fun formatFileSize(bytes: Long): String {
     if (bytes <= 0) return "0 B"
     val units = arrayOf("B", "KB", "MB", "GB", "TB")
-    val digitGroups = (Math.log10(bytes.toDouble()) / Math.log10(1024.0)).toInt()
-if (bytes <= 0L) return "0 B"
-val digitGroups = (Math.log10(bytes.toDouble()) / Math.log10(1024.0)).toInt()
-```suggestion
-        return String.format(java.util.Locale.US,
+    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.lastIndex)
+    return String.format(
+        java.util.Locale.US,
         "%.1f %s",
-        bytes / Math.pow(1024.0, digitGroups.toDouble()),
+        bytes / 1024.0.pow(digitGroups.toDouble()),
         units[digitGroups]
     )
 }

@@ -65,14 +65,14 @@ fun AutoScrollController(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Slider(
-                        value = 50f, // TODO: Add autoScrollSpeed to ReaderSettings entity
+                        value = settings.autoScrollSpeed.toFloat(),
                         onValueChange = onSpeedChange,
                         valueRange = 10f..100f,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "50", // TODO: Add autoScrollSpeed to ReaderSettings entity
+                        text = settings.autoScrollSpeed.toString(),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.width(30.dp)
                     )

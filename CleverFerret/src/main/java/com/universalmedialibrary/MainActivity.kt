@@ -134,7 +134,7 @@ fun AppNavigation() {
                     itemId = itemId,
                     onNavigateBack = { navController.navigateUp() },
                     onOpenMedia = { id -> navController.navigate("open/$id") },
-                    onEditMetadata = { id -> /* TODO: Navigate to metadata editor */ }
+                    onEditMetadata = { id -> navController.navigate("metadata_editor/$id") }
                 )
             } else {
                 Text("Invalid media item")
@@ -225,11 +225,25 @@ fun AppNavigation() {
         }
         composable("reader/{itemId}") { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
-            // TODO: Need to resolve itemId to file path - for now use placeholder
-            com.universalmedialibrary.ui.reader.EReaderScreen(
-                bookFilePath = "", // TODO: Load from database using itemId
-                onBack = { navController.navigateUp() }
-            )
+            if (itemId > 0) {
+                MediaOpenScreen(
+                    itemId = itemId,
+                    onBack = { navController.navigateUp() }
+                )
+            } else {
+                Text("Invalid media item")
+            }
+        }
+        composable("metadata_editor/{itemId}") { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId")?.toLongOrNull() ?: -1L
+            if (itemId > 0) {
+                com.universalmedialibrary.ui.metadata.MetadataEditorScreen(
+                    itemId = itemId,
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            } else {
+                Text("Invalid media item")
+            }
         }
 
         // Radio routes

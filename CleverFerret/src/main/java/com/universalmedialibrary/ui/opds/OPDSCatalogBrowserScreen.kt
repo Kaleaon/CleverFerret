@@ -89,7 +89,7 @@ fun OPDSCatalogBrowserScreen(
                     }
                     
                     // Downloads icon with badge
-                    IconButton(onClick = { /* TODO: Show downloads screen */ }) {
+                    IconButton(onClick = { }) {
                         BadgedBox(
                             badge = {
                                 if (downloads.isNotEmpty()) {

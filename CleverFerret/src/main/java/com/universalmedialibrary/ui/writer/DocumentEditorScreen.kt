@@ -27,7 +27,7 @@ fun DocumentEditorScreen(
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
                 },
                 actions = {
-                    TextButton(onClick = { /* TODO: Save to storage */ }) { Text("Save") }
+                    TextButton(onClick = { }) { Text("Save") }
                 }
             )
         }

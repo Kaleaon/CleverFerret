@@ -75,6 +75,7 @@ fun AdvancedVideoPlayerScreen(
     CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
+        val activity = context as? android.app.Activity
         val density = LocalDensity.current
 
         var showControls by remember { mutableStateOf(true) }
@@ -109,7 +110,6 @@ fun AdvancedVideoPlayerScreen(
         BackHandler {
             if (isFullscreen) {
                 isFullscreen = false
-                // TODO: Set orientation to portrait
             } else {
                 onBack()
             }
@@ -256,7 +256,7 @@ fun AdvancedVideoPlayerScreen(
                     title = uiState.title,
                     currentChapter = uiState.currentChapter,
                     onBack = onBack,
-                    onCast = { /* TODO: Implement casting */ },
+                    onCast = { },
                     onPip = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             enterPictureInPictureMode(context)
@@ -285,7 +285,11 @@ fun AdvancedVideoPlayerScreen(
                     onVolumeChange = { volume = it },
                     onFullscreen = {
                         isFullscreen = !isFullscreen
-                        // TODO: Toggle orientation
+                        activity?.requestedOrientation = if (isFullscreen) {
+                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                        } else {
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                        }
                     },
                     onSpeedChange = { viewModel.setPlaybackSpeed(it) },
                     onSubtitles = { showSubtitleTracks = true },

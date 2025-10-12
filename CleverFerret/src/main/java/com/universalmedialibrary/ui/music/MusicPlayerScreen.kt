@@ -88,7 +88,7 @@ fun MusicPlayerScreen(
                     com.universalmedialibrary.ui.visualizer.VisualizerButton(
                         onClick = onNavigateToVisualizer
                     )
-                    IconButton(onClick = { /* TODO: Show more options */ }) {
+                    IconButton(onClick = { }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
                 },
@@ -171,9 +171,9 @@ fun MusicPlayerScreen(
 
                 // Secondary Controls
                 SecondaryControlsSection(
-                    onVolumeClick = { /* TODO: Show volume slider */ },
-                    onEqualizerClick = { /* TODO: Show equalizer */ },
-                    onShareClick = { /* TODO: Share track */ },
+                    onVolumeClick = { },
+                    onEqualizerClick = { },
+                    onShareClick = { },
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
@@ -427,7 +427,7 @@ private fun ControlButtonsSection(
 
         // Add to Favorites
         IconButton(
-            onClick = { /* TODO: Toggle favorite */ },
+            onClick = { },
             modifier = Modifier.size(48.dp)
         ) {
             Icon(

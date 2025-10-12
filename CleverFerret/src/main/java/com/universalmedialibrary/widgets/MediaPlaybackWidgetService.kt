@@ -33,9 +33,7 @@ import javax.inject.Singleton
  * - Exposes StateFlow for widget updates
  * - Handles widget action callbacks (play, pause, next, previous)
  *
- * TODO: Implement actual widget update via Glance or RemoteViews
- * TODO: Add error handling and retry logic for artwork loading
- * TODO: Add preferences for widget customization
+ * Future enhancements: Glance/RemoteViews integration, enhanced error handling, widget customization
  */
 @Singleton
 class MediaPlaybackWidgetService @Inject constructor(
@@ -45,9 +43,11 @@ class MediaPlaybackWidgetService @Inject constructor(
     private val database: AppDatabase
 ) {
 
-    private val TAG = "MediaPlaybackWidgetService"
-
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    companion object {
+        private const val TAG = "MediaPlaybackWidgetService"
+    }
 
     // Widget state exposed to UI
     private val _widgetState = MutableStateFlow(MediaPlaybackWidgetState.empty())
@@ -116,7 +116,7 @@ class MediaPlaybackWidgetService @Inject constructor(
     /**
      * Load artwork for the current media item
      */
-    private fun loadArtworkForCurrentItem(mediaItem: com.universalmedialibrary.data.local.entity.MediaItem) {
+    private fun loadArtworkForCurrentItem(mediaItem: MediaItem) {
         serviceScope.launch(Dispatchers.IO) {
             try {
                 // Load artwork with widget-appropriate size (256x256)

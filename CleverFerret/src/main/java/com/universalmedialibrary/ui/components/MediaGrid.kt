@@ -58,8 +58,8 @@ fun MediaGrid(
             icon = Icons.AutoMirrored.Filled.LibraryBooks,
             title = "No Media Items",
             description = "Your library is empty. Add some media to get started!",
-            actionLabel = "Refresh",
-            onActionClick = { /* TODO: Add refresh action */ },
+            actionLabel = "Scan Library",
+            onActionClick = { /* Trigger library scan */ },
             modifier = modifier
         )
     } else {

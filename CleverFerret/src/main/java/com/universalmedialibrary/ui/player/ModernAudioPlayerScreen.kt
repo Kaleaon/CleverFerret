@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,6 +46,11 @@ fun ModernAudioPlayerScreen(
     viewModel: ModernAudioPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    
+    var showMoreOptions by remember { mutableStateOf(false) }
+    var showQueue by remember { mutableStateOf(false) }
+    var showAddToPlaylist by remember { mutableStateOf(false) }
+    var showShare by remember { mutableStateOf(false) }
     
     // Animated vinyl rotation
     val infiniteTransition = rememberInfiniteTransition(label = "vinyl")
@@ -112,7 +118,7 @@ fun ModernAudioPlayerScreen(
                     letterSpacing = 2.sp
                 )
 
-                IconButton(onClick = { /* TODO: More options */ }) {
+                IconButton(onClick = { showMoreOptions = true }) {
                     Icon(
                         Icons.Default.MoreVert,
                         contentDescription = "More",
@@ -266,7 +272,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Queue */ }) {
+                IconButton(onClick = { showQueue = true }) {
                     Icon(
                         Icons.Default.QueueMusic,
                         contentDescription = "Queue",
@@ -275,7 +281,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Add to playlist */ }) {
+                IconButton(onClick = { showAddToPlaylist = true }) {
                     Icon(
                         Icons.Default.PlaylistAdd,
                         contentDescription = "Add to Playlist",
@@ -284,7 +290,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Share */ }) {
+                IconButton(onClick = { showShare = true }) {
                     Icon(
                         Icons.Default.Share,
                         contentDescription = "Share",
@@ -293,6 +299,148 @@ fun ModernAudioPlayerScreen(
                     )
                 }
             }
+        }
+        
+        // More Options Dialog
+        if (showMoreOptions) {
+            AlertDialog(
+                onDismissRequest = { showMoreOptions = false },
+                title = { Text("More Options") },
+                text = {
+                    Column {
+                        ListItem(
+                            headlineContent = { Text("Sleep Timer") },
+                            leadingContent = { Icon(Icons.Default.AccessTime, null) },
+                            modifier = Modifier.clickable { showMoreOptions = false }
+                        )
+                        ListItem(
+                            headlineContent = { Text("Equalizer") },
+                            leadingContent = { Icon(Icons.Default.Equalizer, null) },
+                            modifier = Modifier.clickable { showMoreOptions = false }
+                        )
+                        ListItem(
+                            headlineContent = { Text("Track Info") },
+                            leadingContent = { Icon(Icons.Default.Info, null) },
+                            modifier = Modifier.clickable { showMoreOptions = false }
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showMoreOptions = false }) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
+        
+        // Queue Dialog
+        if (showQueue) {
+            AlertDialog(
+                onDismissRequest = { showQueue = false },
+                title = { Text("Play Queue") },
+                text = {
+                    Column {
+                        Text(
+                            "Current queue will be displayed here",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "• ${uiState.title}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showQueue = false }) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
+        
+        // Add to Playlist Dialog
+        if (showAddToPlaylist) {
+            AlertDialog(
+                onDismissRequest = { showAddToPlaylist = false },
+                title = { Text("Add to Playlist") },
+                text = {
+                    Column {
+                        Button(
+                            onClick = { showAddToPlaylist = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Add, "Create", modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Create New Playlist")
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "Your Playlists",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "No playlists yet",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showAddToPlaylist = false }) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
+        
+        // Share Dialog
+        if (showShare) {
+            AlertDialog(
+                onDismissRequest = { showShare = false },
+                title = { Text("Share Track") },
+                text = {
+                    Column {
+                        Text(
+                            "Share \"${uiState.title}\"",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                IconButton(onClick = { showShare = false }) {
+                                    Icon(Icons.Default.Chat, "Messages")
+                                }
+                                Text("Messages", style = MaterialTheme.typography.bodySmall)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                IconButton(onClick = { showShare = false }) {
+                                    Icon(Icons.Default.Email, "Email")
+                                }
+                                Text("Email", style = MaterialTheme.typography.bodySmall)
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                IconButton(onClick = { showShare = false }) {
+                                    Icon(Icons.Default.Link, "Copy Link")
+                                }
+                                Text("Copy", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showShare = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
     }
 }

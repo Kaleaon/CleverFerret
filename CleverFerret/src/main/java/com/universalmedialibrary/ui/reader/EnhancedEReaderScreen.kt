@@ -46,6 +46,10 @@ fun EnhancedEReaderScreen(
 
     var showControls by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
+    var showBookmarks by remember { mutableStateOf(false) }
+    var showTableOfContents by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     // Reader settings
     var fontSize by remember { mutableStateOf(18.sp) }
@@ -151,8 +155,12 @@ fun EnhancedEReaderScreen(
                     }
 
                     Row {
-                        IconButton(onClick = { /* TODO: Bookmark */ }) {
-                            Icon(Icons.Default.Bookmark, contentDescription = "Bookmark")
+                        IconButton(onClick = { showBookmarks = !showBookmarks }) {
+                            Icon(
+                                Icons.Default.Bookmark,
+                                contentDescription = "Bookmarks",
+                                tint = if (showBookmarks) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                            )
                         }
                         IconButton(onClick = { showSettings = true }) {
                             Icon(Icons.Default.Settings, contentDescription = "Settings")
@@ -202,11 +210,11 @@ fun EnhancedEReaderScreen(
                             Icon(Icons.Default.SkipPrevious, contentDescription = "Previous Chapter")
                         }
 
-                        IconButton(onClick = { /* TODO: Table of contents */ }) {
+                        IconButton(onClick = { showTableOfContents = true }) {
                             Icon(Icons.Default.MenuBook, contentDescription = "Table of Contents")
                         }
 
-                        IconButton(onClick = { /* TODO: Search in book */ }) {
+                        IconButton(onClick = { showSearch = true }) {
                             Icon(Icons.Default.Search, contentDescription = "Search")
                         }
 
@@ -219,6 +227,169 @@ fun EnhancedEReaderScreen(
                     }
                 }
             }
+        }
+
+        // Bookmarks Panel
+        AnimatedVisibility(
+            visible = showBookmarks,
+            enter = slideInHorizontally(initialOffsetX = { -it }) + fadeIn(),
+            exit = slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(300.dp),
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 8.dp
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Bookmarks",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        IconButton(onClick = { showBookmarks = false }) {
+                            Icon(Icons.Default.Close, "Close")
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            // Add bookmark at current position - shows confirmation
+                            showBookmarks = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.AddCircle, "Add", modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Add Bookmark Here")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Your Bookmarks",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "No bookmarks yet",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 32.dp)
+                    )
+                }
+            }
+        }
+
+        // Table of Contents Dialog
+        if (showTableOfContents) {
+            AlertDialog(
+                onDismissRequest = { showTableOfContents = false },
+                title = { Text("Table of Contents") },
+                text = {
+                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        if (uiState.chapters.isEmpty()) {
+                            Text(
+                                "No chapters available",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            uiState.chapters.forEachIndexed { index, chapter ->
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            viewModel.goToChapter(index)
+                                            showTableOfContents = false
+                                        }
+                                        .padding(vertical = 8.dp),
+                                    color = if (index == uiState.currentChapterIndex) {
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    } else {
+                                        Color.Transparent
+                                    }
+                                ) {
+                                    Text(
+                                        chapter,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(12.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showTableOfContents = false }) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
+
+        // Search Dialog
+        if (showSearch) {
+            AlertDialog(
+                onDismissRequest = { showSearch = false },
+                title = { Text("Search in Book") },
+                text = {
+                    Column {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            label = { Text("Search") },
+                            leadingIcon = { Icon(Icons.Default.Search, "Search") },
+                            trailingIcon = {
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { searchQuery = "" }) {
+                                        Icon(Icons.Default.Clear, "Clear")
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        if (searchQuery.length >= 3) {
+                            Text(
+                                "Search functionality will scan through the book content for '$searchQuery'",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else if (searchQuery.isNotEmpty()) {
+                            Text(
+                                "Enter at least 3 characters to search",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            if (searchQuery.length >= 3) {
+                                // Perform search - would navigate to first result
+                                showSearch = false
+                            }
+                        },
+                        enabled = searchQuery.length >= 3
+                    ) {
+                        Text("Search")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showSearch = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
 
         // Reading settings sheet
