@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -20,6 +21,7 @@ import com.universalmedialibrary.ui.theme.*
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    navController: androidx.navigation.NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -230,6 +232,86 @@ fun SettingsScreen(
                         }
                     }
                 }
+
+                   // Media Servers Section
+                   item {
+                       MetallicText(
+                           text = "Media Servers",
+                           style = MaterialTheme.typography.titleMedium,
+                           modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                       )
+                   }
+
+                   item {
+                       MetallicCard(
+                           onClick = { navController.navigate("settings/media_servers") }
+                       ) {
+                           Row(
+                               modifier = Modifier
+                                   .fillMaxWidth()
+                                   .padding(16.dp),
+                               horizontalArrangement = Arrangement.SpaceBetween,
+                               verticalAlignment = Alignment.CenterVertically
+                           ) {
+                               Column(modifier = Modifier.weight(1f)) {
+                                   Text(
+                                       text = "Media Servers",
+                                       style = MaterialTheme.typography.titleSmall,
+                                       fontWeight = FontWeight.Medium
+                                   )
+                                   Text(
+                                       text = "Configure Jellyfin, Plex, and Emby",
+                                       style = MaterialTheme.typography.bodySmall,
+                                       color = MaterialTheme.colorScheme.onSurfaceVariant
+                                   )
+                               }
+                               Icon(
+                                   imageVector = Icons.Default.ChevronRight,
+                                   contentDescription = "Navigate"
+                               )
+                           }
+                       }
+                   }
+
+                   // Network Storage Section
+                   item {
+                       MetallicText(
+                           text = "Network Storage",
+                           style = MaterialTheme.typography.titleMedium,
+                           modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                       )
+                   }
+
+                   item {
+                       MetallicCard(
+                           onClick = { navController.navigate("settings/network_storage") }
+                       ) {
+                           Row(
+                               modifier = Modifier
+                                   .fillMaxWidth()
+                                   .padding(16.dp),
+                               horizontalArrangement = Arrangement.SpaceBetween,
+                               verticalAlignment = Alignment.CenterVertically
+                           ) {
+                               Column(modifier = Modifier.weight(1f)) {
+                                   Text(
+                                       text = "Network Storage",
+                                       style = MaterialTheme.typography.titleSmall,
+                                       fontWeight = FontWeight.Medium
+                                   )
+                                   Text(
+                                       text = "Configure SMB/CIFS and WebDAV",
+                                       style = MaterialTheme.typography.bodySmall,
+                                       color = MaterialTheme.colorScheme.onSurfaceVariant
+                                   )
+                               }
+                               Icon(
+                                   imageVector = Icons.Default.ChevronRight,
+                                   contentDescription = "Navigate"
+                               )
+                           }
+                       }
+                   }
 
                 // About Section
                 item {

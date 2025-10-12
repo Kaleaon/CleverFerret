@@ -11,13 +11,30 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MediaServerSettingsViewModel @Inject constructor(
-    private val mediaServerRepository: MediaServerRepository
+    private val mediaServerRepository: MediaServerRepository,
+    private val settingsRepository: com.universalmedialibrary.data.repository.SettingsRepository
 ) : ViewModel() {
+
+    val selectedTheme: StateFlow<com.universalmedialibrary.ui.theme.ThemePalette> = settingsRepository.themeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
+        )
+
+    val darkMode: StateFlow<Boolean> = settingsRepository.darkModeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 
     private val _uiState = MutableStateFlow(MediaServerSettingsUiState())
     val uiState: StateFlow<MediaServerSettingsUiState> = _uiState.asStateFlow()
@@ -34,7 +51,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                         id = server.id,
                         name = server.name,
                         url = server.url,
-                        isConnected = server.isConnected,
+                        isConnected = server.isActive,
                         type = ServerType.JELLYFIN
                     )
                 }) }
@@ -45,10 +62,10 @@ class MediaServerSettingsViewModel @Inject constructor(
             mediaServerRepository.getAllPlexServers().collect { servers ->
                 _uiState.update { it.copy(plexServers = servers.map { server ->
                     ServerInfo(
-                        id = server.id,
+                        id = server.serverId,
                         name = server.name,
                         url = server.url,
-                        isConnected = server.isConnected,
+                        isConnected = server.isActive,
                         type = ServerType.PLEX
                     )
                 }) }
@@ -62,7 +79,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                         id = server.id,
                         name = server.name,
                         url = server.url,
-                        isConnected = server.isConnected,
+                        isConnected = server.isActive,
                         type = ServerType.EMBY
                     )
                 }) }
@@ -81,12 +98,16 @@ class MediaServerSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             when (type) {
                 ServerType.JELLYFIN -> {
+                    val parts = url.trimEnd('/').split("://").last().split(":")
+                    val host = parts[0]
+                    val port = parts.getOrNull(1)?.toIntOrNull() ?: 8096
                     val server = JellyfinServer(
                         name = name,
-                        url = url.trimEnd('/'),
-                        username = username,
-                        password = password,
-                        isConnected = false
+                        host = host,
+                        port = port,
+                        apiKey = null,
+                        userId = null,
+                        isActive = false
                     )
                     val id = mediaServerRepository.insertJellyfinServer(server)
                     
@@ -95,17 +116,21 @@ class MediaServerSettingsViewModel @Inject constructor(
                     if (result.isSuccess) {
                         mediaServerRepository.updateJellyfinServer(server.copy(
                             id = id,
-                            isConnected = true,
+                            isActive = true,
                             apiKey = result.getOrNull()
                         ))
                     }
                 }
                 ServerType.PLEX -> {
+                    val parts = url.trimEnd('/').split("://").last().split(":")
+                    val host = parts[0]
+                    val port = parts.getOrNull(1)?.toIntOrNull() ?: 32400
                     val server = PlexServer(
                         name = name,
-                        url = url.trimEnd('/'),
+                        host = host,
+                        port = port,
                         token = apiKey,
-                        isConnected = false
+                        isActive = false
                     )
                     val id = mediaServerRepository.insertPlexServer(server)
                     
@@ -113,18 +138,22 @@ class MediaServerSettingsViewModel @Inject constructor(
                     val result = mediaServerRepository.testPlexConnection(server)
                     if (result.isSuccess) {
                         mediaServerRepository.updatePlexServer(server.copy(
-                            id = id,
-                            isConnected = true
+                            serverId = id,
+                            isActive = true
                         ))
                     }
                 }
                 ServerType.EMBY -> {
+                    val parts = url.trimEnd('/').split("://").last().split(":")
+                    val host = parts[0]
+                    val port = parts.getOrNull(1)?.toIntOrNull() ?: 8096
                     val server = EmbyServer(
                         name = name,
-                        url = url.trimEnd('/'),
-                        username = username,
-                        password = password,
-                        isConnected = false
+                        host = host,
+                        port = port,
+                        apiKey = null,
+                        userId = null,
+                        isActive = false
                     )
                     val id = mediaServerRepository.insertEmbyServer(server)
                     
@@ -133,7 +162,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                     if (result.isSuccess) {
                         mediaServerRepository.updateEmbyServer(server.copy(
                             id = id,
-                            isConnected = true
+                            isActive = true
                         ))
                     }
                 }
@@ -149,7 +178,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                     jellyfinServer?.let {
                         val result = mediaServerRepository.testJellyfinConnection(it)
                         mediaServerRepository.updateJellyfinServer(it.copy(
-                            isConnected = result.isSuccess,
+                            isActive = result.isSuccess,
                             apiKey = result.getOrNull()
                         ))
                     }
@@ -159,7 +188,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                     plexServer?.let {
                         val result = mediaServerRepository.testPlexConnection(it)
                         mediaServerRepository.updatePlexServer(it.copy(
-                            isConnected = result.isSuccess
+                            isActive = result.isSuccess
                         ))
                     }
                 }
@@ -168,7 +197,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                     embyServer?.let {
                         val result = mediaServerRepository.testEmbyConnection(it)
                         mediaServerRepository.updateEmbyServer(it.copy(
-                            isConnected = result.isSuccess
+                            isActive = result.isSuccess
                         ))
                     }
                 }
