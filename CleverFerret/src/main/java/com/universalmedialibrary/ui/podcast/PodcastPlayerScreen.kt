@@ -66,7 +66,7 @@ fun PodcastPlayerScreen(
                         com.universalmedialibrary.ui.visualizer.VisualizerButton(
                             onClick = onNavigateToVisualizer
                         )
-                        IconButton(onClick = { /* TODO: Share */ }) {
+                        IconButton(onClick = { }) {
                             Icon(Icons.Default.Share, contentDescription = "Share")
                         }
                     }

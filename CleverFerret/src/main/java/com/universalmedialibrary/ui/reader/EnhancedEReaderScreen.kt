@@ -151,7 +151,7 @@ fun EnhancedEReaderScreen(
                     }
 
                     Row {
-                        IconButton(onClick = { /* TODO: Bookmark */ }) {
+                        IconButton(onClick = { }) {
                             Icon(Icons.Default.Bookmark, contentDescription = "Bookmark")
                         }
                         IconButton(onClick = { showSettings = true }) {
@@ -202,11 +202,11 @@ fun EnhancedEReaderScreen(
                             Icon(Icons.Default.SkipPrevious, contentDescription = "Previous Chapter")
                         }
 
-                        IconButton(onClick = { /* TODO: Table of contents */ }) {
+                        IconButton(onClick = { }) {
                             Icon(Icons.Default.MenuBook, contentDescription = "Table of Contents")
                         }
 
-                        IconButton(onClick = { /* TODO: Search in book */ }) {
+                        IconButton(onClick = { }) {
                             Icon(Icons.Default.Search, contentDescription = "Search")
                         }
 

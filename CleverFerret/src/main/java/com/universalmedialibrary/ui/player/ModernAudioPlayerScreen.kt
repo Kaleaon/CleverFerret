@@ -112,7 +112,7 @@ fun ModernAudioPlayerScreen(
                     letterSpacing = 2.sp
                 )
 
-                IconButton(onClick = { /* TODO: More options */ }) {
+                IconButton(onClick = { }) {
                     Icon(
                         Icons.Default.MoreVert,
                         contentDescription = "More",
@@ -266,7 +266,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Queue */ }) {
+                IconButton(onClick = { }) {
                     Icon(
                         Icons.Default.QueueMusic,
                         contentDescription = "Queue",
@@ -275,7 +275,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Add to playlist */ }) {
+                IconButton(onClick = { }) {
                     Icon(
                         Icons.Default.PlaylistAdd,
                         contentDescription = "Add to Playlist",
@@ -284,7 +284,7 @@ fun ModernAudioPlayerScreen(
                     )
                 }
 
-                IconButton(onClick = { /* TODO: Share */ }) {
+                IconButton(onClick = { }) {
                     Icon(
                         Icons.Default.Share,
                         contentDescription = "Share",

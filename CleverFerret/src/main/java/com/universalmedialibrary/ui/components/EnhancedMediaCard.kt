@@ -20,6 +20,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.repository.MediaItemWithMetadata
+import kotlin.math.log10
+import kotlin.math.pow
 
 /**
  * Enhanced media card with rich visual presentation
@@ -382,11 +384,11 @@ private fun formatFileSize(bytes: Long): String {
 ```suggestion
 private fun formatFileSize(bytes: Long): String {
     if (bytes <= 0L) return "0 B"
-    val digitGroups = (Math.log10(bytes.toDouble()) / Math.log10(1024.0)).toInt()
+    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt()
     return String.format(
         java.util.Locale.US,
         "%.1f %s",
-        bytes / Math.pow(1024.0, digitGroups.toDouble()),
+        bytes / 1024.0.pow(digitGroups.toDouble()),
         units[digitGroups]
     )
 }

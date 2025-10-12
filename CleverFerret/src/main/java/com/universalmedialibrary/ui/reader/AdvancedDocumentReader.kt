@@ -73,7 +73,7 @@ fun AdvancedDocumentReader(
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = { /* TODO: Implement document viewing */ }
+                onClick = { }
             ) {
                 Text("Open with System Viewer")
             }

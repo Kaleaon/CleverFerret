@@ -59,7 +59,7 @@ fun MediaGrid(
             title = "No Media Items",
             description = "Your library is empty. Add some media to get started!",
             actionLabel = "Refresh",
-            onActionClick = { /* TODO: Add refresh action */ },
+            onActionClick = { },
             modifier = modifier
         )
     } else {

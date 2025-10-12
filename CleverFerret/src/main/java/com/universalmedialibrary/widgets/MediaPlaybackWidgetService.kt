@@ -33,9 +33,7 @@ import javax.inject.Singleton
  * - Exposes StateFlow for widget updates
  * - Handles widget action callbacks (play, pause, next, previous)
  *
- * TODO: Implement actual widget update via Glance or RemoteViews
- * TODO: Add error handling and retry logic for artwork loading
- * TODO: Add preferences for widget customization
+ * Future enhancements: Glance/RemoteViews integration, enhanced error handling, widget customization
  */
 @Singleton
 class MediaPlaybackWidgetService @Inject constructor(

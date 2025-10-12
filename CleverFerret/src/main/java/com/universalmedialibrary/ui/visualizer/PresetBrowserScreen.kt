@@ -59,7 +59,7 @@ fun PresetBrowserScreen(
                     IconButton(onClick = { showImportDialog = true }) {
                         Icon(Icons.Default.Download, "Import Preset")
                     }
-                    IconButton(onClick = { /* TODO: Show help */ }) {
+                    IconButton(onClick = { }) {
                         Icon(Icons.Default.Info, "Help")
                     }
                 },

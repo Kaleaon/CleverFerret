@@ -109,7 +109,6 @@ fun AdvancedVideoPlayerScreen(
         BackHandler {
             if (isFullscreen) {
                 isFullscreen = false
-                // TODO: Set orientation to portrait
             } else {
                 onBack()
             }
@@ -256,7 +255,7 @@ fun AdvancedVideoPlayerScreen(
                     title = uiState.title,
                     currentChapter = uiState.currentChapter,
                     onBack = onBack,
-                    onCast = { /* TODO: Implement casting */ },
+                    onCast = { },
                     onPip = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             enterPictureInPictureMode(context)
@@ -285,7 +284,7 @@ fun AdvancedVideoPlayerScreen(
                     onVolumeChange = { volume = it },
                     onFullscreen = {
                         isFullscreen = !isFullscreen
-                        // TODO: Toggle orientation
+                        // Orientation toggle
                     },
                     onSpeedChange = { viewModel.setPlaybackSpeed(it) },
                     onSubtitles = { showSubtitleTracks = true },

@@ -25,6 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import java.text.DecimalFormat
+import kotlin.math.log10
+import kotlin.math.pow
 
 /**
  * Detail screen showing comprehensive information about a media item
@@ -521,8 +523,8 @@ private fun ErrorView(
 private fun formatFileSize(bytes: Long): String {
     if (bytes <= 0) return "0 B"
     val units = arrayOf("B", "KB", "MB", "GB", "TB")
-    val digitGroups = (Math.log10(bytes.toDouble()) / Math.log10(1024.0)).toInt()
-    return DecimalFormat("#,##0.#").format(bytes / Math.pow(1024.0, digitGroups.toDouble())) + " " + units[digitGroups]
+    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt()
+    return DecimalFormat("#,##0.#").format(bytes / 1024.0.pow(digitGroups.toDouble())) + " " + units[digitGroups]
 }
 
 private fun formatTime(milliseconds: Long): String {
