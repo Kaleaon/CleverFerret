@@ -11,7 +11,6 @@ import org.readium.r2.shared.publication.Publication
 import org.readium.r2.shared.util.Try
 import org.readium.r2.shared.util.asset.AssetRetriever
 import org.readium.r2.shared.util.http.DefaultHttpClient
-import org.readium.r2.streamer.Streamer
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,23 +34,15 @@ import javax.inject.Singleton
  * - Audiobooks with structured metadata
  * 
  * For standalone MP3/M4A/FLAC files, use AudioPlaybackManager instead
+ * 
+ * NOTE: This service is currently disabled due to Readium API changes.
+ * Audiobook functionality is provided by AudioPlaybackManager instead.
  */
 @Singleton
 class ReadiumAudiobookService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val TAG = "ReadiumAudiobookService"
-    
-    // Readium Streamer for opening publications
-    private val streamer by lazy {
-        Streamer(
-            context = context,
-            assetRetriever = AssetRetriever(
-                context = context,
-                httpClient = DefaultHttpClient()
-            )
-        )
-    }
 
     /**
      * Check if file is a Readium Audiobook
@@ -68,131 +59,53 @@ class ReadiumAudiobookService @Inject constructor(
     /**
      * Open Readium Audiobook publication
      * 
+     * NOTE: Temporarily disabled due to API changes
+     * 
      * @param audiobookPath Path to audiobook file
      * @return Publication object for playback
      */
     suspend fun openPublication(audiobookPath: String): Publication? = withContext(Dispatchers.IO) {
-        try {
-            val file = File(audiobookPath)
-            if (!file.exists()) {
-                Log.e(TAG, "Audiobook file not found: $audiobookPath")
-                return@withContext null
-            }
-
-            val asset = streamer.assetRetriever.retrieve(file)
-            if (asset !is Try.Success) {
-                Log.e(TAG, "Failed to retrieve audiobook asset: $audiobookPath")
-                return@withContext null
-            }
-
-            val publication = streamer.open(asset.value, allowUserInteraction = false)
-            if (publication !is Try.Success) {
-                Log.e(TAG, "Failed to open audiobook: $audiobookPath")
-                return@withContext null
-            }
-
-            publication.value
-        } catch (e: Exception) {
-            Log.e(TAG, "Error opening audiobook: ${e.message}", e)
-            null
-        }
+        Log.w(TAG, "ReadiumAudiobookService is currently disabled. Use AudioPlaybackManager for audiobook playback.")
+        null
     }
 
     /**
      * Extract metadata from audiobook
      * 
+     * NOTE: Temporarily disabled due to API changes
+     * 
      * @param audiobookPath Path to audiobook file
      * @return AudiobookMetadata or null if failed
      */
     suspend fun extractMetadata(audiobookPath: String): AudiobookMetadata? = withContext(Dispatchers.IO) {
-        try {
-            val publication = openPublication(audiobookPath) ?: return@withContext null
-            
-            val metadata = publication.metadata
-            
-            val result = AudiobookMetadata(
-                title = metadata.title ?: "Unknown",
-                authors = metadata.authors.map { it.name },
-                narrators = metadata.narrators.map { it.name },
-                publisher = metadata.publisher?.name,
-                publishedDate = metadata.published?.toString(),
-                description = metadata.description,
-                duration = metadata.duration?.toLong(),
-                numberOfChapters = publication.readingOrder.size,
-                language = metadata.languages.firstOrNull(),
-                identifier = metadata.identifier
-            )
-            
-            publication.close()
-            result
-        } catch (e: Exception) {
-            Log.e(TAG, "Error extracting audiobook metadata: ${e.message}", e)
-            null
-        }
+        Log.w(TAG, "ReadiumAudiobookService is currently disabled. Use AudioPlaybackManager for audiobook playback.")
+        null
     }
 
     /**
      * Extract cover artwork from audiobook
      * 
+     * NOTE: Temporarily disabled due to API changes
+     * 
      * @param audiobookPath Path to audiobook file
      * @return Cover bitmap or null
      */
     suspend fun extractCover(audiobookPath: String): Bitmap? = withContext(Dispatchers.IO) {
-        try {
-            val publication = openPublication(audiobookPath) ?: return@withContext null
-            
-            val coverLink = publication.coverLink
-            val coverBitmap = if (coverLink != null) {
-                val resource = publication.get(coverLink.url())
-                if (resource is Try.Success) {
-                    val bytes = resource.value.read().getOrNull()
-                    bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
-                } else null
-            } else {
-                // Fallback: try first image
-                val images = publication.images
-                if (images.isNotEmpty()) {
-                    val resource = publication.get(images.first().url())
-                    if (resource is Try.Success) {
-                        val bytes = resource.value.read().getOrNull()
-                        bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
-                    } else null
-                } else null
-            }
-            
-            publication.close()
-            coverBitmap
-        } catch (e: Exception) {
-            Log.e(TAG, "Error extracting audiobook cover: ${e.message}", e)
-            null
-        }
+        Log.w(TAG, "ReadiumAudiobookService is currently disabled.")
+        null
     }
 
     /**
      * Get chapter list with durations
      * 
+     * NOTE: Temporarily disabled due to API changes
+     * 
      * @param audiobookPath Path to audiobook file
      * @return List of chapters
      */
     suspend fun extractChapters(audiobookPath: String): List<AudiobookChapter> = withContext(Dispatchers.IO) {
-        try {
-            val publication = openPublication(audiobookPath) ?: return@withContext emptyList()
-            
-            val chapters = publication.readingOrder.mapIndexed { index, link ->
-                AudiobookChapter(
-                    index = index,
-                    title = link.title ?: "Chapter ${index + 1}",
-                    href = link.url().toString(),
-                    duration = link.duration?.toLong()
-                )
-            }
-            
-            publication.close()
-            chapters
-        } catch (e: Exception) {
-            Log.e(TAG, "Error extracting audiobook chapters: ${e.message}", e)
-            emptyList()
-        }
+        Log.w(TAG, "ReadiumAudiobookService is currently disabled.")
+        emptyList()
     }
 
     /**

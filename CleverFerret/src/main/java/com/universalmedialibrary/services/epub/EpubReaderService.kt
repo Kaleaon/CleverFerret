@@ -154,7 +154,7 @@ class EpubReaderService @Inject constructor(
     /**
      * Parse metadata from content.opf
      */
-    private fun parseMetadata(zipFile: ZipFile): EpubMetadata {
+    private fun parseMetadata(zipFile: ZipFile): SimpleEpubMetadata {
         val contentOpf = findContentOpf(zipFile)
         if (contentOpf != null) {
             val opfContent = zipFile.getInputStream(contentOpf).bufferedReader().readText()
@@ -167,7 +167,7 @@ class EpubReaderService @Inject constructor(
             val publisher = opfDoc.select("metadata publisher").text()
             val isbn = opfDoc.select("metadata identifier[scheme=ISBN]").text()
 
-            return EpubMetadata(
+            return SimpleEpubMetadata(
                 title = title,
                 authors = authors,
                 description = description,
@@ -225,7 +225,7 @@ class EpubReaderService @Inject constructor(
     /**
      * Parse table of contents
      */
-    private fun parseToc(zipFile: ZipFile, manifestItems: Map<String, ManifestItem>): List<TocItem> {
+    private fun parseToc(zipFile: ZipFile, manifestItems: Map<String, ManifestItem>): List<SimpleTocItem> {
         // Find TOC file (usually toc.ncx)
         val tocManifest = manifestItems.values.find {
             it.mediaType == "application/x-dtbncx+xml" || it.href.endsWith("toc.ncx")
@@ -240,7 +240,7 @@ class EpubReaderService @Inject constructor(
                 return tocDoc.select("navMap navPoint").map { navPoint ->
                     val title = navPoint.select("navLabel text").text()
                     val src = navPoint.select("content").attr("src")
-                    TocItem(title, src)
+                    SimpleTocItem(title, src)
                 }
             }
         }
@@ -255,7 +255,7 @@ class EpubReaderService @Inject constructor(
         zipFile: ZipFile,
         spineItems: List<String>,
         manifestItems: Map<String, ManifestItem>,
-        tocItems: List<TocItem>
+        tocItems: List<SimpleTocItem>
     ): List<EpubChapter> {
         val chapters = mutableListOf<EpubChapter>()
         val opfDir = findContentOpf(zipFile)?.name?.substringBeforeLast("/") ?: ""
@@ -364,7 +364,7 @@ class EpubReaderService @Inject constructor(
     /**
      * Extract book metadata
      */
-    fun getBookMetadata(): EpubMetadata? = currentEpub?.metadata
+    fun getBookMetadata(): SimpleEpubMetadata? = currentEpub?.metadata
 
     private fun updateReaderState(
         isLoading: Boolean = _readerState.value.isLoading,
@@ -393,7 +393,7 @@ class EpubReaderService @Inject constructor(
  * Represents an EPUB book
  */
 data class EpubBook(
-    val metadata: EpubMetadata,
+    val metadata: SimpleEpubMetadata,
     val chapters: List<EpubChapter>
 )
 
@@ -409,7 +409,7 @@ data class ManifestItem(
 /**
  * Represents a table of contents item
  */
-data class TocItem(
+data class SimpleTocItem(
     val title: String,
     val src: String
 )
@@ -446,7 +446,7 @@ data class EpubChapter(
 /**
  * Represents EPUB book metadata
  */
-data class EpubMetadata(
+data class SimpleEpubMetadata(
     val title: String,
     val authors: List<String>,
     val description: String,

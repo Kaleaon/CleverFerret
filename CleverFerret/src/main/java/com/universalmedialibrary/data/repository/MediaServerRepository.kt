@@ -52,7 +52,16 @@ class MediaServerRepository @Inject constructor(
     }
     
     suspend fun testJellyfinConnection(server: JellyfinServer): Result<String> {
-        return jellyfinClient.authenticate(server.url, server.username, server.password)
+        return try {
+            // Test connection using the API key if available
+            if (server.apiKey != null) {
+                jellyfinClient.authenticate(server.url, server.apiKey!!)
+            } else {
+                Result.failure(Exception("API key is required for Jellyfin authentication"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     
     // Plex Operations
