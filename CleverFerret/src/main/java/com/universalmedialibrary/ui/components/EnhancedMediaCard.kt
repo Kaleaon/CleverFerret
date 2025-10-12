@@ -381,10 +381,8 @@ private fun getIconForMediaType(mediaType: String): androidx.compose.ui.graphics
 
 private fun formatFileSize(bytes: Long): String {
     if (bytes <= 0) return "0 B"
-```suggestion
-private fun formatFileSize(bytes: Long): String {
-    if (bytes <= 0L) return "0 B"
-    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt()
+    val units = arrayOf("B", "KB", "MB", "GB", "TB")
+    val digitGroups = (log10(bytes.toDouble()) / log10(1024.0)).toInt().coerceIn(0, units.lastIndex)
     return String.format(
         java.util.Locale.US,
         "%.1f %s",

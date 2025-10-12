@@ -59,8 +59,11 @@ fun PresetBrowserScreen(
                     IconButton(onClick = { showImportDialog = true }) {
                         Icon(Icons.Default.Download, "Import Preset")
                     }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Info, "Help")
+                    IconButton(
+                        onClick = { },
+                        enabled = false
+                    ) {
+                        Icon(Icons.Default.Info, "Help (not available)")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

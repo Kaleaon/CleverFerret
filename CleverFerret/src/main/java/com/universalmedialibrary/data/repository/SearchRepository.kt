@@ -176,15 +176,15 @@ class SearchRepository @Inject constructor(
     /**
      * Get recent searches (would typically be stored in preferences or database)
      */
-    suspend fun getRecentSearches(): List<String> = withContext(Dispatchers.IO) {
+    fun getRecentSearches(): List<String> {
         // Not yet implemented - returns empty list
-        emptyList()
+        return emptyList()
     }
 
     /**
      * Save a search query to recent searches
      */
-    suspend fun saveRecentSearch(query: String) = withContext(Dispatchers.IO) {
+    fun saveRecentSearch(query: String) {
         // Not yet implemented
     }
 }
