@@ -58,7 +58,7 @@ class AudiobookPlayerWidget : AppWidgetProvider() {
             val playbackState = queueManager?.playbackState?.value
             
             views.setTextViewText(R.id.widget_book_title, currentItem?.title ?: "No Audiobook Playing")
-            views.setTextViewText(R.id.widget_author, currentItem?.subtitle ?: "")
+            views.setTextViewText(R.id.widget_author, currentItem?.artist ?: "")
             views.setTextViewText(R.id.widget_chapter, if (currentItem != null) "Playing" else "")
             views.setTextViewText(R.id.widget_playback_speed, "${playbackState?.playbackSpeed ?: 1.0f}x")
             

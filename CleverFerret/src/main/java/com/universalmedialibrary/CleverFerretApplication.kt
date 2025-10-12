@@ -77,7 +77,7 @@ class CleverFerretApplication : Application() {
                     // Request backup restoration dialog to be shown in MainActivity
                     backupRestorationManager.requestRestoration(
                         backupPath = status.backupPath,
-                        errorMessage = status.error
+                        errorMessage = status.error ?: "Unknown upgrade error"
                     )
                 }
                 

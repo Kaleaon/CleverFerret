@@ -29,6 +29,9 @@ interface MediaItemDao {
 
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountForLibrary(libraryId: Long): Int
+    
+    @Query("SELECT COUNT(*) FROM media_items")
+    suspend fun getMediaItemCount(): Int
 
     // Additional methods needed by MediaRepository
     @Query("SELECT * FROM media_items WHERE libraryId = :libraryId ORDER BY dateAdded DESC")

@@ -76,6 +76,10 @@ class MediaLibraryViewModel @Inject constructor(
                     MediaCategory.COMICS -> "COMIC"
                     MediaCategory.PODCASTS -> "PODCAST"
                     MediaCategory.RADIO -> "RADIO_STATION"
+                    MediaCategory.EBOOKS -> "BOOK"
+                    MediaCategory.MAGAZINES -> "MAGAZINE"
+                    MediaCategory.NEWS -> "NEWS"
+                    MediaCategory.FANFICTION -> "FANFICTION"
                 }
                 
                 // Load items from database

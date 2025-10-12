@@ -239,7 +239,8 @@ fun AppNavigation() {
             if (itemId > 0) {
                 com.universalmedialibrary.ui.metadata.MetadataEditorScreen(
                     itemId = itemId,
-                    onNavigateBack = { navController.navigateUp() }
+                    onSave = { navController.navigateUp() },
+                    onCancel = { navController.navigateUp() }
                 )
             } else {
                 Text("Invalid media item")

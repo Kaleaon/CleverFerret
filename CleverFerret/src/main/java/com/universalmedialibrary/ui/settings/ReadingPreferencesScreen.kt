@@ -332,8 +332,8 @@ private fun SwitchPreference(
 
 @HiltViewModel
 class ReadingPreferencesViewModel @Inject constructor(
-    private val preferencesStore: ReadiumPreferencesStore,
-    private val backupService: UserLibraryBackupService
+    private val preferencesStore: ReadiumPreferencesStore
+    // private val backupService: UserLibraryBackupService // Disabled - not currently operational
 ) : ViewModel() {
 
     val epubPreferences = preferencesStore.epubPreferences
@@ -450,7 +450,9 @@ class ReadingPreferencesViewModel @Inject constructor(
     // Backup/Restore
     fun createBackup() {
         viewModelScope.launch {
-            val path = backupService.createAutomaticBackup()
+            // TODO: Re-enable when backup service is operational
+            // val path = backupService.createAutomaticBackup()
+            Log.w("ReadingPreferencesViewModel", "Backup service currently disabled")
             // TODO: Show toast/snackbar with result
         }
     }

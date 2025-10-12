@@ -58,7 +58,7 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             val playbackState = queueManager?.playbackState?.value
             
             views.setTextViewText(R.id.widget_podcast_title, currentItem?.title ?: "No Podcast Playing")
-            views.setTextViewText(R.id.widget_episode_title, currentItem?.subtitle ?: "")
+            views.setTextViewText(R.id.widget_episode_title, currentItem?.artist ?: "")
             
             val durationText = if (playbackState != null && playbackState.duration > 0) {
                 "${formatTime(playbackState.currentPositionMs)} / ${formatTime(playbackState.duration)}"
@@ -122,7 +122,6 @@ class PodcastPlayerWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         }
-    }
 
         private fun formatTime(millis: Long): String {
             val totalSeconds = millis / 1000
@@ -130,7 +129,7 @@ class PodcastPlayerWidget : AppWidgetProvider() {
             val seconds = totalSeconds % 60
             return "%d:%02d".format(minutes, seconds)
         }
-    }
+    } // end companion object
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)

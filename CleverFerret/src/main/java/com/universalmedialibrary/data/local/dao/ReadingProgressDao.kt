@@ -29,4 +29,7 @@ interface ReadingProgressDao {
 
     @Query("SELECT * FROM reading_progress WHERE itemId IN (:itemIds)")
     fun getProgressForItems(itemIds: List<Long>): Flow<List<ReadingProgress>>
+    
+    @Query("SELECT COUNT(*) FROM reading_progress")
+    suspend fun getProgressCount(): Int
 }
