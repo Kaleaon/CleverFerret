@@ -179,7 +179,7 @@ class EpubReaderService @Inject constructor(
             )
         }
 
-        return EpubMetadata(
+        return SimpleEpubMetadata(
             title = "Unknown Title",
             authors = emptyList(),
             description = "",

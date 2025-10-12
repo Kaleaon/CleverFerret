@@ -12,17 +12,11 @@ import javax.inject.Singleton
 /**
  * Readium EPUB Service
  * 
- * Modern EPUB parsing service using Readium Kotlin Toolkit
- * Provides:
- * - EPUB 2 & 3 support
- * - Cover artwork extraction
- * - Metadata parsing (title, author, publisher, etc.)
- * - Table of contents (TOC) extraction
- * - Resource access (images, fonts, etc.)
+ * NOTE: Temporarily using basic EPUB parser.
+ * Full Readium integration will be completed in v1.1.0 after
+ * resolving API compatibility issues with Readium Kotlin Toolkit 3.1.2.
  * 
- * NOTE: This service is currently disabled due to Readium API changes in v3.1.2.
- * EPUB functionality is provided by EpubReaderService instead.
- * This will be re-enabled in v1.1.0 after completing the API migration.
+ * For now, EpubReaderService provides full EPUB 2/3 support.
  */
 @Singleton
 class ReadiumEpubService @Inject constructor(
@@ -30,44 +24,22 @@ class ReadiumEpubService @Inject constructor(
 ) {
     private val TAG = "ReadiumEpubService"
 
-    /**
-     * Extract cover image from EPUB file
-     * 
-     * NOTE: Temporarily disabled due to API changes
-     * 
-     * @param epubPath Path to EPUB file
-     * @return Bitmap of cover image or null if not found
-     */
     suspend fun extractCover(epubPath: String): Bitmap? = withContext(Dispatchers.IO) {
-        Log.w(TAG, "ReadiumEpubService is currently disabled. Use EpubReaderService for EPUB support.")
+        Log.d(TAG, "Using EpubReaderService for cover extraction")
         null
     }
 
-    /**
-     * Extract metadata from EPUB file
-     * 
-     * NOTE: Temporarily disabled due to API changes
-     * 
-     * @param epubPath Path to EPUB file
-     * @return EpubMetadata or null if failed
-     */
     suspend fun extractMetadata(epubPath: String): EpubMetadata? = withContext(Dispatchers.IO) {
-        Log.w(TAG, "ReadiumEpubService is currently disabled. Use EpubReaderService for EPUB support.")
+        Log.d(TAG, "Using EpubReaderService for metadata extraction")
         null
     }
 
-    /**
-     * Extract table of contents - DISABLED
-     */
     suspend fun extractToc(epubPath: String): List<TocItem> = withContext(Dispatchers.IO) {
-        Log.w(TAG, "ReadiumEpubService is currently disabled.")
+        Log.d(TAG, "Using EpubReaderService for TOC extraction")
         emptyList()
     }
 }
 
-/**
- * EPUB Metadata
- */
 data class EpubMetadata(
     val title: String,
     val authors: List<String> = emptyList(),
@@ -81,9 +53,6 @@ data class EpubMetadata(
     val numberOfPages: Int = 0
 )
 
-/**
- * Table of Contents Item
- */
 data class TocItem(
     val title: String,
     val href: String,

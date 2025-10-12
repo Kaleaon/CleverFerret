@@ -1,0 +1,53 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources NO-SOURCE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :CleverFerret:clean
+> Task :CleverFerret:preBuild UP-TO-DATE
+> Task :CleverFerret:preDebugBuild UP-TO-DATE
+> Task :CleverFerret:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :CleverFerret:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :CleverFerret:checkDebugAarMetadata
+> Task :CleverFerret:processDebugNavigationResources FROM-CACHE
+> Task :CleverFerret:compileDebugNavigationResources FROM-CACHE
+> Task :CleverFerret:generateDebugResValues FROM-CACHE
+> Task :CleverFerret:mapDebugSourceSetPaths
+> Task :CleverFerret:generateDebugResources FROM-CACHE
+> Task :CleverFerret:mergeDebugResources FROM-CACHE
+> Task :CleverFerret:packageDebugResources FROM-CACHE
+> Task :CleverFerret:parseDebugLocalResources FROM-CACHE
+> Task :CleverFerret:createDebugCompatibleScreenManifests
+> Task :CleverFerret:extractDeepLinksDebug FROM-CACHE
+> Task :CleverFerret:processDebugMainManifest FROM-CACHE
+> Task :CleverFerret:processDebugManifest FROM-CACHE
+> Task :CleverFerret:processDebugManifestForPackage FROM-CACHE
+> Task :CleverFerret:processDebugResources FROM-CACHE
+> Task :CleverFerret:javaPreCompileDebug FROM-CACHE
+> Task :CleverFerret:mergeDebugShaders
+> Task :CleverFerret:compileDebugShaders NO-SOURCE
+> Task :CleverFerret:generateDebugAssets UP-TO-DATE
+> Task :CleverFerret:mergeDebugAssets
+> Task :CleverFerret:compressDebugAssets FROM-CACHE
+> Task :CleverFerret:l8DexDesugarLibDebug FROM-CACHE
+> Task :CleverFerret:desugarDebugFileDependencies FROM-CACHE
+> Task :CleverFerret:mergeDebugJniLibFolders
+> Task :CleverFerret:checkDebugDuplicateClasses
+> Task :CleverFerret:mergeDebugNativeLibs
+> Task :CleverFerret:mergeExtDexDebug FROM-CACHE
+> Task :CleverFerret:mergeLibDexDebug FROM-CACHE
+
+> Task :CleverFerret:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so. Run with --info option to learn more.
+
+> Task :CleverFerret:validateSigningDebug
+> Task :CleverFerret:writeDebugAppMetadata
+> Task :CleverFerret:writeDebugSigningConfigVersions
+> Task :CleverFerret:kspDebugKotlin
+w: [ksp] /workspace/CleverFerret/src/main/java/com/universalmedialibrary/data/local/dao/UnifiedTagDao.kt:182: The query returns some columns [itemCount] which are not used by com.universalmedialibrary.`data`.local.entity.UnifiedTag. You can use @ColumnInfo annotation on the properties to specify the mapping. You can annotate the function with @RewriteQueriesToDropUnusedColumns to direct Room to rewrite your query to avoid fetching unused columns.  You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: tagId, name, type, color, description, createdAt, lastUsed, usageCount, externalId, itemCount.

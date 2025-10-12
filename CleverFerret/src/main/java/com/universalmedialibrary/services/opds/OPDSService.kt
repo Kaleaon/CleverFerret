@@ -7,10 +7,12 @@ import com.universalmedialibrary.data.local.entity.OPDSCatalog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.readium.r2.opds.*
-import org.readium.r2.shared.publication.*
-import org.readium.r2.shared.util.http.DefaultHttpClient
+import kotlinx.coroutines.flow.Flow
+import org.readium.r2.opds.OPDS1Parser
+import org.readium.r2.opds.OPDS2Parser
 import org.readium.r2.shared.util.Try
+import org.readium.r2.shared.util.http.DefaultHttpClient
+import org.readium.r2.shared.util.http.HttpRequest
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,383 +44,234 @@ class OPDSService @Inject constructor(
 ) {
     private val TAG = "OPDSService"
     
-    // Readium OPDS parser
-    private val httpClient = DefaultHttpClient()
-    private val opdsParser = OPDS1Parser()
-    private val opds2Parser = OPDS2Parser()
+    // Readium OPDS parser and HTTP client
+    private val httpClient by lazy { DefaultHttpClient() }
+    private val opds1Parser by lazy { OPDS1Parser() }
+    private val opds2Parser by lazy { OPDS2Parser() }
 
     /**
-     * Initialize default OPDS catalogs
-     * Called on first app launch
-     */
-    suspend fun initializeDefaultCatalogs() = withContext(Dispatchers.IO) {
-        try {
-            val existingCount = catalogDao.getCatalogCount()
-            if (existingCount > 0) {
-                Log.d(TAG, "Default catalogs already initialized")
-                return@withContext
-            }
-
-            val defaultCatalogs = getDefaultCatalogs()
-            catalogDao.insertCatalogs(defaultCatalogs)
-            
-            Log.i(TAG, "✅ Initialized ${defaultCatalogs.size} default OPDS catalogs")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize default catalogs: ${e.message}", e)
-        }
-    }
-
-    /**
-     * Get default OPDS catalogs
-     */
-    private fun getDefaultCatalogs(): List<OPDSCatalog> {
-        return listOf(
-            // Project Gutenberg - 70,000+ free books
-            OPDSCatalog(
-                name = "Project Gutenberg",
-                url = "https://m.gutenberg.org/ebooks.opds/",
-                description = "70,000+ free ebooks from Project Gutenberg",
-                iconUrl = "https://www.gutenberg.org/gutenberg/favicon.ico",
-                isDefault = true,
-                opdsVersion = "1.2",
-                searchUrl = "https://m.gutenberg.org/ebooks.opds/?query={searchTerms}"
-            ),
-            
-            // Internet Archive - Millions of items
-            OPDSCatalog(
-                name = "Internet Archive",
-                url = "https://bookserver.archive.org/catalog/",
-                description = "20+ million free books, movies, music from Internet Archive",
-                iconUrl = "https://archive.org/favicon.ico",
-                isDefault = true,
-                opdsVersion = "1.2"
-            ),
-            
-            // Standard Ebooks - High-quality public domain
-            OPDSCatalog(
-                name = "Standard Ebooks",
-                url = "https://standardebooks.org/opds",
-                description = "High-quality, carefully formatted public domain ebooks",
-                iconUrl = "https://standardebooks.org/images/logo.svg",
-                isDefault = true,
-                opdsVersion = "1.2",
-                searchUrl = "https://standardebooks.org/opds/search?query={searchTerms}"
-            ),
-            
-            // Feedbooks - Public domain + original fiction
-            OPDSCatalog(
-                name = "Feedbooks",
-                url = "https://catalog.feedbooks.com/catalog/public_domain.atom",
-                description = "50,000+ public domain books in multiple languages",
-                iconUrl = "https://www.feedbooks.com/favicon.ico",
-                isDefault = true,
-                opdsVersion = "1.2"
-            ),
-            
-            // OPDS Test Catalog (for development)
-            OPDSCatalog(
-                name = "Readium Test Catalog",
-                url = "https://test.opds.io/2.0/home.json",
-                description = "Readium OPDS test catalog for testing",
-                iconUrl = null,
-                isDefault = true,
-                opdsVersion = "2.0"
-            )
-        )
-    }
-
-    /**
-     * Fetch OPDS feed from catalog
+     * Browse an OPDS catalog
      * 
-     * @param catalog OPDS catalog to fetch from
-     * @return OPDSFeedResult containing publications
+     * @param catalogUrl URL of the OPDS feed
+     * @return Result containing OPDSFeed or error
      */
-    suspend fun fetchFeed(catalog: OPDSCatalog): OPDSFeedResult = withContext(Dispatchers.IO) {
+    suspend fun browseCatalog(catalogUrl: String): Result<OPDSFeed> = withContext(Dispatchers.IO) {
         try {
-            // Update access time
-            catalogDao.updateAccessTime(catalog.id)
+            Log.d(TAG, "Browsing catalog: $catalogUrl")
             
-            // Fetch feed based on OPDS version
-            val result = when (catalog.opdsVersion) {
-                "2.0" -> fetchOPDS2Feed(catalog.url)
-                else -> fetchOPDS1Feed(catalog.url)
+            // Fetch the feed
+            val url = org.readium.r2.shared.util.Url(catalogUrl) ?: run {
+                return@withContext Result.failure(Exception("Invalid URL: $catalogUrl"))
             }
             
-            // Log result safely
-            when (result) {
-                is OPDSFeedResult.Success -> {
-                    Log.d(TAG, "✅ Fetched feed from ${catalog.name}: ${result.publications.size} items")
+            val request = HttpRequest(url)
+            val response = httpClient.fetch(request)
+            
+            when (response) {
+                is Try.Success -> {
+                    val httpResponse = response.value
+                    val body = httpResponse.body
+                    
+                    when (body) {
+                        is Try.Success -> {
+                            val feedData = body.value
+                            
+                            // Try OPDS 2 first, then OPDS 1
+                            val feed = tryParseOPDS2(feedData) ?: tryParseOPDS1(feedData)
+                            
+                            if (feed != null) {
+                                Result.success(feed)
+                            } else {
+                                Result.failure(Exception("Failed to parse OPDS feed"))
+                            }
+                        }
+                        is Try.Failure -> {
+                            Log.e(TAG, "Failed to read response body: ${body.value}")
+                            Result.failure(Exception("Failed to read feed: ${body.value}"))
+                        }
+                    }
                 }
-                is OPDSFeedResult.Error -> {
-                    Log.e(TAG, "❌ Failed to fetch feed from ${catalog.name}: ${result.message}")
+                is Try.Failure -> {
+                    Log.e(TAG, "HTTP request failed: ${response.value}")
+                    Result.failure(Exception("Failed to fetch feed: ${response.value}"))
                 }
             }
-            
-            result
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to fetch feed from ${catalog.name}: ${e.message}", e)
-            OPDSFeedResult.Error(e.message ?: "Unknown error")
+            Log.e(TAG, "Error browsing catalog: ${e.message}", e)
+            Result.failure(e)
         }
     }
 
     /**
-     * Fetch OPDS 1.2 feed (Atom-based)
+     * Search a catalog
+     * 
+     * @param catalogUrl Base catalog URL
+     * @param query Search query
+     * @return Result containing search results
      */
-    private suspend fun fetchOPDS1Feed(url: String): OPDSFeedResult {
+    suspend fun searchCatalog(catalogUrl: String, query: String): Result<OPDSFeed> = withContext(Dispatchers.IO) {
+        try {
+            // Most OPDS feeds use a search template, but for simplicity we'll append query params
+            val searchUrl = if (catalogUrl.contains("?")) {
+                "$catalogUrl&q=$query"
+            } else {
+                "$catalogUrl?q=$query"
+            }
+            
+            browseCatalog(searchUrl)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error searching catalog: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    private fun tryParseOPDS2(data: ByteArray): OPDSFeed? {
         return try {
-            // Fetch feed XML
-            val response = httpClient.get(url)
-            if (response !is Try.Success) {
-                return OPDSFeedResult.Error("Failed to fetch feed")
-            }
-            
-            val xmlData = response.value.body
-            val feed = opdsParser.parse(xmlData, url)
-            
-            if (feed !is Try.Success) {
-                return OPDSFeedResult.Error("Failed to parse OPDS 1.2 feed")
-            }
-            
-            // Extract publications
-            val publications = feed.value.publications.map { pub ->
-                OPDSPublication(
-                    title = pub.metadata.title ?: "Unknown",
-                    authors = pub.metadata.authors.map { it.name },
-                    identifier = pub.metadata.identifier,
-                    publisher = pub.metadata.publisher?.name,
-                    description = pub.metadata.description,
-                    language = pub.metadata.languages.firstOrNull(),
-                    publishedDate = pub.metadata.published?.toString(),
-                    coverUrl = pub.images.firstOrNull()?.href?.toString(),
-                    downloadLinks = pub.links.filter { it.rels.contains("http://opds-spec.org/acquisition") }
-                        .map { link ->
-                            DownloadLink(
-                                url = link.href.toString(),
-                                type = link.type ?: "application/epub+zip",
-                                title = link.title
+            val parseResult = opds2Parser.parse(data, null)
+            when (parseResult) {
+                is Try.Success -> {
+                    val feed = parseResult.value
+                    OPDSFeed(
+                        title = feed.metadata.title ?: "Catalog",
+                        entries = feed.publications.map { pub ->
+                            OPDSEntry(
+                                title = pub.metadata.title ?: "Unknown",
+                                authors = pub.metadata.authors.map { it.name.orEmpty() },
+                                summary = pub.metadata.description,
+                                published = pub.metadata.published?.toString(),
+                                updated = pub.metadata.modified?.toString(),
+                                language = pub.metadata.languages.firstOrNull()?.code,
+                                coverUrl = pub.images.firstOrNull()?.url()?.toString(),
+                                acquisitionLinks = pub.links
+                                    .filter { it.rels.contains("http://opds-spec.org/acquisition") }
+                                    .map { link ->
+                                        OPDSLink(
+                                            href = link.url().toString(),
+                                            title = link.title,
+                                            rel = link.rels
+                                        )
+                                    }
                             )
                         },
-                    navigationLinks = pub.links.filter { !it.rels.contains("http://opds-spec.org/acquisition") }
-                        .map { link ->
-                            NavigationLink(
-                                url = link.href.toString(),
-                                title = link.title ?: "Link",
-                                rel = link.rels.firstOrNull() ?: ""
+                        navigation = feed.navigation.map { link ->
+                            OPDSLink(
+                                href = link.url().toString(),
+                                title = link.title,
+                                rel = link.rels
                             )
                         }
-                )
+                    )
+                }
+                is Try.Failure -> null
             }
-            
-            // Extract navigation links from feed
-            val navigation = feed.value.navigation.map { link ->
-                NavigationLink(
-                    url = link.href.toString(),
-                    title = link.title ?: "Link",
-                    rel = link.rels.firstOrNull() ?: ""
-                )
-            }
-            
-            OPDSFeedResult.Success(
-                title = feed.value.metadata.title ?: "Catalog",
-                publications = publications,
-                navigation = navigation
-            )
         } catch (e: Exception) {
-            Log.e(TAG, "Error parsing OPDS 1.2 feed: ${e.message}", e)
-            OPDSFeedResult.Error(e.message ?: "Parse error")
+            Log.d(TAG, "Not an OPDS 2 feed: ${e.message}")
+            null
         }
     }
 
-    /**
-     * Fetch OPDS 2.0 feed (JSON-based)
-     */
-    private suspend fun fetchOPDS2Feed(url: String): OPDSFeedResult {
+    private fun tryParseOPDS1(data: ByteArray): OPDSFeed? {
         return try {
-            // Fetch feed JSON
-            val response = httpClient.get(url)
-            if (response !is Try.Success) {
-                return OPDSFeedResult.Error("Failed to fetch feed")
-            }
-            
-            val jsonData = response.value.body
-            val feed = opds2Parser.parse(jsonData, url)
-            
-            if (feed !is Try.Success) {
-                return OPDSFeedResult.Error("Failed to parse OPDS 2.0 feed")
-            }
-            
-            // Similar processing as OPDS 1.2
-            val publications = feed.value.publications.map { pub ->
-                OPDSPublication(
-                    title = pub.metadata.title ?: "Unknown",
-                    authors = pub.metadata.authors.map { it.name },
-                    identifier = pub.metadata.identifier,
-                    publisher = pub.metadata.publisher?.name,
-                    description = pub.metadata.description,
-                    language = pub.metadata.languages.firstOrNull(),
-                    publishedDate = pub.metadata.published?.toString(),
-                    coverUrl = pub.images.firstOrNull()?.href?.toString(),
-                    downloadLinks = pub.links.filter { it.rels.contains("http://opds-spec.org/acquisition") }
-                        .map { link ->
-                            DownloadLink(
-                                url = link.href.toString(),
-                                type = link.type ?: "application/epub+zip",
-                                title = link.title
+            val parseResult = opds1Parser.parse(data, null)
+            when (parseResult) {
+                is Try.Success -> {
+                    val feed = parseResult.value
+                    OPDSFeed(
+                        title = feed.metadata.title ?: "Catalog",
+                        entries = feed.publications.map { pub ->
+                            OPDSEntry(
+                                title = pub.metadata.title ?: "Unknown",
+                                authors = pub.metadata.authors.map { it.name.orEmpty() },
+                                summary = pub.metadata.description,
+                                published = pub.metadata.published?.toString(),
+                                updated = pub.metadata.modified?.toString(),
+                                language = pub.metadata.languages.firstOrNull()?.code,
+                                coverUrl = pub.images.firstOrNull()?.url()?.toString(),
+                                acquisitionLinks = pub.links
+                                    .filter { it.rels.any { rel -> rel.contains("acquisition") } }
+                                    .map { link ->
+                                        OPDSLink(
+                                            href = link.url().toString(),
+                                            title = link.title,
+                                            rel = link.rels
+                                        )
+                                    }
                             )
                         },
-                    navigationLinks = emptyList()
-                )
+                        navigation = feed.navigation.map { link ->
+                            OPDSLink(
+                                href = link.url().toString(),
+                                title = link.title,
+                                rel = link.rels
+                            )
+                        }
+                    )
+                }
+                is Try.Failure -> null
             }
-            
-            OPDSFeedResult.Success(
-                title = feed.value.metadata.title ?: "Catalog",
-                publications = publications,
-                navigation = emptyList()
-            )
         } catch (e: Exception) {
-            Log.e(TAG, "Error parsing OPDS 2.0 feed: ${e.message}", e)
-            OPDSFeedResult.Error(e.message ?: "Parse error")
-        }
-    }
-
-    /**
-     * Search OPDS catalog
-     * 
-     * @param catalog Catalog to search
-     * @param query Search query
-     * @return Search results
-     */
-    suspend fun searchCatalog(catalog: OPDSCatalog, query: String): OPDSFeedResult {
-        if (catalog.searchUrl == null) {
-            return OPDSFeedResult.Error("Catalog does not support search")
-        }
-        
-        // Build search URL
-        val searchUrl = catalog.searchUrl.replace("{searchTerms}", query)
-        
-        // Fetch search results
-        return when (catalog.opdsVersion) {
-            "2.0" -> fetchOPDS2Feed(searchUrl)
-            else -> fetchOPDS1Feed(searchUrl)
-        }
-    }
-
-    /**
-     * Add custom OPDS catalog
-     * 
-     * @param name Catalog name
-     * @param url Catalog URL
-     * @param username Optional auth username
-     * @param password Optional auth password
-     * @return Catalog ID or null if failed
-     */
-    suspend fun addCustomCatalog(
-        name: String,
-        url: String,
-        username: String? = null,
-        password: String? = null
-    ): Long? = withContext(Dispatchers.IO) {
-        try {
-            // Validate URL by attempting to fetch - try both versions
-            val testResult1 = fetchOPDS1Feed(url)
-            val testResult = if (testResult1 is OPDSFeedResult.Error) {
-                fetchOPDS2Feed(url)
-            } else {
-                testResult1
-            }
-            
-            if (testResult is OPDSFeedResult.Error) {
-                Log.w(TAG, "Failed to validate catalog URL: ${testResult.message}")
-                return@withContext null
-            }
-            
-            // Detect OPDS version from successful probe
-            val opdsVersion = when (testResult) {
-                is OPDSFeedResult.Success -> if (testResult1 is OPDSFeedResult.Success) "1.2" else "2.0"
-                else -> "1.2"
-            }
-            
-            // Create catalog
-            val catalog = OPDSCatalog(
-                name = name,
-                url = url,
-                username = username,
-                password = password,
-                isDefault = false,
-                opdsVersion = opdsVersion
-            )
-            
-            val id = catalogDao.insertCatalog(catalog)
-            Log.i(TAG, "✅ Added custom catalog: $name (ID: $id)")
-            id
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to add custom catalog: ${e.message}", e)
+            Log.d(TAG, "Not an OPDS 1 feed: ${e.message}")
             null
         }
     }
 
     /**
-     * Remove catalog
+     * Get all saved catalogs from database
      */
-    suspend fun removeCatalog(catalog: OPDSCatalog): Boolean {
-        return try {
-            if (catalog.isDefault) {
-                Log.w(TAG, "Cannot remove default catalog: ${catalog.name}")
-                return false
-            }
-            catalogDao.deleteCatalog(catalog)
-            Log.i(TAG, "✅ Removed catalog: ${catalog.name}")
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to remove catalog: ${e.message}", e)
-            false
-        }
+    fun getAllCatalogs(): Flow<List<OPDSCatalog>> {
+        return catalogDao.getAllCatalogs()
+    }
+
+    /**
+     * Add a new catalog
+     */
+    suspend fun addCatalog(catalog: OPDSCatalog): Long {
+        return catalogDao.insert(catalog)
+    }
+
+    /**
+     * Delete a catalog
+     */
+    suspend fun deleteCatalog(catalog: OPDSCatalog) {
+        catalogDao.delete(catalog)
+    }
+
+    /**
+     * Update catalog last accessed time
+     */
+    suspend fun updateLastAccessed(catalogId: Long, timestamp: Long) {
+        catalogDao.updateLastAccessed(catalogId, timestamp)
     }
 }
 
 /**
- * OPDS Feed Result
+ * OPDS Feed representation
  */
-sealed class OPDSFeedResult {
-    data class Success(
-        val title: String,
-        val publications: List<OPDSPublication>,
-        val navigation: List<NavigationLink>
-    ) : OPDSFeedResult()
-    
-    data class Error(val message: String) : OPDSFeedResult()
-}
+data class OPDSFeed(
+    val title: String,
+    val entries: List<OPDSEntry> = emptyList(),
+    val navigation: List<OPDSLink> = emptyList()
+)
 
 /**
- * OPDS Publication
+ * OPDS Entry (book or collection)
  */
-data class OPDSPublication(
+data class OPDSEntry(
     val title: String,
     val authors: List<String> = emptyList(),
-    val identifier: String? = null,
-    val publisher: String? = null,
-    val description: String? = null,
+    val summary: String? = null,
+    val published: String? = null,
+    val updated: String? = null,
     val language: String? = null,
-    val publishedDate: String? = null,
     val coverUrl: String? = null,
-    val downloadLinks: List<DownloadLink> = emptyList(),
-    val navigationLinks: List<NavigationLink> = emptyList()
+    val acquisitionLinks: List<OPDSLink> = emptyList()
 )
 
 /**
- * Download Link
+ * OPDS Link
  */
-data class DownloadLink(
-    val url: String,
-    val type: String,
-    val title: String? = null
-)
-
-/**
- * Navigation Link
- */
-data class NavigationLink(
-    val url: String,
-    val title: String,
-    val rel: String
+data class OPDSLink(
+    val href: String,
+    val title: String? = null,
+    val rel: List<String> = emptyList()
 )
