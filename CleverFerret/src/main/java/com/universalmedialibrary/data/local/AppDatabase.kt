@@ -104,10 +104,19 @@ import com.universalmedialibrary.data.Tag
         ItemTag::class,
 
         // Simple tagging
-        Tag::class
+        Tag::class,
+
+        // Comic panel detection and translation
+        ComicPanelData::class,
+        ComicTranslation::class,
+        ComicReadingSession::class,
+
+        // OPDS catalog support
+        OPDSCatalog::class,
+        OPDSDownload::class
 
     ],
-    version = 22, // Incremented for Plex entities and reader enhancements
+    version = 24, // Incremented for OPDS catalog support
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -161,6 +170,12 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Unified Tag DAO
     abstract fun unifiedTagDao(): UnifiedTagDao
+    
+    // Comic Panel DAO
+    abstract fun comicPanelDao(): ComicPanelDao
+    
+    // OPDS Catalog DAO
+    abstract fun opdsCatalogDao(): OPDSCatalogDao
 
 
     companion object {
@@ -176,7 +191,12 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .addMigrations(AppDatabaseMigrations.MIGRATION_20_21)
+                .addMigrations(
+                    AppDatabaseMigrations.MIGRATION_20_21,
+                    AppDatabaseMigrations.MIGRATION_21_22,
+                    AppDatabaseMigrations.MIGRATION_22_23,
+                    AppDatabaseMigrations.MIGRATION_23_24
+                )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
                 INSTANCE = instance

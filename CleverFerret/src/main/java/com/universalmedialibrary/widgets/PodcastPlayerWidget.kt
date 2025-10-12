@@ -8,12 +8,26 @@ import android.content.Intent
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
 import com.universalmedialibrary.MainActivity
+import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Podcast Player Widget
  * Shows currently playing podcast episode with controls
  */
+@AndroidEntryPoint
 class PodcastPlayerWidget : AppWidgetProvider() {
+
+    @Inject
+    lateinit var queueManager: UnifiedPlaybackQueueManager
+
+    private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onUpdate(
         context: Context,
@@ -21,7 +35,7 @@ class PodcastPlayerWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            updateAppWidget(context, appWidgetManager, appWidgetId, queueManager)
         }
     }
 
@@ -34,16 +48,30 @@ class PodcastPlayerWidget : AppWidgetProvider() {
         fun updateAppWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetId: Int
+            appWidgetId: Int,
+            queueManager: UnifiedPlaybackQueueManager? = null
         ) {
             val views = RemoteViews(context.packageName, R.layout.widget_podcast_player)
 
-            // Sample data
-            views.setTextViewText(R.id.widget_podcast_title, "Podcast Name")
-            views.setTextViewText(R.id.widget_episode_title, "Episode Title")
-            views.setTextViewText(R.id.widget_episode_duration, "45:30 / 1:15:00")
-            views.setTextViewText(R.id.widget_playback_speed, "1.0x")
-            views.setProgressBar(R.id.widget_progress, 100, 60, false)
+            // Get current playback state
+            val currentItem = queueManager?.currentItem?.value
+            val playbackState = queueManager?.playbackState?.value
+            
+            views.setTextViewText(R.id.widget_podcast_title, currentItem?.title ?: "No Podcast Playing")
+            views.setTextViewText(R.id.widget_episode_title, currentItem?.subtitle ?: "")
+            
+            val durationText = if (playbackState != null && playbackState.duration > 0) {
+                "${formatTime(playbackState.currentPositionMs)} / ${formatTime(playbackState.duration)}"
+            } else {
+                "--:-- / --:--"
+            }
+            views.setTextViewText(R.id.widget_episode_duration, durationText)
+            views.setTextViewText(R.id.widget_playback_speed, "${playbackState?.playbackSpeed ?: 1.0f}x")
+            
+            val progress = if (playbackState != null && playbackState.duration > 0) {
+                ((playbackState.currentPositionMs.toFloat() / playbackState.duration) * 100).toInt()
+            } else 0
+            views.setProgressBar(R.id.widget_progress, 100, progress, false)
 
             // Set up button intents
             views.setOnClickPendingIntent(
@@ -96,21 +124,67 @@ class PodcastPlayerWidget : AppWidgetProvider() {
         }
     }
 
+        private fun formatTime(millis: Long): String {
+            val totalSeconds = millis / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
+            return "%d:%02d".format(minutes, seconds)
+        }
+    }
+
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        when (intent.action) {
-            ACTION_PLAY_PAUSE -> {
-                // Handle play/pause
-            }
-            ACTION_REWIND -> {
-                // Rewind 10 seconds
-            }
-            ACTION_FORWARD -> {
-                // Forward 30 seconds
-            }
-            ACTION_SPEED -> {
-                // Cycle playback speed
+        widgetScope.launch {
+            when (intent.action) {
+                ACTION_PLAY_PAUSE -> {
+                    val playbackState = queueManager.playbackState.value
+                    if (playbackState.isPlaying) {
+                        queueManager.pause()
+                    } else {
+                        queueManager.play()
+                    }
+                    updateAllWidgets(context)
+                }
+                ACTION_REWIND -> {
+                    // Rewind 10 seconds
+                    val currentPos = queueManager.playbackState.value.currentPositionMs
+                    queueManager.seekTo(maxOf(0, currentPos - 10000))
+                    updateAllWidgets(context)
+                }
+                ACTION_FORWARD -> {
+                    // Forward 30 seconds
+                    val currentPos = queueManager.playbackState.value.currentPositionMs
+                    val duration = queueManager.playbackState.value.duration
+                    queueManager.seekTo(minOf(duration, currentPos + 30000))
+                    updateAllWidgets(context)
+                }
+                ACTION_SPEED -> {
+                    // Cycle playback speed: 1.0x -> 1.25x -> 1.5x -> 2.0x -> 1.0x
+                    val currentSpeed = queueManager.playbackState.value.playbackSpeed
+                    val newSpeed = when {
+                        currentSpeed < 1.25f -> 1.25f
+                        currentSpeed < 1.5f -> 1.5f
+                        currentSpeed < 2.0f -> 2.0f
+                        else -> 1.0f
+                    }
+                    queueManager.setPlaybackSpeed(newSpeed)
+                    updateAllWidgets(context)
+                }
             }
         }
+    }
+
+    private fun updateAllWidgets(context: Context) {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val ids = appWidgetManager.getAppWidgetIds(
+            android.content.ComponentName(context, PodcastPlayerWidget::class.java)
+        )
+        onUpdate(context, appWidgetManager, ids)
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        // Cancel coroutine scope when all widgets removed to prevent leaks
+        widgetScope.cancel()
     }
 }

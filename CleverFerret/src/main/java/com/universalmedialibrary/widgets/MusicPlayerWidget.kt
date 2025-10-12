@@ -8,12 +8,19 @@ import android.content.Intent
 import android.widget.RemoteViews
 import com.universalmedialibrary.R
 import com.universalmedialibrary.MainActivity
+import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Music Player Widget
  * Shows currently playing music with playback controls
  */
+@AndroidEntryPoint
 class MusicPlayerWidget : AppWidgetProvider() {
+
+    @Inject
+    lateinit var audioPlaybackManager: AudioPlaybackManager
 
     override fun onUpdate(
         context: Context,
@@ -21,7 +28,7 @@ class MusicPlayerWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            updateAppWidget(context, appWidgetManager, appWidgetId, audioPlaybackManager)
         }
     }
 
@@ -33,14 +40,16 @@ class MusicPlayerWidget : AppWidgetProvider() {
         fun updateAppWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetId: Int
+            appWidgetId: Int,
+            audioPlaybackManager: AudioPlaybackManager? = null
         ) {
             val views = RemoteViews(context.packageName, R.layout.widget_music_player)
 
-            // Sample data - in production, retrieve from media service
-            views.setTextViewText(R.id.widget_track_title, "Track Title")
-            views.setTextViewText(R.id.widget_artist_name, "Artist Name")
-            views.setTextViewText(R.id.widget_album_name, "Album Name")
+            // Get current playback state from AudioPlaybackManager
+            val audioState = audioPlaybackManager?.state?.value
+            views.setTextViewText(R.id.widget_track_title, audioState?.title ?: "No Track Playing")
+            views.setTextViewText(R.id.widget_artist_name, audioState?.artist ?: "")
+            views.setTextViewText(R.id.widget_album_name, audioState?.album ?: "")
 
             // Set up button intents
             views.setOnClickPendingIntent(
@@ -92,14 +101,31 @@ class MusicPlayerWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         when (intent.action) {
             ACTION_PLAY_PAUSE -> {
-                // Handle play/pause
-                // Send broadcast to music service
+                audioPlaybackManager.togglePlayPause()
+                // Update widget after action
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val ids = appWidgetManager.getAppWidgetIds(
+                    android.content.ComponentName(context, MusicPlayerWidget::class.java)
+                )
+                onUpdate(context, appWidgetManager, ids)
             }
             ACTION_NEXT -> {
-                // Handle next track
+                audioPlaybackManager.skipToNext()
+                // Update widget after action
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val ids = appWidgetManager.getAppWidgetIds(
+                    android.content.ComponentName(context, MusicPlayerWidget::class.java)
+                )
+                onUpdate(context, appWidgetManager, ids)
             }
             ACTION_PREV -> {
-                // Handle previous track
+                audioPlaybackManager.skipToPrevious()
+                // Update widget after action
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val ids = appWidgetManager.getAppWidgetIds(
+                    android.content.ComponentName(context, MusicPlayerWidget::class.java)
+                )
+                onUpdate(context, appWidgetManager, ids)
             }
         }
     }
