@@ -44,6 +44,8 @@ import com.universalmedialibrary.ui.open.MediaOpenScreen
 import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
 import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
 import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
+import com.universalmedialibrary.ui.settings.MediaServerSettingsScreen
+import com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
@@ -174,6 +176,12 @@ fun AppNavigation() {
             CollectionsScreen(onOpenCollection = { collectionId -> 
                 navController.navigate("collection_detail/$collectionId")
             })
+           composable("settings/media_servers") {
+               MediaServerSettingsScreen(onBack = { navController.navigateUp() })
+           }
+           composable("settings/network_storage") {
+               NetworkStorageSettingsScreen(onBack = { navController.navigateUp() })
+           }
         }
         
         composable("collection_detail/{collectionId}") { backStackEntry ->
@@ -271,7 +279,8 @@ fun AppNavigation() {
         // Settings route
         composable("settings") {
             com.universalmedialibrary.ui.settings.SettingsScreen(
-                onBack = { navController.navigateUp() }
+                onBack = { navController.navigateUp() },
+                   navController = navController
             )
         }
         
