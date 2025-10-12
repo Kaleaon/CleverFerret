@@ -31,7 +31,7 @@ class JellyfinClient @Inject constructor(
      */
     fun initialize(serverUrl: String, apiKey: String? = null) {
         try {
-            jellyfin = Jellyfin()
+jellyfin = Jellyfin { httpClientOptions { client = okHttpClient }; clientInfo { name = "CleverFerret"; version = "1.0.0" } }
             
             apiClient = if (apiKey != null) {
                 jellyfin?.createApi(
