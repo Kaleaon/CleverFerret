@@ -296,12 +296,14 @@ class EpubReaderEngine @Inject constructor(
         return EpubMetadata(
             title = opfDoc.select("dc|title, title").text().ifEmpty { "Unknown Title" },
             authors = opfDoc.select("dc|creator, creator").map { it.text() },
-            description = opfDoc.select("dc|description, description").text(),
-            language = opfDoc.select("dc|language, language").text(),
             publisher = opfDoc.select("dc|publisher, publisher").text(),
-            publishDate = opfDoc.select("dc|date, date").text(),
-            isbn = opfDoc.select("dc|identifier, identifier").text(),
-            coverImageData = null // TODO: Extract cover image from EPUB
+            publishedDate = opfDoc.select("dc|date, date").text(),
+            description = opfDoc.select("dc|description, description").text(),
+            subjects = emptyList(),
+            language = opfDoc.select("dc|language, language").text(),
+            identifier = opfDoc.select("dc|identifier, identifier").text(),
+            rights = null,
+            numberOfPages = 0
         )
     }
 
@@ -369,7 +371,7 @@ class EpubReaderEngine @Inject constructor(
 
                 if (entry != null) {
                     val content = zipFile.getInputStream(entry).bufferedReader().readText()
-                    val title = tocItems.find { it.src.contains(manifestItem.href) }?.title
+                    val title = tocItems.find { it.href.contains(manifestItem.href) }?.title
                         ?: "Chapter ${index + 1}"
 
                     chapters.add(

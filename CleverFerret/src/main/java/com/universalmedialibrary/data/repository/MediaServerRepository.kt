@@ -67,27 +67,27 @@ class MediaServerRepository @Inject constructor(
     // Plex Operations
     
     fun getAllPlexServers(): Flow<List<PlexServer>> {
-        return plexServerDao.getAll()
+        return plexServerDao.getAllServers()
     }
     
     suspend fun getPlexServerById(id: Long): PlexServer? {
-        return plexServerDao.getById(id)
+        return plexServerDao.getServerById(id)
     }
     
     suspend fun insertPlexServer(server: PlexServer): Long {
-        return plexServerDao.insert(server)
+        return plexServerDao.insertServer(server)
     }
     
     suspend fun updatePlexServer(server: PlexServer) {
-        plexServerDao.update(server)
+        plexServerDao.updateServer(server)
     }
     
     suspend fun deletePlexServer(server: PlexServer) {
-        plexServerDao.delete(server)
+        plexServerDao.deleteServer(server)
     }
     
     suspend fun deletePlexServerById(id: Long) {
-        plexServerDao.deleteById(id)
+        plexServerDao.deleteServerById(id)
     }
     
     suspend fun testPlexConnection(server: PlexServer): Result<Unit> {
