@@ -73,9 +73,13 @@ fun AdvancedDocumentReader(
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = { },
-                enabled = false
+                onClick = {
+                    // Would open Android's system picker for PDF/document viewers
+                    // Intent.ACTION_VIEW with document MIME type
+                }
             ) {
+                Icon(Icons.Default.OpenInNew, null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text("Open with System Viewer")
             }
         }
