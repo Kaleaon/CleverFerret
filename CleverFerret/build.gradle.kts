@@ -114,6 +114,16 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     
+    // Kotlinx Serialization for Retrofit
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
+    // Jellyfin SDK
+    implementation("org.jellyfin.sdk:jellyfin-core:1.5.4")
+    
+    // SMB/CIFS support for network drives
+    implementation("eu.agno3.jcifs:jcifs-ng:2.1.10")
+    
     // Image loading
     implementation("io.coil-kt:coil-compose:2.7.0")
     
