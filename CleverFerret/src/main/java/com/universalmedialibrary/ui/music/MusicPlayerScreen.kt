@@ -214,7 +214,13 @@ fun MusicPlayerScreen(
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
-                // TODO: Show error snackbar
+                // Show error snackbar
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = errorMessage,
+                        duration = SnackbarDuration.Long
+                    )
+                }
             }
         }
     }

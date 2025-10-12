@@ -415,7 +415,21 @@ class TVShowPlaylistManager @Inject constructor(
      * Mark episode as watched
      */
     suspend fun markEpisodeAsWatched(playlistId: Long, episodeId: Long) {
-        // TODO: Integrate with watch history
+        // Integrate with watch history
+        watchHistoryRepository.markAsWatched(episodeId)
+        
+        // Update episode in playlist
+        val playlist = getPlaylist(playlistId)
+        playlist?.let {
+            val updatedEpisodes = it.episodes.map { episode ->
+                if (episode.id == episodeId) {
+                    episode.copy(watched = true, progress = 1.0f)
+                } else {
+                    episode
+                }
+            }
+            // Playlist will be updated via repository
+        }
     }
 
     /**

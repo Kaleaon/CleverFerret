@@ -68,7 +68,8 @@ fun LibraryManagementScreen(
                                 text = { Text("Settings") },
                                 onClick = {
                                     showMenu = false
-                                    // TODO: Navigate to settings
+                                    // Navigate to settings screen
+                                    navController.navigate("settings")
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.Settings, contentDescription = null)
@@ -116,7 +117,8 @@ fun LibraryManagementScreen(
                 LibraryListContent(
                     libraries = libraries,
                     onLibraryClick = { library ->
-                        // TODO: Navigate to library contents
+                        // Navigate to library contents screen
+                        navController.navigate("library_details/${library.libraryId}")
                     }
                 )
             }
@@ -157,7 +159,13 @@ fun LibraryManagementScreen(
         }
         is LibraryManagementUiState.Error -> {
             LaunchedEffect(uiState) {
-                // TODO: Show snackbar with error message
+                // Show error snackbar
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = errorMessage,
+                        duration = SnackbarDuration.Long
+                    )
+                }
             }
         }
         is LibraryManagementUiState.Success -> {
@@ -397,7 +405,15 @@ private fun LibraryCard(
                     }
                 }
 
-                // TODO: Add item count and stats
+                // Display library statistics
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    StatItem(label = "Items", value = "${library.itemCount ?: 0}")
+                    StatItem(label = "Size", value = formatFileSize(library.totalSize ?: 0))
+                    StatItem(label = "Type", value = library.type)
+                }
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
@@ -406,7 +422,7 @@ private fun LibraryCard(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = "0 items", // TODO: Get actual count
+                            text = "${library.itemCount ?: 0} items",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

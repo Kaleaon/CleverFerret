@@ -158,11 +158,13 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
     }
 
     fun showPageSelector() {
-        // TODO: Implement page selector dialog
+        // Show page selector dialog
+        _showPageSelector.value = true
     }
 
     fun showBookmarks() {
-        // TODO: Implement bookmarks dialog
+        // Show bookmarks dialog
+        _showBookmarks.value = true
     }
 
     private fun generateSamplePDFContent(pageNumber: Int): String {

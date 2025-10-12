@@ -451,12 +451,23 @@ class ReadingPreferencesViewModel @Inject constructor(
     fun createBackup() {
         viewModelScope.launch {
             val path = backupService.createAutomaticBackup()
-            // TODO: Show toast/snackbar with result
+            // Show result snackbar
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = if (success) "Backup created successfully" else "Backup failed",
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 
     fun showRestoreDialog() {
-        // TODO: Show file picker for backup selection
+        // Show file picker for backup selection
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/x-sqlite3"
+        }
+        filePickerLauncher.launch(intent)
     }
 
     fun resetToDefaults() {

@@ -115,7 +115,23 @@ class LibraryManagementViewModel @Inject constructor(
             try {
                 _uiState.value = LibraryManagementUiState.Loading
 
-                // TODO: Implement actual media scanning
+                // Implement media scanning
+                // Scan directory for media files
+                val mediaFiles = scanDirectoryForMedia(directory)
+                
+                // Import each file
+                mediaFiles.forEach { file ->
+                    val mediaItem = createMediaItemFromFile(file, libraryId)
+                    mediaRepository.insertMediaItem(mediaItem)
+                    
+                    // Extract and save metadata
+                    val metadata = metadataExtractionService.extractMetadata(mediaItem)
+                    metadataRepository.saveMetadata(metadata)
+                }
+                
+                // Update library item count
+                val itemCount = mediaRepository.getItemCountForLibrary(libraryId)
+                libraryRepository.updateLibraryItemCount(libraryId, itemCount)
                 // For now, just update the last scanned timestamp
                 libraryRepository.updateLastScanned(libraryId, System.currentTimeMillis())
 
@@ -145,7 +161,23 @@ class LibraryManagementViewModel @Inject constructor(
 
                 libraryRepository.createLibrary(library)
 
-                // TODO: Implement actual Calibre database parsing and import
+                // Implement Calibre database parsing and import
+                // Parse Calibre metadata.db
+                val calibreDb = File(calibreLibraryPath, "metadata.db")
+                if (calibreDb.exists()) {
+                    val calibreImporter = CalibreImporter(context)
+                    val importedBooks = calibreImporter.importFromDatabase(calibreDb, libraryId)
+                    
+                    // Save imported books to database
+                    importedBooks.forEach { book ->
+                        mediaRepository.insertMediaItem(book.mediaItem)
+                        metadataRepository.saveMetadata(book.metadata)
+                    }
+                    
+                    // Update library item count
+                    val itemCount = mediaRepository.getItemCountForLibrary(libraryId)
+                    libraryRepository.updateLibraryItemCount(libraryId, itemCount)
+                }
                 // This would involve:
                 // 1. Reading the metadata.db file from the Calibre library
                 // 2. Parsing book metadata, authors, tags, etc.

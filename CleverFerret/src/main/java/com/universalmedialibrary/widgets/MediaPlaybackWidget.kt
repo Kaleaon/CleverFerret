@@ -40,7 +40,9 @@ object MediaPlaybackWidget : GlanceAppWidget() {
 
 @Composable
 fun MediaPlaybackWidgetContent() {
-    // TODO: Get state from MediaPlaybackWidgetService via currentStateFlow
+    // Get state from MediaPlaybackWidgetService
+    val widgetService = MediaPlaybackWidgetService.getInstance()
+    val currentState = widgetService?.currentStateFlow?.value ?: MediaPlaybackState.IDLE
     // For now, show placeholder content
 
     Box(
@@ -168,7 +170,13 @@ class PlayPauseAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onPlayClicked() or onPauseClicked()
+        // Handle play/pause action
+        val widgetService = MediaPlaybackWidgetService.getInstance()
+        if (isPlaying) {
+            widgetService?.onPauseClicked()
+        } else {
+            widgetService?.onPlayClicked()
+        }
     }
 }
 
@@ -178,7 +186,8 @@ class PreviousAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onPreviousClicked()
+        // Handle previous action
+        MediaPlaybackWidgetService.getInstance()?.onPreviousClicked()
     }
 }
 
@@ -188,6 +197,7 @@ class NextAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onNextClicked()
+        // Handle next action
+        MediaPlaybackWidgetService.getInstance()?.onNextClicked()
     }
 }

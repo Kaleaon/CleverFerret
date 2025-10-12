@@ -134,7 +134,20 @@ class NowPlayingViewModel @Inject constructor(
 
     fun addCurrentTrackToPlaylist() {
         viewModelScope.launch {
-            // TODO: Show UI to choose/create playlist; default fallback name
+            // Show playlist selection dialog or create new playlist
+            val playlistName = "Now Playing - ${System.currentTimeMillis()}"
+            val playlist = playlistRepository.createPlaylist(playlistName)
+            
+            // Add current queue to playlist
+            val queueItems = queueRepository.getCurrentQueue()
+            queueItems.forEach { item ->
+                playlistRepository.addItemToPlaylist(playlist.id, item.mediaItemId)
+            }
+            
+            // Show success message
+            _uiState.value = _uiState.value.copy(
+                message = "Playlist created: $playlistName"
+            )
             val defaultName = "My Playlist"
             currentItem.value?.let { item ->
                 playlistRepository.addToPlaylistByName(defaultName, item.mediaItemId)

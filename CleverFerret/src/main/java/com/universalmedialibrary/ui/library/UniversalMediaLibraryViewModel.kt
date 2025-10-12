@@ -60,10 +60,16 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                                 itemId = mediaItem.itemId,
                                 title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
                                 mediaType = parseMediaType(mediaItem.mediaType),
-                                author = extractAuthorFromFileName(mediaItem.fileName), // TODO: Fetch from type-specific metadata tables
+                                author = run {
+                                    val metadata = metadataRepository.getMetadataForItem(mediaItem.itemId)
+                                    metadata?.commonMetadata?.creator ?: 
+                                    metadata?.bookMetadata?.author ?: 
+                                    metadata?.musicMetadata?.artist ?: 
+                                    extractAuthorFromFileName(mediaItem.fileName)
+                                },
                                 dateAdded = mediaItem.dateAdded,
-                                isFavorite = false, // TODO: Add favorite tracking
-                                progress = 0f // TODO: Add progress tracking from reading progress repository
+                                isFavorite = favoritesRepository.isFavorite(mediaItem.itemId),
+                                progress = readingProgressRepository.getProgress(mediaItem.itemId)?.progress ?: 0f
                             )
                         }
                     }

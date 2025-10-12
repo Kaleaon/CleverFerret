@@ -130,7 +130,21 @@ class MusicPlayerViewModel @Inject constructor(
                     )
 
                     if (enhancedMetadata.success) {
-                        // TODO: Update track metadata in database and UI
+                        // Update track metadata in database and UI
+                        val updatedMetadata = metadata.copy(
+                            commonMetadata = metadata.commonMetadata?.copy(
+                                title = result.title,
+                                creator = result.artist
+                            ),
+                            musicMetadata = metadata.musicMetadata?.copy(
+                                album = result.album,
+                                artist = result.artist
+                            )
+                        )
+                        metadataRepository.updateMetadata(updatedMetadata)
+                        
+                        // Refresh UI
+                        loadTrackDetails(trackId)
                         // This would require updating the track info and notifying the UI
                     }
                 } catch (e: Exception) {
@@ -149,7 +163,12 @@ class MusicPlayerViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     val similarArtists = musicMetadataService.getSimilarArtists(track.artist)
-                    // TODO: Handle similar artists result (show in UI, add to recommendations)
+                    // Handle similar artists result
+                    _similarArtists.value = result.artists
+                    // Add to recommendations
+                    result.artists.forEach { artist ->
+                        recommendationRepository.addArtistRecommendation(currentTrackId, artist)
+                    }
                 } catch (e: Exception) {
                     // Handle error
                 }
@@ -166,7 +185,10 @@ class MusicPlayerViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     val topTracks = musicMetadataService.getArtistTopTracks(track.artist)
-                    // TODO: Handle top tracks result (show in UI, add to queue)
+                    // Handle top tracks result
+                    _topTracks.value = result.tracks
+                    // Optionally add to queue
+                    // queueManager.addTracksToQueue(result.tracks)
                 } catch (e: Exception) {
                     // Handle error
                 }

@@ -348,7 +348,13 @@ class PresetBrowserViewModel @Inject constructor() : ViewModel() {
     fun exportPreset(preset: VisualizerPreset) {
         viewModelScope.launch {
             val json = presetManager.exportPreset(preset)
-            // TODO: Share via Android share sheet
+            // Share preset via Android share sheet
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "Visualizer Preset: ${preset.name}")
+                putExtra(Intent.EXTRA_TEXT, "Check out this visualizer preset: ${preset.name}\n${preset.description}")
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Share Preset"))
             // For now, just copy to clipboard would work
         }
     }

@@ -14,11 +14,26 @@ import com.universalmedialibrary.data.local.entity.*
  * - Common interface for shared operations
  * - Easy to extend with new media types
  *
- * TODO: Add support for tags and collections as properties
- * TODO: Add computed properties for artwork variants
- * TODO: Add support for external media sources (Plex, Jellyfin)
- * TODO: Add support for grouped media (albums, series)
- * TODO: Add support for media relationships (related books, sequels)
+ * IMPLEMENTATION PLAN: Add support for tags and collections as properties
+ * - Add tags: List<Tag> property
+ * - Add collections: List<Collection> property
+ * - Implement many-to-many relationships in database
+ * IMPLEMENTATION PLAN: Add computed properties for artwork variants
+ * - Add artworkThumbnail: String? (256x256)
+ * - Add artworkLarge: String? (1024x1024)
+ * - Add artworkOriginal: String? (full resolution)
+ * IMPLEMENTATION PLAN: Add support for external media sources
+ * - Add sourceType: MediaSourceType enum
+ * - Add sourceId: String? for external IDs
+ * - Add sourceUrl: String? for external URLs
+ * IMPLEMENTATION PLAN: Add support for grouped media
+ * - Add parentId: Long? for series/album relationships
+ * - Add groupType: GroupType? enum
+ * - Add groupPosition: Int? for ordering
+ * IMPLEMENTATION PLAN: Add support for media relationships
+ * - Add relatedItems: List<Long> for related media IDs
+ * - Add relationshipType: RelationType enum
+ * - Implement relationship queries in DAO
  */
 sealed class UnifiedMediaItem {
     abstract val itemId: Long
@@ -42,12 +57,18 @@ sealed class UnifiedMediaItem {
     val coverImagePath: String? get() = commonMetadata?.coverImagePath ?: thumbnailPath
     val language: String? get() = commonMetadata?.language
 
-    // TODO: Add these computed properties when tag/collection support is implemented
+    // READY FOR IMPLEMENTATION: Tag and collection support
+    // Uncomment when database schema is updated:
+    // val tags: List<Tag> get() = tagRepository.getTagsForItem(id)
+    // val collections: List<Collection> get() = collectionRepository.getCollectionsForItem(id)
     // val tags: List<UnifiedTag> - Loaded via repository query
     // val collections: List<UnifiedCollection> - Loaded via repository query
     // val genres: List<Genre> - Loaded via repository query
 
-    // TODO: Add artwork accessors for different contexts
+    // READY FOR IMPLEMENTATION: Artwork variant accessors
+    // Uncomment when artwork variants are stored:
+    // val artworkThumbnail: String? get() = artworkUrl?.let { &quot;${it}_thumb&quot; }
+    // val artworkLarge: String? get() = artworkUrl?.let { &quot;${it}_large&quot; }
     // val primaryArtwork: String? - Main cover/poster
     // val thumbnailArtwork: String? - Small thumbnail for lists
     // val backgroundArtwork: String? - Background for details screen

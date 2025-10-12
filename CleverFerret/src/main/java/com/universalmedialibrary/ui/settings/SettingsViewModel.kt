@@ -239,7 +239,16 @@ class SettingsViewModel @Inject constructor(
             _securitySettings.value = settings
             // Persist security settings - update individual settings in repository
             // For now, just update in-memory state since SecuritySettings hasn't been fully integrated
-            // TODO: Add SecuritySettingsEntity and DAO for full persistence
+            // Security settings persistence
+            // Note: SecuritySettingsEntity and DAO should be created for full persistence
+            // For now, use SharedPreferences as a temporary solution
+            val prefs = context.getSharedPreferences("security_settings", Context.MODE_PRIVATE)
+            prefs.edit().apply {
+                putBoolean("require_password", settings.requirePassword)
+                putString("password_hash", settings.passwordHash)
+                putBoolean("biometric_enabled", settings.biometricEnabled)
+                apply()
+            }
         }
     }
 
@@ -248,7 +257,16 @@ class SettingsViewModel @Inject constructor(
             _generalSettings.value = settings
             // Persist general settings - update individual settings in repository
             // For now, just update in-memory state since GeneralSettings hasn't been fully integrated
-            // TODO: Add GeneralSettingsEntity and DAO for full persistence
+            // General settings persistence
+            // Note: GeneralSettingsEntity and DAO should be created for full persistence
+            // For now, use SharedPreferences as a temporary solution
+            val prefs = context.getSharedPreferences("general_settings", Context.MODE_PRIVATE)
+            prefs.edit().apply {
+                putString("theme", settings.theme)
+                putString("language", settings.language)
+                putBoolean("dark_mode", settings.darkMode)
+                apply()
+            }
         }
     }
 }
