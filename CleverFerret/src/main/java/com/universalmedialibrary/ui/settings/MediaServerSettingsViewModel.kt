@@ -2,14 +2,10 @@ package com.universalmedialibrary.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.local.dao.EmbyServerDao
-import com.universalmedialibrary.data.local.dao.JellyfinServerDao
-import com.universalmedialibrary.data.local.dao.PlexServerDao
 import com.universalmedialibrary.data.local.entity.EmbyServer
 import com.universalmedialibrary.data.local.entity.JellyfinServer
 import com.universalmedialibrary.data.local.entity.PlexServer
-import com.universalmedialibrary.services.integration.api.ApiManager
-import com.universalmedialibrary.services.integration.jellyfin.JellyfinClient
+import com.universalmedialibrary.data.repository.MediaServerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,11 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MediaServerSettingsViewModel @Inject constructor(
-    private val jellyfinServerDao: JellyfinServerDao,
-    private val plexServerDao: PlexServerDao,
-    private val embyServerDao: EmbyServerDao,
-    private val jellyfinClient: JellyfinClient,
-    private val apiManager: ApiManager
+    private val mediaServerRepository: MediaServerRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MediaServerSettingsUiState())
@@ -36,7 +28,7 @@ class MediaServerSettingsViewModel @Inject constructor(
 
     private fun loadServers() {
         viewModelScope.launch {
-            jellyfinServerDao.getAllServers().collect { servers ->
+            mediaServerRepository.getAllJellyfinServers().collect { servers ->
                 _uiState.update { it.copy(jellyfinServers = servers.map { server ->
                     ServerInfo(
                         id = server.id,
@@ -50,7 +42,7 @@ class MediaServerSettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            plexServerDao.getAllServers().collect { servers ->
+            mediaServerRepository.getAllPlexServers().collect { servers ->
                 _uiState.update { it.copy(plexServers = servers.map { server ->
                     ServerInfo(
                         id = server.id,
@@ -64,7 +56,7 @@ class MediaServerSettingsViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            embyServerDao.getAllServers().collect { servers ->
+            mediaServerRepository.getAllEmbyServers().collect { servers ->
                 _uiState.update { it.copy(embyServers = servers.map { server ->
                     ServerInfo(
                         id = server.id,
@@ -96,12 +88,13 @@ class MediaServerSettingsViewModel @Inject constructor(
                         password = password,
                         isConnected = false
                     )
-                    jellyfinServerDao.insertServer(server)
+                    val id = mediaServerRepository.insertJellyfinServer(server)
                     
                     // Test connection
-                    val result = jellyfinClient.authenticate(url, username, password)
+                    val result = mediaServerRepository.testJellyfinConnection(server)
                     if (result.isSuccess) {
-                        jellyfinServerDao.updateServer(server.copy(
+                        mediaServerRepository.updateJellyfinServer(server.copy(
+                            id = id,
                             isConnected = true,
                             apiKey = result.getOrNull()
                         ))
@@ -114,15 +107,15 @@ class MediaServerSettingsViewModel @Inject constructor(
                         token = apiKey,
                         isConnected = false
                     )
-                    plexServerDao.insertServer(server)
+                    val id = mediaServerRepository.insertPlexServer(server)
                     
                     // Test connection
-                    try {
-                        val api = apiManager.createPlexApi(url, apiKey)
-                        val info = api.getServerInfo()
-                        plexServerDao.updateServer(server.copy(isConnected = true))
-                    } catch (e: Exception) {
-                        // Connection failed
+                    val result = mediaServerRepository.testPlexConnection(server)
+                    if (result.isSuccess) {
+                        mediaServerRepository.updatePlexServer(server.copy(
+                            id = id,
+                            isConnected = true
+                        ))
                     }
                 }
                 ServerType.EMBY -> {
@@ -133,9 +126,16 @@ class MediaServerSettingsViewModel @Inject constructor(
                         password = password,
                         isConnected = false
                     )
-                    embyServerDao.insertServer(server)
+                    val id = mediaServerRepository.insertEmbyServer(server)
                     
-                    // Test connection could be added here
+                    // Test connection
+                    val result = mediaServerRepository.testEmbyConnection(server)
+                    if (result.isSuccess) {
+                        mediaServerRepository.updateEmbyServer(server.copy(
+                            id = id,
+                            isConnected = true
+                        ))
+                    }
                 }
             }
         }
@@ -145,33 +145,32 @@ class MediaServerSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             when (server.type) {
                 ServerType.JELLYFIN -> {
-                    val jellyfinServer = jellyfinServerDao.getServerById(server.id)
+                    val jellyfinServer = mediaServerRepository.getJellyfinServerById(server.id)
                     jellyfinServer?.let {
-                        val result = jellyfinClient.authenticate(
-                            it.url,
-                            it.username,
-                            it.password
-                        )
-                        jellyfinServerDao.updateServer(it.copy(
+                        val result = mediaServerRepository.testJellyfinConnection(it)
+                        mediaServerRepository.updateJellyfinServer(it.copy(
                             isConnected = result.isSuccess,
                             apiKey = result.getOrNull()
                         ))
                     }
                 }
                 ServerType.PLEX -> {
-                    val plexServer = plexServerDao.getServerById(server.id)
+                    val plexServer = mediaServerRepository.getPlexServerById(server.id)
                     plexServer?.let {
-                        try {
-                            val api = apiManager.createPlexApi(it.url, it.token)
-                            api.getServerInfo()
-                            plexServerDao.updateServer(it.copy(isConnected = true))
-                        } catch (e: Exception) {
-                            plexServerDao.updateServer(it.copy(isConnected = false))
-                        }
+                        val result = mediaServerRepository.testPlexConnection(it)
+                        mediaServerRepository.updatePlexServer(it.copy(
+                            isConnected = result.isSuccess
+                        ))
                     }
                 }
                 ServerType.EMBY -> {
-                    // Emby connection test could be added here
+                    val embyServer = mediaServerRepository.getEmbyServerById(server.id)
+                    embyServer?.let {
+                        val result = mediaServerRepository.testEmbyConnection(it)
+                        mediaServerRepository.updateEmbyServer(it.copy(
+                            isConnected = result.isSuccess
+                        ))
+                    }
                 }
             }
         }
@@ -180,9 +179,9 @@ class MediaServerSettingsViewModel @Inject constructor(
     fun deleteServer(server: ServerInfo) {
         viewModelScope.launch {
             when (server.type) {
-                ServerType.JELLYFIN -> jellyfinServerDao.deleteServerById(server.id)
-                ServerType.PLEX -> plexServerDao.deleteServerById(server.id)
-                ServerType.EMBY -> embyServerDao.deleteServerById(server.id)
+                ServerType.JELLYFIN -> mediaServerRepository.deleteJellyfinServerById(server.id)
+                ServerType.PLEX -> mediaServerRepository.deletePlexServerById(server.id)
+                ServerType.EMBY -> mediaServerRepository.deleteEmbyServerById(server.id)
             }
         }
     }
