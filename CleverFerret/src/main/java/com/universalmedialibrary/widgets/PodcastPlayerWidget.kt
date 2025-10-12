@@ -122,7 +122,6 @@ class PodcastPlayerWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         }
-    }
 
         private fun formatTime(millis: Long): String {
             val totalSeconds = millis / 1000
@@ -188,3 +187,5 @@ class PodcastPlayerWidget : AppWidgetProvider() {
         widgetScope.cancel()
     }
 }
+
+

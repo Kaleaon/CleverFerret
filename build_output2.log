@@ -9,55 +9,61 @@ Configuration on demand is an incubating feature.
 > Task :buildSrc:processResources NO-SOURCE
 > Task :buildSrc:classes UP-TO-DATE
 > Task :buildSrc:jar UP-TO-DATE
-Observed package id 'cmdline-tools;latest' in inconsistent location '/opt/android-sdk/cmdline-tools/latest-2' (Expected '/opt/android-sdk/cmdline-tools/latest')
-Observed package id 'cmdline-tools;latest' in inconsistent location '/opt/android-sdk/cmdline-tools/latest-2' (Expected '/opt/android-sdk/cmdline-tools/latest')
-Checking the license for package Android SDK Build-Tools 35 in /opt/android-sdk/licenses
-License for package Android SDK Build-Tools 35 accepted.
-Preparing "Install Android SDK Build-Tools 35 v.35.0.0".
-"Install Android SDK Build-Tools 35 v.35.0.0" ready.
-Installing Android SDK Build-Tools 35 in /opt/android-sdk/build-tools/35.0.0
-"Install Android SDK Build-Tools 35 v.35.0.0" complete.
-"Install Android SDK Build-Tools 35 v.35.0.0" finished.
-Observed package id 'cmdline-tools;latest' in inconsistent location '/opt/android-sdk/cmdline-tools/latest-2' (Expected '/opt/android-sdk/cmdline-tools/latest')
-[=========                              ] 25%                                   > Task :CleverFerret:clean UP-TO-DATE
 > Task :CleverFerret:preBuild UP-TO-DATE
 > Task :CleverFerret:preDebugBuild UP-TO-DATE
 > Task :CleverFerret:mergeDebugNativeDebugMetadata NO-SOURCE
 > Task :CleverFerret:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :CleverFerret:checkDebugAarMetadata
-WARNING: [Processor] Library '/root/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-cast-framework/22.1.0/f4b736d76e8129033d3e7f67ecd662e9ae1b0746/play-services-cast-framework-22.1.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
- Example of androidX reference: 'androidx/annotation/Nullable'
- Example of support library reference: 'android/support/v4/media/session/MediaSessionCompat$Token'
-WARNING: [Processor] Library '/root/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.8.0/e28b8a1b7941dd4c4da264d5e622274e7c8e6488/media3-session-1.8.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
- Example of androidX reference: 'androidx/media3/session/legacy/LegacyParcelableUtil'
- Example of support library reference: 'android/support/v4/media/MediaDescriptionCompat'
+> Task :CleverFerret:processDebugNavigationResources UP-TO-DATE
+> Task :CleverFerret:generateDebugResValues
+> Task :CleverFerret:compileDebugNavigationResources
+> Task :CleverFerret:mapDebugSourceSetPaths
+> Task :CleverFerret:generateDebugResources
+> Task :CleverFerret:packageDebugResources
+> Task :CleverFerret:createDebugCompatibleScreenManifests
+> Task :CleverFerret:extractDeepLinksDebug
+> Task :CleverFerret:mergeDebugResources
+> Task :CleverFerret:parseDebugLocalResources
+> Task :CleverFerret:processDebugMainManifest
+> Task :CleverFerret:processDebugManifest
+> Task :CleverFerret:javaPreCompileDebug
+> Task :CleverFerret:mergeDebugShaders
+> Task :CleverFerret:compileDebugShaders NO-SOURCE
+> Task :CleverFerret:generateDebugAssets UP-TO-DATE
+> Task :CleverFerret:mergeDebugAssets
+> Task :CleverFerret:compressDebugAssets
+> Task :CleverFerret:processDebugManifestForPackage
+> Task :CleverFerret:l8DexDesugarLibDebug
+> Task :CleverFerret:checkDebugDuplicateClasses
+> Task :CleverFerret:desugarDebugFileDependencies
+> Task :CleverFerret:mergeExtDexDebug
 
 The message received from the daemon indicates that the daemon has disappeared.
-Build request sent: Build{id=8b5756bd-2883-4741-9cdd-8928f202a8a6, currentDir=/workspace/CleverFerret}
+Build request sent: Build{id=ef70f1e1-63e5-4afa-ba82-559d39e37c3a, currentDir=/workspace/CleverFerret}
 Attempting to read last messages from the daemon log...
-Daemon pid: 6830
-  log file: /root/.gradle/daemon/8.13/daemon-6830.out.log
------ Last 20 lines from daemon log file - daemon-6830.out.log -----
-2025-10-12T04:11:53.671+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.ExecuteBuild] The daemon has started executing the build.
-2025-10-12T04:11:53.672+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.ExecuteBuild] Executing build with daemon context: DefaultDaemonContext[uid=56f509aa-78a4-42e6-8e41-25d9482ccab4,javaHome=/usr/lib/jvm/java-17-openjdk-amd64,javaVersion=17,javaVendor=Debian,daemonRegistryDir=/root/.gradle/daemon,pid=6830,idleTimeout=120000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=2g,-XX:+UseG1GC,-XX:+HeapDumpOnOutOfMemoryError,-Xmx6144m,-Dfile.encoding=UTF-8,-Duser.country,-Duser.language=en,-Duser.variant]
-Configuration on demand is an incubating feature.
-Observed package id 'cmdline-tools;latest' in inconsistent location '/opt/android-sdk/cmdline-tools/latest-2' (Expected '/opt/android-sdk/cmdline-tools/latest')
-Observed package id 'cmdline-tools;latest' in inconsistent location '/opt/android-sdk/cmdline-tools/latest-2' (Expected '/opt/android-sdk/cmdline-tools/latest')
-Checking the license for package Android SDK Build-Tools 35 in /opt/android-sdk/licenses
-License for package Android SDK Build-Tools 35 accepted.
-Preparing "Install Android SDK Build-Tools 35 v.35.0.0".
-"Install Android SDK Build-Tools 35 v.35.0.0" ready.
-Installing Android SDK Build-Tools 35 in /opt/android-sdk/build-tools/35.0.0
-"Install Android SDK Build-Tools 35 v.35.0.0" complete.
-"Install Android SDK Build-Tools 35 v.35.0.0" finished.
-Observed package id 'cmdline-tools;latest' in inconsistent location '/opt/android-sdk/cmdline-tools/latest-2' (Expected '/opt/android-sdk/cmdline-tools/latest')
-[=========                              ] 25%                                   
-WARNING: [Processor] Library '/root/.gradle/caches/modules-2/files-2.1/com.google.android.gms/play-services-cast-framework/22.1.0/f4b736d76e8129033d3e7f67ecd662e9ae1b0746/play-services-cast-framework-22.1.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
- Example of androidX reference: 'androidx/annotation/Nullable'
- Example of support library reference: 'android/support/v4/media/session/MediaSessionCompat$Token'
-WARNING: [Processor] Library '/root/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.8.0/e28b8a1b7941dd4c4da264d5e622274e7c8e6488/media3-session-1.8.0.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
- Example of androidX reference: 'androidx/media3/session/legacy/LegacyParcelableUtil'
- Example of support library reference: 'android/support/v4/media/MediaDescriptionCompat'----- End of the daemon log -----
+Daemon pid: 3004
+  log file: /root/.gradle/daemon/8.13/daemon-3004.out.log
+----- Last 20 lines from daemon log file - daemon-3004.out.log -----
+2025-10-12T05:32:49.723+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] Command execution: started DaemonCommandExecution[command = Build{id=ef70f1e1-63e5-4afa-ba82-559d39e37c3a, currentDir=/workspace/CleverFerret}, connection = DefaultDaemonConnection: socket connection from /127.0.0.1:40209 to /127.0.0.1:53352] after 0.00295 minutes of idle
+2025-10-12T05:32:49.724+0000 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as busy, address: [e2b933c4-a033-43f4-9b53-3ed9fea51993 port:40209, addresses:[localhost/127.0.0.1]]
+2025-10-12T05:32:49.724+0000 [DEBUG] [org.gradle.launcher.daemon.registry.PersistentDaemonRegistry] Marking busy by address: [e2b933c4-a033-43f4-9b53-3ed9fea51993 port:40209, addresses:[localhost/127.0.0.1]]
+2025-10-12T05:32:49.725+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Waiting to acquire exclusive lock on daemon addresses registry.
+2025-10-12T05:32:49.726+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Lock acquired on daemon addresses registry.
+2025-10-12T05:32:49.730+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Releasing lock on daemon addresses registry.
+2025-10-12T05:32:49.730+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] resetting idle timer
+2025-10-12T05:32:49.731+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] daemon is running. Sleeping until state changes.
+2025-10-12T05:32:49.733+0000 [INFO] [org.gradle.launcher.daemon.server.exec.StartBuildOrRespondWithBusy] Daemon is about to start building Build{id=ef70f1e1-63e5-4afa-ba82-559d39e37c3a, currentDir=/workspace/CleverFerret}. Dispatching build started information...
+2025-10-12T05:32:49.733+0000 [DEBUG] [org.gradle.launcher.daemon.server.SynchronizedDispatchConnection] thread 40: dispatching org.gradle.launcher.daemon.protocol.BuildStarted@221a452c
+2025-10-12T05:32:49.736+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.EstablishBuildEnvironment] Configuring env variables: [PATH, ANONYMIZED_TELEMETRY, PYTHON_SHA256, CHROME_PATH, CHROME_PERSISTENT_SESSION, CHROME_CDP, TERM, GPG_KEY, LANG, DISPLAY, PYTHON_VERSION, CHROME_USER_DATA, CHROME_DEBUGGING_PORT, PWD, PLAYWRIGHT_BROWSERS_PATH, _, VNC_PASSWORD, RESOLUTION, GITHUB_TOKEN, DAYTONA_SANDBOX_ID, OLDPWD, DEFAULT_WORKSPACE, PYTHONUNBUFFERED, DAYTONA_SANDBOX_SNAPSHOT, DEBIAN_FRONTEND, HOSTNAME, CHROME_DEBUGGING_HOST, DAYTONA_SANDBOX_USER, RESOLUTION_HEIGHT, RESOLUTION_WIDTH, HOME, SHLVL]
+2025-10-12T05:32:49.741+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.LogToClient] About to start relaying all logs to the client via the connection.
+2025-10-12T05:32:49.742+0000 [INFO] [org.gradle.launcher.daemon.server.exec.LogToClient] The client will now receive all logging from the daemon (pid: 3004). The daemon log file: /root/.gradle/daemon/8.13/daemon-3004.out.log
+2025-10-12T05:32:49.744+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.RequestStopIfSingleUsedDaemon] Requesting daemon stop after processing Build{id=ef70f1e1-63e5-4afa-ba82-559d39e37c3a, currentDir=/workspace/CleverFerret}
+2025-10-12T05:32:49.745+0000 [LIFECYCLE] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] Daemon will be stopped at the end of the build 
+2025-10-12T05:32:49.745+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] Stop as soon as idle requested. The daemon is busy
+2025-10-12T05:32:49.745+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] daemon stop has been requested. Sleeping until state changes.
+2025-10-12T05:32:49.746+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.ExecuteBuild] The daemon has started executing the build.
+2025-10-12T05:32:49.747+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.ExecuteBuild] Executing build with daemon context: DefaultDaemonContext[uid=7311a56c-4588-4d4f-b491-ce65417f507a,javaHome=/usr/lib/jvm/java-17-openjdk-amd64,javaVersion=17,javaVendor=Debian,daemonRegistryDir=/root/.gradle/daemon,pid=3004,idleTimeout=120000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=512m,-Xmx2048m,-Dfile.encoding=UTF-8,-Duser.country,-Duser.language=en,-Duser.variant]
+Configuration on demand is an incubating feature.----- End of the daemon log -----
 
 
 FAILURE: Build failed with an exception.

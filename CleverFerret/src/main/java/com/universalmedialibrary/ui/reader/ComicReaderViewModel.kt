@@ -450,14 +450,13 @@ class ComicReaderViewModel @Inject constructor(
                     tempDirectories.add(tempDir)
                     
                     entries.forEach { entry ->
-```kotlin
-val dest = File(tempDir, entry.name)
-val destCanonical = dest.canonicalFile
-val basePath = tempDir.canonicalPath + File.separator
-if (!destCanonical.path.startsWith(basePath)) {
-    throw SecurityException("Zip entry path traversal: ${entry.name}")
-}
-destCanonical.parentFile?.mkdirs()
+                        val dest = File(tempDir, entry.name)
+                        val destCanonical = dest.canonicalFile
+                        val basePath = tempDir.canonicalPath + File.separator
+                        if (!destCanonical.path.startsWith(basePath)) {
+                            throw SecurityException("Zip entry path traversal: ${entry.name}")
+                        }
+                        destCanonical.parentFile?.mkdirs()
 zipFile.getInputStream(entry).use { input ->
     destCanonical.outputStream().use { output -> input.copyTo(output) }
 }

@@ -79,21 +79,21 @@ class AudiobookService @Inject constructor(
                 val player = exoPlayerService.getPlayer()
                 if (player != null && mediaItems.isNotEmpty()) {
                     val firstChapter = audiobook.chapters.firstOrNull()
+                    
+                    // Load audiobook cover art
+                    val artwork = artworkLoader.loadArtwork(
+                        mediaItem = mediaItem,
+                        maxWidth = 512,
+                        maxHeight = 512
+                    )
+                    
                     mediaController.startPlayback(
                         player = player,
                         serviceType = MediaServiceType.AUDIOBOOK,
                         title = firstChapter?.title ?: audiobook.title,
                         artist = audiobook.author,
                         album = audiobook.title,
-                        // Load audiobook cover art
-                       val artwork = artworkLoader.loadArtwork(
-                           mediaItem = mediaItem,
-                           maxWidth = 512,
-                           maxHeight = 512
-                       )
-                       
-                       // Pass artwork to mediaController
-                       artwork = artwork
+                        artwork = artwork
                     )
                 }
 
