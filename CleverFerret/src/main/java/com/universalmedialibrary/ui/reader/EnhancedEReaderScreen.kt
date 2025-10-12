@@ -157,7 +157,7 @@ fun EnhancedEReaderScreen(
                     Row {
                         IconButton(onClick = { showBookmarks = !showBookmarks }) {
                             Icon(
-                                if (showBookmarks) Icons.Default.BookmarkAdded else Icons.Default.Bookmark,
+                                Icons.Default.Bookmark,
                                 contentDescription = "Bookmarks",
                                 tint = if (showBookmarks) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                             )
@@ -265,7 +265,7 @@ fun EnhancedEReaderScreen(
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.BookmarkAdd, "Add", modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.AddCircle, "Add", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Add Bookmark Here")
                     }

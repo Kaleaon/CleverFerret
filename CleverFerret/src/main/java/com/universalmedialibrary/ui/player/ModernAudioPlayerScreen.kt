@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -309,7 +310,7 @@ fun ModernAudioPlayerScreen(
                     Column {
                         ListItem(
                             headlineContent = { Text("Sleep Timer") },
-                            leadingContent = { Icon(Icons.Default.Timer, null) },
+                            leadingContent = { Icon(Icons.Default.AccessTime, null) },
                             modifier = Modifier.clickable { showMoreOptions = false }
                         )
                         ListItem(
@@ -415,7 +416,7 @@ fun ModernAudioPlayerScreen(
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 IconButton(onClick = { showShare = false }) {
-                                    Icon(Icons.Default.Message, "Messages")
+                                    Icon(Icons.Default.Chat, "Messages")
                                 }
                                 Text("Messages", style = MaterialTheme.typography.bodySmall)
                             }
@@ -427,7 +428,7 @@ fun ModernAudioPlayerScreen(
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 IconButton(onClick = { showShare = false }) {
-                                    Icon(Icons.Default.ContentCopy, "Copy Link")
+                                    Icon(Icons.Default.Link, "Copy Link")
                                 }
                                 Text("Copy", style = MaterialTheme.typography.bodySmall)
                             }
