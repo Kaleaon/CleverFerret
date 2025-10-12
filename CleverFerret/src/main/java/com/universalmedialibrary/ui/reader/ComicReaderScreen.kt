@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.reader
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.*
@@ -134,10 +135,9 @@ fun ComicReaderScreen(
                     Button(onClick = {
                         currentBitmap?.let { bmp ->
                             scope.launch {
-                                translationsJson = comicReaderViewModel.translatePage(
-                                    bmp,
-                                    apiSettings.comicApis.geminiTargetLanguage
-                                )
+                                // Translation temporarily disabled
+                                Log.d("ComicReaderScreen", "Translation feature coming in v1.1.0")
+                                translationsJson = null
                             }
                         }
                     }) { Text("Translate Page") }

@@ -6,6 +6,7 @@ import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.readium.r2.shared.publication.Publication
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,9 +14,9 @@ import javax.inject.Singleton
 /**
  * Readium Audiobook Service
  * 
- * NOTE: Temporarily disabled.
- * Will be re-enabled in v1.1.0 after resolving API compatibility.
- * For standalone MP3/M4A/FLAC files, use AudioPlaybackManager.
+ * NOTE: AudioParser in Readium 3.1.2 has different initialization requirements.
+ * For MP3/M4A/FLAC files, use AudioPlaybackManager instead.
+ * Manifest-based audiobooks (.audiobook, .lcpa) support will be added when needed.
  */
 @Singleton
 class ReadiumAudiobookService @Inject constructor(
@@ -28,10 +29,13 @@ class ReadiumAudiobookService @Inject constructor(
         return extension in listOf("audiobook", "lcpa")
     }
 
-    suspend fun openPublication(audiobookPath: String) = null
+    suspend fun openPublication(audiobookPath: String): Publication? = withContext(Dispatchers.IO) {
+        Log.d(TAG, "Audiobook manifest format not yet implemented. Use AudioPlaybackManager for audio files.")
+        null
+    }
 
     suspend fun extractMetadata(audiobookPath: String): AudiobookMetadata? = withContext(Dispatchers.IO) {
-        Log.w(TAG, "Readium Audiobook temporarily disabled. Use AudioPlaybackManager.")
+        Log.d(TAG, "Use AudioPlaybackManager for metadata extraction from audio files.")
         null
     }
 
@@ -43,7 +47,9 @@ class ReadiumAudiobookService @Inject constructor(
         emptyList()
     }
 
-    suspend fun extractAudioFiles(publication: Any?): List<String> = emptyList()
+    suspend fun extractAudioFiles(publication: Publication): List<String> {
+        return emptyList()
+    }
 }
 
 data class AudiobookMetadata(

@@ -108,11 +108,7 @@ class UnifiedReaderService @Inject constructor(
                 "cbz", "cbr" -> {
                     // TODO: Re-enable when GeminiComicService is operational
                     Log.w(TAG, "Comic service currently disabled")
-                    return null
-                    // ReaderType.Comic(
-                    //     filePath = filePath,
-                    //     service = geminiComicService
-                    // )
+                    throw UnsupportedOperationException("Comic service currently disabled")
                 }
                 
                 // Use ExoPlayer for standalone audio files

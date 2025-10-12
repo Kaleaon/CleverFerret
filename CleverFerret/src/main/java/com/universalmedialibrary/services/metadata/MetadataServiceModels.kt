@@ -185,7 +185,14 @@ data class OMDbResponse(
     val Actors: String? = null,
     val Runtime: String? = null,
     val Genre: String? = null,
-    val Response: String? = null
+    val Response: String? = null,
+    val Metascore: String? = null,
+    val Ratings: List<OMDbRating>? = null
+)
+
+data class OMDbRating(
+    val Source: String? = null,
+    val Value: String? = null
 )
 
 // NYT Movie Reviews API Models

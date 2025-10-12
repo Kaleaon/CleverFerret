@@ -271,7 +271,16 @@ class EpubReaderEngine @Inject constructor(
                 val chapters = extractChapters(zipFile, spineOrder, manifest, tocItems)
 
                 EpubBook(
-                    metadata = metadata,
+                    metadata = SimpleEpubMetadata(
+                        title = metadata.title,
+                        authors = metadata.authors,
+                        description = metadata.description ?: "",
+                        language = metadata.language ?: "",
+                        publisher = metadata.publisher ?: "",
+                        publishDate = metadata.publishedDate ?: "",
+                        isbn = metadata.identifier ?: "",
+                        coverImageData = null
+                    ),
                     chapters = chapters
                 )
             }

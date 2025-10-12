@@ -119,23 +119,26 @@ fun OPDSCatalogBrowserScreen(
                     )
                 }
                 
-                feedResult is OPDSFeedResult.Success -> {
-                    // Show publication list
-                    val feed = feedResult as OPDSFeedResult.Success
-                    PublicationListView(
-                        publications = feed.publications,
-                        onPublicationClick = { pub ->
-                            viewModel.downloadPublication(selectedCatalog!!.id, pub)
+                feedResult != null -> {
+                    val result = feedResult!!
+                    when {
+                        result.isSuccess -> {
+                            val feed = result.getOrNull()!!
+                            PublicationListView(
+                                entries = feed.entries,
+                                onPublicationClick = { entry ->
+                                    viewModel.downloadPublication(selectedCatalog!!.id, entry)
+                                }
+                            )
                         }
-                    )
-                }
-                
-                feedResult is OPDSFeedResult.Error -> {
-                    // Show error
-                    ErrorView(
-                        message = (feedResult as OPDSFeedResult.Error).message,
-                        onRetry = { viewModel.refreshFeed() }
-                    )
+                        result.isFailure -> {
+                            val error = result.exceptionOrNull()
+                            ErrorView(
+                                message = error?.message ?: "Unknown error",
+                                onRetry = { viewModel.refreshFeed() }
+                            )
+                        }
+                    }
                 }
                 
                 else -> {
@@ -262,18 +265,18 @@ private fun CatalogCard(
 
 @Composable
 private fun PublicationListView(
-    publications: List<OPDSPublication>,
-    onPublicationClick: (OPDSPublication) -> Unit
+    entries: List<OPDSEntry>,
+    onPublicationClick: (OPDSEntry) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(publications) { publication ->
+        items(entries) { entry ->
             PublicationCard(
-                publication = publication,
-                onClick = { onPublicationClick(publication) }
+                entry = entry,
+                onClick = { onPublicationClick(entry) }
             )
         }
     }
@@ -281,7 +284,7 @@ private fun PublicationListView(
 
 @Composable
 private fun PublicationCard(
-    publication: OPDSPublication,
+    entry: OPDSEntry,
     onClick: () -> Unit
 ) {
     Card(
@@ -295,9 +298,9 @@ private fun PublicationCard(
                 .padding(12.dp)
         ) {
             // Cover image
-            if (publication.coverUrl != null) {
+            if (entry.coverUrl != null) {
                 AsyncImage(
-                    model = publication.coverUrl,
+                    model = entry.coverUrl,
                     contentDescription = "Cover",
                     modifier = Modifier
                         .width(60.dp)
@@ -310,23 +313,23 @@ private fun PublicationCard(
             // Publication info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = publication.title,
+                    text = entry.title,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 
-                if (publication.authors.isNotEmpty()) {
+                if (entry.authors.isNotEmpty()) {
                     Text(
-                        text = publication.authors.joinToString(", "),
+                        text = entry.authors.joinToString(", "),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
-                if (publication.description != null) {
+                if (entry.summary != null) {
                     Text(
-                        text = publication.description,
+                        text = entry.summary,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -335,14 +338,14 @@ private fun PublicationCard(
                 }
                 
                 // Download formats
-                if (publication.downloadLinks.isNotEmpty()) {
+                if (entry.acquisitionLinks.isNotEmpty()) {
                     Text(
-                        text = publication.downloadLinks.joinToString(" • ") {
+                        text = entry.acquisitionLinks.joinToString(" • ") {
                             when {
-                                it.type.contains("epub") -> "EPUB"
-                                it.type.contains("pdf") -> "PDF"
-                                it.type.contains("mobi") -> "MOBI"
-                                else -> it.type
+                                it.href.contains("epub", ignoreCase = true) -> "EPUB"
+                                it.href.contains("pdf", ignoreCase = true) -> "PDF"
+                                it.href.contains("mobi", ignoreCase = true) -> "MOBI"
+                                else -> "Book"
                             }
                         },
                         style = MaterialTheme.typography.labelSmall,
@@ -501,20 +504,17 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
     private val _selectedCatalog = MutableStateFlow<OPDSCatalog?>(null)
     val selectedCatalog = _selectedCatalog.asStateFlow()
 
-    private val _currentFeed = MutableStateFlow<OPDSFeedResult?>(null)
+    private val _currentFeed = MutableStateFlow<Result<OPDSFeed>?>(null)
     val currentFeed = _currentFeed.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
 
-    val activeDownloads = downloadService.getActiveDownloads()
+    val activeDownloads = MutableStateFlow<List<Any>>(emptyList())
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
-        // Initialize default catalogs
-        viewModelScope.launch {
-            opdsService.initializeDefaultCatalogs()
-        }
+        // ViewModel initialized
     }
 
     fun selectCatalog(catalog: OPDSCatalog) {
@@ -533,7 +533,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null // Show loading
-            _currentFeed.value = opdsService.fetchFeed(catalog)
+            _currentFeed.value = opdsService.browseCatalog(catalog.url)
         }
     }
 
@@ -543,25 +543,31 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null
-            _currentFeed.value = opdsService.searchCatalog(catalog, query)
+            _currentFeed.value = opdsService.searchCatalog(catalog.url, query)
         }
     }
 
-    fun downloadPublication(catalogId: Long, publication: OPDSPublication) {
+    fun downloadPublication(catalogId: Long, entry: OPDSEntry) {
         viewModelScope.launch {
-            downloadService.queueDownload(catalogId, publication)
+            downloadService.queueDownload(catalogId, entry)
         }
     }
 
     fun addCustomCatalog(name: String, url: String) {
         viewModelScope.launch {
-            opdsService.addCustomCatalog(name, url)
+            val catalog = OPDSCatalog(
+                name = name,
+                url = url,
+                isDefault = false,
+                isEnabled = true
+            )
+            opdsService.addCatalog(catalog)
         }
     }
 
     fun removeCatalog(catalog: OPDSCatalog) {
         viewModelScope.launch {
-            opdsService.removeCatalog(catalog)
+            opdsService.deleteCatalog(catalog)
         }
     }
 }
