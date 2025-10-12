@@ -3,12 +3,19 @@
 # GitHub Release Creation Script for CleverFerret v1.0.0
 # This script creates a GitHub release with the pre-built APK files
 
-set -e
+set -Eeuo pipefail
+
+# Ensure GitHub CLI is installed
+if ! command -v gh >/dev/null 2>&1; then
+  echo "Error: GitHub CLI (gh) is not installed or not in PATH"
+  echo "Install: https://cli.github.com/ and re-run"
+  exit 1
+fi
 
 VERSION="v1.0.0"
-REPO_OWNER="YOUR_USERNAME"  # Replace with actual GitHub username
-REPO_NAME="YOUR_REPO"        # Replace with actual repo name
-
+# Resolve repo slug (owner/name) from current git remote unless overridden
+: "${REPO_SLUG:=$(gh repo view --json nameWithOwner -q .nameWithOwner)}"
+# Optional: allow overriding via env: export REPO_SLUG=owner/name
 # Check if gh is authenticated
 if ! gh auth status &>/dev/null; then
     echo "Error: GitHub CLI is not authenticated"
