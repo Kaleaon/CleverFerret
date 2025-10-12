@@ -133,6 +133,7 @@ fun NetworkStorageSettingsScreen(
             )
         }
     }
+}
 
 @Composable
 private fun NetworkStorageCard(

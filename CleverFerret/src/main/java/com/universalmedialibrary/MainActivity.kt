@@ -176,12 +176,12 @@ fun AppNavigation() {
             CollectionsScreen(onOpenCollection = { collectionId -> 
                 navController.navigate("collection_detail/$collectionId")
             })
-           composable("settings/media_servers") {
-               MediaServerSettingsScreen(onBack = { navController.navigateUp() })
-           }
-           composable("settings/network_storage") {
-               NetworkStorageSettingsScreen(onBack = { navController.navigateUp() })
-           }
+        }
+        composable("settings/media_servers") {
+            MediaServerSettingsScreen(onBack = { navController.navigateUp() })
+        }
+        composable("settings/network_storage") {
+            NetworkStorageSettingsScreen(onBack = { navController.navigateUp() })
         }
         
         composable("collection_detail/{collectionId}") { backStackEntry ->
