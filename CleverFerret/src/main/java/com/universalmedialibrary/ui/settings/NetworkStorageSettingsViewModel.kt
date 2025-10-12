@@ -10,13 +10,30 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NetworkStorageSettingsViewModel @Inject constructor(
-    private val networkStorageRepository: NetworkStorageRepository
+    private val networkStorageRepository: NetworkStorageRepository,
+    private val settingsRepository: com.universalmedialibrary.data.repository.SettingsRepository
 ) : ViewModel() {
+
+    val selectedTheme: StateFlow<com.universalmedialibrary.ui.theme.ThemePalette> = settingsRepository.themeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
+        )
+
+    val darkMode: StateFlow<Boolean> = settingsRepository.darkModeFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 
     private val _uiState = MutableStateFlow(NetworkStorageSettingsUiState())
     val uiState: StateFlow<NetworkStorageSettingsUiState> = _uiState.asStateFlow()
