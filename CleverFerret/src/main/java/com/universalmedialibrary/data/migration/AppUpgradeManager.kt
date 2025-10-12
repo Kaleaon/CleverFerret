@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
-import com.universalmedialibrary.data.preferences.UserLibraryBackupService
+// import com.universalmedialibrary.data.preferences.UserLibraryBackupService // Disabled - not currently operational
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,8 +37,8 @@ import javax.inject.Singleton
 @Singleton
 class AppUpgradeManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val database: AppDatabase,
-    private val backupService: UserLibraryBackupService
+    private val database: AppDatabase
+    // private val backupService: UserLibraryBackupService // Disabled - not currently operational
 ) {
     private val TAG = "AppUpgradeManager"
     
@@ -112,13 +112,14 @@ class AppUpgradeManager @Inject constructor(
 
             // STEP 1: Create backup BEFORE any changes
             Log.i(TAG, "Creating pre-upgrade backup...")
-            val backupPath = backupService.createAutomaticBackup()
+            // TODO: Re-enable backup service when operational
+            val backupPath: String? = null // backupService.createAutomaticBackup()
             
             if (backupPath != null) {
                 prefs.edit().putString(KEY_LAST_BACKUP_PATH, backupPath).apply()
                 Log.i(TAG, "✅ Backup created: $backupPath")
             } else {
-                Log.w(TAG, "⚠️ Backup failed - proceeding with caution")
+                Log.w(TAG, "⚠️ Backup disabled - proceeding without backup")
             }
 
             // STEP 2: Run database migrations (handled by Room)
@@ -164,14 +165,14 @@ class AppUpgradeManager @Inject constructor(
 
             Log.i(TAG, "🎉 Upgrade complete: $fromName → $toName")
 
-            UpgradeStatus.Upgraded(
+            return UpgradeStatus.Upgraded(
                 fromVersion = fromName ?: "unknown",
                 toVersion = toName,
                 backupPath = backupPath
             )
         } catch (e: Exception) {
             Log.e(TAG, "❌ Upgrade failed: ${e.message}", e)
-            UpgradeStatus.Error(e.message ?: "Unknown error")
+            return UpgradeStatus.Error(e.message ?: "Unknown error")
         }
     }
 
