@@ -3,6 +3,7 @@ package com.universalmedialibrary
 import android.app.Application
 import android.util.Log
 import com.universalmedialibrary.data.migration.AppUpgradeManager
+import com.universalmedialibrary.data.migration.BackupRestorationManager
 import com.universalmedialibrary.data.migration.UpgradeStatus
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +28,9 @@ class CleverFerretApplication : Application() {
 
     @Inject
     lateinit var appUpgradeManager: AppUpgradeManager
+    
+    @Inject
+    lateinit var backupRestorationManager: BackupRestorationManager
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -69,7 +73,12 @@ class CleverFerretApplication : Application() {
                     Log.e(TAG, "❌ Migration failed: ${status.error}")
                     Log.e(TAG, "📦 Backup available at: ${status.backupPath}")
                     Log.e(TAG, "User data is safe - can restore from backup!")
-                    // TODO: Show user dialog offering to restore from backup
+                    
+                    // Request backup restoration dialog to be shown in MainActivity
+                    backupRestorationManager.requestRestoration(
+                        backupPath = status.backupPath,
+                        errorMessage = status.error
+                    )
                 }
                 
                 is UpgradeStatus.Downgrade -> {

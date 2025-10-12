@@ -349,24 +349,36 @@ fun AppNavigation() {
             )
         }
 
-        // Visualizer route
-        composable("visualizer") {
-            com.universalmedialibrary.ui.visualizer.VisualizerScreen(
-                onBack = { navController.navigateUp() },
-                onNavigateToPresets = { navController.navigate("visualizer_presets") }
-            )
-        }
-        
-        // Visualizer presets browser
-        composable("visualizer_presets") {
-            com.universalmedialibrary.ui.visualizer.PresetBrowserScreen(
-                onBack = { navController.navigateUp() },
-                onPresetSelected = { preset ->
-                    // TODO: Pass preset back to visualizer
-                    navController.navigateUp()
-                }
-            )
-        }
+           // Visualizer route
+           composable("visualizer") { backStackEntry ->
+               val visualizerViewModel: com.universalmedialibrary.ui.visualizer.VisualizerViewModel = 
+                   androidx.hilt.navigation.compose.hiltViewModel(backStackEntry)
+               
+               com.universalmedialibrary.ui.visualizer.VisualizerScreen(
+                   onBack = { navController.navigateUp() },
+                   onNavigateToPresets = { navController.navigate("visualizer_presets") },
+                   viewModel = visualizerViewModel
+               )
+           }
+           
+           // Visualizer presets browser
+           composable("visualizer_presets") { backStackEntry ->
+               // Get the parent VisualizerViewModel to share state
+               val parentEntry = remember(backStackEntry) {
+                   navController.getBackStackEntry("visualizer")
+               }
+               val visualizerViewModel: com.universalmedialibrary.ui.visualizer.VisualizerViewModel = 
+                   androidx.hilt.navigation.compose.hiltViewModel(parentEntry)
+               
+               com.universalmedialibrary.ui.visualizer.PresetBrowserScreen(
+                   onBack = { navController.navigateUp() },
+                   onPresetSelected = { preset ->
+                       // Pass the selected preset to the visualizer
+                       visualizerViewModel.setPreset(preset)
+                       navController.navigateUp()
+                   }
+               )
+           }
     }
 }
 

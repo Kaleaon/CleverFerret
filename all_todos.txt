@@ -1,0 +1,86 @@
+CleverFerret/src/main/java/com/universalmedialibrary/CleverFerretApplication.kt:                    // TODO: Show user dialog offering to restore from backup
+CleverFerret/src/main/java/com/universalmedialibrary/MainActivity.kt:                    // TODO: Pass preset back to visualizer
+CleverFerret/src/main/java/com/universalmedialibrary/data/models/UnifiedMediaModel.kt: * TODO: Add support for tags and collections as properties
+CleverFerret/src/main/java/com/universalmedialibrary/data/models/UnifiedMediaModel.kt: * TODO: Add computed properties for artwork variants
+CleverFerret/src/main/java/com/universalmedialibrary/data/models/UnifiedMediaModel.kt: * TODO: Add support for external media sources (Plex, Jellyfin)
+CleverFerret/src/main/java/com/universalmedialibrary/data/models/UnifiedMediaModel.kt: * TODO: Add support for grouped media (albums, series)
+CleverFerret/src/main/java/com/universalmedialibrary/data/models/UnifiedMediaModel.kt: * TODO: Add support for media relationships (related books, sequels)
+CleverFerret/src/main/java/com/universalmedialibrary/data/models/UnifiedMediaModel.kt:    // TODO: Add these computed properties when tag/collection support is implemented
+CleverFerret/src/main/java/com/universalmedialibrary/data/models/UnifiedMediaModel.kt:    // TODO: Add artwork accessors for different contexts
+CleverFerret/src/main/java/com/universalmedialibrary/services/audio/AudioPlaybackManager.kt:                // TODO: Migrate to Media3's MediaSessionService for proper integration
+CleverFerret/src/main/java/com/universalmedialibrary/services/audiobook/AudiobookService.kt:                        artwork = null // TODO: Load audiobook cover art
+CleverFerret/src/main/java/com/universalmedialibrary/services/audiobook/AudiobookService.kt:                author = "Unknown Author", // TODO: Extract from metadata when available
+CleverFerret/src/main/java/com/universalmedialibrary/services/epub/EpubReaderEngine.kt:                        // TODO: Implement streaming support for remote EPUB files
+CleverFerret/src/main/java/com/universalmedialibrary/services/epub/EpubReaderEngine.kt:            coverImageData = null // TODO: Extract cover image from EPUB
+CleverFerret/src/main/java/com/universalmedialibrary/services/media/MediaNotificationService.kt:     * TODO: Implement proper initialization strategy (manual factory or lazy initialization)
+CleverFerret/src/main/java/com/universalmedialibrary/services/media/MediaNotificationService.kt:        // TODO: Get MediaSession from proper source
+CleverFerret/src/main/java/com/universalmedialibrary/services/media/MediaNotificationService.kt:            // TODO: Initialize artworkLoader properly when this feature is implemented
+CleverFerret/src/main/java/com/universalmedialibrary/services/media/MediaNotificationService.kt:        // TODO: Investigate proper Media3 notification integration with MediaNotificationManager
+CleverFerret/src/main/java/com/universalmedialibrary/services/media/MediaSessionManager.kt:            // TODO: Set duration for MediaMetadata - need to check Media3 API
+CleverFerret/src/main/java/com/universalmedialibrary/services/media/UniversalMediaPlayerService.kt: * TODO: Add ExoPlayer support when dependencies are available
+CleverFerret/src/main/java/com/universalmedialibrary/services/music/AdvancedMusicPlayerService.kt:                artwork = null, // TODO: Load artwork from albumArtUrl
+CleverFerret/src/main/java/com/universalmedialibrary/services/music/AdvancedMusicPlayerService.kt:            duration = 0L, // TODO: Extract duration from file metadata
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/AudiobookPlaylistManager.kt:        // TODO: Filter by author when metadata is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/AudiobookPlaylistManager.kt:        // TODO: Filter by genre when metadata is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/AudiobookPlaylistManager.kt:        // TODO: Integrate with reading progress to find last read book
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/AudiobookPlaylistManager.kt:                        progress = 0f, // TODO: Integrate with reading progress
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/AudiobookPlaylistManager.kt:                        isFinished = false, // TODO: Check finished list
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/AudiobookPlaylistManager.kt:                        bookmarks = emptyList() // TODO: Load bookmarks
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/AudiobookPlaylistManager.kt:                totalDuration = 0L, // TODO: Calculate from book durations
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MoviePlaylistManager.kt:        // TODO: Filter by genre when metadata is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MoviePlaylistManager.kt:        // TODO: Filter by director when metadata is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MoviePlaylistManager.kt:                        watched = false, // TODO: Integrate with watch history
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MoviePlaylistManager.kt:                        rating = 0f // TODO: Integrate with rating system
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MoviePlaylistManager.kt:                totalDuration = 0L, // TODO: Calculate from movie durations
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MoviePlaylistManager.kt:        // TODO: Calculate when duration metadata is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MusicPlaylistManager.kt:        // TODO: Filter by genre when metadata is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MusicPlaylistManager.kt:        // TODO: Implement when play count tracking is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/MusicPlaylistManager.kt:                totalDuration = 0L // TODO: Calculate from track durations
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/TVShowPlaylistManager.kt:        // TODO: Filter by show name and season when metadata is available
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/TVShowPlaylistManager.kt:        // TODO: Integrate with watch history to find last watched episode
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/TVShowPlaylistManager.kt:                        watched = false, // TODO: Integrate with watch history
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/TVShowPlaylistManager.kt:                        progress = 0f // TODO: Integrate with progress tracking
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/TVShowPlaylistManager.kt:                totalDuration = 0L, // TODO: Calculate from episode durations
+CleverFerret/src/main/java/com/universalmedialibrary/services/playlist/TVShowPlaylistManager.kt:        // TODO: Integrate with watch history
+CleverFerret/src/main/java/com/universalmedialibrary/services/reader/ComicReaderEngine.kt:                        // TODO: Implement streaming support for remote comic archives
+CleverFerret/src/main/java/com/universalmedialibrary/services/reader/PDFSearchEngine.kt:        // TODO: Integrate text extraction library
+CleverFerret/src/main/java/com/universalmedialibrary/services/reader/PDFSearchEngine.kt:        // TODO: Implement OCR-based search using ML Kit
+CleverFerret/src/main/java/com/universalmedialibrary/services/reader/PdfReaderEngine.kt:                        // TODO: Implement streaming support for remote PDF files
+CleverFerret/src/main/java/com/universalmedialibrary/services/reader/PdfReaderEngine.kt:        // TODO: Implement text search using a PDF library like PdfBox or implement OCR
+CleverFerret/src/main/java/com/universalmedialibrary/ui/audiobook/AudiobookPlayerScreen.kt:                    // TODO: Add deleteBookmark method to ViewModel
+CleverFerret/src/main/java/com/universalmedialibrary/ui/audiobook/AudiobookPlayerScreen.kt:    // TODO: Implement chapter list UI
+CleverFerret/src/main/java/com/universalmedialibrary/ui/audiobook/AudiobookPlayerScreen.kt:    // TODO: Implement bookmarks UI
+CleverFerret/src/main/java/com/universalmedialibrary/ui/audiobook/AudiobookPlayerScreen.kt:    // TODO: Implement sleep timer dialog UI
+CleverFerret/src/main/java/com/universalmedialibrary/ui/bookshelf/BookshelfViewModel.kt:                        authorName = null, // TODO: Fetch from People table
+CleverFerret/src/main/java/com/universalmedialibrary/ui/bookshelf/BookshelfViewModel.kt:                        seriesName = null  // TODO: Fetch from Series table
+CleverFerret/src/main/java/com/universalmedialibrary/ui/detail/MediaItemDetailViewModel.kt:                // TODO: Add favorite field to MediaItem entity
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryManagementScreen.kt:                                    // TODO: Navigate to settings
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryManagementScreen.kt:                        // TODO: Navigate to library contents
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryManagementScreen.kt:                // TODO: Show snackbar with error message
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryManagementScreen.kt:                // TODO: Add item count and stats
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryManagementScreen.kt:                            text = "0 items", // TODO: Get actual count
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryManagementViewModel.kt:                // TODO: Implement actual media scanning
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/LibraryManagementViewModel.kt:                // TODO: Implement actual Calibre database parsing and import
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/UniversalMediaLibraryViewModel.kt:                                author = extractAuthorFromFileName(mediaItem.fileName), // TODO: Fetch from type-specific metadata tables
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/UniversalMediaLibraryViewModel.kt:                                isFavorite = false, // TODO: Add favorite tracking
+CleverFerret/src/main/java/com/universalmedialibrary/ui/library/UniversalMediaLibraryViewModel.kt:                                progress = 0f // TODO: Add progress tracking from reading progress repository
+CleverFerret/src/main/java/com/universalmedialibrary/ui/media/NowPlayingScreen.kt:            model = null, // TODO: Load artwork from MediaController
+CleverFerret/src/main/java/com/universalmedialibrary/ui/music/MusicPlayerScreen.kt:                // TODO: Show error snackbar
+CleverFerret/src/main/java/com/universalmedialibrary/ui/music/MusicPlayerViewModel.kt:                        // TODO: Update track metadata in database and UI
+CleverFerret/src/main/java/com/universalmedialibrary/ui/music/MusicPlayerViewModel.kt:                    // TODO: Handle similar artists result (show in UI, add to recommendations)
+CleverFerret/src/main/java/com/universalmedialibrary/ui/music/MusicPlayerViewModel.kt:                    // TODO: Handle top tracks result (show in UI, add to queue)
+CleverFerret/src/main/java/com/universalmedialibrary/ui/playback/NowPlayingViewModel.kt:            // TODO: Show UI to choose/create playlist; default fallback name
+CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/PDFReaderViewModel.kt:        // TODO: Implement page selector dialog
+CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/PDFReaderViewModel.kt:        // TODO: Implement bookmarks dialog
+CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/ReadingPreferencesScreen.kt:            // TODO: Show toast/snackbar with result
+CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/ReadingPreferencesScreen.kt:        // TODO: Show file picker for backup selection
+CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/SettingsViewModel.kt:            // TODO: Add SecuritySettingsEntity and DAO for full persistence
+CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/SettingsViewModel.kt:            // TODO: Add GeneralSettingsEntity and DAO for full persistence
+CleverFerret/src/main/java/com/universalmedialibrary/ui/video/VideoLibraryScreen.kt:                                    // TODO: Navigate to video player
+CleverFerret/src/main/java/com/universalmedialibrary/ui/viewer/MediaViewerManager.kt:// import org.apache.tika.Tika  // TODO: Add Tika dependency if needed for content type detection
+CleverFerret/src/main/java/com/universalmedialibrary/ui/viewer/MediaViewerManager.kt:    // private val tika = Tika()  // TODO: Enable when Tika dependency is added
+CleverFerret/src/main/java/com/universalmedialibrary/ui/visualizer/PresetBrowserScreen.kt:            // TODO: Share via Android share sheet
+CleverFerret/src/main/java/com/universalmedialibrary/widgets/MediaPlaybackWidget.kt:    // TODO: Get state from MediaPlaybackWidgetService via currentStateFlow
+CleverFerret/src/main/java/com/universalmedialibrary/widgets/MediaPlaybackWidget.kt:        // TODO: Call MediaPlaybackWidgetService.onPlayClicked() or onPauseClicked()
+CleverFerret/src/main/java/com/universalmedialibrary/widgets/MediaPlaybackWidget.kt:        // TODO: Call MediaPlaybackWidgetService.onPreviousClicked()
+CleverFerret/src/main/java/com/universalmedialibrary/widgets/MediaPlaybackWidget.kt:        // TODO: Call MediaPlaybackWidgetService.onNextClicked()
