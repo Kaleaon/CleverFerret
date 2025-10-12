@@ -36,7 +36,7 @@ class ReadiumEpubService @Inject constructor(
     private val TAG = "ReadiumEpubService"
     
     // Readium Streamer for opening publications
-    private val streamer: Streamer by lazy {
+    private val streamer by lazy {
         Streamer(
             context = context,
             assetRetriever = AssetRetriever(
