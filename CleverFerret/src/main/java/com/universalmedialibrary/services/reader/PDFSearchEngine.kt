@@ -133,7 +133,15 @@ class PDFSearchEngine @Inject constructor(
         // For demonstration, return empty string to indicate limitation
         Log.w(TAG, "Text extraction not fully implemented. Page $pageIndex")
         
-        // TODO: Integrate text extraction library
+        // Text extraction using Readium PDF service
+        return try {
+            val readiumPdfService = com.universalmedialibrary.services.epub.ReadiumPdfService(context)
+            val pageText = readiumPdfService.extractTextFromPage(pdfPath, pageIndex)
+            pageText
+        } catch (e: Exception) {
+            android.util.Log.e("PDFSearchEngine", "Text extraction failed", e)
+            ""
+        }
         // Options:
         // 1. Apache PDFBox: implementation("com.tom_roush:pdfbox-android:2.0.27.0")
         // 2. ML Kit OCR for scanned PDFs
@@ -210,7 +218,33 @@ class PDFSearchEngine @Inject constructor(
         query: String,
         matchCase: Boolean = false
     ): List<SearchResult> = withContext(Dispatchers.IO) {
-        // TODO: Implement OCR-based search using ML Kit
+        // OCR-based search using ML Kit
+        // This is a fallback for scanned PDFs without text layer
+        return try {
+            // First try regular text extraction
+            val extractedText = extractTextFromPage(pdfPath, pageIndex)
+            if (extractedText.isNotBlank()) {
+                return extractedText
+            }
+            
+            // If no text found, use OCR as fallback
+            val bitmap = renderPageToBitmap(pdfPath, pageIndex)
+            if (bitmap != null) {
+                val textRecognizer = com.google.mlkit.vision.text.TextRecognition.getClient(
+                    com.google.mlkit.vision.text.TextRecognizerOptions.DEFAULT_OPTIONS
+                )
+                val image = com.google.mlkit.vision.common.InputImage.fromBitmap(bitmap, 0)
+                
+                // Synchronous OCR processing
+                val result = kotlinx.coroutines.tasks.await(textRecognizer.process(image))
+                result.text
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("PDFSearchEngine", "OCR search failed", e)
+            ""
+        }
         // This would:
         // 1. Render each PDF page as a bitmap
         // 2. Use ML Kit Text Recognition to extract text

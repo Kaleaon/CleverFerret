@@ -33,7 +33,9 @@ class AudiobookService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaRepository: MediaRepository,
     private val exoPlayerService: ExoPlayerService,
-    private val mediaController: MediaController
+    private val mediaController: MediaController,
+    private val artworkLoader: com.universalmedialibrary.services.artwork.ArtworkLoader,
+    private val metadataExtractionService: com.universalmedialibrary.services.media.MetadataExtractionService
 ) {
 
     private val _audiobookState = MutableStateFlow(AudiobookState())
@@ -83,7 +85,15 @@ class AudiobookService @Inject constructor(
                         title = firstChapter?.title ?: audiobook.title,
                         artist = audiobook.author,
                         album = audiobook.title,
-                        artwork = null // TODO: Load audiobook cover art
+                        // Load audiobook cover art
+                       val artwork = artworkLoader.loadArtwork(
+                           mediaItem = mediaItem,
+                           maxWidth = 512,
+                           maxHeight = 512
+                       )
+                       
+                       // Pass artwork to mediaController
+                       artwork = artwork
                     )
                 }
 
@@ -144,7 +154,13 @@ class AudiobookService @Inject constructor(
             Audiobook(
                 id = mediaItem.itemId,
                 title = mediaItem.fileName.substringBeforeLast('.'),
-                author = "Unknown Author", // TODO: Extract from metadata when available
+                // Extract author from metadata
+                author = run {
+                    val metadata = metadataExtractionService.extractMetadata(mediaItem)
+                    metadata.commonMetadata?.creator ?: 
+                    metadata.bookMetadata?.author ?: 
+                    "Unknown Author"
+                },
                 chapters = chapters,
                 totalDuration = chapters.sumOf { it.durationMs }
             )

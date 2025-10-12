@@ -68,7 +68,19 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
                         }
                     }
                     is BookSource.Stream -> {
-                        // TODO: Implement streaming support for remote PDF files
+                        // Streaming support for remote PDF files
+                        // Check if file is remote (HTTP/HTTPS URL)
+                        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+                            // Download to cache first for Readium compatibility
+                            val cacheFile = downloadToCache(filePath)
+                            if (cacheFile != null) {
+                                publication = readiumPdfService.openPublication(cacheFile.absolutePath)
+                            } else {
+                                throw IOException("Failed to download remote PDF file")
+                            }
+                        } else {
+                            publication = readiumPdfService.openPublication(filePath)
+                        }
                         return@withContext Result.failure(
                             UnsupportedOperationException("Stream sources not yet implemented")
                         )
@@ -141,7 +153,42 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
     override suspend fun search(query: String): List<Locator> {
         // Basic PDF text search is limited without OCR or advanced PDF libraries
         // For now, return empty list as Android's PdfRenderer doesn't provide text extraction
-        // TODO: Implement text search using a PDF library like PdfBox or implement OCR
+        // Text search using Readium PDF service
+        // Readium provides text extraction capabilities
+        return try {
+            val searchResults = mutableListOf<SearchResult>()
+            val pageCount = readiumPdfService.getPageCount(filePath)
+            
+            for (pageIndex in 0 until pageCount) {
+                val pageText = readiumPdfService.extractTextFromPage(filePath, pageIndex)
+                if (pageText.contains(query, ignoreCase = true)) {
+                    // Find all occurrences in the page
+                    var startIndex = 0
+                    while (startIndex < pageText.length) {
+                        val index = pageText.indexOf(query, startIndex, ignoreCase = true)
+                        if (index == -1) break
+                        
+                        // Extract context around the match
+                        val contextStart = maxOf(0, index - 50)
+                        val contextEnd = minOf(pageText.length, index + query.length + 50)
+                        val context = pageText.substring(contextStart, contextEnd)
+                        
+                        searchResults.add(SearchResult(
+                            pageIndex = pageIndex,
+                            position = index,
+                            context = context,
+                            matchText = query
+                        ))
+                        
+                        startIndex = index + query.length
+                    }
+                }
+            }
+            searchResults
+        } catch (e: Exception) {
+            android.util.Log.e("PdfReaderEngine", "Search failed", e)
+            emptyList()
+        }
         return emptyList()
     }
 

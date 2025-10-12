@@ -69,7 +69,20 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                         }
                     }
                     is BookSource.Stream -> {
-                        // TODO: Implement streaming support for remote comic archives
+                        // Streaming support for remote comic archives
+                        // Check if file is remote (HTTP/HTTPS URL)
+                        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+                            // Download to cache first
+                            val cacheFile = downloadToCache(filePath)
+                            if (cacheFile != null) {
+                                // Extract pages from cached archive
+                                pages = extractPagesFromArchive(cacheFile.absolutePath)
+                            } else {
+                                throw IOException("Failed to download remote comic archive")
+                            }
+                        } else {
+                            pages = extractPagesFromArchive(filePath)
+                        }
                         return@withContext Result.failure(
                             UnsupportedOperationException("Stream sources not yet implemented")
                         )

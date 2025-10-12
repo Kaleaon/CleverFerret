@@ -177,7 +177,8 @@ fun AudiobookPlayerScreen(
                     showBookmarks = false
                 },
                 onBookmarkDelete = { bookmark ->
-                    // TODO: Add deleteBookmark method to ViewModel
+                    // Delete bookmark using ViewModel
+                    viewModel.deleteBookmark(bookmark.id)
                     // viewModel.deleteBookmark(bookmark)
                 },
                 onDismiss = { showBookmarks = false }
@@ -604,7 +605,18 @@ fun ChapterListBottomSheet(
     onChapterSelected: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement chapter list UI
+    // Chapter list UI implementation
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(chapters) { chapter ->
+            ChapterListItem(
+                chapter = chapter,
+                isCurrentChapter = chapter.index == currentChapterIndex,
+                onClick = { viewModel.seekToChapter(chapter.index) }
+            )
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -623,7 +635,18 @@ fun BookmarksBottomSheet(
     onBookmarkDelete: (AudiobookBookmark) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement bookmarks UI
+    // Bookmarks UI implementation
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(bookmarks) { bookmark ->
+            BookmarkListItem(
+                bookmark = bookmark,
+                onClick = { viewModel.seekToBookmark(bookmark) },
+                onDelete = { viewModel.deleteBookmark(bookmark.id) }
+            )
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -641,7 +664,33 @@ fun SleepTimerDialog(
     onTimerSet: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement sleep timer dialog UI
+    // Sleep timer dialog UI implementation
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Sleep Timer") },
+        text = {
+            Column {
+                Text("Set timer duration:")
+                Spacer(modifier = Modifier.height(16.dp))
+                // Timer duration options
+                listOf(5, 10, 15, 30, 45, 60).forEach { minutes ->
+                    TextButton(
+                        onClick = {
+                            viewModel.setSleepTimer(minutes)
+                            onDismiss()
+                        }
+                    ) {
+                        Text("$minutes minutes")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()

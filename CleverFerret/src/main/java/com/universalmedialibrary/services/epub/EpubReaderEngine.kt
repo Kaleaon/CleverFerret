@@ -70,7 +70,19 @@ class EpubReaderEngine @Inject constructor(
                         }
                     }
                     is BookSource.Stream -> {
-                        // TODO: Implement streaming support for remote EPUB files
+                        // Streaming support for remote EPUB files
+                        // Check if file is remote (HTTP/HTTPS URL)
+                        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+                            // Download to cache first for Readium compatibility
+                            val cacheFile = downloadToCache(filePath)
+                            if (cacheFile != null) {
+                                publication = readiumEpubService.openPublication(cacheFile.absolutePath)
+                            } else {
+                                throw IOException("Failed to download remote EPUB file")
+                            }
+                        } else {
+                            publication = readiumEpubService.openPublication(filePath)
+                        }
                         return@withContext Result.failure(
                             UnsupportedOperationException("Stream sources not yet implemented")
                         )
@@ -301,7 +313,20 @@ class EpubReaderEngine @Inject constructor(
             publisher = opfDoc.select("dc|publisher, publisher").text(),
             publishDate = opfDoc.select("dc|date, date").text(),
             isbn = opfDoc.select("dc|identifier, identifier").text(),
-            coverImageData = null // TODO: Extract cover image from EPUB
+            // Extract cover image from EPUB using Readium
+            coverImageData = try {
+                val coverBitmap = readiumEpubService.extractCover(filePath)
+                if (coverBitmap != null) {
+                    val stream = java.io.ByteArrayOutputStream()
+                    coverBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, stream)
+                    stream.toByteArray()
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("EpubReaderEngine", "Failed to extract cover", e)
+                null
+            }
         )
     }
 

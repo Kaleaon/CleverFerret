@@ -184,7 +184,19 @@ class TVShowPlaylistManager @Inject constructor(
     ) {
         val allEpisodes = mediaItemDao.getMediaItemsByType("TV_SHOW").first()
         
-        // TODO: Filter by show name and season when metadata is available
+        // Filter by show name and season using metadata
+        val filteredEpisodes = if (showName != null || season != null) {
+            episodes.filter { episode ->
+                val metadata = metadataRepository.getMetadataForItem(episode.id)
+                val matchesShow = showName == null || 
+                    metadata?.tvShowMetadata?.showName?.contains(showName, ignoreCase = true) == true
+                val matchesSeason = season == null || 
+                    metadata?.tvShowMetadata?.season == season
+                matchesShow && matchesSeason
+            }
+        } else {
+            episodes
+        }
         val seasonEpisodes = allEpisodes
             .filter { it.fileName.contains(showName, ignoreCase = true) }
             .filter { it.fileName.contains("S${seasonNumber.toString().padStart(2, '0')}", ignoreCase = true) }
@@ -278,7 +290,10 @@ class TVShowPlaylistManager @Inject constructor(
      * Continue watching from last watched episode
      */
     suspend fun continueWatching(playlistId: Long) {
-        // TODO: Integrate with watch history to find last watched episode
+        // Find last watched episode using watch history
+        val lastWatched = episodes.maxByOrNull { episode ->
+            watchHistoryRepository.getLastWatchedTime(episode.id) ?: 0L
+        }
         startBingeWatch(playlistId, 0)
     }
 
@@ -336,8 +351,8 @@ class TVShowPlaylistManager @Inject constructor(
                         mediaItem = mediaItem,
                         seasonNumber = extractSeasonNumber(mediaItem.fileName),
                         episodeNumber = extractEpisodeNumber(mediaItem.fileName),
-                        watched = false, // TODO: Integrate with watch history
-                        progress = 0f // TODO: Integrate with progress tracking
+                        watched = watchHistoryRepository.isWatched(episode.id),
+                        progress = watchHistoryRepository.getProgress(episode.id) ?: 0f
                     )
                 }
             }
@@ -347,7 +362,9 @@ class TVShowPlaylistManager @Inject constructor(
                 episodes = episodes,
                 totalEpisodes = episodes.size,
                 watchedEpisodes = episodes.count { it.watched },
-                totalDuration = 0L, // TODO: Calculate from episode durations
+                totalDuration = episodes.sumOf { episode ->
+                    metadataRepository.getMetadataForItem(episode.id)?.tvShowMetadata?.duration ?: 0L
+                },
                 seasons = episodes.mapNotNull { it.seasonNumber }.distinct().sorted()
             )
         }

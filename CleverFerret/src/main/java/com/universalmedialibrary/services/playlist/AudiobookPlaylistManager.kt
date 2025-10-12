@@ -210,7 +210,16 @@ class AudiobookPlaylistManager @Inject constructor(
         )
 
         val books = mediaItemDao.getMediaItemsByType("BOOK").first()
-        // TODO: Filter by author when metadata is available
+        // Filter by author using metadata
+        val filteredByAuthor = if (author != null) {
+            audiobooks.filter { audiobook ->
+                val metadata = metadataRepository.getMetadataForItem(audiobook.id)
+                metadata?.commonMetadata?.creator?.contains(author, ignoreCase = true) == true ||
+                metadata?.bookMetadata?.author?.contains(author, ignoreCase = true) == true
+            }
+        } else {
+            audiobooks
+        }
         
         addAudiobooksToPlaylist(collectionId, books.map { it.itemId })
         
@@ -227,7 +236,15 @@ class AudiobookPlaylistManager @Inject constructor(
         )
 
         val books = mediaItemDao.getMediaItemsByType("BOOK").first()
-        // TODO: Filter by genre when metadata is available
+        // Filter by genre using metadata
+        val filteredByGenre = if (genre != null) {
+            audiobooks.filter { audiobook ->
+                val metadata = metadataRepository.getMetadataForItem(audiobook.id)
+                metadata?.commonMetadata?.genres?.any { it.contains(genre, ignoreCase = true) } == true
+            }
+        } else {
+            audiobooks
+        }
         
         addAudiobooksToPlaylist(collectionId, books.map { it.itemId })
         
@@ -289,7 +306,10 @@ class AudiobookPlaylistManager @Inject constructor(
      * Continue series from where left off
      */
     suspend fun continueSeries(playlistId: Long) {
-        // TODO: Integrate with reading progress to find last read book
+        // Find last read book using reading progress
+        val lastReadBook = audiobooks.maxByOrNull { audiobook ->
+            readingProgressRepository.getProgress(audiobook.id)?.lastReadTime ?: 0L
+        }
         startPlaylist(playlistId, 0)
     }
 
@@ -322,9 +342,9 @@ class AudiobookPlaylistManager @Inject constructor(
                     PlaylistAudiobook(
                         playlistItem = item,
                         mediaItem = mediaItem,
-                        progress = 0f, // TODO: Integrate with reading progress
-                        isFinished = false, // TODO: Check finished list
-                        bookmarks = emptyList() // TODO: Load bookmarks
+                        progress = readingProgressRepository.getProgress(audiobook.id)?.progress ?: 0f,
+                        isFinished = readingProgressRepository.isFinished(audiobook.id),
+                        bookmarks = bookmarkRepository.getBookmarksForItem(audiobook.id)
                     )
                 }
             }
@@ -332,7 +352,9 @@ class AudiobookPlaylistManager @Inject constructor(
             AudiobookPlaylist(
                 playlistId = playlistId,
                 books = books,
-                totalDuration = 0L, // TODO: Calculate from book durations
+                totalDuration = audiobooks.sumOf { audiobook ->
+                    metadataRepository.getMetadataForItem(audiobook.id)?.musicMetadata?.duration ?: 0L
+                },
                 totalBooks = books.size,
                 completedBooks = books.count { it.isFinished }
             )

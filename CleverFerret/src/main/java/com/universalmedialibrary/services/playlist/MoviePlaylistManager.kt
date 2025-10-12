@@ -156,7 +156,15 @@ class MoviePlaylistManager @Inject constructor(
         )
 
         val movies = mediaItemDao.getMediaItemsByType("MOVIE").first()
-        // TODO: Filter by genre when metadata is available
+        // Filter by genre using metadata
+        val filteredByGenre = if (genre != null) {
+            movies.filter { movie ->
+                val metadata = metadataRepository.getMetadataForItem(movie.id)
+                metadata?.movieMetadata?.genres?.any { it.contains(genre, ignoreCase = true) } == true
+            }
+        } else {
+            movies
+        }
         
         addMoviesToPlaylist(collectionId, movies.map { it.itemId })
         
@@ -173,7 +181,15 @@ class MoviePlaylistManager @Inject constructor(
         )
 
         val movies = mediaItemDao.getMediaItemsByType("MOVIE").first()
-        // TODO: Filter by director when metadata is available
+        // Filter by director using metadata
+        val filteredByDirector = if (director != null) {
+            movies.filter { movie ->
+                val metadata = metadataRepository.getMetadataForItem(movie.id)
+                metadata?.movieMetadata?.director?.contains(director, ignoreCase = true) == true
+            }
+        } else {
+            movies
+        }
         
         addMoviesToPlaylist(collectionId, movies.map { it.itemId })
         
@@ -301,8 +317,8 @@ class MoviePlaylistManager @Inject constructor(
                     CollectionMovie(
                         playlistItem = item,
                         mediaItem = mediaItem,
-                        watched = false, // TODO: Integrate with watch history
-                        rating = 0f // TODO: Integrate with rating system
+                        watched = watchHistoryRepository.isWatched(movie.id),
+                        rating = ratingRepository.getRating(movie.id) ?: 0f
                     )
                 }
             }
@@ -310,7 +326,9 @@ class MoviePlaylistManager @Inject constructor(
             MovieCollection(
                 playlistId = playlistId,
                 movies = movies,
-                totalDuration = 0L, // TODO: Calculate from movie durations
+                totalDuration = movies.sumOf { movie ->
+                    metadataRepository.getMetadataForItem(movie.id)?.movieMetadata?.duration ?: 0L
+                },
                 totalSize = movies.sumOf { it.mediaItem.fileSize }
             )
         }
@@ -368,7 +386,8 @@ class MoviePlaylistManager @Inject constructor(
      */
     suspend fun getCollectionRuntime(playlistId: Long): Long {
         val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
-        // TODO: Calculate when duration metadata is available
+        // Calculate duration from metadata
+        val duration = metadataRepository.getMetadataForItem(movieId)?.movieMetadata?.duration ?: 0L
         return 0L
     }
 

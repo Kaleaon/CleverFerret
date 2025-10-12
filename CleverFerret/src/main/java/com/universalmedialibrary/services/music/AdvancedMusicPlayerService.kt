@@ -33,7 +33,9 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val musicMetadataService: MusicMetadataService,
     private val mediaController: MediaController
-) {
+,
+    private val artworkLoader: com.universalmedialibrary.services.artwork.ArtworkLoader,
+    private val metadataExtractionService: com.universalmedialibrary.services.media.MetadataExtractionService) {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
     val playbackState: StateFlow<AdvancedPlaybackState> = _playbackState.asStateFlow()
@@ -76,7 +78,20 @@ class AdvancedMusicPlayerService @Inject constructor(
                 title = trackInfo.title,
                 artist = trackInfo.artist,
                 album = trackInfo.album,
-                artwork = null, // TODO: Load artwork from albumArtUrl
+                // Load artwork from album art URL or embedded metadata
+                artwork = if (!albumArtUrl.isNullOrEmpty()) {
+                    artworkLoader.loadFromUrl(
+                        url = albumArtUrl,
+                        maxWidth = 512,
+                        maxHeight = 512
+                    )
+                } else {
+                    artworkLoader.loadArtwork(
+                        mediaItem = mediaItem,
+                        maxWidth = 512,
+                        maxHeight = 512
+                    )
+                },
                 serviceType = MediaServiceType.MUSIC
             )
 
@@ -347,7 +362,11 @@ class AdvancedMusicPlayerService @Inject constructor(
             title = mediaItem.fileName.substringBeforeLast('.'),
             artist = extractArtistFromMetadata(mediaItem),
             album = extractAlbumFromMetadata(mediaItem),
-            duration = 0L, // TODO: Extract duration from file metadata
+            // Extract duration from file metadata
+            duration = run {
+                val metadata = metadataExtractionService.extractMetadata(mediaItem)
+                metadata.musicMetadata?.duration ?: 0L
+            },
             filePath = mediaItem.filePath,
             albumArtUrl = null, // Will be enhanced later
             queuePosition = queuePosition
