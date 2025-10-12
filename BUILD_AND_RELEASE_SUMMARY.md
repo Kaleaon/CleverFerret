@@ -81,7 +81,7 @@ nano create-release.sh
 
 ### Option 2: Manual via GitHub Web UI
 
-1. Navigate to: https://github.com/YOUR_REPO/releases/new
+1. Navigate to: [https://github.com/Kaleaon/CleverFerret/releases/new](https://github.com/Kaleaon/CleverFerret/releases/new)
 2. Select tag: `v1.0.0` (or create it)
 3. Release title: `CleverFerret v1.0.0`
 4. Description: Copy from RELEASE_NOTES.md
@@ -91,7 +91,6 @@ nano create-release.sh
    - universal-media-library-v1.0-signed.apk.sha256
    - universal-media-library-v1.0.apk.sha256
 6. Click "Publish release"
-
 ### Option 3: Using GitHub CLI Directly
 
 ```bash
