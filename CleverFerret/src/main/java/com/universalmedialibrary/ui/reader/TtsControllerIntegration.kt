@@ -118,7 +118,15 @@ class EnhancedTtsController @Inject constructor(
             else 0f
         )
 
-        val success = currentService?.speak(sentences[index]) ?: false
+```kotlin
+val success = (currentService?.speak(sentences[index]) ?: false).also { ok ->
+    if (!ok) {
+        _playbackState.value = _playbackState.value.copy(
+            state = TtsState.ERROR,
+            errorMessage = "TTS speak() failed"
+        )
+    }
+}
         
         if (success && index < sentences.size - 1) {
             // Continue to next sentence (avoid deep recursion)
