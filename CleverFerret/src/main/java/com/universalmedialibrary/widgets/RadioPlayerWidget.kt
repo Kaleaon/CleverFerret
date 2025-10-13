@@ -71,7 +71,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             val intent = Intent(context, RadioPlayerWidget::class.java).setAction(action)
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                action.hashCode(),
+                buttonId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
