@@ -1,4 +1,4 @@
-package com.universalmedialibrary.widgets
+package com.universalmedialibrary.ui.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
