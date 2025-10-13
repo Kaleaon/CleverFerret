@@ -41,7 +41,8 @@ The following dependencies are included in `build.gradle.kts`:
 implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
 // Google Cloud Translation API
-implementation("com.google.cloud:google-cloud-translate:2.26.0")
+// ML Kit for on-device translation
+implementation("com.google.mlkit:translate:17.0.3")
 
 // Room Database (already configured)
 implementation("androidx.room:room-runtime:2.8.2")
