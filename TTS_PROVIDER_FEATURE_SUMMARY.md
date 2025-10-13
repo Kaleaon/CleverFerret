@@ -150,7 +150,7 @@ MetallicCard(onClick = { navController.navigate("settings/tts_provider") }) {
 
 ### 1. Accessing TTS Settings
 
-```
+```text
 Main Screen → Settings → Reading & Audio → Text-to-Speech Provider
 ```
 

@@ -1,13 +1,17 @@
 package com.universalmedialibrary.services.tts
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,9 +31,25 @@ class TtsProviderManager @Inject constructor(
 
     companion object {
         private val PROVIDER_KEY = stringPreferencesKey("tts_provider")
-        private val API_KEY_PREFIX = "tts_api_key_"
-        private val MODEL_KEY_PREFIX = "tts_model_"
-        private val VOICE_ID_PREFIX = "tts_voice_id_"
+        private const val API_KEY_PREFIX = "tts_api_key_"
+        private const val MODEL_KEY_PREFIX = "tts_model_"
+        private const val VOICE_ID_PREFIX = "tts_voice_id_"
+        private const val ENCRYPTED_PREFS_NAME = "tts_encrypted_keys"
+    }
+
+    // Encrypted storage for API keys
+    private val encryptedPrefs: SharedPreferences by lazy {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        EncryptedSharedPreferences.create(
+            context,
+            ENCRYPTED_PREFS_NAME,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
     /**
@@ -45,7 +65,7 @@ class TtsProviderManager @Inject constructor(
 
         TtsProviderSettings(
             provider = provider,
-            apiKey = preferences[stringPreferencesKey("$API_KEY_PREFIX${provider.name}")],
+            apiKey = getEncryptedApiKey(provider),
             model = preferences[stringPreferencesKey("$MODEL_KEY_PREFIX${provider.name}")],
             voiceId = preferences[stringPreferencesKey("$VOICE_ID_PREFIX${provider.name}")]
         )
@@ -55,12 +75,11 @@ class TtsProviderManager @Inject constructor(
      * Get the active TTS service based on current provider
      */
     suspend fun getActiveService(): TextToSpeechService {
-        var settings: TtsProviderSettings? = null
-        providerSettings.collect { settings = it }
+        val settings = providerSettings.first()
         
-        return when (settings?.provider) {
+        return when (settings.provider) {
             TtsProvider.GEMINI -> {
-                settings?.apiKey?.let { geminiTtsService.setApiKey(it) }
+                settings.apiKey?.let { geminiTtsService.setApiKey(it) }
                 geminiTtsService
             }
             TtsProvider.GOOGLE_CLOUD -> {
@@ -89,12 +108,18 @@ class TtsProviderManager @Inject constructor(
     }
 
     /**
-     * Set API key for a provider
+     * Set API key for a provider (encrypted storage)
      */
     suspend fun setApiKey(provider: TtsProvider, apiKey: String) {
-        context.dataStore.edit { preferences ->
-            preferences[stringPreferencesKey("$API_KEY_PREFIX${provider.name}")] = apiKey
-        }
+        // Store encrypted API key
+        encryptedPrefs.edit().putString("$API_KEY_PREFIX${provider.name}", apiKey).apply()
+    }
+
+    /**
+     * Get encrypted API key for a provider
+     */
+    private fun getEncryptedApiKey(provider: TtsProvider): String? {
+        return encryptedPrefs.getString("$API_KEY_PREFIX${provider.name}", null)
     }
 
     /**
@@ -120,12 +145,8 @@ class TtsProviderManager @Inject constructor(
      */
     suspend fun isProviderConfigured(provider: TtsProvider): Boolean {
         if (!provider.requiresApiKey) return true
-
-        var configured = false
-        context.dataStore.data.collect { preferences ->
-            val apiKey = preferences[stringPreferencesKey("$API_KEY_PREFIX${provider.name}")]
-            configured = !apiKey.isNullOrBlank()
-        }
-        return configured
+        
+        val apiKey = getEncryptedApiKey(provider)
+        return !apiKey.isNullOrBlank()
     }
 }

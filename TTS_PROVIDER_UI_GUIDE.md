@@ -4,7 +4,7 @@
 
 ### 1. Settings Menu Entry Point
 
-```
+```text
 ╔═══════════════════════════════════════╗
 ║  Settings                         ←   ║
 ╠═══════════════════════════════════════╣
@@ -27,7 +27,7 @@
 
 ### 2. TTS Provider Selection Screen
 
-```
+```text
 ╔═══════════════════════════════════════╗
 ║ ← Text-to-Speech Provider             ║
 ╠═══════════════════════════════════════╣
@@ -89,7 +89,7 @@
 
 When user clicks on unconfigured provider or settings icon:
 
-```
+```text
 ╔═══════════════════════════════════════╗
 ║  Configure Google Gemini              ║
 ╠═══════════════════════════════════════╣
@@ -116,7 +116,7 @@ When user clicks on unconfigured provider or settings icon:
 ### 4. Provider States
 
 #### Unconfigured Cloud Provider
-```
+```text
 ┌─────────────────────────────────────┐
 │ Google Gemini            ⚙️  ⚠️  ○ │
 │ AI-powered natural speech           │
@@ -126,7 +126,7 @@ When user clicks on unconfigured provider or settings icon:
 ```
 
 #### Configured but Not Selected
-```
+```text
 ┌─────────────────────────────────────┐
 │ Google Cloud TTS         ⚙️  ✓   ○ │
 │ High-quality neural voices          │
@@ -135,7 +135,7 @@ When user clicks on unconfigured provider or settings icon:
 ```
 
 #### Selected and Active
-```
+```text
 ┌─────────────────────────────────────┐
 │ Android TTS                  ✓   ● │ ← Blue border
 │ Built-in device text-to-speech     │
@@ -181,7 +181,7 @@ When user clicks on unconfigured provider or settings icon:
 ## Interaction Flow
 
 ### Selecting Android TTS (No API Key)
-```
+```text
 1. User taps Android TTS card
    ↓
 2. Radio button changes to filled (●)
@@ -192,7 +192,7 @@ When user clicks on unconfigured provider or settings icon:
 ```
 
 ### Selecting Gemini (First Time)
-```
+```text
 1. User taps Gemini card
    ↓
 2. API key dialog appears
@@ -211,7 +211,7 @@ When user clicks on unconfigured provider or settings icon:
 ```
 
 ### Configuring Without Selecting
-```
+```text
 1. User taps settings icon (⚙️)
    ↓
 2. API key dialog appears

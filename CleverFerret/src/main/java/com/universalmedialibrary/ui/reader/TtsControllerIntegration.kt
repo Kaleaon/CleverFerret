@@ -6,6 +6,7 @@ import com.universalmedialibrary.services.tts.TtsProviderManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,7 @@ class EnhancedTtsController @Inject constructor(
     private val ttsProviderManager: TtsProviderManager
 ) {
     private var currentService: TextToSpeechService? = null
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val _settings = MutableStateFlow(TtsSettings())
     val settings: StateFlow<TtsSettings> = _settings.asStateFlow()
@@ -120,8 +121,8 @@ class EnhancedTtsController @Inject constructor(
         val success = currentService?.speak(sentences[index]) ?: false
         
         if (success && index < sentences.size - 1) {
-            // Continue to next sentence
-            playSentence(index + 1)
+            // Continue to next sentence (avoid deep recursion)
+            scope.launch { playSentence(index + 1) }
         } else if (index >= sentences.size - 1) {
             // Finished all sentences
             _playbackState.value = _playbackState.value.copy(
@@ -143,7 +144,7 @@ class EnhancedTtsController @Inject constructor(
      * Resume playback
      */
     fun resume() {
-        currentService?.resume()
+        // Use controller-managed playback restart instead of service.resume()
         scope.launch {
             playSentence(currentSentenceIndex)
         }

@@ -2,10 +2,13 @@ package com.universalmedialibrary.services.tts
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -16,10 +19,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Google Gemini TTS Service Implementation
+ * Google Cloud Text-to-Speech Service with Gemini Voices
  * 
- * Uses Google's Gemini API for high-quality text-to-speech
- * Documentation: https://ai.google.dev/
+ * Uses Google Cloud Text-to-Speech API for high-quality AI-powered speech
+ * Documentation: https://cloud.google.com/text-to-speech/docs/gemini-tts
  */
 @Singleton
 class GeminiTtsService @Inject constructor(
@@ -29,13 +32,15 @@ class GeminiTtsService @Inject constructor(
     private var apiKey: String? = null
     private val _ttsState = MutableStateFlow(TtsServiceState())
     override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
+    
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private val geminiApi: GeminiTtsApi by lazy {
+    private val cloudTtsApi: CloudTextToSpeechApi by lazy {
         Retrofit.Builder()
-            .baseUrl("https://generativelanguage.googleapis.com/v1beta/")
+            .baseUrl("https://texttospeech.googleapis.com/v1/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(GeminiTtsApi::class.java)
+            .create(CloudTextToSpeechApi::class.java)
     }
 
     fun setApiKey(key: String) {
@@ -79,21 +84,21 @@ class GeminiTtsService @Inject constructor(
                 error = null
             )
 
-            // Call Gemini API to generate speech
-            val request = GeminiTtsRequest(
-                contents = listOf(
-                    GeminiContent(
-                        parts = listOf(GeminiPart(text = text))
-                    )
+            // Call Cloud Text-to-Speech API with Gemini voices
+            val request = SynthesizeSpeechRequest(
+                input = TextInput(text = text),
+                voice = VoiceSelectionParams(
+                    languageCode = _ttsState.value.currentLanguage,
+                    name = "gemini-2.5-flash-tts-001" // Gemini TTS voice
                 ),
-                generationConfig = GeminiGenerationConfig(
-                    temperature = 0.9f,
-                    topK = 40,
-                    topP = 0.95f
+                audioConfig = AudioConfig(
+                    audioEncoding = "MP3",
+                    speakingRate = _ttsState.value.speechRate.toDouble(),
+                    pitch = _ttsState.value.pitch.toDouble()
                 )
             )
 
-            val response = geminiApi.generateContent(
+            val response = cloudTtsApi.synthesizeSpeech(
                 apiKey = apiKey!!,
                 request = request
             )
@@ -118,18 +123,19 @@ class GeminiTtsService @Inject constructor(
     }
 
     override fun pause() {
-        // Gemini API doesn't support pause/resume natively
-        stop()
-        _ttsState.value = _ttsState.value.copy(isPaused = true)
+        // Mark paused without clearing current text
+        _ttsState.value = _ttsState.value.copy(
+            isPlaying = false,
+            isPaused = true
+        )
+        // TODO: Cancel any in-flight playback job when implemented
     }
 
     override fun resume() {
-        // Would need to re-speak from current position
-        val currentText = _ttsState.value.currentText
-        if (currentText.isNotEmpty() && _ttsState.value.isPaused) {
-            kotlinx.coroutines.GlobalScope.launch {
-                speak(currentText)
-            }
+        val text = _ttsState.value.currentText
+        if (text.isNotEmpty() && _ttsState.value.isPaused) {
+            _ttsState.value = _ttsState.value.copy(isPaused = false)
+            serviceScope.launch { speak(text) }
         }
     }
 
@@ -188,45 +194,45 @@ class GeminiTtsService @Inject constructor(
 }
 
 /**
- * Gemini API Interface
+ * Google Cloud Text-to-Speech API Interface
+ * Documentation: https://cloud.google.com/text-to-speech/docs/reference/rest
  */
-interface GeminiTtsApi {
-    @POST("models/gemini-pro:generateContent")
-    suspend fun generateContent(
-        @Header("x-goog-api-key") apiKey: String,
-        @Body request: GeminiTtsRequest
-    ): GeminiTtsResponse
+interface CloudTextToSpeechApi {
+    @POST("text:synthesize")
+    suspend fun synthesizeSpeech(
+        @Header("X-Goog-Api-Key") apiKey: String,
+        @Body request: SynthesizeSpeechRequest
+    ): SynthesizeSpeechResponse
 }
 
 /**
- * Gemini API Models
+ * Cloud Text-to-Speech API Models
+ * Based on official Google Cloud TTS API
  */
-data class GeminiTtsRequest(
-    val contents: List<GeminiContent>,
-    val generationConfig: GeminiGenerationConfig? = null
+data class SynthesizeSpeechRequest(
+    val input: TextInput,
+    val voice: VoiceSelectionParams,
+    val audioConfig: AudioConfig
 )
 
-data class GeminiContent(
-    val parts: List<GeminiPart>,
-    val role: String = "user"
-)
-
-data class GeminiPart(
+data class TextInput(
     val text: String
 )
 
-data class GeminiGenerationConfig(
-    val temperature: Float = 0.9f,
-    val topK: Int = 40,
-    val topP: Float = 0.95f,
-    val maxOutputTokens: Int = 2048
+data class VoiceSelectionParams(
+    val languageCode: String,
+    val name: String? = null,
+    val ssmlGender: String? = null
 )
 
-data class GeminiTtsResponse(
-    val candidates: List<GeminiCandidate>
+data class AudioConfig(
+    val audioEncoding: String,
+    val speakingRate: Double = 1.0,
+    val pitch: Double = 0.0,
+    val volumeGainDb: Double = 0.0,
+    val sampleRateHertz: Int? = null
 )
 
-data class GeminiCandidate(
-    val content: GeminiContent,
-    val finishReason: String? = null
+data class SynthesizeSpeechResponse(
+    val audioContent: String // Base64-encoded audio
 )

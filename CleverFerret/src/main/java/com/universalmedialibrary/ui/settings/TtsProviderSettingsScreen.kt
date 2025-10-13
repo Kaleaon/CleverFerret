@@ -37,11 +37,11 @@ class TtsProviderSettingsViewModel @Inject constructor(
     val isConfigured: StateFlow<Map<TtsProvider, Boolean>> = _isConfigured.asStateFlow()
 
     init {
-        loadSettings()
+        observeSettings()
         checkProviderConfiguration()
     }
 
-    private fun loadSettings() {
+    private fun observeSettings() {
         viewModelScope.launch {
             ttsProviderManager.providerSettings.collect { settings ->
                 _providerSettings.value = settings
@@ -62,7 +62,7 @@ class TtsProviderSettingsViewModel @Inject constructor(
     fun selectProvider(provider: TtsProvider) {
         viewModelScope.launch {
             ttsProviderManager.setProvider(provider)
-            loadSettings()
+            // Settings update automatically via Flow observer
         }
     }
 
