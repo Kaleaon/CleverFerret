@@ -13,7 +13,7 @@ import com.universalmedialibrary.MainActivity
  * Radio Player Widget
  * Shows currently playing radio station with controls
  */
-```kotlin
+class RadioPlayerWidget : AppWidgetProvider() {
 override fun onReceive(context: Context, intent: Intent) {
     super.onReceive(context, intent)
     when (intent.action) {
