@@ -1,4 +1,4 @@
-package com.universalmedialibrary.ui.widgets
+package com.universalmedialibrary.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -25,6 +25,37 @@ class RadioPlayerWidget : AppWidgetProvider() {
         }
     }
 
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        
+        when (intent.action) {
+            ACTION_PLAY_PAUSE -> {
+                // TODO: Route to radio playback service to toggle play/pause
+                // Example: RadioPlaybackService.togglePlayPause(context)
+            }
+            ACTION_NEXT -> {
+                // TODO: Route to radio playback service to skip to next station
+                // Example: RadioPlaybackService.nextStation(context)
+            }
+            ACTION_PREV -> {
+                // TODO: Route to radio playback service to go to previous station
+                // Example: RadioPlaybackService.previousStation(context)
+            }
+            ACTION_FAVORITE -> {
+                // TODO: Route to radio playback service to toggle favorite
+                // Example: RadioPlaybackService.toggleFavorite(context)
+            }
+        }
+        
+        // Update all widget instances after handling action
+        if (intent.action in setOf(ACTION_PLAY_PAUSE, ACTION_NEXT, ACTION_PREV, ACTION_FAVORITE)) {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val componentName = android.content.ComponentName(context, RadioPlayerWidget::class.java)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+            onUpdate(context, appWidgetManager, appWidgetIds)
+        }
+    }
+
     companion object {
         private const val ACTION_PLAY_PAUSE = "com.universalmedialibrary.RADIO_PLAY_PAUSE"
         private const val ACTION_NEXT = "com.universalmedialibrary.RADIO_NEXT"
@@ -43,8 +74,9 @@ class RadioPlayerWidget : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_station_genre, "Select a station")
             views.setTextViewText(R.id.widget_now_playing, "Tap to open Radio")
 
-            // Set up click intent to open the app
+            // Set up click intent to open the app and navigate to radio player
             val intent = Intent(context, MainActivity::class.java).apply {
+                action = "OPEN_RADIO_PLAYER"
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
             val pendingIntent = PendingIntent.getActivity(

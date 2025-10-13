@@ -80,14 +80,12 @@ class TtsProviderManager @Inject constructor(
         
         return when (settings.provider) {
             TtsProvider.GEMINI -> {
-TtsProvider.GEMINI -> {
-    val apiKey = getEncryptedApiKey(settings.provider)
-    if (apiKey.isNullOrBlank()) {
-        throw IllegalStateException("Gemini TTS requires an API key. Please configure it in settings.")
-    }
-    geminiTtsService.setApiKey(apiKey)
-    geminiTtsService
-}
+                val apiKey = getEncryptedApiKey(settings.provider)
+                if (apiKey.isNullOrBlank()) {
+                    throw IllegalStateException("Gemini TTS requires an API key. Please configure it in settings.")
+                }
+                geminiTtsService.setApiKey(apiKey)
+                geminiTtsService
             }
             TtsProvider.GOOGLE_CLOUD -> {
                 // TODO: Implement Google Cloud TTS
