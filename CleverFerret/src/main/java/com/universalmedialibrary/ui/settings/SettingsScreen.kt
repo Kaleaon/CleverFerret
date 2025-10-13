@@ -233,7 +233,47 @@ fun SettingsScreen(
                     }
                 }
 
-                   // Media Servers Section
+                   // Reading & Audio Section
+                item {
+                    MetallicText(
+                        text = "Reading & Audio",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/tts_provider") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Text-to-Speech Provider",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Choose between Android TTS, Gemini, and more",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.RecordVoiceOver,
+                                contentDescription = "TTS Settings"
+                            )
+                        }
+                    }
+                }
+
+                // Media Servers Section
                    item {
                        MetallicText(
                            text = "Media Servers",

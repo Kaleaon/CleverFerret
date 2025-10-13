@@ -28,8 +28,8 @@ class AndroidTextToSpeechService @Inject constructor(
 ) : TextToSpeechService {
 
     private var tts: TextToSpeech? = null
-    private val _ttsState = MutableStateFlow(TtsState())
-    override val ttsState: StateFlow<TtsState> = _ttsState.asStateFlow()
+    private val _ttsState = MutableStateFlow(TtsServiceState())
+    override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
 
     private var currentUtteranceId = 0
 
@@ -228,7 +228,7 @@ class AndroidTextToSpeechService @Inject constructor(
     override fun shutdown() {
         tts?.shutdown()
         tts = null
-        _ttsState.value = TtsState()
+        _ttsState.value = TtsServiceState()
     }
 }
 

@@ -13,7 +13,7 @@ interface TextToSpeechService {
     /**
      * Current TTS state
      */
-    val ttsState: StateFlow<TtsState>
+    val ttsState: StateFlow<TtsServiceState>
 
     /**
      * Initialize the TTS service
@@ -72,9 +72,9 @@ interface TextToSpeechService {
 }
 
 /**
- * TTS State representation
+ * TTS Service State representation
  */
-data class TtsState(
+data class TtsServiceState(
     val isInitialized: Boolean = false,
     val isPlaying: Boolean = false,
     val isPaused: Boolean = false,
