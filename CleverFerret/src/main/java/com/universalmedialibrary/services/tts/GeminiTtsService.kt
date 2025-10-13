@@ -103,16 +103,34 @@ class GeminiTtsService @Inject constructor(
                 request = request
             )
 
-            // Process the response and play audio
-            // Note: This is a placeholder - actual implementation would need
-            // to handle audio streaming and playback
-            
+            // Decode and validate audio content
+            val audioBase64 = response.audioContent
+            if (audioBase64.isNullOrBlank()) {
+                _ttsState.value = _ttsState.value.copy(
+                    isPlaying = false,
+                    error = "Empty audioContent from TTS API"
+                )
+                return@withContext false
+            }
+
+            val audioBytes = android.util.Base64.decode(audioBase64, android.util.Base64.DEFAULT)
+            if (audioBytes.isEmpty()) {
+                _ttsState.value = _ttsState.value.copy(
+                    isPlaying = false,
+                    error = "Failed to decode audio"
+                )
+                return@withContext false
+            }
+
+            // TODO: Play audioBytes via AudioTrack or MediaPlayer
+            // For now, we mark as complete but actual playback needs implementation
             _ttsState.value = _ttsState.value.copy(
                 isPlaying = false,
                 currentText = ""
             )
             
-            true
+            // Return false until actual playback is implemented
+            false
         } catch (e: Exception) {
             _ttsState.value = _ttsState.value.copy(
                 isPlaying = false,
@@ -148,7 +166,8 @@ class GeminiTtsService @Inject constructor(
     }
 
     override fun setSpeechRate(rate: Float) {
-        val clampedRate = rate.coerceIn(0.1f, 3.0f)
+        // Cloud TTS speakingRate accepts 0.25-4.0
+        val clampedRate = rate.coerceIn(0.25f, 4.0f)
         _ttsState.value = _ttsState.value.copy(speechRate = clampedRate)
     }
 

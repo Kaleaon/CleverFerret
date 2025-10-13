@@ -44,12 +44,24 @@ enum class TtsProvider(
 
 /**
  * TTS Provider Settings
+ * 
+ * Note: apiKey is moved out of primary constructor to prevent leakage
+ * via auto-generated toString() and reflection-based serialization
  */
 data class TtsProviderSettings(
     val provider: TtsProvider = TtsProvider.ANDROID,
-    val apiKey: String? = null,
     val model: String? = null, // For providers with multiple models
     val voiceId: String? = null, // For providers with voice selection
     val useStreaming: Boolean = true, // For real-time audio streaming
     val cacheAudio: Boolean = true // Cache generated audio locally
-)
+) {
+    // API key stored outside primary constructor to prevent leakage
+    @Transient
+    var apiKey: String? = null
+    
+    // Override toString to redact sensitive data
+    override fun toString(): String {
+        return "TtsProviderSettings(provider=$provider, model=$model, voiceId=$voiceId, " +
+                "useStreaming=$useStreaming, cacheAudio=$cacheAudio, apiKey=[REDACTED])"
+    }
+}

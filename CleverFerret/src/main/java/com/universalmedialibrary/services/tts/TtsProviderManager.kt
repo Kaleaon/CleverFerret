@@ -65,10 +65,12 @@ class TtsProviderManager @Inject constructor(
 
         TtsProviderSettings(
             provider = provider,
-            apiKey = getEncryptedApiKey(provider),
             model = preferences[stringPreferencesKey("$MODEL_KEY_PREFIX${provider.name}")],
             voiceId = preferences[stringPreferencesKey("$VOICE_ID_PREFIX${provider.name}")]
-        )
+        ).apply {
+            // Set API key as a property (not in constructor to prevent leakage)
+            apiKey = getEncryptedApiKey(provider)
+        }
     }
 
     /**
@@ -111,8 +113,8 @@ class TtsProviderManager @Inject constructor(
      * Set API key for a provider (encrypted storage)
      */
     suspend fun setApiKey(provider: TtsProvider, apiKey: String) {
-        // Store encrypted API key
-        encryptedPrefs.edit().putString("$API_KEY_PREFIX${provider.name}", apiKey).apply()
+        // Store encrypted API key (trim to avoid auth failures from whitespace)
+        encryptedPrefs.edit().putString("$API_KEY_PREFIX${provider.name}", apiKey.trim()).apply()
     }
 
     /**
