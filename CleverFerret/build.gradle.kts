@@ -172,6 +172,9 @@ dependencies {
     // Gemini AI for content analysis
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
+    // Google Cloud Translation API for comic translation module
+    implementation("com.google.cloud:google-cloud-translate:2.26.0")
+    
     // All OCR, translation, and image analysis handled by Gemini AI above
     
     // Media metadata extraction libraries

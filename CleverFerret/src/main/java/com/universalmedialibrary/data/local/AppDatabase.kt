@@ -113,10 +113,13 @@ import com.universalmedialibrary.data.Tag
 
         // OPDS catalog support
         OPDSCatalog::class,
-        OPDSDownload::class
+        OPDSDownload::class,
+
+        // Comic Translation Cache (Gemini AI)
+        ComicTranslationCache::class
 
     ],
-    version = 24, // Incremented for OPDS catalog support
+    version = 25, // Incremented for Comic Translation Cache
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -176,6 +179,9 @@ abstract class AppDatabase : RoomDatabase() {
     
     // OPDS Catalog DAO
     abstract fun opdsCatalogDao(): OPDSCatalogDao
+    
+    // Comic Translation Cache DAO
+    abstract fun comicTranslationCacheDao(): ComicTranslationCacheDao
 
 
     companion object {
@@ -195,7 +201,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_20_21,
                     AppDatabaseMigrations.MIGRATION_21_22,
                     AppDatabaseMigrations.MIGRATION_22_23,
-                    AppDatabaseMigrations.MIGRATION_23_24
+                    AppDatabaseMigrations.MIGRATION_23_24,
+                    AppDatabaseMigrations.MIGRATION_24_25
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
