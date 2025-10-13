@@ -49,7 +49,21 @@ object ComicTranslationModule {
     fun provideComicProcessorRepository(
         dao: ComicTranslationCacheDao,
         apiKeyManager: ComicTranslationApiKeyManager
-    ): ComicProcessorRepository? {
+```kotlin
+    ): ComicProcessorRepository {
+        // Fail fast rather than returning null to avoid nullable binding issues
+        if (!apiKeyManager.areKeysConfigured()) {
+            throw IllegalStateException("Gemini API key not configured. Prompt user to configure before using Comic translation.")
+        }
+
+        val geminiKey = apiKeyManager.getGeminiApiKey()
+            ?: throw IllegalStateException("Gemini API key not configured")
+
+        return ComicProcessorRepository(
+            geminiApiKey = geminiKey,
+            translationCacheDao = dao
+        )
+    }
         // Only create repository if Gemini API key is configured
         if (!apiKeyManager.areKeysConfigured()) {
             return null
