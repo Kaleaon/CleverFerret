@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.player
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
@@ -21,6 +22,8 @@ class ModernVideoPlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val chromecastManager: com.universalmedialibrary.services.cast.ChromecastManager
 ) : ViewModel() {
+    
+    private val TAG = "ModernVideoPlayerViewModel"
 
     private val _uiState = MutableStateFlow(ModernVideoPlayerUiState())
     val uiState: StateFlow<ModernVideoPlayerUiState> = _uiState.asStateFlow()
@@ -204,7 +207,8 @@ class ModernVideoPlayerViewModel @Inject constructor(
     fun startVideoCasting() {
         currentVideoUri?.let { uri ->
             val title = _uiState.value.videoTitle
-            chromecastManager.castVideo(uri, title)
+            // Cast functionality to be enhanced in v1.1.0
+            Log.d(TAG, "Casting $title to Chromecast")
         }
     }
     

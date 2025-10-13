@@ -15,6 +15,9 @@ interface OPDSCatalogDao {
     // ========== CATALOG OPERATIONS ==========
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(catalog: OPDSCatalog): Long
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCatalog(catalog: OPDSCatalog): Long
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -22,6 +25,9 @@ interface OPDSCatalogDao {
     
     @Update
     suspend fun updateCatalog(catalog: OPDSCatalog)
+    
+    @Delete
+    suspend fun delete(catalog: OPDSCatalog)
     
     @Delete
     suspend fun deleteCatalog(catalog: OPDSCatalog)
@@ -49,6 +55,9 @@ interface OPDSCatalogDao {
     
     @Query("UPDATE opds_catalogs SET lastAccessedAt = :timestamp, accessCount = accessCount + 1 WHERE id = :catalogId")
     suspend fun updateAccessTime(catalogId: Long, timestamp: Long = System.currentTimeMillis())
+    
+    @Query("UPDATE opds_catalogs SET lastAccessedAt = :timestamp, accessCount = accessCount + 1 WHERE id = :catalogId")
+    suspend fun updateLastAccessed(catalogId: Long, timestamp: Long)
     
     @Query("UPDATE opds_catalogs SET isEnabled = :enabled WHERE id = :catalogId")
     suspend fun setCatalogEnabled(catalogId: Long, enabled: Boolean)

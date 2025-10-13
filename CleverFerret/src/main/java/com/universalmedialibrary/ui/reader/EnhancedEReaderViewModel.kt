@@ -23,6 +23,7 @@ data class EnhancedReaderUiState(
     val currentChapterContent: String = "",
     val totalChapters: Int = 0,
     val currentChapterIndex: Int = 0,
+    val chapters: List<String> = emptyList(),
     val isBookmarked: Boolean = false,
     val isLoading: Boolean = false,
     val isLoaded: Boolean = false,
@@ -99,6 +100,7 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
         _uiState.value = _uiState.value.copy(
             bookTitle = file.nameWithoutExtension,
             currentChapterContent = chapters[0],
+            chapters = chapters,
             totalChapters = chapters.size,
             currentChapterIndex = 0,
             isLoading = false,
@@ -155,6 +157,7 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
             _uiState.value = _uiState.value.copy(
                 bookTitle = file.nameWithoutExtension,
                 currentChapterContent = chapters[0],
+                chapters = chapters,
                 totalChapters = chapters.size,
                 currentChapterIndex = 0,
                 isLoading = false,
@@ -256,6 +259,16 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
             )
             
             // Stop TTS when changing chapters
+            stopTTS()
+        }
+    }
+    
+    fun goToChapter(index: Int) {
+        if (index in chapters.indices) {
+            _uiState.value = _uiState.value.copy(
+                currentChapterIndex = index,
+                currentChapterContent = chapters[index]
+            )
             stopTTS()
         }
     }

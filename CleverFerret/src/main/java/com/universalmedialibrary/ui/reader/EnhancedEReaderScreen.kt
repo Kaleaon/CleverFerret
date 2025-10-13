@@ -293,14 +293,14 @@ fun EnhancedEReaderScreen(
                 title = { Text("Table of Contents") },
                 text = {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        if (uiState.chapters.isEmpty()) {
+                        if (chapters.isEmpty()) {
                             Text(
                                 "No chapters available",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         } else {
-                            uiState.chapters.forEachIndexed { index, chapter ->
+                            uiState.chapters.forEachIndexed { index, _ ->
                                 Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -316,7 +316,7 @@ fun EnhancedEReaderScreen(
                                     }
                                 ) {
                                     Text(
-                                        chapter,
+                                        text = "Chapter " + (index + 1).toString(),
                                         style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.padding(12.dp)
                                     )

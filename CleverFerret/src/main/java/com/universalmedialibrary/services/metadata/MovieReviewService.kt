@@ -243,33 +243,4 @@ private data class OMDbReviewData(
     val imdbRating: String? = null
 )
 
-data class OMDbResponse(
-    val Title: String?,
-    val Year: String?,
-    val imdbRating: String?,
-    val imdbID: String?,
-    val Metascore: String?,
-    val Ratings: List<OMDbRating>?,
-    val Response: String?
-)
-
-data class OMDbRating(
-    val Source: String?,
-    val Value: String?
-)
-
-data class NYTReviewsResponse(
-    val results: List<NYTReview>?
-)
-
-data class NYTReview(
-    val headline: String?,
-    val byline: String?,
-    val summary_short: String?,
-    val publication_date: String?,
-    val link: NYTReviewLink?
-)
-
-data class NYTReviewLink(
-    val url: String?
-)
+// Data classes defined in MetadataServiceModels.kt

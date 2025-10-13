@@ -197,34 +197,7 @@ data class TrailerResult(
     val error: String? = null
 )
 
-data class YouTubeSearchResponse(
-    val items: List<YouTubeSearchItem>?
-)
-
-data class YouTubeSearchItem(
-    val id: YouTubeVideoId?,
-    val snippet: YouTubeSnippet?
-)
-
-data class YouTubeVideoId(
-    val videoId: String?
-)
-
-data class YouTubeSnippet(
-    val title: String?,
-    val thumbnails: YouTubeThumbnails?
-)
-
-data class YouTubeThumbnails(
-    val default: YouTubeThumbnail?,
-    val medium: YouTubeThumbnail?,
-    val high: YouTubeThumbnail?,
-    val maxres: YouTubeThumbnail?
-)
-
-data class YouTubeThumbnail(
-    val url: String?
-)
+// Data classes defined in MetadataServiceModels.kt
 
 data class TMDBVideosResponse(
     val results: List<TMDBVideo>?

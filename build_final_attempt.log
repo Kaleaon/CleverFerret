@@ -1,0 +1,368 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Configuration on demand is an incubating feature.
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources NO-SOURCE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :CleverFerret:clean
+> Task :CleverFerret:preBuild UP-TO-DATE
+> Task :CleverFerret:preDebugBuild UP-TO-DATE
+> Task :CleverFerret:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :CleverFerret:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :CleverFerret:checkDebugAarMetadata
+> Task :CleverFerret:processDebugNavigationResources FROM-CACHE
+> Task :CleverFerret:compileDebugNavigationResources FROM-CACHE
+> Task :CleverFerret:generateDebugResValues FROM-CACHE
+> Task :CleverFerret:mapDebugSourceSetPaths
+> Task :CleverFerret:generateDebugResources FROM-CACHE
+> Task :CleverFerret:mergeDebugResources FROM-CACHE
+> Task :CleverFerret:packageDebugResources FROM-CACHE
+> Task :CleverFerret:parseDebugLocalResources FROM-CACHE
+> Task :CleverFerret:createDebugCompatibleScreenManifests
+> Task :CleverFerret:extractDeepLinksDebug FROM-CACHE
+> Task :CleverFerret:processDebugMainManifest FROM-CACHE
+> Task :CleverFerret:processDebugManifest FROM-CACHE
+> Task :CleverFerret:processDebugManifestForPackage FROM-CACHE
+> Task :CleverFerret:processDebugResources FROM-CACHE
+> Task :CleverFerret:javaPreCompileDebug FROM-CACHE
+> Task :CleverFerret:mergeDebugShaders
+> Task :CleverFerret:compileDebugShaders NO-SOURCE
+> Task :CleverFerret:generateDebugAssets UP-TO-DATE
+> Task :CleverFerret:mergeDebugAssets
+> Task :CleverFerret:compressDebugAssets FROM-CACHE
+> Task :CleverFerret:l8DexDesugarLibDebug FROM-CACHE
+> Task :CleverFerret:desugarDebugFileDependencies FROM-CACHE
+> Task :CleverFerret:mergeDebugJniLibFolders
+> Task :CleverFerret:checkDebugDuplicateClasses
+> Task :CleverFerret:mergeDebugNativeLibs
+> Task :CleverFerret:mergeExtDexDebug FROM-CACHE
+> Task :CleverFerret:mergeLibDexDebug FROM-CACHE
+
+> Task :CleverFerret:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so. Run with --info option to learn more.
+
+> Task :CleverFerret:validateSigningDebug
+> Task :CleverFerret:writeDebugAppMetadata
+> Task :CleverFerret:writeDebugSigningConfigVersions
+> Task :CleverFerret:kspDebugKotlin
+w: [ksp] /workspace/CleverFerret/src/main/java/com/universalmedialibrary/data/local/dao/UnifiedTagDao.kt:182: The query returns some columns [itemCount] which are not used by com.universalmedialibrary.`data`.local.entity.UnifiedTag. You can use @ColumnInfo annotation on the properties to specify the mapping. You can annotate the function with @RewriteQueriesToDropUnusedColumns to direct Room to rewrite your query to avoid fetching unused columns.  You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: tagId, name, type, color, description, createdAt, lastUsed, usageCount, externalId, itemCount.
+
+> Task :CleverFerret:compileDebugKotlin
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/data/repository/MediaServerRepository.kt:58:57 No value passed for parameter 'password'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/EpubReaderEngine.kt:274:32 Argument type mismatch: actual type is 'com.universalmedialibrary.services.epub.EpubMetadata', but 'com.universalmedialibrary.services.epub.SimpleEpubMetadata' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:14:32 Unresolved reference 'Streamer'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:40:29 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:40:29 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:40:29 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:40:29 Property delegate must have a 'getValue(ReadiumPdfService, KProperty1<ReadiumPdfService, ERROR CLASS: Cannot infer argument for type parameter T>)' method. None of the following functions is applicable:
+fun <T> Lazy<T>.getValue(thisRef: Any?, property: KProperty<*>): T
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:40:29 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:40:34 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:41:9 Unresolved reference 'Streamer'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:43:30 Cannot access 'constructor(assetSniffer: AssetSniffer, resourceFactory: ResourceFactory, archiveOpener: ArchiveOpener): AssetRetriever': it is private in 'org/readium/r2/shared/util/asset/AssetRetriever'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:64:34 Unresolved reference 'assetRetriever'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:65:27 2 type arguments expected. Use class 'Success' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:70:40 Unresolved reference 'open'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:71:33 2 type arguments expected. Use class 'Success' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:100:45 Unresolved reference 'positions'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:126:33 2 type arguments expected. Use class 'Success' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:127:42 Unresolved reference 'value'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:129:68 Argument type mismatch: actual type is 'kotlin.Any', but 'kotlin.ByteArray!' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/epub/ReadiumPdfService.kt:129:84 Unresolved reference 'size'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:35:20 None of the following candidates is applicable:
+constructor(optionsBuilder: JellyfinOptions.Builder): Jellyfin
+constructor(options: JellyfinOptions): Jellyfin
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:35:29 Unresolved reference 'httpClientOptions'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:36:13 Unresolved reference 'context'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:39:13 Unresolved reference 'clientInfo'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:40:17 Unresolved reference 'name'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:41:17 Unresolved reference 'version'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:45:13 Unresolved reference 'httpClientOptions'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:46:17 Unresolved reference 'client'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:72:21 No parameter with name 'username' found.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:73:21 No parameter with name 'password' found.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:73:21 No value passed for parameter 'data'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:110:9 Argument type mismatch: actual type is 'it(kotlin.Result<kotlin.String> & kotlin.Result<T>)', but 'it(kotlin.Result<kotlin.collections.List<org.jellyfin.sdk.model.api.BaseItemDto>> & kotlin.Result<T> & kotlin.Result<T>)' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:115:33 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:119:51 Unresolved reference 'getUserViews'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:120:37 Unresolved reference 'items'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:145:33 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:151:28 Argument type mismatch: actual type is 'kotlin.String?', but 'java.util.UUID?' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:182:37 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:220:33 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:253:37 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:259:30 Argument type mismatch: actual type is 'kotlin.String', but 'java.util.UUID' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:277:33 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:281:35 Unresolved reference 'markPlayedItem'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:301:33 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:305:35 Unresolved reference 'markUnplayedItem'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/integration/jellyfin/JellyfinClient.kt:329:29 Unresolved reference 'userId'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:177:12 Redeclaration:
+data class OMDbResponse : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:192:12 Redeclaration:
+data class NYTReviewsResponse : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:200:12 Redeclaration:
+data class NYTReview : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:228:12 Redeclaration:
+data class YouTubeSearchResponse : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:249:12 Redeclaration:
+data class YouTubeVideoId : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:254:12 Redeclaration:
+data class YouTubeSnippet : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:263:12 Redeclaration:
+data class YouTubeThumbnails : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MetadataServiceModels.kt:269:12 Redeclaration:
+data class YouTubeThumbnail : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:145:41 Unresolved reference 'Ratings'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:145:57 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:149:54 Unresolved reference 'Value'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:150:53 Unresolved reference 'Value'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:151:48 Unresolved reference 'Metascore'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:246:12 Redeclaration:
+data class OMDbResponse : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:261:12 Redeclaration:
+data class NYTReviewsResponse : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieReviewService.kt:265:12 Redeclaration:
+data class NYTReview : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieTrailerService.kt:200:12 Redeclaration:
+data class YouTubeSearchResponse : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieTrailerService.kt:209:12 Redeclaration:
+data class YouTubeVideoId : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieTrailerService.kt:213:12 Redeclaration:
+data class YouTubeSnippet : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieTrailerService.kt:218:12 Redeclaration:
+data class YouTubeThumbnails : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/metadata/MovieTrailerService.kt:225:12 Redeclaration:
+data class YouTubeThumbnail : Any
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:59:9 Argument type mismatch: actual type is 'it(kotlin.Unit & kotlin.Result<T>)', but 'it(kotlin.Result<com.universalmedialibrary.services.opds.OPDSFeed> & kotlin.Result<T>)' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:67:39 Argument type mismatch: actual type is 'org.readium.r2.shared.util.Url', but 'org.readium.r2.shared.util.AbsoluteUrl' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:68:39 Unresolved reference 'fetch'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:71:20 2 type arguments expected. Use class 'Success' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:76:28 2 type arguments expected. Use class 'Success' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:88:28 2 type arguments expected. Use class 'Failure' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:94:20 2 type arguments expected. Use class 'Failure' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:96:28 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:96:28 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:101:20 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:130:43 Unresolved reference 'parse'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:131:13 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:132:20 2 type arguments expected. Use class 'Success' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:136:59 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:138:45 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:139:47 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:139:70 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:140:47 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:141:49 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:142:47 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:143:44 Argument type mismatch: actual type is 'kotlin.Int?', but 'kotlin.String?' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:143:48 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:144:48 Unresolved reference 'images'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:144:70 Unresolved reference 'url'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:145:56 Unresolved reference 'links'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:146:47 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:147:38 Overload resolution ambiguity between candidates:
+fun <R, T> Result<T>.map(transform: (@ParameterName(...) T) -> R): Result<R>
+    [R|Contract description]
+     <
+        CallsInPlace(transform, AT_MOST_ONCE)
+    >
+fun <T, R> Array<out T>.map(transform: (T) -> R): List<R>
+fun <R> ByteArray.map(transform: (Byte) -> R): List<R>
+fun <R> ShortArray.map(transform: (Short) -> R): List<R>
+fun <R> IntArray.map(transform: (Int) -> R): List<R>
+fun <R> LongArray.map(transform: (Long) -> R): List<R>
+fun <R> FloatArray.map(transform: (Float) -> R): List<R>
+fun <R> DoubleArray.map(transform: (Double) -> R): List<R>
+fun <R> BooleanArray.map(transform: (Boolean) -> R): List<R>
+fun <R> CharArray.map(transform: (Char) -> R): List<R>
+fun <T, R> Iterable<T>.map(transform: (T) -> R): List<R>
+fun <K, V, R> Map<out K, V>.map(transform: (Map.Entry<K, V>) -> R): List<R>
+fun <R> UIntArray.map(transform: (UInt) -> R): List<R>
+fun <R> ULongArray.map(transform: (ULong) -> R): List<R>
+fun <R> UByteArray.map(transform: (UByte) -> R): List<R>
+fun <R> UShortArray.map(transform: (UShort) -> R): List<R>
+fun <T, R> Sequence<T>.map(transform: (T) -> R): Sequence<R>
+fun <R> CharSequence.map(transform: (Char) -> R): List<R>
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:147:44 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:149:57 Unresolved reference 'url'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:150:58 Unresolved reference 'title'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:151:56 Unresolved reference 'rels'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:156:60 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:158:45 Unresolved reference 'url'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:159:46 Unresolved reference 'title'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:160:44 Unresolved reference 'rels'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:165:20 2 type arguments expected. Use class 'Failure' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:175:43 Unresolved reference 'parse'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:176:13 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:177:20 2 type arguments expected. Use class 'Success' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:181:59 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:183:45 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:184:47 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:184:70 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:185:47 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:186:49 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:187:47 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:188:44 Argument type mismatch: actual type is 'kotlin.Int?', but 'kotlin.String?' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:188:48 Unresolved reference 'metadata'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:189:48 Unresolved reference 'images'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:189:70 Unresolved reference 'url'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:190:56 Unresolved reference 'links'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:191:45 Overload resolution ambiguity between candidates:
+fun <T> Array<out T>.any(predicate: (T) -> Boolean): Boolean
+fun ByteArray.any(predicate: (Byte) -> Boolean): Boolean
+fun ShortArray.any(predicate: (Short) -> Boolean): Boolean
+fun IntArray.any(predicate: (Int) -> Boolean): Boolean
+fun LongArray.any(predicate: (Long) -> Boolean): Boolean
+fun FloatArray.any(predicate: (Float) -> Boolean): Boolean
+fun DoubleArray.any(predicate: (Double) -> Boolean): Boolean
+fun BooleanArray.any(predicate: (Boolean) -> Boolean): Boolean
+fun CharArray.any(predicate: (Char) -> Boolean): Boolean
+fun <T> Iterable<T>.any(predicate: (T) -> Boolean): Boolean
+fun <K, V> Map<out K, V>.any(predicate: (Map.Entry<K, V>) -> Boolean): Boolean
+fun UIntArray.any(predicate: (UInt) -> Boolean): Boolean
+fun ULongArray.any(predicate: (ULong) -> Boolean): Boolean
+fun UByteArray.any(predicate: (UByte) -> Boolean): Boolean
+fun UShortArray.any(predicate: (UShort) -> Boolean): Boolean
+fun <T> Sequence<T>.any(predicate: (T) -> Boolean): Boolean
+fun CharSequence.any(predicate: (Char) -> Boolean): Boolean
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:191:47 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:191:61 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:192:38 Overload resolution ambiguity between candidates:
+fun <R, T> Result<T>.map(transform: (@ParameterName(...) T) -> R): Result<R>
+    [R|Contract description]
+     <
+        CallsInPlace(transform, AT_MOST_ONCE)
+    >
+fun <T, R> Array<out T>.map(transform: (T) -> R): List<R>
+fun <R> ByteArray.map(transform: (Byte) -> R): List<R>
+fun <R> ShortArray.map(transform: (Short) -> R): List<R>
+fun <R> IntArray.map(transform: (Int) -> R): List<R>
+fun <R> LongArray.map(transform: (Long) -> R): List<R>
+fun <R> FloatArray.map(transform: (Float) -> R): List<R>
+fun <R> DoubleArray.map(transform: (Double) -> R): List<R>
+fun <R> BooleanArray.map(transform: (Boolean) -> R): List<R>
+fun <R> CharArray.map(transform: (Char) -> R): List<R>
+fun <T, R> Iterable<T>.map(transform: (T) -> R): List<R>
+fun <K, V, R> Map<out K, V>.map(transform: (Map.Entry<K, V>) -> R): List<R>
+fun <R> UIntArray.map(transform: (UInt) -> R): List<R>
+fun <R> ULongArray.map(transform: (ULong) -> R): List<R>
+fun <R> UByteArray.map(transform: (UByte) -> R): List<R>
+fun <R> UShortArray.map(transform: (UShort) -> R): List<R>
+fun <T, R> Sequence<T>.map(transform: (T) -> R): Sequence<R>
+fun <R> CharSequence.map(transform: (Char) -> R): List<R>
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:192:44 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:194:57 Unresolved reference 'url'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:195:58 Unresolved reference 'title'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:196:56 Unresolved reference 'rels'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:201:60 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:203:45 Unresolved reference 'url'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:204:46 Unresolved reference 'title'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:205:44 Unresolved reference 'rels'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:210:20 2 type arguments expected. Use class 'Failure' if you don't intend to pass type arguments.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:229:27 Unresolved reference 'insert'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:236:20 Unresolved reference 'delete'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/opds/OPDSService.kt:243:20 Unresolved reference 'updateLastAccessed'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/reader/UnifiedReaderService.kt:111:21 'return' is prohibited here.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/services/reader/UnifiedReaderService.kt:111:28 Null cannot be a value of a non-null type 'com.universalmedialibrary.services.reader.ReaderType'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:43:23 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:43:23 Property delegate must have a 'getValue(Nothing?, KProperty0<ERROR CLASS: Cannot infer argument for type parameter T>)' method. None of the following functions is applicable:
+fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>): T
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:43:23 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:43:45 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:43:45 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:44:22 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:44:22 Property delegate must have a 'getValue(Nothing?, KProperty0<ERROR CLASS: Cannot infer argument for type parameter T>)' method. None of the following functions is applicable:
+fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>): T
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:44:22 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:44:48 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:44:48 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:95:47 Overload resolution ambiguity between candidates:
+fun <T> Array<out T>.isNotEmpty(): Boolean
+fun ByteArray.isNotEmpty(): Boolean
+fun ShortArray.isNotEmpty(): Boolean
+fun IntArray.isNotEmpty(): Boolean
+fun LongArray.isNotEmpty(): Boolean
+fun FloatArray.isNotEmpty(): Boolean
+fun DoubleArray.isNotEmpty(): Boolean
+fun BooleanArray.isNotEmpty(): Boolean
+fun CharArray.isNotEmpty(): Boolean
+fun <T> Collection<T>.isNotEmpty(): Boolean
+fun <K, V> Map<out K, V>.isNotEmpty(): Boolean
+fun CharSequence.isNotEmpty(): Boolean
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:96:63 Function invocation 'size(...)' expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:122:31 Unresolved reference 'OPDSFeedResult'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:124:46 Unresolved reference 'OPDSFeedResult'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:126:45 Unresolved reference 'publications'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:127:48 Unresolved reference 'OPDSPublication'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:133:31 Unresolved reference 'OPDSFeedResult'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:136:50 Unresolved reference 'OPDSFeedResult'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:136:72 Unresolved reference 'message'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:265:24 Unresolved reference 'OPDSPublication'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:266:26 Unresolved reference 'OPDSPublication'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:273:15 Argument type mismatch: actual type is 'kotlin.collections.List<ERROR CLASS: Symbol not found for OPDSPublication>', but 'kotlin.Int' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:274:13 @Composable invocations can only happen from the context of a @Composable function
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:284:18 Unresolved reference 'OPDSPublication'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:298:29 Unresolved reference 'coverUrl'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:300:41 Unresolved reference 'coverUrl'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:313:40 Unresolved reference 'title'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:319:33 Unresolved reference 'authors'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:321:44 Unresolved reference 'authors'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:327:33 Unresolved reference 'description'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:329:44 Unresolved reference 'description'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:338:33 Unresolved reference 'downloadLinks'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:340:44 Unresolved reference 'downloadLinks'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:342:33 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:343:33 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:344:33 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:345:41 Unresolved reference 'it'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:504:49 Unresolved reference 'OPDSFeedResult'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:504:66 Null cannot be a value of a non-null type 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:505:36 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:505:36 Not enough information to infer type argument for 'T'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:510:43 Unresolved reference 'getActiveDownloads'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:511:10 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:511:72 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:516:25 Unresolved reference 'initializeDefaultCatalogs'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:536:46 Unresolved reference 'fetchFeed'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:546:60 Argument type mismatch: actual type is 'com.universalmedialibrary.data.local.entity.OPDSCatalog', but 'kotlin.String' was expected.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:550:59 Unresolved reference 'OPDSPublication'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:558:25 Unresolved reference 'addCustomCatalog'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/opds/OPDSCatalogBrowserScreen.kt:564:25 Unresolved reference 'removeCatalog'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/ModernAudioPlayerScreen.kt:350:42 Unresolved reference 'title'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/ModernAudioPlayerScreen.kt:409:48 Unresolved reference 'title'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/ModernVideoPlayerViewModel.kt:205:26 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/ModernVideoPlayerViewModel.kt:205:30 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/player/ModernVideoPlayerViewModel.kt:207:31 Unresolved reference 'castVideo'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/ComicReaderScreen.kt:39:27 Unresolved reference 'ComicReaderViewModel'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/ComicReaderScreen.kt:39:50 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/ComicReaderScreen.kt:137:73 Unresolved reference 'translatePage'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/EnhancedEReaderScreen.kt:296:37 Unresolved reference 'chapters'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/EnhancedEReaderScreen.kt:303:37 Unresolved reference 'chapters'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/EnhancedEReaderScreen.kt:303:63 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/EnhancedEReaderScreen.kt:303:70 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/EnhancedEReaderScreen.kt:304:33 @Composable invocations can only happen from the context of a @Composable function
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/EnhancedEReaderScreen.kt:308:55 Unresolved reference 'goToChapter'.
+e: file:///workspace/CleverFerret/src/main/java/com/universalmedialibrary/ui/reader/EnhancedEReaderScreen.kt:313:55 @Composable invocations can only happen from the context of a @Composable function
+
+> Task :CleverFerret:compileDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':CleverFerret:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 49s
+36 actionable tasks: 15 executed, 18 from cache, 3 up-to-date

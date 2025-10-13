@@ -52,33 +52,42 @@ class MediaServerRepository @Inject constructor(
     }
     
     suspend fun testJellyfinConnection(server: JellyfinServer): Result<String> {
-        return jellyfinClient.authenticate(server.url, server.username, server.password)
+        return try {
+            // Test connection using the API key if available
+            if (server.apiKey != null) {
+                jellyfinClient.authenticate(server.url, server.apiKey!!)
+            } else {
+                Result.failure(Exception("API key is required for Jellyfin authentication"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     
     // Plex Operations
     
     fun getAllPlexServers(): Flow<List<PlexServer>> {
-        return plexServerDao.getAll()
+        return plexServerDao.getAllServers()
     }
     
     suspend fun getPlexServerById(id: Long): PlexServer? {
-        return plexServerDao.getById(id)
+        return plexServerDao.getServerById(id)
     }
     
     suspend fun insertPlexServer(server: PlexServer): Long {
-        return plexServerDao.insert(server)
+        return plexServerDao.insertServer(server)
     }
     
     suspend fun updatePlexServer(server: PlexServer) {
-        plexServerDao.update(server)
+        plexServerDao.updateServer(server)
     }
     
     suspend fun deletePlexServer(server: PlexServer) {
-        plexServerDao.delete(server)
+        plexServerDao.deleteServer(server)
     }
     
     suspend fun deletePlexServerById(id: Long) {
-        plexServerDao.deleteById(id)
+        plexServerDao.deleteServerById(id)
     }
     
     suspend fun testPlexConnection(server: PlexServer): Result<Unit> {

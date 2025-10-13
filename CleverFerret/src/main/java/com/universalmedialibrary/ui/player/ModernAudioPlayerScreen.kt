@@ -347,7 +347,7 @@ fun ModernAudioPlayerScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "• ${uiState.title}",
+                            text = "• Playing",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -406,7 +406,7 @@ fun ModernAudioPlayerScreen(
                 text = {
                     Column {
                         Text(
-                            "Share \"${uiState.title}\"",
+                            text = "Share Track",
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(16.dp))
