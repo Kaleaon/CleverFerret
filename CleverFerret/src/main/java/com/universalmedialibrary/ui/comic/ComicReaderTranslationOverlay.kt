@@ -103,7 +103,7 @@ class ComicReaderTranslationViewModel @Inject constructor(
         pageBitmap: Bitmap,
         targetLanguage: String = "en"
     ) {
-        if (currentComicId.isNotEmpty() && currentPageNumber > 0) {
+if (currentComicId.isNotEmpty()) {
             translatePage(pageBitmap, currentComicId, currentPageNumber, targetLanguage)
         }
     }
