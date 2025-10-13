@@ -66,17 +66,15 @@ class ComicProcessorRepository @Inject constructor(
     }
 
     /**
-     * Main function to process a comic page
-     * 
-     * This function checks the local cache first, and if not found,
-     * calls the Google APIs to analyze and translate the page.
-     * 
-     * @param imageBitmap The comic page image
-     * @param comicId Unique identifier for the comic (e.g., file path or library ID)
-     * @param pageNumber The page number within the comic
-     * @param userLanguage Target language code (ISO 639-1, e.g., "en", "es", "ja")
-     * @return Result containing the ComicPageResponse or an error
-     */
+     * Processes a comic page by returning a cached translation if available or analyzing and translating the page and caching the result.
+     *
+     * When no valid cache exists, analyzes the provided image to extract panels and text elements, translates text into the target language, and persists the translated page for offline use.
+     *
+     * @param imageBitmap The comic page image as an Android Bitmap.
+     * @param comicId Unique identifier for the comic (for example, a file path or library ID).
+     * @param pageNumber The page number within the comic.
+     * @param userLanguage Target language code (ISO 639-1, e.g., "en", "es", "ja").
+     * @return `Result` containing the `ComicPageResponse` on success, or a failure with the encountered exception.
     suspend fun processPage(
         imageBitmap: Bitmap,
         comicId: String,
@@ -139,7 +137,16 @@ class ComicProcessorRepository @Inject constructor(
     }
     
     /**
-     * Build the prompt for Gemini AI
+     * Constructs a Gemini prompt that instructs the model to analyze a comic page image
+     * and return a single JSON object describing panels and their text elements.
+     *
+     * The JSON must include panel bounding boxes, each text element's bounding box,
+     * shape classification (`spherical`, `square`, `textbox`, or `no_bubble`),
+     * rotation angle, and the original (untranslated) text placed in the `translated_text` field.
+     * The model must return only the JSON object with no additional explanation.
+     *
+     * @param targetLanguage The desired target language for downstream translation (informational).
+     * @return The prompt string to send to the Gemini model.
      */
     private fun buildPrompt(targetLanguage: String): String {
         return """
@@ -177,7 +184,14 @@ class ComicProcessorRepository @Inject constructor(
     }
     
     /**
-     * Translate all text elements in the response using Google Cloud Translation
+     * Translate every text element in the given comic page response into the specified language.
+     *
+     * Iterates through panels and their text elements, replacing each element's `translatedText`
+     * with the result of translating that text to `targetLanguage`.
+     *
+     * @param response The parsed comic page response containing panels and text elements to translate.
+     * @param targetLanguage Target language code (e.g., "en", "es") for the translations.
+     * @return A new `ComicPageResponse` with each text element's `translatedText` replaced by its translation; other fields are preserved.
      */
     private fun translateTextElements(
         response: ComicPageResponse,
@@ -194,7 +208,11 @@ class ComicProcessorRepository @Inject constructor(
     }
     
     /**
-     * Perform translation using Google Cloud Translation API
+     * Translate the given text into the specified target language.
+     *
+     * @param text The source text to translate.
+     * @param targetLanguage The IETF language tag (e.g., "en", "fr") for the desired target language.
+     * @return The translated text in the target language, or the original `text` if translation fails.
      */
     private fun performTranslation(text: String, targetLanguage: String): String {
         return try {
@@ -209,7 +227,13 @@ class ComicProcessorRepository @Inject constructor(
     }
 
     /**
-     * Convert Bitmap to Content for Gemini API
+     * Produce a Gemini Content object containing the given bitmap encoded as a JPEG byte array.
+     *
+     * The bitmap is compressed to JPEG at 90% quality and embedded into a Content suitable for
+     * sending to the Gemini API.
+     *
+     * @param bitmap The source Android Bitmap to encode.
+     * @return A Content containing the JPEG-encoded bytes of the provided bitmap.
      */
     private fun bitmapToContent(bitmap: Bitmap): Content {
         val stream = ByteArrayOutputStream()
@@ -222,28 +246,39 @@ class ComicProcessorRepository @Inject constructor(
     }
 
     /**
-     * Clear cached translations for a specific comic
+     * Deletes all cached translations associated with the given comic.
+     *
+     * @param comicId Identifier of the comic whose cached translations will be removed.
      */
     suspend fun clearCache(comicId: String) {
         translationCacheDao.deleteAllTranslationsForComic(comicId)
     }
 
     /**
-     * Clear all cached translations
+     * Deletes all stored comic page translations from the local cache.
+     *
+     * Removes every translation entry across all comics from the persistent cache.
      */
     suspend fun clearAllCache() {
         translationCacheDao.deleteAllTranslations()
     }
 
     /**
-     * Get the number of cached pages for a comic
+     * Retrieves the number of cached pages for a comic.
+     *
+     * @param comicId The identifier of the comic.
+     * @return The number of cached pages for the specified comic.
      */
     suspend fun getCachedPageCount(comicId: String): Int {
         return translationCacheDao.getCachedPageCount(comicId)
     }
 
     /**
-     * Check if a page is cached
+     * Determines whether a cached translation exists for the specified comic page.
+     *
+     * @param comicId The comic's unique identifier.
+     * @param pageNumber The page number within the comic.
+     * @return `true` if a cached translation exists for the page, `false` otherwise.
      */
     suspend fun isPageCached(comicId: String, pageNumber: Int): Boolean {
         val pageId = "${comicId}_page_${pageNumber}"

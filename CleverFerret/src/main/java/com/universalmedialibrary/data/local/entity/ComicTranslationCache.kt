@@ -79,11 +79,23 @@ class ComicTranslationConverters {
         prettyPrint = false
     }
     
+    /**
+     * Serializes a ComicPageResponse to its JSON string representation.
+     *
+     * @param response The ComicPageResponse to serialize.
+     * @return A JSON string representing the given ComicPageResponse.
+     */
     @TypeConverter
     fun fromComicPageResponse(response: ComicPageResponse): String {
         return json.encodeToString(response)
     }
     
+    /**
+     * Deserializes a JSON string into a ComicPageResponse.
+     *
+     * @param jsonString JSON string representing a serialized ComicPageResponse.
+     * @return The deserialized ComicPageResponse.
+     */
     @TypeConverter
     fun toComicPageResponse(jsonString: String): ComicPageResponse {
         return json.decodeFromString(jsonString)

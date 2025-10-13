@@ -99,6 +99,15 @@ object AppDatabaseMigrations {
      * Adds OPDS catalog support
      */
     val MIGRATION_23_24 = object : Migration(23, 24) {
+        /**
+         * Adds OPDS-related tables to the database schema for this migration.
+         *
+         * Creates `opds_catalogs` (catalog metadata and access info) and `opds_downloads` (download records linked to catalogs)
+         * with the columns and constraints required for OPDS catalogs, including a foreign key from `opds_downloads.catalogId`
+         * to `opds_catalogs.id` with ON DELETE CASCADE.
+         *
+         * @param database The SupportSQLiteDatabase to which the migration SQL statements are applied.
+         */
         override fun migrate(database: SupportSQLiteDatabase) {
             // Create opds_catalogs table
             database.execSQL("""
@@ -156,6 +165,13 @@ object AppDatabaseMigrations {
      * Adds Comic Translation Cache table for Gemini AI translations
      */
     val MIGRATION_24_25 = object : Migration(24, 25) {
+        /**
+         * Adds the `comic_translation_cache` table and an index on `comicId` as part of the migration.
+         *
+         * Creates the `comic_translation_cache` table with primary key `pageId` and columns `comicId`, `pageNumber`,
+         * `translationData`, `targetLanguage`, and `cachedAt`, and creates the `index_comic_translation_cache_comicId`
+         * index on `comicId` to optimize lookups.
+         */
         override fun migrate(database: SupportSQLiteDatabase) {
             // Create comic_translation_cache table
             database.execSQL("""

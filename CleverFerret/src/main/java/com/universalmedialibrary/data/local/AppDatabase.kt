@@ -177,10 +177,18 @@ abstract class AppDatabase : RoomDatabase() {
     // Comic Panel DAO
     abstract fun comicPanelDao(): ComicPanelDao
     
-    // OPDS Catalog DAO
+    /**
+ * Accesses the DAO responsible for storing and querying OPDS catalog records.
+ *
+ * @return The OPDSCatalogDao used to perform database operations on OPDS catalogs.
+ */
     abstract fun opdsCatalogDao(): OPDSCatalogDao
     
-    // Comic Translation Cache DAO
+    /**
+ * Provides access to the DAO for the comic translation cache.
+ *
+ * @return The [ComicTranslationCacheDao] used to query and modify comic translation cache entries.
+ */
     abstract fun comicTranslationCacheDao(): ComicTranslationCacheDao
 
 
@@ -190,6 +198,11 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        /**
+         * Get the singleton AppDatabase instance, creating and caching it if necessary.
+         *
+         * @return The shared AppDatabase instance used by the application.
+         */
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(

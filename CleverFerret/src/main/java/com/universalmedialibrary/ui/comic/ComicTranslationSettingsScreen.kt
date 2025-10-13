@@ -58,28 +58,55 @@ class ComicTranslationSettingsViewModel @Inject constructor(
         loadKeys()
     }
 
+    /**
+     * Loads persisted API keys from the manager and updates the view model's state.
+     *
+     * Sets `geminiApiKey` and `translateApiKey` to the stored values (or to an empty string if none are stored)
+     * and updates `areKeysConfigured` to reflect whether keys are configured.
+     */
     private fun loadKeys() {
         geminiApiKey = apiKeyManager.getGeminiApiKey() ?: ""
         translateApiKey = apiKeyManager.getTranslateApiKey() ?: ""
         areKeysConfigured = apiKeyManager.areKeysConfigured()
     }
 
+    /**
+     * Sets the stored Gemini API key to the provided value.
+     *
+     * @param key The Gemini API key string to save in the view model state.
+     */
     fun updateGeminiKey(key: String) {
         geminiApiKey = key
     }
 
+    /**
+     * Updates the Google Cloud Translation API key stored in the ViewModel.
+     *
+     * @param key The new Google Cloud Translation API key value.
+     */
     fun updateTranslateKey(key: String) {
         translateApiKey = key
     }
 
+    /**
+     * Toggles whether the Gemini API key is visible in the UI.
+     */
     fun toggleGeminiKeyVisibility() {
         isGeminiKeyVisible = !isGeminiKeyVisible
     }
 
+    /**
+     * Toggles whether the Google Cloud Translation API key is displayed or masked.
+     */
     fun toggleTranslateKeyVisibility() {
         isTranslateKeyVisible = !isTranslateKeyVisible
     }
 
+    /**
+     * Saves the current Gemini and Google Cloud Translation API keys after validating their formats, persists them, and updates the configured state.
+     *
+     * Validation failures or persistence errors set `saveStatus` to `SaveStatus.Error` with an explanatory message. On success `saveStatus` becomes `SaveStatus.Success` and `areKeysConfigured` is set to `true`. The `saveStatus` is set to `SaveStatus.Saving` while the operation is in progress.
+     */
     fun saveKeys() {
         viewModelScope.launch {
             try {
@@ -106,6 +133,13 @@ class ComicTranslationSettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Clears persisted API keys and resets ViewModel state related to keys and save status.
+     *
+     * Removes stored Gemini and Google Cloud Translation keys from persistent storage, sets the in-memory
+     * `geminiApiKey` and `translateApiKey` to empty strings, sets `areKeysConfigured` to `false`, and
+     * resets `saveStatus` to `SaveStatus.None`.
+     */
     fun clearKeys() {
         viewModelScope.launch {
             apiKeyManager.clearKeys()
@@ -124,6 +158,14 @@ class ComicTranslationSettingsViewModel @Inject constructor(
  * The keys are stored securely using EncryptedSharedPreferences.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Screen for configuring Gemini and Google Cloud Translation API keys used by comic translation.
+ *
+ * Shows current key configuration status, editable API key fields with visibility toggles, save/clear actions,
+ * and inline save status feedback (saving, success, error). Keys are validated and persisted via the provided ViewModel.
+ *
+ * @param onNavigateBack Callback invoked when the user requests to close or navigate back from this screen.
+ */
 @Composable
 fun ComicTranslationSettingsScreen(
     viewModel: ComicTranslationSettingsViewModel = hiltViewModel(),
@@ -265,6 +307,19 @@ fun ComicTranslationSettingsScreen(
     }
 }
 
+/**
+ * Labeled single-line text field for entering an API key with a visibility toggle and helper text.
+ *
+ * Displays the provided label, the current text value, a trailing visibility toggle that switches
+ * between masked and plain text based on `isVisible`, and a help line below the field.
+ *
+ * @param label The field label shown inside the text field.
+ * @param value The current text value of the field.
+ * @param onValueChange Callback invoked when the text value changes.
+ * @param isVisible If `true`, the field shows the text plainly; if `false`, the text is masked.
+ * @param onVisibilityToggle Callback invoked when the visibility toggle is pressed.
+ * @param helpText A short helper/instruction line displayed below the text field.
+ */
 @Composable
 private fun ApiKeyTextField(
     label: String,

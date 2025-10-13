@@ -49,7 +49,9 @@ class ComicTranslationApiKeyManager @Inject constructor(
     }
 
     /**
-     * Save Gemini API key
+     * Store the Gemini API key for later retrieval.
+     *
+     * @param key The Gemini API key to store.
      */
     fun setGeminiApiKey(key: String) {
         encryptedPrefs.edit()
@@ -58,15 +60,18 @@ class ComicTranslationApiKeyManager @Inject constructor(
     }
 
     /**
-     * Get Gemini API key
-     * @return API key or null if not set
+     * Retrieves the stored Gemini API key.
+     *
+     * @return The stored Gemini API key, or null if none is configured.
      */
     fun getGeminiApiKey(): String? {
         return encryptedPrefs.getString(KEY_GEMINI_API, null)
     }
 
     /**
-     * Save Google Cloud Translation API key
+     * Stores the Google Cloud Translation API key in encrypted, device-backed preferences.
+     *
+     * @param key The translation API key to save.
      */
     fun setTranslateApiKey(key: String) {
         encryptedPrefs.edit()
@@ -75,15 +80,18 @@ class ComicTranslationApiKeyManager @Inject constructor(
     }
 
     /**
-     * Get Google Cloud Translation API key
-     * @return API key or null if not set
+     * Retrieve the stored Google Cloud Translation API key.
+     *
+     * @return The stored Google Cloud Translation API key, or `null` if not set.
      */
     fun getTranslateApiKey(): String? {
         return encryptedPrefs.getString(KEY_TRANSLATE_API, null)
     }
 
     /**
-     * Check if both API keys are configured
+     * Determines whether both the Gemini and Google Translate API keys are configured.
+     *
+     * @return `true` if both keys are present and not blank, `false` otherwise.
      */
     fun areKeysConfigured(): Boolean {
         return !getGeminiApiKey().isNullOrBlank() && 
@@ -98,7 +106,9 @@ class ComicTranslationApiKeyManager @Inject constructor(
     }
 
     /**
-     * Check if Translation API key is configured
+     * Determines whether a Google Cloud Translation API key has been stored.
+     *
+     * @return `true` if the stored translation API key is present and not blank, `false` otherwise.
      */
     fun isTranslateKeyConfigured(): Boolean {
         return !getTranslateApiKey().isNullOrBlank()
@@ -115,8 +125,10 @@ class ComicTranslationApiKeyManager @Inject constructor(
     }
 
     /**
-     * Validate API key format (basic validation)
-     * Note: This is a basic check. Actual validation requires API calls.
+     * Checks whether an API key looks valid based on simple heuristics.
+     *
+     * @param key The API key string to validate.
+     * @return `true` if the key is not blank and longer than 10 characters, `false` otherwise.
      */
     fun validateKeyFormat(key: String): Boolean {
         return key.isNotBlank() && key.length > 10

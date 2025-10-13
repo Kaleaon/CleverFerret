@@ -25,6 +25,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ComicTranslationModule {
 
+    /**
+     * Provides the ComicTranslationCacheDao from the application's database.
+     *
+     * @return The ComicTranslationCacheDao instance from AppDatabase.
+     */
     @Provides
     @Singleton
     fun provideComicTranslationCacheDao(
@@ -34,15 +39,15 @@ object ComicTranslationModule {
     }
 
     /**
-     * Provides the ComicProcessorRepository with user-configured API keys
-     * 
-     * The repository is created lazily and retrieves API keys from secure storage.
-     * If keys are not configured, an IllegalStateException will be thrown.
-     * 
-     * Usage pattern:
-     * 1. Check if keys are configured using ComicTranslationApiKeyManager.areKeysConfigured()
-     * 2. If not configured, show setup UI to collect keys
-     * 3. Once configured, the repository can be safely injected and used
+     * Supplies a configured ComicProcessorRepository when API keys are available.
+     *
+     * Returns a repository initialized with the stored Gemini and translation API keys and the provided DAO,
+     * or `null` if keys have not been configured.
+     *
+     * @param dao DAO used for translation caching.
+     * @param apiKeyManager Manager that provides and reports status of the required API keys.
+     * @return A configured `ComicProcessorRepository` if keys are configured, `null` otherwise.
+     * @throws IllegalStateException If `areKeysConfigured()` is true but either the Gemini or translation API key is missing.
      */
     @Provides
     fun provideComicProcessorRepository(
