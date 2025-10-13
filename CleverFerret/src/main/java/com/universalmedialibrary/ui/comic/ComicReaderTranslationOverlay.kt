@@ -154,7 +154,7 @@ fun ComicReaderTranslationControls(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(
-IconButton(onClick = { viewModel.errorMessage = null },
+                        onClick = { viewModel.errorMessage = null },
                         modifier = Modifier.size(24.dp)
                     ) {
                         Icon(

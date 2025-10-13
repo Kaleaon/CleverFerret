@@ -68,15 +68,6 @@ class TtsProviderManager @Inject constructor(
             model = preferences[stringPreferencesKey("$MODEL_KEY_PREFIX${provider.name}")],
             voiceId = preferences[stringPreferencesKey("$VOICE_ID_PREFIX${provider.name}")]
         ).apply {
-TtsProvider.GEMINI -> {
-    getEncryptedApiKey(settings.provider)?.let { geminiTtsService.setApiKey(it) }
-    geminiTtsService
-}
-TtsProviderSettings(
-    provider = provider,
-    model = preferences[stringPreferencesKey("$MODEL_KEY_PREFIX${provider.name}")],
-    voiceId = preferences[stringPreferencesKey("$VOICE_ID_PREFIX${provider.name}")]
-)
             apiKey = getEncryptedApiKey(provider)
         }
     }
@@ -89,8 +80,7 @@ TtsProviderSettings(
         
         return when (settings.provider) {
             TtsProvider.GEMINI -> {
-```kotlin
-getEncryptedApiKey(settings.provider)?.let { geminiTtsService.setApiKey(it) }
+                getEncryptedApiKey(settings.provider)?.let { geminiTtsService.setApiKey(it) }
                 geminiTtsService
             }
             TtsProvider.GOOGLE_CLOUD -> {

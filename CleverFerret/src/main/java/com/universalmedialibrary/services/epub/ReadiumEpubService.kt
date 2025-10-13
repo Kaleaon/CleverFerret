@@ -45,8 +45,7 @@ class ReadiumEpubService @Inject constructor(
                 return@withContext null
             }
 
-```suggestion
-val asset = when (assetResult) {
+            val asset = when (assetResult) {
     is Try.Success<*, *> -> assetResult.value
     is Try.Failure<*> -> {
         Log.e(TAG, "Failed to retrieve asset: ${assetResult.value}")
