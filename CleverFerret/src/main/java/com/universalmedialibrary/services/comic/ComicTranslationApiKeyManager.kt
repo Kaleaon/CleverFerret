@@ -10,8 +10,11 @@ import javax.inject.Singleton
 /**
  * Secure API Key Manager for Comic Translation
  * 
- * Manages user-provided API keys for Gemini AI and Google Cloud Translation
- * using Android's EncryptedSharedPreferences for secure storage.
+ * Manages user-provided API key for Gemini AI using Android's 
+ * EncryptedSharedPreferences for secure storage.
+ * 
+ * Note: Translation is now handled by on-device ML Kit, which doesn't require API keys.
+ * Only Gemini AI key is needed for visual analysis.
  * 
  * Features:
  * - Encrypted storage using Android Keystore
@@ -20,10 +23,10 @@ import javax.inject.Singleton
  * - Clear/reset functionality
  * 
  * Usage:
- * 1. User enters API keys in settings
- * 2. Keys are encrypted and stored
- * 3. Repository retrieves keys when needed
- * 4. Translation features disabled if keys not configured
+ * 1. User enters Gemini API key in settings
+ * 2. Key is encrypted and stored
+ * 3. Repository retrieves key when needed
+ * 4. Translation features disabled if key not configured
  */
 @Singleton
 class ComicTranslationApiKeyManager @Inject constructor(
@@ -45,7 +48,6 @@ class ComicTranslationApiKeyManager @Inject constructor(
     companion object {
         private const val PREFS_NAME = "comic_translation_api_keys"
         private const val KEY_GEMINI_API = "gemini_api_key"
-        private const val KEY_TRANSLATE_API = "translate_api_key"
     }
 
     /**
@@ -66,28 +68,10 @@ class ComicTranslationApiKeyManager @Inject constructor(
     }
 
     /**
-     * Save Google Cloud Translation API key
-     */
-    fun setTranslateApiKey(key: String) {
-        encryptedPrefs.edit()
-            .putString(KEY_TRANSLATE_API, key)
-            .apply()
-    }
-
-    /**
-     * Get Google Cloud Translation API key
-     * @return API key or null if not set
-     */
-    fun getTranslateApiKey(): String? {
-        return encryptedPrefs.getString(KEY_TRANSLATE_API, null)
-    }
-
-    /**
-     * Check if both API keys are configured
+     * Check if Gemini API key is configured
      */
     fun areKeysConfigured(): Boolean {
-        return !getGeminiApiKey().isNullOrBlank() && 
-               !getTranslateApiKey().isNullOrBlank()
+        return !getGeminiApiKey().isNullOrBlank()
     }
 
     /**
@@ -98,19 +82,11 @@ class ComicTranslationApiKeyManager @Inject constructor(
     }
 
     /**
-     * Check if Translation API key is configured
-     */
-    fun isTranslateKeyConfigured(): Boolean {
-        return !getTranslateApiKey().isNullOrBlank()
-    }
-
-    /**
      * Clear all API keys (e.g., for logout or reset)
      */
     fun clearKeys() {
         encryptedPrefs.edit()
             .remove(KEY_GEMINI_API)
-            .remove(KEY_TRANSLATE_API)
             .apply()
     }
 

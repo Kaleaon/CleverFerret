@@ -34,34 +34,32 @@ object ComicTranslationModule {
     }
 
     /**
-     * Provides the ComicProcessorRepository with user-configured API keys
+     * Provides the ComicProcessorRepository with user-configured API key
      * 
-     * The repository is created lazily and retrieves API keys from secure storage.
-     * If keys are not configured, an IllegalStateException will be thrown.
+     * The repository uses on-device ML Kit for translation, so only Gemini API key is needed.
+     * If key is not configured, null is returned.
      * 
      * Usage pattern:
-     * 1. Check if keys are configured using ComicTranslationApiKeyManager.areKeysConfigured()
-     * 2. If not configured, show setup UI to collect keys
+     * 1. Check if key is configured using ComicTranslationApiKeyManager.areKeysConfigured()
+     * 2. If not configured, show setup UI to collect key
      * 3. Once configured, the repository can be safely injected and used
      */
     @Provides
+    @Singleton
     fun provideComicProcessorRepository(
         dao: ComicTranslationCacheDao,
         apiKeyManager: ComicTranslationApiKeyManager
     ): ComicProcessorRepository? {
-        // Only create repository if both API keys are configured
+        // Only create repository if Gemini API key is configured
         if (!apiKeyManager.areKeysConfigured()) {
             return null
         }
         
         val geminiKey = apiKeyManager.getGeminiApiKey() 
             ?: throw IllegalStateException("Gemini API key not configured")
-        val translateKey = apiKeyManager.getTranslateApiKey() 
-            ?: throw IllegalStateException("Translation API key not configured")
         
         return ComicProcessorRepository(
             geminiApiKey = geminiKey,
-            translateApiKey = translateKey,
             translationCacheDao = dao
         )
     }

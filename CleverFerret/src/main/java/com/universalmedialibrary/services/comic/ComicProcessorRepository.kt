@@ -3,15 +3,19 @@ package com.universalmedialibrary.services.comic
 import android.graphics.Bitmap
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.*
-import com.google.cloud.translate.Translate
-import com.google.cloud.translate.TranslateOptions
+import com.google.mlkit.common.model.DownloadConditions
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.Translation
+import com.google.mlkit.nl.translate.TranslatorOptions
 import com.universalmedialibrary.data.local.dao.ComicTranslationCacheDao
 import com.universalmedialibrary.data.local.entity.ComicPageResponse
 import com.universalmedialibrary.data.local.entity.ComicTranslationCache
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.ByteArrayOutputStream
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -56,13 +60,11 @@ class ComicProcessorRepository @Inject constructor(
     }
 
     /**
-     * Initialize the Google Translate Client
+     * Generate a language-aware cache key
      */
-    private val translateService: Translate by lazy {
-        TranslateOptions.newBuilder()
-            .setApiKey(translateApiKey)
-            .build()
-            .service
+    private fun generatePageId(comicId: String, pageNumber: Int, language: String): String {
+        val normalizedLang = language.lowercase(Locale.ROOT)
+        return "${comicId}_page_${pageNumber}_lang_${normalizedLang}"
     }
 
     /**
@@ -84,17 +86,18 @@ class ComicProcessorRepository @Inject constructor(
         userLanguage: String = "en"
     ): Result<ComicPageResponse> = withContext(Dispatchers.IO) {
         
-        val uniqueId = "${comicId}_page_${pageNumber}"
+        val uniqueId = generatePageId(comicId, pageNumber, userLanguage)
 
         // 1. CHECK DATABASE FIRST for cached translation
         val savedData = translationCacheDao.getTranslation(uniqueId)
         if (savedData != null) {
-            return@withContext try {
-                val response = json.decodeFromString<ComicPageResponse>(savedData.translationData)
-                Result.success(response)
-            } catch (e: Exception) {
-                // If cache is corrupted, continue to API call
-                Result.failure(Exception("Cached data corrupted, re-processing", e))
+            runCatching {
+                json.decodeFromString<ComicPageResponse>(savedData.translationData)
+            }.onSuccess { decoded ->
+                return@withContext Result.success(decoded)
+            }.onFailure { e ->
+                // Delete corrupted cache and fall through to re-process
+                translationCacheDao.deleteTranslation(savedData)
             }
         }
 
@@ -177,34 +180,78 @@ class ComicProcessorRepository @Inject constructor(
     }
     
     /**
-     * Translate all text elements in the response using Google Cloud Translation
+     * Translate all text elements in the response using ML Kit on-device translation
      */
-    private fun translateTextElements(
+    private suspend fun translateTextElements(
         response: ComicPageResponse,
         targetLanguage: String
-    ): ComicPageResponse {
-        val translatedPanels = response.panels.map { panel ->
-            val translatedElements = panel.textElements.map { textElement ->
-                val translatedText = performTranslation(textElement.translatedText, targetLanguage)
-                textElement.copy(translatedText = translatedText)
+    ): ComicPageResponse = withContext(Dispatchers.IO) {
+        // Map language code to ML Kit language code
+        val mlKitLanguage = mapToMLKitLanguage(targetLanguage)
+        
+        // Create translator options
+        val options = TranslatorOptions.Builder()
+            .setSourceLanguage(TranslateLanguage.JAPANESE) // Assume Japanese source for now
+            .setTargetLanguage(mlKitLanguage)
+            .build()
+        
+        val translator = Translation.getClient(options)
+        
+        // Download model if needed
+        val conditions = DownloadConditions.Builder()
+            .requireWifi()
+            .build()
+        
+        try {
+            translator.downloadModelIfNeeded(conditions).await()
+            
+            val translatedPanels = response.panels.map { panel ->
+                val translatedElements = panel.textElements.map { textElement ->
+                    val translatedText = performTranslation(translator, textElement.translatedText)
+                    textElement.copy(translatedText = translatedText)
+                }
+                panel.copy(textElements = translatedElements)
             }
-            panel.copy(textElements = translatedElements)
+            
+            translator.close()
+            response.copy(panels = translatedPanels)
+        } catch (e: Exception) {
+            translator.close()
+            // Return original response if translation fails
+            response
         }
-        return response.copy(panels = translatedPanels)
     }
     
     /**
-     * Perform translation using Google Cloud Translation API
+     * Perform translation using ML Kit translator
      */
-    private fun performTranslation(text: String, targetLanguage: String): String {
+    private suspend fun performTranslation(translator: com.google.mlkit.nl.translate.Translator, text: String): String {
         return try {
-            translateService.translate(
-                text, 
-                Translate.TranslateOption.targetLanguage(targetLanguage)
-            ).translatedText
+            translator.translate(text).await()
         } catch (e: Exception) { 
-            // Return original text on failure to prevent the whole process from stopping
+            // Return original text on failure
             text 
+        }
+    }
+    
+    /**
+     * Map ISO language codes to ML Kit language codes
+     */
+    private fun mapToMLKitLanguage(languageCode: String): String {
+        return when (languageCode.lowercase(Locale.ROOT)) {
+            "en" -> TranslateLanguage.ENGLISH
+            "es" -> TranslateLanguage.SPANISH
+            "fr" -> TranslateLanguage.FRENCH
+            "de" -> TranslateLanguage.GERMAN
+            "it" -> TranslateLanguage.ITALIAN
+            "pt" -> TranslateLanguage.PORTUGUESE
+            "ja" -> TranslateLanguage.JAPANESE
+            "ko" -> TranslateLanguage.KOREAN
+            "zh" -> TranslateLanguage.CHINESE
+            "ru" -> TranslateLanguage.RUSSIAN
+            "ar" -> TranslateLanguage.ARABIC
+            "hi" -> TranslateLanguage.HINDI
+            else -> TranslateLanguage.ENGLISH
         }
     }
 
@@ -243,10 +290,10 @@ class ComicProcessorRepository @Inject constructor(
     }
 
     /**
-     * Check if a page is cached
+     * Check if a page is cached for a specific language
      */
-    suspend fun isPageCached(comicId: String, pageNumber: Int): Boolean {
-        val pageId = "${comicId}_page_${pageNumber}"
+    suspend fun isPageCached(comicId: String, pageNumber: Int, targetLanguage: String = "en"): Boolean {
+        val pageId = generatePageId(comicId, pageNumber, targetLanguage)
         return translationCacheDao.isPageCached(pageId)
     }
 }

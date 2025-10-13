@@ -32,13 +32,7 @@ class ComicTranslationSettingsViewModel @Inject constructor(
     var geminiApiKey by mutableStateOf("")
         private set
     
-    var translateApiKey by mutableStateOf("")
-        private set
-    
     var isGeminiKeyVisible by mutableStateOf(false)
-        private set
-    
-    var isTranslateKeyVisible by mutableStateOf(false)
         private set
     
     var saveStatus by mutableStateOf<SaveStatus>(SaveStatus.None)
@@ -60,7 +54,6 @@ class ComicTranslationSettingsViewModel @Inject constructor(
 
     private fun loadKeys() {
         geminiApiKey = apiKeyManager.getGeminiApiKey() ?: ""
-        translateApiKey = apiKeyManager.getTranslateApiKey() ?: ""
         areKeysConfigured = apiKeyManager.areKeysConfigured()
     }
 
@@ -68,16 +61,8 @@ class ComicTranslationSettingsViewModel @Inject constructor(
         geminiApiKey = key
     }
 
-    fun updateTranslateKey(key: String) {
-        translateApiKey = key
-    }
-
     fun toggleGeminiKeyVisibility() {
         isGeminiKeyVisible = !isGeminiKeyVisible
-    }
-
-    fun toggleTranslateKeyVisibility() {
-        isTranslateKeyVisible = !isTranslateKeyVisible
     }
 
     fun saveKeys() {
@@ -90,18 +75,12 @@ class ComicTranslationSettingsViewModel @Inject constructor(
                     return@launch
                 }
                 
-                if (!apiKeyManager.validateKeyFormat(translateApiKey)) {
-                    saveStatus = SaveStatus.Error("Invalid Translation API key format")
-                    return@launch
-                }
-                
                 apiKeyManager.setGeminiApiKey(geminiApiKey)
-                apiKeyManager.setTranslateApiKey(translateApiKey)
                 
                 areKeysConfigured = true
                 saveStatus = SaveStatus.Success
             } catch (e: Exception) {
-                saveStatus = SaveStatus.Error(e.message ?: "Failed to save keys")
+                saveStatus = SaveStatus.Error(e.message ?: "Failed to save key")
             }
         }
     }
@@ -110,7 +89,6 @@ class ComicTranslationSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             apiKeyManager.clearKeys()
             geminiApiKey = ""
-            translateApiKey = ""
             areKeysConfigured = false
             saveStatus = SaveStatus.None
         }
@@ -179,7 +157,7 @@ fun ComicTranslationSettingsScreen(
 
             // Instructions
             Text(
-                "Configure your API keys to enable AI-powered comic translation",
+                "Configure your Gemini API key to enable AI-powered comic translation. Translation runs on-device using Google ML Kit - no additional API key needed!",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -192,16 +170,6 @@ fun ComicTranslationSettingsScreen(
                 isVisible = viewModel.isGeminiKeyVisible,
                 onVisibilityToggle = { viewModel.toggleGeminiKeyVisibility() },
                 helpText = "Get your key at: https://makersuite.google.com/app/apikey"
-            )
-
-            // Google Cloud Translation API Key
-            ApiKeyTextField(
-                label = "Google Cloud Translation API Key",
-                value = viewModel.translateApiKey,
-                onValueChange = { viewModel.updateTranslateKey(it) },
-                isVisible = viewModel.isTranslateKeyVisible,
-                onVisibilityToggle = { viewModel.toggleTranslateKeyVisibility() },
-                helpText = "Get your key at: https://console.cloud.google.com/"
             )
 
             // Save Status
@@ -247,17 +215,16 @@ fun ComicTranslationSettingsScreen(
                 Button(
                     onClick = { viewModel.saveKeys() },
                     modifier = Modifier.weight(1f),
-                    enabled = viewModel.geminiApiKey.isNotBlank() && 
-                             viewModel.translateApiKey.isNotBlank()
+                    enabled = viewModel.geminiApiKey.isNotBlank()
                 ) {
-                    Text("Save Keys")
+                    Text("Save Key")
                 }
             }
 
             // Privacy Notice
             Text(
-                "🔒 Your API keys are encrypted and stored locally on your device. " +
-                "They are never sent to any server except Google's APIs.",
+                "🔒 Your API key is encrypted and stored locally on your device. " +
+                "Translation runs entirely on-device using ML Kit - your comic pages never leave your phone!",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
