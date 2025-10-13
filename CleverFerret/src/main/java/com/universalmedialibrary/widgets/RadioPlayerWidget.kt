@@ -68,7 +68,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             buttonId: Int,
             action: String
         ) {
-            val intent = Intent(action)
+            val intent = Intent(context, RadioPlayerWidget::class.java).setAction(action)
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 action.hashCode(),
