@@ -68,7 +68,12 @@ class TtsProviderManager @Inject constructor(
             model = preferences[stringPreferencesKey("$MODEL_KEY_PREFIX${provider.name}")],
             voiceId = preferences[stringPreferencesKey("$VOICE_ID_PREFIX${provider.name}")]
         ).apply {
-            // Set API key as a property (not in constructor to prevent leakage)
+```kotlin
+TtsProviderSettings(
+    provider = provider,
+    model = preferences[stringPreferencesKey("$MODEL_KEY_PREFIX${provider.name}")],
+    voiceId = preferences[stringPreferencesKey("$VOICE_ID_PREFIX${provider.name}")]
+)
             apiKey = getEncryptedApiKey(provider)
         }
     }
