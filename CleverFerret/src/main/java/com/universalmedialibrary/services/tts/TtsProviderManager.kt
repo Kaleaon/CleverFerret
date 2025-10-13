@@ -86,7 +86,8 @@ TtsProviderSettings(
         
         return when (settings.provider) {
             TtsProvider.GEMINI -> {
-                settings.apiKey?.let { geminiTtsService.setApiKey(it) }
+```kotlin
+getEncryptedApiKey(settings.provider)?.let { geminiTtsService.setApiKey(it) }
                 geminiTtsService
             }
             TtsProvider.GOOGLE_CLOUD -> {
