@@ -34,6 +34,7 @@ import javax.inject.Inject
  * 
  * @param geminiApiKey User-provided API key for Gemini AI
  * @param translationCacheDao Room DAO for caching translations
+ */
 class ComicProcessorRepository @Inject constructor(
     private val geminiApiKey: String,
     private val translationCacheDao: ComicTranslationCacheDao

@@ -49,6 +49,10 @@ class ComicReaderTranslationViewModel @Inject constructor(
     var isConfigured by mutableStateOf(false)
         private set
     
+    fun clearError() {
+        errorMessage = null
+    }
+    
     var currentComicId by mutableStateOf("")
         private set
     
@@ -154,7 +158,7 @@ fun ComicReaderTranslationControls(
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(
-IconButton(onClick = { viewModel.errorMessage = null },
+                        onClick = { viewModel.clearError() },
                         modifier = Modifier.size(24.dp)
                     ) {
                         Icon(

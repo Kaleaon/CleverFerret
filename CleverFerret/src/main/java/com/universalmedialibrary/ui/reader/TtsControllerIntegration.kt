@@ -118,8 +118,7 @@ class EnhancedTtsController @Inject constructor(
             else 0f
         )
 
-```kotlin
-val success = (currentService?.speak(sentences[index]) ?: false).also { ok ->
+        val success = (currentService?.speak(sentences[index]) ?: false).also { ok ->
     if (!ok) {
         _playbackState.value = _playbackState.value.copy(
             state = TtsState.ERROR,
