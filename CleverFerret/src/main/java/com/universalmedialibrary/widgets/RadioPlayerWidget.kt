@@ -14,14 +14,6 @@ import com.universalmedialibrary.MainActivity
  * Shows currently playing radio station with controls
  */
 class RadioPlayerWidget : AppWidgetProvider() {
-override fun onReceive(context: Context, intent: Intent) {
-    super.onReceive(context, intent)
-    when (intent.action) {
-        ACTION_PLAY_PAUSE, ACTION_NEXT, ACTION_PREV, ACTION_FAVORITE -> {
-            // TODO: forward to playback controller/service and refresh widget UI
-        }
-    }
-}
 
     override fun onUpdate(
         context: Context,
@@ -38,29 +30,46 @@ override fun onReceive(context: Context, intent: Intent) {
         
         when (intent.action) {
             ACTION_PLAY_PAUSE -> {
-                // TODO: Route to radio playback service to toggle play/pause
-                // Example: RadioPlaybackService.togglePlayPause(context)
+                // Send broadcast to radio playback service to toggle play/pause
+                Intent("com.universalmedialibrary.RADIO_CONTROL")
+                    .setPackage(context.packageName)
+                    .putExtra("action", "play_pause")
+                    .also { context.sendBroadcast(it) }
+                updateAllWidgets(context)
             }
             ACTION_NEXT -> {
-                // TODO: Route to radio playback service to skip to next station
-                // Example: RadioPlaybackService.nextStation(context)
+                // Send broadcast to radio playback service to skip to next station
+                Intent("com.universalmedialibrary.RADIO_CONTROL")
+                    .setPackage(context.packageName)
+                    .putExtra("action", "next")
+                    .also { context.sendBroadcast(it) }
+                updateAllWidgets(context)
             }
             ACTION_PREV -> {
-                // TODO: Route to radio playback service to go to previous station
-                // Example: RadioPlaybackService.previousStation(context)
+                // Send broadcast to radio playback service to go to previous station
+                Intent("com.universalmedialibrary.RADIO_CONTROL")
+                    .setPackage(context.packageName)
+                    .putExtra("action", "previous")
+                    .also { context.sendBroadcast(it) }
+                updateAllWidgets(context)
             }
             ACTION_FAVORITE -> {
-                // TODO: Route to radio playback service to toggle favorite
-                // Example: RadioPlaybackService.toggleFavorite(context)
+                // Send broadcast to radio playback service to toggle favorite
+                Intent("com.universalmedialibrary.RADIO_CONTROL")
+                    .setPackage(context.packageName)
+                    .putExtra("action", "favorite")
+                    .also { context.sendBroadcast(it) }
+                updateAllWidgets(context)
             }
         }
-        
-        // Update all widget instances after handling action
-        if (intent.action in setOf(ACTION_PLAY_PAUSE, ACTION_NEXT, ACTION_PREV, ACTION_FAVORITE)) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val componentName = android.content.ComponentName(context, RadioPlayerWidget::class.java)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
-            onUpdate(context, appWidgetManager, appWidgetIds)
+    }
+    
+    private fun updateAllWidgets(context: Context) {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val componentName = android.content.ComponentName(context, RadioPlayerWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+        appWidgetIds.forEach { id ->
+            updateAppWidget(context, appWidgetManager, id)
         }
     }
 
