@@ -183,6 +183,11 @@ fun AppNavigation() {
         composable("settings/network_storage") {
             NetworkStorageSettingsScreen(onBack = { navController.navigateUp() })
         }
+        composable("settings/tts_provider") {
+            com.universalmedialibrary.ui.settings.TtsProviderSettingsScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
         
         composable("collection_detail/{collectionId}") { backStackEntry ->
             val collectionId = backStackEntry.arguments?.getString("collectionId")?.toLongOrNull() ?: -1L
