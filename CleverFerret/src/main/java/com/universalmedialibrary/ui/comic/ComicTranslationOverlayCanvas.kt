@@ -135,7 +135,7 @@ private fun DrawScope.drawTextElement(
     )
 
     // Draw background based on shape type
-    when (textElement.shapeType.lowercase()) {
+when (textElement.shapeType.lowercase(java.util.Locale.ROOT)) {
         "spherical", "bubble" -> {
             drawOval(
                 color = backgroundColor,
