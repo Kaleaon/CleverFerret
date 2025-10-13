@@ -2,7 +2,7 @@
 
 ## Overview
 
-This module provides on-demand, AI-powered translations of comic book pages by communicating directly with Google APIs from the user's device. The entire process runs within the app, with users providing their own API keys for secure, private operation.
+This module provides on-demand, AI-powered translations of comic book pages using Gemini 2.5 Pro for visual analysis and on-device ML Kit for translation. The entire process runs within the app, with users providing only their Gemini API key for secure, private operation.
 
 ## Architecture
 
@@ -23,11 +23,12 @@ This module provides on-demand, AI-powered translations of comic book pages by c
 ## Features
 
 ✅ **Fully On-Device Logic**: No backend server required  
-✅ **User-Provided API Keys**: Secure model with encrypted storage  
-✅ **AI-Powered Analysis**: Gemini 1.5 Pro for visual analysis  
-✅ **Direct Translation**: Google Cloud Translation API  
+✅ **User-Provided API Key**: Only Gemini key needed, securely encrypted  
+✅ **AI-Powered Analysis**: Gemini 2.5 Pro for visual analysis  
+✅ **On-Device Translation**: ML Kit for completely offline translation  
 ✅ **Offline Caching**: Room database for instant offline access  
-✅ **Function Calling**: Gemini AI calls translation API automatically  
+✅ **Language Selection**: Choose from 12 supported languages  
+✅ **Reader Integration**: Built-in UI controls and overlay rendering  
 
 ## Setup Instructions
 

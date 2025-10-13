@@ -22,23 +22,21 @@ import javax.inject.Inject
  * Comic Processor Repository
  * 
  * Handles on-device AI-powered comic translation using:
- * - Google Gemini AI for visual analysis and panel/text detection
- * - Google Cloud Translation API for accurate language translation
+ * - Google Gemini 2.5 Pro for visual analysis and panel/text detection
+ * - Google ML Kit Translate for on-device language translation
  * - Local Room database for offline caching
  * 
  * This repository orchestrates the entire translation workflow:
  * 1. Check local cache first for instant offline access
- * 2. If not cached, call Gemini AI to analyze the comic page
- * 3. Use function calling to translate detected text
+ * 2. If not cached, call Gemini 2.5 AI to analyze the comic page
+ * 3. Use ML Kit on-device translation for detected text
  * 4. Cache the results for future offline viewing
  * 
  * @param geminiApiKey User-provided API key for Gemini AI
- * @param translateApiKey User-provided API key for Google Cloud Translation
  * @param translationCacheDao Room DAO for caching translations
  */
 class ComicProcessorRepository @Inject constructor(
     private val geminiApiKey: String,
-    private val translateApiKey: String,
     private val translationCacheDao: ComicTranslationCacheDao
 ) {
 
@@ -48,13 +46,12 @@ class ComicProcessorRepository @Inject constructor(
     }
 
     /**
-     * Initialize the Gemini Model
-     * Note: This version uses direct translation instead of function calling
-     * as it's more compatible with the current Gemini SDK version
+     * Initialize the Gemini 2.5 Model
+     * Using the latest Gemini 2.5 Pro for improved visual analysis
      */
     private val generativeModel by lazy {
         GenerativeModel(
-            modelName = "gemini-1.5-pro-latest",
+            modelName = "gemini-2.5-pro-latest",
             apiKey = geminiApiKey
         )
     }

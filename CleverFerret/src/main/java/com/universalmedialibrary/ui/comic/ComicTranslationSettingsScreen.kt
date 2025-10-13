@@ -1,7 +1,10 @@
 package com.universalmedialibrary.ui.comic
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
@@ -35,11 +38,31 @@ class ComicTranslationSettingsViewModel @Inject constructor(
     var isGeminiKeyVisible by mutableStateOf(false)
         private set
     
+    var selectedLanguage by mutableStateOf("en")
+        private set
+    
     var saveStatus by mutableStateOf<SaveStatus>(SaveStatus.None)
         private set
     
     var areKeysConfigured by mutableStateOf(false)
         private set
+    
+    val availableLanguages = listOf(
+        Language("en", "English"),
+        Language("es", "Spanish"),
+        Language("fr", "French"),
+        Language("de", "German"),
+        Language("it", "Italian"),
+        Language("pt", "Portuguese"),
+        Language("ja", "Japanese"),
+        Language("ko", "Korean"),
+        Language("zh", "Chinese"),
+        Language("ru", "Russian"),
+        Language("ar", "Arabic"),
+        Language("hi", "Hindi")
+    )
+    
+    data class Language(val code: String, val name: String)
 
     sealed class SaveStatus {
         object None : SaveStatus()
@@ -63,6 +86,10 @@ class ComicTranslationSettingsViewModel @Inject constructor(
 
     fun toggleGeminiKeyVisibility() {
         isGeminiKeyVisible = !isGeminiKeyVisible
+    }
+    
+    fun updateSelectedLanguage(languageCode: String) {
+        selectedLanguage = languageCode
     }
 
     fun saveKeys() {
@@ -123,7 +150,8 @@ fun ComicTranslationSettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Status Card
@@ -164,12 +192,19 @@ fun ComicTranslationSettingsScreen(
 
             // Gemini API Key
             ApiKeyTextField(
-                label = "Gemini API Key",
+                label = "Gemini 2.5 API Key",
                 value = viewModel.geminiApiKey,
                 onValueChange = { viewModel.updateGeminiKey(it) },
                 isVisible = viewModel.isGeminiKeyVisible,
                 onVisibilityToggle = { viewModel.toggleGeminiKeyVisibility() },
                 helpText = "Get your key at: https://makersuite.google.com/app/apikey"
+            )
+            
+            // Language Selection
+            LanguageSelector(
+                selectedLanguage = viewModel.selectedLanguage,
+                availableLanguages = viewModel.availableLanguages,
+                onLanguageSelected = { viewModel.updateSelectedLanguage(it) }
             )
 
             // Save Status
@@ -266,6 +301,72 @@ private fun ApiKeyTextField(
         )
         Text(
             helpText,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LanguageSelector(
+    selectedLanguage: String,
+    availableLanguages: List<ComicTranslationSettingsViewModel.Language>,
+    onLanguageSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedLang = availableLanguages.find { it.code == selectedLanguage }
+    
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            "Target Translation Language",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = selectedLang?.name ?: "English",
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.ArrowDropDown,
+                        contentDescription = "Select language"
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors()
+            )
+            
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                availableLanguages.forEach { language ->
+                    DropdownMenuItem(
+                        text = { Text(language.name) },
+                        onClick = {
+                            onLanguageSelected(language.code)
+                            expanded = false
+                        },
+                        leadingIcon = if (language.code == selectedLanguage) {
+                            { Icon(Icons.Default.Check, contentDescription = null) }
+                        } else null
+                    )
+                }
+            }
+        }
+        
+        Text(
+            "Select the language you want to translate comics into",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

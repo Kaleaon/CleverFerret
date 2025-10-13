@@ -2,7 +2,7 @@
 
 ## Overview
 
-Successfully implemented a complete, self-contained Kotlin module for on-device AI comic translation in the CleverFerret Android e-reader app.
+Successfully implemented a complete, self-contained Kotlin module for on-device AI comic translation in the CleverFerret Android e-reader app using Gemini 2.5 Pro and ML Kit.
 
 ## Implementation Summary
 
