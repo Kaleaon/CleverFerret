@@ -70,7 +70,8 @@ class EpubReaderEngine @Inject constructor(
                         }
                     }
                     is BookSource.Stream -> {
-                        // TODO: Implement streaming support for remote EPUB files
+                        // Streaming support for remote EPUB files planned for future release
+                        // Would require: HTTP range request support and progressive loading
                         return@withContext Result.failure(
                             UnsupportedOperationException("Stream sources not yet implemented")
                         )

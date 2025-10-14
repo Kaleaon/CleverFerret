@@ -223,6 +223,15 @@ class AudiobookPlayerViewModel @Inject constructor(
     }
 
     /**
+     * Delete an existing bookmark
+     */
+    fun deleteBookmark(bookmark: AudiobookBookmark) {
+        viewModelScope.launch {
+            audiobookService.deleteBookmark(bookmark)
+        }
+    }
+
+    /**
      * Calibrate synchronization timing
      */
     fun calibrateSynchronization(textPosition: Int) {

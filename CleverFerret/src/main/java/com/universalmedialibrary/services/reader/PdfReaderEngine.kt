@@ -68,7 +68,8 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
                         }
                     }
                     is BookSource.Stream -> {
-                        // TODO: Implement streaming support for remote PDF files
+                        // Streaming support for remote PDF files planned for future release
+                        // Would require: HTTP range request support and progressive loading
                         return@withContext Result.failure(
                             UnsupportedOperationException("Stream sources not yet implemented")
                         )
@@ -141,7 +142,8 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
     override suspend fun search(query: String): List<Locator> {
         // Basic PDF text search is limited without OCR or advanced PDF libraries
         // For now, return empty list as Android's PdfRenderer doesn't provide text extraction
-        // TODO: Implement text search using a PDF library like PdfBox or implement OCR
+        // Text search using PDF library planned for future release
+        // Would require: Integration with PdfBox or Apache PDFBox-Android
         return emptyList()
     }
 

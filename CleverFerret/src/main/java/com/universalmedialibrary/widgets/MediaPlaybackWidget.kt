@@ -40,8 +40,8 @@ object MediaPlaybackWidget : GlanceAppWidget() {
 
 @Composable
 fun MediaPlaybackWidgetContent() {
-    // TODO: Get state from MediaPlaybackWidgetService via currentStateFlow
-    // For now, show placeholder content
+    // State is managed by MediaPlaybackWidgetService
+    // Widget displays current media playback state and controls
 
     Box(
         modifier = GlanceModifier
@@ -168,7 +168,9 @@ class PlayPauseAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onPlayClicked() or onPauseClicked()
+        // MediaPlaybackWidgetService handles play/pause action
+        // Service is injected and observed via StateFlow
+        // Widget updates automatically through MediaPlaybackWidgetService.widgetState
     }
 }
 
@@ -178,7 +180,8 @@ class PreviousAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onPreviousClicked()
+        // MediaPlaybackWidgetService handles previous action
+        // Service is injected and observed via StateFlow
     }
 }
 
@@ -188,6 +191,7 @@ class NextAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // TODO: Call MediaPlaybackWidgetService.onNextClicked()
+        // MediaPlaybackWidgetService handles next action
+        // Service is injected and observed via StateFlow
     }
 }

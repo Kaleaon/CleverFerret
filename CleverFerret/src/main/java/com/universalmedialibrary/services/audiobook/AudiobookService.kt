@@ -246,6 +246,11 @@ class AudiobookService @Inject constructor(
         // Would need ExoPlayer seek implementation
     }
 
+    fun deleteBookmark(bookmark: AudiobookBookmark) {
+        // Delete a bookmark
+        // Would need bookmark deletion from persistence
+    }
+
     fun stop() {
         exoPlayerService.stop()
     }
