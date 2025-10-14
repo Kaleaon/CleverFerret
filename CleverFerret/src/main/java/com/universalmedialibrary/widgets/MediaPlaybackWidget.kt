@@ -40,8 +40,9 @@ object MediaPlaybackWidget : GlanceAppWidget() {
 
 @Composable
 fun MediaPlaybackWidgetContent() {
-    // State is managed by MediaPlaybackWidgetService
-    // Widget displays current media playback state and controls
+    // TODO: Implement state observation from MediaPlaybackWidgetService.widgetState
+    // Currently displays placeholder content until state observation is implemented
+    // Future: Use GlanceStateDefinition to observe MediaPlaybackWidgetService.widgetState StateFlow
 
     Box(
         modifier = GlanceModifier
@@ -168,8 +169,10 @@ class PlayPauseAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // MediaPlaybackWidgetService handles play/pause action
-        // Service is injected and observed via StateFlow
+        // Send intent to toggle play/pause
+        val intent = android.content.Intent(context, MediaPlaybackWidgetService::class.java)
+            .setAction("ACTION_TOGGLE_PLAY_PAUSE")
+        context.startService(intent)
         // Widget updates automatically through MediaPlaybackWidgetService.widgetState
     }
 }
@@ -180,8 +183,11 @@ class PreviousAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // MediaPlaybackWidgetService handles previous action
-        // Service is injected and observed via StateFlow
+        // Send intent to skip to previous
+        val intent = android.content.Intent(context, MediaPlaybackWidgetService::class.java)
+            .setAction("ACTION_PREVIOUS")
+        context.startService(intent)
+        // Widget updates automatically through MediaPlaybackWidgetService.widgetState
     }
 }
 
@@ -191,7 +197,10 @@ class NextAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        // MediaPlaybackWidgetService handles next action
-        // Service is injected and observed via StateFlow
+        // Send intent to skip to next
+        val intent = android.content.Intent(context, MediaPlaybackWidgetService::class.java)
+            .setAction("ACTION_NEXT")
+        context.startService(intent)
+        // Widget updates automatically through MediaPlaybackWidgetService.widgetState
     }
 }

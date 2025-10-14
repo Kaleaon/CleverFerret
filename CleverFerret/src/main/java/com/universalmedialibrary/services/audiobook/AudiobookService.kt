@@ -247,8 +247,12 @@ class AudiobookService @Inject constructor(
     }
 
     fun deleteBookmark(bookmark: AudiobookBookmark) {
-        // Delete a bookmark
-        // Would need bookmark deletion from persistence
+        // Update in-memory state immediately (optimistic update)
+        val updatedBookmarks = _audiobookState.value.bookmarks.filterNot { it.id == bookmark.id }
+        _audiobookState.value = _audiobookState.value.copy(bookmarks = updatedBookmarks)
+        
+        // TODO: Persist deletion to database when Room/DAO implementation is available
+        // This would involve calling bookmarkDao.deleteBookmark(bookmark.id)
     }
 
     fun stop() {
