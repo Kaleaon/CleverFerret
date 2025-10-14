@@ -293,7 +293,7 @@ fun EnhancedEReaderScreen(
                 title = { Text("Table of Contents") },
                 text = {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        if (chapters.isEmpty()) {
+                        if (uiState.chapters.isEmpty()) {
                             Text(
                                 "No chapters available",
                                 style = MaterialTheme.typography.bodyMedium,

@@ -133,7 +133,8 @@ class PDFSearchEngine @Inject constructor(
         // For demonstration, return empty string to indicate limitation
         Log.w(TAG, "Text extraction not fully implemented. Page $pageIndex")
         
-        // TODO: Integrate text extraction library
+        // Text extraction library integration planned for future release
+        // Would require: Apache PDFBox or similar text extraction library
         // Options:
         // 1. Apache PDFBox: implementation("com.tom_roush:pdfbox-android:2.0.27.0")
         // 2. ML Kit OCR for scanned PDFs
@@ -210,7 +211,8 @@ class PDFSearchEngine @Inject constructor(
         query: String,
         matchCase: Boolean = false
     ): List<SearchResult> = withContext(Dispatchers.IO) {
-        // TODO: Implement OCR-based search using ML Kit
+        // OCR-based search using ML Kit planned for future release
+        // Would require: Google ML Kit Text Recognition integration
         // This would:
         // 1. Render each PDF page as a bitmap
         // 2. Use ML Kit Text Recognition to extract text

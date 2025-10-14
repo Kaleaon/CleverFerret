@@ -223,6 +223,22 @@ class AudiobookPlayerViewModel @Inject constructor(
     }
 
     /**
+     * Delete an existing bookmark
+     */
+    fun deleteBookmark(bookmark: AudiobookBookmark) {
+        viewModelScope.launch {
+            try {
+                audiobookService.deleteBookmark(bookmark)
+                // TODO: Show success feedback to user (e.g., via SharedFlow/StateFlow)
+            } catch (e: Exception) {
+                // Handle error and log
+                android.util.Log.e("AudiobookPlayerViewModel", "Failed to delete bookmark", e)
+                // TODO: Show error message to user (e.g., via SharedFlow for one-shot events)
+            }
+        }
+    }
+
+    /**
      * Calibrate synchronization timing
      */
     fun calibrateSynchronization(textPosition: Int) {

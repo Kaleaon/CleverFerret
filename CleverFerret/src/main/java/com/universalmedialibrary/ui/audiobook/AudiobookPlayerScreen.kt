@@ -177,8 +177,7 @@ fun AudiobookPlayerScreen(
                     showBookmarks = false
                 },
                 onBookmarkDelete = { bookmark ->
-                    // TODO: Add deleteBookmark method to ViewModel
-                    // viewModel.deleteBookmark(bookmark)
+                    viewModel.deleteBookmark(bookmark)
                 },
                 onDismiss = { showBookmarks = false }
             )
