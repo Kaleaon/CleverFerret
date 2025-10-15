@@ -44,9 +44,9 @@ RUN mkdir -p $ANDROID_HOME && \
     mv cmdline-tools/bin cmdline-tools/lib cmdline-tools/source.properties cmdline-tools/NOTICE.txt cmdline-tools/latest/
 
 # PERMANENT FIX: Install specific compatible versions
-RUN yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" --sdk_root=$ANDROID_HOME
-RUN yes | sdkmanager --install "build-tools;$BUILD_TOOLS_VERSION" --sdk_root=$ANDROID_HOME
-RUN yes | sdkmanager --install "platform-tools" --sdk_root=$ANDROID_HOME
+RUN yes | sdkmanager --install "platforms;android-$COMPILE_SDK_VERSION" --sdk_root="$ANDROID_HOME"
+RUN yes | sdkmanager --install "build-tools;$BUILD_TOOLS_VERSION" --sdk_root="$ANDROID_HOME"
+RUN yes | sdkmanager --install "platform-tools" --sdk_root="$ANDROID_HOME"
 
 # PERMANENT FIX: Ensure AAPT2 and other tools are executable
 RUN chmod +x $ANDROID_HOME/build-tools/$BUILD_TOOLS_VERSION/* && \

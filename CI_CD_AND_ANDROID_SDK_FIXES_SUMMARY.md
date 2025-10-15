@@ -152,6 +152,28 @@ The `multi_device_testing.yml` workflow remains unchanged as it correctly uses a
 3. **Reliability**: Build tools and platforms match project requirements
 4. **Maintainability**: Standardized configuration across all scripts and workflows
 
+## PR Review Fixes Applied
+
+### Additional Fixes from Code Review:
+
+1. **Removed Spotless Check from CI** (`.github/workflows/static-analysis.yml`)
+   - Removed `spotlessCheck` step as the Spotless plugin is not configured in the project
+   - This was causing CI failures with "Task 'spotlessCheck' not found" error
+
+2. **Fixed Docker Compose Volume Mapping** (`docker-compose.build.yml`)
+   - Changed from hard-coded host path `/workspace/android-sdk` to named volume `android-sdk-cache`
+   - This ensures the Docker setup works on all developer machines (macOS, Windows, Linux)
+   - Named volume persists the SDK while being cross-platform compatible
+
+3. **Fixed ANDROID_HOME Conflict** (`build_enhanced_permanent.sh`)
+   - Removed line 54 that was overriding the conditional ANDROID_HOME assignment from line 53
+   - Now properly uses `/workspace/android-sdk` with fallback logic intact
+   - Added `ANDROID_SDK_ROOT` export to match `ANDROID_HOME`
+
+4. **Quoted SDK Root Parameters**
+   - Added quotes around `$ANDROID_HOME` in `--sdk_root` parameters to handle paths with spaces
+   - Fixed in: `build_enhanced_permanent.sh`, `Dockerfile.build`
+
 ## Date
 Fixed: October 15, 2025
 
@@ -159,3 +181,5 @@ Fixed: October 15, 2025
 - Android SDK location errors
 - CI/CD build failures due to SDK version mismatches
 - Docker build environment configuration issues
+- Spotless plugin not configured (CI failure)
+- Docker compose cross-platform compatibility

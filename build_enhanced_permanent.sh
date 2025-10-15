@@ -51,7 +51,7 @@ log_error() {
 # AI-FRIENDLY: Set environment variables with validation
 log_info "Setting up build environment..."
 export ANDROID_HOME=${ANDROID_HOME:-/workspace/android-sdk}
-export ANDROID_HOME=/opt/android-sdk
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/36.0.0
 export JAVA_HOME=${JAVA_HOME:-$(readlink -f /usr/bin/java | sed "s:bin/java::")}
 
@@ -74,7 +74,7 @@ echo ""
 echo "🔧 Step 3: Verify Build Tools Compatibility"
 if [ ! -f "$ANDROID_HOME/build-tools/36.0.0/aapt2" ]; then
     echo "⚠️  Installing compatible build tools 36.0.0..."
-    yes | sdkmanager --install "build-tools;36.0.0" --sdk_root=$ANDROID_HOME
+    yes | sdkmanager --install "build-tools;36.0.0" --sdk_root="$ANDROID_HOME"
     echo "✅ Build tools 36.0.0 installed"
 else
     echo "✅ Build tools 36.0.0 already available"

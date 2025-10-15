@@ -28,7 +28,7 @@ services:
     volumes:
       - .:/app
       - gradle-cache:/root/.gradle
-      - /workspace/android-sdk:/workspace/android-sdk
+      - android-sdk-cache:/workspace/android-sdk
     
     # PERMANENT FIX: Environment variables with all fixes
     environment:
