@@ -6,7 +6,7 @@
       "src": "pwa-demo/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "pwa-demo/dist"
+        "distDir": "dist"
       }
     }
   ],
