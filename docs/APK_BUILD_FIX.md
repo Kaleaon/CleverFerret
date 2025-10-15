@@ -37,8 +37,8 @@ The `build-scripts/setup-build-environment.sh` script now auto-detects the Andro
 
 ### For Local Development
 ```bash
-# Run the setup script (creates local.properties automatically)
-./build-scripts/setup-build-environment.sh
+# Source the setup script to set the ANDROID_HOME environment variable
+source ./build-scripts/setup-build-environment.sh
 
 # Or manually create local.properties
 echo "sdk.dir=$HOME/Android/Sdk" > local.properties
