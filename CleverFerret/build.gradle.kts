@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 26  // Increased from 24 to support newer media libraries
+        minSdk = 36  // Android 15+ required for latest features and security
         targetSdk = 36
         versionCode = 2
         versionName = "1.1"
@@ -29,6 +29,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        
+        // Enable BuildConfig generation
+        buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
+        buildConfigField("int", "VERSION_CODE", "${versionCode}")
     }
 
     buildTypes {
@@ -54,6 +58,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -97,8 +102,8 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     
     // Hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.57.2")
-    ksp("com.google.dagger:hilt-compiler:2.57.2")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    ksp("com.google.dagger:hilt-compiler:2.51.1")
     
     // ViewModel and LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")

@@ -78,7 +78,7 @@
 - Poor user experience with installation
 
 **After Fix**:
-- ✅ APKs install successfully on all supported devices (Android 8.0+)
+- ✅ APKs install successfully on all supported devices (Android 15+)
 - ✅ All required permissions properly declared
 - ✅ Clear installation documentation and troubleshooting
 - ✅ Better user experience with detailed guidance

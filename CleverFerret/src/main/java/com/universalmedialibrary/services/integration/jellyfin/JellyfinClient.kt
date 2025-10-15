@@ -44,9 +44,6 @@ class JellyfinClient @Inject constructor(
                     name = "CleverFerret",
                     version = BuildConfig.VERSION_NAME
                 )
-                httpClientOptions {
-                    client = okHttpClient
-                }
             }
             
             apiClient = if (apiKey != null) {

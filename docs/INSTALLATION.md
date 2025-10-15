@@ -14,7 +14,7 @@ Complete guide to installing CleverFerret on your Android device.
 
 ## System Requirements
 
-- **Android Version**: 8.0+ (API level 26 or higher)
+- **Android Version**: 8.0+ (API level 36 or higher)
 - **Storage**: At least 100 MB of free space
 - **RAM**: 2GB minimum, 4GB recommended
 - **Architecture**: Universal (ARM64, ARM32, x86_64, x86)
@@ -123,7 +123,7 @@ All permissions are used only for stated purposes. No data is sent to external s
 1. **Restart your device** and try again
 2. **Clear app data**: Settings → Apps → CleverFerret → Storage → Clear Data
 3. **Reinstall**: Uninstall and reinstall the app
-4. **Check Android version**: Verify you're running Android 8.0 or higher
+4. **Check Android version**: Verify you're running Android 15 or higher
 
 ### Empty Library After Launch
 

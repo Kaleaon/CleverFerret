@@ -8,7 +8,7 @@ Always reference these instructions first and fallback to search or bash command
 - Install Java 17 (JDK 17): Required for Android Gradle Plugin 8.4.1
 - Install Android SDK with required components:
   - `platform-tools`
-  - `platforms;android-34` 
+  - `platforms;android-36` 
   - `build-tools;33.0.2`
 - Build the project:
   - `./gradlew clean` -- takes 2 minutes first time with Gradle setup. NEVER CANCEL.
@@ -127,12 +127,12 @@ The project uses standard Android development dependencies:
 ```kotlin
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 34
+    compileSdk = 36
     
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 26
-        targetSdk = 34
+        minSdk 36
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }

@@ -217,7 +217,7 @@ The visualizer requires `RECORD_AUDIO` permission (already in manifest).
 - Can be paused when not visible to save battery
 
 ### Compatibility
-- Minimum Android version: 8.0 (API 26) - unchanged
+- Minimum Android version: 8.0 (API 36) - unchanged
 - Chromecast: Requires Google Play Services
 - Works with all ExoPlayer-based audio sources
 

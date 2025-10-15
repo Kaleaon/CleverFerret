@@ -8,7 +8,7 @@ Android blocks cleartext (non-HTTPS) HTTP traffic by default starting from API l
 
 The CleverFerret app:
 - Targets API 34 (Android 14)
-- Has minSdk 26 (Android 8.0)
+- Has minSdk 36 (Android 8.0)
 - Includes default radio stations with HTTP URLs (e.g., BBC Radio 1 uses `http://stream.live.vc.bbcmedia.co.uk/bbc_radio_one`)
 
 When users tried to play these radio stations, the ExoPlayer would fail to connect because Android blocked the HTTP connection.

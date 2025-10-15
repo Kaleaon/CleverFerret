@@ -65,7 +65,7 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for complete setup instructions.
 
 ## 📱 System Requirements
 
-- **Android**: 8.0+ (API level 26 or higher)
+- **Android**: 8.0+ (API level 36 or higher)
 - **Storage**: 100 MB for app + space for your media
 - **RAM**: 2GB minimum (4GB recommended)
 

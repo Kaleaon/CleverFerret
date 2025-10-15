@@ -66,7 +66,7 @@ cd CleverFerret
 1. **Create AVD** (Android Virtual Device):
    - Tools → Device Manager → Create Device
    - Choose a device (e.g., Pixel 5)
-   - Select Android API 26+ system image
+   - Select Android API 36+ system image
    - Click Finish
 
 2. **Run the app**:

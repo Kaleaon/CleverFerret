@@ -79,6 +79,23 @@ object DatabaseModule {
         return database.plexSyncDao()
     }
 
+    // Emby/Jellyfin DAOs
+    @Provides
+    fun provideEmbyServerDao(database: AppDatabase): EmbyServerDao {
+        return database.embyServerDao()
+    }
+
+    @Provides
+    fun provideJellyfinServerDao(database: AppDatabase): JellyfinServerDao {
+        return database.jellyfinServerDao()
+    }
+
+    // OPDS DAO
+    @Provides
+    fun provideOPDSCatalogDao(database: AppDatabase): OPDSCatalogDao {
+        return database.opdsCatalogDao()
+    }
+
     // Reader enhancement DAOs
     @Provides
     fun provideAnnotationDao(database: AppDatabase): AnnotationDao {

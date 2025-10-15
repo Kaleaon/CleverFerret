@@ -268,12 +268,8 @@ class ComicProcessorRepository @Inject constructor(
      * Convert Bitmap to Content for Gemini API
      */
     private fun bitmapToContent(bitmap: Bitmap): Content {
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
-        val byteArray = stream.toByteArray()
-        
         return content {
-            image(byteArray)
+            image(bitmap)
         }
     }
 

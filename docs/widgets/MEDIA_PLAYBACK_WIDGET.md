@@ -220,7 +220,7 @@ class MediaPlaybackWidgetStateTest {
 **Widget not appearing in picker**
 - Verify AndroidManifest.xml registration
 - Check widget info XML syntax
-- Ensure minimum SDK version (API 26+)
+- Ensure minimum SDK version (API 36+)
 
 **Widget shows blank content**
 - Check DataStore preferences are being written

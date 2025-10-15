@@ -231,7 +231,7 @@ chromecastManager.enableVisualizerCasting(true)
 
 ## Known Limitations
 
-1. **Android SDK Required** - Visualizer API requires Android 8.0+
+1. **Android SDK Required** - Visualizer API requires Android 15+
 2. **RECORD_AUDIO Permission** - Required for audio capture (already in manifest)
 3. **Chromecast Device Required** - For casting features
 4. **Google Play Services** - Required for Cast SDK

@@ -15,9 +15,9 @@
 - **Package:** com.universalmedialibrary
 - **Version:** 1.0 (versionCode 1)
 - **Signing:** ✅ Properly signed with debug certificate
-- **Installation:** ✅ Verified installable on Android 8.0+
+- **Installation:** ✅ Verified installable on Android 15+
 - **Target SDK:** Android 14 (API 34)
-- **Min SDK:** Android 8.0 (API 26)
+- **Min SDK:** Android 8.0 (API 36)
 
 ### Verification Status
 Per `apk_test_report.md`:

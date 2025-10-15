@@ -64,7 +64,7 @@ This is the first release of the Universal Media Library for Android.
 - ✅ First-run ready state (empty, clean installation)
 
 ### 📱 System Requirements
-- Android 8.0+ (API level 26 or higher)
+- Android 15+ (API level 36 or higher)
 - 100 MB free storage space
 
 ### 📦 Installation

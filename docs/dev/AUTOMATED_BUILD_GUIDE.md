@@ -190,7 +190,7 @@ Each workflow can be customized through:
 
 ### Testing Coverage
 
-- **API Level Coverage**: Android 8.0 (API 26) to Android 14 (API 34)
+- **API Level Coverage**: Android 8.0 (API 36) to Android 14 (API 34)
 - **Architecture Coverage**: x86, x86_64 for emulator testing
 - **Test Types**: Unit tests, instrumentation tests, performance tests
 - **Retry Logic**: 3-attempt retry for flaky tests

@@ -21,8 +21,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideJellyfinClient(okHttpClient: OkHttpClient): JellyfinClient {
-        return JellyfinClient(okHttpClient)
+    fun provideJellyfinClient(
+        @ApplicationContext context: Context,
+        okHttpClient: OkHttpClient
+    ): JellyfinClient {
+        return JellyfinClient(context, okHttpClient)
     }
 
     @Provides

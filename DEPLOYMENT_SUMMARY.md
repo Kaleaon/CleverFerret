@@ -9,7 +9,7 @@
 - **SHA256**: `cd10c8307b6e21b165ccd86a933fa59c3148de5f1d3c05e116d1afa5df123794`
 - **Package**: com.universalmedialibrary
 - **Target SDK**: Android 36 (API 36)
-- **Min SDK**: Android 26 (API 26)
+- **Min SDK**: Android 26 (API 36)
 
 ### Deployment Location
 ```

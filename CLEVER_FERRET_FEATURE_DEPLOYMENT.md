@@ -456,7 +456,7 @@ All features are:
 - **Target SDK**: 34 (Android 14)
 - **Biometric Auth**: API 28+
 - **App Shortcuts**: API 25+
-- **Widgets**: API 26+
+- **Widgets**: API 36+
 
 ---
 

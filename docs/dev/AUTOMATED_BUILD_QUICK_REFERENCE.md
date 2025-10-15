@@ -86,7 +86,7 @@ git push origin v1.2.0
 - **Target Size**: < 20MB (release)
 - **Security**: Signed APKs, vulnerability scanning
 - **Performance**: Startup time < 3 seconds
-- **Compatibility**: Android 8.0+ (broad device coverage)
+- **Compatibility**: Android 15+ (broad device coverage)
 
 ## 🛠️ Workflow Customization
 
