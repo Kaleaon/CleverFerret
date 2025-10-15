@@ -171,4 +171,4 @@ android.software.vulkan.deqp.level
 android.software.wallet_location_based_suggestions
 android.software.webview
 android.software.window_magnification
-android.sofware.nfc.beam
+android.software.nfc.beam
