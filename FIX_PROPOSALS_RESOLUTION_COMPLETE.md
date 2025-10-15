@@ -171,9 +171,9 @@ fun deleteBookmark(bookmark: AudiobookBookmark) {
 
 | File | Changes | Lines Modified |
 |------|---------|----------------|
-| JellyfinClient.kt | Added Context, createJellyfin, ClientInfo | +12, -4 |
+| JellyfinClient.kt | Added Context, createJellyfin, ClientInfo, httpClientOptions, BuildConfig.VERSION_NAME | +13, -4 |
 
-**Total:** 1 file modified, 16 lines changed
+**Total:** 1 file modified, 17 lines changed
 
 ---
 

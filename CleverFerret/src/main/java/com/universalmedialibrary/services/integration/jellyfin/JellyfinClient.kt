@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.integration.jellyfin
 
 import android.content.Context
 import android.util.Log
+import com.universalmedialibrary.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -41,7 +42,7 @@ class JellyfinClient @Inject constructor(
                 context = this@JellyfinClient.context
                 clientInfo = ClientInfo(
                     name = "CleverFerret",
-                    version = "1.1"
+                    version = BuildConfig.VERSION_NAME
                 )
                 httpClientOptions {
                     client = okHttpClient
