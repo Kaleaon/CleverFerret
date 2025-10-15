@@ -44,7 +44,6 @@ android.hardware.nfc
 android.hardware.nfc.any
 android.hardware.nfc.ese
 android.hardware.nfc.hce
-android.hardware.nfc.hce
 android.hardware.nfc.hcef
 android.hardware.nfc.uicc
 android.hardware.opengles.aep

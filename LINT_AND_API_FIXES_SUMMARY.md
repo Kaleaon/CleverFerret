@@ -17,17 +17,19 @@ Per user request: **"fix lintissues and misnumbering ofapi"**
 - **Impact**: ✅ Feature detection now works correctly
 
 #### Removed Duplicates:
-1. **File**: `android-sdk/platforms/android-36/data/features.txt`
-   - **Duplicate**: `android.hardware.nfc.hce` (appeared on lines 49-50)
-   - **Fixed**: ✅ Removed duplicate, kept single entry
 
-2. **File**: `android-sdk/platforms/android-36/data/broadcast_actions.txt`
-   - **Duplicate**: `android.intent.action.HEADSET_PLUG` (appeared on lines 146-147)
-   - **Fixed**: ✅ Removed duplicate
+**Android SDK 36 (android-36):**
+1. `android.hardware.nfc.hce` in features.txt (lines 49-50) ✅
+2. `android.intent.action.HEADSET_PLUG` in broadcast_actions.txt (lines 146-147) ✅
+3. `android.media.VOLUME_CHANGED_ACTION` in broadcast_actions.txt (lines 228-229) ✅
+4. `android.os.action.LIGHT_DEVICE_IDLE_MODE_CHANGED` in broadcast_actions.txt (lines 273-274) ✅
 
-3. **File**: `android-sdk/platforms/android-36/data/broadcast_actions.txt`
-   - **Duplicate**: `android.media.VOLUME_CHANGED_ACTION` (appeared on lines 228-229)
-   - **Fixed**: ✅ Removed duplicate
+**Android SDK 34 (android-34):**
+5. `android.hardware.nfc.hce` in features.txt (lines 46-47) ✅
+6. `android.intent.action.HEADSET_PLUG` in broadcast_actions.txt (lines 141-142) ✅
+7. `android.media.VOLUME_CHANGED_ACTION` in broadcast_actions.txt (lines 221-222) ✅
+
+**Total**: 7 duplicates removed across both SDK platforms
 
 ---
 
