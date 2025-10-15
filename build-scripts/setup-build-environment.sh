@@ -21,7 +21,15 @@ if [ -n "$SDK_CANDIDATE" ] && ( [ -d "$SDK_CANDIDATE/platforms" ] || [ -d "$SDK_
 if [ -n "$SDK_CANDIDATE" ] && ( [ -d "$SDK_CANDIDATE/platforms" ] || [ -d "$SDK_CANDIDATE/cmdline-tools" ] || [ -d "$SDK_CANDIDATE/platform-tools" ] ); then export ANDROID_HOME="$SDK_CANDIDATE"; export ANDROID_SDK_ROOT="$SDK_CANDIDATE"; else echo "Warning: Android SDK not found at expected locations; builds may fail."; export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"; export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"; fi
     # Workspace/container environment
     export ANDROID_HOME="${ANDROID_HOME:-/workspace/android-sdk}"
-elif [ -d "$HOME/Android/Sdk" ]; then
+SDK_CANDIDATE="${ANDROID_HOME:-}"
+[ -z "$SDK_CANDIDATE" ] && [ -d "/workspace/android-sdk" ] && SDK_CANDIDATE="/workspace/android-sdk"
+[ -z "$SDK_CANDIDATE" ] && [ -d "$HOME/Android/Sdk" ] && SDK_CANDIDATE="$HOME/Android/Sdk"
+if [ -n "$SDK_CANDIDATE" ] && ( [ -d "$SDK_CANDIDATE/platforms" ] || [ -d "$SDK_CANDIDATE/cmdline-tools" ] || [ -d "$SDK_CANDIDATE/platform-tools" ] ); then
+  export ANDROID_HOME="$SDK_CANDIDATE" ANDROID_SDK_ROOT="$SDK_CANDIDATE"
+else
+  export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}" ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
+  echo "Warning: Android SDK not found at expected locations; builds may fail."
+fi
     # Standard Android Studio location
     export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 else
