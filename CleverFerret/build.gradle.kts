@@ -101,9 +101,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.5")
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     
-    // Hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.50")
-    ksp("com.google.dagger:hilt-compiler:2.50")
+    // Hilt dependency injection - minimum 2.51 for Kotlin 2.0.x
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    ksp("com.google.dagger:hilt-compiler:2.51.1")
     
     // ViewModel and LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
