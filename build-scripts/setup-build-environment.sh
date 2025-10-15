@@ -13,32 +13,21 @@ export BUILD_TOOLS_VERSION="33.0.2"
 export COMPILE_SDK_VERSION="34"
 
 # Auto-detect Android SDK location
-SDK_CANDIDATE="${ANDROID_HOME:-}"
-for CAND in "$SDK_CANDIDATE" "/workspace/android-sdk" "$HOME/Android/Sdk"; do
-  [ -n "$CAND" ] && { [ -d "$CAND/platforms" ] || [ -d "$CAND/cmdline-tools" ] || [ -d "$CAND/platform-tools" ]; } && { ANDROID_HOME="$CAND"; ANDROID_SDK_ROOT="$CAND"; break; }
-done
-export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}" ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
-[ -d "$ANDROID_HOME" ] || echo "Warning: Android SDK not found at expected locations; builds may fail."
-# Auto-detect Android SDK location
-SDK_CANDIDATE="${ANDROID_HOME:-}"
-[ -z "$SDK_CANDIDATE" ] && [ -d "/workspace/android-sdk" ] && SDK_CANDIDATE="/workspace/android-sdk"
-[ -z "$SDK_CANDIDATE" ] && [ -d "$HOME/Android/Sdk" ] && SDK_CANDIDATE="$HOME/Android/Sdk"
-if [ -n "$SDK_CANDIDATE" ] && ( [ -d "$SDK_CANDIDATE/platforms" ] || [ -d "$SDK_CANDIDATE/cmdline-tools" ] || [ -d "$SDK_CANDIDATE/platform-tools" ] ); then export ANDROID_HOME="$SDK_CANDIDATE"; export ANDROID_SDK_ROOT="$SDK_CANDIDATE"; else echo "Warning: Android SDK not found at expected locations; builds may fail."; export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"; export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"; fi
-if [ -n "$SDK_CANDIDATE" ] && ( [ -d "$SDK_CANDIDATE/platforms" ] || [ -d "$SDK_CANDIDATE/cmdline-tools" ] || [ -d "$SDK_CANDIDATE/platform-tools" ] ); then export ANDROID_HOME="$SDK_CANDIDATE"; export ANDROID_SDK_ROOT="$SDK_CANDIDATE"; else echo "Warning: Android SDK not found at expected locations; builds may fail."; export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"; export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"; fi
-    # Workspace/container environment
-    export ANDROID_HOME="${ANDROID_HOME:-/workspace/android-sdk}"
-SDK_CANDIDATE="${ANDROID_HOME:-}"
-[ -z "$SDK_CANDIDATE" ] && [ -d "/workspace/android-sdk" ] && SDK_CANDIDATE="/workspace/android-sdk"
-[ -z "$SDK_CANDIDATE" ] && [ -d "$HOME/Android/Sdk" ] && SDK_CANDIDATE="$HOME/Android/Sdk"
-if [ -n "$SDK_CANDIDATE" ] && ( [ -d "$SDK_CANDIDATE/platforms" ] || [ -d "$SDK_CANDIDATE/cmdline-tools" ] || [ -d "$SDK_CANDIDATE/platform-tools" ] ); then
-  export ANDROID_HOME="$SDK_CANDIDATE" ANDROID_SDK_ROOT="$SDK_CANDIDATE"
-else
-  export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}" ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
-  echo "Warning: Android SDK not found at expected locations; builds may fail."
+# Priority: 1) Pre-set ANDROID_HOME, 2) Workspace/container, 3) Standard Android Studio
+if [ -z "$ANDROID_HOME" ]; then
+    if [ -d "/workspace/android-sdk" ]; then
+        # Workspace/container environment
+        export ANDROID_HOME="/workspace/android-sdk"
+    elif [ -d "$HOME/Android/Sdk" ]; then
+        # Standard Android Studio location
+        export ANDROID_HOME="$HOME/Android/Sdk"
+    else
+        # Fallback to default path to let the build system provide a clear error
+        export ANDROID_HOME="$HOME/Android/Sdk"
+    fi
 fi
-    # Standard Android Studio location
-    export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
-fi
+
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
 
 export JAVA_VERSION="17"
 

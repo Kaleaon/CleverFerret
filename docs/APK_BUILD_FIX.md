@@ -23,10 +23,10 @@ sdk.dir=/workspace/android-sdk
 ```
 
 ### Automated Fix
-The `build-scripts/setup-build-environment.sh` script now auto-detects the Android SDK location:
-- In workspace/container environments: `/workspace/android-sdk`
-- In standard Android Studio environments: `$HOME/Android/Sdk`
-- Custom locations via `ANDROID_HOME` environment variable
+The `build-scripts/setup-build-environment.sh` script resolves the Android SDK location as follows:
+- If `ANDROID_HOME` is already set, it is respected and used as-is
+- Otherwise, in workspace/container environments: `/workspace/android-sdk`
+- Otherwise, default: `$HOME/Android/Sdk`
 
 ## Usage
 ### For Workspace/Container Environments
@@ -63,5 +63,6 @@ CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk
 
 ## Notes
 - `local.properties` is in `.gitignore` (as it should be) because it contains machine-specific paths
-- The setup script sets the `ANDROID_HOME` environment variable, which is an alternative to using `local.properties`.
+- The setup script sets the `ANDROID_HOME` environment variable when sourced, which is an alternative to using `local.properties`
+- A pre-existing `ANDROID_HOME` environment variable takes precedence over auto-detection
 - The fix ensures builds work in various environments without manual intervention
