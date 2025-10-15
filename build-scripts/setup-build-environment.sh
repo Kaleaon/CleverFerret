@@ -38,9 +38,6 @@ else
 fi
     # Standard Android Studio location
     export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
-else
-    # Fallback to user-specified or default
-    export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 fi
 
 export JAVA_VERSION="17"
