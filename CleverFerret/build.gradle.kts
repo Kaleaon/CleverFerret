@@ -174,13 +174,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-cast-framework:22.1.0")
     implementation("androidx.media3:media3-cast:1.8.0")
     
-    // Gemini AI for content analysis
+    // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-    
-    // Google ML Kit for on-device translation (Android-compatible)
-    implementation("com.google.mlkit:translate:17.0.3")
-    
-    // All OCR and image analysis handled by Gemini AI above
     
     // Media metadata extraction libraries
     // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library

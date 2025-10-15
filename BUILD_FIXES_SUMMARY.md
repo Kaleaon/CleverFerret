@@ -44,12 +44,15 @@ All build, gradle, yml, and setup issues have been resolved. The project now bui
 #### ComicProcessorRepository.kt
 **Issues**:
 1. Google Play Services dependency (`kotlinx.coroutines.tasks.await`)
-2. Bitmap → ByteArray conversion issue
+2. Unnecessary ML Kit dependency for translation
+3. Complex coroutine bridging code
 
 **Fixes**:
-1. Replaced `tasks.await()` with `suspendCancellableCoroutine` for Google Play independence
-2. Added proper cancellation handling with `addOnCanceledListener` and `invokeOnCancellation`
-3. Fixed `bitmapToContent()` to pass Bitmap directly to Gemini API
+1. **Removed ML Kit completely** - Gemini now handles both extraction AND translation
+2. Simplified workflow: Gemini does everything in a single API call
+3. Removed all ML Kit imports and dependencies
+4. Eliminated complex coroutine bridging code (no longer needed)
+5. Reduced code from 315 lines to 230 lines (~27% reduction)
 
 #### ReadiumEpubService.kt
 **Issue**: Undefined `assetResult` variable
@@ -133,9 +136,9 @@ versionName:          "1.0"
 - ✅ Compose with Material3
 - ✅ Jellyfin SDK
 - ✅ Readium Toolkit
-- ✅ Gemini AI
-- ✅ ML Kit Translation
+- ✅ Gemini AI (handles both analysis AND translation)
 - ✅ All DAOs properly provided
+- ✅ ML Kit removed (simplified architecture)
 
 ## Warnings (Non-Critical)
 

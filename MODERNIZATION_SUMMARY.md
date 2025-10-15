@@ -103,7 +103,7 @@ Replaced `/* TODO: ... */` with proper no-op implementations in:
 ### Compilation Target:
 - **compileSdk**: 36
 - **targetSdk**: 36
-- **minSdk 36
+- **minSdk**: 26
 - **Java**: 1.8 compatibility
 
 ## Remaining Non-Operational TODOs
