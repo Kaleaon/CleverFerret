@@ -7,6 +7,7 @@
 // Library Screens
 export { default as LibraryListScreen } from './library/LibraryList';
 export { default as LibraryDetailsScreen } from './library/LibraryDetails';
+export { default as LibraryManagementScreen } from './library/LibraryManagementScreen';
 
 // Detail Screen
 export { default as MediaItemDetailScreen } from './detail/MediaItemDetailScreen';
@@ -20,6 +21,11 @@ export { default as BookmarkScreen } from './reader/BookmarkScreen';
 // Player Screens
 export { default as AudioPlayerScreen } from './player/AudioPlayerScreen';
 export { default as VideoPlayerScreen } from './player/VideoPlayerScreen';
+export { default as ModernAudioPlayerScreen } from './player/ModernAudioPlayerScreen';
+export { default as ModernVideoPlayerScreen } from './player/ModernVideoPlayerScreen';
+
+// Audiobook
+export { default as AudiobookPlayerScreen } from './audiobook/AudiobookPlayerScreen';
 
 // Playback
 export { default as QueueScreen } from './playback/QueueScreen';
@@ -61,3 +67,6 @@ export { default as VisualizerScreen } from './visualizer/VisualizerScreen';
 
 // Search
 export { default as SearchScreen } from './search/SearchScreen';
+
+// Statistics
+export { default as ReadingStatisticsScreen } from './stats/ReadingStatisticsScreen';
