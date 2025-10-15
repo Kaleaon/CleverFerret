@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "name": "cleverferret-pwa",
+  "builds": [
+    {
+      "src": "pwa-demo/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "pwa-demo/dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/pwa/(.*)",
+      "dest": "/pwa-demo/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/pwa-demo/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

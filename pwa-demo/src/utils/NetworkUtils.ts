@@ -120,7 +120,7 @@ export class NetworkUtils {
       }
     }
 
-    return new Blob(chunks);
+    return new Blob(chunks as BlobPart[]);
   }
 
   /**
