@@ -70,8 +70,11 @@ class JellyfinClient @Inject constructor(
                 context = this@JellyfinClient.context
                 clientInfo = ClientInfo(
                     name = "CleverFerret",
-                    version = "1.1"
+                    version = BuildConfig.VERSION_NAME
                 )
+                httpClientOptions {
+                    client = okHttpClient
+                }
             }
 ```
 
@@ -225,7 +228,7 @@ import org.jellyfin.sdk.model.ClientInfo
 - Sets context for SDK operations
 - Provides ClientInfo for server identification:
   - Name: "CleverFerret"
-  - Version: "1.1"
+  - Version: BuildConfig.VERSION_NAME (dynamic from gradle)
 
 ---
 

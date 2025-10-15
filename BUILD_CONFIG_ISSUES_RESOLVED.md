@@ -46,6 +46,10 @@ warning: Unexpected input(s) 'api-level', 'build-tools', valid inputs are ['cmdl
   with:
     cmdline-tools-version: 11076708
     accept-android-sdk-licenses: true
+    packages: |
+      platforms;android-36
+      build-tools;34.0.0
+      platform-tools
 ```
 
 **Changes:**
@@ -53,8 +57,12 @@ warning: Unexpected input(s) 'api-level', 'build-tools', valid inputs are ['cmdl
 - Removed deprecated `build-tools` parameter
 - Added `cmdline-tools-version: 11076708` (latest stable version)
 - Added `accept-android-sdk-licenses: true` for automatic license acceptance
+- Added explicit `packages` list to ensure deterministic builds:
+  - `platforms;android-36` - Android SDK Platform 36
+  - `build-tools;34.0.0` - Build tools for APK signing
+  - `platform-tools` - adb and other platform tools
 
-**Result:** ✅ CI workflow now uses correct Android SDK setup parameters
+**Result:** ✅ CI workflow now uses correct Android SDK setup parameters with explicit package installation for deterministic builds
 
 ---
 
