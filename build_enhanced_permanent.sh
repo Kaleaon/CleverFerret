@@ -50,7 +50,7 @@ log_error() {
 
 # AI-FRIENDLY: Set environment variables with validation
 log_info "Setting up build environment..."
-
+export ANDROID_HOME=${ANDROID_HOME:-/workspace/android-sdk}
 export ANDROID_HOME=/opt/android-sdk
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/36.0.0
 export JAVA_HOME=${JAVA_HOME:-$(readlink -f /usr/bin/java | sed "s:bin/java::")}
