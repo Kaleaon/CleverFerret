@@ -36,8 +36,14 @@ export class WebFictionService {
   }
 
   private detectSite(url: string): 'ao3' | 'ffnet' | 'other' {
-    if (url.includes('archiveofourown.org')) return 'ao3';
-    if (url.includes('fanfiction.net')) return 'ffnet';
+    let hostname: string;
+    try {
+      hostname = new URL(url).hostname;
+    } catch (e) {
+      return 'other';
+    }
+    if (hostname === 'archiveofourown.org' || hostname.endsWith('.archiveofourown.org')) return 'ao3';
+    if (hostname === 'fanfiction.net' || hostname.endsWith('.fanfiction.net')) return 'ffnet';
     return 'other';
   }
 
