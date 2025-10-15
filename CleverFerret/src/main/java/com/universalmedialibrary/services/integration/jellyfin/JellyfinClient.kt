@@ -1,12 +1,16 @@
 package com.universalmedialibrary.services.integration.jellyfin
 
+import android.content.Context
 import android.util.Log
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import org.jellyfin.sdk.Jellyfin
 import org.jellyfin.sdk.api.client.ApiClient
 import org.jellyfin.sdk.api.client.extensions.systemApi
+import org.jellyfin.sdk.createJellyfin
+import org.jellyfin.sdk.model.ClientInfo
 import org.jellyfin.sdk.model.api.SystemInfo
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,6 +23,7 @@ import javax.inject.Singleton
  */
 @Singleton  
 class JellyfinClient @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val okHttpClient: OkHttpClient
 ) {
     private val TAG = "JellyfinClient"
@@ -31,10 +36,13 @@ class JellyfinClient @Inject constructor(
      */
     fun initialize(serverUrl: String, apiKey: String? = null) {
         try {
-            jellyfin = Jellyfin {
-                httpClientOptions {
-                    client = okHttpClient
-                }
+            // Initialize Jellyfin SDK with proper configuration
+            jellyfin = createJellyfin {
+                context = this@JellyfinClient.context
+                clientInfo = ClientInfo(
+                    name = "CleverFerret",
+                    version = "1.1"
+                )
             }
             
             apiClient = if (apiKey != null) {
