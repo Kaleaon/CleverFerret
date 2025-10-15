@@ -30,12 +30,9 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
-        cmdline-tools-version: 11076708
-        accept-android-sdk-licenses: true
-        packages: |
-          platforms;android-36
-          build-tools;36.0.0
-          platform-tools
+        api-level: 36
+        build-tools: '36.0.0'
+        
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:
@@ -127,12 +124,9 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
-        cmdline-tools-version: 11076708
-        accept-android-sdk-licenses: true
-        packages: |
-          platforms;android-36
-          build-tools;36.0.0
-          platform-tools
+        api-level: 36
+        build-tools: '36.0.0'
+        
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:

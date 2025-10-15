@@ -16,31 +16,16 @@ sdk.dir=/workspace/android-sdk
 ### 2. Inconsistent Android SDK Versions in CI/CD Workflows
 
 #### Main CI/CD Pipeline (`.github/workflows/main.yml`)
-**Problems**:
-- Mixed usage of `android-34` and `android-36` platforms
-- Used `build-tools;34.0.0` instead of `36.0.0`
-- Inconsistent zipalign references
+**Problem**: 
+- zipalign referenced `build-tools/34.0.0` instead of `36.0.0`
 
-**Fixes Applied**:
-- Standardized to `platforms;android-36`
-- Updated to `build-tools;36.0.0`
-- Fixed zipalign path from `34.0.0` to `36.0.0`
+**Fix Applied**:
+- Updated zipalign path from `34.0.0` to `36.0.0` to match the configured build-tools version
+
+Note: The workflow already correctly uses `api-level: 36` and `build-tools: '36.0.0'` in the Android SDK setup.
 
 #### Static Analysis Workflow (`.github/workflows/static-analysis.yml`)
-**Problem**: Used outdated API level configuration format
-
-**Fix**: Updated to use consistent package installation format:
-```yaml
-- name: Set up Android SDK
-  uses: android-actions/setup-android@v3
-  with:
-    cmdline-tools-version: 11076708
-    accept-android-sdk-licenses: true
-    packages: |
-      platforms;android-36
-      build-tools;36.0.0
-      platform-tools
-```
+**Status**: No changes needed - workflow already correctly configured with `api-level: 36` and `build-tools: '36.0.0'`
 
 ### 3. Docker Configuration Updates
 
