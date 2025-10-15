@@ -305,7 +305,7 @@ fun EnhancedEReaderScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            // Navigate to chapter - simplified for now
+                                            // TODO: Implement chapter navigation when viewModel exposes the method
                                             showTableOfContents = false
                                         }
                                         .padding(vertical = 8.dp),
