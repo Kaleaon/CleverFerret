@@ -11,12 +11,15 @@ export { default as LibraryManagementScreen } from './library/LibraryManagementS
 
 // Detail Screen
 export { default as MediaItemDetailScreen } from './detail/MediaItemDetailScreen';
+export { default as BookDetailsScreen } from './details/BookDetailsScreen';
 
 // Reader Screens
 export { default as EReaderScreen } from './reader/EReaderScreen';
 export { default as PDFReaderScreen } from './reader/PDFReaderScreen';
 export { default as ComicReaderScreen } from './reader/ComicReaderScreen';
 export { default as BookmarkScreen } from './reader/BookmarkScreen';
+export { default as EPUBReaderScreen } from './reader/EPUBReaderScreen';
+export { default as EnhancedPDFReaderScreen } from './reader/EnhancedPDFReaderScreen';
 
 // Player Screens
 export { default as AudioPlayerScreen } from './player/AudioPlayerScreen';
@@ -33,9 +36,11 @@ export { default as NowPlayingBar } from './playback/NowPlayingScreen';
 
 // Music
 export { default as MusicLibraryScreen } from './music/MusicLibraryScreen';
+export { default as MusicPlayerScreen } from './player/MusicPlayerScreen';
 
 // Podcast
 export { default as PodcastManagerScreen } from './podcast/PodcastManagerScreen';
+export { default as PodcastPlayerScreen } from './podcast/PodcastPlayerScreen';
 
 // Radio
 export { default as RadioScreen } from './radio/RadioScreen';
@@ -58,6 +63,8 @@ export { default as ImportExportSettingsScreen } from './settings/ImportExportSe
 
 // Integration
 export { default as PlexIntegrationScreen } from './integration/PlexIntegrationScreen';
+export { default as PlexAuthScreen } from './plex/PlexAuthScreen';
+export { default as PlexSyncScreen } from './plex/PlexSyncScreen';
 
 // Maintenance
 export { default as MaintenanceScreen } from './maintenance/MaintenanceScreen';
@@ -70,3 +77,12 @@ export { default as SearchScreen } from './search/SearchScreen';
 
 // Statistics
 export { default as ReadingStatisticsScreen } from './stats/ReadingStatisticsScreen';
+
+// OPDS
+export { default as OPDSCatalogBrowserScreen } from './opds/OPDSCatalogBrowserScreen';
+
+// Storage
+export { default as StorageBrowserScreen } from './storage/StorageBrowserScreen';
+
+// Web Fiction
+export { default as WebFictionManagerScreen } from './webfiction/WebFictionManagerScreen';

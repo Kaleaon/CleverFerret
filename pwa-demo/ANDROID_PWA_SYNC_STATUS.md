@@ -20,7 +20,9 @@ This document tracks the synchronization of Android code to the PWA structure. T
 - ✅ Fixed missing entity fields in database operations
 - ✅ PWA now builds successfully with no errors
 
-### New Screens Added (5 total)
+### New Screens Added (15 total - in 2 updates)
+
+#### Update 1 (5 screens)
 
 #### 1. ModernAudioPlayerScreen.tsx
 **Location**: `src/ui/player/ModernAudioPlayerScreen.tsx`  
@@ -85,6 +87,115 @@ This document tracks the synchronization of Android code to the PWA structure. T
 - Tab navigation (Overview, Week, Month, All Time)
 - **Status**: Functional stub with UI
 
+#### Update 2 (10 screens)
+
+#### 6. EPUBReaderScreen.tsx
+**Location**: `src/ui/reader/EPUBReaderScreen.tsx`  
+**Migrated from**: `EPUBReaderScreen.kt`  
+**Features**:
+- EPUB-specific reader with epub.js integration
+- Table of contents navigation
+- Chapter jumping
+- Font size and brightness controls
+- Reading progress tracking
+- Bookmark support
+- **Status**: Functional stub with UI
+
+#### 7. EnhancedPDFReaderScreen.tsx
+**Location**: `src/ui/reader/EnhancedPDFReaderScreen.tsx`  
+**Migrated from**: `EnhancedPDFReaderScreen.kt`  
+**Features**:
+- PDF.js integration for rendering
+- Zoom (50%-300%) and rotation controls
+- Thumbnail sidebar navigation
+- Text selection and annotations
+- Highlight and note support
+- Print and download options
+- **Status**: Functional stub with UI
+
+#### 8. OPDSCatalogBrowserScreen.tsx
+**Location**: `src/ui/opds/OPDSCatalogBrowserScreen.tsx`  
+**Migrated from**: `OPDSCatalogBrowserScreen.kt`  
+**Features**:
+- OPDS catalog browsing
+- Book search and filtering
+- Folder navigation with breadcrumbs
+- Book download from catalogs
+- Grid and list views
+- **Status**: Functional stub with UI
+
+#### 9. StorageBrowserScreen.tsx
+**Location**: `src/ui/storage/StorageBrowserScreen.tsx`  
+**Migrated from**: `StorageBrowserScreen.kt`  
+**Features**:
+- File system browser
+- Directory navigation
+- File selection
+- Breadcrumb navigation
+- **Status**: Functional stub with UI
+
+#### 10. WebFictionManagerScreen.tsx
+**Location**: `src/ui/webfiction/WebFictionManagerScreen.tsx`  
+**Migrated from**: `WebFictionManagerScreen.kt`  
+**Features**:
+- Web fiction/fanfiction manager
+- Story URL import
+- Chapter download tracking
+- Update checking
+- Progress display
+- **Status**: Functional stub with UI
+
+#### 11. BookDetailsScreen.tsx
+**Location**: `src/ui/details/BookDetailsScreen.tsx`  
+**Migrated from**: `BookDetailsScreen.kt`  
+**Features**:
+- Detailed book information view
+- Cover art display
+- Metadata display
+- Rating and reviews
+- Read and favorite buttons
+- **Status**: Functional stub with UI
+
+#### 12. MusicPlayerScreen.tsx
+**Location**: `src/ui/player/MusicPlayerScreen.tsx`  
+**Migrated from**: `MusicPlayerScreen.kt`  
+**Features**:
+- Basic music player
+- Play/pause/skip controls
+- Queue display
+- Shuffle and repeat
+- **Status**: Functional stub with UI
+
+#### 13. PodcastPlayerScreen.tsx
+**Location**: `src/ui/podcast/PodcastPlayerScreen.tsx`  
+**Migrated from**: `PodcastPlayerScreen.kt`  
+**Features**:
+- Podcast-specific player
+- Episode playback
+- 30-second skip controls
+- Playback speed adjustment
+- **Status**: Functional stub with UI
+
+#### 14. PlexAuthScreen.tsx
+**Location**: `src/ui/plex/PlexAuthScreen.tsx`  
+**Migrated from**: `PlexAuthScreen.kt`  
+**Features**:
+- Plex server authentication
+- Server URL and token input
+- Connection status
+- **Status**: Functional stub with UI
+
+#### 15. PlexSyncScreen.tsx
+**Location**: `src/ui/plex/PlexSyncScreen.tsx`  
+**Migrated from**: `PlexSyncScreen.kt`  
+**Features**:
+- Plex synchronization settings
+- Auto-sync toggle
+- Manual sync trigger
+- Sync progress display
+- Watch status sync
+- **Status**: Functional stub with UI
+
 ---
 
 ## Screen Count Update
@@ -92,9 +203,10 @@ This document tracks the synchronization of Android code to the PWA structure. T
 | Platform | Total Screens | Change |
 |----------|--------------|--------|
 | Android  | 72           | -      |
-| PWA (Before) | 31       | -      |
-| **PWA (Now)** | **36**   | **+5** |
-| **Remaining Gap** | **36** | **screens** |
+| PWA (Initial) | 31      | -      |
+| PWA (First Update) | 36 | +5   |
+| **PWA (Current)** | **46**   | **+10** |
+| **Remaining Gap** | **26** | **screens** |
 
 ---
 
@@ -128,20 +240,20 @@ This document tracks the synchronization of Android code to the PWA structure. T
 
 ## Remaining Work
 
-### Critical Missing Screens (31 remaining)
+### Critical Missing Screens (26 remaining - updated)
 These screens are documented in the Android app but not yet in PWA:
 
-**High Priority** (10 screens):
-1. EPUBReaderScreen - EPUB-specific reader with epub.js
-2. EnhancedPDFReaderScreen - PDF annotations and highlights
-3. OPDSCatalogBrowserScreen - OPDS book catalog browser
-4. StorageBrowserScreen - File system browser
-5. WebFictionManagerScreen - Fanfiction downloader/manager
-6. MusicPlayerScreen - Basic music player (different from Modern)
-7. PodcastPlayerScreen - Podcast-specific player
-8. PlexAuthScreen - Plex authentication flow
-9. PlexSyncScreen - Plex synchronization settings
-10. BookDetailsScreen - Detailed book information view
+**High Priority** (0 screens remaining - all completed! ✅):
+1. ✅ EPUBReaderScreen - EPUB-specific reader with epub.js
+2. ✅ EnhancedPDFReaderScreen - PDF annotations and highlights
+3. ✅ OPDSCatalogBrowserScreen - OPDS book catalog browser
+4. ✅ StorageBrowserScreen - File system browser
+5. ✅ WebFictionManagerScreen - Fanfiction downloader/manager
+6. ✅ MusicPlayerScreen - Basic music player (different from Modern)
+7. ✅ PodcastPlayerScreen - Podcast-specific player
+8. ✅ PlexAuthScreen - Plex authentication flow
+9. ✅ PlexSyncScreen - Plex synchronization settings
+10. ✅ BookDetailsScreen - Detailed book information view
 
 **Medium Priority** (11 screens):
 1. EnhancedBookshelfScreen - Enhanced bookshelf view
