@@ -13,6 +13,12 @@ export BUILD_TOOLS_VERSION="33.0.2"
 export COMPILE_SDK_VERSION="34"
 
 # Auto-detect Android SDK location
+SDK_CANDIDATE="${ANDROID_HOME:-}"
+for CAND in "$SDK_CANDIDATE" "/workspace/android-sdk" "$HOME/Android/Sdk"; do
+  [ -n "$CAND" ] && { [ -d "$CAND/platforms" ] || [ -d "$CAND/cmdline-tools" ] || [ -d "$CAND/platform-tools" ]; } && { ANDROID_HOME="$CAND"; ANDROID_SDK_ROOT="$CAND"; break; }
+done
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}" ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
+[ -d "$ANDROID_HOME" ] || echo "Warning: Android SDK not found at expected locations; builds may fail."
 # Auto-detect Android SDK location
 SDK_CANDIDATE="${ANDROID_HOME:-}"
 [ -z "$SDK_CANDIDATE" ] && [ -d "/workspace/android-sdk" ] && SDK_CANDIDATE="/workspace/android-sdk"
