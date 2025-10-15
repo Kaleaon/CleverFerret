@@ -11,8 +11,10 @@ import com.universalmedialibrary.data.local.dao.ComicTranslationCacheDao
 import com.universalmedialibrary.data.local.entity.ComicPageResponse
 import com.universalmedialibrary.data.local.entity.ComicTranslationCache
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.serialization.json.Json
 import java.io.ByteArrayOutputStream
 import java.util.Locale
@@ -200,7 +202,12 @@ class ComicProcessorRepository @Inject constructor(
             .build()
         
         try {
-            translator.downloadModelIfNeeded(conditions).await()
+            // Download model if needed using suspendCancellableCoroutine
+            suspendCancellableCoroutine<Void?> { continuation ->
+                translator.downloadModelIfNeeded(conditions)
+                    .addOnSuccessListener { continuation.resume(it) }
+                    .addOnFailureListener { continuation.resumeWithException(it) }
+            }
             
             val translatedPanels = response.panels.map { panel ->
                 val translatedElements = panel.textElements.map { textElement ->
@@ -224,7 +231,12 @@ class ComicProcessorRepository @Inject constructor(
      */
     private suspend fun performTranslation(translator: com.google.mlkit.nl.translate.Translator, text: String): String {
         return try {
-            translator.translate(text).await()
+            // Use suspendCancellableCoroutine instead of tasks.await()
+            suspendCancellableCoroutine { continuation ->
+                translator.translate(text)
+                    .addOnSuccessListener { result -> continuation.resume(result) }
+                    .addOnFailureListener { exception -> continuation.resumeWithException(exception) }
+            }
         } catch (e: Exception) { 
             // Return original text on failure
             text 
