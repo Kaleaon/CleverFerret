@@ -15,7 +15,7 @@ export class LibraryRepository {
   async getAllActiveLibraries(): Promise<Library[]> {
     return db.libraries
       .where('isActive')
-      .equals(true)
+      .equals(1)
       .sortBy('name');
   }
 
@@ -105,7 +105,7 @@ export class LibraryRepository {
    * Get count of active libraries
    */
   async getActiveLibraryCount(): Promise<number> {
-    return db.libraries.where('isActive').equals(true).count();
+    return db.libraries.where('isActive').equals(1).count();
   }
 
   /**

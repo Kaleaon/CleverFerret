@@ -54,7 +54,7 @@ export const PodcastManagerScreen: React.FC = () => {
   }, []);
 
   const loadPodcasts = async () => {
-    const subs = await db.podcasts.where('isSubscribed').equals(true).toArray();
+    const subs = await db.podcasts.where('isSubscribed').equals(1).toArray();
     setPodcasts(subs);
   };
 

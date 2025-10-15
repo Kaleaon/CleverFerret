@@ -111,7 +111,7 @@ export const BookmarkScreen: React.FC = () => {
                     </Typography>
                   )}
 
-                  {bookmark.selectedText && (
+                  {(bookmark.contextBefore || bookmark.contextAfter) && (
                     <Typography
                       variant="body2"
                       sx={{
@@ -122,7 +122,7 @@ export const BookmarkScreen: React.FC = () => {
                         py: 1,
                       }}
                     >
-                      "{bookmark.selectedText}"
+                      "{bookmark.contextBefore}{bookmark.contextAfter}"
                     </Typography>
                   )}
 

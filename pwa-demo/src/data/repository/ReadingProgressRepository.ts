@@ -33,7 +33,7 @@ export class ReadingProgressRepository {
   async getCompleted(): Promise<ReadingProgress[]> {
     const items = await db.readingProgress
       .where('isCompleted')
-      .equals(true)
+      .equals(1)
       .sortBy('completedDate');
     return items.reverse();
   }

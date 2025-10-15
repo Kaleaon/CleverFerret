@@ -15,6 +15,7 @@ import {
   Stack,
   CircularProgress,
   Fade,
+  alpha,
 } from '@mui/material';
 import {
   ArrowBack,
