@@ -10,16 +10,6 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "/pwa/(.*)",
-      "dest": "/pwa-demo/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/pwa-demo/$1"
-    }
-  ],
   "rewrites": [
     {
       "source": "/(.*)",
