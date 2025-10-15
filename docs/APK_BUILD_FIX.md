@@ -63,5 +63,5 @@ CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk
 
 ## Notes
 - `local.properties` is in `.gitignore` (as it should be) because it contains machine-specific paths
-- The setup script creates this file automatically when run
+- The setup script sets the `ANDROID_HOME` environment variable, which is an alternative to using `local.properties`.
 - The fix ensures builds work in various environments without manual intervention
