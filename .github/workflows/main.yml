@@ -129,9 +129,8 @@ jobs:
       with:
         cmdline-tools-version: 11076708
         accept-android-sdk-licenses: true
-        
         packages: |
-          platforms;android-36
+          platforms;android-34
           build-tools;34.0.0
           platform-tools
     - name: Cache Gradle packages
@@ -414,56 +413,16 @@ jobs:
         cat release_notes.md >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
         
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create Release and Upload Assets
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: CleverFerret ${{ needs.build.outputs.version-name }}
+        name: CleverFerret ${{ needs.build.outputs.version-name }}
         body: ${{ steps.release_notes.outputs.release_body }}
         draft: false
         prerelease: false
-
-    - name: Upload Release Assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./apks/release-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release.apk
-        asset_name: CleverFerret-v${{ needs.build.outputs.version-name }}-release.apk
-        asset_content_type: application/vnd.android.package-archive
-
-    - name: Upload Debug APK to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./apks/debug-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk
-        asset_name: CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk
-        asset_content_type: application/vnd.android.package-archive
-    
-    - name: Upload Release APK Checksum
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./apks/release-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release*.apk.sha256
-        asset_name: CleverFerret-v${{ needs.build.outputs.version-name }}-release.apk.sha256
-        asset_content_type: text/plain
-      continue-on-error: true
-    
-    - name: Upload Debug APK Checksum
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./apks/debug-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk.sha256
-        asset_name: CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk.sha256
-        asset_content_type: text/plain
-      continue-on-error: true
+        files: |
+          ./apks/release-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release*.apk
+          ./apks/debug-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk
+          ./apks/release-apk/*.sha256
+          ./apks/debug-apk/*.sha256
+        fail_on_unmatched_files: false
