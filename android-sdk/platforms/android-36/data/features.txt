@@ -47,7 +47,6 @@ android.hardware.nfc.any
 android.hardware.nfc.charging
 android.hardware.nfc.ese
 android.hardware.nfc.hce
-android.hardware.nfc.hce
 android.hardware.nfc.hcef
 android.hardware.nfc.uicc
 android.hardware.opengles.aep
@@ -184,4 +183,4 @@ android.software.webview
 android.software.window_magnification
 android.software.xr.api.openxr
 android.software.xr.api.spatial
-android.sofware.nfc.beam
+android.software.nfc.beam

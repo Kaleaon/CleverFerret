@@ -84,7 +84,7 @@
 - **Status:** Properly signed and installable
 - **Verified:** Tested per `apk_test_report.md`
 - **Features:** Core functionality working
-- **Target:** Android 15+ (API 36-34)
+- **Target:** Android 8.0+ (API 26-34)
 
 ### Option 2: Fix Remaining Errors ⏱️ REQUIRES 50-76 HOURS
 Per `FINAL_STATUS_SUMMARY.md`, the remaining 296 errors require:

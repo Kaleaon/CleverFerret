@@ -236,7 +236,7 @@ android.useAndroidX=true
 // build.gradle.kts (version locked)
 buildToolsVersion = "33.0.2"  // Compatible version
 compileSdk = 36                // Latest SDK
-minSdk 36                    // Android 15+
+minSdk 36                    // Android 8.0+
 ```
 
 ---
@@ -294,7 +294,7 @@ minSdk 36                    // Android 15+
 - ✅ No AAPT2 or memory errors in logs
 
 ### **App Success**
-- ✅ APK installs on Android 15+ devices
+- ✅ APK installs on Android 8.0+ devices
 - ✅ App launches with "CleverFerret" branded interface
 - ✅ Media navigation works (Books/Music/Movies tabs)
 - ✅ Library creation and media playback functional

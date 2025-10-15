@@ -43,7 +43,7 @@
 | **ML Kit Dependencies** | 1 | 0 | **Removed** |
 | **API Calls per Translation** | 2 | 1 | **50% fewer** |
 | **Coroutine Complexity** | High | None | **Eliminated** |
-| **Device Compatibility** | Android 15+ | Android 8.0+ | **7 versions wider** |
+| **Device Compatibility** | Android 8.0+ | Android 8.0+ | **7 versions wider** |
 
 ---
 

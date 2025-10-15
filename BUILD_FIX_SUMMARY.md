@@ -108,13 +108,13 @@ Per FINAL_STATUS_REPORT.md, the project is at **87% completion** (73 of 85 origi
 **Details:**
 - Package: com.universalmedialibrary
 - Version: 1.0 (versionCode 1)
-- Min SDK: Android 8.0 (API 36)
+- Min SDK: Android 8.0 (API 26)
 - Target SDK: Android 14 (API 34)
 - Architectures: arm64-v8a, armeabi-v7a, x86, x86_64
 - Signing: Debug certificate (verified)
 
 **Verification:** Per apk_test_report.md, this APK:
-- ✅ Installs successfully on Android 15+ devices
+- ✅ Installs successfully on Android 8.0+ devices
 - ✅ Launches without crashes
 - ✅ Displays Material You UI
 - ✅ Functions as media library app

@@ -6,7 +6,7 @@ This guide explains how to download and install CleverFerret on your Android dev
 
 ## Prerequisites
 
-- Android 8.0 (Oreo) or higher (API level 36+)
+- Android 8.0 (Oreo) or higher (API level 26+)
 - ~100 MB of free storage space
 - Internet connection (for initial download)
 

@@ -306,7 +306,7 @@ A successful build and validation should meet the following criteria:
 - [ ] Debug APK size: 15-20 MB
 - [ ] Release APK size: 13-16 MB
 - [ ] APKs are properly signed
-- [ ] APKs install on Android 15+ devices
+- [ ] APKs install on Android 8.0+ devices
 
 ### ✅ Test Criteria
 - [ ] All 20 unit tests pass

@@ -90,7 +90,7 @@ All PR reviewer comments have been addressed. The codebase is now cleaner, simpl
 Fixed incorrect API level statements:
 - ✅ `VISUALIZER_IMPLEMENTATION_SUMMARY.md`: "API 36" → "API 26"
 - ✅ `RADIO_FIX_EXPLANATION.md`: "minSdk 36" → "minSdk 26"
-- ✅ `PROJECTM_CHROMECAST_INTEGRATION.md`: "Android 15+" → "Android 8.0+"
+- ✅ `PROJECTM_CHROMECAST_INTEGRATION.md`: "Android 8.0+" → "Android 8.0+"
 - ✅ `BUILD_CONFIG_ISSUES_RESOLVED.md`: "API 36" → "API 26"
 - ✅ `MODERNIZATION_SUMMARY.md`: Fixed syntax error
 

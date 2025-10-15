@@ -6,7 +6,7 @@ This guide provides detailed test scenarios for the media server and network sto
 ## Test Environment Setup
 
 ### Prerequisites
-1. Android device or emulator (API 36+)
+1. Android device or emulator (API 26+)
 2. CleverFerret app installed
 3. Access to test media servers (Jellyfin/Plex/Emby) - optional
 4. Access to test network storage (SMB/WebDAV) - optional

@@ -251,7 +251,7 @@ docker-compose -f docker-compose.build.yml up cleverferret-builder
 - **Filename**: `CleverFerret-enhanced-v1.1-[DATE]-[COMMIT].apk`
 - **Size**: ~17MB (optimized)
 - **Signing**: Debug certificate (ready for testing)
-- **Compatibility**: Android 7.0+ (API 36+)
+- **Compatibility**: Android 8.0+ (API 26+)
 
 ### **Build Information**
 - **Build duration**: 5-25 minutes (depending on method)

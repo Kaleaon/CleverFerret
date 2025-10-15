@@ -159,7 +159,7 @@ Potential improvements for future releases:
 
 - Try reducing visualization complexity (use Spectrum Bars)
 - Close other resource-intensive apps
-- Check device meets minimum requirements (Android 15+)
+- Check device meets minimum requirements (Android 8.0+)
 
 ## License
 

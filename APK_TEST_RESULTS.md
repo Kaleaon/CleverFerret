@@ -79,7 +79,7 @@ adb install CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk
 ```
 
 **Installation Requirements:**
-- Android 8.0 (API 36) or higher
+- Android 8.0 (API 26) or higher
 - ~150 MB free storage (74 MB APK + runtime data)
 - Developer mode enabled OR "Install from unknown sources" allowed
 

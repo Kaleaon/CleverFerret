@@ -15,13 +15,13 @@
 - ⚠️ **Do NOT use**: `universal-media-library-v1.0.apk` (unsigned - will fail to install)
 
 ### Step 2: Enable Unknown Sources
-**Android 15+:**
+**Android 8.0+:**
 1. Go to Settings → Apps & notifications → Special app access
 2. Tap "Install unknown apps"
 3. Select your browser/file manager
 4. Enable "Allow from this source"
 
-<!-- Note: Minimum supported is Android 15+; older versions are no longer targeted. -->
+<!-- Note: Minimum supported is Android 8.0+; older versions are no longer targeted. -->
 
 ### Step 3: Install the APK
 1. Tap the downloaded APK file
@@ -34,7 +34,7 @@
 ## ✅ Verified Compatibility
 
 ### Supported Devices:
-- **Android Version**: 8.0+ (API level 36+)
+- **Android Version**: 8.0+ (API level 26+)
 - **Architectures**: ARM64, ARM32, x86, x86_64
 - **Storage**: Minimum 17 MB free space
 - **RAM**: 2GB+ recommended
@@ -90,7 +90,7 @@
 - **Version**: 1.0 (Version Code: 1)
 - **Signed With**: Debug certificate (safe for testing)
 - **Target SDK**: Android 14 (API 34)
-- **Min SDK**: Android 8.0 (API 36)
+- **Min SDK**: Android 8.0 (API 26)
 
 ### Included Features:
 - Modern Jetpack Compose UI

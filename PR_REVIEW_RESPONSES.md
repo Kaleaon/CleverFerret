@@ -66,7 +66,7 @@ All critical issues raised by reviewers have been addressed. The build now succe
 - **Fixed Files**:
   - `docs/features/VISUALIZER_IMPLEMENTATION_SUMMARY.md`: API 36 → 26
   - `RADIO_FIX_EXPLANATION.md`: minSdk 36 → 26
-  - `PROJECTM_CHROMECAST_INTEGRATION.md`: "Android 15+" → "Android 8.0+"
+  - `PROJECTM_CHROMECAST_INTEGRATION.md`: "Android 8.0+" → "Android 8.0+"
   - `BUILD_CONFIG_ISSUES_RESOLVED.md`: API 36 → 26
 - **Impact**: Documentation now correctly states device requirements
 
