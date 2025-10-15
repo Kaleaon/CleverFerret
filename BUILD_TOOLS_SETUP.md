@@ -46,7 +46,7 @@ export ANDROID_HOME=/opt/android-sdk
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 
 # Install compatible versions
-yes | sdkmanager --install "platforms;android-34" --sdk_root=/opt/android-sdk
+yes | sdkmanager --install "platforms;android-36" --sdk_root=/opt/android-sdk
 yes | sdkmanager --install "build-tools;33.0.2" --sdk_root=/opt/android-sdk  # CRITICAL: Use 33.0.2, NOT 34.0.0
 yes | sdkmanager --install "platform-tools" --sdk_root=/opt/android-sdk
 ```
@@ -95,13 +95,13 @@ In `/app/CleverFerret/build.gradle.kts`, ensure EXACT versions:
 ```kotlin
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 34
+    compileSdk = 36
     buildToolsVersion = "33.0.2"  // LOCKED to compatible version
     
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 26
-        targetSdk = 34
+        minSdk 36
+        targetSdk = 36
         versionCode = 2
         versionName = "1.1-enhanced"
         

@@ -41,23 +41,23 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "schedule" ]] || [[ "${{ github.event.inputs.test_level }}" == "comprehensive" ]]; then
             matrix='[
-              {"api": 24, "arch": "x86", "target": "default"},
-              {"api": 28, "arch": "x86_64", "target": "default"},
-              {"api": 30, "arch": "x86_64", "target": "google_apis"},
-              {"api": 33, "arch": "x86_64", "target": "google_apis"},
-              {"api": 34, "arch": "x86_64", "target": "google_apis"}
+              {"api": 24, "arch": "arm64-v8a", "target": "default"},
+              {"api": 28, "arch": "arm64-v8a", "target": "default"},
+              {"api": 30, "arch": "arm64-v8a", "target": "google_apis"},
+              {"api": 33, "arch": "arm64-v8a", "target": "google_apis"},
+              {"api": 34, "arch": "arm64-v8a", "target": "google_apis"}
             ]'
             level="comprehensive"
           elif [[ "${{ github.event.inputs.test_level }}" == "quick" ]]; then
             matrix='[
-              {"api": 30, "arch": "x86_64", "target": "google_apis"}
+              {"api": 30, "arch": "arm64-v8a", "target": "google_apis"}
             ]'
             level="quick"
           else
             matrix='[
-              {"api": 24, "arch": "x86", "target": "default"},
-              {"api": 30, "arch": "x86_64", "target": "google_apis"},
-              {"api": 34, "arch": "x86_64", "target": "google_apis"}
+              {"api": 24, "arch": "arm64-v8a", "target": "default"},
+              {"api": 30, "arch": "arm64-v8a", "target": "google_apis"},
+              {"api": 34, "arch": "arm64-v8a", "target": "google_apis"}
             ]'
             level="standard"
           fi

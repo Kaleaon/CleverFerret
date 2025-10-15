@@ -53,7 +53,7 @@ npm run build
 2. ✅ Accepted Android SDK licenses
 3. ✅ Installed SDK components:
    - platform-tools
-   - platforms;android-34
+   - platforms;android-36
    - build-tools;34.0.0
    - platforms;android-36
    - build-tools;36.0.0
@@ -74,7 +74,7 @@ npm run build
 - `CleverFerret/src/main/java/com/universalmedialibrary/services/artwork/ArtworkLoader.kt`
 
 #### Issue 2: Android SDK Version Mismatch ✅ FIXED
-**Problem**: Dependencies require compileSdk 36, but project used android-34
+**Problem**: Dependencies require compileSdk 36, but project used android-36
 
 **Solution Applied**:
 - Updated `compileSdk` from 34 to 36 in `CleverFerret/build.gradle.kts`

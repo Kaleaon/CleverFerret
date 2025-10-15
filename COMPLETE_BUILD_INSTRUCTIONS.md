@@ -111,7 +111,7 @@ brew install openjdk@17
 export ANDROID_HOME=$HOME/Android/Sdk
 
 # Install required components
-$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-36"
 $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2"
 ```
 
@@ -171,7 +171,7 @@ echo "sdk.dir=$ANDROID_HOME" > local.properties
 java -version  # Should show 17.x
 
 # Check Android SDK
-ls $ANDROID_HOME/platforms/  # Should show android-34
+ls $ANDROID_HOME/platforms/  # Should show android-36
 
 # Check build tools
 $ANDROID_HOME/build-tools/33.0.2/aapt2 version  # Should work
@@ -235,8 +235,8 @@ android.useAndroidX=true
 ```kotlin
 // build.gradle.kts (version locked)
 buildToolsVersion = "33.0.2"  // Compatible version
-compileSdk = 34                // Latest SDK
-minSdk = 26                    // Android 8.0+
+compileSdk = 36                // Latest SDK
+minSdk 36                    // Android 8.0+
 ```
 
 ---

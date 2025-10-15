@@ -56,12 +56,12 @@ android.builder.sdkDownload=false
 ```kotlin
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 34
+    compileSdk = 36
     buildToolsVersion = "33.0.2"  // LOCKED VERSION
     
     defaultConfig {
-        minSdk = 26
-        targetSdk = 34  
+        minSdk 36
+        targetSdk = 36  
         versionCode = 2
         versionName = "1.1-enhanced"
     }

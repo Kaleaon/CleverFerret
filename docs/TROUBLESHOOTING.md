@@ -154,7 +154,7 @@ export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-
 
 # Install required components
 yes | sdkmanager --licenses
-sdkmanager "platform-tools" "platforms;android-34" "build-tools;33.0.2"
+sdkmanager "platform-tools" "platforms;android-36" "build-tools;33.0.2"
 ```
 
 **Manual Setup:**

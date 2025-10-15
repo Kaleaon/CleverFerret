@@ -144,7 +144,6 @@ android.intent.action.FETCH_VOICEMAIL
 android.intent.action.GTALK_CONNECTED
 android.intent.action.GTALK_DISCONNECTED
 android.intent.action.HEADSET_PLUG
-android.intent.action.HEADSET_PLUG
 android.intent.action.INPUT_METHOD_CHANGED
 android.intent.action.INTENT_FILTER_NEEDS_VERIFICATION
 android.intent.action.LOCALE_CHANGED
@@ -226,7 +225,6 @@ android.media.STREAM_DEVICES_CHANGED_ACTION
 android.media.STREAM_MUTE_CHANGED_ACTION
 android.media.VIBRATE_SETTING_CHANGED
 android.media.VOLUME_CHANGED_ACTION
-android.media.VOLUME_CHANGED_ACTION
 android.media.action.CLOSE_AUDIO_EFFECT_CONTROL_SESSION
 android.media.action.HDMI_AUDIO_PLUG
 android.media.action.MICROPHONE_MUTE_CHANGED
@@ -272,7 +270,6 @@ android.nfc.action.TRANSACTION_DETECTED
 android.os.action.ACTION_EFFECTS_SUPPRESSOR_CHANGED
 android.os.action.DEVICE_IDLE_MODE_CHANGED
 android.os.action.ENHANCED_DISCHARGE_PREDICTION_CHANGED
-android.os.action.LIGHT_DEVICE_IDLE_MODE_CHANGED
 android.os.action.LIGHT_DEVICE_IDLE_MODE_CHANGED
 android.os.action.LOW_POWER_STANDBY_ENABLED_CHANGED
 android.os.action.LOW_POWER_STANDBY_POLICY_CHANGED

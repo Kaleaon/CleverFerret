@@ -109,10 +109,10 @@ android {
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 26
-        targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"  // ← Source for BuildConfig.VERSION_NAME
+        minSdk = 26  // Android 8.0+
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"  // ← Source for BuildConfig.VERSION_NAME
         ...
     }
 }
@@ -173,7 +173,7 @@ android {
 ```
 - ✅ Compile SDK 36 (latest Android 14)
 - ✅ Min SDK 26 (Android 8.0+)
-- ✅ Target SDK 36 (matches compile SDK)
+- ✅ Target SDK 34 (stable target)
 - ✅ Java 8 compatibility configured
 - ✅ Core library desugaring enabled for Java 8+ APIs
 

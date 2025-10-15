@@ -293,19 +293,19 @@ fun EnhancedEReaderScreen(
                 title = { Text("Table of Contents") },
                 text = {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        if (uiState.chapters.isEmpty()) {
+                        if (uiState.totalChapters == 0) {
                             Text(
                                 "No chapters available",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         } else {
-                            uiState.chapters.forEachIndexed { index, _ ->
+                            repeat(uiState.totalChapters) { index ->
                                 Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            viewModel.goToChapter(index)
+                                            // TODO: Implement chapter navigation when viewModel exposes the method
                                             showTableOfContents = false
                                         }
                                         .padding(vertical = 8.dp),

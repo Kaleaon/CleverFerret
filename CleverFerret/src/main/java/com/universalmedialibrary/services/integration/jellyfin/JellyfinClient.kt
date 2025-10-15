@@ -38,15 +38,14 @@ class JellyfinClient @Inject constructor(
     fun initialize(serverUrl: String, apiKey: String? = null) {
         try {
             // Initialize Jellyfin SDK with proper configuration
+            // Note: The current Jellyfin SDK version doesn't support httpClientOptions
+            // The SDK creates its own OkHttpClient internally with default settings
             jellyfin = createJellyfin {
                 context = this@JellyfinClient.context
                 clientInfo = ClientInfo(
                     name = "CleverFerret",
                     version = BuildConfig.VERSION_NAME
                 )
-                httpClientOptions {
-                    client = okHttpClient
-                }
             }
             
             apiClient = if (apiKey != null) {

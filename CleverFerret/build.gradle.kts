@@ -16,19 +16,23 @@ plugins {
 
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 36
+    compileSdk = 36  // Required by AndroidX Core 1.17.0+ dependencies
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk = 26  // Increased from 24 to support newer media libraries
-        targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"
+        minSdk = 26  // Android 8.0+ for broad device compatibility
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+        
+        // Enable BuildConfig generation
+        buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
+        buildConfigField("int", "VERSION_CODE", "${versionCode}")
     }
 
     buildTypes {
@@ -54,6 +58,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -97,8 +102,8 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     
     // Hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.57.2")
-    ksp("com.google.dagger:hilt-compiler:2.57.2")
+    implementation("com.google.dagger:hilt-android:2.52")
+    ksp("com.google.dagger:hilt-compiler:2.52")
     
     // ViewModel and LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
@@ -169,13 +174,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-cast-framework:22.1.0")
     implementation("androidx.media3:media3-cast:1.8.0")
     
-    // Gemini AI for content analysis
+    // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-    
-    // Google ML Kit for on-device translation (Android-compatible)
-    implementation("com.google.mlkit:translate:17.0.3")
-    
-    // All OCR and image analysis handled by Gemini AI above
     
     // Media metadata extraction libraries
     // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library
