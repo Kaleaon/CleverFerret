@@ -204,9 +204,14 @@ class ComicProcessorRepository @Inject constructor(
         try {
             // Download model if needed using suspendCancellableCoroutine
             suspendCancellableCoroutine<Void?> { continuation ->
-                translator.downloadModelIfNeeded(conditions)
-                    .addOnSuccessListener { continuation.resume(it) }
+                val task = translator.downloadModelIfNeeded(conditions)
+                task.addOnSuccessListener { continuation.resume(it) }
                     .addOnFailureListener { continuation.resumeWithException(it) }
+                    .addOnCanceledListener { continuation.cancel() }
+                    
+                continuation.invokeOnCancellation {
+                    // Cleanup if coroutine is cancelled
+                }
             }
             
             val translatedPanels = response.panels.map { panel ->
@@ -233,9 +238,14 @@ class ComicProcessorRepository @Inject constructor(
         return try {
             // Use suspendCancellableCoroutine instead of tasks.await()
             suspendCancellableCoroutine { continuation ->
-                translator.translate(text)
-                    .addOnSuccessListener { result -> continuation.resume(result) }
+                val task = translator.translate(text)
+                task.addOnSuccessListener { result -> continuation.resume(result) }
                     .addOnFailureListener { exception -> continuation.resumeWithException(exception) }
+                    .addOnCanceledListener { continuation.cancel() }
+                    
+                continuation.invokeOnCancellation {
+                    // Cleanup if coroutine is cancelled
+                }
             }
         } catch (e: Exception) { 
             // Return original text on failure

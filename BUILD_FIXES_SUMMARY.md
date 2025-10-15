@@ -5,35 +5,35 @@ All build, gradle, yml, and setup issues have been resolved. The project now bui
 
 ## Fixed Issues
 
-### 1. ✅ API Level Updates (26 → 36)
+### 1. ✅ API Level Configuration
 **Status**: COMPLETE
 
-- **minSdk**: 26 → 36 (Android 8.0 → Android 15)
-- **compileSdk**: 34 → 36
-- **targetSdk**: 34 → 36
-- **Platform**: android-34 → android-36
+- **minSdk**: 26 (Android 8.0+) - Maintains broad device compatibility
+- **compileSdk**: 36 (Required by AndroidX Core 1.17.0+ dependencies)
+- **targetSdk**: 34 (Latest stable SDK for targeting)
+- **Platform**: android-36 for compilation, targets android-34
 
 **Files Updated**:
 - `CleverFerret/build.gradle.kts` - Build configuration
-- All `.md` files - Documentation references
-- `.github/workflows/*.yml` - CI/CD workflows
-- All Kotlin comments with API references
 
-**Rationale**: Android 15 (API 36) provides latest features, security updates, and better compatibility with modern libraries.
+**Rationale**: 
+- **minSdk 26** ensures compatibility with Android 8.0+ devices (addresses reviewer concerns about device support)
+- **compileSdk 36** is mandated by AndroidX dependencies (androidx.core:core-ktx:1.17.0 requires it)
+- **targetSdk 34** follows project standards for runtime behavior
 
 ### 2. ✅ Hilt Dependency Injection
 **Status**: COMPLETE
 
-**Version**: 2.51.1
-- Root `build.gradle.kts`: Hilt plugin 2.51.1
+**Version**: 2.52 (per project standards)
+- Root `build.gradle.kts`: Hilt plugin 2.52
 - `CleverFerret/build.gradle.kts`: 
-  - `hilt-android:2.51.1`
-  - `hilt-compiler:2.51.1`
+  - `hilt-android:2.52`
+  - `hilt-compiler:2.52`
 
-**Why 2.51.1?**
-- Hilt 2.50 is **incompatible** with Kotlin 2.0.20 (metadata version 2.1.0)
-- Hilt 2.51+ is the minimum version for Kotlin 2.0.x support
-- Version 2.51.1 is the latest stable in the 2.5x series
+**Why 2.52?**
+- Project coding guidelines mandate Hilt 2.52
+- Fully compatible with Kotlin 2.0.20
+- Provides stable dependency injection for all modules
 
 ### 3. ✅ Compilation Errors Fixed
 
@@ -48,7 +48,8 @@ All build, gradle, yml, and setup issues have been resolved. The project now bui
 
 **Fixes**:
 1. Replaced `tasks.await()` with `suspendCancellableCoroutine` for Google Play independence
-2. Fixed `bitmapToContent()` to pass Bitmap directly to Gemini API
+2. Added proper cancellation handling with `addOnCanceledListener` and `invokeOnCancellation`
+3. Fixed `bitmapToContent()` to pass Bitmap directly to Gemini API
 
 #### ReadiumEpubService.kt
 **Issue**: Undefined `assetResult` variable
@@ -114,14 +115,16 @@ BUILD SUCCESSFUL in 19s
 // Root build.gradle.kts
 Kotlin:               2.0.20
 Android Gradle:       8.13.0
-Hilt:                 2.51.1
+Hilt:                 2.52
 KSP:                  2.0.20-1.0.25
 Gradle:               8.13
 
 // CleverFerret/build.gradle.kts
-compileSdk:           36
-minSdk:               36
-targetSdk:            36
+compileSdk:           36  // Required by dependencies
+minSdk:               26  // Android 8.0+ compatibility
+targetSdk:            34  // Latest stable target
+versionCode:          1
+versionName:          "1.0"
 ```
 
 ### Dependencies Status
