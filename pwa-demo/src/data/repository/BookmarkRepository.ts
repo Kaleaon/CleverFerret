@@ -100,6 +100,8 @@ export class BookmarkRepository {
         contextAfter: undefined,
         screenCapture: undefined,
         bookmarkType: 'AUTO',
+        dateCreated: Date.now(),
+        isActive: true,
       });
     }
   }
@@ -108,7 +110,7 @@ export class BookmarkRepository {
    * Get all active bookmarks
    */
   async getAllActiveBookmarks(): Promise<Bookmark[]> {
-    return db.bookmarks.where('isActive').equals(true).toArray();
+    return db.bookmarks.where('isActive').equals(1).toArray();
   }
 
   /**
