@@ -33,8 +33,8 @@ jobs:
         cmdline-tools-version: 11076708
         accept-android-sdk-licenses: true
         packages: |
-          platforms;android-34
-          build-tools;34.0.0
+          platforms;android-36
+          build-tools;36.0.0
           platform-tools
     - name: Cache Gradle packages
       uses: actions/cache@v4
@@ -129,10 +129,9 @@ jobs:
       with:
         cmdline-tools-version: 11076708
         accept-android-sdk-licenses: true
-        
         packages: |
           platforms;android-36
-          build-tools;34.0.0
+          build-tools;36.0.0
           platform-tools
     - name: Cache Gradle packages
       uses: actions/cache@v4
@@ -196,7 +195,7 @@ jobs:
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             "$KEY_ALIAS"
             
-          $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
+          $ANDROID_HOME/build-tools/36.0.0/zipalign -v 4 \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
             

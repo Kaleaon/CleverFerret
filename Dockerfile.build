@@ -7,10 +7,10 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # PERMANENT FIX: Set optimal build environment variables
-ENV ANDROID_HOME=/opt/android-sdk
-ENV ANDROID_SDK_ROOT=/opt/android-sdk
-ENV BUILD_TOOLS_VERSION=33.0.2
-ENV COMPILE_SDK_VERSION=34
+ENV ANDROID_HOME=/workspace/android-sdk
+ENV ANDROID_SDK_ROOT=/workspace/android-sdk
+ENV BUILD_TOOLS_VERSION=36.0.0
+ENV COMPILE_SDK_VERSION=36
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 # PERMANENT FIX: Optimized memory settings

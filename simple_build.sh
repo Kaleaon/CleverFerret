@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Simple build script for CleverFerret
-export ANDROID_HOME=/opt/android-sdk
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+export ANDROID_HOME=/workspace/android-sdk
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/36.0.0:$ANDROID_HOME/platform-tools
 
 echo "Starting CleverFerret build process..."
 echo "Android Home: $ANDROID_HOME"

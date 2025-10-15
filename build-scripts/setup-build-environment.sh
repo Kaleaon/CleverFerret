@@ -9,8 +9,8 @@ echo "🚀 CleverFerret Build Environment Setup - Permanent Fix Edition"
 echo "=============================================================="
 
 # Configuration with permanent fixes
-export BUILD_TOOLS_VERSION="33.0.2"
-export COMPILE_SDK_VERSION="34"
+export BUILD_TOOLS_VERSION="36.0.0"
+export COMPILE_SDK_VERSION="36"
 
 # Auto-detect Android SDK location
 # Priority: 1) Pre-set ANDROID_HOME, 2) Workspace/container, 3) Standard Android Studio
@@ -280,7 +280,7 @@ echo "============================================"
 
 # Set environment
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
-export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2:$ANDROID_HOME/platform-tools:$PATH"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/36.0.0:$ANDROID_HOME/platform-tools:$PATH"
 
 # PERMANENT FIX: Use minimal dependencies for reliable build
 if [ -f "CleverFerret/build.gradle.kts.minimal" ]; then
@@ -307,7 +307,7 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
     mkdir -p builds
     cp "$APK_PATH" "$SIGNED_APK"
     
-    "$ANDROID_HOME/build-tools/33.0.2/apksigner" sign \
+    "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign \
         --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android \
         "$SIGNED_APK"
     

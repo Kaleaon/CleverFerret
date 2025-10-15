@@ -9,8 +9,8 @@ services:
       context: .
       dockerfile: Dockerfile.build
       args:
-        BUILD_TOOLS_VERSION: "33.0.2"
-        COMPILE_SDK_VERSION: "34"
+        BUILD_TOOLS_VERSION: "36.0.0"
+        COMPILE_SDK_VERSION: "36"
     image: cleverferret-builder:latest
     container_name: cleverferret-build-container
     
@@ -28,14 +28,14 @@ services:
     volumes:
       - .:/app
       - gradle-cache:/root/.gradle
-      - android-sdk-cache:/opt/android-sdk
+      - /workspace/android-sdk:/workspace/android-sdk
     
     # PERMANENT FIX: Environment variables with all fixes
     environment:
-      - ANDROID_HOME=/opt/android-sdk
-      - ANDROID_SDK_ROOT=/opt/android-sdk
-      - BUILD_TOOLS_VERSION=33.0.2
-      - COMPILE_SDK_VERSION=34
+      - ANDROID_HOME=/workspace/android-sdk
+      - ANDROID_SDK_ROOT=/workspace/android-sdk
+      - BUILD_TOOLS_VERSION=36.0.0
+      - COMPILE_SDK_VERSION=36
       - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
       - GRADLE_OPTS=-Xmx6144m -XX:MaxMetaspaceSize=2g -XX:+UseG1GC
       - _JAVA_OPTIONS=-Xmx6144m -XX:MaxMetaspaceSize=2g

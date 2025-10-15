@@ -3,8 +3,8 @@
 echo "🚀 Building Enhanced CleverFerret APK..."
 
 # Set environment
-export ANDROID_HOME=/opt/android-sdk
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/34.0.0
+export ANDROID_HOME=/workspace/android-sdk
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/36.0.0
 
 cd /app
 
@@ -45,7 +45,7 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
     
     # Sign the APK
     echo "🔐 Signing enhanced APK..."
-    $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android --key-pass pass:android builds/CleverFerret-enhanced-v1.1.apk
+    $ANDROID_HOME/build-tools/36.0.0/apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android --key-pass pass:android builds/CleverFerret-enhanced-v1.1.apk
     
     echo "✅ Enhanced and signed APK ready!"
     ls -lh builds/CleverFerret-enhanced-v1.1.apk

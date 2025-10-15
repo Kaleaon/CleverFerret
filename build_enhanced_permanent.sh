@@ -52,7 +52,7 @@ log_error() {
 log_info "Setting up build environment..."
 
 export ANDROID_HOME=/opt/android-sdk
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/33.0.2
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/build-tools/36.0.0
 export JAVA_HOME=${JAVA_HOME:-$(readlink -f /usr/bin/java | sed "s:bin/java::")}
 
 cd /app
@@ -72,20 +72,20 @@ echo "✅ Build environment cleaned"
 
 echo ""
 echo "🔧 Step 3: Verify Build Tools Compatibility"
-if [ ! -f "$ANDROID_HOME/build-tools/33.0.2/aapt2" ]; then
-    echo "⚠️  Installing compatible build tools 33.0.2..."
-    yes | sdkmanager --install "build-tools;33.0.2" --sdk_root=/opt/android-sdk
-    echo "✅ Build tools 33.0.2 installed"
+if [ ! -f "$ANDROID_HOME/build-tools/36.0.0/aapt2" ]; then
+    echo "⚠️  Installing compatible build tools 36.0.0..."
+    yes | sdkmanager --install "build-tools;36.0.0" --sdk_root=$ANDROID_HOME
+    echo "✅ Build tools 36.0.0 installed"
 else
-    echo "✅ Build tools 33.0.2 already available"
+    echo "✅ Build tools 36.0.0 already available"
 fi
 
 # Verify AAPT2 is executable
-if [ -x "$ANDROID_HOME/build-tools/33.0.2/aapt2" ]; then
+if [ -x "$ANDROID_HOME/build-tools/36.0.0/aapt2" ]; then
     echo "✅ AAPT2 binary is executable"
 else
     echo "⚠️  Making AAPT2 executable..."
-    chmod +x $ANDROID_HOME/build-tools/33.0.2/*
+    chmod +x $ANDROID_HOME/build-tools/36.0.0/*
 fi
 
 echo ""
@@ -116,7 +116,7 @@ echo "  - Memory: 6144MB heap, 2GB metaspace"
 echo "  - G1GC garbage collector"
 echo "  - Parallel processing enabled"
 echo "  - Build cache enabled"
-echo "  - Build tools: 33.0.2 (compatible)"
+echo "  - Build tools: 36.0.0 (compatible)"
 
 # Build with comprehensive monitoring
 BUILD_START=$(date +%s)
@@ -178,12 +178,12 @@ if [ -f "CleverFerret/build/outputs/apk/debug/CleverFerret-debug.apk" ]; then
     
     # Sign the APK
     echo "✍️  Signing enhanced APK..."
-    $ANDROID_HOME/build-tools/33.0.2/apksigner sign \
+    $ANDROID_HOME/build-tools/36.0.0/apksigner sign \
         --ks ~/.android/debug.keystore --ks-pass pass:android --key-pass pass:android \
         builds/CleverFerret-enhanced-v1.1-$(date +%Y%m%d).apk
     
     # Verify signing
-    if $ANDROID_HOME/build-tools/33.0.2/apksigner verify builds/CleverFerret-enhanced-v1.1-$(date +%Y%m%d).apk; then
+    if $ANDROID_HOME/build-tools/36.0.0/apksigner verify builds/CleverFerret-enhanced-v1.1-$(date +%Y%m%d).apk; then
         echo "✅ APK successfully signed and verified!"
     else
         echo "⚠️  APK signing verification failed"
@@ -238,7 +238,7 @@ else
         if grep -q "AAPT2" build_enhanced_detailed.log; then
             echo ""
             echo "🔧 AAPT2 Issue Detected:"
-            echo "  • Verify build tools 33.0.2 installation"
+            echo "  • Verify build tools 36.0.0 installation"
             echo "  • Check ANDROID_HOME path: $ANDROID_HOME"
             echo "  • Ensure AAPT2 binary is executable"
         fi
@@ -255,7 +255,7 @@ else
     echo ""
     echo "💡 Troubleshooting Steps:"
     echo "  1. Run: rm -rf ~/.gradle .gradle CleverFerret/build"
-    echo "  2. Verify: ls -la $ANDROID_HOME/build-tools/33.0.2/"
+    echo "  2. Verify: ls -la $ANDROID_HOME/build-tools/36.0.0/"
     echo "  3. Check: free -h (available memory)"
     echo "  4. Retry: ./build_enhanced_permanent.sh"
 fi
