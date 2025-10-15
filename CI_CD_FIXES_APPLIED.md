@@ -225,11 +225,10 @@ Release created successfully
   with:
     cmdline-tools-version: 11076708
     accept-android-sdk-licenses: true
-    packages: |
-      platforms;android-34
-      build-tools;34.0.0
-      platform-tools
+    packages: platforms;android-34 build-tools;34.0.0 platform-tools
 ```
+
+**Note:** The packages parameter uses a space-separated string format (not multiline with `|`) to ensure sdkmanager correctly parses individual packages.
 
 ### Project SDK Versions
 - **compileSdk**: 36 (in build.gradle.kts - required by AndroidX Core 1.17.0+)
@@ -253,12 +252,39 @@ Release created successfully
 
 ---
 
+## Update: Fixed Packages Parameter Format (October 15, 2025)
+
+**Issue:** After initial deployment, CI failed with error:
+```
+Failed to find package 'platforms;android-34\nbuild-tools;34.0.0\nplatform-tools'
+```
+
+**Cause:** The YAML multiline format with `|` was being interpreted as a single package name with embedded newlines instead of three separate packages.
+
+**Fix:** Changed packages parameter from multiline YAML to space-separated string:
+
+```yaml
+# Before (BROKEN)
+packages: |
+  platforms;android-34
+  build-tools;34.0.0
+  platform-tools
+
+# After (WORKS)
+packages: platforms;android-34 build-tools;34.0.0 platform-tools
+```
+
+**Commit:** 8c7087e
+
+---
+
 ## Next Steps
 
 1. ✅ Changes committed and pushed
-2. ⏳ Waiting for CI pipeline to run with new configuration
-3. ⏳ Monitor for successful workflow execution
-4. ⏳ Verify release creation works with new action
+2. ✅ Fixed packages parameter format issue
+3. ⏳ Waiting for CI pipeline to run with corrected configuration
+4. ⏳ Monitor for successful workflow execution
+5. ⏳ Verify release creation works with new action
 
 ---
 
