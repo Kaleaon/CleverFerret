@@ -11,7 +11,24 @@ echo "=============================================================="
 # Configuration with permanent fixes
 export BUILD_TOOLS_VERSION="33.0.2"
 export COMPILE_SDK_VERSION="34"
-export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+
+# Auto-detect Android SDK location
+# Priority: 1) Pre-set ANDROID_HOME, 2) Workspace/container, 3) Standard Android Studio
+if [ -z "$ANDROID_HOME" ]; then
+    if [ -d "/workspace/android-sdk" ]; then
+        # Workspace/container environment
+        export ANDROID_HOME="/workspace/android-sdk"
+    elif [ -d "$HOME/Android/Sdk" ]; then
+        # Standard Android Studio location
+        export ANDROID_HOME="$HOME/Android/Sdk"
+    else
+        # Fallback to default path to let the build system provide a clear error
+        export ANDROID_HOME="$HOME/Android/Sdk"
+    fi
+fi
+
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+
 export JAVA_VERSION="17"
 
 # Colors for output
