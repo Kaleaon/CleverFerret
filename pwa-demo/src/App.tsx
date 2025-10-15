@@ -48,29 +48,20 @@ import { ThemePreviewScreen } from './components/ThemePreviewScreen';
 
 // Initialize database
 import { initializeDatabase } from './services/database-complete';
+import { useAppStore } from './store/app-store';
+import { getAllUnifiedThemes } from './themes/unified-themes';
 
 function App() {
-  const [darkMode, setDarkMode] = React.useState(true);
+  const { selectedTheme } = useAppStore();
 
   React.useEffect(() => {
     initializeDatabase();
   }, []);
 
-  const theme = React.useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: darkMode ? 'dark' : 'light',
-          primary: {
-            main: '#D4AF37', // Gold
-          },
-          secondary: {
-            main: '#0A1630', // Navy
-          },
-        },
-      }),
-    [darkMode]
-  );
+  const theme = React.useMemo(() => {
+    const themeConfig = getAllUnifiedThemes().find((t) => t.name === selectedTheme);
+    return themeConfig ? themeConfig.theme : getAllUnifiedThemes()[0].theme;
+  }, [selectedTheme]);
 
   return (
     <ThemeProvider theme={theme}>

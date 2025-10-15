@@ -33,11 +33,13 @@ import {
   VideoLibrary as VideoIcon,
   LibraryMusic as LibraryMusicIcon,
   Collections as CollectionsIcon,
+  FolderOpen as FolderOpenIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/app-store';
 import { DownloadService } from '../services/database';
 import { Library } from '../types';
+import { FileUtils } from '../utils/FileUtils';
 
 // Plex-inspired library card component
 const LibraryCard: React.FC<{
@@ -268,6 +270,14 @@ const AddLibraryDialog: React.FC<{
   const [name, setName] = useState('');
   const [type, setType] = useState<Library['type']>('BOOK');
   const [path, setPath] = useState('');
+  const [isDirectoryPickerSupported] = useState(FileUtils.isDirectoryPickerSupported());
+
+  const handleBrowseFolder = async () => {
+    const dirHandle = await FileUtils.pickDirectory();
+    if (dirHandle) {
+      setPath(dirHandle.name);
+    }
+  };
 
   const handleSubmit = () => {
     if (name.trim()) {
@@ -354,21 +364,48 @@ const AddLibraryDialog: React.FC<{
             </MenuItem>
           ))}
         </TextField>
-        <TextField
-          margin="normal"
-          label="Library Path (optional)"
-          fullWidth
-          variant="outlined"
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
-          placeholder="/path/to/library"
-          helperText="Optional path to your media files on disk"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 2,
-            },
-          }}
-        />
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+          <TextField
+            margin="normal"
+            label="Library Path (optional)"
+            fullWidth
+            variant="outlined"
+            value={path}
+            onChange={(e) => setPath(e.target.value)}
+            placeholder="/path/to/library"
+            helperText={
+              isDirectoryPickerSupported
+                ? 'Click Browse to select a folder or type path manually'
+                : 'Type path to your media files'
+            }
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              },
+            }}
+          />
+          {isDirectoryPickerSupported && (
+            <Button
+              variant="outlined"
+              onClick={handleBrowseFolder}
+              startIcon={<FolderOpenIcon />}
+              sx={{
+                mt: 2,
+                minWidth: 120,
+                height: 56,
+                borderRadius: 2,
+                borderColor: '#2d3136',
+                color: 'text.secondary',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: 'rgba(229, 160, 13, 0.1)',
+                },
+              }}
+            >
+              Browse
+            </Button>
+          )}
+        </Box>
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 2, gap: 2 }}>
         <Button
