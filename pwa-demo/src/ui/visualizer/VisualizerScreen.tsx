@@ -218,7 +218,7 @@ export const VisualizerScreen: React.FC = () => {
           <ToggleButtonGroup
             value={visualizerType}
             exclusive
-            onChange={(_, value) => value && setVisualizerType(value)}
+            onChange={(_: React.MouseEvent<HTMLElement>, value: string | null) => value && setVisualizerType(value as 'bars' | 'wave' | 'circular')}
             fullWidth
           >
             <ToggleButton value="bars">Bars</ToggleButton>
@@ -234,7 +234,7 @@ export const VisualizerScreen: React.FC = () => {
           <ToggleButtonGroup
             value={colorScheme}
             exclusive
-            onChange={(_, value) => value && setColorScheme(value)}
+            onChange={(_: React.MouseEvent<HTMLElement>, value: string | null) => value && setColorScheme(value as 'rainbow' | 'mono' | 'gradient')}
             fullWidth
           >
             <ToggleButton value="rainbow">Rainbow</ToggleButton>
@@ -252,7 +252,7 @@ export const VisualizerScreen: React.FC = () => {
             min={0}
             max={1}
             step={0.05}
-            onChange={(_, value) => setSmoothing(value as number)}
+            onChange={(_: Event, value: number | number[]) => setSmoothing(value as number)}
           />
         </Box>
       </Box>

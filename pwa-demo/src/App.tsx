@@ -40,11 +40,11 @@ import {
 } from './ui';
 
 // Import existing screens
-import MediaViewerScreen from './components/MediaViewerScreen';
-import MetadataEditorScreen from './components/MetadataEditorScreen';
-import ServerIntegrationScreen from './components/ServerIntegrationScreen';
-import SettingsScreen from './components/SettingsScreen';
-import ThemePreviewScreen from './components/ThemePreviewScreen';
+import { MediaViewerScreen } from './components/MediaViewerScreen';
+import { MetadataEditorScreen } from './components/MetadataEditorScreen';
+import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
+import { SettingsScreen } from './components/SettingsScreen';
+import { ThemePreviewScreen } from './components/ThemePreviewScreen';
 
 // Initialize database
 import { initializeDatabase } from './services/database-complete';

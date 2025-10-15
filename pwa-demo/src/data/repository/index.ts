@@ -11,14 +11,3 @@ export * from './CollectionRepository';
 export * from './SearchRepository';
 export * from './PlaylistRepository';
 export * from './BookmarkRepository';
-
-// Re-export repository instances for easy access
-export {
-  libraryRepository,
-  mediaRepository,
-  readingProgressRepository,
-  collectionRepository,
-  searchRepository,
-  playlistRepository,
-  bookmarkRepository,
-};
