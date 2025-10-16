@@ -51,12 +51,12 @@ import { initializeDatabase } from './services/database-complete';
 import { useAppStore } from './store/app-store';
 import { getAllUnifiedThemes } from './themes/unified-themes';
 import { NavigationDrawer } from './components/NavigationDrawer';
-import { Box, IconButton, Fab } from '@mui/material';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import { Box, TextField, InputAdornment } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
 
 function App() {
   const { selectedTheme } = useAppStore();
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   React.useEffect(() => {
     initializeDatabase();
@@ -71,25 +71,53 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        {/* Navigation Drawer */}
-        <NavigationDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+        {/* Permanent Sidebar Navigation */}
+        <NavigationDrawer />
         
-        {/* Floating Menu Button */}
-        <Fab
-          color="primary"
-          aria-label="menu"
-          onClick={() => setDrawerOpen(true)}
+        {/* Main Content Area with Search Bar */}
+        <Box
           sx={{
-            position: 'fixed',
-            bottom: 80,
-            left: 16,
-            zIndex: 1000,
+            marginLeft: '80px',
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <MenuIcon />
-        </Fab>
+          {/* Omni Search Bar */}
+          <Box
+            sx={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 1100,
+              bgcolor: 'background.paper',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              p: 2,
+            }}
+          >
+            <TextField
+              fullWidth
+              placeholder="Search across all libraries..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                },
+              }}
+            />
+          </Box>
 
-        <Routes>
+          {/* Routes Content */}
+          <Box sx={{ flex: 1 }}>
+            <Routes>
           {/* Home */}
           <Route path="/" element={<LibraryListScreen />} />
           
@@ -161,10 +189,12 @@ function App() {
           
           {/* Fallback */}
           <Route path="*" element={<div style={{ padding: 20 }}>Page Not Found</div>} />
-        </Routes>
+            </Routes>
 
-        {/* Global Now Playing Bar */}
-        <NowPlayingBar />
+            {/* Global Now Playing Bar */}
+            <NowPlayingBar />
+          </Box>
+        </Box>
       </Router>
     </ThemeProvider>
   );

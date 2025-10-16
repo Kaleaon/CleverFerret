@@ -1,22 +1,21 @@
 /**
- * Navigation Drawer Component
+ * Permanent Navigation Sidebar Component
  * 
- * Provides a side navigation menu for easy access to all app sections.
+ * Provides a permanent side navigation menu for easy access to all app sections.
  */
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Drawer,
+  Box,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Divider,
-  Box,
   Typography,
-  IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
   Home,
@@ -25,43 +24,39 @@ import {
   Podcasts,
   MusicNote,
   VideoLibrary,
-  Search,
-  Settings,
+  Article,
+  Settings as SettingsIcon,
   CloudSync,
-  Close,
+  Movie,
 } from '@mui/icons-material';
 
 interface NavigationDrawerProps {
-  open: boolean;
-  onClose: () => void;
+  // No props needed for permanent sidebar
 }
 
 interface NavItem {
   label: string;
   icon: React.ReactElement;
   path: string;
-  dividerAfter?: boolean;
+  type?: 'library' | 'feature';
 }
 
-export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({ open, onClose }) => {
+export const NavigationDrawer: React.FC<NavigationDrawerProps> = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const navItems: NavItem[] = [
-    { label: 'Libraries', icon: <Home />, path: '/' },
-    { label: 'Search', icon: <Search />, path: '/search', dividerAfter: true },
-    { label: 'Books', icon: <LibraryBooks />, path: '/libraries' },
-    { label: 'Music', icon: <MusicNote />, path: '/music' },
-    { label: 'Videos', icon: <VideoLibrary />, path: '/videos' },
-    { label: 'Podcasts', icon: <Podcasts />, path: '/podcasts' },
-    { label: 'Radio', icon: <Radio />, path: '/radio', dividerAfter: true },
-    { label: 'Server Integration', icon: <CloudSync />, path: '/servers' },
-    { label: 'Settings', icon: <Settings />, path: '/settings' },
+  // Library type icons at the top
+  const libraryItems: NavItem[] = [
+    { label: 'Books', icon: <LibraryBooks />, path: '/', type: 'library' },
+    { label: 'Movies', icon: <Movie />, path: '/movies', type: 'library' },
+    { label: 'Music', icon: <MusicNote />, path: '/music', type: 'library' },
+    { label: 'Podcasts', icon: <Podcasts />, path: '/podcasts', type: 'library' },
+    { label: 'Documents', icon: <Article />, path: '/documents', type: 'library' },
+    { label: 'Radio', icon: <Radio />, path: '/radio', type: 'library' },
   ];
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    onClose();
   };
 
   const isActive = (path: string) => {
@@ -72,97 +67,141 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({ open, onClos
   };
 
   return (
-    <Drawer
-      anchor="left"
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: {
-          width: 280,
-          bgcolor: 'background.paper',
-          borderRight: '1px solid',
-          borderColor: 'divider',
+    <Box
+      sx={{
+        width: 80,
+        height: '100vh',
+        bgcolor: 'background.paper',
+        borderRight: '1px solid',
+        borderColor: 'divider',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        zIndex: 1200,
+        overflowY: 'auto',
+        '&::-webkit-scrollbar': {
+          width: '6px',
+        },
+        '&::-webkit-scrollbar-track': {
+          bgcolor: 'transparent',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          bgcolor: 'divider',
+          borderRadius: '3px',
         },
       }}
     >
-      {/* Header */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          p: 2,
-          bgcolor: 'primary.main',
-          color: 'primary.contrastText',
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          CleverFerret
-        </Typography>
-        <IconButton
-          onClick={onClose}
+      {/* App Logo/Home */}
+      <Tooltip title="Home" placement="right">
+        <ListItemButton
+          onClick={() => handleNavigation('/')}
+          selected={location.pathname === '/'}
           sx={{
-            color: 'primary.contrastText',
+            py: 2,
+            flexDirection: 'column',
+            alignItems: 'center',
+            minHeight: 80,
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            '&.Mui-selected': {
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+              },
+              '& .MuiSvgIcon-root': {
+                color: 'primary.contrastText',
+              },
+            },
           }}
         >
-          <Close />
-        </IconButton>
-      </Box>
+          <Home sx={{ fontSize: 32, mb: 0.5 }} />
+          <Typography variant="caption" sx={{ fontSize: '0.65rem', textAlign: 'center' }}>
+            Home
+          </Typography>
+        </ListItemButton>
+      </Tooltip>
 
-      {/* Navigation Items */}
-      <List sx={{ pt: 1 }}>
-        {navItems.map((item) => (
-          <React.Fragment key={item.path}>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => handleNavigation(item.path)}
-                selected={isActive(item.path)}
-                sx={{
-                  py: 1.5,
-                  px: 2,
-                  '&.Mui-selected': {
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText',
-                    '&:hover': {
-                      bgcolor: 'primary.dark',
-                    },
-                    '& .MuiListItemIcon-root': {
-                      color: 'primary.contrastText',
-                    },
+      <Divider />
+
+      {/* Library Type Icons */}
+      <List sx={{ flex: 1, py: 1 }}>
+        {libraryItems.map((item) => (
+          <Tooltip key={item.path} title={item.label} placement="right">
+            <ListItemButton
+              onClick={() => handleNavigation(item.path)}
+              selected={isActive(item.path)}
+              sx={{
+                py: 2,
+                flexDirection: 'column',
+                alignItems: 'center',
+                minHeight: 72,
+                '&.Mui-selected': {
+                  bgcolor: 'primary.main',
+                  color: 'primary.contrastText',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
                   },
+                  '& .MuiSvgIcon-root': {
+                    color: 'primary.contrastText',
+                  },
+                },
+              }}
+            >
+              {item.icon}
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.65rem',
+                  mt: 0.5,
+                  textAlign: 'center',
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 40,
-                    color: isActive(item.path) ? 'primary.contrastText' : 'text.secondary',
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{
-                    fontSize: '0.95rem',
-                    fontWeight: isActive(item.path) ? 600 : 400,
-                  }}
-                />
-              </ListItemButton>
-            </ListItem>
-            {item.dividerAfter && <Divider sx={{ my: 1 }} />}
-          </React.Fragment>
+                {item.label}
+              </Typography>
+            </ListItemButton>
+          </Tooltip>
         ))}
       </List>
 
-      {/* Footer */}
-      <Box sx={{ mt: 'auto', p: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-          CleverFerret v1.0
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          Universal Media Library
-        </Typography>
-      </Box>
-    </Drawer>
+      <Divider />
+
+      {/* Settings at Bottom with Large Icon */}
+      <Tooltip title="Settings" placement="right">
+        <ListItemButton
+          onClick={() => handleNavigation('/settings')}
+          selected={location.pathname.startsWith('/settings')}
+          sx={{
+            py: 3,
+            flexDirection: 'column',
+            alignItems: 'center',
+            minHeight: 90,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            '&.Mui-selected': {
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+              },
+              '& .MuiSvgIcon-root': {
+                color: 'primary.contrastText',
+              },
+            },
+          }}
+        >
+          <SettingsIcon sx={{ fontSize: 40, mb: 0.5 }} />
+          <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600 }}>
+            Settings
+          </Typography>
+        </ListItemButton>
+      </Tooltip>
+    </Box>
   );
 };
