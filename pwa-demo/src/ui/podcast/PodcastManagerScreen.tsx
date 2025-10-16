@@ -126,11 +126,16 @@ export const PodcastManagerScreen: React.FC = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Podcasts
           </Typography>
+          <Button
+            color="inherit"
+            startIcon={<Search />}
+            onClick={() => navigate('/podcasts/discover')}
+            sx={{ mr: 1 }}
+          >
+            Discover
+          </Button>
           <IconButton color="inherit" onClick={() => setShowAddDialog(true)}>
             <Add />
-          </IconButton>
-          <IconButton color="inherit">
-            <Search />
           </IconButton>
         </Toolbar>
         <Tabs
@@ -191,14 +196,22 @@ export const PodcastManagerScreen: React.FC = () => {
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     Subscribe to your favorite podcasts
                   </Typography>
-                  <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    onClick={() => setShowAddDialog(true)}
-                    sx={{ mt: 2 }}
-                  >
-                    Add Podcast
-                  </Button>
+                  <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<Search />}
+                      onClick={() => navigate('/podcasts/discover')}
+                    >
+                      Discover Podcasts
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Add />}
+                      onClick={() => setShowAddDialog(true)}
+                    >
+                      Add by URL
+                    </Button>
+                  </Box>
                 </Box>
               </Grid>
             )}

@@ -44,6 +44,7 @@ export { default as MusicPlayerScreen } from './player/MusicPlayerScreen';
 // Podcast
 export { default as PodcastManagerScreen } from './podcast/PodcastManagerScreen';
 export { default as PodcastPlayerScreen } from './podcast/PodcastPlayerScreen';
+export { default as PodcastDiscoveryScreen } from './podcast/PodcastDiscoveryScreen';
 
 // Radio
 export { default as RadioScreen } from './radio/RadioScreen';

@@ -24,6 +24,7 @@ import {
   NowPlayingBar,
   MusicLibraryScreen,
   PodcastManagerScreen,
+  PodcastDiscoveryScreen,
   RadioScreen,
   CollectionDetailScreen,
   CollectionsListScreen,
@@ -148,6 +149,7 @@ function App() {
           
           {/* Podcasts */}
           <Route path="/podcasts" element={<PodcastManagerScreen />} />
+          <Route path="/podcasts/discover" element={<PodcastDiscoveryScreen />} />
           <Route path="/podcast/:podcastId" element={<div>Podcast Detail</div>} />
           <Route path="/podcast_player/:episodeId" element={<div>Podcast Player</div>} />
           
