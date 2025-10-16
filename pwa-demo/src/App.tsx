@@ -50,9 +50,13 @@ import { ThemePreviewScreen } from './components/ThemePreviewScreen';
 import { initializeDatabase } from './services/database-complete';
 import { useAppStore } from './store/app-store';
 import { getAllUnifiedThemes } from './themes/unified-themes';
+import { NavigationDrawer } from './components/NavigationDrawer';
+import { Box, IconButton, Fab } from '@mui/material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 
 function App() {
   const { selectedTheme } = useAppStore();
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   React.useEffect(() => {
     initializeDatabase();
@@ -67,6 +71,24 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
+        {/* Navigation Drawer */}
+        <NavigationDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+        
+        {/* Floating Menu Button */}
+        <Fab
+          color="primary"
+          aria-label="menu"
+          onClick={() => setDrawerOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: 80,
+            left: 16,
+            zIndex: 1000,
+          }}
+        >
+          <MenuIcon />
+        </Fab>
+
         <Routes>
           {/* Home */}
           <Route path="/" element={<LibraryListScreen />} />
@@ -103,6 +125,7 @@ function App() {
           
           {/* Radio */}
           <Route path="/radio" element={<RadioScreen />} />
+          <Route path="/settings/radio" element={<RadioScreen />} />
           
           {/* Collections */}
           <Route path="/collections" element={<CollectionsListScreen />} />
