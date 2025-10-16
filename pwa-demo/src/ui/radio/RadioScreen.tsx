@@ -33,6 +33,7 @@ import {
   Favorite,
   FavoriteBorder,
   Radio as RadioIcon,
+  Search,
 } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
@@ -120,6 +121,14 @@ export const RadioScreen: React.FC = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Internet Radio
           </Typography>
+          <Button
+            color="inherit"
+            startIcon={<Search />}
+            onClick={() => navigate('/radio/discover')}
+            sx={{ mr: 1 }}
+          >
+            Discover
+          </Button>
           <IconButton color="inherit" onClick={() => setShowAddDialog(true)}>
             <Add />
           </IconButton>
@@ -179,14 +188,22 @@ export const RadioScreen: React.FC = () => {
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Add your favorite radio stations
             </Typography>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => setShowAddDialog(true)}
-              sx={{ mt: 2 }}
-            >
-              Add Station
-            </Button>
+            <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                startIcon={<Search />}
+                onClick={() => navigate('/radio/discover')}
+              >
+                Discover Stations
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<Add />}
+                onClick={() => setShowAddDialog(true)}
+              >
+                Add by URL
+              </Button>
+            </Box>
           </Box>
         )}
       </Box>

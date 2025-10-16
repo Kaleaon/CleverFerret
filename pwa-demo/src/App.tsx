@@ -26,6 +26,7 @@ import {
   PodcastManagerScreen,
   PodcastDiscoveryScreen,
   RadioScreen,
+  RadioDiscoveryScreen,
   CollectionDetailScreen,
   CollectionsListScreen,
   SeriesDetailScreen,
@@ -155,6 +156,7 @@ function App() {
           
           {/* Radio */}
           <Route path="/radio" element={<RadioScreen />} />
+          <Route path="/radio/discover" element={<RadioDiscoveryScreen />} />
           <Route path="/settings/radio" element={<RadioScreen />} />
           
           {/* Collections */}

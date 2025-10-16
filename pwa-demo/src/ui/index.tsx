@@ -48,6 +48,7 @@ export { default as PodcastDiscoveryScreen } from './podcast/PodcastDiscoveryScr
 
 // Radio
 export { default as RadioScreen } from './radio/RadioScreen';
+export { default as RadioDiscoveryScreen } from './radio/RadioDiscoveryScreen';
 
 // Collections
 export { default as CollectionDetailScreen } from './collections/CollectionDetailScreen';
