@@ -3,7 +3,7 @@
 export interface Library {
   libraryId?: number;
   name: string;
-  type: 'BOOK' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT';
+  type: 'BOOK' | 'AUDIOBOOK' | 'COMIC' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT';
   path: string;
   dateCreated?: Date;
   dateModified?: Date;
@@ -16,7 +16,7 @@ export interface MediaItem {
   fileName: string;
   fileSize: number;
   mimeType: string;
-  mediaType: 'BOOK' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT';
+  mediaType: 'BOOK' | 'AUDIOBOOK' | 'COMIC' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT';
   dateAdded?: Date;
   lastModified?: Date;
   fileHash?: string;

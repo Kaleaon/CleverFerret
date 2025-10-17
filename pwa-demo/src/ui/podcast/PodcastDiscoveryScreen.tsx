@@ -151,32 +151,53 @@ export const PodcastDiscoveryScreen: React.FC = () => {
       const response = await fetch(
         'https://itunes.apple.com/us/rss/toppodcasts/limit=50/json'
       );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
 
       if (data.feed?.entry) {
         const podcasts: PodcastSearchResult[] = await Promise.all(
           data.feed.entry.map(async (item: any) => {
-            const detailResponse = await fetch(
-              `https://itunes.apple.com/lookup?id=${item.id.attributes['im:id']}`
-            );
-            const detailData = await detailResponse.json();
-            const feedUrl = detailData.results?.[0]?.feedUrl || '';
+            try {
+              const detailResponse = await fetch(
+                `https://itunes.apple.com/lookup?id=${item.id.attributes['im:id']}`
+              );
+              const detailData = await detailResponse.json();
+              const feedUrl = detailData.results?.[0]?.feedUrl || '';
 
-            return {
-              id: item.id.attributes['im:id'],
-              title: item['im:name'].label,
-              author: item['im:artist'].label,
-              description: item.summary?.label || '',
-              imageUrl: item['im:image']?.[2]?.label || item['im:image']?.[0]?.label,
-              feedUrl,
-              category: item.category?.attributes?.label,
-            };
+              return {
+                id: item.id.attributes['im:id'],
+                title: item['im:name'].label,
+                author: item['im:artist'].label,
+                description: item.summary?.label || '',
+                imageUrl: item['im:image']?.[2]?.label || item['im:image']?.[0]?.label,
+                feedUrl,
+                category: item.category?.attributes?.label,
+              };
+            } catch (err) {
+              console.error('Error fetching podcast details:', err);
+              // Return podcast without feedUrl if detail fetch fails
+              return {
+                id: item.id.attributes['im:id'],
+                title: item['im:name'].label,
+                author: item['im:artist'].label,
+                description: item.summary?.label || '',
+                imageUrl: item['im:image']?.[2]?.label || item['im:image']?.[0]?.label,
+                feedUrl: '',
+                category: item.category?.attributes?.label,
+              };
+            }
           })
         );
         setResults(podcasts);
+      } else {
+        throw new Error('No podcasts found in response');
       }
     } catch (err) {
-      setError('Failed to load top podcasts.');
+      setError('Failed to load top podcasts. Please try again.');
       console.error('Top podcasts error:', err);
     } finally {
       setSearching(false);

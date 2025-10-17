@@ -28,6 +28,8 @@ import {
   Settings as SettingsIcon,
   CloudSync,
   Movie,
+  Headphones,
+  MenuBook,
 } from '@mui/icons-material';
 
 interface NavigationDrawerProps {
@@ -48,6 +50,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = () => {
   // Library type icons at the top
   const libraryItems: NavItem[] = [
     { label: 'Books', icon: <LibraryBooks />, path: '/', type: 'library' },
+    { label: 'Audiobooks', icon: <Headphones />, path: '/audiobooks', type: 'library' },
+    { label: 'Comics', icon: <MenuBook />, path: '/comics', type: 'library' },
     { label: 'Movies', icon: <Movie />, path: '/movies', type: 'library' },
     { label: 'Music', icon: <MusicNote />, path: '/music', type: 'library' },
     { label: 'Podcasts', icon: <Podcasts />, path: '/podcasts', type: 'library' },

@@ -58,6 +58,10 @@ const LibraryCard: React.FC<{
     switch (library.type) {
       case 'BOOK':
         return <BookIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'AUDIOBOOK':
+        return <LibraryMusicIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'COMIC':
+        return <CollectionsIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
       case 'MOVIE':
         return <VideoIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
       case 'MUSIC':
@@ -75,6 +79,10 @@ const LibraryCard: React.FC<{
     switch (library.type) {
       case 'BOOK':
         return 'linear-gradient(135deg, #2C5F2D 0%, #97BC62 100%)';
+      case 'AUDIOBOOK':
+        return 'linear-gradient(135deg, #00695C 0%, #4DB6AC 100%)';
+      case 'COMIC':
+        return 'linear-gradient(135deg, #F57C00 0%, #FFB74D 100%)';
       case 'MOVIE':
         return 'linear-gradient(135deg, #1565C0 0%, #42A5F5 100%)';
       case 'MUSIC':
@@ -299,6 +307,8 @@ const AddLibraryDialog: React.FC<{
 
   const mediaTypes = [
     { value: 'BOOK', label: 'Books', icon: '📚' },
+    { value: 'AUDIOBOOK', label: 'Audiobooks', icon: '🎧' },
+    { value: 'COMIC', label: 'Comics', icon: '📗' },
     { value: 'MOVIE', label: 'Movies & TV', icon: '🎬' },
     { value: 'MUSIC', label: 'Music', icon: '🎵' },
     { value: 'PODCAST', label: 'Podcasts', icon: '🎙️' },
