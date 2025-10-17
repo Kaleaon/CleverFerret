@@ -190,9 +190,8 @@ export const PodcastDiscoveryScreen: React.FC = () => {
     }
 
     try {
-      // Add to database
+      // Omit id field - Dexie will auto-increment
       await db.podcasts.add({
-        id: 0,
         title: podcast.title,
         description: podcast.description,
         author: podcast.author,

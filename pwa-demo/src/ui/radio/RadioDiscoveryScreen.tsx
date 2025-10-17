@@ -234,8 +234,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
 
   const handleAddStation = async (station: ShoutcastStation) => {
     try {
+      // Omit id field - Dexie will auto-increment
       await db.radioStations.add({
-        id: 0,
         name: station.name,
         description: station.currentTrack,
         streamUrl: station.streamUrl,
