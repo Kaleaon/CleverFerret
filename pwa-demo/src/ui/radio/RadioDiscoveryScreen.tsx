@@ -37,6 +37,7 @@ import {
   Category,
   Radio as RadioIcon,
   PlayArrow,
+  Stop,
   Favorite,
 } from '@mui/icons-material';
 
@@ -71,6 +72,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
   const [results, setResults] = useState<ShoutcastStation[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [playingStationId, setPlayingStationId] = useState<string | null>(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
 
   // Popular genres from Shoutcast directory
   const popularGenres = [
@@ -232,11 +235,40 @@ export const RadioDiscoveryScreen: React.FC = () => {
     return fallbackStations;
   };
 
+  const handlePlayStation = (station: ShoutcastStation) => {
+    if (playingStationId === station.id) {
+      // Stop playing
+      audioRef.current?.pause();
+      setPlayingStationId(null);
+    } else {
+      // Play station
+      if (audioRef.current) {
+        audioRef.current.src = station.streamUrl;
+        audioRef.current.play().catch(err => {
+          console.error('Failed to play station:', err);
+          alert('Failed to play this station. The stream may not be available.');
+        });
+        setPlayingStationId(station.id);
+      }
+    }
+  };
+
   const handleAddStation = async (station: ShoutcastStation, event: React.MouseEvent) => {
     // Stop event propagation to prevent card click
     event.stopPropagation();
     
     try {
+      // Check if station already exists
+      const existing = await db.radioStations
+        .where('streamUrl')
+        .equals(station.streamUrl)
+        .first();
+      
+      if (existing) {
+        alert('Station is already in your library!');
+        return;
+      }
+
       // Omit id field - Dexie will auto-increment
       await db.radioStations.add({
         name: station.name,
@@ -254,12 +286,21 @@ export const RadioDiscoveryScreen: React.FC = () => {
       alert('Station added successfully!');
     } catch (err) {
       console.error('Add station error:', err);
-      alert('Failed to add station. Please try again.');
+      alert(`Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
   const StationCard: React.FC<{ station: ShoutcastStation }> = ({ station }) => (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Card 
+      sx={{ 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
+        cursor: 'pointer',
+        '&:hover': { boxShadow: 4 }
+      }}
+      onClick={() => handlePlayStation(station)}
+    >
       <CardContent sx={{ flexGrow: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'start', mb: 1 }}>
           <RadioIcon sx={{ mr: 1, color: 'primary.main' }} />
@@ -301,13 +342,26 @@ export const RadioDiscoveryScreen: React.FC = () => {
           </Typography>
         )}
       </CardContent>
-      <CardActions>
+      <CardActions sx={{ justifyContent: 'space-between' }}>
+        <Button
+          size="small"
+          startIcon={playingStationId === station.id ? <Stop /> : <PlayArrow />}
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePlayStation(station);
+          }}
+          variant={playingStationId === station.id ? 'contained' : 'outlined'}
+          sx={{ position: 'relative', zIndex: 1 }}
+        >
+          {playingStationId === station.id ? 'Stop' : 'Play'}
+        </Button>
         <Button
           size="small"
           startIcon={<Favorite />}
           onClick={(e) => handleAddStation(station, e)}
+          sx={{ position: 'relative', zIndex: 1 }}
         >
-          Add Station
+          Add
         </Button>
       </CardActions>
     </Card>
@@ -315,6 +369,8 @@ export const RadioDiscoveryScreen: React.FC = () => {
 
   return (
     <Box>
+      <audio ref={audioRef} />
+      
       <AppBar position="static">
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
