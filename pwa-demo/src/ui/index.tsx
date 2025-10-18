@@ -120,9 +120,6 @@ export { default as MediaOpenScreen } from './open/MediaOpenScreen';
 // Network
 export { default as NetworkStorageSettingsScreen } from './network/NetworkStorageSettingsScreen';
 
-// Security
-export { default as SecuritySettingsScreen } from './security/SecuritySettingsScreen';
-
 // Organizer
 export { default as StorageOrganizerScreen } from './organizer/StorageOrganizerScreen';
 
