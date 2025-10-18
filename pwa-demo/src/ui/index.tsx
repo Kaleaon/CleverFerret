@@ -72,6 +72,12 @@ export { default as PlaylistSettingsScreen } from './settings/playlists/Playlist
 export { default as APISettingsScreen } from './settings/APISettingsScreen';
 export { default as MediaServerSettingsScreen } from './settings/MediaServerSettingsScreen';
 export { default as ReadingPreferencesScreen } from './settings/ReadingPreferencesScreen';
+export { default as AudiobookSettingsScreen } from './settings/AudiobookSettingsScreen';
+export { default as LibraryManagementSettingsScreen } from './settings/LibraryManagementSettingsScreen';
+export { default as PodcastSettingsScreen } from './settings/PodcastSettingsScreen';
+export { default as NotificationSettingsScreen } from './settings/NotificationSettingsScreen';
+export { default as SecuritySettingsScreen } from './settings/SecuritySettingsScreen';
+export { default as AboutScreen } from './settings/AboutScreen';
 
 // Integration
 export { default as PlexIntegrationScreen } from './integration/PlexIntegrationScreen';

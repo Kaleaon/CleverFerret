@@ -35,6 +35,12 @@ import {
   ReaderSettingsScreen,
   APIKeysScreen,
   ImportExportSettingsScreen,
+  AudiobookSettingsScreen,
+  LibraryManagementSettingsScreen,
+  PodcastSettingsScreen,
+  NotificationSettingsScreen,
+  SecuritySettingsScreen,
+  AboutScreen,
   PlexIntegrationScreen,
   MaintenanceScreen,
   VisualizerScreen,
@@ -174,6 +180,12 @@ function App() {
           <Route path="/settings/reader" element={<ReaderSettingsScreen />} />
           <Route path="/settings/api-keys" element={<APIKeysScreen />} />
           <Route path="/settings/import_export" element={<ImportExportSettingsScreen />} />
+          <Route path="/settings/audiobook" element={<AudiobookSettingsScreen />} />
+          <Route path="/settings/libraries" element={<LibraryManagementSettingsScreen />} />
+          <Route path="/settings/podcasts" element={<PodcastSettingsScreen />} />
+          <Route path="/settings/notifications" element={<NotificationSettingsScreen />} />
+          <Route path="/settings/security" element={<SecuritySettingsScreen />} />
+          <Route path="/settings/about" element={<AboutScreen />} />
           
           {/* Integration */}
           <Route path="/servers" element={<ServerIntegrationScreen />} />
