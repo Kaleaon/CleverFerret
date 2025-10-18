@@ -25,6 +25,8 @@ import {
   Chip,
   Paper,
   Slider,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -54,6 +56,7 @@ export const RadioScreen: React.FC = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newStationName, setNewStationName] = useState('');
   const [newStationUrl, setNewStationUrl] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
   const recordedChunksRef = React.useRef<Blob[]>([]);
@@ -86,20 +89,23 @@ export const RadioScreen: React.FC = () => {
     } else {
       // Play
       if (audioRef.current) {
-        audioRef.current.src = station.streamUrl;
-        audioRef.current.play().catch(err => {
+        try {
+          audioRef.current.src = station.streamUrl;
+          await audioRef.current.play();
+          setPlayingStationId(station.id);
+          setPlayingStation(station);
+          setIsPaused(false);
+          
+          // Update play count and last played time
+          if (station.id) {
+            await db.radioStations.update(station.id, {
+              lastPlayedAt: Date.now(),
+              playCount: station.playCount + 1,
+            });
+          }
+        } catch (err) {
           console.error('Failed to play station:', err);
-        });
-        setPlayingStationId(station.id);
-        setPlayingStation(station);
-        setIsPaused(false);
-        
-        // Update play count and last played time
-        if (station.id) {
-          await db.radioStations.update(station.id, {
-            lastPlayedAt: Date.now(),
-            playCount: station.playCount + 1,
-          });
+          setErrorMessage(`Failed to play stream: ${station.name}. The stream may not be available or is in an unsupported format.`);
         }
       }
     }
@@ -418,6 +424,18 @@ export const RadioScreen: React.FC = () => {
           </Box>
         </Paper>
       )}
+
+      {/* Error Snackbar */}
+      <Snackbar
+        open={!!errorMessage}
+        autoHideDuration={6000}
+        onClose={() => setErrorMessage(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setErrorMessage(null)} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -29,6 +29,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -73,6 +74,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [playingStationId, setPlayingStationId] = useState<string | null>(null);
+  const [playError, setPlayError] = useState<string | null>(null);
   const audioRef = React.useRef<HTMLAudioElement>(null);
 
   // Popular genres from Shoutcast directory
@@ -235,7 +237,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
     return fallbackStations;
   };
 
-  const handlePlayStation = (station: ShoutcastStation) => {
+  const handlePlayStation = async (station: ShoutcastStation) => {
     if (playingStationId === station.id) {
       // Stop playing
       audioRef.current?.pause();
@@ -243,12 +245,16 @@ export const RadioDiscoveryScreen: React.FC = () => {
     } else {
       // Play station
       if (audioRef.current) {
-        audioRef.current.src = station.streamUrl;
-        audioRef.current.play().catch(err => {
+        try {
+          audioRef.current.src = station.streamUrl;
+          await audioRef.current.play();
+          setPlayingStationId(station.id);
+          setPlayError(null);
+        } catch (err) {
           console.error('Failed to play station:', err);
-          alert('Failed to play this station. The stream may not be available.');
-        });
-        setPlayingStationId(station.id);
+          setPlayError(`Failed to play stream: ${station.name}. The stream may not be available or is in an unsupported format.`);
+          setPlayingStationId(null);
+        }
       }
     }
   };
@@ -471,6 +477,18 @@ export const RadioDiscoveryScreen: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      {/* Play Error Snackbar */}
+      <Snackbar
+        open={!!playError}
+        autoHideDuration={6000}
+        onClose={() => setPlayError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setPlayError(null)} severity="error" sx={{ width: '100%' }}>
+          {playError}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
