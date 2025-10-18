@@ -44,9 +44,11 @@ export { default as MusicPlayerScreen } from './player/MusicPlayerScreen';
 // Podcast
 export { default as PodcastManagerScreen } from './podcast/PodcastManagerScreen';
 export { default as PodcastPlayerScreen } from './podcast/PodcastPlayerScreen';
+export { default as PodcastDiscoveryScreen } from './podcast/PodcastDiscoveryScreen';
 
 // Radio
 export { default as RadioScreen } from './radio/RadioScreen';
+export { default as RadioDiscoveryScreen } from './radio/RadioDiscoveryScreen';
 
 // Collections
 export { default as CollectionDetailScreen } from './collections/CollectionDetailScreen';
@@ -70,6 +72,12 @@ export { default as PlaylistSettingsScreen } from './settings/playlists/Playlist
 export { default as APISettingsScreen } from './settings/APISettingsScreen';
 export { default as MediaServerSettingsScreen } from './settings/MediaServerSettingsScreen';
 export { default as ReadingPreferencesScreen } from './settings/ReadingPreferencesScreen';
+export { default as AudiobookSettingsScreen } from './settings/AudiobookSettingsScreen';
+export { default as LibraryManagementSettingsScreen } from './settings/LibraryManagementSettingsScreen';
+export { default as PodcastSettingsScreen } from './settings/PodcastSettingsScreen';
+export { default as NotificationSettingsScreen } from './settings/NotificationSettingsScreen';
+export { default as SecuritySettingsScreen } from './settings/SecuritySettingsScreen';
+export { default as AboutScreen } from './settings/AboutScreen';
 
 // Integration
 export { default as PlexIntegrationScreen } from './integration/PlexIntegrationScreen';
@@ -111,9 +119,6 @@ export { default as MediaOpenScreen } from './open/MediaOpenScreen';
 
 // Network
 export { default as NetworkStorageSettingsScreen } from './network/NetworkStorageSettingsScreen';
-
-// Security
-export { default as SecuritySettingsScreen } from './security/SecuritySettingsScreen';
 
 // Organizer
 export { default as StorageOrganizerScreen } from './organizer/StorageOrganizerScreen';

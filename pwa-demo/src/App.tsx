@@ -24,7 +24,9 @@ import {
   NowPlayingBar,
   MusicLibraryScreen,
   PodcastManagerScreen,
+  PodcastDiscoveryScreen,
   RadioScreen,
+  RadioDiscoveryScreen,
   CollectionDetailScreen,
   CollectionsListScreen,
   SeriesDetailScreen,
@@ -33,6 +35,12 @@ import {
   ReaderSettingsScreen,
   APIKeysScreen,
   ImportExportSettingsScreen,
+  AudiobookSettingsScreen,
+  LibraryManagementSettingsScreen,
+  PodcastSettingsScreen,
+  NotificationSettingsScreen,
+  SecuritySettingsScreen,
+  AboutScreen,
   PlexIntegrationScreen,
   MaintenanceScreen,
   VisualizerScreen,
@@ -48,35 +56,76 @@ import { ThemePreviewScreen } from './components/ThemePreviewScreen';
 
 // Initialize database
 import { initializeDatabase } from './services/database-complete';
+import { useAppStore } from './store/app-store';
+import { getAllUnifiedThemes } from './themes/unified-themes';
+import { NavigationDrawer } from './components/NavigationDrawer';
+import { Box, TextField, InputAdornment } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
 
 function App() {
-  const [darkMode, setDarkMode] = React.useState(true);
+  const { selectedTheme } = useAppStore();
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   React.useEffect(() => {
     initializeDatabase();
   }, []);
 
-  const theme = React.useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: darkMode ? 'dark' : 'light',
-          primary: {
-            main: '#D4AF37', // Gold
-          },
-          secondary: {
-            main: '#0A1630', // Navy
-          },
-        },
-      }),
-    [darkMode]
-  );
+  const theme = React.useMemo(() => {
+    const themeConfig = getAllUnifiedThemes().find((t) => t.name === selectedTheme);
+    return themeConfig ? themeConfig.theme : getAllUnifiedThemes()[0].theme;
+  }, [selectedTheme]);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Routes>
+        {/* Permanent Sidebar Navigation */}
+        <NavigationDrawer />
+        
+        {/* Main Content Area with Search Bar */}
+        <Box
+          sx={{
+            marginLeft: '80px',
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Omni Search Bar */}
+          <Box
+            sx={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 1100,
+              bgcolor: 'background.paper',
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              p: 2,
+            }}
+          >
+            <TextField
+              fullWidth
+              placeholder="Search across all libraries..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                },
+              }}
+            />
+          </Box>
+
+          {/* Routes Content */}
+          <Box sx={{ flex: 1 }}>
+            <Routes>
           {/* Home */}
           <Route path="/" element={<LibraryListScreen />} />
           
@@ -107,11 +156,14 @@ function App() {
           
           {/* Podcasts */}
           <Route path="/podcasts" element={<PodcastManagerScreen />} />
+          <Route path="/podcasts/discover" element={<PodcastDiscoveryScreen />} />
           <Route path="/podcast/:podcastId" element={<div>Podcast Detail</div>} />
           <Route path="/podcast_player/:episodeId" element={<div>Podcast Player</div>} />
           
           {/* Radio */}
           <Route path="/radio" element={<RadioScreen />} />
+          <Route path="/radio/discover" element={<RadioDiscoveryScreen />} />
+          <Route path="/settings/radio" element={<RadioScreen />} />
           
           {/* Collections */}
           <Route path="/collections" element={<CollectionsListScreen />} />
@@ -128,6 +180,12 @@ function App() {
           <Route path="/settings/reader" element={<ReaderSettingsScreen />} />
           <Route path="/settings/api-keys" element={<APIKeysScreen />} />
           <Route path="/settings/import_export" element={<ImportExportSettingsScreen />} />
+          <Route path="/settings/audiobook" element={<AudiobookSettingsScreen />} />
+          <Route path="/settings/libraries" element={<LibraryManagementSettingsScreen />} />
+          <Route path="/settings/podcasts" element={<PodcastSettingsScreen />} />
+          <Route path="/settings/notifications" element={<NotificationSettingsScreen />} />
+          <Route path="/settings/security" element={<SecuritySettingsScreen />} />
+          <Route path="/settings/about" element={<AboutScreen />} />
           
           {/* Integration */}
           <Route path="/servers" element={<ServerIntegrationScreen />} />
@@ -147,10 +205,12 @@ function App() {
           
           {/* Fallback */}
           <Route path="*" element={<div style={{ padding: 20 }}>Page Not Found</div>} />
-        </Routes>
+            </Routes>
 
-        {/* Global Now Playing Bar */}
-        <NowPlayingBar />
+            {/* Global Now Playing Bar */}
+            <NowPlayingBar />
+          </Box>
+        </Box>
       </Router>
     </ThemeProvider>
   );

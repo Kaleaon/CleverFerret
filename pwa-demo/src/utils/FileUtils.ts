@@ -18,6 +18,35 @@ class FileUtilsClass {
   }
 
   /**
+   * Check if Directory Picker API is supported
+   */
+  isDirectoryPickerSupported(): boolean {
+    return 'showDirectoryPicker' in window;
+  }
+
+  /**
+   * Open directory picker
+   */
+  async pickDirectory(): Promise<FileSystemDirectoryHandle | null> {
+    if (!this.isDirectoryPickerSupported()) {
+      console.warn('Directory picker not supported in this browser');
+      return null;
+    }
+
+    try {
+      const dirHandle = await (window as any).showDirectoryPicker({
+        mode: 'read',
+      });
+      return dirHandle;
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        console.error('Failed to pick directory:', error);
+      }
+      return null;
+    }
+  }
+
+  /**
    * Open file picker and read file
    */
   async pickFile(accept?: string[]): Promise<File | null> {

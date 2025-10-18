@@ -29,6 +29,7 @@ import {
   VisibilityOff,
   CheckCircle,
   Error,
+  OpenInNew,
 } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
@@ -42,12 +43,48 @@ export const APIKeysScreen: React.FC = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const apiKeyProviders = [
-    { provider: 'google_books', displayName: 'Google Books API', category: 'METADATA' },
-    { provider: 'tmdb', displayName: 'TMDB (Movies)', category: 'METADATA' },
-    { provider: 'omdb', displayName: 'OMDB (Movies)', category: 'METADATA' },
-    { provider: 'spotify', displayName: 'Spotify', category: 'METADATA' },
-    { provider: 'musicbrainz', displayName: 'MusicBrainz', category: 'METADATA' },
-    { provider: 'lastfm', displayName: 'Last.fm', category: 'METADATA' },
+    {
+      provider: 'google_books',
+      displayName: 'Google Books API',
+      category: 'METADATA',
+      url: 'https://console.cloud.google.com/apis/library/books.googleapis.com',
+      description: 'Get book metadata, covers, and descriptions',
+    },
+    {
+      provider: 'tmdb',
+      displayName: 'TMDB (Movies)',
+      category: 'METADATA',
+      url: 'https://www.themoviedb.org/settings/api',
+      description: 'Movie and TV show metadata, posters, and cast information',
+    },
+    {
+      provider: 'omdb',
+      displayName: 'OMDB (Movies)',
+      category: 'METADATA',
+      url: 'http://www.omdbapi.com/apikey.aspx',
+      description: 'Alternative movie database with ratings and plot summaries',
+    },
+    {
+      provider: 'spotify',
+      displayName: 'Spotify',
+      category: 'METADATA',
+      url: 'https://developer.spotify.com/dashboard/applications',
+      description: 'Music metadata, album art, and artist information',
+    },
+    {
+      provider: 'musicbrainz',
+      displayName: 'MusicBrainz',
+      category: 'METADATA',
+      url: 'https://musicbrainz.org/doc/MusicBrainz_API',
+      description: 'Open music encyclopedia with detailed music metadata',
+    },
+    {
+      provider: 'lastfm',
+      displayName: 'Last.fm',
+      category: 'METADATA',
+      url: 'https://www.last.fm/api/account/create',
+      description: 'Music scrobbling, recommendations, and listening statistics',
+    },
   ];
 
   useEffect(() => {
@@ -65,7 +102,7 @@ export const APIKeysScreen: React.FC = () => {
           provider: provider.provider,
           keyValue: '',
           displayName: provider.displayName,
-          description: `API key for ${provider.displayName}`,
+          description: provider.description,
           isActive: false,
           validationStatus: 'UNKNOWN',
           lastValidated: undefined,
@@ -83,6 +120,10 @@ export const APIKeysScreen: React.FC = () => {
       }
       loadAPIKeys();
     }
+  };
+
+  const getProviderInfo = (provider: string) => {
+    return apiKeyProviders.find(p => p.provider === provider);
   };
 
   const handleSave = async () => {
@@ -137,47 +178,64 @@ export const APIKeysScreen: React.FC = () => {
           never shared.
         </Alert>
 
-        {apiKeys.map((apiKey) => (
-          <Card key={apiKey.keyId} sx={{ mb: 2 }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                <Box>
-                  <Typography variant="h6">{apiKey.displayName}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {apiKey.description}
-                  </Typography>
+        {apiKeys.map((apiKey) => {
+          const providerInfo = getProviderInfo(apiKey.provider);
+          return (
+            <Card key={apiKey.keyId} sx={{ mb: 2 }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h6">{apiKey.displayName}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {apiKey.description}
+                    </Typography>
+                    {providerInfo?.url && (
+                      <Button
+                        size="small"
+                        startIcon={<OpenInNew />}
+                        href={providerInfo.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ mt: 1 }}
+                      >
+                        Get API Key
+                      </Button>
+                    )}
+                  </Box>
+                  <Chip
+                    size="small"
+                    label={apiKey.isActive ? 'Active' : 'Inactive'}
+                    color={apiKey.isActive ? 'success' : 'default'}
+                    icon={apiKey.isActive ? <CheckCircle /> : <Error />}
+                  />
                 </Box>
-                <Chip
-                  size="small"
-                  label={apiKey.isActive ? 'Active' : 'Inactive'}
-                  color={apiKey.isActive ? 'success' : 'default'}
-                  icon={apiKey.isActive ? <CheckCircle /> : <Error />}
+
+                <TextField
+                  fullWidth
+                  label="API Key"
+                  type={showKeys[apiKey.keyId] ? 'text' : 'password'}
+                  value={editedKeys[apiKey.keyId] ?? apiKey.keyValue}
+                  onChange={(e) => handleKeyChange(apiKey.keyId, e.target.value)}
+                  placeholder="Enter your API key here..."
+                  helperText={providerInfo?.url ? 'Click "Get API Key" above to obtain your key' : ''}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton onClick={() => toggleShowKey(apiKey.keyId)} edge="end">
+                        {showKeys[apiKey.keyId] ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    ),
+                  }}
                 />
-              </Box>
 
-              <TextField
-                fullWidth
-                label="API Key"
-                type={showKeys[apiKey.keyId] ? 'text' : 'password'}
-                value={editedKeys[apiKey.keyId] ?? apiKey.keyValue}
-                onChange={(e) => handleKeyChange(apiKey.keyId, e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <IconButton onClick={() => toggleShowKey(apiKey.keyId)} edge="end">
-                      {showKeys[apiKey.keyId] ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  ),
-                }}
-              />
-
-              {apiKey.lastUsed && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  Last used: {new Date(apiKey.lastUsed).toLocaleDateString()}
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                {apiKey.lastUsed && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                    Last used: {new Date(apiKey.lastUsed).toLocaleDateString()}
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </Box>
     </Box>
   );

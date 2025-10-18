@@ -1,15 +1,6 @@
 {
-  "version": 2,
-  "name": "cleverferret-pwa",
-  "builds": [
-    {
-      "src": "pwa-demo/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "pwa-demo/dist"
-      }
-    }
-  ],
+  "buildCommand": "cd pwa-demo && npm install && npm run build",
+  "outputDirectory": "pwa-demo/dist",
   "rewrites": [
     {
       "source": "/(.*)",
