@@ -232,7 +232,10 @@ export const RadioDiscoveryScreen: React.FC = () => {
     return fallbackStations;
   };
 
-  const handleAddStation = async (station: ShoutcastStation) => {
+  const handleAddStation = async (station: ShoutcastStation, event: React.MouseEvent) => {
+    // Stop event propagation to prevent card click
+    event.stopPropagation();
+    
     try {
       // Omit id field - Dexie will auto-increment
       await db.radioStations.add({
@@ -302,7 +305,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
         <Button
           size="small"
           startIcon={<Favorite />}
-          onClick={() => handleAddStation(station)}
+          onClick={(e) => handleAddStation(station, e)}
         >
           Add Station
         </Button>
