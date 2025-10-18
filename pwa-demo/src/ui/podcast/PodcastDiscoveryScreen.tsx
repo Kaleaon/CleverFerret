@@ -297,8 +297,12 @@ export const PodcastDiscoveryScreen: React.FC = () => {
         <Button
           size="small"
           startIcon={<RssFeed />}
-          onClick={() => handleSubscribe(podcast)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSubscribe(podcast);
+          }}
           disabled={!podcast.feedUrl}
+          sx={{ position: 'relative', zIndex: 1 }}
         >
           Subscribe
         </Button>
