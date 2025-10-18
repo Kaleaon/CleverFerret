@@ -16,7 +16,6 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActionArea,
   Button,
   TextField,
   Dialog,
@@ -247,48 +246,43 @@ export const RadioScreen: React.FC = () => {
           {stations.map((station) => (
             <Grid item xs={12} sm={6} md={4} key={station.id}>
               <Card>
-                <CardActionArea onClick={() => handlePlayStation(station)}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'start', mb: 2 }}>
-                      <RadioIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" noWrap>
-                          {station.name}
-                        </Typography>
-                        {station.genre && (
-                          <Chip label={station.genre} size="small" sx={{ mt: 0.5 }} />
-                        )}
-                      </Box>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleFavorite(station);
-                        }}
-                      >
-                        {station.isFavorite ? <Favorite color="error" /> : <FavoriteBorder />}
-                      </IconButton>
-                    </Box>
-
-                    {station.description && (
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {station.description}
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'start', mb: 2 }}>
+                    <RadioIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="h6" noWrap>
+                        {station.name}
                       </Typography>
-                    )}
-
-                    <Button
-                      variant={playingStationId === station.id ? 'contained' : 'outlined'}
-                      startIcon={playingStationId === station.id ? <Stop /> : <PlayArrow />}
-                      fullWidth
+                      {station.genre && (
+                        <Chip label={station.genre} size="small" sx={{ mt: 0.5 }} />
+                      )}
+                    </Box>
+                    <IconButton
+                      size="small"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePlayStation(station);
+                        handleToggleFavorite(station);
                       }}
                     >
-                      {playingStationId === station.id ? 'Stop' : 'Play'}
-                    </Button>
-                  </CardContent>
-                </CardActionArea>
+                      {station.isFavorite ? <Favorite color="error" /> : <FavoriteBorder />}
+                    </IconButton>
+                  </Box>
+
+                  {station.description && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      {station.description}
+                    </Typography>
+                  )}
+
+                  <Button
+                    variant={playingStationId === station.id ? 'contained' : 'outlined'}
+                    startIcon={playingStationId === station.id ? <Stop /> : <PlayArrow />}
+                    fullWidth
+                    onClick={() => handlePlayStation(station)}
+                  >
+                    {playingStationId === station.id ? 'Stop' : 'Play'}
+                  </Button>
+                </CardContent>
               </Card>
             </Grid>
           ))}
