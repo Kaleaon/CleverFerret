@@ -198,7 +198,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
       if (audioRef.current) {
         try {
           // Register click with Radio-Browser API
-          fetch(`${RADIO_BROWSER_BASE_URL}/url/${station.stationuuid}`).catch(() => {});
+          fetch(`${RADIO_BROWSER_BASE_URL}/url/${station.stationuuid}`).catch((err) => console.debug('Failed to register click:', err));
           
           audioRef.current.src = station.url_resolved;
           
