@@ -19,9 +19,10 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@google/generative-ai": "^0.24.1",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
-    "dexie": "^3.2.4",
+    "dexie": "^3.2.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.18.0",
@@ -35,16 +36,16 @@
     "@vitejs/plugin-react": "^4.1.1",
     "@vitest/ui": "^3.2.4",
     "eslint": "^8.53.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "prettier": "^3.3.3",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
     "fake-indexeddb": "^6.2.2",
     "jsdom": "^27.0.0",
+    "prettier": "^3.3.3",
     "typescript": "5.3.3",
     "vite": "^7.1.7",
     "vitest": "^3.2.4",
-    "workbox-window": "^7.0.0"
+    "workbox-window": "^7.3.0"
   }
 }
