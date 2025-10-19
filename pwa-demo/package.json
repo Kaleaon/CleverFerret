@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build" // Skip tsc for Vercel - type checking done in CI,
     "build:check": "tsc && vite build",
     "vercel-build": "npm run build",
     "preview": "vite preview",
