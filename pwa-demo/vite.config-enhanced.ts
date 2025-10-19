@@ -50,20 +50,6 @@ export default defineConfig({
             url: '/?action=import',
             icons: [{ src: 'icons/icon-96.png', sizes: '96x96' }]
           }
-        ],
-        file_handlers: [
-          {
-            action: '/import',
-            accept: {
-              'application/epub+zip': ['.epub'],
-              'application/pdf': ['.pdf'],
-              'audio/mpeg': ['.mp3'],
-              'audio/mp4': ['.m4a'],
-              'video/mp4': ['.mp4'],
-              'application/x-cbr': ['.cbr'],
-              'application/x-cbz': ['.cbz']
-            }
-          }
         ]
       },
       
