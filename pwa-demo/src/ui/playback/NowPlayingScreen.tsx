@@ -20,6 +20,10 @@ import {
   Pause,
   SkipNext,
   SkipPrevious,
+  FastForward,
+  FastRewind,
+  Forward10,
+  Replay10,
   MusicNote,
 } from '@mui/icons-material';
 
@@ -46,6 +50,29 @@ export const NowPlayingBar: React.FC = () => {
 
   const track = playbackState.currentTrack;
   const progress = (playbackState.currentTime / playbackState.duration) * 100;
+  
+  // Determine if we're playing audiobook or video (for chapter controls)
+  const isAudiobookOrVideo = track.mediaType === 'audiobook' || track.mediaType === 'video';
+
+  const handleSkip10Forward = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    audioPlayerService.seek(playbackState.currentTime + 10);
+  };
+
+  const handleSkip10Backward = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    audioPlayerService.seek(Math.max(0, playbackState.currentTime - 10));
+  };
+
+  const handleFastForward = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    audioPlayerService.seek(playbackState.currentTime + 30);
+  };
+
+  const handleFastRewind = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    audioPlayerService.seek(Math.max(0, playbackState.currentTime - 30));
+  };
 
   return (
     <Slide direction="up" in={true}>
@@ -63,50 +90,107 @@ export const NowPlayingBar: React.FC = () => {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
-            p: 1,
+            flexDirection: 'column',
+            p: 2,
             cursor: 'pointer',
           }}
           onClick={() => navigate('/audio_player')}
         >
-          <Avatar
-            src={track.coverUrl}
-            sx={{ width: 48, height: 48, mr: 2 }}
-          >
-            <MusicNote />
-          </Avatar>
-
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="subtitle2" noWrap>
+          {/* Title centered above controls */}
+          <Box sx={{ textAlign: 'center', mb: 1 }}>
+            <Typography variant="subtitle1" noWrap fontWeight="medium">
               {track.title}
             </Typography>
             <Typography variant="caption" color="text.secondary" noWrap>
-              {track.artist || 'Unknown Artist'}
+              {track.artist || track.album || 'Unknown'}
             </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <IconButton size="small" onClick={(e) => {
-              e.stopPropagation();
-              audioPlayerService.previous();
-            }}>
+          {/* Playback controls centered */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 0.5,
+            }}
+          >
+            {/* Previous track/chapter */}
+            <IconButton 
+              size="small" 
+              onClick={(e) => {
+                e.stopPropagation();
+                audioPlayerService.previous();
+              }}
+              title={isAudiobookOrVideo ? 'Previous Chapter' : 'Previous Track'}
+            >
               <SkipPrevious />
             </IconButton>
 
+            {/* Fast Rewind (30 seconds) */}
+            <IconButton 
+              size="small" 
+              onClick={handleFastRewind}
+              title="Rewind 30s"
+            >
+              <FastRewind />
+            </IconButton>
+
+            {/* Rewind 10 seconds */}
+            <IconButton 
+              size="small" 
+              onClick={handleSkip10Backward}
+              title="Rewind 10s"
+            >
+              <Replay10 />
+            </IconButton>
+
+            {/* Play/Pause - Larger and centered */}
             <IconButton
-              size="small"
+              size="large"
               onClick={(e) => {
                 e.stopPropagation();
                 audioPlayerService.togglePlayPause();
+              }}
+              sx={{ 
+                mx: 1,
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                },
               }}
             >
               {playbackState.isPlaying ? <Pause /> : <PlayArrow />}
             </IconButton>
 
-            <IconButton size="small" onClick={(e) => {
-              e.stopPropagation();
-              audioPlayerService.next();
-            }}>
+            {/* Forward 10 seconds */}
+            <IconButton 
+              size="small" 
+              onClick={handleSkip10Forward}
+              title="Forward 10s"
+            >
+              <Forward10 />
+            </IconButton>
+
+            {/* Fast Forward (30 seconds) */}
+            <IconButton 
+              size="small" 
+              onClick={handleFastForward}
+              title="Forward 30s"
+            >
+              <FastForward />
+            </IconButton>
+
+            {/* Next track/chapter */}
+            <IconButton 
+              size="small" 
+              onClick={(e) => {
+                e.stopPropagation();
+                audioPlayerService.next();
+              }}
+              title={isAudiobookOrVideo ? 'Next Chapter' : 'Next Track'}
+            >
               <SkipNext />
             </IconButton>
           </Box>

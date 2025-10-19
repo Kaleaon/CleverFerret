@@ -29,6 +29,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Snackbar,
+  Avatar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -37,29 +39,39 @@ import {
   Category,
   Radio as RadioIcon,
   PlayArrow,
+  Stop,
   Favorite,
 } from '@mui/icons-material';
 
 import { db } from '../../services/database-complete';
 import type { RadioStation } from '../../data/local/entity';
 
-const SHOUTCAST_API_KEY = 'fa1BTzVMkKOmdKqg';
-const SHOUTCAST_BASE_URL = 'http://api.shoutcast.com';
+// Radio-Browser API - Free and open-source radio station directory
+// Using the main API endpoint which load-balances across multiple servers
+const RADIO_BROWSER_BASE_URL = 'https://api.radio-browser.info/json';
 
-interface ShoutcastStation {
-  id: string;
+interface RadioBrowserStation {
+  stationuuid: string;
   name: string;
-  genre: string;
-  currentTrack?: string;
-  bitrate: string;
-  listeners?: number;
-  streamUrl: string;
-  logoUrl?: string;
+  url: string;
+  url_resolved: string;
+  homepage: string;
+  favicon: string;
+  tags: string;
+  country: string;
+  countrycode: string;
+  state: string;
+  language: string;
+  votes: number;
+  codec: string;
+  bitrate: number;
+  clickcount: number;
+  clicktrend: number;
 }
 
 interface Genre {
   name: string;
-  count?: number;
+  stationcount?: number;
 }
 
 export const RadioDiscoveryScreen: React.FC = () => {
@@ -68,58 +80,28 @@ export const RadioDiscoveryScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
   const [searching, setSearching] = useState(false);
-  const [results, setResults] = useState<ShoutcastStation[]>([]);
+  const [results, setResults] = useState<RadioBrowserStation[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [playingStationId, setPlayingStationId] = useState<string | null>(null);
+  const [playError, setPlayError] = useState<string | null>(null);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
 
-  // Popular genres from Shoutcast directory
+  // Popular tags/genres from Radio-Browser
   const popularGenres = [
-    'Top 40', 'Pop', 'Rock', 'Classic Rock', 'Alternative',
-    'Dance', 'Electronic', 'Hip-Hop', 'R&B', 'Jazz',
-    'Blues', 'Country', 'Classical', 'Reggae', 'Latin',
-    'World', 'News', 'Talk', 'Sports', 'Oldies'
+    'pop', 'rock', 'jazz', 'classical', 'electronic',
+    'dance', 'hip hop', 'country', 'blues', 'reggae',
+    'folk', 'latin', 'world', 'news', 'talk',
+    'sports', 'oldies', 'indie', 'metal', 'punk'
   ];
 
   useEffect(() => {
     if (tabValue === 1) {
-      loadRandomStations();
+      loadPopularStations();
     } else if (tabValue === 2) {
       setGenres(popularGenres.map(g => ({ name: g })));
     }
   }, [tabValue]);
-
-  const parseShoutcastXML = (xmlText: string): ShoutcastStation[] => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-    const stations: ShoutcastStation[] = [];
-
-    const stationNodes = xmlDoc.getElementsByTagName('station');
-    
-    for (let i = 0; i < Math.min(stationNodes.length, 50); i++) {
-      const station = stationNodes[i];
-      const id = station.getAttribute('id') || station.getAttribute('tuneid') || `${i}`;
-      const name = station.getAttribute('name') || 'Unknown Station';
-      const genre = station.getAttribute('genre') || station.getAttribute('genrename') || 'Unknown';
-      const currentTrack = station.getAttribute('ct') || station.getAttribute('nowplaying') || '';
-      const bitrate = station.getAttribute('br') || station.getAttribute('bitrate') || '128';
-      const listeners = station.getAttribute('lc') || '0';
-
-      // Construct stream URL
-      const streamUrl = `http://yp.shoutcast.com/sbin/tunein-station.pls?id=${id}`;
-
-      stations.push({
-        id,
-        name,
-        genre,
-        currentTrack,
-        bitrate,
-        listeners: parseInt(listeners),
-        streamUrl,
-      });
-    }
-
-    return stations;
-  };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -128,14 +110,15 @@ export const RadioDiscoveryScreen: React.FC = () => {
     setError(null);
 
     try {
-      // Use CORS proxy for API requests
-      const proxyUrl = 'https://corsproxy.io/?';
-      const apiUrl = `${SHOUTCAST_BASE_URL}/legacy/stationsearch?k=${SHOUTCAST_API_KEY}&f=xml&search=${encodeURIComponent(searchQuery)}&limit=50`;
+      const response = await fetch(
+        `${RADIO_BROWSER_BASE_URL}/stations/byname/${encodeURIComponent(searchQuery)}?limit=50&hidebroken=true`
+      );
       
-      const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
-      const xmlText = await response.text();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      const stations = parseShoutcastXML(xmlText);
+      const stations: RadioBrowserStation[] = await response.json();
       setResults(stations);
       
       if (stations.length === 0) {
@@ -143,31 +126,33 @@ export const RadioDiscoveryScreen: React.FC = () => {
       }
     } catch (err) {
       console.error('Station search error:', err);
-      setError('Failed to search stations. Using fallback data.');
-      // Provide some fallback stations
-      setResults(getFallbackStations());
+      setError('Failed to search stations. Please try again.');
+      setResults([]);
     } finally {
       setSearching(false);
     }
   };
 
-  const loadRandomStations = async () => {
+  const loadPopularStations = async () => {
     setSearching(true);
     setError(null);
 
     try {
-      const proxyUrl = 'https://corsproxy.io/?';
-      const apiUrl = `${SHOUTCAST_BASE_URL}/station/randomstations?k=${SHOUTCAST_API_KEY}&f=xml&limit=50`;
+      // Get top stations by votes
+      const response = await fetch(
+        `${RADIO_BROWSER_BASE_URL}/stations/topvote/50?hidebroken=true`
+      );
       
-      const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
-      const xmlText = await response.text();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      const stations = parseShoutcastXML(xmlText);
+      const stations: RadioBrowserStation[] = await response.json();
       setResults(stations);
     } catch (err) {
-      console.error('Random stations error:', err);
-      setError('Failed to load random stations. Using fallback data.');
-      setResults(getFallbackStations());
+      console.error('Popular stations error:', err);
+      setError('Failed to load popular stations. Please try again.');
+      setResults([]);
     } finally {
       setSearching(false);
     }
@@ -180,13 +165,15 @@ export const RadioDiscoveryScreen: React.FC = () => {
     setError(null);
 
     try {
-      const proxyUrl = 'https://corsproxy.io/?';
-      const apiUrl = `${SHOUTCAST_BASE_URL}/legacy/genresearch?k=${SHOUTCAST_API_KEY}&f=xml&genre=${encodeURIComponent(genre)}&limit=50`;
+      const response = await fetch(
+        `${RADIO_BROWSER_BASE_URL}/stations/bytag/${encodeURIComponent(genre)}?limit=50&hidebroken=true`
+      );
       
-      const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
-      const xmlText = await response.text();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      const stations = parseShoutcastXML(xmlText);
+      const stations: RadioBrowserStation[] = await response.json();
       setResults(stations);
       
       if (stations.length === 0) {
@@ -194,56 +181,97 @@ export const RadioDiscoveryScreen: React.FC = () => {
       }
     } catch (err) {
       console.error('Genre search error:', err);
-      setError('Failed to load genre stations. Using fallback data.');
-      setResults(getFallbackStations(genre));
+      setError('Failed to load genre stations. Please try again.');
+      setResults([]);
     } finally {
       setSearching(false);
     }
   };
 
-  const getFallbackStations = (genre?: string): ShoutcastStation[] => {
-    // Provide some popular internet radio stations as fallback
-    const fallbackStations: ShoutcastStation[] = [
-      {
-        id: 'fallback1',
-        name: 'BBC Radio 1',
-        genre: genre || 'Pop',
-        bitrate: '128',
-        listeners: 50000,
-        streamUrl: 'http://stream.live.vc.bbcmedia.co.uk/bbc_radio_one',
-      },
-      {
-        id: 'fallback2',
-        name: 'KEXP 90.3',
-        genre: genre || 'Alternative',
-        bitrate: '128',
-        listeners: 10000,
-        streamUrl: 'http://live-aacplus-64.kexp.org/kexp64.aac',
-      },
-      {
-        id: 'fallback3',
-        name: 'NTS Radio',
-        genre: genre || 'Electronic',
-        bitrate: '128',
-        listeners: 5000,
-        streamUrl: 'https://stream-mixtape-geo.ntslive.net/stream',
-      },
-    ];
-    return fallbackStations;
+  const handlePlayStation = async (station: RadioBrowserStation) => {
+    if (playingStationId === station.stationuuid) {
+      // Stop playing
+      audioRef.current?.pause();
+      setPlayingStationId(null);
+    } else {
+      // Play station
+      if (audioRef.current) {
+        try {
+          // Register click with Radio-Browser API
+          fetch(`${RADIO_BROWSER_BASE_URL}/url/${station.stationuuid}`).catch((err) => console.debug('Failed to register click:', err));
+          
+          audioRef.current.src = station.url_resolved;
+          
+          // Set up error handler before playing
+          audioRef.current.onerror = () => {
+            const error = audioRef.current?.error;
+            let errorMsg = `Failed to play stream: ${station.name}. `;
+            
+            if (error) {
+              switch (error.code) {
+                case error.MEDIA_ERR_NETWORK:
+                  errorMsg += 'Network error - stream may be offline or blocked by CORS.';
+                  break;
+                case error.MEDIA_ERR_DECODE:
+                  errorMsg += 'Audio format not supported.';
+                  break;
+                case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                  errorMsg += 'Stream URL not supported or invalid.';
+                  break;
+                default:
+                  errorMsg += 'The stream may not be available.';
+              }
+            } else {
+              errorMsg += 'The stream may not be available.';
+            }
+            
+            setPlayError(errorMsg);
+            setPlayingStationId(null);
+          };
+          
+          await audioRef.current.play();
+          setPlayingStationId(station.stationuuid);
+          setPlayError(null);
+        } catch (err) {
+          console.error('Failed to play station:', err);
+          const errorMsg = err instanceof Error && err.name === 'NotAllowedError'
+            ? `Cannot play automatically. Please click the Play button again to start playback.`
+            : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
+          setPlayError(errorMsg);
+          setPlayingStationId(null);
+        }
+      }
+    }
   };
 
-  const handleAddStation = async (station: ShoutcastStation, event: React.MouseEvent) => {
+  const handleAddStation = async (station: RadioBrowserStation, event: React.MouseEvent) => {
     // Stop event propagation to prevent card click
     event.stopPropagation();
     
     try {
+      // Check if station already exists
+      const existing = await db.radioStations
+        .where('streamUrl')
+        .equals(station.url_resolved)
+        .first();
+      
+      if (existing) {
+        alert('Station is already in your library!');
+        return;
+      }
+
       // Omit id field - Dexie will auto-increment
       await db.radioStations.add({
         name: station.name,
-        description: station.currentTrack,
-        streamUrl: station.streamUrl,
-        genre: station.genre,
-        bitrate: parseInt(station.bitrate),
+        description: station.tags,
+        streamUrl: station.url_resolved,
+        websiteUrl: station.homepage,
+        logoUrl: station.favicon,
+        genre: station.tags.split(',')[0] || undefined,
+        country: station.country,
+        language: station.language,
+        bitrate: station.bitrate || undefined,
+        codec: station.codec || undefined,
         isFavorite: false,
         customOrder: 0,
         addedAt: Date.now(),
@@ -254,60 +282,98 @@ export const RadioDiscoveryScreen: React.FC = () => {
       alert('Station added successfully!');
     } catch (err) {
       console.error('Add station error:', err);
-      alert('Failed to add station. Please try again.');
+      alert(`Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
-  const StationCard: React.FC<{ station: ShoutcastStation }> = ({ station }) => (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+  const StationCard: React.FC<{ station: RadioBrowserStation }> = ({ station }) => (
+    <Card 
+      sx={{ 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
+        cursor: 'pointer',
+        '&:hover': { boxShadow: 4 }
+      }}
+      onClick={() => handlePlayStation(station)}
+    >
       <CardContent sx={{ flexGrow: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'start', mb: 1 }}>
-          <RadioIcon sx={{ mr: 1, color: 'primary.main' }} />
+          {station.favicon ? (
+            <Avatar src={station.favicon} sx={{ mr: 1, width: 40, height: 40 }}>
+              <RadioIcon />
+            </Avatar>
+          ) : (
+            <RadioIcon sx={{ mr: 1, color: 'primary.main' }} />
+          )}
           <Typography variant="h6" gutterBottom noWrap sx={{ flex: 1 }}>
             {station.name}
           </Typography>
         </Box>
         
-        <Chip 
-          label={station.genre} 
-          size="small" 
-          sx={{ mb: 1, mr: 1 }} 
-          color="primary"
-          variant="outlined"
-        />
-        <Chip 
-          label={`${station.bitrate} kbps`} 
-          size="small" 
-          sx={{ mb: 1 }} 
-        />
-        
-        {station.currentTrack && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mt: 1, fontStyle: 'italic' }}
-          >
-            Now Playing: {station.currentTrack}
-          </Typography>
+        {station.tags && (
+          <Box sx={{ mb: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {station.tags.split(',').slice(0, 3).map((tag, idx) => (
+              <Chip 
+                key={idx}
+                label={tag.trim()} 
+                size="small" 
+                color="primary"
+                variant="outlined"
+              />
+            ))}
+          </Box>
         )}
         
-        {station.listeners !== undefined && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: 'block', mt: 1 }}
-          >
-            {station.listeners.toLocaleString()} listeners
-          </Typography>
-        )}
+        <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+          {station.codec && station.bitrate > 0 && (
+            <Chip 
+              label={`${station.codec.toUpperCase()} ${station.bitrate}k`} 
+              size="small" 
+            />
+          )}
+          {station.country && (
+            <Chip 
+              label={station.country} 
+              size="small" 
+            />
+          )}
+          {station.language && (
+            <Chip 
+              label={station.language} 
+              size="small" 
+            />
+          )}
+        </Box>
+        
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: 'block' }}
+        >
+          ⭐ {station.votes} votes • 🎧 {station.clickcount} plays
+        </Typography>
       </CardContent>
-      <CardActions>
+      <CardActions sx={{ justifyContent: 'space-between' }}>
+        <Button
+          size="small"
+          startIcon={playingStationId === station.stationuuid ? <Stop /> : <PlayArrow />}
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePlayStation(station);
+          }}
+          variant={playingStationId === station.stationuuid ? 'contained' : 'outlined'}
+          sx={{ position: 'relative', zIndex: 1 }}
+        >
+          {playingStationId === station.stationuuid ? 'Stop' : 'Play'}
+        </Button>
         <Button
           size="small"
           startIcon={<Favorite />}
           onClick={(e) => handleAddStation(station, e)}
+          sx={{ position: 'relative', zIndex: 1 }}
         >
-          Add Station
+          Add
         </Button>
       </CardActions>
     </Card>
@@ -315,6 +381,12 @@ export const RadioDiscoveryScreen: React.FC = () => {
 
   return (
     <Box>
+      <audio 
+        ref={audioRef}
+        crossOrigin="anonymous"
+        preload="none"
+      />
+      
       <AppBar position="static">
         <Toolbar>
           <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
@@ -329,7 +401,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
           <Tab icon={<SearchIcon />} label="Search" />
-          <Tab icon={<TrendingUp />} label="Random" />
+          <Tab icon={<TrendingUp />} label="Popular" />
           <Tab icon={<Category />} label="By Genre" />
         </Tabs>
       </Box>
@@ -415,6 +487,18 @@ export const RadioDiscoveryScreen: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      {/* Play Error Snackbar */}
+      <Snackbar
+        open={!!playError}
+        autoHideDuration={6000}
+        onClose={() => setPlayError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setPlayError(null)} severity="error" sx={{ width: '100%' }}>
+          {playError}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

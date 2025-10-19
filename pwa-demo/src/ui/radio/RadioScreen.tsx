@@ -16,7 +16,6 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActionArea,
   Button,
   TextField,
   Dialog,
@@ -26,6 +25,8 @@ import {
   Chip,
   Paper,
   Slider,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -55,6 +56,7 @@ export const RadioScreen: React.FC = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newStationName, setNewStationName] = useState('');
   const [newStationUrl, setNewStationUrl] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
   const recordedChunksRef = React.useRef<Blob[]>([]);
@@ -87,20 +89,55 @@ export const RadioScreen: React.FC = () => {
     } else {
       // Play
       if (audioRef.current) {
-        audioRef.current.src = station.streamUrl;
-        audioRef.current.play().catch(err => {
+        try {
+          audioRef.current.src = station.streamUrl;
+          
+          // Set up error handler before playing
+          audioRef.current.onerror = () => {
+            const error = audioRef.current?.error;
+            let errorMsg = `Failed to play stream: ${station.name}. `;
+            
+            if (error) {
+              switch (error.code) {
+                case error.MEDIA_ERR_NETWORK:
+                  errorMsg += 'Network error - stream may be offline or blocked by CORS.';
+                  break;
+                case error.MEDIA_ERR_DECODE:
+                  errorMsg += 'Audio format not supported.';
+                  break;
+                case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                  errorMsg += 'Stream URL not supported or invalid.';
+                  break;
+                default:
+                  errorMsg += 'The stream may not be available.';
+              }
+            } else {
+              errorMsg += 'The stream may not be available.';
+            }
+            
+            setErrorMessage(errorMsg);
+            setPlayingStationId(null);
+            setPlayingStation(null);
+          };
+          
+          await audioRef.current.play();
+          setPlayingStationId(station.id);
+          setPlayingStation(station);
+          setIsPaused(false);
+          
+          // Update play count and last played time
+          if (station.id) {
+            await db.radioStations.update(station.id, {
+              lastPlayedAt: Date.now(),
+              playCount: station.playCount + 1,
+            });
+          }
+        } catch (err) {
           console.error('Failed to play station:', err);
-        });
-        setPlayingStationId(station.id);
-        setPlayingStation(station);
-        setIsPaused(false);
-        
-        // Update play count and last played time
-        if (station.id) {
-          await db.radioStations.update(station.id, {
-            lastPlayedAt: Date.now(),
-            playCount: station.playCount + 1,
-          });
+          const errorMsg = err instanceof Error && err.name === 'NotAllowedError'
+            ? `Cannot play automatically. Please click the Play button again to start playback.`
+            : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
+          setErrorMessage(errorMsg);
         }
       }
     }
@@ -218,7 +255,11 @@ export const RadioScreen: React.FC = () => {
 
   return (
     <Box>
-      <audio ref={audioRef} />
+      <audio 
+        ref={audioRef}
+        crossOrigin="anonymous"
+        preload="none"
+      />
 
       <AppBar position="static">
         <Toolbar>
@@ -247,48 +288,43 @@ export const RadioScreen: React.FC = () => {
           {stations.map((station) => (
             <Grid item xs={12} sm={6} md={4} key={station.id}>
               <Card>
-                <CardActionArea onClick={() => handlePlayStation(station)}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'start', mb: 2 }}>
-                      <RadioIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" noWrap>
-                          {station.name}
-                        </Typography>
-                        {station.genre && (
-                          <Chip label={station.genre} size="small" sx={{ mt: 0.5 }} />
-                        )}
-                      </Box>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleFavorite(station);
-                        }}
-                      >
-                        {station.isFavorite ? <Favorite color="error" /> : <FavoriteBorder />}
-                      </IconButton>
-                    </Box>
-
-                    {station.description && (
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {station.description}
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'start', mb: 2 }}>
+                    <RadioIcon sx={{ fontSize: 40, color: 'primary.main', mr: 2 }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="h6" noWrap>
+                        {station.name}
                       </Typography>
-                    )}
-
-                    <Button
-                      variant={playingStationId === station.id ? 'contained' : 'outlined'}
-                      startIcon={playingStationId === station.id ? <Stop /> : <PlayArrow />}
-                      fullWidth
+                      {station.genre && (
+                        <Chip label={station.genre} size="small" sx={{ mt: 0.5 }} />
+                      )}
+                    </Box>
+                    <IconButton
+                      size="small"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePlayStation(station);
+                        handleToggleFavorite(station);
                       }}
                     >
-                      {playingStationId === station.id ? 'Stop' : 'Play'}
-                    </Button>
-                  </CardContent>
-                </CardActionArea>
+                      {station.isFavorite ? <Favorite color="error" /> : <FavoriteBorder />}
+                    </IconButton>
+                  </Box>
+
+                  {station.description && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      {station.description}
+                    </Typography>
+                  )}
+
+                  <Button
+                    variant={playingStationId === station.id ? 'contained' : 'outlined'}
+                    startIcon={playingStationId === station.id ? <Stop /> : <PlayArrow />}
+                    fullWidth
+                    onClick={() => handlePlayStation(station)}
+                  >
+                    {playingStationId === station.id ? 'Stop' : 'Play'}
+                  </Button>
+                </CardContent>
               </Card>
             </Grid>
           ))}
@@ -424,6 +460,18 @@ export const RadioScreen: React.FC = () => {
           </Box>
         </Paper>
       )}
+
+      {/* Error Snackbar */}
+      <Snackbar
+        open={!!errorMessage}
+        autoHideDuration={6000}
+        onClose={() => setErrorMessage(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setErrorMessage(null)} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

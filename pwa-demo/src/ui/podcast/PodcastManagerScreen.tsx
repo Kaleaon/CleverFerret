@@ -18,7 +18,6 @@ import {
   Card,
   CardMedia,
   CardContent,
-  CardActionArea,
   Grid,
   Button,
   Chip,
@@ -154,35 +153,36 @@ export const PodcastManagerScreen: React.FC = () => {
           <Grid container spacing={2}>
             {podcasts.map((podcast) => (
               <Grid item xs={12} sm={6} md={4} key={podcast.id}>
-                <Card>
-                  <CardActionArea onClick={() => navigate(`/podcast/${podcast.id}`)}>
-                    {podcast.imageUrl && (
-                      <CardMedia
-                        component="img"
-                        height="200"
-                        image={podcast.imageUrl}
-                        alt={podcast.title}
-                      />
-                    )}
-                    <CardContent>
-                      <Typography variant="h6" noWrap>
-                        {podcast.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {podcast.author}
-                      </Typography>
-                      <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                        <Chip size="small" label={`${podcast.totalEpisodes} episodes`} />
-                        {podcast.newEpisodeCount > 0 && (
-                          <Chip
-                            size="small"
-                            label={`${podcast.newEpisodeCount} new`}
-                            color="primary"
-                          />
-                        )}
-                      </Box>
-                    </CardContent>
-                  </CardActionArea>
+                <Card 
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => navigate(`/podcast/${podcast.id}`)}
+                >
+                  {podcast.imageUrl && (
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={podcast.imageUrl}
+                      alt={podcast.title}
+                    />
+                  )}
+                  <CardContent>
+                    <Typography variant="h6" noWrap>
+                      {podcast.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" noWrap>
+                      {podcast.author}
+                    </Typography>
+                    <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                      <Chip size="small" label={`${podcast.totalEpisodes} episodes`} />
+                      {podcast.newEpisodeCount > 0 && (
+                        <Chip
+                          size="small"
+                          label={`${podcast.newEpisodeCount} new`}
+                          color="primary"
+                        />
+                      )}
+                    </Box>
+                  </CardContent>
                 </Card>
               </Grid>
             ))}
