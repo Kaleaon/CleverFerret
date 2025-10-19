@@ -3,6 +3,8 @@ package com.universalmedialibrary.services.reader
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.github.junrar.Archive
+import com.github.junrar.rarfile.FileHeader
 import com.universalmedialibrary.services.reader.core.BookSource
 import com.universalmedialibrary.services.reader.core.Locator
 import com.universalmedialibrary.services.reader.core.ReaderEngine
@@ -33,6 +35,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
     private var currentBookId: String = ""
     private var archiveFile: File? = null
     private var zipFile: ZipFile? = null
+    private var rarArchive: Archive? = null
     private var pageEntries: List<ComicPage> = emptyList()
     private var currentPageIndex: Int = 0
     private var isRarFormat: Boolean = false
@@ -87,11 +90,14 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                 isRarFormat = file.extension.lowercase() == "cbr"
 
                 if (isRarFormat) {
-                    // CBR support would require a RAR library (e.g., junrar)
-                    // For now, we'll return an error
-                    return@withContext Result.failure(
-                        UnsupportedOperationException("CBR format not yet supported. Please convert to CBZ format.")
-                    )
+                    // CBR format (RAR) - using junrar library
+                    try {
+                        pageEntries = extractRarImageEntries(file)
+                    } catch (e: Exception) {
+                        return@withContext Result.failure(
+                            RuntimeException("Failed to read CBR archive: ${e.message}", e)
+                        )
+                    }
                 } else {
                     // CBZ format (ZIP)
                     zipFile = ZipFile(file)
@@ -166,6 +172,8 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
     override suspend fun close() {
         zipFile?.close()
         zipFile = null
+        rarArchive?.close()
+        rarArchive = null
         archiveFile = null
         pageEntries = emptyList()
         currentBookId = ""
@@ -187,12 +195,37 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             if (pageIndex !in pageEntries.indices) return@withContext null
 
             val page = pageEntries[pageIndex]
-            val zip = zipFile ?: return@withContext null
 
             try {
-                val entry = zip.getEntry(page.entryName)
-                val inputStream = zip.getInputStream(entry)
-                BitmapFactory.decodeStream(inputStream)
+                if (isRarFormat) {
+                    // Extract from RAR
+                    val rar = rarArchive ?: return@withContext null
+                    var matchingHeader: FileHeader? = null
+                    
+                    // Find the header for this page
+                    val headersList = rar.fileHeaders.toList()
+                    for (header in headersList) {
+                        if (!header.isDirectory && header.fileName == page.entryName) {
+                            matchingHeader = header
+                            break
+                        }
+                    }
+                    
+                    if (matchingHeader != null) {
+                        val inputStream = rar.getInputStream(matchingHeader)
+                        val bytes = inputStream.readBytes()
+                        inputStream.close()
+                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    } else {
+                        null
+                    }
+                } else {
+                    // Extract from ZIP
+                    val zip = zipFile ?: return@withContext null
+                    val entry = zip.getEntry(page.entryName)
+                    val inputStream = zip.getInputStream(entry)
+                    BitmapFactory.decodeStream(inputStream)
+                }
             } catch (e: Exception) {
                 null
             }
@@ -273,6 +306,39 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                 )
             }
 
+        return pages
+    }
+    
+    /**
+     * Extract image entries from RAR archive
+     */
+    private fun extractRarImageEntries(file: File): List<ComicPage> {
+        val archive = Archive(file)
+        rarArchive = archive
+        
+        val imageExtensions = setOf("jpg", "jpeg", "png", "webp", "bmp", "gif")
+        val pages = mutableListOf<ComicPage>()
+        
+        val headersList = archive.fileHeaders.toList()
+        headersList
+            .filter { header ->
+                !header.isDirectory &&
+                imageExtensions.contains(header.fileName.substringAfterLast(".").lowercase()) &&
+                !header.fileName.contains("__MACOSX") &&
+                !header.fileName.substringAfterLast('/').startsWith(".")
+            }
+            .sortedBy { it.fileName }
+            .forEachIndexed { index, header ->
+                pages.add(
+                    ComicPage(
+                        index = index,
+                        fileName = File(header.fileName).name,
+                        entryName = header.fileName,
+                        size = header.fullUnpackSize
+                    )
+                )
+            }
+        
         return pages
     }
 

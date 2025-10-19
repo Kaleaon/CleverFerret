@@ -52,8 +52,7 @@ class ReaderEngineFactory @Inject constructor(
      */
     fun isFormatSupported(format: BookFormat): Boolean {
         return when (format) {
-            BookFormat.EPUB, BookFormat.PDF, BookFormat.CBZ -> true
-            BookFormat.CBR -> false // Not yet implemented
+            BookFormat.EPUB, BookFormat.PDF, BookFormat.CBZ, BookFormat.CBR -> true
             BookFormat.UNKNOWN -> false
         }
     }
@@ -62,7 +61,7 @@ class ReaderEngineFactory @Inject constructor(
      * Get supported file extensions
      */
     fun getSupportedExtensions(): Set<String> {
-        return setOf("epub", "pdf", "cbz")
+        return setOf("epub", "pdf", "cbz", "cbr")
     }
 
     /**
