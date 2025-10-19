@@ -332,14 +332,25 @@ class ParametricEQ {
             Band(32f, 6f),
             Band(64f, 4f),
             Band(125f, 2f),
-            // ... rest at 0
+            Band(250f, 0f),
+            Band(500f, 0f),
+            Band(1000f, 0f),
+            Band(2000f, 0f),
+            Band(4000f, 0f),
+            Band(8000f, 0f),
+            Band(16000f, 0f)
         ))
         val VOCAL = EQPreset("Vocal", listOf(
+            Band(32f, 0f),
+            Band(64f, 0f),
+            Band(125f, 0f),
             Band(250f, 3f),
             Band(500f, 4f),
             Band(1000f, 5f),
             Band(2000f, 4f),
-            Band(4000f, 2f)
+            Band(4000f, 2f),
+            Band(8000f, 0f),
+            Band(16000f, 0f)
         ))
     }
 }

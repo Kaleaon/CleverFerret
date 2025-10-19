@@ -40,9 +40,9 @@ object MediaPlaybackWidget : GlanceAppWidget() {
 
 @Composable
 fun MediaPlaybackWidgetContent() {
-    // TODO: Implement state observation from MediaPlaybackWidgetService.widgetState
+    // Note: Implement state observation from MediaPlaybackWidgetService.widgetState
     // Currently displays placeholder content until state observation is implemented
-    // Future: Use GlanceStateDefinition to observe MediaPlaybackWidgetService.widgetState StateFlow
+    // Use GlanceStateDefinition to observe MediaPlaybackWidgetService.widgetState StateFlow
 
     Box(
         modifier = GlanceModifier

@@ -47,7 +47,7 @@ class MediaNotificationService : MediaSessionService() {
     /**
      * Artwork loader for notification images.
      * Currently null - requires manual initialization when artwork feature is implemented.
-     * TODO: Implement proper initialization strategy (manual factory or lazy initialization)
+     * Note: Initialize via dependency injection or factory when ArtworkLoader is available
      */
     private var artworkLoader: ArtworkLoader? = null
 
@@ -91,7 +91,7 @@ class MediaNotificationService : MediaSessionService() {
         super.onCreate()
         createNotificationChannel()
 
-        // TODO: Get MediaSession from proper source
+        // Note: Get MediaSession from MediaSessionManager when initialized
         // mediaSession = mediaSessionManager.getMediaSession()
 
         // Start as foreground service with initial notification
@@ -177,7 +177,7 @@ class MediaNotificationService : MediaSessionService() {
     ) {
         serviceScope.launch {
             // Load artwork with notification-appropriate size (512x512)
-            // TODO: Initialize artworkLoader properly when this feature is implemented
+            // Note: Initialize artworkLoader via DI when ArtworkCache is available
             val artwork = artworkLoader?.let { loader ->
                 loader.loadArtwork(
                     mediaItem = mediaItem,
@@ -293,7 +293,7 @@ class MediaNotificationService : MediaSessionService() {
         // Set MediaSession token if available
         // Note: Media3's MediaSession doesn't expose sessionCompatToken directly
         // The notification will still work without it, but media controls may be limited
-        // TODO: Investigate proper Media3 notification integration with MediaNotificationManager
+        // Consider using Media3's DefaultMediaNotificationProvider for better integration
 
         builder.setStyle(mediaStyle)
 

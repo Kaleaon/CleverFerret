@@ -142,6 +142,24 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0") // Required for MediaSessionService
     
+    // Hi-Res Audio Support (Priority 1) - Using ExoPlayer's built-in support
+    // Note: ExoPlayer includes FLAC and most codecs by default
+    // For additional formats, consider androidx.media3:media3-decoder-ffmpeg (requires native compilation)
+    implementation("androidx.media3:media3-extractor:1.8.0") // Enhanced format support
+    
+    // MusicBrainz Integration (Priority 2)
+    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    
+    // Metadata editing will use MediaMetadataRetriever (built-in Android)
+    // Full ID3 editing requires JAudioTagger (optional enhancement)
+    
+    // Cloud Sync (Kotlin Serialization)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    
+    // MOBI/AZW E-book Support (Basic implementation included)
+    // Note: Using custom MOBI parser, no external library needed for DRM-free books
+    
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")
     

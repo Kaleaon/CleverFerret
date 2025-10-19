@@ -14,7 +14,7 @@
 | **2** | Priority 1 & 2 | 2,444 | 13 | ✅ Hi-Res audio, Pro features |
 | **3** | Visualizer | 1,062 | 4 | ✅ Poweramp-beating visualizer |
 | **4** | E-reader & Comics | 445 | 2 | ✅ CBR support, progress tracker |
-| **TOTAL** | **All Features** | **3,951 lines** | **19 files** | **✅ COMPLETE** |
+| **TOTAL** | **All Features** | **~4,000 lines** | **19 files** | **✅ COMPLETE** |
 
 ### Documentation Created
 
@@ -153,7 +153,8 @@
 - ✅ **CBZ (ZIP)** - Full support
 - ✅ **CBR (RAR)** - ⭐ **NEWLY ENABLED!**
   - Before: ❌ "Not supported, convert to CBZ"
-  - After: ✅ Full RAR extraction using junrar
+  - After: ✅ Full RAR extraction using junrar (v7.5.5)
+  - Implementation: Handles RAR4 and below via Android library integration
 
 #### Reading Modes
 1. ✅ **Fit Width** - Default comic reading

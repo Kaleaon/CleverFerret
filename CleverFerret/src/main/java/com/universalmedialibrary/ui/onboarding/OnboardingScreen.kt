@@ -35,7 +35,7 @@ fun OnboardingScreen(
     onComplete: () -> Unit
 ) {
     var currentPage by remember { mutableStateOf(0) }
-    val pages = remember { getOnboardingPages() }
+    val pages = getOnboardingPages()
     
     Box(
         modifier = Modifier
@@ -208,14 +208,18 @@ private data class OnboardingPageData(
     val features: List<String> = emptyList()
 )
 
+@Composable
 private fun getOnboardingPages(): List<OnboardingPageData> {
+    // Use theme colors for better dark mode support
+    val colorScheme = MaterialTheme.colorScheme
+    
     return listOf(
         // Welcome
         OnboardingPageData(
             title = "Welcome to CleverFerret",
             description = "The only universal media manager that beats specialist apps at their own game.",
             icon = Icons.Default.Home,
-            color = Color(0xFF6200EE),
+            color = colorScheme.primary,
             features = listOf(
                 "All your media in one beautiful app",
                 "Audio, video, books, comics & more",
@@ -228,7 +232,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
             title = "Best Visualizer on Android",
             description = "Poweramp-quality audio with the most advanced visualizer available.",
             icon = Icons.Default.GraphicEq,
-            color = Color(0xFFE91E63),
+            color = colorScheme.secondary,
             features = listOf(
                 "35 unique visualizations (5 modes × 7 styles)",
                 "Hi-Res audio (FLAC, DSD, up to 384kHz)",
@@ -242,7 +246,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
             title = "MX Player Video Experience",
             description = "Professional gesture controls and the best playback quality.",
             icon = Icons.Default.OndemandVideo,
-            color = Color(0xFF03A9F4),
+            color = colorScheme.tertiary,
             features = listOf(
                 "Swipe for volume, brightness, seek",
                 "Kids Lock (disable touch)",
@@ -256,9 +260,9 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
             title = "Moon Reader-Level E-Reader",
             description = "Read EPUB, PDF, and comics with full customization.",
             icon = Icons.Default.MenuBook,
-            color = Color(0xFF4CAF50),
+            color = colorScheme.primaryContainer,
             features = listOf(
-                "EPUB, PDF, CBZ, CBR support",
+                "EPUB, PDF, CBZ, CBR, MOBI support",
                 "Custom fonts & themes",
                 "Text-to-speech",
                 "Progress tracking & bookmarks"
@@ -267,10 +271,10 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
         
         // Widgets
         OnboardingPageData(
-            title = "13 Professional Widgets",
+            title = "10+ Professional Widgets",
             description = "More widgets than all competitors combined. Perfect for Nova Launcher.",
             icon = Icons.Default.Widgets,
-            color = Color(0xFFFF9800),
+            color = colorScheme.secondaryContainer,
             features = listOf(
                 "Universal playback control",
                 "Reading progress",
@@ -284,7 +288,7 @@ private fun getOnboardingPages(): List<OnboardingPageData> {
             title = "Grant Permissions",
             description = "CleverFerret needs access to your media files to organize and play them.",
             icon = Icons.Default.Security,
-            color = Color(0xFF9C27B0),
+            color = colorScheme.tertiaryContainer,
             features = listOf(
                 "Storage access (for your media)",
                 "Notifications (for playback controls)",

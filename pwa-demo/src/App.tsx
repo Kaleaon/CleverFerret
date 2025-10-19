@@ -21,7 +21,6 @@ import {
   AudioPlayerScreen,
   VideoPlayerScreen,
   QueueScreen,
-  NowPlayingBar,
   MusicLibraryScreen,
   PodcastManagerScreen,
   PodcastDiscoveryScreen,
@@ -53,6 +52,7 @@ import { MetadataEditorScreen } from './components/MetadataEditorScreen';
 import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ThemePreviewScreen } from './components/ThemePreviewScreen';
+import { MiniPlayerBar } from './components/MiniPlayerBar';
 
 // Initialize database
 import { initializeDatabase } from './services/database-complete';
@@ -207,8 +207,8 @@ function App() {
           <Route path="*" element={<div style={{ padding: 20 }}>Page Not Found</div>} />
             </Routes>
 
-            {/* Global Now Playing Bar */}
-            <NowPlayingBar />
+            {/* Global Mini Player Bar */}
+            <MiniPlayerBar />
           </Box>
         </Box>
       </Router>

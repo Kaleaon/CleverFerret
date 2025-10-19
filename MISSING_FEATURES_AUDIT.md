@@ -705,12 +705,18 @@ Rare use case.
 
 ### ❌ **BUGS & INCONSISTENCIES**
 
-#### 1. **ReaderEngineFactory Outdated**
-**Priority**: 🔥 **CRITICAL**
+#### 1. **ReaderEngineFactory CBR Support** ✅ **FIXED**
+**Priority**: 🔥 **CRITICAL** → ✅ **RESOLVED**
 
-**Issue**: Says CBR is "not yet implemented" but we just implemented it!
+**Issue**: ~~Says CBR is "not yet implemented"~~ **NOW FIXED!**
 
-**Fix**: Update `isFormatSupported()` and `getSupportedExtensions()`
+**Fix Applied**: 
+- ✅ Updated `isFormatSupported()` to return true for CBR
+- ✅ Updated `getSupportedExtensions()` to include "cbr"
+- ✅ Added CBR routing to `comicReaderEngine`
+- ✅ Updated format display names
+
+**Status**: CBR is now fully supported in ReaderEngineFactory!
 
 ---
 

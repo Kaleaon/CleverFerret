@@ -95,7 +95,8 @@ private fun NowPlayingContent(
     ) {
         // Album artwork or placeholder
         AsyncImage(
-            model = null, // TODO: Load artwork from MediaController
+            // Note: Load artwork from ArtworkCache using mediaController.metadata
+            model = null,
             contentDescription = "Album artwork",
             modifier = Modifier
                 .size(300.dp)

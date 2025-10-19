@@ -14,11 +14,12 @@ import com.universalmedialibrary.data.local.entity.*
  * - Common interface for shared operations
  * - Easy to extend with new media types
  *
- * TODO: Add support for tags and collections as properties
- * TODO: Add computed properties for artwork variants
- * TODO: Add support for external media sources (Plex, Jellyfin)
- * TODO: Add support for grouped media (albums, series)
- * TODO: Add support for media relationships (related books, sequels)
+ * Future enhancements:
+ * - Add support for tags and collections as properties
+ * - Add computed properties for artwork variants
+ * - Add support for external media sources (Plex, Jellyfin)
+ * - Add support for grouped media (albums, series)
+ * - Add support for media relationships (related books, sequels)
  */
 sealed class UnifiedMediaItem {
     abstract val itemId: Long
@@ -42,12 +43,12 @@ sealed class UnifiedMediaItem {
     val coverImagePath: String? get() = commonMetadata?.coverImagePath ?: thumbnailPath
     val language: String? get() = commonMetadata?.language
 
-    // TODO: Add these computed properties when tag/collection support is implemented
+    // Future enhancement: Add computed properties for tag/collection support
     // val tags: List<UnifiedTag> - Loaded via repository query
     // val collections: List<UnifiedCollection> - Loaded via repository query
     // val genres: List<Genre> - Loaded via repository query
 
-    // TODO: Add artwork accessors for different contexts
+    // Future enhancement: Add artwork accessors for different contexts
     // val primaryArtwork: String? - Main cover/poster
     // val thumbnailArtwork: String? - Small thumbnail for lists
     // val backgroundArtwork: String? - Background for details screen

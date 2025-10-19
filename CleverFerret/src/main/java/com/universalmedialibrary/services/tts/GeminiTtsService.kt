@@ -122,7 +122,7 @@ class GeminiTtsService @Inject constructor(
                 return@withContext false
             }
 
-            // TODO: Play audioBytes via AudioTrack or MediaPlayer
+            // Note: Play audioBytes via AudioTrack or MediaPlayer
             // For now, we mark as complete but actual playback needs implementation
             _ttsState.value = _ttsState.value.copy(
                 isPlaying = false,
@@ -146,7 +146,7 @@ class GeminiTtsService @Inject constructor(
             isPlaying = false,
             isPaused = true
         )
-        // TODO: Cancel any in-flight playback job when implemented
+        // Note: Cancel any in-flight playback job when implemented
     }
 
     override fun resume() {

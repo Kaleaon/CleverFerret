@@ -35,7 +35,7 @@ export { default as AudiobookPlayerScreen } from './audiobook/AudiobookPlayerScr
 
 // Playback
 export { default as QueueScreen } from './playback/QueueScreen';
-export { default as NowPlayingBar } from './playback/NowPlayingScreen';
+export { default as NowPlayingScreen } from './playback/NowPlayingScreen';
 
 // Music
 export { default as MusicLibraryScreen } from './music/MusicLibraryScreen';

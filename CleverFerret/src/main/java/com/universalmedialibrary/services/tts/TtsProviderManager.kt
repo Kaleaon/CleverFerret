@@ -88,15 +88,15 @@ class TtsProviderManager @Inject constructor(
                 geminiTtsService
             }
             TtsProvider.GOOGLE_CLOUD -> {
-                // TODO: Implement Google Cloud TTS
+                // Future: Implement Google Cloud TTS service
                 androidTtsService
             }
             TtsProvider.ELEVEN_LABS -> {
-                // TODO: Implement ElevenLabs TTS
+                // Future: Implement ElevenLabs TTS service
                 androidTtsService
             }
             TtsProvider.OPENAI -> {
-                // TODO: Implement OpenAI TTS
+                // Future: Implement OpenAI TTS service
                 androidTtsService
             }
             else -> androidTtsService

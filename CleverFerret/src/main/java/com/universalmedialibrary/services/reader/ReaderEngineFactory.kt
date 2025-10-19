@@ -17,7 +17,8 @@ import javax.inject.Singleton
 class ReaderEngineFactory @Inject constructor(
     private val epubReaderEngine: EpubReaderEngine,
     private val pdfReaderEngine: PdfReaderEngine,
-    private val comicReaderEngine: ComicReaderEngine
+    private val comicReaderEngine: ComicReaderEngine,
+    private val mobiReaderEngine: com.universalmedialibrary.services.ebook.MobiReaderEngine
 ) {
 
     /**
@@ -28,6 +29,7 @@ class ReaderEngineFactory @Inject constructor(
             BookFormat.EPUB -> epubReaderEngine
             BookFormat.PDF -> pdfReaderEngine
             BookFormat.CBZ, BookFormat.CBR -> comicReaderEngine
+            BookFormat.MOBI, BookFormat.AZW, BookFormat.AZW3 -> mobiReaderEngine
             BookFormat.UNKNOWN -> throw IllegalArgumentException("Cannot create reader for unknown format")
         }
     }
@@ -43,6 +45,9 @@ class ReaderEngineFactory @Inject constructor(
             "pdf" -> BookFormat.PDF
             "cbz" -> BookFormat.CBZ
             "cbr" -> BookFormat.CBR
+            "mobi", "prc" -> BookFormat.MOBI
+            "azw" -> BookFormat.AZW
+            "azw3", "kfx" -> BookFormat.AZW3
             else -> BookFormat.UNKNOWN
         }
     }
@@ -52,7 +57,8 @@ class ReaderEngineFactory @Inject constructor(
      */
     fun isFormatSupported(format: BookFormat): Boolean {
         return when (format) {
-            BookFormat.EPUB, BookFormat.PDF, BookFormat.CBZ, BookFormat.CBR -> true
+            BookFormat.EPUB, BookFormat.PDF, BookFormat.CBZ, BookFormat.CBR,
+            BookFormat.MOBI, BookFormat.AZW, BookFormat.AZW3 -> true
             BookFormat.UNKNOWN -> false
         }
     }
@@ -61,7 +67,7 @@ class ReaderEngineFactory @Inject constructor(
      * Get supported file extensions
      */
     fun getSupportedExtensions(): Set<String> {
-        return setOf("epub", "pdf", "cbz", "cbr")
+        return setOf("epub", "pdf", "cbz", "cbr", "mobi", "azw", "azw3", "prc", "kfx")
     }
 
     /**
@@ -73,6 +79,9 @@ class ReaderEngineFactory @Inject constructor(
             BookFormat.PDF -> "PDF Document"
             BookFormat.CBZ -> "Comic Book Archive (CBZ)"
             BookFormat.CBR -> "Comic Book Archive (CBR)"
+            BookFormat.MOBI -> "MOBI eBook (Kindle)"
+            BookFormat.AZW -> "AZW eBook (Kindle)"
+            BookFormat.AZW3 -> "AZW3 eBook (Kindle Format 8)"
             BookFormat.UNKNOWN -> "Unknown Format"
         }
     }

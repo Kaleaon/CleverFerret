@@ -4,7 +4,7 @@ package com.universalmedialibrary.services.reader.model
  * Supported book formats for the universal reader
  */
 enum class BookFormat {
-    EPUB, PDF, CBZ, CBR, UNKNOWN
+    EPUB, PDF, CBZ, CBR, MOBI, AZW, AZW3, UNKNOWN
 }
 
 /**

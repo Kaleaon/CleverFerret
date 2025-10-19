@@ -1,753 +1,337 @@
 package com.universalmedialibrary.services.sync
 
 import android.content.Context
-import androidx.work.*
+import android.util.Log
+import com.universalmedialibrary.data.local.dao.BookmarkDao
+import com.universalmedialibrary.data.local.dao.ReadingProgressDao
+import com.universalmedialibrary.data.local.entity.Bookmark
+import com.universalmedialibrary.data.local.entity.ReadingProgress
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import java.util.concurrent.TimeUnit
 
 /**
  * Cloud Sync Service
- * Features:
- * - Reading position sync across devices
- * - Annotations and highlights sync
- * - Settings synchronization
- * - Conflict resolution (last-write-wins, manual, merge)
- * - Selective sync (choose what to sync)
- * - Auto-sync and manual sync
- * - Sync status tracking
- * - Delta sync for efficiency
- */
-
-enum class SyncProvider {
-    GOOGLE_DRIVE,
-    DROPBOX,
-    ONEDRIVE,
-    CUSTOM_SERVER,
-    LOCAL_NETWORK
-}
-
-enum class SyncStatus {
-    IDLE,
-    SYNCING,
-    SYNCED,
-    ERROR,
-    CONFLICT
-}
-
-enum class ConflictResolution {
-    LAST_WRITE_WINS,    // Automatic: newest wins
-    MANUAL,             // User chooses
-    MERGE,              // Attempt to merge changes
-    LOCAL_WINS,         // Always prefer local
-    REMOTE_WINS         // Always prefer remote
-}
-
-data class SyncSettings(
-    val enabled: Boolean = false,
-    val provider: SyncProvider = SyncProvider.GOOGLE_DRIVE,
-    val autoSync: Boolean = true,
-    val syncInterval: Long = 30,           // minutes
-    val syncOnWifiOnly: Boolean = true,
-    val syncReadingPosition: Boolean = true,
-    val syncAnnotations: Boolean = true,
-    val syncSettings: Boolean = true,
-    val syncLibraries: Boolean = false,    // Only metadata, not files
-    val syncBookCovers: Boolean = false,
-    val conflictResolution: ConflictResolution = ConflictResolution.LAST_WRITE_WINS,
-    val encryptData: Boolean = true
-)
-
-data class SyncState(
-    val status: SyncStatus = SyncStatus.IDLE,
-    val lastSyncTime: Long? = null,
-    val nextSyncTime: Long? = null,
-    val progress: Float = 0f,
-    val itemsSynced: Int = 0,
-    val totalItems: Int = 0,
-    val conflictsCount: Int = 0,
-    val errorMessage: String? = null
-)
-
-data class SyncConflict(
-    val itemId: String,
-    val itemType: String,          // "reading_position", "annotation", "setting"
-    val localData: Any,
-    val remoteData: Any,
-    val localTimestamp: Long,
-    val remoteTimestamp: Long
-)
-
-data class SyncItem(
-    val id: String,
-    val type: String,
-    val data: Map<String, Any>,
-    val timestamp: Long,
-    val deviceId: String
-)
-
-/**
- * Main Cloud Sync Service
+ * 
+ * Syncs user data across devices:
+ * - Reading progress (EPUB, PDF, CBZ, CBR)
+ * - Bookmarks
+ * - Highlights & notes
+ * - Playback history
+ * - App settings
+ * 
+ * Supported backends:
+ * - Google Drive
+ * - Dropbox
+ * - Self-hosted (WebDAV)
+ * - Local file export/import
+ * 
+ * This is the foundation - actual cloud providers will be added based on user preference.
  */
 @Singleton
 class CloudSyncService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val readingProgressDao: ReadingProgressDao,
+    private val bookmarkDao: BookmarkDao
 ) {
-    private val _settings = MutableStateFlow(SyncSettings())
-    val settings: StateFlow<SyncSettings> = _settings.asStateFlow()
-
-    private val _syncState = MutableStateFlow(SyncState())
+    private val TAG = "CloudSyncService"
+    
+    private val _syncState = MutableStateFlow<SyncState>(SyncState.Idle)
     val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
-
-    private val _conflicts = MutableStateFlow<List<SyncConflict>>(emptyList())
-    val conflicts: StateFlow<List<SyncConflict>> = _conflicts.asStateFlow()
-
-    private val pendingSyncItems = mutableListOf<SyncItem>()
-
+    
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
+    
     /**
-     * Initialize cloud sync
+     * Export all data to JSON file
      */
-    suspend fun initialize(settings: SyncSettings) = withContext(Dispatchers.IO) {
-        _settings.value = settings
-
-        if (settings.enabled && settings.autoSync) {
-            schedulePeriodicSync()
-        }
-
-        // Authenticate with cloud provider
-        authenticateProvider(settings.provider)
-    }
-
-    /**
-     * Authenticate with the selected cloud provider
-     */
-    private suspend fun authenticateProvider(provider: SyncProvider): Boolean {
-        return when (provider) {
-            SyncProvider.GOOGLE_DRIVE -> authenticateGoogleDrive()
-            SyncProvider.DROPBOX -> authenticateDropbox()
-            SyncProvider.ONEDRIVE -> authenticateOneDrive()
-            SyncProvider.CUSTOM_SERVER -> authenticateCustomServer()
-            SyncProvider.LOCAL_NETWORK -> authenticateLocalNetwork()
-        }
-    }
-
-    private suspend fun authenticateGoogleDrive(): Boolean {
-        // Implement Google Drive authentication
-        // Use Google Sign-In API
-        return true
-    }
-
-    private suspend fun authenticateDropbox(): Boolean {
-        // Implement Dropbox authentication
-        return true
-    }
-
-    private suspend fun authenticateOneDrive(): Boolean {
-        // Implement OneDrive authentication
-        return true
-    }
-
-    private suspend fun authenticateCustomServer(): Boolean {
-        // Implement custom server authentication
-        return true
-    }
-
-    private suspend fun authenticateLocalNetwork(): Boolean {
-        // Implement local network authentication
-        return true
-    }
-
-    /**
-     * Perform manual sync
-     */
-    suspend fun syncNow(): Result<Unit> = withContext(Dispatchers.IO) {
-        if (!_settings.value.enabled) {
-            return@withContext Result.failure(Exception("Sync is not enabled"))
-        }
-
-        _syncState.value = _syncState.value.copy(
-            status = SyncStatus.SYNCING,
-            progress = 0f,
-            itemsSynced = 0,
-            errorMessage = null
-        )
-
+    suspend fun exportToFile(outputFile: File): Result<File> = withContext(Dispatchers.IO) {
         try {
-            // Step 1: Fetch remote changes
-            val remoteItems = fetchRemoteChanges()
-
-            // Step 2: Identify conflicts
-            val conflicts = identifyConflicts(pendingSyncItems, remoteItems)
-
-            if (conflicts.isNotEmpty()) {
-                _conflicts.value = conflicts
-
-                // Handle conflicts based on resolution strategy
-                when (_settings.value.conflictResolution) {
-                    ConflictResolution.LAST_WRITE_WINS -> {
-                        resolveConflictsAutomatically(conflicts)
-                    }
-                    ConflictResolution.MANUAL -> {
-                        _syncState.value = _syncState.value.copy(
-                            status = SyncStatus.CONFLICT,
-                            conflictsCount = conflicts.size
-                        )
-                        return@withContext Result.failure(Exception("Conflicts require manual resolution"))
-                    }
-                    ConflictResolution.MERGE -> {
-                        mergeConflicts(conflicts)
-                    }
-                    ConflictResolution.LOCAL_WINS -> {
-                        resolveConflictsLocalWins(conflicts)
-                    }
-                    ConflictResolution.REMOTE_WINS -> {
-                        resolveConflictsRemoteWins(conflicts)
-                    }
-                }
+            _syncState.value = SyncState.Syncing("Exporting data...")
+            
+            // Gather all data
+            val progress = readingProgressDao.getRecentlyRead(1000).first()
+            // Note: BookmarkDao doesn't have getAllBookmarks, we'll need to enhance it later
+            // For now, export bookmarks per item would require media item IDs
+            val bookmarks = emptyList<Bookmark>()
+            
+            val progressList = mutableListOf<SyncProgress>()
+            for (p in progress) {
+                progressList.add(p.toSyncProgress())
             }
-
-            // Step 3: Push local changes
-            // Create snapshot to avoid concurrent modification
-            val itemsToSync = pendingSyncItems.toList()
-            val totalItems = itemsToSync.size
-
-            for ((index, item) in itemsToSync.withIndex()) {
-                uploadItem(item)
-                _syncState.value = _syncState.value.copy(
-                    progress = (index + 1).toFloat() / totalItems,
-                    itemsSynced = index + 1,
-                    totalItems = totalItems
-                )
+            
+            val bookmarksList = mutableListOf<SyncBookmark>()
+            for (b in bookmarks) {
+                bookmarksList.add(b.toSyncBookmark())
             }
-
-            // Step 4: Pull remote changes
-            for (item in remoteItems) {
-                applyRemoteChange(item)
-            }
-
-            // Remove only successfully synced items
-            pendingSyncItems.removeAll { it in itemsToSync }
-
-            _syncState.value = _syncState.value.copy(
-                status = SyncStatus.SYNCED,
-                lastSyncTime = System.currentTimeMillis(),
-                progress = 1f,
-                conflictsCount = 0
+            
+            val exportData = SyncData(
+                version = SYNC_VERSION,
+                exportDate = System.currentTimeMillis(),
+                readingProgress = progressList,
+                bookmarks = bookmarksList
             )
-
-            Result.success(Unit)
+            
+            // Write to file
+            val jsonString = json.encodeToString(exportData)
+            outputFile.writeText(jsonString)
+            
+            val progressCount = progressList.size
+            val bookmarksCount = bookmarksList.size
+            _syncState.value = SyncState.Success("Exported $progressCount progress items, $bookmarksCount bookmarks")
+            Log.d(TAG, "Export successful: ${outputFile.absolutePath}")
+            
+            Result.success(outputFile)
+            
         } catch (e: Exception) {
-            _syncState.value = _syncState.value.copy(
-                status = SyncStatus.ERROR,
-                errorMessage = e.message
-            )
+            _syncState.value = SyncState.Error("Export failed: ${e.message}")
+            Log.e(TAG, "Export failed", e)
             Result.failure(e)
         }
     }
-
+    
     /**
-     * Queue an item for sync
+     * Import data from JSON file
      */
-    suspend fun queueForSync(item: SyncItem) = withContext(Dispatchers.IO) {
-        pendingSyncItems.add(item)
-
-        // If auto-sync is enabled and we're not currently syncing, trigger sync
-        if (_settings.value.enabled && _settings.value.autoSync &&
-            _syncState.value.status != SyncStatus.SYNCING) {
-            syncNow()
-        }
-    }
-
-    /**
-     * Sync reading position
-     */
-    suspend fun syncReadingPosition(
-        bookId: Long,
-        position: Int,
-        progress: Float
-    ) {
-        if (!_settings.value.syncReadingPosition) return
-
-        val item = SyncItem(
-            id = "reading_position_$bookId",
-            type = "reading_position",
-            data = mapOf(
-                "bookId" to bookId,
-                "position" to position,
-                "progress" to progress
-            ),
-            timestamp = System.currentTimeMillis(),
-            deviceId = getDeviceId()
-        )
-
-        queueForSync(item)
-    }
-
-    /**
-     * Sync annotation
-     */
-    suspend fun syncAnnotation(
-        annotationId: Long,
-        bookId: Long,
-        annotationData: Map<String, Any>
-    ) {
-        if (!_settings.value.syncAnnotations) return
-
-        val item = SyncItem(
-            id = "annotation_$annotationId",
-            type = "annotation",
-            data = annotationData + mapOf(
-                "annotationId" to annotationId,
-                "bookId" to bookId
-            ),
-            timestamp = System.currentTimeMillis(),
-            deviceId = getDeviceId()
-        )
-
-        queueForSync(item)
-    }
-
-    /**
-     * Sync app settings
-     */
-    suspend fun syncAppSettings(settingsData: Map<String, Any>) {
-        if (!_settings.value.syncSettings) return
-
-        val item = SyncItem(
-            id = "app_settings",
-            type = "settings",
-            data = settingsData,
-            timestamp = System.currentTimeMillis(),
-            deviceId = getDeviceId()
-        )
-
-        queueForSync(item)
-    }
-
-    /**
-     * Fetch remote changes
-     */
-    private suspend fun fetchRemoteChanges(): List<SyncItem> {
-        // Implement fetching from cloud provider
-        // This would use the provider's API to download changes
-        return emptyList()
-    }
-
-    /**
-     * Upload item to cloud
-     */
-    private suspend fun uploadItem(item: SyncItem) {
-        // Implement upload to cloud provider
-        // Encrypt data if enabled
-        val dataToUpload = if (_settings.value.encryptData) {
-            encryptData(item)
-        } else {
-            item
-        }
-
-        // Upload using provider's API
-    }
-
-    /**
-     * Apply remote change locally
-     */
-    private suspend fun applyRemoteChange(item: SyncItem) {
-        // Decrypt if needed
-        val decryptedItem = if (_settings.value.encryptData) {
-            decryptData(item)
-        } else {
-            item
-        }
-
-        // Apply based on type
-        when (decryptedItem.type) {
-            "reading_position" -> {
-                // Update local reading position
-            }
-            "annotation" -> {
-                // Update local annotation
-            }
-            "settings" -> {
-                // Update local settings
-            }
-        }
-    }
-
-    /**
-     * Identify conflicts between local and remote changes
-     */
-    private fun identifyConflicts(
-        localItems: List<SyncItem>,
-        remoteItems: List<SyncItem>
-    ): List<SyncConflict> {
-        val conflicts = mutableListOf<SyncConflict>()
-
-        val remoteMap = remoteItems.associateBy { it.id }
-
-        localItems.forEach { local ->
-            val remote = remoteMap[local.id]
-            if (remote != null && remote.timestamp != local.timestamp) {
-                // Conflict detected
-                conflicts.add(
-                    SyncConflict(
-                        itemId = local.id,
-                        itemType = local.type,
-                        localData = local.data,
-                        remoteData = remote.data,
-                        localTimestamp = local.timestamp,
-                        remoteTimestamp = remote.timestamp
-                    )
-                )
-            }
-        }
-
-        return conflicts
-    }
-
-    /**
-     * Resolve conflicts automatically using last-write-wins
-     */
-    private suspend fun resolveConflictsAutomatically(conflicts: List<SyncConflict>) {
-        conflicts.forEach { conflict ->
-            if (conflict.remoteTimestamp > conflict.localTimestamp) {
-                // Remote wins
-                val remoteItem = SyncItem(
-                    id = conflict.itemId,
-                    type = conflict.itemType,
-                    data = conflict.remoteData as Map<String, Any>,
-                    timestamp = conflict.remoteTimestamp,
-                    deviceId = ""
-                )
-                applyRemoteChange(remoteItem)
-
-                // Remove from pending
-                pendingSyncItems.removeAll { it.id == conflict.itemId }
-            }
-            // else: Local wins, keep pending item
-        }
-    }
-
-    /**
-     * Resolve conflicts with local wins
-     */
-    private suspend fun resolveConflictsLocalWins(conflicts: List<SyncConflict>) {
-        // Keep local version, overwrite remote
-        // Pending items will be uploaded
-    }
-
-    /**
-     * Resolve conflicts with remote wins
-     */
-    private suspend fun resolveConflictsRemoteWins(conflicts: List<SyncConflict>) {
-        conflicts.forEach { conflict ->
-            val remoteItem = SyncItem(
-                id = conflict.itemId,
-                type = conflict.itemType,
-                data = conflict.remoteData as Map<String, Any>,
-                timestamp = conflict.remoteTimestamp,
-                deviceId = ""
-            )
-            applyRemoteChange(remoteItem)
-            pendingSyncItems.removeAll { it.id == conflict.itemId }
-        }
-    }
-
-    /**
-     * Attempt to merge conflicts
-     */
-    private suspend fun mergeConflicts(conflicts: List<SyncConflict>) {
-        conflicts.forEach { conflict ->
-            val merged = when (conflict.itemType) {
-                "reading_position" -> mergeReadingPosition(conflict)
-                "annotation" -> mergeAnnotation(conflict)
-                "settings" -> mergeSettings(conflict)
-                else -> null
-            }
-
-            merged?.let { applyRemoteChange(it) }
-        }
-    }
-
-    private fun mergeReadingPosition(conflict: SyncConflict): SyncItem? {
-        // Use the furthest reading position
-        val localProgress = (conflict.localData as Map<*, *>)["progress"] as? Float ?: 0f
-        val remoteProgress = (conflict.remoteData as Map<*, *>)["progress"] as? Float ?: 0f
-
-        return if (remoteProgress > localProgress) {
-            SyncItem(
-                id = conflict.itemId,
-                type = conflict.itemType,
-                data = conflict.remoteData as Map<String, Any>,
-                timestamp = conflict.remoteTimestamp,
-                deviceId = ""
-            )
-        } else {
-            null // Keep local
-        }
-    }
-
-    private fun mergeAnnotation(conflict: SyncConflict): SyncItem? {
-        // Annotations are merged by keeping both
-        return null // Manual resolution needed
-    }
-
-    private fun mergeSettings(conflict: SyncConflict): SyncItem? {
-        // Merge settings by combining non-conflicting values
-        val local = conflict.localData as? Map<*, *> ?: return null
-        val remote = conflict.remoteData as? Map<*, *> ?: return null
-
-        val merged = mutableMapOf<String, Any>()
-
-        // Add remote settings first
-        remote.forEach { (key, value) ->
-            val strKey = key as? String
-            if (strKey != null && value != null) {
-                merged[strKey] = value
-            }
-        }
-
-        // Add local settings that don't conflict
-        local.forEach { (key, value) ->
-            val strKey = key as? String
-            if (strKey != null && value != null && strKey !in merged) {
-                merged[strKey] = value
-            }
-        }
-
-        return SyncItem(
-            id = conflict.itemId,
-            type = conflict.itemType,
-            data = merged,
-            timestamp = maxOf(conflict.localTimestamp, conflict.remoteTimestamp),
-            deviceId = getDeviceId()
-        )
-    }
-
-    /**
-     * Manually resolve a conflict
-     */
-    suspend fun resolveConflict(
-        conflictId: String,
-        useLocal: Boolean
-    ) = withContext(Dispatchers.IO) {
-        val conflict = _conflicts.value.find { it.itemId == conflictId }
-        if (conflict != null) {
-            if (useLocal) {
-                // Keep pending item, will be uploaded
-            } else {
-                // Apply remote
-                val remoteItem = SyncItem(
-                    id = conflict.itemId,
-                    type = conflict.itemType,
-                    data = conflict.remoteData as Map<String, Any>,
-                    timestamp = conflict.remoteTimestamp,
-                    deviceId = ""
-                )
-                applyRemoteChange(remoteItem)
-                pendingSyncItems.removeAll { it.id == conflict.itemId }
-            }
-
-            // Remove from conflicts list
-            _conflicts.value = _conflicts.value.filter { it.itemId != conflictId }
-
-            // Update conflict count
-            _syncState.value = _syncState.value.copy(
-                conflictsCount = _conflicts.value.size
-            )
-        }
-    }
-
-    /**
-     * Schedule periodic background sync
-     */
-    private fun schedulePeriodicSync() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(
-                if (_settings.value.syncOnWifiOnly)
-                    NetworkType.UNMETERED
-                else
-                    NetworkType.CONNECTED
-            )
-            .build()
-
-        val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-            _settings.value.syncInterval,
-            TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "cloud_sync",
-            ExistingPeriodicWorkPolicy.REPLACE,
-            syncRequest
-        )
-    }
-
-    /**
-     * Cancel scheduled sync
-     */
-    fun cancelScheduledSync() {
-        WorkManager.getInstance(context).cancelUniqueWork("cloud_sync")
-    }
-
-    /**
-     * Update sync settings
-     */
-    fun updateSettings(newSettings: SyncSettings) {
-        _settings.value = newSettings
-
-        if (newSettings.enabled && newSettings.autoSync) {
-            schedulePeriodicSync()
-        } else {
-            cancelScheduledSync()
-        }
-    }
-
-    private fun getDeviceId(): String {
-        // Get or create stable device ID
-        val deviceId = prefs.getString("device_id", null)
-        if (deviceId != null) {
-            return deviceId
-        }
-
-        // Generate new stable UUID for this device
-        val newDeviceId = "device_${java.util.UUID.randomUUID()}"
-        prefs.edit().putString("device_id", newDeviceId).apply()
-        return newDeviceId
-    }
-
-    private fun encryptData(item: SyncItem): SyncItem {
+    suspend fun importFromFile(inputFile: File): Result<ImportResult> = withContext(Dispatchers.IO) {
         try {
-            // Serialize data to JSON
-            val jsonData = serializeToJson(item.data)
-
-            // Encrypt using AES-GCM
-            val cipher = getCipher()
-            val secretKey = getOrCreateSecretKey()
-            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKey)
-
-            val iv = cipher.iv
-            val encrypted = cipher.doFinal(jsonData.toByteArray())
-            val combined = iv + encrypted
-            val encryptedString = android.util.Base64.encodeToString(combined, android.util.Base64.DEFAULT)
-
-            // Return item with encrypted data
-            return item.copy(
-                data = mapOf("encrypted" to encryptedString)
+            _syncState.value = SyncState.Syncing("Importing data...")
+            
+            val jsonString = inputFile.readText()
+            val importData = json.decodeFromString<SyncData>(jsonString)
+            
+            // Validate version
+            if (importData.version > SYNC_VERSION) {
+                throw IllegalArgumentException("Data from newer version, please update app")
+            }
+            
+            var progressImported = 0
+            var bookmarksImported = 0
+            
+            // Import reading progress
+            importData.readingProgress.forEach { syncProgress ->
+                val existing = readingProgressDao.getProgress(syncProgress.itemId).first()
+                
+                // Only import if newer
+                if (existing == null || syncProgress.lastUpdate > existing.lastUpdate) {
+                    readingProgressDao.upsert(syncProgress.toReadingProgress())
+                    progressImported++
+                }
+            }
+            
+            // Import bookmarks
+            for (syncBookmark in importData.bookmarks) {
+                try {
+                    bookmarkDao.insertBookmark(syncBookmark.toBookmark())
+                    bookmarksImported++
+                } catch (e: Exception) {
+                    // Skip duplicates or errors
+                }
+            }
+            
+            val progressTotal = importData.readingProgress.size
+            val bookmarksTotal = importData.bookmarks.size
+            
+            val result = ImportResult(
+                progressImported = progressImported,
+                bookmarksImported = bookmarksImported,
+                totalProgress = progressTotal,
+                totalBookmarks = bookmarksTotal
             )
+            
+            _syncState.value = SyncState.Success("Imported $progressImported progress, $bookmarksImported bookmarks")
+            Log.d(TAG, "Import successful: $result")
+            
+            Result.success(result)
+            
         } catch (e: Exception) {
-            // Fallback to unencrypted if encryption fails
-            return item
+            _syncState.value = SyncState.Error("Import failed: ${e.message}")
+            Log.e(TAG, "Import failed", e)
+            Result.failure(e)
         }
     }
-
-    private fun decryptData(item: SyncItem): SyncItem {
-        try {
-            val encryptedString = item.data["encrypted"] as? String ?: return item
-
-            // Decrypt using AES-GCM
-            val cipher = getCipher()
-            val secretKey = getOrCreateSecretKey()
-
-            val decoded = android.util.Base64.decode(encryptedString, android.util.Base64.DEFAULT)
-            val iv = decoded.copyOfRange(0, 12)
-            val ciphertext = decoded.copyOfRange(12, decoded.size)
-
-            val gcmSpec = javax.crypto.spec.GCMParameterSpec(128, iv)
-            cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey, gcmSpec)
-
-            val decrypted = cipher.doFinal(ciphertext)
-            val jsonData = String(decrypted)
-
-            // Deserialize JSON back to map
-            val originalData = deserializeFromJson(jsonData)
-
-            return item.copy(data = originalData)
-        } catch (e: Exception) {
-            // Return original if decryption fails
-            return item
+    
+    /**
+     * Sync with cloud provider
+     * Note: This is the framework. Actual provider implementations (Google Drive, Dropbox)
+     * will be added based on user preference and API key configuration.
+     */
+    suspend fun syncWithCloud(provider: CloudProvider): Result<SyncResult> = withContext(Dispatchers.IO) {
+        _syncState.value = SyncState.Syncing("Syncing with ${provider.name}...")
+        
+        when (provider) {
+            CloudProvider.GOOGLE_DRIVE -> {
+                // TODO: Implement Google Drive sync
+                _syncState.value = SyncState.Error("Google Drive sync not yet implemented")
+                Result.failure(UnsupportedOperationException("Google Drive sync coming in v1.1"))
+            }
+            CloudProvider.DROPBOX -> {
+                // TODO: Implement Dropbox sync
+                _syncState.value = SyncState.Error("Dropbox sync not yet implemented")
+                Result.failure(UnsupportedOperationException("Dropbox sync coming in v1.1"))
+            }
+            CloudProvider.WEBDAV -> {
+                // TODO: Implement WebDAV sync
+                _syncState.value = SyncState.Error("WebDAV sync not yet implemented")
+                Result.failure(UnsupportedOperationException("WebDAV sync coming in v1.1"))
+            }
+            CloudProvider.LOCAL_FILE -> {
+                // Export to local file for manual sync
+                val exportFile = File(context.getExternalFilesDir(null), "cleverferret_sync_${System.currentTimeMillis()}.json")
+                val exportResult = exportToFile(exportFile)
+                if (exportResult.isSuccess) {
+                    Result.success(SyncResult(progressSynced = 0, bookmarksSynced = 0, conflicts = 0))
+                } else {
+                    Result.failure(exportResult.exceptionOrNull() ?: Exception("Export failed"))
+                }
+            }
         }
     }
-
-    private fun getOrCreateSecretKey(): javax.crypto.SecretKey {
-        val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore")
-        keyStore.load(null)
-
-        val alias = "cleverferret_sync_key"
-
-        if (!keyStore.containsAlias(alias)) {
-            val keyGenerator = javax.crypto.KeyGenerator.getInstance(
-                android.security.keystore.KeyProperties.KEY_ALGORITHM_AES,
-                "AndroidKeyStore"
-            )
-
-            val keyGenParameterSpec = android.security.keystore.KeyGenParameterSpec.Builder(
-                alias,
-                android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or
-                android.security.keystore.KeyProperties.PURPOSE_DECRYPT
-            )
-                .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
-                .build()
-
-            keyGenerator.init(keyGenParameterSpec)
-            return keyGenerator.generateKey()
-        }
-
-        return keyStore.getKey(alias, null) as javax.crypto.SecretKey
+    
+    /**
+     * Auto-sync if enabled
+     */
+    suspend fun autoSync() {
+        // Check if auto-sync is enabled in settings
+        // If yes, sync with configured provider
+        Log.d(TAG, "Auto-sync triggered")
+        // Note: Implement when settings repository is ready
     }
-
-    private fun getCipher(): javax.crypto.Cipher {
-        return javax.crypto.Cipher.getInstance(
-            android.security.keystore.KeyProperties.KEY_ALGORITHM_AES + "/" +
-            android.security.keystore.KeyProperties.BLOCK_MODE_GCM + "/" +
-            android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE
+    
+    // Extension functions for data conversion
+    private fun ReadingProgress.toSyncProgress() = SyncProgress(
+        itemId = itemId,
+        currentPosition = currentPosition,
+        currentPage = currentPage,
+        currentChapter = currentChapter,
+        percentage = percentage,
+        lastUpdate = lastUpdate,
+        isCompleted = isCompleted
+    )
+    
+    private fun SyncProgress.toReadingProgress() = ReadingProgress(
+        itemId = itemId,
+        currentPosition = currentPosition,
+        currentPage = currentPage,
+        currentChapter = currentChapter,
+        percentage = percentage,
+        lastUpdate = lastUpdate,
+        isCompleted = isCompleted
+    )
+    
+    private fun Bookmark.toSyncBookmark(): SyncBookmark {
+        val chapterNum = this.chapter?.toIntOrNull() ?: 0
+        val bookmarkTitle = this.title ?: ""
+        val bookmarkDesc = this.description
+        
+        return SyncBookmark(
+            bookmarkId = this.bookmarkId,
+            itemId = this.itemId,
+            title = bookmarkTitle,
+            position = this.position,
+            chapterIndex = chapterNum,
+            timestamp = this.dateCreated,
+            notes = bookmarkDesc
         )
     }
-
-    private fun serializeToJson(data: Map<String, Any>): String {
-        // Simple JSON serialization
-        return data.entries.joinToString(",", "{", "}") { (key, value) ->
-            "\"$key\":\"$value\""
-        }
-    }
-
-    private fun deserializeFromJson(json: String): Map<String, Any> {
-        // Simple JSON deserialization
-        val entries = json.removeSurrounding("{", "}")
-            .split(",")
-            .mapNotNull {
-                val parts = it.split(":")
-                if (parts.size == 2) {
-                    parts[0].removeSurrounding("\"") to parts[1].removeSurrounding("\"")
-                } else null
-            }
-        return entries.toMap()
-    }
-
-    private val prefs by lazy {
-        context.getSharedPreferences("cloud_sync_prefs", Context.MODE_PRIVATE)
+    
+    private fun SyncBookmark.toBookmark() = Bookmark(
+        bookmarkId = 0, // Let database assign new ID
+        itemId = itemId,
+        title = title,
+        description = notes,
+        page = 0,
+        chapter = if (chapterIndex > 0) chapterIndex.toString() else null,
+        percentage = 0f,
+        position = position,
+        contextBefore = null,
+        contextAfter = null,
+        screenCapture = null,
+        bookmarkType = "sync",
+        isActive = true,
+        dateCreated = timestamp,
+        lastAccessed = timestamp
+    )
+    
+    companion object {
+        private const val SYNC_VERSION = 1
     }
 }
 
 /**
- * Background sync worker
+ * Sync state
  */
-class SyncWorker(
-    context: Context,
-    params: WorkerParameters
-) : CoroutineWorker(context, params) {
-
-    override suspend fun doWork(): Result {
-        // Perform sync
-        // This would call CloudSyncService.syncNow()
-        return Result.success()
-    }
+sealed class SyncState {
+    object Idle : SyncState()
+    data class Syncing(val message: String) : SyncState()
+    data class Success(val message: String) : SyncState()
+    data class Error(val message: String) : SyncState()
 }
+
+/**
+ * Cloud providers
+ */
+enum class CloudProvider {
+    GOOGLE_DRIVE,
+    DROPBOX,
+    WEBDAV,
+    LOCAL_FILE
+}
+
+/**
+ * Sync data structure
+ */
+@Serializable
+data class SyncData(
+    val version: Int,
+    val exportDate: Long,
+    val readingProgress: List<SyncProgress>,
+    val bookmarks: List<SyncBookmark>
+)
+
+@Serializable
+data class SyncProgress(
+    val itemId: Long,
+    val currentPosition: Long,
+    val currentPage: Int,
+    val currentChapter: Int,
+    val percentage: Float,
+    val lastUpdate: Long,
+    val isCompleted: Boolean
+)
+
+@Serializable
+data class SyncBookmark(
+    val bookmarkId: Long,
+    val itemId: Long,
+    val title: String,
+    val position: Long,
+    val chapterIndex: Int,
+    val timestamp: Long,
+    val notes: String?
+)
+
+data class ImportResult(
+    val progressImported: Int,
+    val bookmarksImported: Int,
+    val totalProgress: Int,
+    val totalBookmarks: Int
+)
+
+data class SyncResult(
+    val progressSynced: Int,
+    val bookmarksSynced: Int,
+    val conflicts: Int
+)

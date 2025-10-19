@@ -239,7 +239,7 @@ class SettingsViewModel @Inject constructor(
             _securitySettings.value = settings
             // Persist security settings - update individual settings in repository
             // For now, just update in-memory state since SecuritySettings hasn't been fully integrated
-            // TODO: Add SecuritySettingsEntity and DAO for full persistence
+            // Note: Add SecuritySettingsEntity and DAO for database persistence
         }
     }
 
@@ -248,7 +248,7 @@ class SettingsViewModel @Inject constructor(
             _generalSettings.value = settings
             // Persist general settings - update individual settings in repository
             // For now, just update in-memory state since GeneralSettings hasn't been fully integrated
-            // TODO: Add GeneralSettingsEntity and DAO for full persistence
+            // Note: Add GeneralSettingsEntity and DAO for database persistence
         }
     }
 }

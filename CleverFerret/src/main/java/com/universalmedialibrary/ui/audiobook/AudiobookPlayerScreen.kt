@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -603,15 +604,62 @@ fun ChapterListBottomSheet(
     onChapterSelected: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement chapter list UI
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
+            .height(400.dp)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(16.dp)
     ) {
-        Text("Chapter List Bottom Sheet")
+        Text(
+            text = "Chapters",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        LazyColumn {
+            itemsIndexed(chapters) { index, chapter ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { 
+                            onChapterSelected(index)
+                            onDismiss()
+                        }
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = chapter.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (index == currentChapterIndex) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = formatTime(chapter.durationMs),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    if (index == currentChapterIndex) {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = "Currently playing",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+                
+                if (index < chapters.lastIndex) {
+                    Divider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+            }
+        }
     }
 }
 
@@ -622,15 +670,78 @@ fun BookmarksBottomSheet(
     onBookmarkDelete: (AudiobookBookmark) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement bookmarks UI
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
+            .height(400.dp)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(16.dp)
     ) {
-        Text("Bookmarks Bottom Sheet")
+        Text(
+            text = "Bookmarks",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        if (bookmarks.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No bookmarks yet",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn {
+                items(bookmarks) { bookmark ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { 
+                                onBookmarkSelected(bookmark)
+                                onDismiss()
+                            }
+                            .padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = bookmark.title ?: "Bookmark",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = formatTime(bookmark.positionMs),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            if (bookmark.notes != null) {
+                                Text(
+                                    text = bookmark.notes,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 2,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                        
+                        IconButton(onClick = { onBookmarkDelete(bookmark) }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete bookmark",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                    
+                    Divider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+            }
+        }
     }
 }
 
@@ -640,16 +751,61 @@ fun SleepTimerDialog(
     onTimerSet: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement sleep timer dialog UI
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Sleep Timer Dialog")
-    }
+    val timerOptions = listOf(
+        5 * 60 * 1000L to "5 minutes",
+        10 * 60 * 1000L to "10 minutes",
+        15 * 60 * 1000L to "15 minutes",
+        30 * 60 * 1000L to "30 minutes",
+        45 * 60 * 1000L to "45 minutes",
+        60 * 60 * 1000L to "1 hour"
+    )
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Sleep Timer") },
+        text = {
+            Column {
+                if (currentTimer != null) {
+                    Text(
+                        text = "Timer active: ${formatTime(currentTimer)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+                
+                timerOptions.forEach { (duration, label) ->
+                    TextButton(
+                        onClick = {
+                            onTimerSet(duration)
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(label)
+                    }
+                }
+                
+                if (currentTimer != null) {
+                    TextButton(
+                        onClick = {
+                            onTimerSet(0L) // Cancel timer
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Cancel Timer", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
 private fun formatTime(milliseconds: Long): String {
     val totalSeconds = milliseconds / 1000

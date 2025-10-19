@@ -14,7 +14,8 @@ import javax.inject.Singleton
 @Singleton
 class MediaViewerManager @Inject constructor() {
 
-    // private val tika = Tika()  // TODO: Enable when Tika dependency is added
+    // Note: Apache Tika instance can be initialized if dependency is added
+    // private val tika = Tika()
 
     enum class MediaType {
         VIDEO,

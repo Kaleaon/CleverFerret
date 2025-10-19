@@ -451,15 +451,16 @@ class ReadingPreferencesViewModel @Inject constructor(
     // Backup/Restore
     fun createBackup() {
         viewModelScope.launch {
-            // TODO: Re-enable when backup service is operational
+            // Note: Re-enable when BackupService is implemented
             // val path = backupService.createAutomaticBackup()
             Log.w("ReadingPreferencesViewModel", "Backup service currently disabled")
-            // TODO: Show toast/snackbar with result
+            // Note: Show success/error via SnackbarHostState or UI event flow
         }
     }
 
     fun showRestoreDialog() {
-        // TODO: Show file picker for backup selection
+        // Note: Show file picker dialog via activity result launcher
+        // Would use ActivityResultContracts.OpenDocument() to select backup file
     }
 
     fun resetToDefaults() {

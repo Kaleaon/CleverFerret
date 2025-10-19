@@ -3,14 +3,19 @@ package com.universalmedialibrary.services.reader
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.github.junrar.Archive
 import com.universalmedialibrary.services.reader.core.BookSource
 import com.universalmedialibrary.services.reader.core.Locator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.zip.ZipFile
 import javax.inject.Inject
@@ -55,7 +60,13 @@ class EnhancedComicReaderEngine @Inject constructor() {
     
     // Image cache for smooth navigation
     private val imageCache = mutableMapOf<Int, Bitmap>()
-    private val cacheSize = 3 // Cache current + next 2 pages
+    private var cacheSize = 3 // Cache current + next 2 pages (configurable)
+    private var preloadJob: Job? = null
+    
+    companion object {
+        private const val TAG = "EnhancedComicReader"
+        private const val MAX_IMAGE_SIZE = 50L * 1024L * 1024L // 50MB safety limit
+    }
     
     /**
      * Open comic archive file
@@ -138,7 +149,11 @@ class EnhancedComicReaderEngine @Inject constructor() {
         
         return if (newPage < _totalPages.value) {
             _currentPage.value = newPage
-            preloadPages(newPage)
+            // Cancel previous preload and start new one
+            preloadJob?.cancel()
+            preloadJob = CoroutineScope(Dispatchers.IO).launch {
+                preloadPages(newPage)
+            }
             true
         } else {
             false
@@ -210,7 +225,14 @@ class EnhancedComicReaderEngine @Inject constructor() {
      * Close and cleanup
      */
     fun close() {
+        // Cancel any ongoing preload
+        preloadJob?.cancel()
+        preloadJob = null
+        
+        // Recycle bitmaps before clearing cache
+        imageCache.values.forEach { it.recycle() }
         imageCache.clear()
+        
         zipFile?.close()
         zipFile = null
         rarArchive?.close()
@@ -280,10 +302,20 @@ class EnhancedComicReaderEngine @Inject constructor() {
         val pageFile = pageFiles.getOrNull(pageIndex) ?: return null
         
         val header = rar.fileHeaders.find { it.fileName == pageFile.entryName } ?: return null
-        val bytes = ByteArray(header.fullUnpackSize.toInt())
         
-        rar.getInputStream(header).use { it.read(bytes) }
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        // Check size to prevent overflow/OOM
+        if (header.fullUnpackSize > MAX_IMAGE_SIZE) {
+            Log.w(TAG, "Page $pageIndex exceeds max size: ${header.fullUnpackSize} bytes")
+            return null
+        }
+        
+        // Stream into ByteArrayOutputStream to avoid pre-allocation and partial reads
+        return rar.getInputStream(header).use { input ->
+            val outputStream = ByteArrayOutputStream()
+            input.copyTo(outputStream)
+            val bytes = outputStream.toByteArray()
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        }
     }
     
     private suspend fun preloadPages(fromIndex: Int) = withContext(Dispatchers.IO) {
@@ -299,8 +331,17 @@ class EnhancedComicReaderEngine @Inject constructor() {
         if (imageCache.size > cacheSize * 2) {
             val currentPage = _currentPage.value
             imageCache.keys.filter { it < currentPage - cacheSize || it > currentPage + cacheSize }
-                .forEach { imageCache.remove(it) }
+                .forEach { key ->
+                    imageCache.remove(key)?.recycle() // Explicit bitmap cleanup
+                }
         }
+    }
+    
+    /**
+     * Configure cache size based on available memory
+     */
+    fun setCacheSize(size: Int) {
+        this.cacheSize = size.coerceIn(1, 10) // Min 1, max 10 pages
     }
     
     data class PageFile(

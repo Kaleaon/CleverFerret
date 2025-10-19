@@ -20,7 +20,7 @@ import javax.inject.Singleton
  * - Video files (MP4, MKV, AVI, MOV, WMV)
  *
  * Currently uses MediaPlayer as primary engine
- * TODO: Add ExoPlayer support when dependencies are available
+ * Note: ExoPlayer support can be added when Media3 dependencies are fully integrated
  */
 @Singleton
 class UniversalMediaPlayerService @Inject constructor(

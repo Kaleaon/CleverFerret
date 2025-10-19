@@ -197,7 +197,7 @@ private fun ContinueCard(
         shape = RoundedCornerShape(12.dp)
     ) {
         Column {
-            // Artwork
+            // Artwork with fallback
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

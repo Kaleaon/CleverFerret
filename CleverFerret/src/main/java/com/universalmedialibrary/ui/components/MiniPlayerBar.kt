@@ -23,6 +23,11 @@ import coil.compose.AsyncImage
 /**
  * Mini player bar shown at the bottom of screens when media is playing
  * Provides quick access to playback controls
+ * Features:
+ * - Media type-specific artwork gradients
+ * - Progress indicator
+ * - Skip forward/backward for audiobooks and videos (10s)
+ * - Standard next/previous for music
  */
 @Composable
 fun MiniPlayerBar(
@@ -32,8 +37,12 @@ fun MiniPlayerBar(
     mediaType: String = "MUSIC",
     isPlaying: Boolean,
     progress: Float = 0f,
+    currentPosition: Long = 0L,
+    duration: Long = 0L,
     onPlayPause: () -> Unit,
     onSkipNext: () -> Unit,
+    onSkipPrevious: (() -> Unit)? = null,
+    onSeek: ((Long) -> Unit)? = null,
     onExpand: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -129,9 +138,35 @@ fun MiniPlayerBar(
 
                 // Playback controls
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Show skip backward for audiobooks/videos
+                    val isAudiobookOrVideo = mediaType.uppercase() in listOf("AUDIOBOOK", "PODCAST", "VIDEO", "MOVIE")
+                    
+                    if (isAudiobookOrVideo && onSeek != null) {
+                        // Skip backward 10 seconds
+                        IconButton(
+                            onClick = { onSeek((currentPosition - 10000).coerceAtLeast(0)) }
+                        ) {
+                            Icon(
+                                Icons.Default.Replay10,
+                                contentDescription = "Rewind 10s",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    } else if (onSkipPrevious != null) {
+                        // Previous track for music
+                        IconButton(onClick = onSkipPrevious) {
+                            Icon(
+                                Icons.Default.SkipPrevious,
+                                contentDescription = "Previous",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    
+                    // Play/Pause
                     IconButton(onClick = onPlayPause) {
                         Icon(
                             if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -140,12 +175,27 @@ fun MiniPlayerBar(
                         )
                     }
 
-                    IconButton(onClick = onSkipNext) {
-                        Icon(
-                            Icons.Default.SkipNext,
-                            contentDescription = "Next",
-                            modifier = Modifier.size(28.dp)
-                        )
+                    // Next/Skip forward
+                    if (isAudiobookOrVideo && onSeek != null) {
+                        // Skip forward 10 seconds for audiobooks/videos
+                        IconButton(
+                            onClick = { onSeek((currentPosition + 10000).coerceAtMost(duration)) }
+                        ) {
+                            Icon(
+                                Icons.Default.Forward10,
+                                contentDescription = "Forward 10s",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    } else {
+                        // Next track for music
+                        IconButton(onClick = onSkipNext) {
+                            Icon(
+                                Icons.Default.SkipNext,
+                                contentDescription = "Next",
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -165,8 +215,12 @@ fun AnimatedMiniPlayerBar(
     mediaType: String = "MUSIC",
     isPlaying: Boolean,
     progress: Float = 0f,
+    currentPosition: Long = 0L,
+    duration: Long = 0L,
     onPlayPause: () -> Unit,
     onSkipNext: () -> Unit,
+    onSkipPrevious: (() -> Unit)? = null,
+    onSeek: ((Long) -> Unit)? = null,
     onExpand: () -> Unit
 ) {
     AnimatedVisibility(
@@ -181,8 +235,12 @@ fun AnimatedMiniPlayerBar(
             mediaType = mediaType,
             isPlaying = isPlaying,
             progress = progress,
+            currentPosition = currentPosition,
+            duration = duration,
             onPlayPause = onPlayPause,
             onSkipNext = onSkipNext,
+            onSkipPrevious = onSkipPrevious,
+            onSeek = onSeek,
             onExpand = onExpand
         )
     }

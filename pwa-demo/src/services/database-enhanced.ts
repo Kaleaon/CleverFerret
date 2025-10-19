@@ -364,16 +364,62 @@ class EnhancedDatabaseService {
     const totalReadingTime = sessions.reduce((total, session) => total + session.duration, 0);
     const booksRead = progress.filter(p => p.percentage >= 100).length;
     
-    // Calculate streaks (simplified)
+    // Calculate streaks
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const sessionsThisWeek = sessions.filter(s => new Date(s.startTime) >= oneWeekAgo);
 
+    // Get unique reading days (normalized to start of day)
+    const readingDays = [...new Set(sessions.map(s => {
+      const date = new Date(s.startTime);
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    }))].sort((a, b) => b - a); // Sort descending (newest first)
+
+    // Calculate current streak
+    let currentStreak = 0;
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    const yesterday = todayStart - 24 * 60 * 60 * 1000;
+    
+    if (readingDays.length > 0) {
+      const mostRecentDay = readingDays[0];
+      // Current streak counts if read today or yesterday
+      if (mostRecentDay === todayStart || mostRecentDay === yesterday) {
+        currentStreak = 1;
+        let expectedDay = mostRecentDay - 24 * 60 * 60 * 1000;
+        
+        for (let i = 1; i < readingDays.length; i++) {
+          if (readingDays[i] === expectedDay) {
+            currentStreak++;
+            expectedDay -= 24 * 60 * 60 * 1000;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    // Calculate longest streak
+    let longestStreak = 0;
+    let tempStreak = 1;
+    
+    for (let i = 1; i < readingDays.length; i++) {
+      const dayDiff = (readingDays[i - 1] - readingDays[i]) / (24 * 60 * 60 * 1000);
+      if (dayDiff === 1) {
+        tempStreak++;
+        longestStreak = Math.max(longestStreak, tempStreak);
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak);
+        tempStreak = 1;
+      }
+    }
+    longestStreak = Math.max(longestStreak, tempStreak, currentStreak);
+
     return {
       totalReadingTime,
       booksRead,
-      currentStreak: 0, // TODO: Implement streak calculation
-      longestStreak: 0, // TODO: Implement streak calculation
+      currentStreak,
+      longestStreak,
       sessionsThisWeek
     };
   }

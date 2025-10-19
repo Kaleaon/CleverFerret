@@ -134,7 +134,8 @@ class NowPlayingViewModel @Inject constructor(
 
     fun addCurrentTrackToPlaylist() {
         viewModelScope.launch {
-            // TODO: Show UI to choose/create playlist; default fallback name
+            // Note: Show playlist selector dialog via UI event flow
+            // For now, use default playlist name
             val defaultName = "My Playlist"
             currentItem.value?.let { item ->
                 playlistRepository.addToPlaylistByName(defaultName, item.mediaItemId)

@@ -212,19 +212,21 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                     }
                     
                     if (matchingHeader != null) {
-                        val inputStream = rar.getInputStream(matchingHeader)
-                        val bytes = inputStream.readBytes()
-                        inputStream.close()
-                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        // Use streaming decode to avoid loading entire image into memory
+                        rar.getInputStream(matchingHeader).use { input ->
+                            BitmapFactory.decodeStream(input)
+                        }
                     } else {
                         null
                     }
                 } else {
                     // Extract from ZIP
                     val zip = zipFile ?: return@withContext null
-                    val entry = zip.getEntry(page.entryName)
-                    val inputStream = zip.getInputStream(entry)
-                    BitmapFactory.decodeStream(inputStream)
+                    val entry = zip.getEntry(page.entryName) ?: return@withContext null
+                    // Use streaming decode with automatic resource cleanup
+                    zip.getInputStream(entry).use { input ->
+                        BitmapFactory.decodeStream(input)
+                    }
                 }
             } catch (e: Exception) {
                 null
@@ -325,7 +327,7 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                 !header.isDirectory &&
                 imageExtensions.contains(header.fileName.substringAfterLast(".").lowercase()) &&
                 !header.fileName.contains("__MACOSX") &&
-                !header.fileName.substringAfterLast('/').startsWith(".")
+                !File(header.fileName).name.startsWith(".")
             }
             .sortedBy { it.fileName }
             .forEachIndexed { index, header ->

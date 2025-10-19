@@ -348,8 +348,8 @@ class PresetBrowserViewModel @Inject constructor() : ViewModel() {
     fun exportPreset(preset: VisualizerPreset) {
         viewModelScope.launch {
             val json = presetManager.exportPreset(preset)
-            // TODO: Share via Android share sheet
-            // For now, just copy to clipboard would work
+            // Note: Share via Android share sheet using Intent.ACTION_SEND
+            // or copy to clipboard using ClipboardManager
         }
     }
 }

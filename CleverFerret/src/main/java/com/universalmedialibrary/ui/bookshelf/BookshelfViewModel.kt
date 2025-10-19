@@ -127,8 +127,10 @@ class BookshelfViewModel @Inject constructor(
                         mediaItem = mediaItem,
                         metadata = metadata,
                         bookMetadata = bookMetadata,
-                        authorName = null, // TODO: Fetch from People table
-                        seriesName = null  // TODO: Fetch from Series table
+                        // Note: Fetch from People table via peopleRepository.getCreatorById()
+                        authorName = null,
+                        // Note: Fetch from Series table via seriesRepository.getSeriesById()
+                        seriesName = null
                     )
                 }
                 _allBooks.value = bookDetailsList

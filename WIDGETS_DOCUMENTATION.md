@@ -2,7 +2,9 @@
 
 ## Overview
 
-CleverFerret includes **13 beautifully designed home screen widgets** that work perfectly with **Nova Launcher**, **Action Launcher**, **Microsoft Launcher**, and all other Android launchers. These widgets provide at-a-glance information and quick controls directly from your home screen.
+CleverFerret includes **10 beautifully designed home screen widgets** that work perfectly with **Nova Launcher**, **Action Launcher**, **Microsoft Launcher**, and all other Android launchers. These widgets provide at-a-glance information and quick controls directly from your home screen.
+
+**Note**: 3 additional widgets (Quick Access, Reading Stats, Reading Goal) are currently in development with layouts and configurations ready for implementation.
 
 ## 🎯 Widget Collection
 
@@ -20,17 +22,18 @@ Shows your active book with:
 **Sizes**: Resizable (min: 180x110dp)  
 **Perfect for**: Quick glance at reading progress
 
-#### 2. **Quick Access Widget** 📚
+#### 2. **Quick Access Widget** 📚 ⚠️ _Coming Soon_
 Shows your recently read books in a scrollable list:
 - 📚 Last 5 books accessed
 - 📊 Progress for each book
 - 🎯 Tap any book to open directly
 - 🔄 Auto-updates every 30 minutes
 
+**Status**: Layout and XML ready, Kotlin implementation pending  
 **Sizes**: Resizable (2x2 minimum)  
 **Perfect for**: Quick book launcher
 
-#### 3. **Reading Stats Widget** 📈
+#### 3. **Reading Stats Widget** 📈 ⚠️ _Coming Soon_
 Displays your reading analytics:
 - 📚 Books read this week
 - 📄 Pages read today
@@ -38,16 +41,18 @@ Displays your reading analytics:
 - 🔥 Current reading streak with emoji
 - 📊 Beautiful stat cards
 
+**Status**: Layout and XML ready, Kotlin implementation pending  
 **Sizes**: Resizable (2x2 or larger)  
 **Perfect for**: Motivation and tracking
 
-#### 4. **Reading Goal Widget** 🎯
+#### 4. **Reading Goal Widget** 🎯 ⚠️ _Coming Soon_
 Shows annual reading goal progress:
 - 📊 Progress bar (e.g., 23/50 books)
 - 📅 Days remaining in year
 - 📈 Required pace calculation
 - 🎯 Goal title customization
 
+**Status**: Layout and XML ready, Kotlin implementation pending  
 **Sizes**: 2x2 or larger  
 **Perfect for**: Goal tracking
 
@@ -315,7 +320,7 @@ All widgets support:
 - **StateFlow** - Real-time state updates
 
 ### Widget Architecture:
-```
+```text
 Widget Provider → Service → Data Repository → UI Update
      ↓              ↓            ↓               ↓
   Receives      Processes   Fetches Data    Updates
@@ -327,12 +332,12 @@ Widget Provider → Service → Data Repository → UI Update
 ## 📊 Widget Statistics
 
 ### Implementation Stats:
-- **Total Widgets**: 13
-- **Code Files**: 13 Kotlin files
-- **Layout Files**: 12 XML layouts
-- **Provider Files**: 12 XML configurations
-- **Total Lines**: ~2,500 lines of widget code
-- **Test Coverage**: Unit tests included
+- **Total Widgets**: 10 (fully implemented) + 3 (layouts ready)
+- **Code Files**: 9 main widget Kotlin files + 3 MediaPlayback support files
+- **Layout Files**: 12 XML layouts (including 3 pending implementation)
+- **Provider Files**: 12 XML configurations (including 3 pending implementation)
+- **Total Lines**: ~2,200 lines of widget code (implemented)
+- **Test Coverage**: Unit tests included for implemented widgets
 
 ### Platform Support:
 - ✅ **Android 8.0+** (API 26+)

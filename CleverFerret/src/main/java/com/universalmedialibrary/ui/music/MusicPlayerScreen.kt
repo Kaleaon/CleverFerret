@@ -1,5 +1,9 @@
 package com.universalmedialibrary.ui.music
 
+import com.universalmedialibrary.ui.audio.VisualizerCanvas
+import com.universalmedialibrary.ui.audio.VisualizerViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -40,12 +44,19 @@ fun MusicPlayerScreen(
     onNavigateToQueue: () -> Unit,
     onNavigateToAlbum: (String) -> Unit,
     onNavigateToVisualizer: () -> Unit = {},
-    viewModel: MusicPlayerViewModel = hiltViewModel()
+    viewModel: MusicPlayerViewModel = hiltViewModel(),
+    visualizerViewModel: VisualizerViewModel = hiltViewModel()
 ) {
     val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val playlistMode by viewModel.playlistMode.collectAsStateWithLifecycle()
     val queue by viewModel.queue.collectAsStateWithLifecycle()
+    
+    // Visualizer state
+    val visualizerEnabled by visualizerViewModel.isEnabled.collectAsStateWithLifecycle()
+    val visualizerData by visualizerViewModel.visualizerData.collectAsStateWithLifecycle()
+    val visualizerMode by visualizerViewModel.currentMode.collectAsStateWithLifecycle()
+    val visualizerStyle by visualizerViewModel.currentStyle.collectAsStateWithLifecycle()
 
     var currentPosition by remember { mutableLongStateOf(0L) }
     var isDragging by remember { mutableStateOf(false) }
@@ -137,7 +148,29 @@ fun MusicPlayerScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Visualizer Section (if enabled)
+                if (visualizerEnabled) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        VisualizerCanvas(
+                            data = visualizerData,
+                            mode = visualizerMode,
+                            style = visualizerStyle,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Progress Section
                 ProgressSection(
@@ -214,7 +247,8 @@ fun MusicPlayerScreen(
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
-                // TODO: Show error snackbar
+                // Note: Show error snackbar via SnackbarHostState
+                // snackbarHostState.showSnackbar(playbackState.error ?: "Unknown error")
             }
         }
     }

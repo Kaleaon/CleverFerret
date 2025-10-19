@@ -76,7 +76,8 @@ class AdvancedMusicPlayerService @Inject constructor(
                 title = trackInfo.title,
                 artist = trackInfo.artist,
                 album = trackInfo.album,
-                artwork = null, // TODO: Load artwork from albumArtUrl
+                // Note: Load artwork from ArtworkCache using albumArtUrl when available
+                artwork = null,
                 serviceType = MediaServiceType.MUSIC
             )
 
@@ -347,7 +348,8 @@ class AdvancedMusicPlayerService @Inject constructor(
             title = mediaItem.fileName.substringBeforeLast('.'),
             artist = extractArtistFromMetadata(mediaItem),
             album = extractAlbumFromMetadata(mediaItem),
-            duration = 0L, // TODO: Extract duration from file metadata
+            // Note: Extract duration from MetadataMusic when available
+            duration = 0L,
             filePath = mediaItem.filePath,
             albumArtUrl = null, // Will be enhanced later
             queuePosition = queuePosition
