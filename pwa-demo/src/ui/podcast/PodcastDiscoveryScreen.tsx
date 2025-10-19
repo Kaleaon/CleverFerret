@@ -232,6 +232,17 @@ export const PodcastDiscoveryScreen: React.FC = () => {
     }
 
     try {
+      // Check if already subscribed
+      const existing = await db.podcasts
+        .where('feedUrl')
+        .equals(podcast.feedUrl)
+        .first();
+      
+      if (existing) {
+        alert('Already subscribed to this podcast!');
+        return;
+      }
+
       // Omit id field - Dexie will auto-increment
       await db.podcasts.add({
         title: podcast.title,
@@ -255,7 +266,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
       alert('Subscribed successfully!');
     } catch (err) {
       console.error('Subscribe error:', err);
-      alert('Failed to subscribe. Please try again.');
+      alert(`Failed to subscribe: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`);
     }
   };
 
