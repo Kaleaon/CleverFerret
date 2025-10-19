@@ -91,6 +91,35 @@ export const RadioScreen: React.FC = () => {
       if (audioRef.current) {
         try {
           audioRef.current.src = station.streamUrl;
+          
+          // Set up error handler before playing
+          audioRef.current.onerror = () => {
+            const error = audioRef.current?.error;
+            let errorMsg = `Failed to play stream: ${station.name}. `;
+            
+            if (error) {
+              switch (error.code) {
+                case error.MEDIA_ERR_NETWORK:
+                  errorMsg += 'Network error - stream may be offline or blocked by CORS.';
+                  break;
+                case error.MEDIA_ERR_DECODE:
+                  errorMsg += 'Audio format not supported.';
+                  break;
+                case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                  errorMsg += 'Stream URL not supported or invalid.';
+                  break;
+                default:
+                  errorMsg += 'The stream may not be available.';
+              }
+            } else {
+              errorMsg += 'The stream may not be available.';
+            }
+            
+            setErrorMessage(errorMsg);
+            setPlayingStationId(null);
+            setPlayingStation(null);
+          };
+          
           await audioRef.current.play();
           setPlayingStationId(station.id);
           setPlayingStation(station);
@@ -105,7 +134,10 @@ export const RadioScreen: React.FC = () => {
           }
         } catch (err) {
           console.error('Failed to play station:', err);
-          setErrorMessage(`Failed to play stream: ${station.name}. The stream may not be available or is in an unsupported format.`);
+          const errorMsg = err instanceof Error && err.name === 'NotAllowedError'
+            ? `Cannot play automatically. Please click the Play button again to start playback.`
+            : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
+          setErrorMessage(errorMsg);
         }
       }
     }
@@ -223,7 +255,11 @@ export const RadioScreen: React.FC = () => {
 
   return (
     <Box>
-      <audio ref={audioRef} />
+      <audio 
+        ref={audioRef}
+        crossOrigin="anonymous"
+        preload="none"
+      />
 
       <AppBar position="static">
         <Toolbar>
