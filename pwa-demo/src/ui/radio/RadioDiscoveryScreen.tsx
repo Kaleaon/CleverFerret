@@ -47,7 +47,8 @@ import { db } from '../../services/database-complete';
 import type { RadioStation } from '../../data/local/entity';
 
 // Radio-Browser API - Free and open-source radio station directory
-const RADIO_BROWSER_BASE_URL = 'https://de1.api.radio-browser.info/json';
+// Using the main API endpoint which load-balances across multiple servers
+const RADIO_BROWSER_BASE_URL = 'https://api.radio-browser.info/json';
 
 interface RadioBrowserStation {
   stationuuid: string;
