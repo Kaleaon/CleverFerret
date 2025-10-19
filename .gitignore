@@ -444,3 +444,7 @@ android_sdk/platform-tools/source.properties
 android_sdk/platform-tools/sqlite3*.disabled
 # Kotlin compiler errors
 .kotlin/
+-e 
+# Environment files
+*.env
+*.env.*
