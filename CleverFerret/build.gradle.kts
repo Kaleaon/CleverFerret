@@ -81,7 +81,7 @@ android {
 
 dependencies {
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     
     // Core Android
     implementation("androidx.core:core-ktx:1.17.0")
