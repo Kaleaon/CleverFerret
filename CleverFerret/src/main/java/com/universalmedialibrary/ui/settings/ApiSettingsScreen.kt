@@ -21,11 +21,10 @@ import androidx.navigation.NavController
 /**
  * API Settings Screen
  * 
- * Configure API keys for external services:
- * - Gemini (Google AI)
- * - OpenAI
- * - ElevenLabs
- * - Google Cloud TTS
+ * Configure API keys for external services organized by category:
+ * - Text-to-Speech APIs
+ * - Metadata APIs
+ * - Podcast APIs
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +38,7 @@ fun ApiSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("API Keys") },
+                title = { Text("API Keys & Services") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -67,17 +66,23 @@ fun ApiSettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Text-to-Speech API Configuration",
+                        text = "External API Configuration",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
-                        text = "Configure API keys for premium TTS providers. All keys are stored securely using encrypted storage.",
+                        text = "Configure API keys for external services. All keys are stored securely using encrypted storage.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
+            
+            // === TEXT-TO-SPEECH SECTION ===
+            SectionHeader(
+                title = "Text-to-Speech APIs",
+                subtitle = "Premium voice synthesis services"
+            )
 
             // Gemini AI
             ApiKeySection(
@@ -128,9 +133,116 @@ fun ApiSettingsScreen(
                 getKeyUrl = "https://console.cloud.google.com/apis/credentials",
                 docsUrl = "https://cloud.google.com/text-to-speech/docs"
             )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // === METADATA SECTION ===
+            SectionHeader(
+                title = "Metadata APIs",
+                subtitle = "Enhanced media information and artwork"
+            )
+
+            // TheMovieDB
+            ApiKeySection(
+                title = "TheMovieDB (TMDB)",
+                description = "Movie and TV show metadata, posters, and information",
+                apiKey = uiState.tmdbApiKey,
+                onApiKeyChange = { viewModel.setTmdbApiKey(it) },
+                isConfigured = uiState.isTmdbConfigured,
+                getKeyUrl = "https://www.themoviedb.org/settings/api",
+                docsUrl = "https://developers.themoviedb.org/3"
+            )
+
+            Divider()
+
+            // MusicBrainz
+            ApiKeySection(
+                title = "MusicBrainz",
+                description = "Music metadata, album information, and artist details",
+                apiKey = uiState.musicBrainzApiKey,
+                onApiKeyChange = { viewModel.setMusicBrainzApiKey(it) },
+                isConfigured = uiState.isMusicBrainzConfigured,
+                getKeyUrl = "https://musicbrainz.org/doc/MusicBrainz_API",
+                docsUrl = "https://musicbrainz.org/doc/MusicBrainz_API",
+                note = "Optional: Improves rate limits"
+            )
+
+            Divider()
+
+            // Google Books
+            ApiKeySection(
+                title = "Google Books API",
+                description = "Book metadata, covers, descriptions, and ISBNs",
+                apiKey = uiState.googleBooksApiKey,
+                onApiKeyChange = { viewModel.setGoogleBooksApiKey(it) },
+                isConfigured = uiState.isGoogleBooksConfigured,
+                getKeyUrl = "https://console.cloud.google.com/apis/credentials",
+                docsUrl = "https://developers.google.com/books/docs/v1/using"
+            )
+
+            Divider()
+
+            // Open Library
+            ApiKeySection(
+                title = "Open Library",
+                description = "Free book metadata and cover images",
+                apiKey = uiState.openLibraryApiKey,
+                onApiKeyChange = { viewModel.setOpenLibraryApiKey(it) },
+                isConfigured = uiState.isOpenLibraryConfigured,
+                getKeyUrl = "https://openlibrary.org/developers/api",
+                docsUrl = "https://openlibrary.org/developers/api",
+                note = "No API key required (rate-limited)"
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // === PODCAST SECTION ===
+            SectionHeader(
+                title = "Podcast APIs",
+                subtitle = "Podcast discovery and metadata"
+            )
+
+            // Podcast Index
+            ApiKeySection(
+                title = "Podcast Index",
+                description = "Open podcast directory with 4M+ podcasts",
+                apiKey = uiState.podcastIndexApiKey,
+                onApiKeyChange = { viewModel.setPodcastIndexApiKey(it) },
+                isConfigured = uiState.isPodcastIndexConfigured,
+                getKeyUrl = "https://api.podcastindex.org/signup",
+                docsUrl = "https://podcastindex-org.github.io/docs-api/"
+            )
+
+            Divider()
+
+            // iTunes/Apple Podcasts
+            ApiKeySection(
+                title = "iTunes Podcast API",
+                description = "Apple's podcast directory and metadata",
+                apiKey = uiState.itunesApiKey,
+                onApiKeyChange = { viewModel.setItunesApiKey(it) },
+                isConfigured = uiState.isItunesConfigured,
+                getKeyUrl = "https://developer.apple.com/",
+                docsUrl = "https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/",
+                note = "No API key required (rate-limited)"
+            )
+
+            Divider()
+
+            // ListenNotes
+            ApiKeySection(
+                title = "Listen Notes",
+                description = "Podcast search engine and database",
+                apiKey = uiState.listenNotesApiKey,
+                onApiKeyChange = { viewModel.setListenNotesApiKey(it) },
+                isConfigured = uiState.isListenNotesConfigured,
+                getKeyUrl = "https://www.listennotes.com/api/",
+                docsUrl = "https://www.listennotes.com/api/docs/"
+            )
 
             // Save status
             if (uiState.saveSuccess) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.tertiaryContainer
@@ -160,6 +272,27 @@ fun ApiSettingsScreen(
 }
 
 @Composable
+private fun SectionHeader(
+    title: String,
+    subtitle: String
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
 private fun ApiKeySection(
     title: String,
     description: String,
@@ -167,7 +300,8 @@ private fun ApiKeySection(
     onApiKeyChange: (String) -> Unit,
     isConfigured: Boolean,
     getKeyUrl: String,
-    docsUrl: String
+    docsUrl: String,
+    note: String? = null
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -231,6 +365,16 @@ private fun ApiKeySection(
             },
             singleLine = true
         )
+
+        // Note (if provided)
+        note?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         // Links
         Row(
