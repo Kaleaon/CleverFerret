@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -58,36 +59,38 @@ class GoogleCloudTtsService @Inject constructor(
         private const val BASE_URL = "https://texttospeech.googleapis.com/v1"
     }
 
-    override fun setApiKey(key: String) {
+    fun setApiKey(key: String) {
         this.apiKey = key
     }
 
-    override fun speak(text: String) {
+    override suspend fun initialize(): Boolean {
+        return apiKey?.isNotBlank() == true
+    }
+
+    override suspend fun speak(text: String): Boolean = withContext(Dispatchers.IO) {
         if (apiKey.isNullOrBlank()) {
             _ttsState.value = TtsServiceState(
-                isError = true,
-                errorMessage = "Google Cloud TTS API key not configured"
+                error = "Google Cloud TTS API key not configured"
             )
-            return
+            return@withContext false
         }
 
-        serviceScope.launch {
-            try {
-                _ttsState.value = TtsServiceState(isSpeaking = true, isLoading = true)
+        try {
+            _ttsState.value = _ttsState.value.copy(isPlaying = true, currentText = text)
 
-                // Request audio from Google Cloud TTS API
-                val audioBytes = requestTextToSpeech(text)
-                
-                // Play audio
-                playAudio(audioBytes)
-                
-                _ttsState.value = TtsServiceState(isSpeaking = true, isLoading = false)
-            } catch (e: Exception) {
-                _ttsState.value = TtsServiceState(
-                    isError = true,
-                    errorMessage = "Google Cloud TTS failed: ${e.message}"
-                )
-            }
+            // Request audio from Google Cloud TTS API
+            val audioBytes = requestTextToSpeech(text)
+            
+            // Play audio
+            playAudio(audioBytes)
+            
+            _ttsState.value = _ttsState.value.copy(isPlaying = true)
+            true
+        } catch (e: Exception) {
+            _ttsState.value = TtsServiceState(
+                error = "Google Cloud TTS failed: ${e.message}"
+            )
+            false
         }
     }
 
@@ -151,14 +154,13 @@ class GoogleCloudTtsService @Inject constructor(
             setDataSource(tempFile.absolutePath)
             
             setOnCompletionListener {
-                _ttsState.value = TtsServiceState(isSpeaking = false)
+                _ttsState.value = _ttsState.value.copy(isPlaying = false)
                 tempFile.delete()
             }
             
             setOnErrorListener { _, what, extra ->
                 _ttsState.value = TtsServiceState(
-                    isError = true,
-                    errorMessage = "MediaPlayer error: $what, $extra"
+                    error = "MediaPlayer error: $what, $extra"
                 )
                 tempFile.delete()
                 true
@@ -171,22 +173,22 @@ class GoogleCloudTtsService @Inject constructor(
 
     override fun pause() {
         mediaPlayer?.pause()
-        _ttsState.value = _ttsState.value.copy(isSpeaking = false)
+        _ttsState.value = _ttsState.value.copy(isPlaying = false, isPaused = true)
     }
 
     override fun resume() {
         mediaPlayer?.start()
-        _ttsState.value = _ttsState.value.copy(isSpeaking = true)
+        _ttsState.value = _ttsState.value.copy(isPlaying = true, isPaused = false)
     }
 
     override fun stop() {
         mediaPlayer?.stop()
         mediaPlayer?.release()
         mediaPlayer = null
-        _ttsState.value = TtsServiceState(isSpeaking = false)
+        _ttsState.value = _ttsState.value.copy(isPlaying = false, isPaused = false)
     }
 
-    override fun setLanguage(language: String) {
+    override suspend fun setLanguage(language: String): Boolean {
         this.languageCode = language
         // Auto-select appropriate voice for language
         when {
@@ -198,9 +200,11 @@ class GoogleCloudTtsService @Inject constructor(
             language.startsWith("zh") -> voiceName = "cmn-CN-Wavenet-A"
             else -> voiceName = "en-US-Neural2-C"
         }
+        _ttsState.value = _ttsState.value.copy(currentLanguage = language)
+        return true
     }
 
-    override fun setVoice(voiceName: String) {
+    fun setVoice(voiceName: String) {
         this.voiceName = voiceName
     }
 
@@ -212,9 +216,34 @@ class GoogleCloudTtsService @Inject constructor(
     override fun setPitch(pitch: Float) {
         // Google Cloud TTS supports -20.0 to 20.0
         this.pitch = pitch.toDouble().coerceIn(-20.0, 20.0)
+        _ttsState.value = _ttsState.value.copy(pitch = pitch)
     }
 
-    override fun getAvailableVoices(): List<String> {
+    override suspend fun getAvailableLanguages(): List<TtsLanguage> {
+        return listOf(
+            TtsLanguage("en-US", "English (US)"),
+            TtsLanguage("en-GB", "English (UK)"),
+            TtsLanguage("es-ES", "Spanish"),
+            TtsLanguage("fr-FR", "French"),
+            TtsLanguage("de-DE", "German"),
+            TtsLanguage("it-IT", "Italian"),
+            TtsLanguage("pt-BR", "Portuguese"),
+            TtsLanguage("ja-JP", "Japanese"),
+            TtsLanguage("zh-CN", "Chinese"),
+            TtsLanguage("ko-KR", "Korean")
+        )
+    }
+
+    override fun isAvailable(): Boolean {
+        return apiKey?.isNotBlank() == true
+    }
+
+    override fun shutdown() {
+        stop()
+        serviceScope.cancel()
+    }
+
+    fun getAvailableVoices(): List<String> {
         // Common high-quality voices
         return listOf(
             // English

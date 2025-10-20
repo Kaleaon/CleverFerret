@@ -92,27 +92,30 @@ class ComicDataService @Inject constructor(
                 for (panelTranslation in pageTranslation.panels) {
                     // Get panel ID from database
                     val panels = comicPanelDao.getPanelsForPage(comicId, pageTranslation.pageNumber)
-                    val panelEntity = panels.find { it.panelIndex == panelTranslation.panel.panelIndex }
+                    val panelEntity = panels.find { it.panelIndex == panelTranslation.panelIndex }
                     
                     if (panelEntity != null) {
                         for (bubbleTranslation in panelTranslation.bubbles) {
-                            if (bubbleTranslation.translation != null) {
-                                val entity = ComicTranslation(
-                                    panelId = panelEntity.id,
-                                    comicId = comicId,
-                                    pageNumber = pageTranslation.pageNumber,
-                                    bubbleX = bubbleTranslation.bubble.bounds.x,
-                                    bubbleY = bubbleTranslation.bubble.bounds.y,
-                                    bubbleWidth = bubbleTranslation.bubble.bounds.width,
-                                    bubbleHeight = bubbleTranslation.bubble.bounds.height,
-                                    originalText = bubbleTranslation.ocr.text,
-                                    detectedLanguage = bubbleTranslation.ocr.language,
-                                    ocrConfidence = bubbleTranslation.ocr.confidence,
-                                    translatedText = bubbleTranslation.translation.translatedText,
-                                    targetLanguage = bubbleTranslation.translation.targetLanguage
-                                )
-                                translationEntities.add(entity)
+                            // Skip bubbles without translation
+                            if (bubbleTranslation.translatedText == null || bubbleTranslation.translatedText.isBlank()) {
+                                continue
                             }
+                            
+                            val entity = ComicTranslation(
+                                panelId = panelEntity.id,
+                                comicId = comicId,
+                                pageNumber = pageTranslation.pageNumber,
+                                bubbleX = bubbleTranslation.bounds.x,
+                                bubbleY = bubbleTranslation.bounds.y,
+                                bubbleWidth = bubbleTranslation.bounds.width,
+                                bubbleHeight = bubbleTranslation.bounds.height,
+                                originalText = bubbleTranslation.originalText ?: "",
+                                detectedLanguage = pageTranslation.sourceLanguage,
+                                ocrConfidence = bubbleTranslation.confidence,
+                                translatedText = bubbleTranslation.translatedText,
+                                targetLanguage = pageTranslation.targetLanguage
+                            )
+                            translationEntities.add(entity)
                         }
                     }
                 }

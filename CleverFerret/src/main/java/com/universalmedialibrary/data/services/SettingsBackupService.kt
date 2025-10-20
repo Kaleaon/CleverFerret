@@ -80,7 +80,9 @@ class SettingsBackupService @Inject constructor(
             generalSettings = generalSettingsDao.getSettings().first(),
             securitySettings = securitySettingsDao.getSettings().first(),
             apiSettings = apiSettingsDao.getAllSettings().first(),
+
             encryptedApiKeys = exportAndEncryptApiKeys(),
+
             metadata = BackupMetadata(
                 deviceModel = android.os.Build.MODEL,
                 androidVersion = android.os.Build.VERSION.SDK_INT,
@@ -156,7 +158,7 @@ class SettingsBackupService @Inject constructor(
             throw Exception("Backup version ${backup.version} is newer than supported version $BACKUP_VERSION")
         }
 
-        // Wrap entire restore in database transaction for atomicity
+        // Wrap restore in a Room transaction to ensure atomicity
         appDatabase.withTransaction {
             // Restore general settings
             backup.generalSettings?.let { generalSettingsDao.insertSettings(it) }
@@ -171,6 +173,13 @@ class SettingsBackupService @Inject constructor(
             // Restore API keys (decrypt and import)
             decryptAndImportApiKeys(backup.encryptedApiKeys)
         }
+    }
+
+    /**
+     * Export API keys (called by createBackup)
+     */
+    private fun exportApiKeys(): String {
+        return exportAndEncryptApiKeys()
     }
 
     /**

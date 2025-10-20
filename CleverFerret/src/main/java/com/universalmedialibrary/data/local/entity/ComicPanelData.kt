@@ -3,11 +3,13 @@ package com.universalmedialibrary.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Index
+import kotlinx.serialization.Serializable
 
 /**
  * Comic Panel Data Entity
  * Stores detected panel coordinates for panel-by-panel navigation
  */
+@Serializable
 @Entity(
     tableName = "comic_panels",
     indices = [
@@ -46,6 +48,7 @@ data class ComicPanelData(
  * Comic Speech Bubble Translation Entity
  * Stores OCR text and translations for speech bubbles
  */
+@Serializable
 @Entity(
     tableName = "comic_translations",
     indices = [
@@ -92,6 +95,7 @@ data class ComicTranslation(
  * Comic Reading Session
  * Tracks user's reading progress with panel-by-panel navigation
  */
+@Serializable
 @Entity(
     tableName = "comic_reading_sessions",
     indices = [

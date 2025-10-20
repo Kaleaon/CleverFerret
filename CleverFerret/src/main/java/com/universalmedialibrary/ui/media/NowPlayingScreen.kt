@@ -95,7 +95,7 @@ private fun NowPlayingContent(
     ) {
         // Album artwork or placeholder
         AsyncImage(
-            model = playbackState.currentTrack?.albumArtUrl,
+            model = state.albumArtUrl,
             contentDescription = "Album artwork",
             modifier = Modifier
                 .size(300.dp)
@@ -323,6 +323,7 @@ data class NowPlayingState(
     val currentTrack: String = "",
     val currentArtist: String? = null,
     val currentAlbum: String? = null,
+    val albumArtUrl: String? = null,
     val position: Long = 0L,
     val duration: Long = 0L,
     val serviceType: MediaServiceType = MediaServiceType.NONE

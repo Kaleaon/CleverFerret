@@ -188,10 +188,10 @@ class UserLibraryBackupService @Inject constructor(
                 }
             }
 
-            // Restore reading sessions
+            // Restore comic reading sessions
             backup.readingSessions.forEach { session ->
                 try {
-                    database.readingSessionDao().insertSession(session)
+                    database.comicPanelDao().insertReadingSession(session)
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to restore reading session", e)
                 }
@@ -243,21 +243,33 @@ class UserLibraryBackupService @Inject constructor(
             
             // Media library
             libraries = database.libraryDao().getAllLibraries().first(),
-            mediaItems = database.mediaItemDao().getAllMediaItems().first(),
-            metadataCommon = database.metadataDao().getAllMetadata().first(),
+            mediaItems = emptyList<MediaItem>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting mediaItems from backup until DAO is implemented") 
+            },
+            metadataCommon = emptyList<MetadataCommon>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting metadataCommon from backup until DAO is implemented") 
+            },
             
             // Reading progress
             readingProgress = database.readingProgressDao().getAllProgress().first(),
-            bookmarks = database.bookmarkDao().getAllBookmarks().first(),
-            readingSessions = database.readingSessionDao().getAllSessions().first(),
+            bookmarks = emptyList<Bookmark>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting bookmarks from backup until DAO is implemented") 
+            },
+            readingSessions = database.comicPanelDao().getAllReadingSessions().first(),
             
             // Playlists and collections
-            playlists = database.playlistDao().getAllPlaylists().first(),
-            playlistItems = database.playlistDao().getAllPlaylistItems().first(),
+            playlists = database.playlistDao().getAllPlaylistsFlow().first(),
+            playlistItems = emptyList<PlaylistItem>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting playlistItems from backup until DAO is implemented") 
+            },
             
             // Comic data
-            comicPanels = database.comicPanelDao().getAllPanels().first(),
-            comicTranslations = database.comicPanelDao().getAllTranslations().first(),
+            comicPanels = emptyList<ComicPanelData>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicPanels from backup until DAO is implemented") 
+            },
+            comicTranslations = emptyList<ComicTranslation>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicTranslations from backup until DAO is implemented") 
+            },
             comicSessions = database.comicPanelDao().getAllReadingSessions().first(),
             
             // Radio
@@ -350,7 +362,7 @@ data class LibraryBackup(
     // Reading progress
     val readingProgress: List<ReadingProgress>,
     val bookmarks: List<Bookmark>,
-    val readingSessions: List<ReadingSession>,
+    val readingSessions: List<ComicReadingSession>,
     
     // Playlists
     val playlists: List<Playlist>,

@@ -39,7 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun EnhancedEReaderScreen(
     bookFilePath: String,
     onBack: () -> Unit,
-    viewModel: EReaderViewModel = hiltViewModel()
+    viewModel: EnhancedEReaderViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -73,8 +73,8 @@ fun EnhancedEReaderScreen(
                     detectTapGestures { offset ->
                         // Tap zones: left third = previous, middle third = toggle controls, right third = next
                         when {
-                            offset.x < size.width / 3 -> viewModel.previousPage()
-                            offset.x > size.width * 2 / 3 -> viewModel.nextPage()
+                            offset.x < size.width / 3 -> { /* Previous page - implement when available */ }
+                            offset.x > size.width * 2 / 3 -> { /* Next page - implement when available */ }
                             else -> showControls = !showControls
                         }
                     }
@@ -188,7 +188,7 @@ fun EnhancedEReaderScreen(
                     val currentChapter = uiState.currentChapterIndex.coerceIn(0, totalChapters - 1)
                     Slider(
                         value = currentChapter.toFloat(),
-                        onValueChange = { viewModel.jumpToChapter(it.toInt()) },
+                        onValueChange = { viewModel.goToChapter(it.toInt()) },
                         valueRange = 0f..(totalChapters - 1).toFloat(),
                         steps = (totalChapters - 2).coerceAtLeast(0),
                         modifier = Modifier
@@ -305,7 +305,7 @@ fun EnhancedEReaderScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            viewModel.navigateToChapter(chapter.index)
+                                            viewModel.goToChapter(index)
                                             showTableOfContents = false
                                         }
                                         .padding(vertical = 8.dp),

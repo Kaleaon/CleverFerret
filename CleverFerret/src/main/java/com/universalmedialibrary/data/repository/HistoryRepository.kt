@@ -46,10 +46,9 @@ class HistoryRepository @Inject constructor(
             
             existing.copy(
                 currentPage = validCurrentPage,
-                totalPages = validTotalPages,
                 currentPosition = currentPosition,
                 percentage = calculatedPercentage,
-                lastRead = System.currentTimeMillis()
+                lastUpdate = System.currentTimeMillis()
             )
         } else {
             val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
@@ -61,11 +60,10 @@ class HistoryRepository @Inject constructor(
             ReadingProgress(
                 itemId = itemId,
                 currentPage = validCurrentPage,
-                totalPages = validTotalPages,
                 currentPosition = currentPosition,
                 percentage = calculatedPercentage,
-                lastRead = System.currentTimeMillis(),
-                startedAt = System.currentTimeMillis()
+                lastUpdate = System.currentTimeMillis(),
+                startedDate = System.currentTimeMillis()
             )
         }
         
@@ -95,8 +93,9 @@ class HistoryRepository @Inject constructor(
         if (existing != null) {
             val updated = existing.copy(
                 percentage = 100f,
-                currentPage = existing.totalPages,
-                lastRead = System.currentTimeMillis()
+                isCompleted = true,
+                completedDate = System.currentTimeMillis(),
+                lastUpdate = System.currentTimeMillis()
             )
             progressDao.insertProgress(updated)
         }
@@ -150,15 +149,15 @@ class HistoryRepository @Inject constructor(
             existing.copy(
                 currentPosition = validPosition,
                 percentage = percentage,
-                lastRead = System.currentTimeMillis()
+                lastUpdate = System.currentTimeMillis()
             )
         } else {
             ReadingProgress(
                 itemId = itemId,
                 currentPosition = position,
                 percentage = percentage,
-                lastRead = System.currentTimeMillis(),
-                startedAt = System.currentTimeMillis()
+                lastUpdate = System.currentTimeMillis(),
+                startedDate = System.currentTimeMillis()
             )
         }
         
@@ -188,14 +187,14 @@ class HistoryRepository @Inject constructor(
         val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
         if (existing != null) {
             val updated = existing.copy(
-                lastRead = System.currentTimeMillis()
+                lastUpdate = System.currentTimeMillis()
             )
             progressDao.insertProgress(updated)
         } else {
             val newProgress = ReadingProgress(
                 itemId = itemId,
-                lastRead = System.currentTimeMillis(),
-                startedAt = System.currentTimeMillis()
+                lastUpdate = System.currentTimeMillis(),
+                startedDate = System.currentTimeMillis()
             )
             progressDao.insertProgress(newProgress)
         }
@@ -204,8 +203,8 @@ class HistoryRepository @Inject constructor(
     /**
      * Get bookmarks for an item
      */
-    fun getBookmarks(itemId: Long): Flow<List<Bookmark>> {
-        return bookmarkDao.getBookmarksByItemId(itemId)
+    suspend fun getBookmarks(itemId: Long): List<Bookmark> {
+        return bookmarkDao.getBookmarksByMediaItem(itemId)
     }
     
     /**
@@ -215,14 +214,14 @@ class HistoryRepository @Inject constructor(
         itemId: Long,
         title: String,
         position: Long,
-        note: String? = null
+        description: String? = null
     ): Long {
         val bookmark = Bookmark(
             itemId = itemId,
             title = title,
+            description = description,
             position = position,
-            note = note,
-            createdAt = System.currentTimeMillis()
+            dateCreated = System.currentTimeMillis()
         )
         return bookmarkDao.insertBookmark(bookmark)
     }

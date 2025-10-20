@@ -64,7 +64,7 @@ class SleepTimerManager @Inject constructor() {
                 }
             }
             
-            if (remaining == 0) {
+            if (remaining == 0L) {
                 _state.value = _state.value.copy(
                     isActive = false,
                     remainingSeconds = 0

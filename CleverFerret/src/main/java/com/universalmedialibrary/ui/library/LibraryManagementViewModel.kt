@@ -122,7 +122,7 @@ class LibraryManagementViewModel @Inject constructor(
                 _uiState.value = LibraryManagementUiState.Loading
 
                 // Get library details
-                val library = libraryRepository.getLibraryById(libraryId).firstOrNull()
+                val library = libraryRepository.getLibraryById(libraryId)
                 if (library == null) {
                     _uiState.value = LibraryManagementUiState.Error("Library not found")
                     return@launch

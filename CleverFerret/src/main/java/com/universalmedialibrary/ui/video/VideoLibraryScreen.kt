@@ -106,7 +106,7 @@ fun VideoLibraryScreen(
                             VideoCard(
                                 video = video,
                                 onClick = {
-                                    navController.navigate("player/video/${video.itemId}")
+                                    navController.navigate("player/video/${video.id}")
                                 }
                             )
                         }
