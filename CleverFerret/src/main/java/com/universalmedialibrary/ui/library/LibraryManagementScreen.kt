@@ -68,7 +68,8 @@ fun LibraryManagementScreen(
                                 text = { Text("Settings") },
                                 onClick = {
                                     showMenu = false
-                                    // TODO: Navigate to settings
+                                    // TODO: Add navigation callback parameter onNavigateToSettings: () -> Unit
+                                    // Then call: onNavigateToSettings()
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.Settings, contentDescription = null)
@@ -157,7 +158,8 @@ fun LibraryManagementScreen(
         }
         is LibraryManagementUiState.Error -> {
             LaunchedEffect(uiState) {
-                // TODO: Show snackbar with error message
+                // TODO: Add SnackbarHostState parameter and show error message:
+                // snackbarHostState.showSnackbar(message = uiState.message, duration = SnackbarDuration.Long)
             }
         }
         is LibraryManagementUiState.Success -> {
@@ -397,7 +399,8 @@ private fun LibraryCard(
                     }
                 }
 
-                // TODO: Add item count and stats
+                // TODO: Implement item count query in LibraryManagementViewModel
+                // Add Flow<Map<Long, Int>> libraryItemCounts that queries MediaItem count per library
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
@@ -406,7 +409,7 @@ private fun LibraryCard(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = "0 items", // TODO: Get actual count
+                            text = "0 items", // TODO: Replace with actual count from libraryItemCounts[library.id]
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

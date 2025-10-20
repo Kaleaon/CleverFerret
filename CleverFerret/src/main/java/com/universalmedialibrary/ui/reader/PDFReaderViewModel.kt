@@ -158,11 +158,20 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
     }
 
     fun showPageSelector() {
-        // TODO: Implement page selector dialog
+        // TODO: Implement page selector dialog UI
+        // - Show AlertDialog with TextField for page number input
+        // - Validate input is between 1 and pageCount
+        // - Call goToPage(selectedPage - 1) when confirmed
+        // - Display hint: "Go to page (1-${pageCount})"
     }
 
     fun showBookmarks() {
-        // TODO: Implement bookmarks dialog
+        // TODO: Implement bookmarks dialog UI
+        // - Show BottomSheet or Dialog with LazyColumn of bookmarks
+        // - Display page number, optional note/timestamp for each bookmark
+        // - Click handler: goToPage(bookmark.page)
+        // - Add "New Bookmark" FAB to create bookmark at current page
+        // - Delete option for each bookmark (IconButton or swipe)
     }
 
     private fun generateSamplePDFContent(pageNumber: Int): String {
