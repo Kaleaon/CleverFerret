@@ -83,7 +83,7 @@ class AudiobookService @Inject constructor(
                         title = firstChapter?.title ?: audiobook.title,
                         artist = audiobook.author,
                         album = audiobook.title,
-                        artwork = null // TODO: Load audiobook cover art
+                        artwork = null // TODO: Load cover from commonMetadata.coverImagePath using BitmapFactory.decodeFile()
                     )
                 }
 
@@ -144,7 +144,7 @@ class AudiobookService @Inject constructor(
             Audiobook(
                 id = mediaItem.itemId,
                 title = mediaItem.fileName.substringBeforeLast('.'),
-                author = "Unknown Author", // TODO: Extract from metadata when available
+                author = "Unknown Author", // TODO: Query BookMetadata.author via mediaItemDao.getBookMetadata(itemId)
                 chapters = chapters,
                 totalDuration = chapters.sumOf { it.durationMs }
             )
@@ -251,8 +251,9 @@ class AudiobookService @Inject constructor(
         val updatedBookmarks = _audiobookState.value.bookmarks.filterNot { it.id == bookmark.id }
         _audiobookState.value = _audiobookState.value.copy(bookmarks = updatedBookmarks)
         
-        // TODO: Persist deletion to database when Room/DAO implementation is available
-        // This would involve calling bookmarkDao.deleteBookmark(bookmark.id)
+        // TODO: Persist deletion when AudiobookBookmarkDao is implemented
+        // Call: audiobookBookmarkDao.deleteBookmark(bookmark.id)
+        // Add rollback logic if database delete fails
     }
 
     fun stop() {
