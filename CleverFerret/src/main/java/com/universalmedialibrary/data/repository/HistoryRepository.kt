@@ -37,20 +37,33 @@ class HistoryRepository @Inject constructor(
         val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
         
         val progress = if (existing != null) {
+            // Clamp values to valid ranges
+            val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
+            val validTotalPages = maxOf(totalPages, 0)
+            val calculatedPercentage = if (validTotalPages > 0) {
+                ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
+            } else 0f
+            
             existing.copy(
-                currentPage = currentPage,
-                totalPages = totalPages,
+                currentPage = validCurrentPage,
+                totalPages = validTotalPages,
                 currentPosition = currentPosition,
-                percentage = if (totalPages > 0) (currentPage.toFloat() / totalPages * 100) else 0f,
+                percentage = calculatedPercentage,
                 lastRead = System.currentTimeMillis()
             )
         } else {
+            val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
+            val validTotalPages = maxOf(totalPages, 0)
+            val calculatedPercentage = if (validTotalPages > 0) {
+                ((validCurrentPage.toFloat() / validTotalPages) * 100f).coerceIn(0f, 100f)
+            } else 0f
+            
             ReadingProgress(
                 itemId = itemId,
-                currentPage = currentPage,
-                totalPages = totalPages,
+                currentPage = validCurrentPage,
+                totalPages = validTotalPages,
                 currentPosition = currentPosition,
-                percentage = if (totalPages > 0) (currentPage.toFloat() / totalPages * 100) else 0f,
+                percentage = calculatedPercentage,
                 lastRead = System.currentTimeMillis(),
                 startedAt = System.currentTimeMillis()
             )
@@ -125,14 +138,17 @@ class HistoryRepository @Inject constructor(
         position: Long,
         duration: Long
     ) {
-        val percentage = if (duration > 0) {
-            (position.toFloat() / duration * 100)
+        // Clamp position to valid range
+        val validPosition = position.coerceIn(0L, maxOf(duration, 0L))
+        val validDuration = maxOf(duration, 0L)
+        val percentage = if (validDuration > 0) {
+            ((validPosition.toFloat() / validDuration) * 100f).coerceIn(0f, 100f)
         } else 0f
         
         val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
         val progress = if (existing != null) {
             existing.copy(
-                currentPosition = position,
+                currentPosition = validPosition,
                 percentage = percentage,
                 lastRead = System.currentTimeMillis()
             )

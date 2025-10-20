@@ -134,7 +134,7 @@ class GoogleCloudTtsService @Inject constructor(
         mediaPlayer = null
 
         // Write audio to temporary file
-        val tempFile = File(context.cacheDir, "google_cloud_tts_${System.currentTimeMillis()}.mp3")
+        val tempFile = File.createTempFile("google_cloud_tts_", ".mp3", context.cacheDir)
         withContext(Dispatchers.IO) {
             FileOutputStream(tempFile).use { it.write(audioBytes) }
         }

@@ -444,13 +444,29 @@ private fun ApiKeySection(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TextButton(
-                onClick = { /* Open getKeyUrl in browser */ }
+                onClick = { 
+                    // Open URL in browser
+                    val intent = android.content.Intent(
+                        android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse(getKeyUrl)
+                    )
+                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    androidx.compose.ui.platform.LocalContext.current.startActivity(intent)
+                }
             ) {
                 Text("Get API Key →")
             }
             
             TextButton(
-                onClick = { /* Open docsUrl in browser */ }
+                onClick = { 
+                    // Open documentation in browser
+                    val intent = android.content.Intent(
+                        android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse(docsUrl)
+                    )
+                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    androidx.compose.ui.platform.LocalContext.current.startActivity(intent)
+                }
             ) {
                 Text("Documentation")
             }

@@ -133,7 +133,7 @@ class ElevenLabsTtsService @Inject constructor(
         mediaPlayer = null
 
         // Write audio to temporary file
-        val tempFile = File(context.cacheDir, "elevenlabs_tts_${System.currentTimeMillis()}.mp3")
+        val tempFile = File.createTempFile("elevenlabs_tts_", ".mp3", context.cacheDir)
         withContext(Dispatchers.IO) {
             FileOutputStream(tempFile).use { it.write(audioBytes) }
         }

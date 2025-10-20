@@ -22,16 +22,56 @@ interface SecuritySettingsDao {
     @Update
     suspend fun updateSettings(settings: SecuritySettingsEntity)
     
-    @Query("UPDATE security_settings SET requireBiometric = :enabled WHERE id = 1")
+    @Query("""
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+            allowScreenshots, hideInRecents)
+        VALUES (
+            1,
+            :enabled,
+            COALESCE((SELECT lockTimeoutMinutes FROM security_settings WHERE id = 1), 15),
+            COALESCE((SELECT allowScreenshots FROM security_settings WHERE id = 1), 1),
+            COALESCE((SELECT hideInRecents FROM security_settings WHERE id = 1), 0)
+        )
+    """)
     suspend fun setRequireBiometric(enabled: Boolean)
     
-    @Query("UPDATE security_settings SET lockTimeoutMinutes = :minutes WHERE id = 1")
+    @Query("""
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+            allowScreenshots, hideInRecents)
+        VALUES (
+            1,
+            COALESCE((SELECT requireBiometric FROM security_settings WHERE id = 1), 0),
+            :minutes,
+            COALESCE((SELECT allowScreenshots FROM security_settings WHERE id = 1), 1),
+            COALESCE((SELECT hideInRecents FROM security_settings WHERE id = 1), 0)
+        )
+    """)
     suspend fun setLockTimeout(minutes: Int)
     
-    @Query("UPDATE security_settings SET allowScreenshots = :allowed WHERE id = 1")
+    @Query("""
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+            allowScreenshots, hideInRecents)
+        VALUES (
+            1,
+            COALESCE((SELECT requireBiometric FROM security_settings WHERE id = 1), 0),
+            COALESCE((SELECT lockTimeoutMinutes FROM security_settings WHERE id = 1), 15),
+            :allowed,
+            COALESCE((SELECT hideInRecents FROM security_settings WHERE id = 1), 0)
+        )
+    """)
     suspend fun setAllowScreenshots(allowed: Boolean)
     
-    @Query("UPDATE security_settings SET hideInRecents = :hide WHERE id = 1")
+    @Query("""
+        INSERT OR REPLACE INTO security_settings (id, requireBiometric, lockTimeoutMinutes, 
+            allowScreenshots, hideInRecents)
+        VALUES (
+            1,
+            COALESCE((SELECT requireBiometric FROM security_settings WHERE id = 1), 0),
+            COALESCE((SELECT lockTimeoutMinutes FROM security_settings WHERE id = 1), 15),
+            COALESCE((SELECT allowScreenshots FROM security_settings WHERE id = 1), 1),
+            :hide
+        )
+    """)
     suspend fun setHideInRecents(hide: Boolean)
     
     @Query("DELETE FROM security_settings")
