@@ -80,7 +80,7 @@ class OpenAiTtsService @Inject constructor(
     override suspend fun initialize(): Boolean {
         return apiKey?.isNotBlank() == true
     }
-
+override suspend fun speak(text: String): Boolean = withContext(Dispatchers.IO) {
     override suspend fun speak(text: String): Boolean {
         if (apiKey.isNullOrBlank()) {
             _ttsState.value = TtsServiceState(
