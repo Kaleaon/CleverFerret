@@ -223,7 +223,11 @@ fun MusicPlayerScreen(
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
-                // TODO: Show error snackbar
+                // TODO: Add SnackbarHostState parameter to MusicPlayerScreen
+                // Then show error: snackbarHostState.showSnackbar(
+                //   message = playbackState.error ?: "Playback error",
+                //   duration = SnackbarDuration.Long
+                // )
             }
         }
     }
