@@ -1,633 +1,475 @@
 package com.universalmedialibrary.ui.settings
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.universalmedialibrary.data.settings.*
 
+/**
+ * API Settings Screen
+ * 
+ * Configure API keys for external services organized by category:
+ * - Text-to-Speech APIs
+ * - Metadata APIs
+ * - Podcast APIs
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApiSettingsScreen(
     navController: NavController,
-    mediaType: String,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: ApiSettingsViewModel = hiltViewModel()
 ) {
-    val apiSettings by viewModel.apiSettings.collectAsState()
-
-    val (title, description, providers) = when (mediaType) {
-        "books" -> Triple(
-            "Books APIs",
-            "Configure metadata sources for books and ebooks",
-            getBooksProviders(apiSettings.bookApis)
-        )
-        "comics" -> Triple(
-            "Comics APIs",
-            "Configure metadata sources for comics and graphic novels",
-            getComicsProviders(apiSettings.comicApis)
-        )
-        "audiobooks" -> Triple(
-            "Audiobooks APIs",
-            "Configure metadata sources for audiobooks",
-            getAudiobooksProviders(apiSettings.audiobookApis)
-        )
-        "movies" -> Triple(
-            "Movies & TV APIs",
-            "Configure metadata sources for movies and TV shows",
-            getMoviesProviders(apiSettings.movieTvApis)
-        )
-        "music" -> Triple(
-            "Music APIs",
-            "Configure metadata sources for music and albums",
-            getMusicProviders(apiSettings.musicApis)
-        )
-        else -> Triple("Unknown", "", emptyList())
-    }
+    val uiState by viewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title) },
+                title = { Text("API Keys & Services") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    // Backup settings button
+                    IconButton(onClick = { viewModel.backupSettings() }) {
+                        Icon(
+                            Icons.Default.Backup,
+                            contentDescription = "Backup Settings",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
         }
     ) { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(paddingValues)
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            item {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            // Intro text
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
-            }
-
-            providers.forEach { provider ->
-                item {
-                    ApiProviderCard(
-                        provider = provider,
-                        onToggle = { enabled ->
-                            updateProviderSettings(viewModel, mediaType, provider.name, enabled, provider.apiKey)
-                        },
-                        onApiKeyChange = { apiKey ->
-                            updateProviderSettings(viewModel, mediaType, provider.name, provider.isEnabled, apiKey)
-                        }
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "External API Configuration",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        text = "Configure API keys for external services. All keys are stored securely using encrypted storage.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
+            
+            // === TEXT-TO-SPEECH SECTION ===
+            SectionHeader(
+                title = "Text-to-Speech APIs",
+                subtitle = "Premium voice synthesis services"
+            )
 
-            if (mediaType == "comics") {
-                item {
-                    val targetLang = remember { mutableStateOf(apiSettings.comicApis.geminiTargetLanguage) }
-                    Card(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Bubble Translation", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = "Target language for translated speech bubbles (ISO 639-1, e.g., en, es, fr, ja)",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = targetLang.value,
-                                onValueChange = {
-                                    targetLang.value = it
-                                    val current = viewModel.apiSettings.value.comicApis
-                                    viewModel.updateComicApiSettings(current.copy(geminiTargetLanguage = it.take(8)))
-                                },
-                                label = { Text(text = "Target language code") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                }
-            }
+            // Gemini AI
+            ApiKeySection(
+                title = "Gemini (Google AI)",
+                description = "High-quality multilingual TTS with natural voices",
+                apiKey = uiState.geminiApiKey,
+                onApiKeyChange = { viewModel.setGeminiApiKey(it) },
+                isConfigured = uiState.isGeminiConfigured,
+                getKeyUrl = "https://aistudio.google.com/app/apikey",
+                docsUrl = "https://ai.google.dev/gemini-api/docs/text-generation"
+            )
 
-            item {
+            Divider()
+
+            // OpenAI
+            ApiKeySection(
+                title = "OpenAI",
+                description = "Premium TTS with multiple voice options (alloy, echo, fable, onyx, nova, shimmer)",
+                apiKey = uiState.openaiApiKey,
+                onApiKeyChange = { viewModel.setOpenAiApiKey(it) },
+                isConfigured = uiState.isOpenAiConfigured,
+                getKeyUrl = "https://platform.openai.com/api-keys",
+                docsUrl = "https://platform.openai.com/docs/guides/text-to-speech"
+            )
+
+            Divider()
+
+            // ElevenLabs
+            ApiKeySection(
+                title = "ElevenLabs",
+                description = "Ultra-realistic AI voices with emotion and inflection",
+                apiKey = uiState.elevenLabsApiKey,
+                onApiKeyChange = { viewModel.setElevenLabsApiKey(it) },
+                isConfigured = uiState.isElevenLabsConfigured,
+                getKeyUrl = "https://elevenlabs.io/app/settings/api-keys",
+                docsUrl = "https://elevenlabs.io/docs/api-reference/text-to-speech"
+            )
+
+            Divider()
+
+            // Google Cloud TTS
+            ApiKeySection(
+                title = "Google Cloud TTS",
+                description = "Professional-grade TTS with 380+ voices in 50+ languages",
+                apiKey = uiState.googleCloudApiKey,
+                onApiKeyChange = { viewModel.setGoogleCloudApiKey(it) },
+                isConfigured = uiState.isGoogleCloudConfigured,
+                getKeyUrl = "https://console.cloud.google.com/apis/credentials",
+                docsUrl = "https://cloud.google.com/text-to-speech/docs"
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // === METADATA SECTION ===
+            SectionHeader(
+                title = "Metadata APIs",
+                subtitle = "Enhanced media information and artwork"
+            )
+
+            // TheMovieDB
+            ApiKeySection(
+                title = "TheMovieDB (TMDB)",
+                description = "Movie and TV show metadata, posters, and information",
+                apiKey = uiState.tmdbApiKey,
+                onApiKeyChange = { viewModel.setTmdbApiKey(it) },
+                isConfigured = uiState.isTmdbConfigured,
+                getKeyUrl = "https://www.themoviedb.org/settings/api",
+                docsUrl = "https://developers.themoviedb.org/3"
+            )
+
+            Divider()
+
+            // MusicBrainz
+            ApiKeySection(
+                title = "MusicBrainz",
+                description = "Music metadata, album information, and artist details",
+                apiKey = uiState.musicBrainzApiKey,
+                onApiKeyChange = { viewModel.setMusicBrainzApiKey(it) },
+                isConfigured = uiState.isMusicBrainzConfigured,
+                getKeyUrl = "https://musicbrainz.org/doc/MusicBrainz_API",
+                docsUrl = "https://musicbrainz.org/doc/MusicBrainz_API",
+                note = "Optional: Improves rate limits"
+            )
+
+            Divider()
+
+            // Google Books
+            ApiKeySection(
+                title = "Google Books API",
+                description = "Book metadata, covers, descriptions, and ISBNs",
+                apiKey = uiState.googleBooksApiKey,
+                onApiKeyChange = { viewModel.setGoogleBooksApiKey(it) },
+                isConfigured = uiState.isGoogleBooksConfigured,
+                getKeyUrl = "https://console.cloud.google.com/apis/credentials",
+                docsUrl = "https://developers.google.com/books/docs/v1/using"
+            )
+
+            Divider()
+
+            // Open Library
+            ApiKeySection(
+                title = "Open Library",
+                description = "Free book metadata and cover images",
+                apiKey = uiState.openLibraryApiKey,
+                onApiKeyChange = { viewModel.setOpenLibraryApiKey(it) },
+                isConfigured = uiState.isOpenLibraryConfigured,
+                getKeyUrl = "https://openlibrary.org/developers/api",
+                docsUrl = "https://openlibrary.org/developers/api",
+                note = "No API key required (rate-limited)"
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // === PODCAST SECTION ===
+            SectionHeader(
+                title = "Podcast APIs",
+                subtitle = "Podcast discovery and metadata"
+            )
+
+            // Podcast Index
+            ApiKeySection(
+                title = "Podcast Index",
+                description = "Open podcast directory with 4M+ podcasts",
+                apiKey = uiState.podcastIndexApiKey,
+                onApiKeyChange = { viewModel.setPodcastIndexApiKey(it) },
+                isConfigured = uiState.isPodcastIndexConfigured,
+                getKeyUrl = "https://api.podcastindex.org/signup",
+                docsUrl = "https://podcastindex-org.github.io/docs-api/"
+            )
+
+            Divider()
+
+            // iTunes/Apple Podcasts
+            ApiKeySection(
+                title = "iTunes Podcast API",
+                description = "Apple's podcast directory and metadata",
+                apiKey = uiState.itunesApiKey,
+                onApiKeyChange = { viewModel.setItunesApiKey(it) },
+                isConfigured = uiState.isItunesConfigured,
+                getKeyUrl = "https://developer.apple.com/",
+                docsUrl = "https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/",
+                note = "No API key required (rate-limited)"
+            )
+
+            Divider()
+
+            // ListenNotes
+            ApiKeySection(
+                title = "Listen Notes",
+                description = "Podcast search engine and database",
+                apiKey = uiState.listenNotesApiKey,
+                onApiKeyChange = { viewModel.setListenNotesApiKey(it) },
+                isConfigured = uiState.isListenNotesConfigured,
+                getKeyUrl = "https://www.listennotes.com/api/",
+                docsUrl = "https://www.listennotes.com/api/docs/"
+            )
+
+            // Save/Backup status
+            if (uiState.saveSuccess) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
                     )
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "API Information",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
                         Text(
-                            text = "APIs are checked in priority order. Free APIs are used first when available. API keys are stored securely on your device.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            text = "API keys saved successfully",
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
                 }
             }
+            
+            // Backup success message
+            uiState.backupMessage?.let { message ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (uiState.backupSuccess) 
+                            MaterialTheme.colorScheme.tertiaryContainer 
+                        else 
+                            MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            if (uiState.backupSuccess) Icons.Default.Check else Icons.Default.Backup,
+                            contentDescription = null,
+                            tint = if (uiState.backupSuccess) 
+                                MaterialTheme.colorScheme.onTertiaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Text(
+                            text = message,
+                            color = if (uiState.backupSuccess) 
+                                MaterialTheme.colorScheme.onTertiaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-fun ApiProviderCard(
-    provider: ApiProvider,
-    onToggle: (Boolean) -> Unit,
-    onApiKeyChange: (String) -> Unit
+private fun SectionHeader(
+    title: String,
+    subtitle: String
 ) {
-    val context = LocalContext.current
-    var showApiKey by remember { mutableStateOf(false) }
-    var apiKeyText by remember { mutableStateOf(provider.apiKey) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = provider.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = provider.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
 
-                Switch(
-                    checked = provider.isEnabled,
-                    onCheckedChange = onToggle
+@Composable
+private fun ApiKeySection(
+    title: String,
+    description: String,
+    apiKey: String,
+    onApiKeyChange: (String) -> Unit,
+    isConfigured: Boolean,
+    getKeyUrl: String,
+    docsUrl: String,
+    note: String? = null
+) {
+    var isPasswordVisible by remember { mutableStateOf(false) }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    
+                    // Gear icon for unconfigured APIs
+                    if (!isConfigured) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Needs configuration",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            if (provider.requiresApiKey && provider.isEnabled) {
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = apiKeyText,
-                    onValueChange = {
-                        apiKeyText = it
-                        onApiKeyChange(it)
-                    },
-                    label = { Text("API Key") },
-                    placeholder = { Text("Enter your ${provider.name} API key") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (showApiKey) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { showApiKey = !showApiKey }) {
-                            Icon(
-                                imageVector = if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = if (showApiKey) "Hide API key" else "Show API key"
-                            )
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true
-                )
-
-                if (provider.website.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(
-                        onClick = {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(provider.website))
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                // Handle error - could show a toast or snackbar
-                            }
-                        }
-                    ) {
+            
+            if (isConfigured) {
+                AssistChip(
+                    onClick = { },
+                    label = { Text("Configured") },
+                    leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Launch,
+                            Icons.Default.Check,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Get API Key")
-                    }
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                )
+            }
+        }
+
+        // API Key input
+        OutlinedTextField(
+            value = apiKey,
+            onValueChange = onApiKeyChange,
+            label = { Text("API Key") },
+            placeholder = { Text("sk-...") },
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (isPasswordVisible) 
+                VisualTransformation.None 
+            else 
+                PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    Icon(
+                        if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (isPasswordVisible) "Hide" else "Show"
+                    )
                 }
+            },
+            singleLine = true
+        )
+
+        // Note (if provided)
+        note?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+
+        // Links
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TextButton(
+                onClick = { 
+                    // Open URL in browser
+                    val intent = android.content.Intent(
+                        android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse(getKeyUrl)
+                    )
+                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    androidx.compose.ui.platform.LocalContext.current.startActivity(intent)
+                }
+            ) {
+                Text("Get API Key →")
+            }
+            
+            TextButton(
+                onClick = { 
+                    // Open documentation in browser
+                    val intent = android.content.Intent(
+                        android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse(docsUrl)
+                    )
+                    intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    androidx.compose.ui.platform.LocalContext.current.startActivity(intent)
+                }
+            ) {
+                Text("Documentation")
             }
         }
     }
 }
-
-private fun updateProviderSettings(
-    viewModel: SettingsViewModel,
-    mediaType: String,
-    providerName: String,
-    enabled: Boolean,
-    apiKey: String
-) {
-    when (mediaType) {
-        "books" -> {
-            val current = viewModel.apiSettings.value.bookApis
-            val updated = when (providerName) {
-                "Open Library" -> current.copy(openLibraryEnabled = enabled)
-                "Google Books" -> current.copy(googleBooksEnabled = enabled, googleBooksApiKey = apiKey)
-                "Hardcover" -> current.copy(hardcoverEnabled = enabled)
-                "ISBN DB" -> current.copy(isbnDbEnabled = enabled, isbnDbApiKey = apiKey)
-                "Goodreads" -> current.copy(goodreadsEnabled = enabled, goodreadsApiKey = apiKey)
-                "Amazon Product Advertising" -> current.copy(amazonEnabled = enabled, amazonApiKey = apiKey)
-                "ISFDB" -> current.copy(isfdbEnabled = enabled)
-                "Fantastic Fiction" -> current.copy(fantasticFictionEnabled = enabled)
-                "FictionDB" -> current.copy(fictionDbEnabled = enabled)
-                "Library Thing" -> current.copy(libraryThingEnabled = enabled, libraryThingApiKey = apiKey)
-                "WorldCat" -> current.copy(worldCatEnabled = enabled, worldCatApiKey = apiKey)
-                else -> current
-            }
-            viewModel.updateBookApiSettings(updated)
-        }
-        "comics" -> {
-            val current = viewModel.apiSettings.value.comicApis
-            val updated = when (providerName) {
-                "ComicVine" -> current.copy(comicVineEnabled = enabled, comicVineApiKey = apiKey)
-                "Manga Updates" -> current.copy(mangaUpdatesEnabled = enabled)
-                "Gemini 2.5 Bubble Translation" -> current.copy(geminiBubbleTranslationEnabled = enabled)
-                else -> current
-            }
-            viewModel.updateComicApiSettings(updated)
-        }
-        "audiobooks" -> {
-            val current = viewModel.apiSettings.value.audiobookApis
-            val updated = when (providerName) {
-                "OverDrive" -> current.copy(overDriveEnabled = enabled, overDriveApiKey = apiKey)
-                "Audible" -> current.copy(audibleEnabled = enabled, audibleApiKey = apiKey)
-                "LibriVox" -> current.copy(librivoxEnabled = enabled)
-                else -> current
-            }
-            viewModel.updateAudiobookApiSettings(updated)
-        }
-        "movies" -> {
-            val current = viewModel.apiSettings.value.movieTvApis
-            val updated = when (providerName) {
-                "TMDB" -> current.copy(tmdbEnabled = enabled, tmdbApiKey = apiKey)
-                "OMDb" -> current.copy(omdbEnabled = enabled, omdbApiKey = apiKey)
-                "IMDB" -> current.copy(imdbEnabled = enabled, imdbApiKey = apiKey)
-                "TVDB" -> current.copy(tvdbEnabled = enabled, tvdbApiKey = apiKey)
-                "NYT Movie Reviews" -> current.copy(nytMovieReviewsEnabled = enabled, nytApiKey = apiKey)
-                "YouTube Trailers" -> current.copy(youtubeTrailersEnabled = enabled, youtubeApiKey = apiKey)
-                "Guidebox" -> current.copy(guideboxEnabled = enabled, guideboxApiKey = apiKey)
-                else -> current
-            }
-            viewModel.updateMovieTvApiSettings(updated)
-        }
-        "music" -> {
-            val current = viewModel.apiSettings.value.musicApis
-            val updated = when (providerName) {
-                "MusicBrainz" -> current.copy(musicBrainzEnabled = enabled)
-                "Spotify" -> current.copy(spotifyEnabled = enabled, spotifyClientId = apiKey)
-                "Discogs" -> current.copy(discogsEnabled = enabled, discogsApiKey = apiKey)
-                "Last.fm" -> current.copy(lastFmEnabled = enabled, lastFmApiKey = apiKey)
-                "Radio Browser" -> current.copy(radioBrowserEnabled = enabled)
-                "AudioDB" -> current.copy(audioDBEnabled = enabled, audioDBApiKey = apiKey)
-                "Deezer" -> current.copy(deezerEnabled = enabled)
-                "Napster" -> current.copy(napsterEnabled = enabled, napsterApiKey = apiKey)
-                else -> current
-            }
-            viewModel.updateMusicApiSettings(updated)
-        }
-    }
-}
-
-private fun getBooksProviders(settings: BookApiSettings): List<ApiProvider> = listOf(
-    ApiProvider(
-        name = "Open Library",
-        description = "Free bibliographic information",
-        requiresApiKey = false,
-        isEnabled = settings.openLibraryEnabled,
-        website = "https://openlibrary.org/developers/api",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "Google Books",
-        description = "Full-text search and book information",
-        requiresApiKey = true,
-        isEnabled = settings.googleBooksEnabled,
-        apiKey = settings.googleBooksApiKey,
-        website = "https://developers.google.com/books",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "Hardcover",
-        description = "Modern Goodreads alternative",
-        requiresApiKey = false,
-        isEnabled = settings.hardcoverEnabled,
-        website = "https://hardcover.app/graphql",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "ISBN DB",
-        description = "ISBN database lookup",
-        requiresApiKey = true,
-        isEnabled = settings.isbnDbEnabled,
-        apiKey = settings.isbnDbApiKey,
-        website = "https://isbndb.com/apidocs",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "Goodreads",
-        description = "Community book recommendations",
-        requiresApiKey = true,
-        isEnabled = settings.goodreadsEnabled,
-        apiKey = settings.goodreadsApiKey,
-        website = "https://www.goodreads.com/api",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "Amazon Product Advertising",
-        description = "Amazon book metadata",
-        requiresApiKey = true,
-        isEnabled = settings.amazonEnabled,
-        apiKey = settings.amazonApiKey,
-        website = "https://webservices.amazon.com/paapi5/documentation/",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "ISFDB",
-        description = "Internet Speculative Fiction Database",
-        requiresApiKey = false,
-        isEnabled = settings.isfdbEnabled,
-        website = "http://www.isfdb.org/wiki/index.php/Web_API",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "Fantastic Fiction",
-        description = "Author and series information",
-        requiresApiKey = false,
-        isEnabled = settings.fantasticFictionEnabled,
-        website = "https://www.fantasticfiction.com/",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "FictionDB",
-        description = "Romance and fiction database",
-        requiresApiKey = false,
-        isEnabled = settings.fictionDbEnabled,
-        website = "https://www.fictiondb.com/",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "Library Thing",
-        description = "Social cataloging website",
-        requiresApiKey = true,
-        isEnabled = settings.libraryThingEnabled,
-        apiKey = settings.libraryThingApiKey,
-        website = "https://www.librarything.com/services/",
-        mediaType = MediaType.BOOKS
-    ),
-    ApiProvider(
-        name = "WorldCat",
-        description = "OCLC global library catalog",
-        requiresApiKey = true,
-        isEnabled = settings.worldCatEnabled,
-        apiKey = settings.worldCatApiKey,
-        website = "https://www.oclc.org/developer/develop/web-services.en.html",
-        mediaType = MediaType.BOOKS
-    )
-)
-
-private fun getComicsProviders(settings: ComicApiSettings): List<ApiProvider> = listOf(
-    ApiProvider(
-        name = "ComicVine",
-        description = "Comprehensive comic book database",
-        requiresApiKey = true,
-        isEnabled = settings.comicVineEnabled,
-        apiKey = settings.comicVineApiKey,
-        website = "https://comicvine.gamespot.com/api/",
-        mediaType = MediaType.COMICS
-    ),
-    ApiProvider(
-        name = "Manga Updates",
-        description = "Manga and light novel database",
-        requiresApiKey = false,
-        isEnabled = settings.mangaUpdatesEnabled,
-        website = "https://www.mangaupdates.com/",
-        mediaType = MediaType.COMICS
-    ),
-    ApiProvider(
-        name = "Gemini 2.5 Bubble Translation",
-        description = "Translate speech bubbles via Gemini 2.5",
-        requiresApiKey = false,
-        isEnabled = settings.geminiBubbleTranslationEnabled,
-        website = "https://ai.google.dev/",
-        mediaType = MediaType.COMICS
-    )
-)
-
-private fun getAudiobooksProviders(settings: AudiobookApiSettings): List<ApiProvider> = listOf(
-    ApiProvider(
-        name = "OverDrive",
-        description = "Audiobook metadata service",
-        requiresApiKey = true,
-        isEnabled = settings.overDriveEnabled,
-        apiKey = settings.overDriveApiKey,
-        website = "https://developer.overdrive.com/",
-        mediaType = MediaType.AUDIOBOOKS
-    ),
-    ApiProvider(
-        name = "Audible",
-        description = "Amazon Audible audiobook database",
-        requiresApiKey = true,
-        isEnabled = settings.audibleEnabled,
-        apiKey = settings.audibleApiKey,
-        website = "https://www.audible.com/",
-        mediaType = MediaType.AUDIOBOOKS
-    ),
-    ApiProvider(
-        name = "LibriVox",
-        description = "Free public domain audiobooks",
-        requiresApiKey = false,
-        isEnabled = settings.librivoxEnabled,
-        website = "https://librivox.org/api/info",
-        mediaType = MediaType.AUDIOBOOKS
-    )
-)
-
-private fun getMoviesProviders(settings: MovieTvApiSettings): List<ApiProvider> = listOf(
-    ApiProvider(
-        name = "TMDB",
-        description = "The Movie Database - community-built",
-        requiresApiKey = true,
-        isEnabled = settings.tmdbEnabled,
-        apiKey = settings.tmdbApiKey,
-        website = "https://www.themoviedb.org/documentation/api",
-        mediaType = MediaType.MOVIES_TV
-    ),
-    ApiProvider(
-        name = "OMDb",
-        description = "The Open Movie Database",
-        requiresApiKey = true,
-        isEnabled = settings.omdbEnabled,
-        apiKey = settings.omdbApiKey,
-        website = "https://www.omdbapi.com/",
-        mediaType = MediaType.MOVIES_TV
-    ),
-    ApiProvider(
-        name = "IMDB",
-        description = "Internet Movie Database",
-        requiresApiKey = true,
-        isEnabled = settings.imdbEnabled,
-        apiKey = settings.imdbApiKey,
-        website = "https://developer.imdb.com/",
-        mediaType = MediaType.MOVIES_TV
-    ),
-    ApiProvider(
-        name = "TVDB",
-        description = "TheTVDB - TV series database",
-        requiresApiKey = true,
-        isEnabled = settings.tvdbEnabled,
-        apiKey = settings.tvdbApiKey,
-        website = "https://thetvdb.com/api-information",
-        mediaType = MediaType.MOVIES_TV
-    ),
-    ApiProvider(
-        name = "NYT Movie Reviews",
-        description = "New York Times movie reviews and critics picks",
-        requiresApiKey = true,
-        isEnabled = settings.nytMovieReviewsEnabled,
-        apiKey = settings.nytApiKey,
-        website = "https://developer.nytimes.com/docs/movie-reviews-api/1/overview",
-        mediaType = MediaType.MOVIES_TV
-    ),
-    ApiProvider(
-        name = "YouTube Trailers",
-        description = "Official movie trailers from YouTube",
-        requiresApiKey = true,
-        isEnabled = settings.youtubeTrailersEnabled,
-        apiKey = settings.youtubeApiKey,
-        website = "https://developers.google.com/youtube/v3/getting-started",
-        mediaType = MediaType.MOVIES_TV
-    ),
-    ApiProvider(
-        name = "Guidebox",
-        description = "Movie trailers and streaming availability",
-        requiresApiKey = true,
-        isEnabled = settings.guideboxEnabled,
-        apiKey = settings.guideboxApiKey,
-        website = "https://www.guidebox.com/",
-        mediaType = MediaType.MOVIES_TV
-    )
-)
-
-private fun getMusicProviders(settings: MusicApiSettings): List<ApiProvider> = listOf(
-    ApiProvider(
-        name = "MusicBrainz",
-        description = "Open music encyclopedia",
-        requiresApiKey = false,
-        isEnabled = settings.musicBrainzEnabled,
-        website = "https://musicbrainz.org/doc/Development",
-        mediaType = MediaType.MUSIC
-    ),
-    ApiProvider(
-        name = "Spotify",
-        description = "Comprehensive music data",
-        requiresApiKey = true,
-        isEnabled = settings.spotifyEnabled,
-        apiKey = settings.spotifyClientId,
-        website = "https://developer.spotify.com/documentation/web-api",
-        mediaType = MediaType.MUSIC
-    ),
-    ApiProvider(
-        name = "Discogs",
-        description = "Music database and marketplace",
-        requiresApiKey = true,
-        isEnabled = settings.discogsEnabled,
-        apiKey = settings.discogsApiKey,
-        website = "https://www.discogs.com/developers",
-        mediaType = MediaType.MUSIC
-    ),
-    ApiProvider(
-        name = "Last.fm",
-        description = "Music metadata and scrobbling",
-        requiresApiKey = true,
-        isEnabled = settings.lastFmEnabled,
-        apiKey = settings.lastFmApiKey,
-        website = "https://www.last.fm/api",
-        mediaType = MediaType.MUSIC
-    ),
-    ApiProvider(
-        name = "Radio Browser",
-        description = "Free radio station directory",
-        requiresApiKey = false,
-        isEnabled = settings.radioBrowserEnabled,
-        website = "https://api.radio-browser.info/",
-        mediaType = MediaType.MUSIC
-    ),
-    ApiProvider(
-        name = "AudioDB",
-        description = "Music and artist metadata database",
-        requiresApiKey = true,
-        isEnabled = settings.audioDBEnabled,
-        apiKey = settings.audioDBApiKey,
-        website = "https://www.theaudiodb.com/api_guide.php",
-        mediaType = MediaType.MUSIC
-    ),
-    ApiProvider(
-        name = "Deezer",
-        description = "Music streaming service with free API",
-        requiresApiKey = false,
-        isEnabled = settings.deezerEnabled,
-        website = "https://developers.deezer.com/api",
-        mediaType = MediaType.MUSIC
-    ),
-    ApiProvider(
-        name = "Napster",
-        description = "Music streaming and metadata",
-        requiresApiKey = true,
-        isEnabled = settings.napsterEnabled,
-        apiKey = settings.napsterApiKey,
-        website = "https://developer.napster.com/",
-        mediaType = MediaType.MUSIC
-    )
-)

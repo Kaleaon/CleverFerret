@@ -347,7 +347,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             title = mediaItem.fileName.substringBeforeLast('.'),
             artist = extractArtistFromMetadata(mediaItem),
             album = extractAlbumFromMetadata(mediaItem),
-            duration = 0L, // TODO: Extract duration from file metadata
+            duration = mediaExtractor.extractDuration(track.filePath),
             filePath = mediaItem.filePath,
             albumArtUrl = null, // Will be enhanced later
             queuePosition = queuePosition

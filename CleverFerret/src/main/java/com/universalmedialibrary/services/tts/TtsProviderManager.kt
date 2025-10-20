@@ -25,7 +25,10 @@ import javax.inject.Singleton
 class TtsProviderManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val androidTtsService: AndroidTextToSpeechService,
-    private val geminiTtsService: GeminiTtsService
+    private val geminiTtsService: GeminiTtsService,
+    private val openAiTtsService: OpenAiTtsService,
+    private val elevenLabsTtsService: ElevenLabsTtsService,
+    private val googleCloudTtsService: GoogleCloudTtsService
 ) {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tts_settings")
 
@@ -82,22 +85,40 @@ class TtsProviderManager @Inject constructor(
             TtsProvider.GEMINI -> {
                 val apiKey = getEncryptedApiKey(settings.provider)
                 if (apiKey.isNullOrBlank()) {
-                    throw IllegalStateException("Gemini TTS requires an API key. Please configure it in settings.")
+                    throw IllegalStateException("Gemini TTS requires an API key. Please configure it in Settings > API Keys.")
                 }
                 geminiTtsService.setApiKey(apiKey)
+                settings.voiceId?.let { geminiTtsService.setVoice(it) }
                 geminiTtsService
             }
             TtsProvider.GOOGLE_CLOUD -> {
-                // TODO: Implement Google Cloud TTS
-                androidTtsService
+                val apiKey = getEncryptedApiKey(settings.provider)
+                if (apiKey.isNullOrBlank()) {
+                    throw IllegalStateException("Google Cloud TTS requires an API key. Please configure it in Settings > API Keys.")
+                }
+                googleCloudTtsService.setApiKey(apiKey)
+                settings.voiceId?.let { googleCloudTtsService.setVoice(it) }
+                googleCloudTtsService
             }
             TtsProvider.ELEVEN_LABS -> {
-                // TODO: Implement ElevenLabs TTS
-                androidTtsService
+                val apiKey = getEncryptedApiKey(settings.provider)
+                if (apiKey.isNullOrBlank()) {
+                    throw IllegalStateException("ElevenLabs TTS requires an API key. Please configure it in Settings > API Keys.")
+                }
+                elevenLabsTtsService.setApiKey(apiKey)
+                settings.voiceId?.let { elevenLabsTtsService.setVoiceId(it) }
+                settings.model?.let { elevenLabsTtsService.setModelId(it) }
+                elevenLabsTtsService
             }
             TtsProvider.OPENAI -> {
-                // TODO: Implement OpenAI TTS
-                androidTtsService
+                val apiKey = getEncryptedApiKey(settings.provider)
+                if (apiKey.isNullOrBlank()) {
+                    throw IllegalStateException("OpenAI TTS requires an API key. Please configure it in Settings > API Keys.")
+                }
+                openAiTtsService.setApiKey(apiKey)
+                settings.voiceId?.let { openAiTtsService.setVoice(it) }
+                settings.model?.let { openAiTtsService.setModel(it) }
+                openAiTtsService
             }
             else -> androidTtsService
         }

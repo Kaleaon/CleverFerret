@@ -31,11 +31,13 @@ jobs:
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: 11076708
-        accept-android-sdk-licenses: true
         packages: |
           platforms;android-34
           build-tools;34.0.0
           platform-tools
+          
+    - name: Accept Android SDK licenses
+      run: yes | sdkmanager --licenses || true
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:

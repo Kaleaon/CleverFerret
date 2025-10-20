@@ -1,10 +1,15 @@
 package com.universalmedialibrary.ui.library
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.repository.LibraryRepository
+import com.universalmedialibrary.services.MediaScannerService
+import com.universalmedialibrary.services.CalibreImportService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,6 +20,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class LibraryManagementViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val libraryRepository: LibraryRepository
 ) : ViewModel() {
 
@@ -108,15 +114,29 @@ class LibraryManagementViewModel @Inject constructor(
     }
 
     /**
-     * Scans a library for media files
+     * Scans a library for media files using MediaScannerService
      */
     fun scanLibrary(libraryId: Long) {
         viewModelScope.launch {
             try {
                 _uiState.value = LibraryManagementUiState.Loading
 
-                // TODO: Implement actual media scanning
-                // For now, just update the last scanned timestamp
+                // Get library details
+                val library = libraryRepository.getLibraryById(libraryId).firstOrNull()
+                if (library == null) {
+                    _uiState.value = LibraryManagementUiState.Error("Library not found")
+                    return@launch
+                }
+
+                // Start MediaScannerService for this library
+                val intent = Intent(context, MediaScannerService::class.java).apply {
+                    action = MediaScannerService.ACTION_SCAN_LIBRARY
+                    putExtra(MediaScannerService.EXTRA_LIBRARY_ID, libraryId)
+                    putExtra(MediaScannerService.EXTRA_SCAN_PATH, library.path)
+                }
+                context.startService(intent)
+
+                // Update last scanned timestamp
                 libraryRepository.updateLastScanned(libraryId, System.currentTimeMillis())
 
                 _uiState.value = LibraryManagementUiState.Success
@@ -129,7 +149,7 @@ class LibraryManagementViewModel @Inject constructor(
     }
 
     /**
-     * Imports a Calibre library from the specified path
+     * Imports a Calibre library from the specified path using CalibreImportService
      */
     fun importCalibreLibrary(path: String, libraryName: String) {
         viewModelScope.launch {
@@ -143,14 +163,15 @@ class LibraryManagementViewModel @Inject constructor(
                     source = "CALIBRE"
                 )
 
-                libraryRepository.createLibrary(library)
+                val libraryId = libraryRepository.createLibrary(library)
 
-                // TODO: Implement actual Calibre database parsing and import
-                // This would involve:
-                // 1. Reading the metadata.db file from the Calibre library
-                // 2. Parsing book metadata, authors, tags, etc.
-                // 3. Creating MediaItem entries for each book
-                // 4. Copying or linking to book files
+                // Start CalibreImportService for actual import
+                val intent = Intent(context, CalibreImportService::class.java).apply {
+                    action = CalibreImportService.ACTION_IMPORT_CALIBRE
+                    putExtra(CalibreImportService.EXTRA_LIBRARY_ID, libraryId)
+                    putExtra(CalibreImportService.EXTRA_CALIBRE_PATH, path)
+                }
+                context.startService(intent)
 
                 _uiState.value = LibraryManagementUiState.Success
 

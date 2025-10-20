@@ -116,7 +116,7 @@ fun LibraryManagementScreen(
                 LibraryListContent(
                     libraries = libraries,
                     onLibraryClick = { library ->
-                        // TODO: Navigate to library contents
+                        navController.navigate("library/${library.id}/media")
                     }
                 )
             }

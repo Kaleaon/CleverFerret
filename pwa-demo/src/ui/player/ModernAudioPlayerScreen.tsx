@@ -6,7 +6,7 @@
  * Migrated from ModernAudioPlayerScreen.kt
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -41,6 +41,7 @@ import type { MediaItem } from '../../data/local/entity';
 export const ModernAudioPlayerScreen: React.FC = () => {
   const { audioId } = useParams<{ audioId: string }>();
   const navigate = useNavigate();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -51,22 +52,79 @@ export const ModernAudioPlayerScreen: React.FC = () => {
 
   useEffect(() => {
     loadAudioData();
+    
+    // Initialize audio element
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
+      audioRef.current.addEventListener('loadedmetadata', handleMetadataLoaded);
+      audioRef.current.addEventListener('ended', handleEnded);
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
+        audioRef.current.removeEventListener('loadedmetadata', handleMetadataLoaded);
+        audioRef.current.removeEventListener('ended', handleEnded);
+      }
+    };
   }, [audioId]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [volume]);
 
   const loadAudioData = async () => {
     if (!audioId) return;
     const item = await db.mediaItems.get(parseInt(audioId));
     setMediaItem(item || null);
+    
+    // Load audio file
+    if (item?.filePath && audioRef.current) {
+      audioRef.current.src = item.filePath;
+      audioRef.current.load();
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleMetadataLoaded = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
   };
 
   const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-    // TODO: Implement actual playback control
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().catch(error => {
+        console.error('Playback failed:', error);
+      });
+      setIsPlaying(true);
+    }
   };
 
   const handleSeek = (value: number) => {
-    setCurrentTime(value);
-    // TODO: Implement actual seek
+    if (audioRef.current) {
+      audioRef.current.currentTime = value;
+      setCurrentTime(value);
+    }
   };
 
   const formatTime = (seconds: number): string => {
