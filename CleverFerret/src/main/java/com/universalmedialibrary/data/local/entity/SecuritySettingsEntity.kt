@@ -2,10 +2,12 @@ package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 /**
  * Entity for persisting security settings
  */
+@Serializable
 @Entity(tableName = "security_settings")
 data class SecuritySettingsEntity(
     @PrimaryKey

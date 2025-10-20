@@ -135,7 +135,7 @@ All API keys are:
 - **UI**: Jetpack Compose + Material 3
 - **DI**: Hilt
 - **Storage**: EncryptedSharedPreferences
-- **Network**: OkHttp (already in deps ✅)
+- **Network**: OkHttp 4.12.0 (already in project dependencies ✅)
 - **Audio**: MediaPlayer
 
 ---

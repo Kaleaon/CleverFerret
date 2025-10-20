@@ -2,12 +2,14 @@ package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 /**
  * API Settings Entity
  * 
  * Stores configuration settings for each API provider
  */
+@Serializable
 @Entity(tableName = "api_settings")
 data class ApiSettingsEntity(
     @PrimaryKey

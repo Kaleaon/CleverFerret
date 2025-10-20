@@ -120,40 +120,64 @@ class ApiSettingsViewModel @Inject constructor(
     
     fun setTmdbApiKey(apiKey: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(tmdbApiKey = apiKey)
-            if (apiKey.isNotBlank()) {
-                saveApiKey("tmdb", apiKey)
+            val trimmed = apiKey.trim()
+            _uiState.value = _uiState.value.copy(tmdbApiKey = trimmed)
+            
+            if (trimmed.isNotBlank()) {
+                saveApiKey("tmdb", trimmed)
                 _uiState.value = _uiState.value.copy(isTmdbConfigured = true, saveSuccess = true)
+            } else {
+                // Clear key from storage
+                encryptedPrefs.edit().remove("tmdb").apply()
+                _uiState.value = _uiState.value.copy(isTmdbConfigured = false, saveSuccess = true)
             }
         }
     }
 
     fun setMusicBrainzApiKey(apiKey: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(musicBrainzApiKey = apiKey)
-            if (apiKey.isNotBlank()) {
-                saveApiKey("musicbrainz", apiKey)
+            val trimmed = apiKey.trim()
+            _uiState.value = _uiState.value.copy(musicBrainzApiKey = trimmed)
+            
+            if (trimmed.isNotBlank()) {
+                saveApiKey("musicbrainz", trimmed)
                 _uiState.value = _uiState.value.copy(isMusicBrainzConfigured = true, saveSuccess = true)
+            } else {
+                // Clear key from storage
+                encryptedPrefs.edit().remove("musicbrainz").apply()
+                _uiState.value = _uiState.value.copy(isMusicBrainzConfigured = false, saveSuccess = true)
             }
         }
     }
 
     fun setGoogleBooksApiKey(apiKey: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(googleBooksApiKey = apiKey)
-            if (apiKey.isNotBlank()) {
-                saveApiKey("google_books", apiKey)
+            val trimmed = apiKey.trim()
+            _uiState.value = _uiState.value.copy(googleBooksApiKey = trimmed)
+            
+            if (trimmed.isNotBlank()) {
+                saveApiKey("google_books", trimmed)
                 _uiState.value = _uiState.value.copy(isGoogleBooksConfigured = true, saveSuccess = true)
+            } else {
+                // Clear key from storage
+                encryptedPrefs.edit().remove("google_books").apply()
+                _uiState.value = _uiState.value.copy(isGoogleBooksConfigured = false, saveSuccess = true)
             }
         }
     }
 
     fun setOpenLibraryApiKey(apiKey: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(openLibraryApiKey = apiKey)
-            if (apiKey.isNotBlank()) {
-                saveApiKey("open_library", apiKey)
+            val trimmed = apiKey.trim()
+            _uiState.value = _uiState.value.copy(openLibraryApiKey = trimmed)
+            
+            if (trimmed.isNotBlank()) {
+                saveApiKey("open_library", trimmed)
                 _uiState.value = _uiState.value.copy(isOpenLibraryConfigured = true, saveSuccess = true)
+            } else {
+                // Clear key from storage
+                encryptedPrefs.edit().remove("open_library").apply()
+                _uiState.value = _uiState.value.copy(isOpenLibraryConfigured = false, saveSuccess = true)
             }
         }
     }
@@ -162,30 +186,48 @@ class ApiSettingsViewModel @Inject constructor(
     
     fun setPodcastIndexApiKey(apiKey: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(podcastIndexApiKey = apiKey)
-            if (apiKey.isNotBlank()) {
-                saveApiKey("podcast_index", apiKey)
+            val trimmed = apiKey.trim()
+            _uiState.value = _uiState.value.copy(podcastIndexApiKey = trimmed)
+            
+            if (trimmed.isNotBlank()) {
+                saveApiKey("podcast_index", trimmed)
                 _uiState.value = _uiState.value.copy(isPodcastIndexConfigured = true, saveSuccess = true)
+            } else {
+                // Clear key from storage
+                encryptedPrefs.edit().remove("podcast_index").apply()
+                _uiState.value = _uiState.value.copy(isPodcastIndexConfigured = false, saveSuccess = true)
             }
         }
     }
 
     fun setItunesApiKey(apiKey: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(itunesApiKey = apiKey)
-            if (apiKey.isNotBlank()) {
-                saveApiKey("itunes", apiKey)
+            val trimmed = apiKey.trim()
+            _uiState.value = _uiState.value.copy(itunesApiKey = trimmed)
+            
+            if (trimmed.isNotBlank()) {
+                saveApiKey("itunes", trimmed)
                 _uiState.value = _uiState.value.copy(isItunesConfigured = true, saveSuccess = true)
+            } else {
+                // Clear key from storage
+                encryptedPrefs.edit().remove("itunes").apply()
+                _uiState.value = _uiState.value.copy(isItunesConfigured = false, saveSuccess = true)
             }
         }
     }
 
     fun setListenNotesApiKey(apiKey: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(listenNotesApiKey = apiKey)
-            if (apiKey.isNotBlank()) {
-                saveApiKey("listen_notes", apiKey)
+            val trimmed = apiKey.trim()
+            _uiState.value = _uiState.value.copy(listenNotesApiKey = trimmed)
+            
+            if (trimmed.isNotBlank()) {
+                saveApiKey("listen_notes", trimmed)
                 _uiState.value = _uiState.value.copy(isListenNotesConfigured = true, saveSuccess = true)
+            } else {
+                // Clear key from storage
+                encryptedPrefs.edit().remove("listen_notes").apply()
+                _uiState.value = _uiState.value.copy(isListenNotesConfigured = false, saveSuccess = true)
             }
         }
     }

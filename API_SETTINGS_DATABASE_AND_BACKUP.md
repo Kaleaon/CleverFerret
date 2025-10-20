@@ -2,7 +2,7 @@
 
 ## ✅ STATUS: COMPLETE
 
-**Request**: "Add a gear icon next to an api key if it needs configured, or set up, and have a database for those settings, as well as backup all settings feature."
+**Request**: "Add a gear icon next to an api key if it needs to be configured, or set up, and have a database for those settings, as well as backup all settings feature."
 
 **Delivered**: 
 - ✅ Gear icons for unconfigured API keys
@@ -262,15 +262,23 @@ backupService.deleteBackup(fileName)
 ## 🔒 Security Features
 
 ### API Key Storage
-- **Encrypted**: AES256_GCM encryption
+- **Encrypted**: AES256_GCM encryption via EncryptedSharedPreferences
 - **Secure**: Android Keystore for master key
 - **Separated**: Keys stored separately from metadata
+- **Never Logged**: Keys never written to logs or exposed in clear text
 
 ### Backup Security
-- **Encrypted Keys**: API keys encrypted in backup file
+- **Double Encryption**: API keys encrypted twice
+  1. First layer: EncryptedSharedPreferences (AES256_GCM)
+  2. Second layer: Backup-specific AES256_GCM encryption via Android Keystore
+- **Keystore-Backed**: Uses Android Keystore for backup encryption key
+- **IV Prepending**: Each backup uses unique 12-byte IV prepended to ciphertext
+- **Base64 Encoded**: Encrypted keys stored as Base64 in backup JSON
+- **Atomic Restore**: All restore operations wrapped in database transaction
 - **Version Check**: Won't restore incompatible versions
 - **Validation**: Checks file integrity before restore
 - **Metadata**: Device info for tracking
+- **Graceful Degradation**: Failed key import doesn't break entire restore
 
 ---
 

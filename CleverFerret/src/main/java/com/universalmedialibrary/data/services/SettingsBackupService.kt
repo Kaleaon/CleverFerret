@@ -36,6 +36,7 @@ import javax.inject.Singleton
 @Singleton
 class SettingsBackupService @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val appDatabase: AppDatabase,
     private val generalSettingsDao: GeneralSettingsDao,
     private val securitySettingsDao: SecuritySettingsDao,
     private val apiSettingsDao: ApiSettingsDao
@@ -139,7 +140,7 @@ class SettingsBackupService @Inject constructor(
     }
 
     /**
-     * Restore settings from backup
+     * Restore settings from backup (atomic transaction)
      */
     suspend fun restoreBackup(backup: SettingsBackup) = withContext(Dispatchers.IO) {
         // Validate backup version
@@ -147,46 +148,136 @@ class SettingsBackupService @Inject constructor(
             throw Exception("Backup version ${backup.version} is newer than supported version $BACKUP_VERSION")
         }
 
-        // Restore general settings
-        backup.generalSettings?.let { generalSettingsDao.insertSettings(it) }
+        // Wrap entire restore in database transaction for atomicity
+        appDatabase.withTransaction {
+            // Restore general settings
+            backup.generalSettings?.let { generalSettingsDao.insertSettings(it) }
 
-        // Restore security settings
-        backup.securitySettings?.let { securitySettingsDao.insertSettings(it) }
+            // Restore security settings
+            backup.securitySettings?.let { securitySettingsDao.insertSettings(it) }
 
-        // Restore API settings
-        apiSettingsDao.deleteAll()
-        apiSettingsDao.insertSettings(backup.apiSettings)
+            // Restore API settings
+            apiSettingsDao.deleteAll()
+            apiSettingsDao.insertSettings(backup.apiSettings)
 
-        // Restore API keys
-        importApiKeys(backup.apiKeys)
+            // Restore API keys (decrypt and import)
+            decryptAndImportApiKeys(backup.encryptedApiKeys)
+        }
     }
 
     /**
-     * Export API keys from encrypted storage
+     * Export and encrypt API keys using Android Keystore AES/GCM
      */
-    private fun exportApiKeys(): Map<String, String> {
+    private fun exportAndEncryptApiKeys(): String {
         val keys = mutableMapOf<String, String>()
         
+        // Export keys from encrypted prefs
         encryptedPrefs.all.forEach { (key, value) ->
             if (value is String) {
                 keys[key] = value
             }
         }
         
-        return keys
+        // Serialize to JSON
+        val jsonString = json.encodeToString(keys)
+        
+        // Encrypt with Keystore key
+        val encrypted = encryptWithKeystoreAes(jsonString.toByteArray())
+        
+        // Return as Base64 string
+        return Base64.encodeToString(encrypted, Base64.NO_WRAP)
     }
 
     /**
-     * Import API keys to encrypted storage
+     * Decrypt and import API keys using Android Keystore AES/GCM
      */
-    private fun importApiKeys(keys: Map<String, String>) {
-        val editor = encryptedPrefs.edit()
+    private fun decryptAndImportApiKeys(encryptedBase64: String) {
+        if (encryptedBase64.isBlank()) return
         
-        keys.forEach { (key, value) ->
-            editor.putString(key, value)
+        try {
+            // Decode from Base64
+            val encrypted = Base64.decode(encryptedBase64, Base64.NO_WRAP)
+            
+            // Decrypt with Keystore key
+            val decrypted = decryptWithKeystoreAes(encrypted)
+            
+            // Parse JSON
+            val jsonString = String(decrypted, Charsets.UTF_8)
+            val keys = json.decodeFromString<Map<String, String>>(jsonString)
+            
+            // Import to encrypted prefs
+            val editor = encryptedPrefs.edit()
+            keys.forEach { (key, value) ->
+                editor.putString(key, value)
+            }
+            editor.apply()
+        } catch (e: Exception) {
+            // Log but don't fail entire restore if key import fails
+            android.util.Log.e("SettingsBackupService", "Failed to import API keys", e)
         }
+    }
+
+    /**
+     * Get or create AES key in Android Keystore
+     */
+    private fun getOrCreateBackupAesKey(): SecretKey {
+        val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        val keyAlias = "backup_encryption_key"
         
-        editor.apply()
+        // Return existing key if available
+        keyStore.getKey(keyAlias, null)?.let { return it as SecretKey }
+        
+        // Generate new key
+        val keyGenerator = KeyGenerator.getInstance(
+            android.security.keystore.KeyProperties.KEY_ALGORITHM_AES,
+            "AndroidKeyStore"
+        )
+        
+        val keyGenSpec = android.security.keystore.KeyGenParameterSpec.Builder(
+            keyAlias,
+            android.security.keystore.KeyProperties.PURPOSE_ENCRYPT or 
+            android.security.keystore.KeyProperties.PURPOSE_DECRYPT
+        )
+            .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE)
+            .setKeySize(256)
+            .build()
+        
+        keyGenerator.init(keyGenSpec)
+        return keyGenerator.generateKey()
+    }
+
+    /**
+     * Encrypt data with AES/GCM using Keystore key
+     * IV is prepended to ciphertext
+     */
+    private fun encryptWithKeystoreAes(plaintext: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateBackupAesKey())
+        
+        val iv = cipher.iv
+        val ciphertext = cipher.doFinal(plaintext)
+        
+        // Prepend IV to ciphertext (IV is 12 bytes for GCM)
+        return iv + ciphertext
+    }
+
+    /**
+     * Decrypt data with AES/GCM using Keystore key
+     * IV is extracted from first 12 bytes
+     */
+    private fun decryptWithKeystoreAes(encryptedData: ByteArray): ByteArray {
+        require(encryptedData.size > 12) { "Invalid encrypted data" }
+        
+        // Extract IV from first 12 bytes
+        val iv = encryptedData.copyOfRange(0, 12)
+        val ciphertext = encryptedData.copyOfRange(12, encryptedData.size)
+        
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        val spec = GCMParameterSpec(128, iv)
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateBackupAesKey(), spec)
+        
+        return cipher.doFinal(ciphertext)
     }
 
     /**
@@ -248,7 +339,7 @@ data class SettingsBackup(
     val generalSettings: GeneralSettingsEntity?,
     val securitySettings: SecuritySettingsEntity?,
     val apiSettings: List<ApiSettingsEntity>,
-    val apiKeys: Map<String, String>,
+    val encryptedApiKeys: String, // Base64-encoded encrypted API keys
     val metadata: BackupMetadata
 )
 
