@@ -603,7 +603,10 @@ fun ChapterListBottomSheet(
     onChapterSelected: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement chapter list UI
+    // TODO: Implement chapter list UI with LazyColumn showing:
+    // - Chapter number, title, and duration for each chapter
+    // - Highlight current chapter with different background color
+    // - Click handler to call onChapterSelected(index)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -622,7 +625,11 @@ fun BookmarksBottomSheet(
     onBookmarkDelete: (AudiobookBookmark) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement bookmarks UI
+    // TODO: Implement bookmarks UI with LazyColumn showing:
+    // - Bookmark timestamp, note/title for each bookmark
+    // - Click handler to seek to bookmark (call onBookmarkSelected)
+    // - Swipe-to-delete or IconButton for delete (call onBookmarkDelete)
+    // - Empty state when bookmarks list is empty
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -640,7 +647,12 @@ fun SleepTimerDialog(
     onTimerSet: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement sleep timer dialog UI
+    // TODO: Implement sleep timer dialog with:
+    // - Preset buttons: 5, 10, 15, 30, 45, 60 minutes
+    // - Custom time picker option
+    // - "End of chapter" option
+    // - Display remaining time if timer is active
+    // - Cancel button to clear timer (pass 0 or null)
     Box(
         modifier = Modifier
             .fillMaxWidth()

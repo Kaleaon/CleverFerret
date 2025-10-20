@@ -112,8 +112,9 @@ class AppUpgradeManager @Inject constructor(
 
             // STEP 1: Create backup BEFORE any changes
             Log.i(TAG, "Creating pre-upgrade backup...")
-            // TODO: Re-enable backup service when operational
-            val backupPath: String? = null // backupService.createAutomaticBackup()
+            // TODO: Integrate SettingsBackupService.exportToStorage() to create automatic backup before upgrades
+            // Backup service is now operational but needs integration with upgrade flow
+            val backupPath: String? = null // backupService.exportToStorage().getOrNull()?.absolutePath
             
             if (backupPath != null) {
                 prefs.edit().putString(KEY_LAST_BACKUP_PATH, backupPath).apply()

@@ -229,11 +229,13 @@ class AudiobookPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 audiobookService.deleteBookmark(bookmark)
-                // TODO: Show success feedback to user (e.g., via SharedFlow/StateFlow)
+                // TODO: Show success feedback via SharedFlow<UiEvent>
+                // Example: _uiEvents.emit(UiEvent.ShowSnackbar("Bookmark deleted"))
             } catch (e: Exception) {
                 // Handle error and log
                 android.util.Log.e("AudiobookPlayerViewModel", "Failed to delete bookmark", e)
-                // TODO: Show error message to user (e.g., via SharedFlow for one-shot events)
+                // TODO: Show error message via SharedFlow<UiEvent>
+                // Example: _uiEvents.emit(UiEvent.ShowSnackbar("Failed to delete bookmark"))
             }
         }
     }

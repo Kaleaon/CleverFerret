@@ -3,7 +3,10 @@ package com.universalmedialibrary.ui.viewer
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
-// import org.apache.tika.Tika  // TODO: Add Tika dependency if needed for content type detection
+// TODO: Consider adding Apache Tika dependency for advanced MIME type detection
+// Current implementation uses file extensions via MimeTypeMap which works for most cases
+// Tika would provide: content-based detection, file validation, metadata extraction
+// import org.apache.tika.Tika
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,7 +17,8 @@ import javax.inject.Singleton
 @Singleton
 class MediaViewerManager @Inject constructor() {
 
-    // private val tika = Tika()  // TODO: Enable when Tika dependency is added
+    // TODO: Enable Tika for content-based MIME type detection when needed
+    // private val tika = Tika()
 
     enum class MediaType {
         VIDEO,
