@@ -28,6 +28,7 @@ class ArtworkLoaderTest {
     
     private lateinit var context: Context
     private lateinit var okHttpClient: OkHttpClient
+    private lateinit var cacheManager: com.universalmedialibrary.services.cache.CacheManager
     private lateinit var artworkLoader: ArtworkLoader
     private lateinit var mockWebServer: MockWebServer
     
@@ -35,7 +36,8 @@ class ArtworkLoaderTest {
     fun setup() {
         context = mockk(relaxed = true)
         okHttpClient = OkHttpClient()
-        artworkLoader = ArtworkLoader(context, okHttpClient)
+        cacheManager = mockk(relaxed = true)
+        artworkLoader = ArtworkLoader(context, okHttpClient, cacheManager)
         mockWebServer = MockWebServer()
         mockWebServer.start()
     }
@@ -52,7 +54,7 @@ class ArtworkLoaderTest {
     }
     
     @Test
-    fun `test clear cache works`() {
+    fun `test clear cache works`() = runBlocking {
         artworkLoader.clearCache()
         assertEquals(0, artworkLoader.getCacheSizeKB())
     }
@@ -94,14 +96,12 @@ class ArtworkLoaderTest {
     @Test
     fun `test loadPlexArtwork returns null without thumbUrl`() = runBlocking {
         val plexItem = PlexMediaItem(
-            plexMediaId = "123",
-            plexServerId = 1L,
-            ratingKey = "123",
-            mediaType = "movie",
+            serverId = 1L,
+            plexRatingKey = "123",
             title = "Test Movie",
-            thumbUrl = null, // No thumbnail
-            addedAt = 0L,
-            updatedAt = 0L
+            type = "movie",
+            libraryName = "Movies",
+            librarySectionId = "1"
         )
         
         val result = artworkLoader.loadPlexArtwork(
