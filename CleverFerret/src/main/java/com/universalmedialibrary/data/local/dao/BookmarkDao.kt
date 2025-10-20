@@ -21,6 +21,12 @@ interface BookmarkDao {
     @Query("DELETE FROM bookmarks WHERE itemId = :itemId")
     suspend fun deleteAllBookmarksForItem(itemId: Long)
 
+    /**
+     * Get all bookmarks for backup
+     */
+    @Query("SELECT * FROM bookmarks ORDER BY dateCreated DESC")
+    suspend fun getAllBookmarks(): List<Bookmark>
+
     // Reading progress and session methods temporarily disabled - entities missing
     /*
     @Insert(onConflict = OnConflictStrategy.REPLACE)
