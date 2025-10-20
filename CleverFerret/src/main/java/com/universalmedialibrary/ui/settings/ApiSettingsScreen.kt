@@ -5,7 +5,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -42,6 +44,16 @@ fun ApiSettingsScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    // Backup settings button
+                    IconButton(onClick = { viewModel.backupSettings() }) {
+                        Icon(
+                            Icons.Default.Backup,
+                            contentDescription = "Backup Settings",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
@@ -240,7 +252,7 @@ fun ApiSettingsScreen(
                 docsUrl = "https://www.listennotes.com/api/docs/"
             )
 
-            // Save status
+            // Save/Backup status
             if (uiState.saveSuccess) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(
@@ -261,6 +273,41 @@ fun ApiSettingsScreen(
                         Text(
                             text = "API keys saved successfully",
                             color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+                }
+            }
+            
+            // Backup success message
+            uiState.backupMessage?.let { message ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (uiState.backupSuccess) 
+                            MaterialTheme.colorScheme.tertiaryContainer 
+                        else 
+                            MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            if (uiState.backupSuccess) Icons.Default.Check else Icons.Default.Backup,
+                            contentDescription = null,
+                            tint = if (uiState.backupSuccess) 
+                                MaterialTheme.colorScheme.onTertiaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Text(
+                            text = message,
+                            color = if (uiState.backupSuccess) 
+                                MaterialTheme.colorScheme.onTertiaryContainer 
+                            else 
+                                MaterialTheme.colorScheme.onErrorContainer
                         )
                     }
                 }
@@ -315,10 +362,26 @@ private fun ApiKeySection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    
+                    // Gear icon for unconfigured APIs
+                    if (!isConfigured) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Needs configuration",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,

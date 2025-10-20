@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.universalmedialibrary.data.services.SettingsBackupService
 import com.universalmedialibrary.services.tts.TtsProvider
 import com.universalmedialibrary.services.tts.TtsProviderManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ApiSettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val ttsProviderManager: TtsProviderManager
+    private val ttsProviderManager: TtsProviderManager,
+    private val backupService: SettingsBackupService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ApiSettingsUiState())
@@ -194,6 +196,44 @@ class ApiSettingsViewModel @Inject constructor(
     fun getStoredApiKey(service: String): String? {
         return getApiKey(service)
     }
+    
+    /**
+     * Backup all settings to storage
+     */
+    fun backupSettings() {
+        viewModelScope.launch {
+            try {
+                val result = backupService.exportToStorage()
+                result.onSuccess { file ->
+                    _uiState.value = _uiState.value.copy(
+                        backupSuccess = true,
+                        backupMessage = "Settings backed up to ${file.name}"
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        backupSuccess = false,
+                        backupMessage = "Backup failed: ${error.message}"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    backupSuccess = false,
+                    backupMessage = "Backup error: ${e.message}"
+                )
+            }
+        }
+    }
+    
+    /**
+     * Restore settings from backup
+     */
+    fun restoreSettings() {
+        // This would typically show a file picker
+        // For now, just show a message
+        _uiState.value = _uiState.value.copy(
+            backupMessage = "Use file picker to select backup file"
+        )
+    }
 }
 
 data class ApiSettingsUiState(
@@ -226,5 +266,7 @@ data class ApiSettingsUiState(
     val isListenNotesConfigured: Boolean = false,
     
     // General
-    val saveSuccess: Boolean = false
+    val saveSuccess: Boolean = false,
+    val backupSuccess: Boolean = false,
+    val backupMessage: String? = null
 )
