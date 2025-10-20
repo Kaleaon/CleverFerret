@@ -2,6 +2,8 @@ package com.universalmedialibrary.ui.main
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.repository.SettingsRepository
+import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -28,12 +30,15 @@ class MainViewModelTest {
 
     private lateinit var viewModel: MainViewModel
     private val libraryDao: LibraryDao = mock()
+    private val settingsRepository: SettingsRepository = mock()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         whenever(libraryDao.getAllLibraries()).thenReturn(flowOf(emptyList()))
-        viewModel = MainViewModel(libraryDao)
+        whenever(settingsRepository.themeFlow).thenReturn(flowOf(ThemePalette.NAVY_GOLD))
+        whenever(settingsRepository.darkModeFlow).thenReturn(flowOf(true))
+        viewModel = MainViewModel(libraryDao, settingsRepository)
     }
 
     @After

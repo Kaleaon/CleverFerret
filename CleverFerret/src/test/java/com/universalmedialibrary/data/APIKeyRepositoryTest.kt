@@ -7,7 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.APIKeyDao
-import com.universalmedialibrary.data.local.model.APIKey
+import com.universalmedialibrary.data.local.entity.APIKey
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -100,9 +100,9 @@ class APIKeyRepositoryTest {
         
         // Make one key inactive
         val inactiveKey = APIKey(
-            keyName = "Inactive Key",
-            keyValue = "inactive_value",
             provider = "inactive_key",
+            keyValue = "inactive_value",
+            displayName = "Inactive Key",
             category = "TEST",
             isActive = false
         )
@@ -159,7 +159,7 @@ class APIKeyRepositoryTest {
         // ASSERT
         val comicvineKey = repository.getAPIKeyByProvider("comicvine")
         assertThat(comicvineKey).isNotNull()
-        assertThat(comicvineKey?.isRequired).isTrue()
+        // Note: isRequired property doesn't exist in current APIKey entity
         assertThat(comicvineKey?.category).isEqualTo("COMICS_MANGA")
     }
 

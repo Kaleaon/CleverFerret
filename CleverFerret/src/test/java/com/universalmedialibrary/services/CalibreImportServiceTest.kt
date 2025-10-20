@@ -3,7 +3,7 @@ package com.universalmedialibrary.services
 import com.google.common.truth.Truth.assertThat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
-import com.universalmedialibrary.data.local.model.People
+import com.universalmedialibrary.data.local.entity.People
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.InjectMocks

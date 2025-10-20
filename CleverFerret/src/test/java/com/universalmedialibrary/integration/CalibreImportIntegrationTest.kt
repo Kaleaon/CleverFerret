@@ -73,7 +73,7 @@ class CalibreImportIntegrationTest {
     @Test
     fun `can import books into app database`() = runBlocking {
         // Create a test library first
-        val testLibrary = com.universalmedialibrary.data.local.model.Library(
+        val testLibrary = com.universalmedialibrary.data.local.entity.Library(
             name = "Test Library",
             type = "BOOK", 
             path = "/test/path"

@@ -1,9 +1,16 @@
 package com.universalmedialibrary.data
 
 import android.os.Build
+import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import com.universalmedialibrary.data.local.AppDatabase
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.Library
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -14,117 +21,169 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.P])
 class MediaItemDaoTest {
 
-    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var database: AppDatabase
     private lateinit var mediaItemDao: MediaItemDao
+    private var testLibraryId: Long = 0
 
     @Before
-    fun setup() {
+    fun setup() = runBlocking {
         // Using ApplicationProvider to get a context in a test environment with Robolectric
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        dbHelper = DatabaseHelper(context)
-        mediaItemDao = MediaItemDao(context)
-
-        // Clean the database before each test to ensure isolation
-        val db = dbHelper.writableDatabase
-        db.execSQL("DELETE FROM media_items")
-        db.close()
+        database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        mediaItemDao = database.mediaItemDao()
+        
+        // Create a test library for foreign key constraint
+        testLibraryId = database.libraryDao().insertLibrary(
+            Library(
+                name = "Test Library",
+                type = "BOOK",
+                path = "/test/path"
+            )
+        )
     }
 
     @After
     fun teardown() {
-        dbHelper.close()
+        database.close()
     }
 
     @Test
-    fun `addMediaItem and getMediaItem returns correct item`() {
+    fun `insertMediaItem and getMediaItemById returns correct item`() = runBlocking {
         // ARRANGE
         val newItem = MediaItem(
-            id = 1, // id is ignored by addMediaItem, but needed for the data class
-            title = "Test Book",
+            libraryId = testLibraryId,
             filePath = "/path/to/book.epub",
-            mediaType = MediaType.BOOK,
-            dateAdded = System.currentTimeMillis(),
-            dateModified = System.currentTimeMillis()
+            fileName = "book.epub",
+            fileExtension = "epub",
+            fileSize = 1024000,
+            mediaType = "BOOK"
         )
 
         // ACT
-        val newId = mediaItemDao.addMediaItem(newItem)
-        val retrievedItem = mediaItemDao.getMediaItem(newId)
+        val newId = mediaItemDao.insertMediaItem(newItem)
+        val retrievedItem = mediaItemDao.getMediaItemById(newId)
 
         // ASSERT
         assertThat(retrievedItem).isNotNull()
-        assertThat(retrievedItem?.id).isEqualTo(newId)
-        assertThat(retrievedItem?.title).isEqualTo("Test Book")
-        assertThat(retrievedItem?.mediaType).isEqualTo(MediaType.BOOK)
+        assertThat(retrievedItem?.itemId).isEqualTo(newId)
+        assertThat(retrievedItem?.fileName).isEqualTo("book.epub")
+        assertThat(retrievedItem?.mediaType).isEqualTo("BOOK")
     }
 
     @Test
-    fun `getAllMediaItems returns all items sorted by title`() {
+    fun `getMediaItemsForLibrary returns items for specified library`() = runBlocking {
         // ARRANGE
-        val itemB = MediaItem(0, "Book B", "/path/b", MediaType.BOOK, 2L, 2L)
-        val itemA = MediaItem(0, "Book A", "/path/a", MediaType.BOOK, 1L, 1L)
-        mediaItemDao.addMediaItem(itemB)
-        mediaItemDao.addMediaItem(itemA)
+        val item1 = MediaItem(
+            libraryId = testLibraryId,
+            filePath = "/path/to/book1.epub",
+            fileName = "book1.epub",
+            fileExtension = "epub",
+            fileSize = 1024000,
+            mediaType = "BOOK"
+        )
+        val item2 = MediaItem(
+            libraryId = testLibraryId,
+            filePath = "/path/to/book2.epub",
+            fileName = "book2.epub",
+            fileExtension = "epub",
+            fileSize = 2048000,
+            mediaType = "BOOK"
+        )
+        
+        mediaItemDao.insertMediaItem(item1)
+        mediaItemDao.insertMediaItem(item2)
 
         // ACT
-        val allItems = mediaItemDao.getAllMediaItems()
+        val allItems = mediaItemDao.getMediaItemsForLibrary(testLibraryId).first()
 
         // ASSERT
         assertThat(allItems).hasSize(2)
-        // Check for correct sorting
-        assertThat(allItems.map { it.title }).containsExactly("Book A", "Book B").inOrder()
+        assertThat(allItems.map { it.fileName }).containsExactly("book2.epub", "book1.epub").inOrder()
     }
 
     @Test
-    fun `getMediaItem returns null for non-existent item`() {
+    fun `getMediaItemById returns null for non-existent item`() = runBlocking {
         // ACT
-        val retrievedItem = mediaItemDao.getMediaItem(999)
+        val retrievedItem = mediaItemDao.getMediaItemById(999)
 
         // ASSERT
         assertThat(retrievedItem).isNull()
     }
 
     @Test
-    fun `addBook transaction inserts book, author, and links correctly`() {
+    fun `getItemCountForLibrary returns correct count`() = runBlocking {
         // ARRANGE
-        val mediaItem = MediaItem(0, "Transaction Test", "/path/trans", MediaType.BOOK, 1L, 1L)
-        val book = Book(0, "A Test Subtitle", "12345", 100, "Test Publisher")
-        val authors = listOf(Author(0, "New Author", null))
+        val item1 = MediaItem(
+            libraryId = testLibraryId,
+            filePath = "/path/to/book1.epub",
+            fileName = "book1.epub",
+            fileExtension = "epub",
+            fileSize = 1024000,
+            mediaType = "BOOK"
+        )
+        val item2 = MediaItem(
+            libraryId = testLibraryId,
+            filePath = "/path/to/book2.epub",
+            fileName = "book2.epub",
+            fileExtension = "epub",
+            fileSize = 2048000,
+            mediaType = "BOOK"
+        )
+        
+        mediaItemDao.insertMediaItem(item1)
+        mediaItemDao.insertMediaItem(item2)
 
         // ACT
-        val newId = mediaItemDao.addBook(mediaItem, book, authors)
-        assertThat(newId).isNotEqualTo(-1)
+        val count = mediaItemDao.getItemCountForLibrary(testLibraryId)
 
         // ASSERT
-        // Use raw queries to check the state of each table directly
-        val db = dbHelper.readableDatabase
+        assertThat(count).isEqualTo(2)
+    }
 
-        // 1. Check media_items table
-        db.query("media_items", null, "id = ?", arrayOf(newId.toString()), null, null, null).use {
-            assertThat(it.count).isEqualTo(1)
-            it.moveToFirst()
-            assertThat(it.getString(it.getColumnIndexOrThrow("title"))).isEqualTo("Transaction Test")
-        }
+    @Test
+    fun `updateMediaItem modifies existing item`() = runBlocking {
+        // ARRANGE
+        val item = MediaItem(
+            libraryId = testLibraryId,
+            filePath = "/path/to/book.epub",
+            fileName = "book.epub",
+            fileExtension = "epub",
+            fileSize = 1024000,
+            mediaType = "BOOK"
+        )
+        val itemId = mediaItemDao.insertMediaItem(item)
+        
+        // ACT
+        val retrievedItem = mediaItemDao.getMediaItemById(itemId)!!
+        val updatedItem = retrievedItem.copy(fileName = "updated_book.epub")
+        mediaItemDao.updateMediaItem(updatedItem)
+        val finalItem = mediaItemDao.getMediaItemById(itemId)
 
-        // 2. Check books table
-        db.query("books", null, "media_item_id = ?", arrayOf(newId.toString()), null, null, null).use {
-            assertThat(it.count).isEqualTo(1)
-            it.moveToFirst()
-            assertThat(it.getString(it.getColumnIndexOrThrow("subtitle"))).isEqualTo("A Test Subtitle")
-        }
+        // ASSERT
+        assertThat(finalItem?.fileName).isEqualTo("updated_book.epub")
+    }
 
-        // 3. Check authors table and get authorId
-        val authorId = db.query("authors", arrayOf("id"), "name = ?", arrayOf("New Author"), null, null, null).use {
-            assertThat(it.count).isEqualTo(1)
-            it.moveToFirst()
-            it.getLong(it.getColumnIndexOrThrow("id"))
-        }
+    @Test
+    fun `deleteMediaItem removes item from database`() = runBlocking {
+        // ARRANGE
+        val item = MediaItem(
+            libraryId = testLibraryId,
+            filePath = "/path/to/book.epub",
+            fileName = "book.epub",
+            fileExtension = "epub",
+            fileSize = 1024000,
+            mediaType = "BOOK"
+        )
+        val itemId = mediaItemDao.insertMediaItem(item)
+        val insertedItem = mediaItemDao.getMediaItemById(itemId)!!
+        
+        // ACT
+        mediaItemDao.deleteMediaItem(insertedItem)
+        val deletedItem = mediaItemDao.getMediaItemById(itemId)
 
-        // 4. Check join table
-        db.query("media_item_author_join", null, "media_item_id = ? AND author_id = ?", arrayOf(newId.toString(), authorId.toString()), null, null, null).use {
-            assertThat(it.count).isEqualTo(1)
-        }
-
-        db.close()
+        // ASSERT
+        assertThat(deletedItem).isNull()
     }
 }

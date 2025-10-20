@@ -1,6 +1,7 @@
 package com.universalmedialibrary.data.local.model
 
 import com.google.common.truth.Truth.assertThat
+import com.universalmedialibrary.data.local.entity.People
 import org.junit.Test
 
 class PeopleTest {

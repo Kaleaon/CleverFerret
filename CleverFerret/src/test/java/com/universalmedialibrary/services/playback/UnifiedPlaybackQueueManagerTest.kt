@@ -103,9 +103,9 @@ class UnifiedPlaybackQueueManagerTest {
         // First create a library
         val libraryId = database.libraryDao().insertLibrary(
             Library(
-                libraryName = "Test Library",
-                libraryPath = "/test/path",
-                libraryType = "MUSIC"
+                name = "Test Library",
+                path = "/test/path",
+                type = "MUSIC"
             )
         )
         

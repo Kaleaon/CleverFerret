@@ -1,6 +1,7 @@
 package com.universalmedialibrary
 
 import android.content.Context
+import com.universalmedialibrary.services.plex.PlexAuthApi
 import com.universalmedialibrary.services.plex.PlexAuthService
 import com.universalmedialibrary.services.plex.SecureTokenStorage
 import io.mockk.mockk
@@ -16,13 +17,15 @@ class PlexAuthServiceTest {
     
     private lateinit var context: Context
     private lateinit var tokenStorage: SecureTokenStorage
+    private lateinit var authApi: PlexAuthApi
     private lateinit var authService: PlexAuthService
     
     @Before
     fun setup() {
         context = mockk(relaxed = true)
         tokenStorage = mockk(relaxed = true)
-        authService = PlexAuthService(context, tokenStorage)
+        authApi = mockk(relaxed = true)
+        authService = PlexAuthService(context, tokenStorage, authApi)
     }
     
     @Test
