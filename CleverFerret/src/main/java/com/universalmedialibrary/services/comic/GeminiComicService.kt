@@ -775,9 +775,10 @@ data class DetectedSpeechBubble(
 data class OcrResult(
     val text: String,
     val confidence: Float,
-    val detectedLanguage: String = "",
-    val language: String = detectedLanguage // Alias for compatibility
-)
+    val detectedLanguage: String = ""
+) {
+    val language: String get() = detectedLanguage // Alias for compatibility
+}
 
 /**
  * Translation result data

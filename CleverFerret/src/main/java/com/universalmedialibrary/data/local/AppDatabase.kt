@@ -99,6 +99,11 @@ import com.universalmedialibrary.data.Tag
         ReaderSettingsEntity::class,
         BookReaderSettingsEntity::class,
 
+        // Settings
+        GeneralSettingsEntity::class,
+        SecuritySettingsEntity::class,
+        ApiSettingsEntity::class,
+
         // Unified tagging
         UnifiedTag::class,
         ItemTag::class,
@@ -119,7 +124,7 @@ import com.universalmedialibrary.data.Tag
         ComicTranslationCache::class
 
     ],
-    version = 25, // Incremented for Comic Translation Cache
+    version = 26, // Incremented for Settings entities
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -182,6 +187,11 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Comic Translation Cache DAO
     abstract fun comicTranslationCacheDao(): ComicTranslationCacheDao
+
+    // Settings DAOs
+    abstract fun generalSettingsDao(): GeneralSettingsDao
+    abstract fun securitySettingsDao(): SecuritySettingsDao
+    abstract fun apiSettingsDao(): ApiSettingsDao
 
 
     companion object {
