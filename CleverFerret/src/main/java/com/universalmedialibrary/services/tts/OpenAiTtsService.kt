@@ -161,6 +161,9 @@ class OpenAiTtsService @Inject constructor(
             setOnCompletionListener {
                 _ttsState.value = _ttsState.value.copy(isPlaying = false)
                 tempFile.delete()
+                // Release MediaPlayer to prevent resource leak
+                mediaPlayer?.release()
+                mediaPlayer = null
             }
             
             setOnErrorListener { _, what, extra ->
@@ -168,6 +171,9 @@ class OpenAiTtsService @Inject constructor(
                     error = "MediaPlayer error: $what, $extra"
                 )
                 tempFile.delete()
+                // Release MediaPlayer on error to prevent resource leak
+                mediaPlayer?.release()
+                mediaPlayer = null
                 true
             }
             

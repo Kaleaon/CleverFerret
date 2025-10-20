@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Base64
+import androidx.room.withTransaction
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.universalmedialibrary.data.local.AppDatabase
@@ -155,19 +156,21 @@ class SettingsBackupService @Inject constructor(
             throw Exception("Backup version ${backup.version} is newer than supported version $BACKUP_VERSION")
         }
 
-        // Restore settings sequentially (Room doesn't support withTransaction on database instance)
-        // Restore general settings
-        backup.generalSettings?.let { generalSettingsDao.insertSettings(it) }
+        // Wrap restore in a Room transaction to ensure atomicity
+        appDatabase.withTransaction {
+            // Restore general settings
+            backup.generalSettings?.let { generalSettingsDao.insertSettings(it) }
 
-        // Restore security settings
-        backup.securitySettings?.let { securitySettingsDao.insertSettings(it) }
+            // Restore security settings
+            backup.securitySettings?.let { securitySettingsDao.insertSettings(it) }
 
-        // Restore API settings
-        apiSettingsDao.deleteAll()
-        apiSettingsDao.insertSettings(backup.apiSettings)
+            // Restore API settings
+            apiSettingsDao.deleteAll()
+            apiSettingsDao.insertSettings(backup.apiSettings)
 
-        // Restore API keys (decrypt and import)
-        decryptAndImportApiKeys(backup.encryptedApiKeys)
+            // Restore API keys (decrypt and import)
+            decryptAndImportApiKeys(backup.encryptedApiKeys)
+        }
     }
 
     /**

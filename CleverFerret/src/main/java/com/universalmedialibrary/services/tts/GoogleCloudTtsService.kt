@@ -67,15 +67,15 @@ class GoogleCloudTtsService @Inject constructor(
         return apiKey?.isNotBlank() == true
     }
 
-    override suspend fun speak(text: String): Boolean {
+    override suspend fun speak(text: String): Boolean = withContext(Dispatchers.IO) {
         if (apiKey.isNullOrBlank()) {
             _ttsState.value = TtsServiceState(
                 error = "Google Cloud TTS API key not configured"
             )
-            return false
+            return@withContext false
         }
 
-        return try {
+        try {
             _ttsState.value = _ttsState.value.copy(isPlaying = true, currentText = text)
 
             // Request audio from Google Cloud TTS API

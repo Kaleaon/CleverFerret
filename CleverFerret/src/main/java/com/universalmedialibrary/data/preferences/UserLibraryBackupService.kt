@@ -243,21 +243,33 @@ class UserLibraryBackupService @Inject constructor(
             
             // Media library
             libraries = database.libraryDao().getAllLibraries().first(),
-            mediaItems = emptyList(), // TODO: Add getAllMediaItems() to MediaItemDao
-            metadataCommon = emptyList(), // TODO: Add getAllMetadata() to MetadataDao
+            mediaItems = emptyList<MediaItem>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting mediaItems from backup until DAO is implemented") 
+            },
+            metadataCommon = emptyList<MetadataCommon>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting metadataCommon from backup until DAO is implemented") 
+            },
             
             // Reading progress
             readingProgress = database.readingProgressDao().getAllProgress().first(),
-            bookmarks = emptyList(), // TODO: Add getAllBookmarks() to BookmarkDao
+            bookmarks = emptyList<Bookmark>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting bookmarks from backup until DAO is implemented") 
+            },
             readingSessions = database.comicPanelDao().getAllReadingSessions().first(),
             
             // Playlists and collections
             playlists = database.playlistDao().getAllPlaylistsFlow().first(),
-            playlistItems = emptyList(), // TODO: Add getAllPlaylistItems() to PlaylistDao
+            playlistItems = emptyList<PlaylistItem>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting playlistItems from backup until DAO is implemented") 
+            },
             
             // Comic data
-            comicPanels = emptyList(), // TODO: Add getAllPanels() to ComicPanelDao
-            comicTranslations = emptyList(), // TODO: Add getAllTranslations() to ComicPanelDao
+            comicPanels = emptyList<ComicPanelData>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicPanels from backup until DAO is implemented") 
+            },
+            comicTranslations = emptyList<ComicTranslation>().also { 
+                Log.w(TAG, "⚠️ BACKUP WARNING: Omitting comicTranslations from backup until DAO is implemented") 
+            },
             comicSessions = database.comicPanelDao().getAllReadingSessions().first(),
             
             // Radio

@@ -96,6 +96,11 @@ class ComicDataService @Inject constructor(
                     
                     if (panelEntity != null) {
                         for (bubbleTranslation in panelTranslation.bubbles) {
+                            // Skip bubbles without translation
+                            if (bubbleTranslation.translatedText == null || bubbleTranslation.translatedText.isBlank()) {
+                                continue
+                            }
+                            
                             val entity = ComicTranslation(
                                 panelId = panelEntity.id,
                                 comicId = comicId,
@@ -104,7 +109,7 @@ class ComicDataService @Inject constructor(
                                 bubbleY = bubbleTranslation.bounds.y,
                                 bubbleWidth = bubbleTranslation.bounds.width,
                                 bubbleHeight = bubbleTranslation.bounds.height,
-                                originalText = bubbleTranslation.originalText,
+                                originalText = bubbleTranslation.originalText ?: "",
                                 detectedLanguage = pageTranslation.sourceLanguage,
                                 ocrConfidence = bubbleTranslation.confidence,
                                 translatedText = bubbleTranslation.translatedText,

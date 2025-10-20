@@ -212,7 +212,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_21_22,
                     AppDatabaseMigrations.MIGRATION_22_23,
                     AppDatabaseMigrations.MIGRATION_23_24,
-                    AppDatabaseMigrations.MIGRATION_24_25
+                    AppDatabaseMigrations.MIGRATION_24_25,
+                    AppDatabaseMigrations.MIGRATION_25_26
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
