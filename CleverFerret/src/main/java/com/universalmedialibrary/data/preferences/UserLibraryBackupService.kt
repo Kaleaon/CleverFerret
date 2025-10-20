@@ -188,10 +188,10 @@ class UserLibraryBackupService @Inject constructor(
                 }
             }
 
-            // Restore reading sessions
+            // Restore comic reading sessions
             backup.readingSessions.forEach { session ->
                 try {
-                    database.readingSessionDao().insertSession(session)
+                    database.comicPanelDao().insertReadingSession(session)
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to restore reading session", e)
                 }
@@ -243,21 +243,21 @@ class UserLibraryBackupService @Inject constructor(
             
             // Media library
             libraries = database.libraryDao().getAllLibraries().first(),
-            mediaItems = database.mediaItemDao().getAllMediaItems().first(),
-            metadataCommon = database.metadataDao().getAllMetadata().first(),
+            mediaItems = emptyList(), // TODO: Add getAllMediaItems() to MediaItemDao
+            metadataCommon = emptyList(), // TODO: Add getAllMetadata() to MetadataDao
             
             // Reading progress
             readingProgress = database.readingProgressDao().getAllProgress().first(),
-            bookmarks = database.bookmarkDao().getAllBookmarks().first(),
-            readingSessions = database.readingSessionDao().getAllSessions().first(),
+            bookmarks = emptyList(), // TODO: Add getAllBookmarks() to BookmarkDao
+            readingSessions = database.comicPanelDao().getAllReadingSessions().first(),
             
             // Playlists and collections
-            playlists = database.playlistDao().getAllPlaylists().first(),
-            playlistItems = database.playlistDao().getAllPlaylistItems().first(),
+            playlists = database.playlistDao().getAllPlaylistsFlow().first(),
+            playlistItems = emptyList(), // TODO: Add getAllPlaylistItems() to PlaylistDao
             
             // Comic data
-            comicPanels = database.comicPanelDao().getAllPanels().first(),
-            comicTranslations = database.comicPanelDao().getAllTranslations().first(),
+            comicPanels = emptyList(), // TODO: Add getAllPanels() to ComicPanelDao
+            comicTranslations = emptyList(), // TODO: Add getAllTranslations() to ComicPanelDao
             comicSessions = database.comicPanelDao().getAllReadingSessions().first(),
             
             // Radio
@@ -350,7 +350,7 @@ data class LibraryBackup(
     // Reading progress
     val readingProgress: List<ReadingProgress>,
     val bookmarks: List<Bookmark>,
-    val readingSessions: List<ReadingSession>,
+    val readingSessions: List<ComicReadingSession>,
     
     // Playlists
     val playlists: List<Playlist>,

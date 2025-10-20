@@ -16,6 +16,7 @@ import kotlinx.serialization.decodeFromString
  * This entity caches the full page translation data from the Gemini API,
  * allowing for instant offline viewing without re-processing the same page.
  */
+@Serializable
 @Entity(tableName = "comic_translation_cache")
 data class ComicTranslationCache(
     @PrimaryKey

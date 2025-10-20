@@ -183,13 +183,13 @@ class GeminiComicService @Inject constructor(
                         panelIndex = geminiPanel.panelIndex,
                         pageNumber = pageNumber,
                         bounds = NormalizedRect(
-                            x = geminiPanel.x / 100f,
-                            y = geminiPanel.y / 100f,
-                            width = geminiPanel.width / 100f,
-                            height = geminiPanel.height / 100f
+                            x = (geminiPanel.x / 100.0).toFloat(),
+                            y = (geminiPanel.y / 100.0).toFloat(),
+                            width = (geminiPanel.width / 100.0).toFloat(),
+                            height = (geminiPanel.height / 100.0).toFloat()
                         ),
                         confidence = geminiPanel.confidence.toFloat(),
-                        area = (geminiPanel.width * geminiPanel.height) / 10000f,
+                        area = ((geminiPanel.width * geminiPanel.height) / 10000.0).toFloat(),
                         readingOrder = geminiPanel.readingOrder
                     )
                 }
@@ -273,14 +273,20 @@ class GeminiComicService @Inject constructor(
                 
                 geminiResponse.bubbles.map { bubble ->
                     DetectedSpeechBubble(
-                        bubbleIndex = bubble.bubbleIndex,
                         bounds = NormalizedRect(
-                            x = bubble.x / 100f,
-                            y = bubble.y / 100f,
-                            width = bubble.width / 100f,
-                            height = bubble.height / 100f
+                            x = (bubble.x / 100.0).toFloat(),
+                            y = (bubble.y / 100.0).toFloat(),
+                            width = (bubble.width / 100.0).toFloat(),
+                            height = (bubble.height / 100.0).toFloat()
                         ),
-                        confidence = bubble.confidence.toFloat()
+                        text = bubble.text ?: "",
+                        detectedLanguage = bubble.detectedLanguage ?: "unknown",
+                        confidence = bubble.confidence.toFloat(),
+                        ocr = OcrResult(
+                            text = bubble.text ?: "",
+                            confidence = bubble.confidence.toFloat(),
+                            detectedLanguage = bubble.detectedLanguage ?: "unknown"
+                        )
                     )
                 }
                 
@@ -470,20 +476,20 @@ class GeminiComicService @Inject constructor(
                         AnalyzedPanel(
                             panelIndex = panel.panelIndex,
                             bounds = NormalizedRect(
-                                panel.x / 100f,
-                                panel.y / 100f,
-                                panel.width / 100f,
-                                panel.height / 100f
+                                x = (panel.x / 100.0).toFloat(),
+                                y = (panel.y / 100.0).toFloat(),
+                                width = (panel.width / 100.0).toFloat(),
+                                height = (panel.height / 100.0).toFloat()
                             ),
                             readingOrder = panel.readingOrder,
                             bubbles = panel.bubbles.map { bubble ->
                                 AnalyzedBubble(
                                     bubbleIndex = bubble.bubbleIndex,
                                     bounds = NormalizedRect(
-                                        bubble.x / 100f,
-                                        bubble.y / 100f,
-                                        bubble.width / 100f,
-                                        bubble.height / 100f
+                                        x = (bubble.x / 100.0).toFloat(),
+                                        y = (bubble.y / 100.0).toFloat(),
+                                        width = (bubble.width / 100.0).toFloat(),
+                                        height = (bubble.height / 100.0).toFloat()
                                     ),
                                     originalText = bubble.originalText,
                                     detectedLanguage = bubble.detectedLanguage,
@@ -682,4 +688,125 @@ data class AnalyzedBubble(
     val originalText: String,
     val detectedLanguage: String,
     val translatedText: String
+)
+
+/**
+ * Normalized rectangle for bounding box coordinates (0.0 to 1.0)
+ */
+data class NormalizedRect(
+    val x: Float,
+    val y: Float,
+    val width: Float,
+    val height: Float
+) {
+    val area: Float get() = width * height
+}
+
+/**
+ * Result from panel detection
+ */
+data class PanelDetectionResult(
+    val pageNumber: Int,
+    val panels: List<DetectedPanel>,
+    val detectionMethod: String,
+    val confidence: Float,
+    val error: String? = null,
+    val isRightToLeft: Boolean = false
+)
+
+/**
+ * Detected panel information
+ */
+data class DetectedPanel(
+    val pageNumber: Int,
+    val panelIndex: Int,
+    val bounds: NormalizedRect,
+    val confidence: Float,
+    val readingOrder: Int,
+    val area: Float = bounds.area
+)
+
+/**
+ * Result from page translation
+ */
+data class PageTranslationResult(
+    val pageNumber: Int,
+    val panels: List<TranslatedPanel>,
+    val sourceLanguage: String,
+    val targetLanguage: String,
+    val translationMethod: String,
+    val error: String? = null
+)
+
+/**
+ * Translated panel information
+ */
+data class TranslatedPanel(
+    val panelIndex: Int,
+    val bubbles: List<TranslatedBubble>
+)
+
+/**
+ * Translated speech bubble
+ */
+data class TranslatedBubble(
+    val bounds: NormalizedRect,
+    val originalText: String,
+    val translatedText: String,
+    val confidence: Float
+)
+
+/**
+ * Detected speech bubble
+ */
+data class DetectedSpeechBubble(
+    val bounds: NormalizedRect,
+    val text: String,
+    val detectedLanguage: String,
+    val confidence: Float,
+    val ocr: OcrResult
+)
+
+/**
+ * OCR result data
+ */
+data class OcrResult(
+    val text: String,
+    val confidence: Float,
+    val detectedLanguage: String = "",
+    val language: String = detectedLanguage // Alias for compatibility
+)
+
+/**
+ * Translation result data
+ */
+data class TranslationResult(
+    val translatedText: String,
+    val confidence: Float,
+    val targetLanguage: String = ""
+)
+
+/**
+ * Bubble translation result combining OCR and translation
+ */
+data class BubbleTranslationResult(
+    val bubble: DetectedSpeechBubble,
+    val ocr: OcrResult,
+    val translation: TranslationResult?
+)
+
+/**
+ * Panel translation wrapper
+ */
+data class PanelTranslationWrapper(
+    val panel: DetectedPanel,
+    val bubbles: List<BubbleTranslationResult>
+)
+
+/**
+ * Page translation wrapper
+ */
+data class PageTranslationWrapper(
+    val pageNumber: Int,
+    val panels: List<PanelTranslationWrapper>
 )

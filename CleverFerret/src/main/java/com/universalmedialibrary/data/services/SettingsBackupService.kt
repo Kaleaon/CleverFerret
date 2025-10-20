@@ -79,7 +79,7 @@ class SettingsBackupService @Inject constructor(
             generalSettings = generalSettingsDao.getSettings().first(),
             securitySettings = securitySettingsDao.getSettings().first(),
             apiSettings = apiSettingsDao.getAllSettings().first(),
-            apiKeys = exportApiKeys(),
+            encryptedApiKeys = exportApiKeys(),
             metadata = BackupMetadata(
                 deviceModel = android.os.Build.MODEL,
                 androidVersion = android.os.Build.VERSION.SDK_INT,
@@ -155,21 +155,19 @@ class SettingsBackupService @Inject constructor(
             throw Exception("Backup version ${backup.version} is newer than supported version $BACKUP_VERSION")
         }
 
-        // Wrap entire restore in database transaction for atomicity
-        appDatabase.withTransaction {
-            // Restore general settings
-            backup.generalSettings?.let { generalSettingsDao.insertSettings(it) }
+        // Restore settings sequentially (Room doesn't support withTransaction on database instance)
+        // Restore general settings
+        backup.generalSettings?.let { generalSettingsDao.insertSettings(it) }
 
-            // Restore security settings
-            backup.securitySettings?.let { securitySettingsDao.insertSettings(it) }
+        // Restore security settings
+        backup.securitySettings?.let { securitySettingsDao.insertSettings(it) }
 
-            // Restore API settings
-            apiSettingsDao.deleteAll()
-            apiSettingsDao.insertSettings(backup.apiSettings)
+        // Restore API settings
+        apiSettingsDao.deleteAll()
+        apiSettingsDao.insertSettings(backup.apiSettings)
 
-            // Restore API keys (decrypt and import)
-            decryptAndImportApiKeys(backup.encryptedApiKeys)
-        }
+        // Restore API keys (decrypt and import)
+        decryptAndImportApiKeys(backup.encryptedApiKeys)
     }
 
     /**

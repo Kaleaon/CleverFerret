@@ -27,6 +27,12 @@ class CalibreImportService @Inject constructor(
     private val calibreReader: CalibreDatabaseReader
 ) {
 
+    companion object {
+        const val ACTION_IMPORT_CALIBRE = "com.universalmedialibrary.action.IMPORT_CALIBRE"
+        const val EXTRA_LIBRARY_ID = "library_id"
+        const val EXTRA_CALIBRE_PATH = "calibre_path"
+    }
+
     suspend fun importCalibreDatabase(calibreDbPath: String, libraryRootPath: String, libraryId: Long) {
         val rawBooks = calibreReader.readBooks(calibreDbPath)
 

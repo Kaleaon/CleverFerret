@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -68,7 +69,7 @@ class OpenAiTtsService @Inject constructor(
         const val MODEL_TTS_1_HD = "tts-1-hd" // Higher quality
     }
 
-    override fun setApiKey(key: String) {
+    fun setApiKey(key: String) {
         this.apiKey = key
     }
 
@@ -76,32 +77,34 @@ class OpenAiTtsService @Inject constructor(
         this.model = model
     }
 
-    override fun speak(text: String) {
+    override suspend fun initialize(): Boolean {
+        return apiKey?.isNotBlank() == true
+    }
+
+    override suspend fun speak(text: String): Boolean {
         if (apiKey.isNullOrBlank()) {
             _ttsState.value = TtsServiceState(
-                isError = true,
-                errorMessage = "OpenAI API key not configured"
+                error = "OpenAI API key not configured"
             )
-            return
+            return false
         }
 
-        serviceScope.launch {
-            try {
-                _ttsState.value = TtsServiceState(isSpeaking = true, isLoading = true)
+        return try {
+            _ttsState.value = _ttsState.value.copy(isPlaying = true, currentText = text)
 
-                // Request audio from OpenAI API
-                val audioBytes = requestTextToSpeech(text)
-                
-                // Play audio
-                playAudio(audioBytes)
-                
-                _ttsState.value = TtsServiceState(isSpeaking = true, isLoading = false)
-            } catch (e: Exception) {
-                _ttsState.value = TtsServiceState(
-                    isError = true,
-                    errorMessage = "OpenAI TTS failed: ${e.message}"
-                )
-            }
+            // Request audio from OpenAI API
+            val audioBytes = requestTextToSpeech(text)
+            
+            // Play audio
+            playAudio(audioBytes)
+            
+            _ttsState.value = _ttsState.value.copy(isPlaying = true)
+            true
+        } catch (e: Exception) {
+            _ttsState.value = TtsServiceState(
+                error = "OpenAI TTS failed: ${e.message}"
+            )
+            false
         }
     }
 
@@ -156,14 +159,13 @@ class OpenAiTtsService @Inject constructor(
             setDataSource(tempFile.absolutePath)
             
             setOnCompletionListener {
-                _ttsState.value = TtsServiceState(isSpeaking = false)
+                _ttsState.value = _ttsState.value.copy(isPlaying = false)
                 tempFile.delete()
             }
             
             setOnErrorListener { _, what, extra ->
                 _ttsState.value = TtsServiceState(
-                    isError = true,
-                    errorMessage = "MediaPlayer error: $what, $extra"
+                    error = "MediaPlayer error: $what, $extra"
                 )
                 tempFile.delete()
                 true
@@ -176,26 +178,28 @@ class OpenAiTtsService @Inject constructor(
 
     override fun pause() {
         mediaPlayer?.pause()
-        _ttsState.value = _ttsState.value.copy(isSpeaking = false)
+        _ttsState.value = _ttsState.value.copy(isPlaying = false, isPaused = true)
     }
 
     override fun resume() {
         mediaPlayer?.start()
-        _ttsState.value = _ttsState.value.copy(isSpeaking = true)
+        _ttsState.value = _ttsState.value.copy(isPlaying = true, isPaused = false)
     }
 
     override fun stop() {
         mediaPlayer?.stop()
         mediaPlayer?.release()
         mediaPlayer = null
-        _ttsState.value = TtsServiceState(isSpeaking = false)
+        _ttsState.value = _ttsState.value.copy(isPlaying = false, isPaused = false)
     }
 
-    override fun setLanguage(language: String) {
+    override suspend fun setLanguage(language: String): Boolean {
         // OpenAI TTS automatically detects language
+        _ttsState.value = _ttsState.value.copy(currentLanguage = language)
+        return true
     }
 
-    override fun setVoice(voiceName: String) {
+    fun setVoice(voiceName: String) {
         this.voice = voiceName
     }
 
@@ -206,9 +210,36 @@ class OpenAiTtsService @Inject constructor(
 
     override fun setPitch(pitch: Float) {
         // OpenAI TTS doesn't support pitch adjustment
+        _ttsState.value = _ttsState.value.copy(pitch = pitch)
     }
 
-    override fun getAvailableVoices(): List<String> {
+    override suspend fun getAvailableLanguages(): List<TtsLanguage> {
+        // OpenAI TTS supports 58 languages
+        return listOf(
+            TtsLanguage("en", "English"),
+            TtsLanguage("es", "Spanish"),
+            TtsLanguage("fr", "French"),
+            TtsLanguage("de", "German"),
+            TtsLanguage("it", "Italian"),
+            TtsLanguage("pt", "Portuguese"),
+            TtsLanguage("pl", "Polish"),
+            TtsLanguage("nl", "Dutch"),
+            TtsLanguage("ja", "Japanese"),
+            TtsLanguage("zh", "Chinese"),
+            TtsLanguage("ko", "Korean")
+        )
+    }
+
+    override fun isAvailable(): Boolean {
+        return apiKey?.isNotBlank() == true
+    }
+
+    override fun shutdown() {
+        stop()
+        serviceScope.cancel()
+    }
+
+    fun getAvailableVoices(): List<String> {
         return listOf(
             VOICE_ALLOY,
             VOICE_ECHO,
