@@ -76,7 +76,7 @@ class AdvancedMusicPlayerService @Inject constructor(
                 title = trackInfo.title,
                 artist = trackInfo.artist,
                 album = trackInfo.album,
-                artwork = null, // TODO: Load artwork from albumArtUrl
+                artwork = null, // TODO: Load from albumArtUrl using Coil: imageLoader.execute(ImageRequest.Builder(context).data(albumArtUrl).build()).drawable?.toBitmap()
                 serviceType = MediaServiceType.MUSIC
             )
 

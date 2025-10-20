@@ -130,8 +130,10 @@ class MusicPlayerViewModel @Inject constructor(
                     )
 
                     if (enhancedMetadata.success) {
-                        // TODO: Update track metadata in database and UI
-                        // This would require updating the track info and notifying the UI
+                        // TODO: Update track metadata in database using MusicMetadataDao
+                        // Example: musicMetadataDao.updateTrack(enhancedMetadata.toEntity())
+                        // TODO: Update UI state to reflect new metadata
+                        // Example: _currentTrackMetadata.value = enhancedMetadata
                     }
                 } catch (e: Exception) {
                     // Handle metadata enhancement error
@@ -149,7 +151,11 @@ class MusicPlayerViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     val similarArtists = musicMetadataService.getSimilarArtists(track.artist)
-                    // TODO: Handle similar artists result (show in UI, add to recommendations)
+                    // TODO: Implement similar artists UI feature:
+                    // - Add _similarArtists MutableStateFlow<List<Artist>> 
+                    // - Update: _similarArtists.value = similarArtists
+                    // - Add UI section in MusicPlayerScreen to display artists
+                    // - Add click navigation to artist detail screen
                 } catch (e: Exception) {
                     // Handle error
                 }
@@ -166,7 +172,11 @@ class MusicPlayerViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     val topTracks = musicMetadataService.getArtistTopTracks(track.artist)
-                    // TODO: Handle top tracks result (show in UI, add to queue)
+                    // TODO: Implement top tracks UI feature:
+                    // - Add _topTracks MutableStateFlow<List<Track>>
+                    // - Update: _topTracks.value = topTracks
+                    // - Add "Top Tracks" section in UI with "Add to Queue" buttons
+                    // - Call musicPlayerService.addToQueue(track) on button click
                 } catch (e: Exception) {
                     // Handle error
                 }

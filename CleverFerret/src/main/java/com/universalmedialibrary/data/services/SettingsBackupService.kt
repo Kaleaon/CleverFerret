@@ -80,7 +80,9 @@ class SettingsBackupService @Inject constructor(
             generalSettings = generalSettingsDao.getSettings().first(),
             securitySettings = securitySettingsDao.getSettings().first(),
             apiSettings = apiSettingsDao.getAllSettings().first(),
-            encryptedApiKeys = exportApiKeys(),
+
+            encryptedApiKeys = exportAndEncryptApiKeys(),
+
             metadata = BackupMetadata(
                 deviceModel = android.os.Build.MODEL,
                 androidVersion = android.os.Build.VERSION.SDK_INT,

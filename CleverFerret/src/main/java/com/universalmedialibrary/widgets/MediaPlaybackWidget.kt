@@ -40,9 +40,13 @@ object MediaPlaybackWidget : GlanceAppWidget() {
 
 @Composable
 fun MediaPlaybackWidgetContent() {
-    // TODO: Implement state observation from MediaPlaybackWidgetService.widgetState
-    // Currently displays placeholder content until state observation is implemented
-    // Future: Use GlanceStateDefinition to observe MediaPlaybackWidgetService.widgetState StateFlow
+    // TODO: Implement state observation from MediaPlaybackWidgetService.widgetState:
+    // 1. Define GlanceStateDefinition for widget state
+    // 2. Use currentState<WidgetState>() to observe state changes
+    // 3. Update UI based on: currentTrack, isPlaying, artwork, position
+    // 4. Add click handlers: onPlayPause(), onNext(), onPrevious()
+    // Reference: https://developer.android.com/jetpack/androidx/releases/glance
+    // Currently displays placeholder until state observation is implemented
 
     Box(
         modifier = GlanceModifier

@@ -82,7 +82,9 @@ class MediaItemDetailViewModel @Inject constructor(
                 val newFavoriteState = !_uiState.value.isFavorite
                 
                 // Update in database
-                // TODO: Add favorite field to MediaItem entity
+                // TODO: Add isFavorite boolean field to MediaItem entity schema
+                // Then update: mediaItemDao.updateFavorite(currentItem.itemId, newFavoriteState)
+                // Or add: @Query("UPDATE media_items SET is_favorite = :isFavorite WHERE item_id = :itemId")
                 
                 _uiState.value = _uiState.value.copy(isFavorite = newFavoriteState)
             } catch (e: Exception) {

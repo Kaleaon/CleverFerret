@@ -14,11 +14,12 @@ import com.universalmedialibrary.data.local.entity.*
  * - Common interface for shared operations
  * - Easy to extend with new media types
  *
- * TODO: Add support for tags and collections as properties
- * TODO: Add computed properties for artwork variants
- * TODO: Add support for external media sources (Plex, Jellyfin)
- * TODO: Add support for grouped media (albums, series)
- * TODO: Add support for media relationships (related books, sequels)
+ * Future Enhancements (tracked as TODOs):
+ * 1. Tags & Collections: Add UnifiedTag and UnifiedCollection properties for organization
+ * 2. Artwork Variants: Add computed properties for different artwork sizes/contexts
+ * 3. External Sources: Support Plex, Jellyfin, and other media server integrations
+ * 4. Grouped Media: Support for albums, series, and collections as first-class entities
+ * 5. Relationships: Track related books, sequels, prequels, and recommendations
  */
 sealed class UnifiedMediaItem {
     abstract val itemId: Long
@@ -42,16 +43,18 @@ sealed class UnifiedMediaItem {
     val coverImagePath: String? get() = commonMetadata?.coverImagePath ?: thumbnailPath
     val language: String? get() = commonMetadata?.language
 
-    // TODO: Add these computed properties when tag/collection support is implemented
-    // val tags: List<UnifiedTag> - Loaded via repository query
-    // val collections: List<UnifiedCollection> - Loaded via repository query
-    // val genres: List<Genre> - Loaded via repository query
+    // Future: Tag and Collection Support
+    // When implemented, add these as properties loaded via repository:
+    // val tags: List<UnifiedTag> - Query: unifiedTagDao.getTagsForItem(itemId)
+    // val collections: List<UnifiedCollection> - Query: collectionDao.getCollectionsForItem(itemId)
+    // val genres: List<Genre> - Query: genreDao.getGenresForItem(itemId)
 
-    // TODO: Add artwork accessors for different contexts
-    // val primaryArtwork: String? - Main cover/poster
-    // val thumbnailArtwork: String? - Small thumbnail for lists
-    // val backgroundArtwork: String? - Background for details screen
-    // val bannerArtwork: String? - Wide banner for headers
+    // Future: Artwork Variant Accessors
+    // When implemented, provide context-specific artwork:
+    // val primaryArtwork: String? - Main cover/poster (original size)
+    // val thumbnailArtwork: String? - Small thumbnail for lists (256x256)
+    // val backgroundArtwork: String? - Background for details screen (1920x1080)
+    // val bannerArtwork: String? - Wide banner for headers (1920x600)
 
     data class Book(
         override val itemId: Long,

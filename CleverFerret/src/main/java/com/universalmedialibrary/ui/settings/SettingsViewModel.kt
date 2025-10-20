@@ -237,18 +237,18 @@ class SettingsViewModel @Inject constructor(
     fun updateSecuritySettings(settings: SecuritySettings) {
         viewModelScope.launch {
             _securitySettings.value = settings
-            // Persist security settings - update individual settings in repository
-            // For now, just update in-memory state since SecuritySettings hasn't been fully integrated
-            // TODO: Add SecuritySettingsEntity and DAO for full persistence
+            // TODO: Integrate SecuritySettingsDao (already exists) for database persistence
+            // Example: securitySettingsDao.insertSettings(settings.toEntity())
+            // SecuritySettingsDao and SecuritySettingsEntity are already defined and used in SettingsBackupService
         }
     }
 
     fun updateGeneralSettings(settings: GeneralSettings) {
         viewModelScope.launch {
             _generalSettings.value = settings
-            // Persist general settings - update individual settings in repository
-            // For now, just update in-memory state since GeneralSettings hasn't been fully integrated
-            // TODO: Add GeneralSettingsEntity and DAO for full persistence
+            // TODO: Integrate GeneralSettingsDao (already exists) for database persistence
+            // Example: generalSettingsDao.insertSettings(settings.toEntity())
+            // GeneralSettingsDao and GeneralSettingsEntity are already defined and used in SettingsBackupService
         }
     }
 }
