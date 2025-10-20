@@ -13,6 +13,7 @@ import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -69,7 +70,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
             
             val currentStation = if (currentStationId > 0 && radioStationDao != null) {
-                runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
+                kotlinx.coroutines.runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
             } else {
                 null
             }
@@ -185,9 +186,9 @@ class RadioPlayerWidget : AppWidgetProvider() {
                     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
                     if (currentStationId > 0) {
-                        val station = runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
+                        val station = kotlinx.coroutines.runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
                         if (station != null) {
-                            runBlocking { radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite) }
+                            kotlinx.coroutines.runBlocking { radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite) }
                         }
                     }
                     updateAllWidgets(context)

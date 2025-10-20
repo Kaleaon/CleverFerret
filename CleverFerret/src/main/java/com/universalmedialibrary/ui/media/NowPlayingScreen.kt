@@ -95,7 +95,7 @@ private fun NowPlayingContent(
     ) {
         // Album artwork or placeholder
         AsyncImage(
-            model = playbackState.currentTrack?.albumArtUrl,
+            model = state.currentTrack?.albumArtUrl,
             contentDescription = "Album artwork",
             modifier = Modifier
                 .size(300.dp)
