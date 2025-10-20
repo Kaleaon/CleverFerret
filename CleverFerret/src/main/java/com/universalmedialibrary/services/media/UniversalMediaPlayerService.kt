@@ -20,7 +20,9 @@ import javax.inject.Singleton
  * - Video files (MP4, MKV, AVI, MOV, WMV)
  *
  * Currently uses MediaPlayer as primary engine
- * TODO: Add ExoPlayer support when dependencies are available
+ * TODO: Add ExoPlayer support for better format compatibility and features:
+ * Add: implementation "androidx.media3:media3-exoplayer:1.1.1"
+ * Benefits: HLS/DASH streaming, subtitles, DRM, better codec support
  */
 @Singleton
 class UniversalMediaPlayerService @Inject constructor(
