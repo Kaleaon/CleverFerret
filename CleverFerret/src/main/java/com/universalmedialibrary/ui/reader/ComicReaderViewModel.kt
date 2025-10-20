@@ -503,7 +503,10 @@ class ComicReaderViewModel @Inject constructor(
                                 throw SecurityException("RAR entry path traversal: ${header.fileName}")
                             }
                             destCanonical.parentFile?.mkdirs()
-                            archive.extractFile(header, destCanonical.parent, destCanonical.name)
+                            val extractFile = File(destCanonical.parent, destCanonical.name)
+                            extractFile.outputStream().use { output ->
+                                archive.extractFile(header, output)
+                            }
                             pages.add(destCanonical.absolutePath)
                         }
                     archive.close()
