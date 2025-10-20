@@ -72,12 +72,33 @@ class ComicReaderViewModel @Inject constructor(
                 comicPages = extractPages(comicPath)
                 
                 // Load or create reading session
-                val session = comicPanelDao.getReadingSession(comicId) ?: ComicReadingSession(
+                var session = comicPanelDao.getReadingSession(comicId) ?: ComicReadingSession(
                     comicId = comicId,
                     comicFilePath = comicPath,
                     comicTitle = File(comicPath).nameWithoutExtension,
                     totalPages = comicPages.size
                 )
+                
+                // Update session totalPages to match actual comicPages.size
+                session = session.copy(totalPages = comicPages.size)
+                
+                // Guard against empty comicPages list
+                if (comicPages.isEmpty()) {
+                    Log.w("ComicReaderViewModel", "Comic has no pages: $comicPath")
+                    
+                    // Ensure session exists in database with zero pages
+                    comicPanelDao.insertReadingSession(session)
+                    
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        comicTitle = session.comicTitle,
+                        totalPages = 0,
+                        currentPage = 0,
+                        readingSession = session,
+                        error = "Comic contains no readable pages"
+                    )
+                    return@launch
+                }
                 
                 // Ensure session exists in database before updates
                 comicPanelDao.insertReadingSession(session)
@@ -85,7 +106,7 @@ class ComicReaderViewModel @Inject constructor(
                 // Try to import existing panel data
                 comicDataService.importPanelDataFromFile(comicId, comicPath)
                 
-                // Load first page
+                // Load first page (now safe because comicPages is not empty)
                 val currentPage = session.currentPage.coerceIn(0, comicPages.size - 1)
                 loadPage(currentPage)
                 
