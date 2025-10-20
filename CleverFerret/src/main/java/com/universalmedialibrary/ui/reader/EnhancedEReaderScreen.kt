@@ -305,7 +305,7 @@ fun EnhancedEReaderScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            viewModel.navigateToChapter(chapter.index)
+                                            viewModel.goToChapter(index)
                                             showTableOfContents = false
                                         }
                                         .padding(vertical = 8.dp),

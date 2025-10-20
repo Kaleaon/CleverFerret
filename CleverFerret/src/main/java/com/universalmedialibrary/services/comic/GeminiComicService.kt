@@ -614,7 +614,9 @@ private data class GeminiBubble(
     val y: Double,
     val width: Double,
     val height: Double,
-    val confidence: Double
+    val confidence: Double,
+    val text: String? = null,
+    val detectedLanguage: String? = null
 )
 
 @Serializable

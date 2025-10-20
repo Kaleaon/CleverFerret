@@ -482,13 +482,6 @@ class ComicReaderViewModel @Inject constructor(
                             destCanonical.outputStream().use { output -> input.copyTo(output) }
                         }
                         pages.add(destCanonical.absolutePath)
-                        outputFile.parentFile?.mkdirs()
-                        zipFile.getInputStream(entry).use { input ->
-                            outputFile.outputStream().use { output ->
-                                input.copyTo(output)
-                            }
-                        }
-                        pages.add(outputFile.absolutePath)
                     }
                     zipFile.close()
                 }
@@ -503,17 +496,15 @@ class ComicReaderViewModel @Inject constructor(
                         .filter { !it.isDirectory && it.fileName.matches(Regex(".*\\.(jpg|jpeg|png|gif|bmp|webp)", RegexOption.IGNORE_CASE)) }
                         .sortedBy { it.fileName }
                         .forEach { header ->
-val dest = File(tempDir, header.fileName)
-val destCanonical = dest.canonicalFile
-val basePath = tempDir.canonicalPath + File.separator
-if (!destCanonical.path.startsWith(basePath)) {
-    throw SecurityException("RAR entry path traversal: ${header.fileName}")
-}
-archive.extractFile(header, destCanonical.absolutePath)
-pages.add(destCanonical.absolutePath)
-                            outputFile.parentFile?.mkdirs()
-                            archive.extractFile(header, outputFile.absolutePath)
-                            pages.add(outputFile.absolutePath)
+                            val dest = File(tempDir, header.fileName)
+                            val destCanonical = dest.canonicalFile
+                            val basePath = tempDir.canonicalPath + File.separator
+                            if (!destCanonical.path.startsWith(basePath)) {
+                                throw SecurityException("RAR entry path traversal: ${header.fileName}")
+                            }
+                            destCanonical.parentFile?.mkdirs()
+                            archive.extractFile(header, destCanonical.parent, destCanonical.name)
+                            pages.add(destCanonical.absolutePath)
                         }
                     archive.close()
                 }
