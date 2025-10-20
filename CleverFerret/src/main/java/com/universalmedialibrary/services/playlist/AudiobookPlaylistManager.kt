@@ -6,11 +6,13 @@ import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.PlaylistItem
+import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.firstOrNull
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton

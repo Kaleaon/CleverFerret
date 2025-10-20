@@ -106,9 +106,10 @@ class UnifiedReaderService @Inject constructor(
                 
                 // Use our Gemini AI for comics (superior to Readium's partial CBZ)
                 "cbz", "cbr" -> {
-                    // TODO: Re-enable when GeminiComicService is operational
-                    Log.w(TAG, "Comic service currently disabled")
-                    throw UnsupportedOperationException("Comic service currently disabled")
+                    ReaderType.Comic(
+                        filePath = filePath,
+                        service = geminiComicService
+                    )
                 }
                 
                 // Use ExoPlayer for standalone audio files
@@ -226,11 +227,10 @@ sealed class ReaderType {
         val service: ReadiumAudiobookService
     ) : ReaderType()
     
-    // TODO: Re-enable when GeminiComicService is operational
-    // data class Comic(
-    //     val filePath: String,
-    //     val service: GeminiComicService
-    // ) : ReaderType()
+    data class Comic(
+        val filePath: String,
+        val service: GeminiComicService
+    ) : ReaderType()
     
     data class Audio(
         val filePath: String,
