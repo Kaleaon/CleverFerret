@@ -146,7 +146,7 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.1.0")
     
     // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     
     // Glance for widgets
     implementation("androidx.glance:glance-appwidget:1.1.1")
