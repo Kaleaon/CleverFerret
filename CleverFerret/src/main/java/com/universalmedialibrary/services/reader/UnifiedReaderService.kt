@@ -7,7 +7,7 @@ import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.epub.ReadiumAudiobookService
 import com.universalmedialibrary.services.epub.ReadiumEpubService
 import com.universalmedialibrary.services.epub.ReadiumPdfService
-// import com.universalmedialibrary.services.comic.GeminiComicService // Disabled - not currently operational
+import com.universalmedialibrary.services.comic.GeminiComicService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -41,7 +41,7 @@ class UnifiedReaderService @Inject constructor(
     private val readiumEpubService: ReadiumEpubService,
     private val readiumPdfService: ReadiumPdfService,
     private val readiumAudiobookService: ReadiumAudiobookService,
-    // private val geminiComicService: GeminiComicService, // Disabled - not currently operational
+    private val geminiComicService: GeminiComicService,
     private val audioPlaybackManager: AudioPlaybackManager
 ) {
     private val TAG = "UnifiedReaderService"

@@ -69,7 +69,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
             
             val currentStation = if (currentStationId > 0 && radioStationDao != null) {
-                radioStationDao.getStationById(currentStationId)
+                runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
             } else {
                 null
             }
@@ -185,9 +185,9 @@ class RadioPlayerWidget : AppWidgetProvider() {
                     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
                     if (currentStationId > 0) {
-                        val station = radioStationDao.getStationById(currentStationId)
+                        val station = runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
                         if (station != null) {
-                            radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite)
+                            runBlocking { radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite) }
                         }
                     }
                     updateAllWidgets(context)
