@@ -31,6 +31,7 @@ import com.universalmedialibrary.data.local.entity.Library
 @Composable
 fun LibraryManagementScreen(
     onNavigateBack: () -> Unit = {},
+    onNavigateToLibrary: (Long) -> Unit = {},
     viewModel: LibraryManagementViewModel = hiltViewModel()
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -117,7 +118,7 @@ fun LibraryManagementScreen(
                 LibraryListContent(
                     libraries = libraries,
                     onLibraryClick = { library ->
-                        navController.navigate("library/${library.id}/media")
+                        onNavigateToLibrary(library.libraryId)
                     }
                 )
             }

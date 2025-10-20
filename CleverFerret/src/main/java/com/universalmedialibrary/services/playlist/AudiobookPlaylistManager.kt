@@ -33,7 +33,8 @@ class AudiobookPlaylistManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playlistDao: PlaylistDao,
     private val mediaItemDao: MediaItemDao,
-    private val queueManager: UnifiedPlaybackQueueManager
+    private val queueManager: UnifiedPlaybackQueueManager,
+    private val historyRepository: HistoryRepository
 ) {
 
     /**
@@ -291,13 +292,13 @@ class AudiobookPlaylistManager @Inject constructor(
      * Continue series from where left off
      */
     suspend fun continueSeries(playlistId: Long) {
-        val playlist = getAudiobookPlaylist(playlistId)
+        // Get playlist items
+        val playlistItems = playlistDao.getPlaylistItemsFlow(playlistId).first()
         
         // Find last read book from progress
         var startIndex = 0
-        for ((index, audiobook) in playlist.books.withIndex()) {
-            val progress = historyRepository.getReadingProgress(audiobook.mediaItem.itemId)
-                .kotlinx.coroutines.flow.firstOrNull()
+        for ((index, item) in playlistItems.withIndex()) {
+            val progress = historyRepository.getReadingProgress(item.mediaItemId).firstOrNull()
             if (progress != null && progress.percentage < 95.0f) {
                 startIndex = index
                 break

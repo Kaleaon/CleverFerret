@@ -440,6 +440,7 @@ private fun ApiKeySection(
         }
 
         // Links
+        val context = androidx.compose.ui.platform.LocalContext.current
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -451,7 +452,7 @@ private fun ApiKeySection(
                         android.net.Uri.parse(getKeyUrl)
                     )
                     intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                    androidx.compose.ui.platform.LocalContext.current.startActivity(intent)
+                    context.startActivity(intent)
                 }
             ) {
                 Text("Get API Key →")
@@ -465,7 +466,7 @@ private fun ApiKeySection(
                         android.net.Uri.parse(docsUrl)
                     )
                     intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                    androidx.compose.ui.platform.LocalContext.current.startActivity(intent)
+                    context.startActivity(intent)
                 }
             ) {
                 Text("Documentation")

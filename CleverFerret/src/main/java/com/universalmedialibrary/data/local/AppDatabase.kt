@@ -99,6 +99,11 @@ import com.universalmedialibrary.data.Tag
         ReaderSettingsEntity::class,
         BookReaderSettingsEntity::class,
 
+        // Settings
+        GeneralSettingsEntity::class,
+        SecuritySettingsEntity::class,
+        ApiSettingsEntity::class,
+
         // Unified tagging
         UnifiedTag::class,
         ItemTag::class,
@@ -119,7 +124,7 @@ import com.universalmedialibrary.data.Tag
         ComicTranslationCache::class
 
     ],
-    version = 25, // Incremented for Comic Translation Cache
+    version = 26, // Incremented for Settings entities
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -183,6 +188,11 @@ abstract class AppDatabase : RoomDatabase() {
     // Comic Translation Cache DAO
     abstract fun comicTranslationCacheDao(): ComicTranslationCacheDao
 
+    // Settings DAOs
+    abstract fun generalSettingsDao(): GeneralSettingsDao
+    abstract fun securitySettingsDao(): SecuritySettingsDao
+    abstract fun apiSettingsDao(): ApiSettingsDao
+
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
@@ -202,7 +212,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_21_22,
                     AppDatabaseMigrations.MIGRATION_22_23,
                     AppDatabaseMigrations.MIGRATION_23_24,
-                    AppDatabaseMigrations.MIGRATION_24_25
+                    AppDatabaseMigrations.MIGRATION_24_25,
+                    AppDatabaseMigrations.MIGRATION_25_26
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

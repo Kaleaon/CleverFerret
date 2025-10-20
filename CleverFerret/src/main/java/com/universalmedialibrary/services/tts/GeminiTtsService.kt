@@ -48,8 +48,14 @@ class GeminiTtsService @Inject constructor(
             .create(CloudTextToSpeechApi::class.java)
     }
 
+    private var voiceName: String = "gemini-2.5-flash-tts-001" // Default Gemini voice
+
     fun setApiKey(key: String) {
         apiKey = key
+    }
+
+    fun setVoice(voice: String) {
+        voiceName = voice
     }
 
     override suspend fun initialize(): Boolean = withContext(Dispatchers.IO) {
@@ -94,7 +100,7 @@ class GeminiTtsService @Inject constructor(
                 input = TextInput(text = text),
                 voice = VoiceSelectionParams(
                     languageCode = _ttsState.value.currentLanguage,
-                    name = "gemini-2.5-flash-tts-001" // Gemini TTS voice
+                    name = voiceName
                 ),
                 audioConfig = AudioConfig(
                     audioEncoding = "MP3",

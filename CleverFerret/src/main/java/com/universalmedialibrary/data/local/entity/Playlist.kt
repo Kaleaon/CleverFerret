@@ -4,11 +4,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 import androidx.room.Index
+import kotlinx.serialization.Serializable
 
 /**
  * Playlists and items for music (and potentially other audio).
  * Designed to support local persistence, sharing (export), and Plex sync.
  */
+@Serializable
 @Entity(tableName = "playlists")
 data class Playlist(
     @PrimaryKey(autoGenerate = true)
@@ -50,6 +52,7 @@ data class Playlist(
         Index(value = ["playlistId", "position"], unique = true)
     ]
 )
+@Serializable
 data class PlaylistItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
