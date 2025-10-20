@@ -291,8 +291,20 @@ class AudiobookPlaylistManager @Inject constructor(
      * Continue series from where left off
      */
     suspend fun continueSeries(playlistId: Long) {
-        // TODO: Integrate with reading progress to find last read book
-        startPlaylist(playlistId, 0)
+        val playlist = getAudiobookPlaylist(playlistId)
+        
+        // Find last read book from progress
+        var startIndex = 0
+        for ((index, audiobook) in playlist.books.withIndex()) {
+            val progress = historyRepository.getReadingProgress(audiobook.mediaItem.itemId)
+                .kotlinx.coroutines.flow.firstOrNull()
+            if (progress != null && progress.percentage < 95.0f) {
+                startIndex = index
+                break
+            }
+        }
+        
+        startPlaylist(playlistId, startIndex)
     }
 
     /**
