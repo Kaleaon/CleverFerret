@@ -16,7 +16,7 @@ plugins {
 
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 34  // Android 14 (API 34)
+    compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"

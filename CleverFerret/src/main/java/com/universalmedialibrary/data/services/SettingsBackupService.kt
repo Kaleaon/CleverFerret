@@ -3,8 +3,10 @@ package com.universalmedialibrary.data.services
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
+import android.util.Base64
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.ApiSettingsDao
 import com.universalmedialibrary.data.local.dao.GeneralSettingsDao
 import com.universalmedialibrary.data.local.dao.SecuritySettingsDao
@@ -19,8 +21,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.security.KeyStore
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -163,6 +170,13 @@ class SettingsBackupService @Inject constructor(
             // Restore API keys (decrypt and import)
             decryptAndImportApiKeys(backup.encryptedApiKeys)
         }
+    }
+
+    /**
+     * Export API keys (called by createBackup)
+     */
+    private fun exportApiKeys(): String {
+        return exportAndEncryptApiKeys()
     }
 
     /**
