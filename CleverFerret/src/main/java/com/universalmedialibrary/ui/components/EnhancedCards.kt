@@ -37,22 +37,12 @@ fun EnhancedMediaCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isPressed by remember { mutableStateOf(false) }
-    
-    val elevation by animateDpAsState(
-        targetValue = if (isPressed) 2.dp else 4.dp,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-        label = "elevation"
-    )
-    
     Card(
         onClick = onClick,
         modifier = modifier
             .width(160.dp)
-            .shadow(elevation),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = elevation
-        )
+            .shadow(4.dp)
+            .bounceClick(onClick)
     ) {
         Column {
             // Image with overlay badge

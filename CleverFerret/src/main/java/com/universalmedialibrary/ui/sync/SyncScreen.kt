@@ -310,7 +310,7 @@ private fun ConflictCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                conflict.itemType,
+                formatConflictDescription(conflict.itemType),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -546,5 +546,19 @@ private fun formatSyncTime(timestamp: Long): String {
             val sdf = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
             sdf.format(Date(timestamp))
         }
+    }
+}
+
+/**
+ * Format conflict type for user-friendly display
+ */
+private fun formatConflictDescription(itemType: String): String {
+    return when (itemType.uppercase()) {
+        "READING_PROGRESS" -> "Reading position sync conflict"
+        "BOOKMARKS" -> "Bookmark sync conflict"
+        "MEDIA_ITEM" -> "Media item metadata conflict"
+        "ANNOTATION" -> "Annotation sync conflict"
+        "SETTINGS" -> "Settings sync conflict"
+        else -> "Sync conflict in $itemType"
     }
 }

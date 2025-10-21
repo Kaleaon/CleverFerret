@@ -273,7 +273,22 @@ data class SearchFilters(
     val maxFileSize: Long? = null,
     val minRating: Float? = null,
     val tags: List<String> = emptyList()
-)
+) {
+    /**
+     * Check if any filters are currently active
+     */
+    fun hasActiveFilters(): Boolean {
+        return mediaTypes.isNotEmpty() ||
+               genres.isNotEmpty() ||
+               libraryIds.isNotEmpty() ||
+               dateFrom != null ||
+               dateTo != null ||
+               minFileSize != null ||
+               maxFileSize != null ||
+               minRating != null ||
+               tags.isNotEmpty()
+    }
+}
 
 /**
  * Sort options

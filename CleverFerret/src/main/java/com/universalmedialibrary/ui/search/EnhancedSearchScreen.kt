@@ -45,7 +45,7 @@ fun EnhancedSearchScreen(
                 onSearchQueryChange = viewModel::onSearchQueryChange,
                 onNavigateBack = { navController.navigateUp() },
                 onClearSearch = viewModel::clearSearch,
-                showFilterBadge = filters.mediaTypes.isNotEmpty() || filters.libraryIds.isNotEmpty(),
+                showFilterBadge = filters.hasActiveFilters(),
                 onShowFilters = { showFilters = true },
                 onShowSort = { showSortOptions = true }
             )

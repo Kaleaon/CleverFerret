@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.IntOffset
 /**
  * Animated visibility with slide and fade
  */
-fun <T> slideAndFadeIn(
+fun slideAndFadeIn(
     durationMillis: Int = 400,
     delayMillis: Int = 0
 ): EnterTransition {
@@ -28,7 +28,7 @@ fun <T> slideAndFadeIn(
     )
 }
 
-fun <T> slideAndFadeOut(
+fun slideAndFadeOut(
     durationMillis: Int = 400
 ): ExitTransition {
     return fadeOut(

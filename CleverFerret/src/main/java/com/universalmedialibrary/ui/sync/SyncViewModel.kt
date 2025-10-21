@@ -77,8 +77,9 @@ class SyncViewModel @Inject constructor(
     }
 
     fun toggleAutoSync(enabled: Boolean) {
-        // SyncOptions doesn't have enableAutoSync
-        // TODO: Add this field to SyncOptions or handle differently
+        // Interpret this as "WiFi Only" toggle for sync
+        _syncOptions.value = _syncOptions.value.copy(syncOnlyOnWifi = enabled)
+        // TODO: If true auto-sync scheduling is needed, use WorkManager
     }
 
     fun setConflictResolution(strategy: EnhancedConflictResolution) {

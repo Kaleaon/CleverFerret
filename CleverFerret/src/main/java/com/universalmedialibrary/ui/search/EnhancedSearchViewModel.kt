@@ -140,8 +140,9 @@ class EnhancedSearchViewModel @Inject constructor(
 
     fun selectHistoryItem(historyItem: SearchHistory) {
         _searchQuery.value = historyItem.query
-        // Note: SearchHistory doesn't store filters and sortBy
-        // Just use the query
+        // Note: SearchHistory doesn't store filters and sortBy.
+        // When a history item is selected, only the query is restored;
+        // current filters and sortBy remain unchanged.
     }
 
     fun deleteHistoryItem(historyItem: SearchHistory) {
