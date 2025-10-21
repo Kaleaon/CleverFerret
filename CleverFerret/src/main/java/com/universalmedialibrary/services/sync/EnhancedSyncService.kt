@@ -54,7 +54,7 @@ class EnhancedSyncService @Inject constructor(
         return try {
             val conflicts = mutableListOf<SyncConflict>()
             var itemsSynced = 0
-            var conflicts Resolved = 0
+            var conflictsResolved = 0
 
             // 1. Get local changes since last sync
             updateState(status = "Collecting local changes...")

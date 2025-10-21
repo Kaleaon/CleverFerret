@@ -10,8 +10,8 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
-import com.universalmedialibrary.data.local.entities.MediaItem
-import com.universalmedialibrary.services.music.ExoPlayerService
+import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
