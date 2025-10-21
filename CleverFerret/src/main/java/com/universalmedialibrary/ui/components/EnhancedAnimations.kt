@@ -146,7 +146,21 @@ fun <T> rememberStaggeredListAnimation(
 ): List<Boolean> {
 val visibilityStates = remember(itemCount) {
     mutableStateListOf<Boolean>().apply {
-        repeat(itemCount) { add(false) }
+```suggestion
+@Composable
+fun <T> rememberStaggeredListAnimation(
+    itemCount: Int,
+    staggerDelayMillis: Int = 50
+): List<Boolean> {
+    val visibilityStates = remember(itemCount) { mutableStateListOf<Boolean>().apply { repeat(itemCount) { add(false) } } }
+    LaunchedEffect(itemCount) {
+        repeat(itemCount) { index ->
+            kotlinx.coroutines.delay((index * staggerDelayMillis).toLong())
+            visibilityStates[index] = true
+        }
+    }
+    return visibilityStates
+}
     }
 }
         repeat(itemCount) { add(false) }
