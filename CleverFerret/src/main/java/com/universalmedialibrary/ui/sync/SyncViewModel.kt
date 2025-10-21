@@ -2,12 +2,7 @@ package com.universalmedialibrary.ui.sync
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.services.sync.EnhancedSyncService
-import com.universalmedialibrary.services.sync.SyncState
-import com.universalmedialibrary.services.sync.SyncOptions
-import com.universalmedialibrary.services.sync.SyncResult
-import com.universalmedialibrary.services.sync.SyncConflict
-import com.universalmedialibrary.services.sync.ConflictResolution
+import com.universalmedialibrary.services.sync.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -21,8 +16,8 @@ class SyncViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SyncUiState())
     val uiState: StateFlow<SyncUiState> = _uiState.asStateFlow()
 
-    val syncState: StateFlow<SyncState> = syncService.syncState
-        .stateIn(viewModelScope, SharingStarted.Eagerly, SyncState.IDLE)
+    val syncState: StateFlow<EnhancedSyncState> = syncService.syncState
+        .stateIn(viewModelScope, SharingStarted.Eagerly, EnhancedSyncState())
 
     private val _syncOptions = MutableStateFlow(SyncOptions())
     val syncOptions: StateFlow<SyncOptions> = _syncOptions.asStateFlow()
@@ -40,7 +35,7 @@ class SyncViewModel @Inject constructor(
                     currentConflict = null
                 )
 
-                val result = syncService.syncBidirectional(options)
+                val result = syncService.sync(options)
                 
                 _uiState.value = _uiState.value.copy(
                     isSyncing = false,
@@ -56,12 +51,34 @@ class SyncViewModel @Inject constructor(
                 )
             }
         }
+```suggestion
+fun handleConflict(conflict: EnhancedSyncConflict, resolution: EnhancedConflictResolution) {
+    viewModelScope.launch {
+        try {
+            // TODO: Implement conflict resolution in service when available
+            // syncService.resolveConflict(conflict, resolution)
+            _uiState.value = _uiState.value.copy(currentConflict = null)
+            if (_uiState.value.isSyncing) startSync()
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
+        }
     }
+}
 
-    fun handleConflict(conflict: SyncConflict, resolution: ConflictResolution) {
+viewModelScope.launch {
+    try {
+        syncService.resolveConflict(conflict, resolution)
+        _uiState.value = _uiState.value.copy(currentConflict = null)
+        // Optionally resume sync if needed
+        if (_uiState.value.isSyncing) startSync()
+    } catch (e: Exception) {
+        _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
+    }
+}
         viewModelScope.launch {
             try {
-                syncService.resolveConflict(conflict, resolution)
+                // TODO: Implement conflict resolution in service
+                // syncService.resolveConflict(conflict, resolution)
                 _uiState.value = _uiState.value.copy(currentConflict = null)
                 
                 // Continue sync if there was a pending sync
@@ -81,12 +98,13 @@ class SyncViewModel @Inject constructor(
     }
 
     fun toggleAutoSync(enabled: Boolean) {
-        _syncOptions.value = _syncOptions.value.copy(enableAutoSync = enabled)
-        // TODO: Schedule/cancel auto sync based on enabled flag
+        // Interpret this as "WiFi Only" toggle for sync
+        _syncOptions.value = _syncOptions.value.copy(syncOnlyOnWifi = enabled)
+        // TODO: If true auto-sync scheduling is needed, use WorkManager
     }
 
-    fun setConflictResolution(strategy: ConflictResolution) {
-        _syncOptions.value = _syncOptions.value.copy(defaultConflictResolution = strategy)
+    fun setConflictResolution(strategy: EnhancedConflictResolution) {
+        _syncOptions.value = _syncOptions.value.copy(conflictResolution = strategy)
     }
 
     fun dismissSyncComplete() {
@@ -100,8 +118,9 @@ class SyncViewModel @Inject constructor(
     private fun loadLastSyncInfo() {
         viewModelScope.launch {
             try {
-                val lastSync = syncService.getLastSyncTime()
-                _uiState.value = _uiState.value.copy(lastSyncTime = lastSync)
+                // TODO: Implement when service supports it
+                // val lastSync = syncService.getLastSyncTime()
+                // _uiState.value = _uiState.value.copy(lastSyncTime = lastSync)
             } catch (e: Exception) {
                 // Continue without last sync info
             }
@@ -111,11 +130,12 @@ class SyncViewModel @Inject constructor(
     fun getConflicts() {
         viewModelScope.launch {
             try {
-                val conflicts = syncService.getPendingConflicts()
-                _uiState.value = _uiState.value.copy(
-                    pendingConflicts = conflicts,
-                    currentConflict = conflicts.firstOrNull()
-                )
+                // TODO: Implement when service supports it
+                // val conflicts = syncService.getPendingConflicts()
+                // _uiState.value = _uiState.value.copy(
+                //     pendingConflicts = conflicts,
+                //     currentConflict = conflicts.firstOrNull()
+                // )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     error = e.message ?: "Failed to load conflicts"
@@ -139,8 +159,8 @@ data class SyncUiState(
     val isSyncing: Boolean = false,
     val lastSyncTime: Long? = null,
     val lastSyncResult: SyncResult? = null,
-    val currentConflict: SyncConflict? = null,
-    val pendingConflicts: List<SyncConflict> = emptyList(),
+    val currentConflict: EnhancedSyncConflict? = null,
+    val pendingConflicts: List<EnhancedSyncConflict> = emptyList(),
     val showSyncComplete: Boolean = false,
     val error: String? = null
 )

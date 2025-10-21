@@ -40,6 +40,7 @@ fun ModernVideoPlayerScreen(
     viewModel: ModernVideoPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val castState by viewModel.castState.collectAsStateWithLifecycle()
     var showControls by remember { mutableStateOf(true) }
     var showSettings by remember { mutableStateOf(false) }
 
@@ -169,19 +170,19 @@ fun ModernVideoPlayerScreen(
                         )
                     }
                     IconButton(onClick = { 
-                        if (viewModel.castState.value.isConnected) {
+                        if (castState.isConnected) {
                             viewModel.stopVideoCasting()
                         } else {
                             viewModel.startVideoCasting()
                         }
                     }) {
                         Icon(
-                            if (viewModel.castState.value.isConnected) 
+                            if (castState.isConnected) 
                                 Icons.Default.CastConnected 
                             else 
                                 Icons.Default.Cast,
                             contentDescription = "Cast",
-                            tint = if (viewModel.castState.value.isConnected)
+                            tint = if (castState.isConnected)
                                 MaterialTheme.colorScheme.primary
                             else
                                 Color.White,

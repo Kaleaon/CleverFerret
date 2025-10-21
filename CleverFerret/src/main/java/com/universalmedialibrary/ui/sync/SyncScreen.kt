@@ -139,7 +139,7 @@ fun SyncScreen(
 
 @Composable
 private fun SyncStatusCard(
-    syncState: SyncState,
+    syncState: EnhancedSyncState,
     lastSyncTime: Long?,
     lastSyncResult: SyncResult?,
     isSyncing: Boolean,
@@ -152,20 +152,15 @@ private fun SyncStatusCard(
         ) {
             // Status Icon
             Icon(
-                when (syncState) {
-                    SyncState.SYNCING -> Icons.Default.Sync
-                    SyncState.CONFLICT -> Icons.Default.Warning
-                    SyncState.ERROR -> Icons.Default.Error
-                    SyncState.SUCCESS -> Icons.Default.CheckCircle
-                    else -> Icons.Default.CloudSync
-                },
+                if (syncState.isLoading) Icons.Default.Sync else Icons.Default.CloudSync,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = when (syncState) {
-                    SyncState.ERROR -> MaterialTheme.colorScheme.error
-                    SyncState.SUCCESS -> MaterialTheme.colorScheme.primary
-                    SyncState.CONFLICT -> MaterialTheme.colorScheme.tertiary
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                tint = if (syncState.error != null) {
+                    MaterialTheme.colorScheme.error
+                } else if (syncState.isLoading) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
                 }
             )
 
@@ -173,12 +168,14 @@ private fun SyncStatusCard(
 
             // Status Text
             Text(
-                text = when (syncState) {
-                    SyncState.IDLE -> "Ready to Sync"
-                    SyncState.SYNCING -> "Syncing..."
-                    SyncState.CONFLICT -> "Conflicts Detected"
-                    SyncState.ERROR -> "Sync Failed"
-                    SyncState.SUCCESS -> "Up to Date"
+                text = if (syncState.isLoading) {
+                    syncState.status.ifEmpty { "Syncing..." }
+                } else if (syncState.error != null) {
+                    "Sync Failed"
+                } else if (syncState.lastSyncTime > 0L) {
+                    "Up to Date"
+                } else {
+                    "Ready to Sync"
                 },
                 style = MaterialTheme.typography.titleLarge
             )
@@ -199,10 +196,9 @@ private fun SyncStatusCard(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    SyncStat("↑", lastSyncResult.uploadedCount, "Uploaded")
-                    SyncStat("↓", lastSyncResult.downloadedCount, "Downloaded")
-                    if (lastSyncResult.conflictCount > 0) {
-                        SyncStat("⚠", lastSyncResult.conflictCount, "Conflicts")
+                    SyncStat("↕", lastSyncResult.itemsSynced, "Synced")
+                    if (lastSyncResult.conflictsDetected > 0) {
+                        SyncStat("⚠", lastSyncResult.conflictsDetected, "Conflicts")
                     }
                 }
             }
@@ -212,7 +208,7 @@ private fun SyncStatusCard(
             // Sync Button
             Button(
                 onClick = onStartSync,
-                enabled = !isSyncing && syncState != SyncState.CONFLICT,
+                enabled = !isSyncing,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (isSyncing) {
@@ -284,7 +280,7 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
 
 @Composable
 private fun ConflictCard(
-    conflict: SyncConflict,
+    conflict: EnhancedSyncConflict,
     remainingConflicts: Int,
     onResolve: (ConflictResolution) -> Unit,
     onSkip: () -> Unit
@@ -314,7 +310,7 @@ private fun ConflictCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                conflict.description,
+                formatConflictDescription(conflict.itemType),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -331,24 +327,24 @@ private fun ConflictCard(
             // Resolution Buttons
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
-                    onClick = { onResolve(ConflictResolution.USE_LOCAL) },
+                    onClick = { onResolve(ConflictResolution.LOCAL_WINS) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Use Local Version")
                 }
                 Button(
-                    onClick = { onResolve(ConflictResolution.USE_REMOTE) },
+                    onClick = { onResolve(ConflictResolution.REMOTE_WINS) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Use Cloud Version")
                 }
                 Button(
-                    onClick = { onResolve(ConflictResolution.USE_NEWER) },
+                    onClick = { onResolve(ConflictResolution.LAST_WRITE_WINS) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Use Newest")
                 }
-                if (conflict.type == ConflictType.MODIFY_MODIFY) {
+                if (conflict.conflictType == ConflictType.MODIFY_MODIFY) {
                     Button(
                         onClick = { onResolve(ConflictResolution.MERGE) },
                         modifier = Modifier.fillMaxWidth()
@@ -396,7 +392,7 @@ private fun SyncOptionsCard(
                     )
                 }
                 Switch(
-                    checked = syncOptions.enableAutoSync,
+                    checked = syncOptions.syncOnlyOnWifi,
                     onCheckedChange = onToggleAutoSync
                 )
             }
@@ -424,11 +420,12 @@ private fun LastSyncDetailsCard(result: SyncResult) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            DetailRow("Uploaded", "${result.uploadedCount} items")
-            DetailRow("Downloaded", "${result.downloadedCount} items")
-            DetailRow("Conflicts", "${result.conflictCount} items")
-            DetailRow("Errors", "${result.errorCount} items")
-            DetailRow("Duration", "${result.duration}ms")
+            DetailRow("Synced", "${result.itemsSynced} items")
+            DetailRow("Conflicts Detected", "${result.conflictsDetected} items")
+            DetailRow("Conflicts Resolved", "${result.conflictsResolved} items")
+            if (!result.success) {
+                DetailRow("Error", result.error ?: "Unknown error")
+            }
         }
     }
 }
@@ -477,14 +474,14 @@ private fun SyncOptionsBottomSheet(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            items(ConflictResolution.values().toList()) { resolution ->
+            items(EnhancedConflictResolution.values().toList()) { resolution ->
                 ListItem(
                     headlineContent = { Text(resolution.name.replace("_", " ")) },
                     leadingContent = {
                         RadioButton(
-                            selected = tempOptions.defaultConflictResolution == resolution,
+                            selected = tempOptions.conflictResolution == resolution,
                             onClick = {
-                                tempOptions = tempOptions.copy(defaultConflictResolution = resolution)
+                                tempOptions = tempOptions.copy(conflictResolution = resolution)
                             }
                         )
                     }
@@ -500,8 +497,8 @@ private fun SyncOptionsBottomSheet(
                 ) {
                     Text("WiFi Only")
                     Switch(
-                        checked = tempOptions.wifiOnly,
-                        onCheckedChange = { tempOptions = tempOptions.copy(wifiOnly = it) }
+                        checked = tempOptions.syncOnlyOnWifi,
+                        onCheckedChange = { tempOptions = tempOptions.copy(syncOnlyOnWifi = it) }
                     )
                 }
             }
@@ -512,10 +509,10 @@ private fun SyncOptionsBottomSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Compress Uploads")
+                    Text("Sync Media Files")
                     Switch(
-                        checked = tempOptions.compressUploads,
-                        onCheckedChange = { tempOptions = tempOptions.copy(compressUploads = it) }
+                        checked = tempOptions.syncMediaFiles,
+                        onCheckedChange = { tempOptions = tempOptions.copy(syncMediaFiles = it) }
                     )
                 }
             }
@@ -549,5 +546,19 @@ private fun formatSyncTime(timestamp: Long): String {
             val sdf = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
             sdf.format(Date(timestamp))
         }
+    }
+}
+
+/**
+ * Format conflict type for user-friendly display
+ */
+private fun formatConflictDescription(itemType: String): String {
+    return when (itemType.uppercase()) {
+        "READING_PROGRESS" -> "Reading position sync conflict"
+        "BOOKMARKS" -> "Bookmark sync conflict"
+        "MEDIA_ITEM" -> "Media item metadata conflict"
+        "ANNOTATION" -> "Annotation sync conflict"
+        "SETTINGS" -> "Settings sync conflict"
+        else -> "Sync conflict in $itemType"
     }
 }

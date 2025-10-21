@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.services.recommendations.Recommendation
 import com.universalmedialibrary.services.recommendations.RecommendationsState
 import coil.compose.AsyncImage
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +79,7 @@ fun RecommendationsScreen(
                     RecommendationsContent(
                         groupedRecommendations = uiState.groupedRecommendations,
                         onRecommendationClick = { recommendation ->
-                            navController.navigate("detail/${recommendation.mediaItemId}")
+                            navController.navigate("detail/${recommendation.itemId}")
                         },
                         onDismiss = viewModel::dismissRecommendation
                     )
@@ -95,7 +96,7 @@ fun RecommendationsScreen(
             }
 
             // AI Badge
-            if (recommendationsState == RecommendationsState.GENERATING_AI) {
+            if (recommendationsState.isLoading && recommendationsState.status.contains("AI", ignoreCase = true)) {
                 Card(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -126,16 +127,10 @@ fun RecommendationsScreen(
 
 @Composable
 private fun LoadingState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Finding recommendations...", style = MaterialTheme.typography.bodyMedium)
-        }
-    }
+    com.universalmedialibrary.ui.components.EnhancedLoadingState(
+        message = "Finding recommendations...",
+        icon = Icons.Default.AutoAwesome
+    )
 }
 
 @Composable
@@ -144,79 +139,19 @@ private fun ErrorState(
     onRetry: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Icon(
-                Icons.Default.Error,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.error
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                "Failed to Load",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                error,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onDismiss) {
-                    Text("Dismiss")
-                }
-                Button(onClick = onRetry) {
-                    Icon(Icons.Default.Refresh, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Retry")
-                }
-            }
-        }
-    }
+    com.universalmedialibrary.ui.components.EnhancedErrorState(
+        title = "Failed to Load Recommendations",
+        message = error,
+        onRetry = onRetry,
+        onDismiss = onDismiss
+    )
 }
 
 @Composable
 private fun EmptyState(onExplore: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Icon(
-                Icons.Default.AutoAwesome,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                "No Recommendations Yet",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Start exploring your library to get personalized recommendations",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = onExplore) {
-                Text("Explore Library")
-            }
-        }
-    }
+    com.universalmedialibrary.ui.components.NoRecommendationsState(
+        onExploreLibrary = onExplore
+    )
 }
 
 @Composable
@@ -438,13 +373,13 @@ private fun RecommendationOptionsBottomSheet(
                     val types = listOf("BOOK", "AUDIO", "VIDEO", "PDF", "COMIC")
                     items(types) { type ->
                         FilterChip(
-                            selected = tempOptions.mediaTypes?.contains(type) == true,
+                            selected = tempOptions.mediaTypes.contains(type),
                             onClick = {
-                                val updated = tempOptions.mediaTypes?.toMutableSet() ?: mutableSetOf()
+                                val updated = tempOptions.mediaTypes.toMutableList()
                                 if (updated.contains(type)) updated.remove(type)
                                 else updated.add(type)
                                 tempOptions = tempOptions.copy(
-                                    mediaTypes = if (updated.isEmpty()) null else updated
+                                    mediaTypes = updated
                                 )
                             },
                             label = { Text(type) }
@@ -470,8 +405,8 @@ private fun RecommendationOptionsBottomSheet(
                         )
                     }
                     Switch(
-                        checked = tempOptions.includeAI,
-                        onCheckedChange = { tempOptions = tempOptions.copy(includeAI = it) }
+                        checked = tempOptions.includeAIPowered,
+                        onCheckedChange = { tempOptions = tempOptions.copy(includeAIPowered = it) }
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -479,10 +414,10 @@ private fun RecommendationOptionsBottomSheet(
 
             // Max Results
             item {
-                Text("Max Results: ${tempOptions.maxResults}", style = MaterialTheme.typography.titleSmall)
+                Text("Max Results: ${tempOptions.limit}", style = MaterialTheme.typography.titleSmall)
                 Slider(
-                    value = tempOptions.maxResults.toFloat(),
-                    onValueChange = { tempOptions = tempOptions.copy(maxResults = it.toInt()) },
+                    value = tempOptions.limit.toFloat(),
+                    onValueChange = { tempOptions = tempOptions.copy(limit = it.toInt()) },
                     valueRange = 10f..100f,
                     steps = 8
                 )
@@ -511,7 +446,7 @@ private fun formatSourceTitle(source: String): String {
         "history_based" -> "Continue Your Journey"
         "genre_based" -> "Popular in Your Genres"
         "ai_powered" -> "AI Recommendations"
-        else -> source.replace("_", " ").split(" ").joinToString(" ") { it.capitalize() }
+        else -> source.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase(Locale.getDefault()) } }
     }
 }
 

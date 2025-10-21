@@ -84,7 +84,7 @@ fun EnhancedSearchScreen(
                         results = uiState.results,
                         facets = uiState.facets,
                         onResultClick = { result ->
-                            navController.navigate("detail/${result.mediaItem.id}")
+                            navController.navigate("detail/${result.itemId}")
                         },
                         onFacetFilterApplied = { mediaType ->
                             viewModel.toggleMediaTypeFilter(mediaType)
@@ -444,7 +444,7 @@ private fun SearchResultCard(
         ) {
             // Thumbnail
             AsyncImage(
-                model = result.mediaItem.thumbnailPath,
+                model = result.thumbnailUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(80.dp)
@@ -454,14 +454,14 @@ private fun SearchResultCard(
             // Content
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    result.highlightedTitle ?: result.mediaItem.title,
+                    result.title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (result.highlightedAuthor != null || result.mediaItem.path.isNotEmpty()) {
+                if (result.subtitle.isNotEmpty()) {
                     Text(
-                        result.highlightedAuthor ?: "Unknown",
+                        result.subtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -474,9 +474,9 @@ private fun SearchResultCard(
                 ) {
                     AssistChip(
                         onClick = {},
-                        label = { Text(result.mediaItem.mediaType) }
+                        label = { Text(result.mediaType) }
                     )
-                    if (result.score > 0.8f) {
+                    if (result.relevanceScore > 80f) {
                         AssistChip(
                             onClick = {},
                             label = { Text("Best match") },
@@ -494,7 +494,7 @@ private fun SearchResultCard(
 
             // Score indicator
             Text(
-                "${(result.score * 100).toInt()}%",
+                "${result.relevanceScore.toInt()}%",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -541,13 +541,13 @@ private fun FilterBottomSheet(
                     ?: listOf("BOOK", "AUDIO", "VIDEO", "PDF", "COMIC")
                 items(types) { type ->
                     FilterChip(
-                        selected = filters.mediaTypes?.contains(type) == true,
+                        selected = filters.mediaTypes.contains(type),
                         onClick = {
-                            val updated = filters.mediaTypes?.toMutableSet() ?: mutableSetOf()
+                            val updated = filters.mediaTypes.toMutableList()
                             if (updated.contains(type)) updated.remove(type)
                             else updated.add(type)
                             onFiltersChange(
-                                filters.copy(mediaTypes = if (updated.isEmpty()) null else updated)
+                                filters.copy(mediaTypes = updated)
                             )
                         },
                         label = { Text(type) }

@@ -22,7 +22,8 @@ class PlexAuthServiceTest {
     fun setup() {
         context = mockk(relaxed = true)
         tokenStorage = mockk(relaxed = true)
-        authService = PlexAuthService(context, tokenStorage)
+        val authApi = mockk(relaxed = true)
+        authService = PlexAuthService(context, tokenStorage, authApi)
     }
     
     @Test

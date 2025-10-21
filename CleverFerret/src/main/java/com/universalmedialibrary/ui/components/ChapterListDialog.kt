@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import java.util.Locale
 
 /**
  * Dialog for displaying and navigating book/audiobook chapters
@@ -199,8 +200,8 @@ private fun formatDuration(millis: Long): String {
     val hours = minutes / 60
     
     return when {
-        hours > 0 -> String.format("%d:%02d:%02d", hours, minutes % 60, seconds % 60)
-        minutes > 0 -> String.format("%d:%02d", minutes, seconds % 60)
-        else -> String.format("0:%02d", seconds)
+        hours > 0 -> String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes % 60, seconds % 60)
+        minutes > 0 -> String.format(Locale.getDefault(), "%d:%02d", minutes, seconds % 60)
+        else -> String.format(Locale.getDefault(), "0:%02d", seconds)
     }
 }
