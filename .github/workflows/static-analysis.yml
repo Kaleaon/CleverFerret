@@ -30,8 +30,14 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-level: 36
-          build-tools: '36.0.0'
+          cmdline-tools-version: 11076708
+
+      - name: Install required Android SDK packages
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+          echo "Installed SDK packages:"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
 
       - name: Run Android Lint
         run: ./gradlew lint --no-daemon --stacktrace

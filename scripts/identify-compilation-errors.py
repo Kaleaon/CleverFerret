@@ -18,8 +18,7 @@ class CompilationErrorDetector:
             try:
                 content = settings_file.read_text()
                 # naive parse to first include(":NAME")
-                import re as _re
-                m = _re.search(r'include\(\s*"\s*:(.+?)\s*"\s*\)', content)
+                m = re.search(r'include\(\s*"\s*:(.+?)\s*"\s*\)', content)
                 if m:
                     module_name = m.group(1)
             except Exception:
