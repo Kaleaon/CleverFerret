@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.services.recommendations.Recommendation
 import com.universalmedialibrary.services.recommendations.RecommendationsState
 import coil.compose.AsyncImage
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -445,7 +446,7 @@ private fun formatSourceTitle(source: String): String {
         "history_based" -> "Continue Your Journey"
         "genre_based" -> "Popular in Your Genres"
         "ai_powered" -> "AI Recommendations"
-        else -> source.replace("_", " ").split(" ").joinToString(" ") { it.capitalize() }
+        else -> source.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase(Locale.getDefault()) } }
     }
 }
 

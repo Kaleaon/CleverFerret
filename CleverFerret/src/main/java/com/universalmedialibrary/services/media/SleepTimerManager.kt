@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -122,7 +123,7 @@ class SleepTimerManager @Inject constructor() {
         val seconds = _state.value.remainingSeconds
         val minutes = seconds / 60
         val secs = seconds % 60
-        return String.format("%02d:%02d", minutes, secs)
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, secs)
     }
     
     /**
