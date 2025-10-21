@@ -394,6 +394,27 @@ fun AppNavigation() {
                    }
                )
            }
+           
+           // Enhanced Search route
+           composable("enhanced_search") {
+               com.universalmedialibrary.ui.search.EnhancedSearchScreen(
+                   navController = navController
+               )
+           }
+           
+           // Sync route
+           composable("sync") {
+               com.universalmedialibrary.ui.sync.SyncScreen(
+                   navController = navController
+               )
+           }
+           
+           // Recommendations route
+           composable("recommendations") {
+               com.universalmedialibrary.ui.recommendations.RecommendationsScreen(
+                   navController = navController
+               )
+           }
     }
 }
 
