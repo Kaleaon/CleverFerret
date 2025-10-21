@@ -51,7 +51,19 @@ class SyncViewModel @Inject constructor(
                 )
             }
         }
+```suggestion
+fun handleConflict(conflict: EnhancedSyncConflict, resolution: EnhancedConflictResolution) {
+    viewModelScope.launch {
+        try {
+            // TODO: Implement conflict resolution in service when available
+            // syncService.resolveConflict(conflict, resolution)
+            _uiState.value = _uiState.value.copy(currentConflict = null)
+            if (_uiState.value.isSyncing) startSync()
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
+        }
     }
+}
 
 viewModelScope.launch {
     try {
