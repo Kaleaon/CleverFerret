@@ -284,17 +284,17 @@ class SmartRecommendationService @Inject constructor(
      * Get trending items (most recently accessed by any user - if multi-user)
      */
     suspend fun getTrendingItems(limit: Int = 10): List<Recommendation> {
-        // For single-user app, return recently accessed
-        val recentProgress = readingProgressDao.getRecentProgress(limit = limit)
+        // For single-user app, return recently added items as trending
+        val recentItems = mediaItemDao.getAllMediaItems()
+            .sortedByDescending { it.dateAdded }
+            .take(limit)
         
-        return recentProgress.mapNotNull { progress ->
-            mediaItemDao.getMediaItemById(progress.itemId)
-        }.map { item ->
+        return recentItems.map { item ->
             Recommendation(
                 itemId = item.itemId,
                 title = item.fileName,
                 mediaType = item.mediaType,
-                reason = "Recently accessed",
+                reason = "Recently added",
                 confidence = 0.9f,
                 source = "Trending"
             )

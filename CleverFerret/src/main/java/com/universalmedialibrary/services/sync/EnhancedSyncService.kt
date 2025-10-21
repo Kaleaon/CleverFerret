@@ -347,15 +347,17 @@ enum class ChangeOperation {
 }
 
 /**
- * Sync conflict
+ * Enhanced sync conflict with detailed change tracking
  */
-data class SyncConflict(
+data class EnhancedSyncConflict(
     val itemId: Long,
     val itemType: String,
-    val localChange: SyncChange,
-    val remoteChange: SyncChange,
-    val conflictType: ConflictType,
-    val resolution: ConflictResolution? = null
+    val localData: Any,
+    val remoteData: Any,
+    val localTimestamp: Long,
+    val remoteTimestamp: Long,
+    val conflictType: ConflictType = ConflictType.OTHER,
+    val resolution: EnhancedConflictResolution? = null
 )
 
 /**

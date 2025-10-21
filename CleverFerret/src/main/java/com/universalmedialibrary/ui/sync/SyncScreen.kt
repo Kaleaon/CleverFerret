@@ -139,7 +139,7 @@ fun SyncScreen(
 
 @Composable
 private fun SyncStatusCard(
-    syncState: SyncState,
+    syncState: EnhancedSyncState,
     lastSyncTime: Long?,
     lastSyncResult: SyncResult?,
     isSyncing: Boolean,
@@ -172,7 +172,7 @@ private fun SyncStatusCard(
                     syncState.status.ifEmpty { "Syncing..." }
                 } else if (syncState.error != null) {
                     "Sync Failed"
-                } else if (syncState.lastSyncTime > 0) {
+                } else if (syncState.lastSyncTime > 0L) {
                     "Up to Date"
                 } else {
                     "Ready to Sync"
@@ -280,7 +280,7 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
 
 @Composable
 private fun ConflictCard(
-    conflict: SyncConflict,
+    conflict: EnhancedSyncConflict,
     remainingConflicts: Int,
     onResolve: (ConflictResolution) -> Unit,
     onSkip: () -> Unit
@@ -512,7 +512,7 @@ private fun SyncOptionsBottomSheet(
                     Text("Sync Media Files")
                     Switch(
                         checked = tempOptions.syncMediaFiles,
-                        onCheckedChange = { tempOptions = tempOptions.copy(compressUploads = it) }
+                        onCheckedChange = { tempOptions = tempOptions.copy(syncMediaFiles = it) }
                     )
                 }
             }

@@ -2,13 +2,7 @@ package com.universalmedialibrary.ui.sync
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.services.sync.EnhancedSyncService
-import com.universalmedialibrary.services.sync.EnhancedSyncState
-import com.universalmedialibrary.services.sync.SyncOptions
-import com.universalmedialibrary.services.sync.SyncResult
-import com.universalmedialibrary.services.sync.EnhancedSyncConflict
-import com.universalmedialibrary.services.sync.EnhancedConflictResolution
-import com.universalmedialibrary.services.sync.ConflictResolution
+import com.universalmedialibrary.services.sync.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
