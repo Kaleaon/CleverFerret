@@ -51,7 +51,7 @@ class EnhancedSearchViewModel @Inject constructor(
                                      filters.genres.isNotEmpty() || 
                                      filters.libraryIds.isNotEmpty()
                 if (query.isNotBlank() || hasActiveFilters) {
-                    performSearch(query, filters, sort)
+if (query.isNotBlank() || filters.hasActiveFilters()) {
                 } else {
                     _uiState.value = _uiState.value.copy(
                         results = emptyList(),
