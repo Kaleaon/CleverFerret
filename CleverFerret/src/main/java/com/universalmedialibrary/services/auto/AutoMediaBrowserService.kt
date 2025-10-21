@@ -161,28 +161,31 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
     }
 
     private suspend fun getMusicItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.getMediaByType("AUDIO")
-        return items.map { createPlayableMediaItem(it) }
+        val items = mediaItemDao.searchMediaItems("AUDIO", limit = 100)
+        return items.filter { it.mediaType == "AUDIO" || it.mediaType == "MUSIC_TRACK" }
+            .map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getAudiobookItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.getMediaByType("AUDIOBOOK")
-        return items.map { createPlayableMediaItem(it) }
+        val items = mediaItemDao.searchMediaItems("AUDIOBOOK", limit = 100)
+        return items.filter { it.mediaType == "AUDIOBOOK" }
+            .map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getPodcastItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.getMediaByType("PODCAST")
-        return items.map { createPlayableMediaItem(it) }
+        val items = mediaItemDao.searchMediaItems("PODCAST", limit = 100)
+        return items.filter { it.mediaType == "PODCAST" }
+            .map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getRecentItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.getRecentMedia(limit = 50)
+        val items = mediaItemDao.getAllMediaItems().take(50)
         return items.map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getFavoriteItems(): List<MediaBrowserCompat.MediaItem> {
         // TODO: Add favorite filtering in DAO
-        val items = mediaItemDao.getRecentMedia(limit = 50)
+        val items = mediaItemDao.getAllMediaItems().take(50)
         return items.map { createPlayableMediaItem(it) }
     }
 
@@ -212,15 +215,14 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
 
     private fun createPlayableMediaItem(mediaItem: MediaItem): MediaBrowserCompat.MediaItem {
         val description = MediaDescriptionCompat.Builder()
-            .setMediaId("item_${mediaItem.id}")
-            .setTitle(mediaItem.title)
-            .setSubtitle(mediaItem.path) // Could use artist/author if available
-            .setIconUri(mediaItem.thumbnailPath?.let { Uri.parse(it) })
-            .setMediaUri(Uri.parse(mediaItem.path))
+            .setMediaId("item_${mediaItem.itemId}")
+            .setTitle(mediaItem.fileName)
+            .setSubtitle(mediaItem.filePath)
+            .setMediaUri(Uri.parse(mediaItem.filePath))
             .setExtras(Bundle().apply {
-                putLong("itemId", mediaItem.id)
+                putLong("itemId", mediaItem.itemId)
                 putString("mediaType", mediaItem.mediaType)
-                putLong("duration", mediaItem.duration)
+                putLong("fileSize", mediaItem.fileSize)
             })
             .build()
 
@@ -248,12 +250,12 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
         }
 
         override fun onSkipToNext() {
-            exoPlayerService.skipToNext()
+            // TODO: Implement queue management
             updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
         }
 
         override fun onSkipToPrevious() {
-            exoPlayerService.skipToPrevious()
+            // TODO: Implement queue management
             updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
         }
 
@@ -271,8 +273,10 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
                             val item = mediaItemDao.getMediaItemById(id)
                             item?.let { mediaItem ->
                                 // Load and play the item
-                                exoPlayerService.loadMedia(mediaItem.path)
-                                exoPlayerService.play()
+                                exoPlayerService.loadMediaWithSession(
+                                    mediaPath = mediaItem.filePath,
+                                    title = mediaItem.fileName
+                                )
                                 updateMediaMetadata(mediaItem)
                                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
                             }
@@ -284,8 +288,10 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
 
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
             uri?.let {
-                exoPlayerService.loadMedia(it.toString())
-                exoPlayerService.play()
+                exoPlayerService.loadMediaWithSession(
+                    mediaPath = it.toString(),
+                    title = "Media"
+                )
                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
             }
         }
@@ -309,17 +315,10 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
 
         private fun updateMediaMetadata(mediaItem: MediaItem) {
             val metadata = MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "item_${mediaItem.id}")
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mediaItem.title)
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, mediaItem.title)
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "item_${mediaItem.itemId}")
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mediaItem.fileName)
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, mediaItem.fileName)
                 .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, "CleverFerret")
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaItem.duration)
-                .apply {
-                    mediaItem.thumbnailPath?.let {
-                        putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, it)
-                        putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, it)
-                    }
-                }
                 .build()
 
             mediaSession.setMetadata(metadata)
