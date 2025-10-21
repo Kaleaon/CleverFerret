@@ -51,44 +51,17 @@ class SyncViewModel @Inject constructor(
                 )
             }
         }
-```suggestion
-fun handleConflict(conflict: EnhancedSyncConflict, resolution: EnhancedConflictResolution) {
-    viewModelScope.launch {
-        try {
-            // TODO: Implement conflict resolution in service when available
-            // syncService.resolveConflict(conflict, resolution)
-            _uiState.value = _uiState.value.copy(currentConflict = null)
-            if (_uiState.value.isSyncing) startSync()
-        } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
-        }
     }
-}
 
-viewModelScope.launch {
-    try {
-        syncService.resolveConflict(conflict, resolution)
-        _uiState.value = _uiState.value.copy(currentConflict = null)
-        // Optionally resume sync if needed
-        if (_uiState.value.isSyncing) startSync()
-    } catch (e: Exception) {
-        _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
-    }
-}
+    fun handleConflict(conflict: EnhancedSyncConflict, resolution: EnhancedConflictResolution) {
         viewModelScope.launch {
             try {
-                // TODO: Implement conflict resolution in service
+                // Implement conflict resolution logic here
                 // syncService.resolveConflict(conflict, resolution)
                 _uiState.value = _uiState.value.copy(currentConflict = null)
-                
-                // Continue sync if there was a pending sync
-                if (_uiState.value.isSyncing) {
-                    startSync()
-                }
+                if (_uiState.value.isSyncing) startSync()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Failed to resolve conflict"
-                )
+                _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
             }
         }
     }

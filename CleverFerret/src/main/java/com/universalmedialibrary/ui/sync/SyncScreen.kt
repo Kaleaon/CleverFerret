@@ -282,7 +282,7 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
 private fun ConflictCard(
     conflict: EnhancedSyncConflict,
     remainingConflicts: Int,
-    onResolve: (ConflictResolution) -> Unit,
+    onResolve: (EnhancedConflictResolution) -> Unit,
     onSkip: () -> Unit
 ) {
     Card(
@@ -327,26 +327,26 @@ private fun ConflictCard(
             // Resolution Buttons
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
-                    onClick = { onResolve(ConflictResolution.LOCAL_WINS) },
+                    onClick = { onResolve(EnhancedConflictResolution.USE_LOCAL) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Use Local Version")
                 }
                 Button(
-                    onClick = { onResolve(ConflictResolution.REMOTE_WINS) },
+                    onClick = { onResolve(EnhancedConflictResolution.USE_REMOTE) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Use Cloud Version")
                 }
                 Button(
-                    onClick = { onResolve(ConflictResolution.LAST_WRITE_WINS) },
+                    onClick = { onResolve(EnhancedConflictResolution.USE_NEWER) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Use Newest")
                 }
                 if (conflict.conflictType == ConflictType.MODIFY_MODIFY) {
                     Button(
-                        onClick = { onResolve(ConflictResolution.MERGE) },
+                        onClick = { onResolve(EnhancedConflictResolution.MERGE) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Merge Changes")
