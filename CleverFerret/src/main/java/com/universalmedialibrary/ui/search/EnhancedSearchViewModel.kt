@@ -90,40 +90,40 @@ class EnhancedSearchViewModel @Inject constructor(
     }
 
     fun toggleMediaTypeFilter(mediaType: String) {
-        val current = _filters.value.mediaTypes?.toMutableSet() ?: mutableSetOf()
+        val current = _filters.value.mediaTypes.toMutableList()
         if (current.contains(mediaType)) {
             current.remove(mediaType)
         } else {
             current.add(mediaType)
         }
         _filters.value = _filters.value.copy(
-            mediaTypes = if (current.isEmpty()) null else current
+            mediaTypes = current
         )
     }
 
     fun toggleGenreFilter(genre: String) {
-        val current = _filters.value.genres?.toMutableSet() ?: mutableSetOf()
+        val current = _filters.value.genres.toMutableList()
         if (current.contains(genre)) {
             current.remove(genre)
         } else {
             current.add(genre)
         }
         _filters.value = _filters.value.copy(
-            genres = if (current.isEmpty()) null else current
+            genres = current
         )
     }
 
     fun setDateRangeFilter(startDate: Long?, endDate: Long?) {
         _filters.value = _filters.value.copy(
-            dateRangeStart = startDate,
-            dateRangeEnd = endDate
+            dateFrom = startDate,
+            dateTo = endDate
         )
     }
 
     fun setFileSizeRangeFilter(minSize: Long?, maxSize: Long?) {
         _filters.value = _filters.value.copy(
-            fileSizeMin = minSize,
-            fileSizeMax = maxSize
+            minFileSize = minSize,
+            maxFileSize = maxSize
         )
     }
 
@@ -137,20 +137,21 @@ class EnhancedSearchViewModel @Inject constructor(
 
     fun selectHistoryItem(historyItem: SearchHistory) {
         _searchQuery.value = historyItem.query
-        _filters.value = historyItem.filters
-        _sortBy.value = historyItem.sortBy
+        // Note: SearchHistory doesn't store filters and sortBy
+        // Just use the query
     }
 
     fun deleteHistoryItem(historyItem: SearchHistory) {
         viewModelScope.launch {
-            searchService.deleteSearchHistory(historyItem.id)
+            // TODO: Implement when search history DAO is available
+            // searchService.deleteSearchHistory(historyItem.historyId)
             loadSearchHistory()
         }
     }
 
     fun clearSearchHistory() {
         viewModelScope.launch {
-            searchService.clearSearchHistory()
+            searchService.clearHistory()
             _uiState.value = _uiState.value.copy(searchHistory = emptyList())
         }
     }
@@ -168,13 +169,13 @@ class EnhancedSearchViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isSearching = true, error = null)
                 
                 val searchQuery = SearchQuery(
-                    query = query,
+                    textQuery = query,
                     filters = filters,
                     sortBy = sortBy
                 )
 
                 val results = searchService.search(searchQuery)
-                val facets = searchService.getFacets(searchQuery)
+                val facets = searchService.getFacets()
 
                 _uiState.value = _uiState.value.copy(
                     isSearching = false,
@@ -184,11 +185,11 @@ class EnhancedSearchViewModel @Inject constructor(
                     error = null
                 )
 
-                // Save to search history if query is not empty
-                if (query.isNotBlank()) {
-                    searchService.saveSearchHistory(searchQuery)
-                    loadSearchHistory()
-                }
+                // TODO: Save to search history when implemented
+                // if (query.isNotBlank()) {
+                //     searchService.saveSearchHistory(query, results.size)
+                //     loadSearchHistory()
+                // }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isSearching = false,
@@ -201,7 +202,7 @@ class EnhancedSearchViewModel @Inject constructor(
     private fun loadSuggestions(query: String) {
         viewModelScope.launch {
             try {
-                val suggestions = searchService.getSuggestions(query, limit = 10)
+                val suggestions = searchService.getSuggestions(query)
                 _uiState.value = _uiState.value.copy(suggestions = suggestions)
             } catch (e: Exception) {
                 // Silently fail for suggestions
@@ -212,8 +213,9 @@ class EnhancedSearchViewModel @Inject constructor(
     private fun loadSearchHistory() {
         viewModelScope.launch {
             try {
-                val history = searchService.getSearchHistory(limit = 20)
-                _uiState.value = _uiState.value.copy(searchHistory = history)
+                // TODO: Implement when search history DAO is available
+                // val history = searchService.getSearchHistory()
+                // _uiState.value = _uiState.value.copy(searchHistory = history)
             } catch (e: Exception) {
                 // Continue without search history
             }

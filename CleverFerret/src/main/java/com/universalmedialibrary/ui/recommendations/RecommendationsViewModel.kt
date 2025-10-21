@@ -19,8 +19,8 @@ class RecommendationsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RecommendationsUiState())
     val uiState: StateFlow<RecommendationsUiState> = _uiState.asStateFlow()
 
-    val recommendationsState: StateFlow<RecommendationsState> = recommendationService.state
-        .stateIn(viewModelScope, SharingStarted.Eagerly, RecommendationsState.IDLE)
+    val recommendationsState: StateFlow<RecommendationsState> = recommendationService.recommendationsState
+        .stateIn(viewModelScope, SharingStarted.Eagerly, RecommendationsState())
 
     private val _options = MutableStateFlow(RecommendationOptions())
     val options: StateFlow<RecommendationOptions> = _options.asStateFlow()
@@ -35,8 +35,7 @@ class RecommendationsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
                 val recommendations = recommendationService.getRecommendations(
-                    options = _options.value,
-                    forceRefresh = forceRefresh
+                    options = _options.value
                 )
 
                 // Group recommendations by source
@@ -63,38 +62,31 @@ class RecommendationsViewModel @Inject constructor(
     }
 
     fun toggleMediaType(mediaType: String) {
-        val current = _options.value.mediaTypes?.toMutableSet() ?: mutableSetOf()
+        val current = _options.value.mediaTypes.toMutableList()
         if (current.contains(mediaType)) {
             current.remove(mediaType)
         } else {
             current.add(mediaType)
         }
         _options.value = _options.value.copy(
-            mediaTypes = if (current.isEmpty()) null else current
+            mediaTypes = current
         )
         loadRecommendations(forceRefresh = true)
     }
 
     fun toggleGenre(genre: String) {
-        val current = _options.value.genres?.toMutableSet() ?: mutableSetOf()
-        if (current.contains(genre)) {
-            current.remove(genre)
-        } else {
-            current.add(genre)
-        }
-        _options.value = _options.value.copy(
-            genres = if (current.isEmpty()) null else current
-        )
+        // Genres not yet implemented in RecommendationOptions
+        // TODO: Add genre support
         loadRecommendations(forceRefresh = true)
     }
 
     fun setMaxResults(max: Int) {
-        _options.value = _options.value.copy(maxResults = max)
+        _options.value = _options.value.copy(limit = max)
         loadRecommendations(forceRefresh = false) // Use cached if available
     }
 
     fun toggleAIRecommendations(enabled: Boolean) {
-        _options.value = _options.value.copy(includeAI = enabled)
+        _options.value = _options.value.copy(includeAIPowered = enabled)
         loadRecommendations(forceRefresh = true)
     }
 

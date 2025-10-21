@@ -78,7 +78,7 @@ fun RecommendationsScreen(
                     RecommendationsContent(
                         groupedRecommendations = uiState.groupedRecommendations,
                         onRecommendationClick = { recommendation ->
-                            navController.navigate("detail/${recommendation.mediaItemId}")
+                            navController.navigate("detail/${recommendation.itemId}")
                         },
                         onDismiss = viewModel::dismissRecommendation
                     )
@@ -95,7 +95,7 @@ fun RecommendationsScreen(
             }
 
             // AI Badge
-            if (recommendationsState == RecommendationsState.GENERATING_AI) {
+            if (recommendationsState.isLoading && recommendationsState.status.contains("AI", ignoreCase = true)) {
                 Card(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -438,13 +438,13 @@ private fun RecommendationOptionsBottomSheet(
                     val types = listOf("BOOK", "AUDIO", "VIDEO", "PDF", "COMIC")
                     items(types) { type ->
                         FilterChip(
-                            selected = tempOptions.mediaTypes?.contains(type) == true,
+                            selected = tempOptions.mediaTypes.contains(type),
                             onClick = {
-                                val updated = tempOptions.mediaTypes?.toMutableSet() ?: mutableSetOf()
+                                val updated = tempOptions.mediaTypes.toMutableList()
                                 if (updated.contains(type)) updated.remove(type)
                                 else updated.add(type)
                                 tempOptions = tempOptions.copy(
-                                    mediaTypes = if (updated.isEmpty()) null else updated
+                                    mediaTypes = updated
                                 )
                             },
                             label = { Text(type) }
@@ -470,8 +470,8 @@ private fun RecommendationOptionsBottomSheet(
                         )
                     }
                     Switch(
-                        checked = tempOptions.includeAI,
-                        onCheckedChange = { tempOptions = tempOptions.copy(includeAI = it) }
+                        checked = tempOptions.includeAIPowered,
+                        onCheckedChange = { tempOptions = tempOptions.copy(includeAIPowered = it) }
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -479,10 +479,10 @@ private fun RecommendationOptionsBottomSheet(
 
             // Max Results
             item {
-                Text("Max Results: ${tempOptions.maxResults}", style = MaterialTheme.typography.titleSmall)
+                Text("Max Results: ${tempOptions.limit}", style = MaterialTheme.typography.titleSmall)
                 Slider(
-                    value = tempOptions.maxResults.toFloat(),
-                    onValueChange = { tempOptions = tempOptions.copy(maxResults = it.toInt()) },
+                    value = tempOptions.limit.toFloat(),
+                    onValueChange = { tempOptions = tempOptions.copy(limit = it.toInt()) },
                     valueRange = 10f..100f,
                     steps = 8
                 )

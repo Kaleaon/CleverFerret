@@ -116,7 +116,7 @@ class SmartRecommendationService @Inject constructor(
             val sample = items.take(limit / itemsByType.size.coerceAtLeast(1))
             recommendations.addAll(sample.map { item ->
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Based on your library",
@@ -143,7 +143,7 @@ class SmartRecommendationService @Inject constructor(
         recentItems.take(limit).forEach { item ->
             recommendations.add(
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Recently added to library",
@@ -170,7 +170,7 @@ class SmartRecommendationService @Inject constructor(
             .take(limit)
             .map { item ->
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Popular in your library",
@@ -265,7 +265,7 @@ class SmartRecommendationService @Inject constructor(
                 val item = allItems.find { it.itemId == aiRec.itemId }
                 item?.let {
                     Recommendation(
-                        mediaItemId = it.itemId,
+                        itemId = it.itemId,
                         title = it.fileName,
                         mediaType = it.mediaType,
                         reason = aiRec.reason,
@@ -288,17 +288,16 @@ class SmartRecommendationService @Inject constructor(
         val recentProgress = readingProgressDao.getRecentProgress(limit = limit)
         
         return recentProgress.mapNotNull { progress ->
-            val item = mediaItemDao.getMediaItemById(progress.itemId)
-            item?.let {
-                Recommendation(
-                    itemId = it.itemId,
-                    title = it.fileName,
-                    mediaType = it.mediaType,
-                    reason = "Recently accessed",
-                    confidence = 0.9f,
-                    source = "Trending"
-                )
-            }
+            mediaItemDao.getMediaItemById(progress.itemId)
+        }.map { item ->
+            Recommendation(
+                itemId = item.itemId,
+                title = item.fileName,
+                mediaType = item.mediaType,
+                reason = "Recently accessed",
+                confidence = 0.9f,
+                source = "Trending"
+            )
         }
     }
 

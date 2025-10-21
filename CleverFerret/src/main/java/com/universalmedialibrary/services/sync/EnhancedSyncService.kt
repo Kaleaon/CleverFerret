@@ -37,8 +37,8 @@ class EnhancedSyncService @Inject constructor(
     private val readingProgressDao = database.readingProgressDao()
     private val bookmarkDao = database.bookmarkDao()
 
-    private val _syncState = MutableStateFlow(SyncState())
-    val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
+    private val _syncState = MutableStateFlow(EnhancedSyncState())
+    val syncState: StateFlow<EnhancedSyncState> = _syncState.asStateFlow()
 
     private val json = Json { 
         prettyPrint = true
@@ -52,7 +52,7 @@ class EnhancedSyncService @Inject constructor(
         updateState(isLoading = true, status = "Starting sync...")
 
         return try {
-            val conflicts = mutableListOf<SyncConflict>()
+            val conflicts = mutableListOf<EnhancedSyncConflict>()
             var itemsSynced = 0
             var conflictsResolved = 0
 
@@ -134,8 +134,8 @@ class EnhancedSyncService @Inject constructor(
     private fun detectConflicts(
         localChanges: List<SyncChange>,
         remoteChanges: List<SyncChange>
-    ): List<SyncConflict> {
-        val conflicts = mutableListOf<SyncConflict>()
+    ): List<EnhancedSyncConflict> {
+        val conflicts = mutableListOf<EnhancedSyncConflict>()
 
         val localMap = localChanges.associateBy { it.itemId }
         val remoteMap = remoteChanges.associateBy { it.itemId }
@@ -147,11 +147,13 @@ class EnhancedSyncService @Inject constructor(
                 // Both modified - potential conflict
                 if (localChange.timestamp != remoteChange.timestamp) {
                     conflicts.add(
-                        SyncConflict(
+                        EnhancedSyncConflict(
                             itemId = itemId,
                             itemType = localChange.itemType,
-                            localChange = localChange,
-                            remoteChange = remoteChange,
+                            localData = localChange,
+                            remoteData = remoteChange,
+                            localTimestamp = localChange.timestamp,
+                            remoteTimestamp = remoteChange.timestamp,
                             conflictType = detectConflictType(localChange, remoteChange)
                         )
                     )
@@ -166,34 +168,34 @@ class EnhancedSyncService @Inject constructor(
      * Resolve a conflict based on resolution strategy
      */
     private fun resolveConflict(
-        conflict: SyncConflict,
-        strategy: ConflictResolution
-    ): ConflictResolution {
+        conflict: EnhancedSyncConflict,
+        strategy: EnhancedConflictResolution
+    ): EnhancedConflictResolution {
         return when (strategy) {
-            ConflictResolution.USE_LOCAL -> {
+            EnhancedConflictResolution.USE_LOCAL -> {
                 // Keep local version, discard remote
-                ConflictResolution.USE_LOCAL
+                EnhancedConflictResolution.USE_LOCAL
             }
-            ConflictResolution.USE_REMOTE -> {
+            EnhancedConflictResolution.USE_REMOTE -> {
                 // Keep remote version, discard local
-                ConflictResolution.USE_REMOTE
+                EnhancedConflictResolution.USE_REMOTE
             }
-            ConflictResolution.USE_NEWER -> {
+            EnhancedConflictResolution.USE_NEWER -> {
                 // Keep whichever is newer
-                if (conflict.localChange.timestamp > conflict.remoteChange.timestamp) {
-                    ConflictResolution.USE_LOCAL
+                if (conflict.localTimestamp > conflict.remoteTimestamp) {
+                    EnhancedConflictResolution.USE_LOCAL
                 } else {
-                    ConflictResolution.USE_REMOTE
+                    EnhancedConflictResolution.USE_REMOTE
                 }
             }
-            ConflictResolution.MERGE -> {
+            EnhancedConflictResolution.MERGE -> {
                 // Attempt to merge both changes
                 tryMerge(conflict)
-                ConflictResolution.MERGE
+                EnhancedConflictResolution.MERGE
             }
-            ConflictResolution.ASK_USER -> {
+            EnhancedConflictResolution.ASK_USER -> {
                 // Defer to user
-                ConflictResolution.ASK_USER
+                EnhancedConflictResolution.ASK_USER
             }
         }
     }
@@ -201,7 +203,7 @@ class EnhancedSyncService @Inject constructor(
     /**
      * Attempt to merge conflicting changes
      */
-    private fun tryMerge(conflict: SyncConflict) {
+    private fun tryMerge(conflict: EnhancedSyncConflict) {
         when (conflict.itemType) {
             "READING_PROGRESS" -> mergeReadingProgress(conflict)
             "BOOKMARKS" -> mergeBookmarks(conflict)
@@ -212,10 +214,10 @@ class EnhancedSyncService @Inject constructor(
         }
     }
 
-    private fun mergeReadingProgress(conflict: SyncConflict) {
+    private fun mergeReadingProgress(conflict: EnhancedSyncConflict) {
         // Merge reading progress: use furthest position
-        val localProgress = conflict.localChange.data as? ReadingProgress
-        val remoteProgress = conflict.remoteChange.data as? ReadingProgress
+        val localProgress = (conflict.localData as? SyncChange)?.data as? ReadingProgress
+        val remoteProgress = (conflict.remoteData as? SyncChange)?.data as? ReadingProgress
 
         if (localProgress != null && remoteProgress != null) {
             val merged = if (localProgress.currentPage > remoteProgress.currentPage) {
@@ -228,12 +230,12 @@ class EnhancedSyncService @Inject constructor(
         }
     }
 
-    private fun mergeBookmarks(conflict: SyncConflict) {
+    private fun mergeBookmarks(conflict: EnhancedSyncConflict) {
         // Merge bookmarks: combine unique bookmarks from both
         // Union of both bookmark lists
     }
 
-    private fun mergeMediaItem(conflict: SyncConflict) {
+    private fun mergeMediaItem(conflict: EnhancedSyncConflict) {
         // Merge metadata: combine non-conflicting fields
         // Keep most complete metadata
     }
@@ -288,9 +290,9 @@ class EnhancedSyncService @Inject constructor(
 }
 
 /**
- * Sync state
+ * Enhanced sync state with additional fields
  */
-data class SyncState(
+data class EnhancedSyncState(
     val isLoading: Boolean = false,
     val status: String = "",
     val error: String? = null,
@@ -303,7 +305,7 @@ data class SyncState(
  */
 data class SyncOptions(
     val lastSyncTime: Long = 0,
-    val conflictResolution: ConflictResolution = ConflictResolution.USE_NEWER,
+    val conflictResolution: EnhancedConflictResolution = EnhancedConflictResolution.USE_NEWER,
     val selectiveSync: Boolean = true, // Only sync changed items
     val maxBandwidth: Long = 0, // 0 = unlimited
     val syncMediaFiles: Boolean = false, // Sync actual media files or just metadata
@@ -318,7 +320,7 @@ data class SyncResult(
     val itemsSynced: Int = 0,
     val conflictsDetected: Int = 0,
     val conflictsResolved: Int = 0,
-    val conflicts: List<SyncConflict> = emptyList(),
+    val conflicts: List<EnhancedSyncConflict> = emptyList(),
     val error: String? = null,
     val timestamp: Long
 )
@@ -326,7 +328,6 @@ data class SyncResult(
 /**
  * Sync change record
  */
-@Serializable
 data class SyncChange(
     val itemId: Long,
     val itemType: String, // MEDIA_ITEM, BOOKMARK, READING_PROGRESS, etc.
@@ -368,9 +369,9 @@ enum class ConflictType {
 }
 
 /**
- * Conflict resolution strategy
+ * Enhanced conflict resolution strategy
  */
-enum class ConflictResolution {
+enum class EnhancedConflictResolution {
     USE_LOCAL,   // Always use local version
     USE_REMOTE,  // Always use remote version
     USE_NEWER,   // Use whichever is newer
