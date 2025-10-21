@@ -42,7 +42,7 @@ fun EnhancedMediaCard(
         modifier = modifier
             .width(160.dp)
             .shadow(4.dp)
-            .bounceClick(onClick)
+            .scaleOnPress()
     ) {
         Column {
             // Image with overlay badge
