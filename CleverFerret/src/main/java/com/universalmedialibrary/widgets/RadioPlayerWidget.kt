@@ -13,11 +13,11 @@ import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
@@ -70,7 +70,7 @@ class RadioPlayerWidget : AppWidgetProvider() {
             val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
             
             val currentStation = if (currentStationId > 0 && radioStationDao != null) {
-                kotlinx.coroutines.runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
+                radioStationDao.getStationByIdDirect(currentStationId) // ✅ Already in suspend context
             } else {
                 null
             }

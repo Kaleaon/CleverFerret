@@ -138,4 +138,10 @@ interface MetadataDao {
         publisher: String?,
         isbn: String?
     )
+
+    /**
+     * Get all metadata for backup
+     */
+    @Query("SELECT * FROM metadata_common ORDER BY itemId")
+    suspend fun getAllMetadata(): List<MetadataCommon>
 }

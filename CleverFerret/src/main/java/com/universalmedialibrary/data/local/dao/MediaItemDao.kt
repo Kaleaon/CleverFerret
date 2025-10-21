@@ -75,4 +75,10 @@ interface MediaItemDao {
      */
     @Query("SELECT * FROM media_items WHERE itemId = :bookId AND mediaType = 'BOOK'")
     suspend fun getBookDetailsById(bookId: Long): MediaItem?
+
+    /**
+     * Get all media items for backup
+     */
+    @Query("SELECT * FROM media_items ORDER BY dateAdded DESC")
+    suspend fun getAllMediaItems(): List<MediaItem>
 }

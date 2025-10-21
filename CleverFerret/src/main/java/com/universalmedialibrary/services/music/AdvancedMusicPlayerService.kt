@@ -347,7 +347,11 @@ class AdvancedMusicPlayerService @Inject constructor(
             title = mediaItem.fileName.substringBeforeLast('.'),
             artist = extractArtistFromMetadata(mediaItem),
             album = extractAlbumFromMetadata(mediaItem),
-            duration = 0L, // TODO: Extract duration from media metadata
+            duration = try {
+                exoPlayerService.getDuration()
+            } catch (e: Exception) {
+                1L // Safe fallback (1ms instead of 0 to avoid divide-by-zero)
+            },
             filePath = mediaItem.filePath,
             albumArtUrl = null, // Will be enhanced later
             queuePosition = queuePosition
