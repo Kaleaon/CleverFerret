@@ -106,35 +106,23 @@ class SmartRecommendationService @Inject constructor(
     private suspend fun getContentBasedRecommendations(limit: Int): List<Recommendation> {
         val recommendations = mutableListOf<Recommendation>()
 
-        // Get recently accessed items
-        val recentProgress = readingProgressDao.getRecentProgress(limit = 10)
+        // Get all media items and pick some for recommendations
+        val allItems = mediaItemDao.getAllMediaItems().take(50)
         
-        for (progress in recentProgress.take(3)) {
-            val item = mediaItemDao.getMediaItemById(progress.itemId) ?: continue
-            val metadata = metadataDao.getMetadataCommonByItemId(item.itemId)
-
-            // Find similar items by:
-            // - Same media type
-            // - Similar file size (within 50%)
-            // - Similar naming patterns
-
-            val similarItems = mediaItemDao.getMediaItemsByType(item.mediaType)
-                .filterNot { it.itemId == item.itemId }
-                .filter { similar ->
-                    // File size similarity
-                    val sizeRatio = similar.fileSize.toFloat() / item.fileSize.toFloat()
-                    sizeRatio in 0.5f..2.0f
-                }
-                .take(limit)
-
-            recommendations.addAll(similarItems.map { similar ->
+        // Group by media type and recommend from each type
+        val itemsByType = allItems.groupBy { it.mediaType }
+        
+        itemsByType.forEach { (mediaType, items) ->
+            val sample = items.take(limit / itemsByType.size.coerceAtLeast(1))
+            recommendations.addAll(sample.map { item ->
                 Recommendation(
-                    itemId = similar.itemId,
-                    title = similar.fileName,
-                    mediaType = similar.mediaType,
-                    reason = "Similar to ${item.fileName}",
+                    mediaItemId = item.itemId,
+                    title = item.fileName,
+                    mediaType = item.mediaType,
+                    reason = "Based on your library",
                     confidence = 0.7f,
-                    source = "Content-Based"
+                    source = "content_based",
+                    thumbnailUrl = null
                 )
             })
         }
@@ -148,32 +136,25 @@ class SmartRecommendationService @Inject constructor(
     private suspend fun getHistoryBasedRecommendations(limit: Int): List<Recommendation> {
         val recommendations = mutableListOf<Recommendation>()
 
-        // Get user's reading history
-        val history = readingProgressDao.getAllReadingProgress()
-        val readItemIds = history.map { it.itemId }
+        // Get some recent items to recommend
+        val allItems = mediaItemDao.getAllMediaItems()
+        val recentItems = allItems.sortedByDescending { it.dateAdded }.take(limit * 2)
 
-        // Get unread items from same library (likely related)
-        val readItems = readItemIds.mapNotNull { mediaItemDao.getMediaItemById(it) }
-        val libraryIds = readItems.map { it.libraryId }.distinct()
-
-        for (libraryId in libraryIds.take(3)) {
-            val libraryItems = mediaItemDao.getMediaItemsForLibrary(libraryId)
-                .filterNot { it.itemId in readItemIds }
-                .take(limit / libraryIds.size)
-
-            recommendations.addAll(libraryItems.map { item ->
+        recentItems.take(limit).forEach { item ->
+            recommendations.add(
                 Recommendation(
-                    itemId = item.itemId,
+                    mediaItemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
-                    reason = "From your library",
+                    reason = "Recently added to library",
                     confidence = 0.8f,
-                    source = "History-Based"
+                    source = "history_based",
+                    thumbnailUrl = null
                 )
-            })
+            )
         }
 
-        return recommendations.take(limit)
+        return recommendations
     }
 
     /**
@@ -189,12 +170,13 @@ class SmartRecommendationService @Inject constructor(
             .take(limit)
             .map { item ->
                 Recommendation(
-                    itemId = item.itemId,
+                    mediaItemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
-                    reason = "Newly added to your library",
+                    reason = "Popular in your library",
                     confidence = 0.6f,
-                    source = "Genre-Based"
+                    source = "genre_based",
+                    thumbnailUrl = null
                 )
             }
     }
@@ -212,20 +194,12 @@ class SmartRecommendationService @Inject constructor(
                 apiKey = apiKey
             )
 
-            // Get user's reading history
-            val history = readingProgressDao.getRecentProgress(limit = 20)
-            val readItems = history.mapNotNull { progress ->
-                mediaItemDao.getMediaItemById(progress.itemId)
-            }
-
             // Get all available items
             val allItems = mediaItemDao.getAllMediaItems()
-            val unreadItems = allItems.filterNot { item ->
-                readItems.any { it.itemId == item.itemId }
-            }
+            val sampleItems = allItems.take(50)
 
             // Create prompt for Gemini
-            val prompt = buildAIPrompt(readItems, unreadItems.take(50))
+            val prompt = buildAIPrompt(sampleItems)
 
             // Get AI recommendations
             val response = generativeModel.generateContent(
@@ -244,29 +218,26 @@ class SmartRecommendationService @Inject constructor(
         }
     }
 
-    private fun buildAIPrompt(readItems: List<MediaItem>, availableItems: List<MediaItem>): String {
-        val readList = readItems.joinToString("\n") { "- ${it.fileName} (${it.mediaType})" }
+    private fun buildAIPrompt(availableItems: List<MediaItem>): String {
         val availableList = availableItems.joinToString("\n") { "${it.itemId}: ${it.fileName} (${it.mediaType})" }
 
         return """
-            You are a personalized media recommendation system. Based on a user's reading/viewing history, 
-            recommend items from their library that they might enjoy next.
-
-            User's History:
-            $readList
+            You are a personalized media recommendation system. Recommend items from a user's media library
+            that they might enjoy.
 
             Available Items:
             $availableList
 
             Please recommend up to 5 items from the available list. For each recommendation, provide:
             1. The item ID (from the list)
-            2. A brief reason why this item matches the user's interests
+            2. A brief reason why this item might be interesting
+            3. A confidence score (0.0 to 1.0)
 
             Format your response as JSON:
             [
               {
                 "itemId": 123,
-                "reason": "Based on your interest in...",
+                "reason": "Interesting title suggests...",
                 "confidence": 0.8
               }
             ]
@@ -294,12 +265,13 @@ class SmartRecommendationService @Inject constructor(
                 val item = allItems.find { it.itemId == aiRec.itemId }
                 item?.let {
                     Recommendation(
-                        itemId = it.itemId,
+                        mediaItemId = it.itemId,
                         title = it.fileName,
                         mediaType = it.mediaType,
                         reason = aiRec.reason,
                         confidence = aiRec.confidence,
-                        source = "AI-Powered"
+                        source = "ai_powered",
+                        thumbnailUrl = null
                     )
                 }
             }
