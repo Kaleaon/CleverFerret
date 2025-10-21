@@ -126,16 +126,10 @@ fun RecommendationsScreen(
 
 @Composable
 private fun LoadingState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Finding recommendations...", style = MaterialTheme.typography.bodyMedium)
-        }
-    }
+    com.universalmedialibrary.ui.components.EnhancedLoadingState(
+        message = "Finding recommendations...",
+        icon = Icons.Default.AutoAwesome
+    )
 }
 
 @Composable
@@ -144,79 +138,19 @@ private fun ErrorState(
     onRetry: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Icon(
-                Icons.Default.Error,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.error
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                "Failed to Load",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                error,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onDismiss) {
-                    Text("Dismiss")
-                }
-                Button(onClick = onRetry) {
-                    Icon(Icons.Default.Refresh, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Retry")
-                }
-            }
-        }
-    }
+    com.universalmedialibrary.ui.components.EnhancedErrorState(
+        title = "Failed to Load Recommendations",
+        message = error,
+        onRetry = onRetry,
+        onDismiss = onDismiss
+    )
 }
 
 @Composable
 private fun EmptyState(onExplore: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Icon(
-                Icons.Default.AutoAwesome,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                "No Recommendations Yet",
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Start exploring your library to get personalized recommendations",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = onExplore) {
-                Text("Explore Library")
-            }
-        }
-    }
+    com.universalmedialibrary.ui.components.NoRecommendationsState(
+        onExploreLibrary = onExplore
+    )
 }
 
 @Composable
