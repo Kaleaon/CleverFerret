@@ -144,7 +144,11 @@ fun <T> rememberStaggeredListAnimation(
     itemCount: Int,
     staggerDelayMillis: Int = 50
 ): List<Boolean> {
-    val visibilityStates = remember { mutableStateListOf<Boolean>().apply { 
+val visibilityStates = remember(itemCount) {
+    mutableStateListOf<Boolean>().apply {
+        repeat(itemCount) { add(false) }
+    }
+}
         repeat(itemCount) { add(false) }
     } }
     
