@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.json.Json
@@ -116,7 +117,7 @@ class SmartRecommendationService @Inject constructor(
             val sample = items.take(limit / itemsByType.size.coerceAtLeast(1))
             recommendations.addAll(sample.map { item ->
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Based on your library",
@@ -143,7 +144,7 @@ class SmartRecommendationService @Inject constructor(
         recentItems.take(limit).forEach { item ->
             recommendations.add(
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Recently added to library",
@@ -170,7 +171,7 @@ class SmartRecommendationService @Inject constructor(
             .take(limit)
             .map { item ->
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Popular in your library",
@@ -265,7 +266,7 @@ class SmartRecommendationService @Inject constructor(
                 val item = allItems.find { it.itemId == aiRec.itemId }
                 item?.let {
                     Recommendation(
-                        mediaItemId = it.itemId,
+                        itemId = it.itemId,
                         title = it.fileName,
                         mediaType = it.mediaType,
                         reason = aiRec.reason,
@@ -285,7 +286,7 @@ class SmartRecommendationService @Inject constructor(
      */
     suspend fun getTrendingItems(limit: Int = 10): List<Recommendation> {
         // For single-user app, return recently accessed
-        val recentProgress = readingProgressDao.getRecentProgress(limit = limit)
+        val recentProgress = readingProgressDao.getRecentProgress(limit = limit).first()
         
         return recentProgress.mapNotNull { progress ->
             val item = mediaItemDao.getMediaItemById(progress.itemId)
