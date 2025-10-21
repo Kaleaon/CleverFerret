@@ -53,7 +53,16 @@ class SyncViewModel @Inject constructor(
         }
     }
 
-    fun handleConflict(conflict: EnhancedSyncConflict, resolution: ConflictResolution) {
+viewModelScope.launch {
+    try {
+        syncService.resolveConflict(conflict, resolution)
+        _uiState.value = _uiState.value.copy(currentConflict = null)
+        // Optionally resume sync if needed
+        if (_uiState.value.isSyncing) startSync()
+    } catch (e: Exception) {
+        _uiState.value = _uiState.value.copy(error = e.message ?: "Failed to resolve conflict")
+    }
+}
         viewModelScope.launch {
             try {
                 // TODO: Implement conflict resolution in service
