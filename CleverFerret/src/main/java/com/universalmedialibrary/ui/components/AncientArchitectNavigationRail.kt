@@ -84,17 +84,7 @@ fun AncientArchitectNavigationRail(
                         )
                     }
                 }
-            }
-            .border(
-                width = 2.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        ancientColors.metal.primaryDark,
-                        ancientColors.metal.primary,
-                        ancientColors.metal.primaryDark
-                    )
-                )
-            ),
+            },
         containerColor = if (containerColor == Color.Unspecified) Color.Transparent else containerColor,
         contentColor = if (contentColor == Color.Unspecified) ancientColors.stone.text else contentColor,
         header = header,

@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -201,15 +202,11 @@ fun UnifiedCleverFerretTheme(
         val colorScheme = getColorSchemeForTheme(theme, darkTheme)
         val metallicColors = getMetallicColorsForTheme(theme)
         
-        CompositionLocalProvider(
-            LocalMetallicColors provides metallicColors
-        ) {
-            MaterialTheme(
-                colorScheme = colorScheme,
-                typography = AncientArchitectTypography, // Use the same typography
-                content = content
-            )
-        }
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AncientArchitectTypography, // Use the same typography
+            content = content
+        )
     }
 }
 
@@ -347,7 +344,7 @@ val LocalMetallicColors = compositionLocalOf {
  */
 @Composable
 fun metallicColors(): MetallicGradient {
-    return LocalMetallicColors.current
+    return LocalMetallicColorsInternal.current
 }
 
 /**
