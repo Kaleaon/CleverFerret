@@ -25,6 +25,7 @@ class AudioVisualizerService @Inject constructor(
 ) {
     private var visualizer: Visualizer? = null
     private var captureSize = 0
+    private var currentPlayer: ExoPlayer? = null
 
     private val _visualizerState = MutableStateFlow(VisualizerState())
     val visualizerState: StateFlow<VisualizerState> = _visualizerState.asStateFlow()
@@ -37,10 +38,24 @@ class AudioVisualizerService @Inject constructor(
      */
     fun attachToPlayer(player: ExoPlayer) {
         try {
+            // Only re-attach if player changed
+            if (currentPlayer == player && visualizer != null && visualizer?.enabled == true) {
+                return
+            }
+            
             release()
+            currentPlayer = player
 
             // Get audio session ID from ExoPlayer
             val audioSessionId = player.audioSessionId
+            
+            // Validate audio session ID
+            if (audioSessionId == 0) {
+                _visualizerState.value = _visualizerState.value.copy(
+                    error = "Invalid audio session ID. Player may not be ready."
+                )
+                return
+            }
 
             visualizer = Visualizer(audioSessionId).apply {
                 captureSize = Visualizer.getCaptureSizeRange()[1]
@@ -174,12 +189,18 @@ class AudioVisualizerService @Inject constructor(
             visualizer?.enabled = false
             visualizer?.release()
             visualizer = null
+            currentPlayer = null
             _isEnabled.value = false
             _visualizerState.value = VisualizerState()
         } catch (e: Exception) {
             // Ignore release errors
         }
     }
+    
+    /**
+     * Get the currently attached player
+     */
+    fun getCurrentPlayer(): ExoPlayer? = currentPlayer
 }
 
 /**

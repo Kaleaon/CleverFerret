@@ -350,7 +350,8 @@ private fun FrequencyMeter(
 class VisualizerViewModel @Inject constructor(
     private val audioVisualizerService: AudioVisualizerService,
     private val chromecastManager: ChromecastManager,
-    private val audioPlaybackManager: AudioPlaybackManager
+    private val audioPlaybackManager: AudioPlaybackManager,
+    private val exoPlayerService: com.universalmedialibrary.services.exoplayer.ExoPlayerService
 ) : ViewModel() {
 
     val visualizerState = audioVisualizerService.visualizerState
@@ -368,13 +369,37 @@ class VisualizerViewModel @Inject constructor(
         // Initialize Chromecast
         chromecastManager.initialize()
 
-        // Attach visualizer to the audio player
-        audioVisualizerService.attachToPlayer(audioPlaybackManager.exoPlayer)
+        // Attach visualizer to the active player
+        // Try music player first (ExoPlayerService), then fall back to AudioPlaybackManager
+        val activePlayer = exoPlayerService.getPlayer() ?: audioPlaybackManager.exoPlayer
+        audioVisualizerService.attachToPlayer(activePlayer)
         audioVisualizerService.setEnabled(true)
 
-        // Start updating cast with visualizer data
+        // Monitor both players and reattach when active player changes
         viewModelScope.launch {
             while (isActive) {
+                // Check if we need to switch players
+                val musicPlayer = exoPlayerService.getPlayer()
+                val audioPlayer = audioPlaybackManager.exoPlayer
+                val currentPlayer = audioVisualizerService.getCurrentPlayer()
+                
+                // Prefer the player that's actually playing
+                val targetPlayer = when {
+                    musicPlayer?.isPlaying == true -> musicPlayer
+                    audioPlayer.isPlaying -> audioPlayer
+                    musicPlayer != null -> musicPlayer
+                    else -> audioPlayer
+                }
+                
+                // Reattach if player changed
+                if (currentPlayer != targetPlayer) {
+                    audioVisualizerService.attachToPlayer(targetPlayer)
+                    if (isVisualizerEnabled.value) {
+                        audioVisualizerService.setEnabled(true)
+                    }
+                }
+                
+                // Update cast with visualizer data
                 val state = visualizerState.value
                 chromecastManager.updateVisualizerData(
                     bass = state.frequencyBands.bass,
@@ -382,7 +407,7 @@ class VisualizerViewModel @Inject constructor(
                     treble = state.frequencyBands.treble,
                     spectrum = state.frequencyBands.spectrum
                 )
-                delay(50) // Update 20 times per second
+                delay(100) // Check every 100ms
             }
         }
     }

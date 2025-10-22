@@ -72,8 +72,8 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
 
                 // Create new ExoPlayer
                 val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(context)
-                .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
-            exoPlayer = ExoPlayer.Builder(context, renderersFactory).build().apply {
+                    .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+                exoPlayer = ExoPlayer.Builder(context, renderersFactory).build().apply {
                     addListener(playerListener)
                 }
 

@@ -60,6 +60,9 @@ class AdvancedMusicPlayerService @Inject constructor(
         }
 
         try {
+            // Ensure ExoPlayer is initialized
+            exoPlayerService.initialize()
+            
             updatePlaybackState(isLoading = true)
 
             // Create track info with metadata enhancement
@@ -97,6 +100,9 @@ class AdvancedMusicPlayerService @Inject constructor(
         }
 
         try {
+            // Ensure ExoPlayer is initialized
+            exoPlayerService.initialize()
+            
             updatePlaybackState(isLoading = true)
 
             // Create track infos with metadata enhancement
@@ -347,11 +353,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             title = mediaItem.fileName.substringBeforeLast('.'),
             artist = extractArtistFromMetadata(mediaItem),
             album = extractAlbumFromMetadata(mediaItem),
-            duration = try {
-                exoPlayerService.getDuration()
-            } catch (e: Exception) {
-                1L // Safe fallback (1ms instead of 0 to avoid divide-by-zero)
-            },
+            duration = 0L, // Duration will be updated when media is loaded
             filePath = mediaItem.filePath,
             albumArtUrl = null, // Will be enhanced later
             queuePosition = queuePosition
