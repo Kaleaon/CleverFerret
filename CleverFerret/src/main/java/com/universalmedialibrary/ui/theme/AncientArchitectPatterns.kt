@@ -213,8 +213,8 @@ object AncientArchitectPatterns {
         
         // Apply rotation and translation
         val matrix = Matrix().apply {
-            postRotate(rotation, 0f, 0f)
-            postTranslate(offset.x, offset.y)
+            rotateZ(rotation)
+            translate(offset.x, offset.y)
         }
         path.transform(matrix)
         

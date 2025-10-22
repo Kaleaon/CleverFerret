@@ -53,6 +53,8 @@ fun AncientArchitectNotification(
     action: (@Composable () -> Unit)? = null
 ) {
     val ancientColors = ancientArchitectColors()
+    val enablePatterns = geometricPatternsEnabled()
+    val enableGlow = crystalGlowEnabled()
     
     // Get colors based on notification type
     val (accentColor, glowColor, defaultIcon) = when (type) {
@@ -95,7 +97,7 @@ fun AncientArchitectNotification(
             .fillMaxWidth()
             .drawBehind {
                 // Glowing edge effect
-                if (crystalGlowEnabled()) {
+                if (enableGlow) {
                     drawRect(
                         brush = Brush.verticalGradient(
                             colors = listOf(
@@ -107,7 +109,7 @@ fun AncientArchitectNotification(
                 }
                 
                 // Background pattern
-                if (geometricPatternsEnabled()) {
+                if (enablePatterns) {
                     with(AncientArchitectPatterns) {
                         drawDiamondGrid(
                             color = ancientColors.stone.text,
@@ -282,6 +284,7 @@ fun AncientArchitectAlertDialog(
     type: NotificationType = NotificationType.INFO
 ) {
     val ancientColors = ancientArchitectColors()
+    val enablePatterns = geometricPatternsEnabled()
     
     val accentColor = when (type) {
         NotificationType.INFO -> ancientColors.accent.info
@@ -296,7 +299,7 @@ fun AncientArchitectAlertDialog(
         modifier = modifier
             .drawBehind {
                 // Background pattern
-                if (geometricPatternsEnabled()) {
+                if (enablePatterns) {
                     with(AncientArchitectPatterns) {
                         drawDiamondGrid(
                             color = ancientColors.stone.text,

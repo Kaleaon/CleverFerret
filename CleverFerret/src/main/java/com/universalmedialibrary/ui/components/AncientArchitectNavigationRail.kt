@@ -37,6 +37,7 @@ fun AncientArchitectNavigationRail(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val ancientColors = ancientArchitectColors()
+    val enablePatterns = geometricPatternsEnabled()
     
     NavigationRail(
         modifier = modifier
@@ -55,7 +56,7 @@ fun AncientArchitectNavigationRail(
                 )
                 
                 // Carved patterns
-                if (geometricPatternsEnabled()) {
+                if (enablePatterns) {
                     with(AncientArchitectPatterns) {
                         // Vertical frieze pattern
                         drawFriezePattern(
@@ -115,6 +116,7 @@ fun AncientArchitectNavigationRailItem(
     alwaysShowLabel: Boolean = true
 ) {
     val ancientColors = ancientArchitectColors()
+    val enableGlow = crystalGlowEnabled()
     
     // Glow animation for selected item
     val infiniteTransition = rememberInfiniteTransition(label = "itemGlow")
@@ -133,7 +135,7 @@ fun AncientArchitectNavigationRailItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .then(
-                if (selected && crystalGlowEnabled()) {
+                if (selected && enableGlow) {
                     Modifier.drawBehind {
                         // Crystal glow for selected item
                         drawRect(

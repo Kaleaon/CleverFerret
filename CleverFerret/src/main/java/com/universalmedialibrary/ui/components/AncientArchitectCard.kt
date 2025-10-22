@@ -44,6 +44,7 @@ fun AncientArchitectCard(
 ) {
     val ancientColors = ancientArchitectColors()
     val shimmerEnabled = metallicShimmerEnabled() && enableShimmer
+    val enablePatterns = geometricPatternsEnabled()
     
     // Shimmer animation
     val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
@@ -62,7 +63,7 @@ fun AncientArchitectCard(
         modifier = modifier
             .drawBehind {
                 // Background pattern
-                if (showPattern && geometricPatternsEnabled()) {
+                if (showPattern && enablePatterns) {
                     with(AncientArchitectPatterns) {
                         drawDiamondGrid(
                             color = ancientColors.stone.text,
@@ -73,7 +74,7 @@ fun AncientArchitectCard(
                 }
                 
                 // Corner decorations
-                if (showCornerDecorations && geometricPatternsEnabled()) {
+                if (showCornerDecorations && enablePatterns) {
                     with(AncientArchitectPatterns) {
                         drawCornerDecorations(
                             color = ancientColors.metal.primary,
