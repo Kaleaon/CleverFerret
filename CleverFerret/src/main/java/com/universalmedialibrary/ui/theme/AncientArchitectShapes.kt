@@ -32,7 +32,8 @@ class SteppedCornerShape(
         density: Density
     ): Outline {
         val cornerPx = with(density) { cornerSize.toPx() }
-        val stepSize = cornerPx / steps
+        val safeSteps = steps.coerceAtLeast(1)
+        val stepSize = cornerPx / safeSteps
         
         return Outline.Generic(
             Path().apply {
@@ -40,7 +41,7 @@ class SteppedCornerShape(
                 moveTo(0f, cornerPx)
                 
                 // Top-left stepped corner
-                for (i in 0 until steps) {
+                for (i in 0 until safeSteps) {
                     lineTo(stepSize * i, cornerPx - stepSize * (i + 1))
                 }
                 lineTo(cornerPx, 0f)
@@ -49,7 +50,7 @@ class SteppedCornerShape(
                 lineTo(size.width - cornerPx, 0f)
                 
                 // Top-right stepped corner
-                for (i in 0 until steps) {
+                for (i in 0 until safeSteps) {
                     lineTo(size.width - cornerPx + stepSize * (i + 1), stepSize * i)
                 }
                 lineTo(size.width, cornerPx)
@@ -58,7 +59,7 @@ class SteppedCornerShape(
                 lineTo(size.width, size.height - cornerPx)
                 
                 // Bottom-right stepped corner
-                for (i in 0 until steps) {
+                for (i in 0 until safeSteps) {
                     lineTo(size.width - stepSize * i, size.height - cornerPx + stepSize * (i + 1))
                 }
                 lineTo(size.width - cornerPx, size.height)
@@ -67,7 +68,7 @@ class SteppedCornerShape(
                 lineTo(cornerPx, size.height)
                 
                 // Bottom-left stepped corner
-                for (i in 0 until steps) {
+                for (i in 0 until safeSteps) {
                     lineTo(cornerPx - stepSize * (i + 1), size.height - stepSize * i)
                 }
                 lineTo(0f, size.height - cornerPx)

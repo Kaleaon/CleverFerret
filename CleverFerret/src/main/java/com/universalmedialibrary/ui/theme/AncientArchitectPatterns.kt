@@ -26,6 +26,7 @@ object AncientArchitectPatterns {
         strokeWidth: Float = 2f,
         spacing: Float = 20f
     ) {
+        if (spacing <= 0f) return // Safety check
         val width = size.width
         val height = size.height
         val steps = (height / spacing).toInt()
@@ -56,6 +57,7 @@ object AncientArchitectPatterns {
         strokeWidth: Float = 1f,
         cellSize: Float = 40f
     ) {
+        if (cellSize <= 0f) return // Safety check
         val width = size.width
         val height = size.height
         val cols = (width / cellSize).toInt() + 1
@@ -93,6 +95,7 @@ object AncientArchitectPatterns {
         strokeWidth: Float = 1f,
         cellSize: Float = 30f
     ) {
+        if (cellSize <= 0f) return // Safety check
         val width = size.width
         val height = size.height
         val hexWidth = cellSize * 2f
