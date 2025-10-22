@@ -343,9 +343,34 @@ fun AppNavigation() {
             )
         }
 
-        // Theme preview for testing
+        // Theme preview for testing (old)
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
+        }
+        
+        // New unified theme showcase with all 15 themes
+        composable("theme_showcase") {
+            val mainViewModel: MainViewModel = hiltViewModel()
+            val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+            val currentUnifiedTheme = selectedTheme.toCleverFerretTheme()
+            
+            com.universalmedialibrary.ui.screens.ThemeShowcaseScreen(
+                currentTheme = currentUnifiedTheme,
+                onThemeSelected = { newTheme ->
+                    // Convert back to old ThemePalette if needed
+                    val oldPalette = when (newTheme) {
+                        CleverFerretTheme.NAVY_GOLD -> ThemePalette.NAVY_GOLD
+                        CleverFerretTheme.ROYAL_SILVER -> ThemePalette.ROYAL_SILVER
+                        CleverFerretTheme.FOREST_COPPER -> ThemePalette.FOREST_COPPER
+                        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> ThemePalette.BURGUNDY_ROSE_GOLD
+                        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> ThemePalette.CHARCOAL_CHAMPAGNE
+                        CleverFerretTheme.SLATE_GUNMETAL -> ThemePalette.SLATE_GUNMETAL
+                        else -> ThemePalette.NAVY_GOLD
+                    }
+                    mainViewModel.setTheme(oldPalette)
+                },
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
 
         // Enhanced Media Library Screen route
