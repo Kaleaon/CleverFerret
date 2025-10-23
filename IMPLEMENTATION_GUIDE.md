@@ -1,488 +1,542 @@
-# Implementation Guide - Priority Features
+# Ancient Architect Theme - Implementation Guide
 
-## 🎧 Phase 1: Audiophile Essentials
+## Overview
 
-### 1. FLAC/ALAC Support
+The Ancient Architect theme is a complete UI redesign for CleverFerret that combines:
+- **Art Deco**: Geometric luxury, metallic accents, stepped forms
+- **Dwarven Architecture**: Stone craftsmanship, massive structures, metalwork
+- **Frank Lloyd Wright**: Organic geometry, natural patterns, unit systems
+- **Stargate Atlantis**: Ancient technology, glowing elements, crystalline aesthetics
 
-**Android Implementation**:
+---
+
+## Quick Start
+
+### 1. Add Theme Files to Your Project
+
+Copy the following files to your project:
+
+```
+src/main/java/com/universalmedialibrary/ui/theme/
+├── AncientArchitectTheme.kt          # Main theme system
+├── AncientArchitectTypography.kt     # Typography definitions
+├── AncientArchitectShapes.kt         # Geometric shapes
+└── AncientArchitectPatterns.kt       # Decorative patterns
+
+src/main/java/com/universalmedialibrary/ui/components/
+├── AncientArchitectCard.kt           # Enhanced cards
+├── AncientArchitectButton.kt         # Buttons and FABs
+├── AncientArchitectNotification.kt   # Notifications and dialogs
+└── AncientArchitectNavigationRail.kt # Navigation components
+```
+
+### 2. Apply Theme to Your App
+
+In your main activity or app composable:
+
 ```kotlin
-// Add to build.gradle.kts
-dependencies {
-    implementation("androidx.media3:media3-exoplayer:1.2.0")
-    implementation("androidx.media3:media3-exoplayer-flac:1.2.0") // FLAC
+import com.universalmedialibrary.ui.theme.*
+
+@Composable
+fun CleverFerretApp() {
+    AncientArchitectTheme(
+        variant = AncientArchitectVariant.ANCIENT_BRONZE,
+        enableGeometricPatterns = true,
+        enableMetallicShimmer = true,
+        enableCrystalGlow = true
+    ) {
+        // Your app content
+        MainScreen()
+    }
+}
+```
+
+### 3. Use Enhanced Components
+
+Replace standard Material 3 components with Ancient Architect versions:
+
+```kotlin
+// Cards
+AncientArchitectCard(
+    onClick = { /* action */ },
+    showPattern = true,
+    showCornerDecorations = true,
+    enableShimmer = true
+) {
+    // Card content
 }
 
-// AudioFormatDetector.kt
-object AudioFormatDetector {
-    fun detectFormat(file: File): AudioSpecs {
-        val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(file.absolutePath)
-        
-        return AudioSpecs(
-            codec = retriever.extractMetadata(METADATA_KEY_MIMETYPE) ?: "unknown",
-            sampleRate = retriever.extractMetadata(METADATA_KEY_SAMPLERATE)?.toInt() ?: 44100,
-            bitDepth = retriever.extractMetadata(METADATA_KEY_BITRATE)?.toInt(),
-            channels = retriever.extractMetadata(METADATA_KEY_NUM_TRACKS)?.toInt() ?: 2,
-            isLossless = file.extension in listOf("flac", "alac", "ape", "wav", "aiff")
+// Buttons
+AncientArchitectPrimaryButton(
+    onClick = { /* action */ }
+) {
+    Text("Action")
+}
+
+// Notifications
+AncientArchitectNotification(
+    message = "Operation completed successfully",
+    type = NotificationType.SUCCESS,
+    title = "Success"
+)
+
+// Navigation
+AncientArchitectNavigationRail(
+    header = {
+        // Header content
+    }
+) {
+    // Navigation items
+}
+```
+
+---
+
+## Theme Variants
+
+### Ancient Bronze (Default)
+- Warm bronze and copper metallics
+- Amber and cyan glows
+- Best for: General use, warm aesthetic
+
+```kotlin
+AncientArchitectTheme(
+    variant = AncientArchitectVariant.ANCIENT_BRONZE
+) { /* content */ }
+```
+
+### Silver Architect
+- Cool silver and platinum metallics
+- Blue and white glows
+- Best for: Professional, modern look
+
+```kotlin
+AncientArchitectTheme(
+    variant = AncientArchitectVariant.SILVER_ARCHITECT
+) { /* content */ }
+```
+
+### Obsidian Tech
+- Dark gray metallics
+- Purple and cyan glows
+- Best for: High-tech, mysterious aesthetic
+
+```kotlin
+AncientArchitectTheme(
+    variant = AncientArchitectVariant.OBSIDIAN_TECH
+) { /* content */ }
+```
+
+---
+
+## Component Guide
+
+### Cards
+
+#### Standard Card
+```kotlin
+AncientArchitectCard(
+    modifier = Modifier.fillMaxWidth(),
+    onClick = { /* action */ },
+    showPattern = true,
+    showCornerDecorations = true
+) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text("Title", style = MaterialTheme.typography.titleLarge)
+        Text("Content", style = MaterialTheme.typography.bodyMedium)
+    }
+}
+```
+
+#### Elevated Card (with glow)
+```kotlin
+AncientArchitectElevatedCard(
+    onClick = { /* action */ },
+    showGlow = true
+) {
+    // Content with enhanced elevation and crystal glow
+}
+```
+
+#### Outlined Card
+```kotlin
+AncientArchitectOutlinedCard(
+    onClick = { /* action */ }
+) {
+    // Content with prominent border
+}
+```
+
+### Buttons
+
+#### Primary Button (Bronze metallic)
+```kotlin
+AncientArchitectPrimaryButton(
+    onClick = { /* action */ },
+    enabled = true
+) {
+    Icon(Icons.Default.Add, contentDescription = null)
+    Spacer(Modifier.width(8.dp))
+    Text("Add Item")
+}
+```
+
+#### Secondary Button (Stone carved)
+```kotlin
+AncientArchitectSecondaryButton(
+    onClick = { /* action */ }
+) {
+    Text("Cancel")
+}
+```
+
+#### Icon Button (Hexagonal)
+```kotlin
+AncientArchitectIconButton(
+    onClick = { /* action */ }
+) {
+    Icon(Icons.Default.Settings, contentDescription = "Settings")
+}
+```
+
+#### Floating Action Button (Diamond)
+```kotlin
+AncientArchitectFloatingActionButton(
+    onClick = { /* action */ }
+) {
+    Icon(Icons.Default.Add, contentDescription = "Add")
+}
+```
+
+### Notifications
+
+#### Notification Box
+```kotlin
+AncientArchitectNotification(
+    message = "Your changes have been saved",
+    type = NotificationType.SUCCESS,
+    title = "Success",
+    dismissible = true,
+    onDismiss = { /* handle dismiss */ },
+    action = {
+        AncientArchitectTextButton(onClick = { /* undo */ }) {
+            Text("UNDO")
+        }
+    }
+)
+```
+
+#### Notification Types
+- `NotificationType.INFO` - Blue sapphire glow
+- `NotificationType.SUCCESS` - Green emerald glow
+- `NotificationType.WARNING` - Amber energy glow
+- `NotificationType.ERROR` - Ruby red glow
+
+#### Snackbar
+```kotlin
+val snackbarHostState = remember { SnackbarHostState() }
+
+SnackbarHost(
+    hostState = snackbarHostState,
+    snackbar = { data ->
+        AncientArchitectSnackbar(
+            snackbarData = data,
+            type = NotificationType.INFO
         )
     }
-}
+)
+```
 
-// Update AudioPlaybackManager.kt
-class AudioPlaybackManager {
-    fun loadAudioFile(mediaItem: MediaItem) {
-        val audioSpecs = AudioFormatDetector.detectFormat(File(mediaItem.filePath))
-        
-        // Configure ExoPlayer for hi-res
-        if (audioSpecs.sampleRate > 48000) {
-            player.audioComponent?.audioSessionId?.let { sessionId ->
-                // Enable hi-res output
-                val audioManager = context.getSystemService(AudioManager::class.java)
-                audioManager.setParameters("hi_res_output=1")
-            }
+#### Alert Dialog
+```kotlin
+AncientArchitectAlertDialog(
+    onDismissRequest = { /* dismiss */ },
+    confirmButton = {
+        AncientArchitectPrimaryButton(onClick = { /* confirm */ }) {
+            Text("Confirm")
         }
-        
-        // Load with appropriate decoder
-        val mediaSource = when (audioSpecs.codec) {
-            "audio/flac" -> FlacExtractor()
-            "audio/alac" -> AlacExtractor()  
-            else -> DefaultExtractor()
+    },
+    dismissButton = {
+        AncientArchitectSecondaryButton(onClick = { /* dismiss */ }) {
+            Text("Cancel")
         }
-        
-        player.setMediaSource(mediaSource)
+    },
+    icon = {
+        Icon(Icons.Default.Warning, contentDescription = null)
+    },
+    title = {
+        Text("Confirm Action")
+    },
+    text = {
+        Text("Are you sure you want to proceed?")
+    },
+    type = NotificationType.WARNING
+)
+```
+
+### Navigation
+
+#### Navigation Rail
+```kotlin
+var selectedIndex by remember { mutableStateOf(0) }
+
+AncientArchitectNavigationRailWithItems(
+    selectedIndex = selectedIndex,
+    items = listOf(
+        NavigationItem(Icons.Default.Home, "Home"),
+        NavigationItem(Icons.Default.Search, "Search"),
+        NavigationItem(Icons.Default.Settings, "Settings")
+    ),
+    onItemSelected = { index -> selectedIndex = index },
+    header = {
+        Icon(
+            Icons.Default.Menu,
+            contentDescription = "Menu",
+            modifier = Modifier.padding(16.dp)
+        )
     }
+)
+```
+
+---
+
+## Customization
+
+### Accessing Theme Colors
+
+```kotlin
+@Composable
+fun MyComponent() {
+    val ancientColors = ancientArchitectColors()
+    
+    // Stone colors
+    val background = ancientColors.stone.background
+    val surface = ancientColors.stone.surface
+    
+    // Metal colors
+    val primary = ancientColors.metal.primary
+    val secondary = ancientColors.metal.secondary
+    
+    // Crystal colors
+    val glow = ancientColors.crystal.primary
+    
+    // Accent colors
+    val success = ancientColors.accent.success
 }
 ```
 
-### 2. USB DAC Detection
+### Using Geometric Patterns
 
 ```kotlin
-// DACManager.kt
-@Singleton
-class DACManager @Inject constructor(
-    @ApplicationContext private val context: Context
-) {
-    private val audioManager = context.getSystemService(AudioManager::class.java)
-    
-    fun detectConnectedDACs(): List<AudioDeviceInfo> {
-        return audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
-            .filter { device ->
-                device.type == AudioDeviceInfo.TYPE_USB_DEVICE ||
-                device.type == AudioDeviceInfo.TYPE_USB_ACCESSORY ||
-                device.type == AudioDeviceInfo.TYPE_USB_HEADSET
-            }
-    }
-    
-    fun enableExclusiveMode(device: AudioDeviceInfo): Boolean {
-        // Request exclusive audio access (bit-perfect)
-        val attributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setFlags(AudioAttributes.FLAG_LOW_LATENCY)
-            .build()
-            
-        // Configure for bit-perfect playback
-        val format = AudioFormat.Builder()
-            .setEncoding(AudioFormat.ENCODING_PCM_24BIT_PACKED)
-            .setSampleRate(192000) // Max supported
-            .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
-            .build()
-            
-        return try {
-            val track = AudioTrack.Builder()
-                .setAudioAttributes(attributes)
-                .setAudioFormat(format)
-                .setTransferMode(AudioTrack.MODE_STREAM)
-                .setOffloadedPlayback(true) // Hardware acceleration
-                .build()
-            track.release()
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-    
-    data class DACInfo(
-        val name: String,
-        val maxSampleRate: Int,
-        val maxBitDepth: Int,
-        val supportedFormats: List<Int>,
-        val isUSBDAC: Boolean
-    )
-}
-
-// UI Component - DACSelectionScreen.kt
 @Composable
-fun DACSelectionScreen(dacManager: DACManager) {
-    val dacs by dacManager.connectedDACs.collectAsState()
-    
-    LazyColumn {
-        items(dacs) { dac ->
-            DACCard(
-                name = dac.name,
-                specs = "${dac.maxSampleRate}kHz / ${dac.maxBitDepth}bit",
-                isActive = dac.isActive,
-                onClick = { dacManager.selectDAC(dac) }
+fun PatternedBackground() {
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        with(AncientArchitectPatterns) {
+            // Diamond grid
+            drawDiamondGrid(
+                color = Color.White,
+                alpha = 0.1f,
+                cellSize = 40f
+            )
+            
+            // Hexagonal grid
+            drawHexagonalGrid(
+                color = Color.White,
+                alpha = 0.05f,
+                cellSize = 30f
+            )
+            
+            // Corner decorations
+            drawCornerDecorations(
+                color = Color(0xFFCD7F32),
+                alpha = 0.6f,
+                size = 16f
             )
         }
     }
 }
 ```
 
-### 3. ReplayGain Support
+### Using Metallic Gradients
 
 ```kotlin
-// ReplayGainProcessor.kt
-class ReplayGainProcessor {
-    enum class Mode {
-        TRACK,  // Normalize each track individually
-        ALBUM,  // Normalize album as whole
-        OFF
-    }
-    
-    fun applyReplayGain(
-        audioData: ByteArray,
-        trackGain: Float?,
-        albumGain: Float?,
-        mode: Mode
-    ): ByteArray {
-        val gain = when (mode) {
-            Mode.TRACK -> trackGain ?: 0f
-            Mode.ALBUM -> albumGain ?: trackGain ?: 0f
-            Mode.OFF -> 0f
-        }
-        
-        if (gain == 0f) return audioData
-        
-        // Apply gain to audio samples
-        val multiplier = 10.0.pow(gain / 20.0).toFloat() // dB to linear
-        
-        return audioData.map { byte ->
-            (byte * multiplier).coerceIn(-128f, 127f).toInt().toByte()
-        }.toByteArray()
-    }
-    
-    fun parseReplayGainTags(file: File): Pair<Float?, Float?> {
-        // Read from ID3v2 or Vorbis comments
-        // TXXX:replaygain_track_gain
-        // TXXX:replaygain_album_gain
-        val trackGain = readTag(file, "replaygain_track_gain")?.toFloatOrNull()
-        val albumGain = readTag(file, "replaygain_album_gain")?.toFloatOrNull()
-        return trackGain to albumGain
-    }
-}
-```
-
-### 4. Hi-Res Audio Badge
-
-```kotlin
-// HiResBadge.kt
 @Composable
-fun HiResBadge(audioSpecs: AudioSpecs) {
-    if (audioSpecs.isHiRes) {
-        Badge(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.HighQuality, null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    "${audioSpecs.bitDepth}/${audioSpecs.sampleRate/1000}",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
+fun MetallicElement() {
+    Box(
+        modifier = Modifier
+            .size(200.dp)
+            .background(
+                brush = MetallicBrushes.bronzeGradient(
+                    start = Offset(0f, 0f),
+                    end = Offset(1000f, 1000f)
                 )
-            }
-        }
-    }
-}
-
-data class AudioSpecs(
-    val codec: String,
-    val sampleRate: Int,
-    val bitDepth: Int?,
-    val isLossless: Boolean
-) {
-    val isHiRes: Boolean
-        get() = (sampleRate > 48000 || (bitDepth ?: 16) > 16) && isLossless
-        
-    val qualityLabel: String
-        get() = when {
-            sampleRate >= 192000 -> "Studio Master"
-            sampleRate >= 96000 -> "Hi-Res"
-            isLossless -> "Lossless"
-            else -> "Lossy"
-        }
-}
-```
-
----
-
-## 📊 Phase 2: Metadata Management
-
-### MusicBrainz Integration
-
-```kotlin
-// MusicBrainzService.kt
-class MusicBrainzService {
-    private val client = OkHttpClient()
-    private val baseUrl = "https://musicbrainz.org/ws/2"
-    
-    suspend fun lookupByAcoustID(fingerprint: String): TrackInfo? {
-        val url = "$baseUrl/recording/?query=acoustid:$fingerprint&fmt=json"
-        val response = client.newCall(Request.Builder().url(url).build()).execute()
-        
-        return response.body?.string()?.let { json ->
-            parseTrackInfo(json)
-        }
-    }
-    
-    suspend fun searchTrack(
-        artist: String,
-        title: String,
-        album: String?
-    ): List<TrackInfo> {
-        val query = buildQuery(artist, title, album)
-        val url = "$baseUrl/recording/?query=$query&fmt=json"
-        
-        return fetchAndParse(url)
-    }
-    
-    private fun parseTrackInfo(json: String): TrackInfo {
-        // Parse MusicBrainz JSON response
-        // Extract: title, artist, album, year, genre, ISRC
-    }
-}
-
-// AutoTaggerService.kt  
-class AutoTaggerService @Inject constructor(
-    private val musicBrainz: MusicBrainzService,
-    private val acoustIdService: AcoustIDService
-) {
-    suspend fun autoTag(file: File): TaggingResult {
-        // 1. Generate acoustic fingerprint
-        val fingerprint = acoustIdService.generateFingerprint(file)
-        
-        // 2. Lookup on MusicBrainz
-        val match = musicBrainz.lookupByAcoustID(fingerprint)
-        
-        // 3. Update file tags
-        if (match != null) {
-            updateFileTags(file, match)
-            return TaggingResult.Success(match)
-        }
-        
-        return TaggingResult.NoMatch
-    }
-}
-```
-
----
-
-## 🎛️ Phase 3: Professional EQ
-
-### 10-Band Parametric EQ
-
-```kotlin
-// ParametricEQ.kt
-class ParametricEQ {
-    data class Band(
-        val frequency: Float,    // Hz
-        val gain: Float,         // dB (-12 to +12)
-        val q: Float = 1.0f      // Quality factor
-    )
-    
-    private val bands = listOf(
-        Band(32f, 0f),
-        Band(64f, 0f),
-        Band(125f, 0f),
-        Band(250f, 0f),
-        Band(500f, 0f),
-        Band(1000f, 0f),
-        Band(2000f, 0f),
-        Band(4000f, 0f),
-        Band(8000f, 0f),
-        Band(16000f, 0f)
-    )
-    
-    fun applyEQ(
-        player: ExoPlayer,
-        preset: EQPreset
-    ) {
-        val equalizer = Equalizer(0, player.audioSessionId)
-        equalizer.enabled = true
-        
-        preset.bands.forEachIndexed { index, band ->
-            if (index < equalizer.numberOfBands) {
-                val level = (band.gain * 100).toInt().toShort()
-                equalizer.setBandLevel(index.toShort(), level)
-            }
-        }
-    }
-    
-    data class EQPreset(
-        val name: String,
-        val bands: List<Band>,
-        val deviceId: String? = null  // Per-device presets
-    )
-    
-    companion object {
-        val FLAT = EQPreset("Flat", List(10) { Band(0f, 0f) })
-        val BASS_BOOST = EQPreset("Bass Boost", listOf(
-            Band(32f, 6f),
-            Band(64f, 4f),
-            Band(125f, 2f),
-            // ... rest at 0
-        ))
-        val VOCAL = EQPreset("Vocal", listOf(
-            Band(250f, 3f),
-            Band(500f, 4f),
-            Band(1000f, 5f),
-            Band(2000f, 4f),
-            Band(4000f, 2f)
-        ))
-    }
-}
-
-// EQ UI
-@Composable
-fun EqualizerScreen(eq: ParametricEQ) {
-    Column {
-        eq.bands.forEachIndexed { index, band ->
-            EQSlider(
-                frequency = "${band.frequency.toInt()} Hz",
-                value = band.gain,
-                onValueChange = { newGain ->
-                    eq.updateBand(index, band.copy(gain = newGain))
-                }
             )
-        }
-    }
-}
-```
-
----
-
-## 🚗 Phase 4: Android Auto
-
-```kotlin
-// AndroidAutoMediaService.kt
-@AndroidEntryPoint
-class AndroidAutoMediaService : MediaBrowserServiceCompat() {
-    
-    override fun onGetRoot(
-        clientPackageName: String,
-        clientUid: Int,
-        rootHints: Bundle?
-    ): BrowserRoot {
-        return BrowserRoot(ROOT_ID, null)
-    }
-    
-    override fun onLoadChildren(
-        parentId: String,
-        result: Result<MutableList<MediaBrowserCompat.MediaItem>>
-    ) {
-        result.detach()
-        
-        scope.launch {
-            val items = when (parentId) {
-                ROOT_ID -> buildRootItems()
-                "recent" -> loadRecentlyPlayed()
-                "playlists" -> loadPlaylists()
-                "albums" -> loadAlbums()
-                "artists" -> loadArtists()
-                else -> emptyList()
-            }
-            result.sendResult(items.toMutableList())
-        }
-    }
-    
-    private fun buildRootItems() = listOf(
-        buildMediaItem("recent", "Recently Played", R.drawable.ic_recent),
-        buildMediaItem("playlists", "Playlists", R.drawable.ic_playlist),
-        buildMediaItem("albums", "Albums", R.drawable.ic_album),
-        buildMediaItem("artists", "Artists", R.drawable.ic_artist)
     )
 }
+```
 
-// AndroidManifest.xml additions
-<service
-    android:name=".AndroidAutoMediaService"
-    android:exported="true">
-    <intent-filter>
-        <action android:name="android.media.browse.MediaBrowserService" />
-    </intent-filter>
-</service>
+### Custom Shapes
 
-<meta-data
-    android:name="com.google.android.gms.car.application"
-    android:resource="@xml/automotive_app_desc" />
+```kotlin
+@Composable
+fun CustomShapedCard() {
+    Card(
+        shape = AncientArchitectShapes.steppedLarge,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Content
+    }
+}
+
+// Available shapes:
+// - steppedSmall, steppedMedium, steppedLarge
+// - hexagon
+// - diamond
+// - beveledSmall, beveledMedium, beveledLarge
+// - chevron
 ```
 
 ---
 
-## 📦 Dependencies to Add
+## Performance Optimization
 
-### build.gradle.kts
+### Disable Effects on Low-End Devices
+
 ```kotlin
-dependencies {
-    // Hi-Res Audio
-    implementation("androidx.media3:media3-exoplayer-flac:1.2.0")
-    implementation("androidx.media3:media3-exoplayer-ffmpeg:1.2.0") // ALAC, DSD
+AncientArchitectTheme(
+    variant = AncientArchitectVariant.ANCIENT_BRONZE,
+    enableGeometricPatterns = !isLowEndDevice(),
+    enableMetallicShimmer = !isLowEndDevice(),
+    enableCrystalGlow = !isLowEndDevice()
+) {
+    // App content
+}
+
+fun isLowEndDevice(): Boolean {
+    // Implement device capability check
+    return false
+}
+```
+
+### Conditional Pattern Rendering
+
+```kotlin
+@Composable
+fun OptimizedCard() {
+    val showPatterns = geometricPatternsEnabled()
     
-    // Metadata
-    implementation("org.jaudiotagger:jaudiotagger:2.2.5") // ID3 editing
-    implementation("com.squareup.retrofit2:retrofit:2.9.0") // MusicBrainz API
-    
-    // Audio Processing
-    implementation("com.google.android.exoplayer:extension-opus:2.19.1")
-    implementation("androidx.media3:media3-effect:1.2.0") // Audio effects
-    
-    // Android Auto
-    implementation("androidx.media:media:1.7.0")
-    implementation("androidx.car.app:app-automotive:1.4.0")
-    
-    // Wear OS
-    implementation("androidx.wear:wear:1.3.0")
-    implementation("com.google.android.gms:play-services-wearable:18.1.0")
+    AncientArchitectCard(
+        showPattern = showPatterns,
+        showCornerDecorations = showPatterns
+    ) {
+        // Content
+    }
 }
 ```
 
 ---
 
-## 🎯 Quick Win Features (1-2 days each)
+## Migration from Existing UI
 
-1. **Audio Quality Display** - Show codec/bitrate in Now Playing
-2. **Smart Playlists** - Auto-playlists based on criteria
-3. **Quick Settings Tile** - Control playback from quick settings
-4. **Headphone Controls** - Customize button actions
-5. **Car Mode** - Large buttons, simplified UI
+### Step 1: Wrap App with Theme
+```kotlin
+// Before
+MaterialTheme {
+    MyApp()
+}
+
+// After
+AncientArchitectTheme {
+    MyApp()
+}
+```
+
+### Step 2: Replace Components Gradually
+```kotlin
+// Before
+Card(onClick = { /* action */ }) {
+    // Content
+}
+
+// After
+AncientArchitectCard(onClick = { /* action */ }) {
+    // Content
+}
+```
+
+### Step 3: Update Colors
+```kotlin
+// Before
+val primary = MaterialTheme.colorScheme.primary
+
+// After
+val primary = ancientArchitectColors().metal.primary
+```
 
 ---
 
-## 📋 Testing Checklist
+## Best Practices
 
-### Audio Quality
-- [ ] FLAC files play correctly
-- [ ] Hi-res badge shows for 24/96+ files
-- [ ] USB DAC detected and selected
-- [ ] Gapless playback works
-- [ ] ReplayGain normalizes volume
-- [ ] No audio artifacts or glitches
+### 1. Use Appropriate Components
+- Use `AncientArchitectCard` for content containers
+- Use `AncientArchitectPrimaryButton` for main actions
+- Use `AncientArchitectIconButton` for toolbar actions
+- Use `AncientArchitectNotification` for user feedback
 
-### Android Auto
-- [ ] Shows up in Android Auto
-- [ ] Can browse library
-- [ ] Playback controls work
-- [ ] Artwork displays
-- [ ] Queue management works
+### 2. Maintain Visual Hierarchy
+- Use elevation and glow for important elements
+- Use metallic accents sparingly for emphasis
+- Keep patterns subtle to avoid visual clutter
 
-### Performance
-- [ ] No audio stuttering
-- [ ] Battery drain reasonable
-- [ ] CPU usage < 10% while playing
-- [ ] Memory usage stable
+### 3. Ensure Accessibility
+- Maintain sufficient color contrast (AAA standard)
+- Provide clear focus indicators
+- Support reduced motion preferences
+- Test with screen readers
+
+### 4. Optimize Performance
+- Disable effects on low-end devices
+- Use patterns sparingly on complex screens
+- Cache gradient brushes when possible
+- Limit simultaneous animations
 
 ---
 
-This implementation guide provides concrete code examples for the highest priority features identified in the critical analysis.
+## Troubleshooting
+
+### Issue: Patterns not showing
+**Solution**: Check if `enableGeometricPatterns` is true in theme
+
+### Issue: Shimmer effect not working
+**Solution**: Verify `enableMetallicShimmer` is enabled
+
+### Issue: Colors look wrong
+**Solution**: Ensure you're using `ancientArchitectColors()` instead of `MaterialTheme.colorScheme`
+
+### Issue: Performance issues
+**Solution**: Disable effects or reduce pattern complexity
+
+---
+
+## Examples
+
+See the `examples/` directory for complete implementation examples:
+- Media library screen
+- Settings screen
+- Player interface
+- Notification examples
+
+---
+
+## Support
+
+For questions or issues:
+1. Check the design concept document (DESIGN_CONCEPT.md)
+2. Review component source code for implementation details
+3. Open an issue on GitHub
+
+---
+
+## License
+
+This theme system is part of the CleverFerret project and follows the same license.
