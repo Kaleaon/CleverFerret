@@ -117,7 +117,7 @@ class AdvancedMusicPlayerService @Inject constructor(
 
             // Prepare ExoPlayer with queue
             val exoMediaItems = trackInfos.map { MediaItem.fromUri(it.filePath) }
-            if (exoPlayerService.preparePlaylist(exoMediaItems, startIndex)) {
+            if (exoPlayerService.preparePlaylist(exoMediaItems, currentQueueIndex)) {
                 exoPlayerService.play()
                 updatePlaybackState(isPlaying = true, isLoading = false)
             } else {

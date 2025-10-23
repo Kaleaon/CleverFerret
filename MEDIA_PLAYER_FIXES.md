@@ -47,7 +47,7 @@
    - Automatically switches visualizer attachment when active player changes
    - Prefers the playing player over idle players
    - Updates every 100ms for responsive switching
-4. Integrated player switching with Chromecast updates
+- Integrated player switching with Chromecast updates
 
 ## Technical Details
 

@@ -82,7 +82,7 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
                 val fileName = file.nameWithoutExtension
 
                 // Create MediaItem
-                val mediaItem = MediaItem.fromUri(file.toURI().toString())
+                val mediaItem = MediaItem.fromUri(android.net.Uri.fromFile(file))
 
                 exoPlayer?.apply {
                     setMediaItem(mediaItem)

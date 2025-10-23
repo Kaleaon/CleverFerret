@@ -353,6 +353,10 @@ class VisualizerViewModel @Inject constructor(
     private val audioPlaybackManager: AudioPlaybackManager,
     private val exoPlayerService: com.universalmedialibrary.services.exoplayer.ExoPlayerService
 ) : ViewModel() {
+    
+    companion object {
+        private const val PLAYER_CHECK_INTERVAL_MS = 100L
+    }
 
     val visualizerState = audioVisualizerService.visualizerState
     val castState = chromecastManager.castState
@@ -391,8 +395,8 @@ class VisualizerViewModel @Inject constructor(
                     else -> audioPlayer
                 }
                 
-                // Reattach if player changed
-                if (currentPlayer != targetPlayer) {
+                // Reattach if player changed (with null-safety check)
+                if (currentPlayer != targetPlayer && targetPlayer != null) {
                     audioVisualizerService.attachToPlayer(targetPlayer)
                     if (isVisualizerEnabled.value) {
                         audioVisualizerService.setEnabled(true)
@@ -407,7 +411,7 @@ class VisualizerViewModel @Inject constructor(
                     treble = state.frequencyBands.treble,
                     spectrum = state.frequencyBands.spectrum
                 )
-                delay(100) // Check every 100ms
+                delay(PLAYER_CHECK_INTERVAL_MS)
             }
         }
     }
