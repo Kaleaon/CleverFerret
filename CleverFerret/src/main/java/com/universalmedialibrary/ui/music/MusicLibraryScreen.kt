@@ -222,51 +222,79 @@ fun MusicLibraryScreen(
             }
 
             // Content area
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (state.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    when (state.currentTab) {
+                        MusicTab.SONGS -> SongsTab(state, viewModel, navController)
+                        MusicTab.ALBUMS -> AlbumsTab(state, viewModel, navController)
+                        MusicTab.ARTISTS -> ArtistsTab(state, viewModel, navController)
+                        MusicTab.GENRES -> GenresTab(state, viewModel, navController)
+                        MusicTab.PLAYLISTS -> PlaylistsTab()
+                    }
+                }
+                
+                // Mini player at bottom
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
                 ) {
-                    CircularProgressIndicator()
+                    MiniPlayer(
+                        onClick = { navController.navigate("music_player") }
+                    )
                 }
-            } else {
-                when (state.currentTab) {
-                    MusicTab.SONGS -> SongsTab(state, viewModel)
-                    MusicTab.ALBUMS -> AlbumsTab(state, viewModel)
-                    MusicTab.ARTISTS -> ArtistsTab(state, viewModel)
-                    MusicTab.GENRES -> GenresTab(state, viewModel)
-                    MusicTab.PLAYLISTS -> PlaylistsTab()
-                }
+                
+                // Now Playing FAB
+                NowPlayingFab(
+                    onClick = { navController.navigate("music_player") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .padding(bottom = 72.dp) // Above mini player
+                )
             }
         }
     }
 }
 
 @Composable
-private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel) {
+private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     when (state.viewMode) {
         MusicViewMode.GRID -> {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 160.dp),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(state.tracks) { track ->
-                    TrackGridItem(track = track, onClick = { viewModel.playTrack(track) })
+                    TrackGridItem(track = track, onClick = { 
+                        viewModel.playTrack(track)
+                        navController.navigate("music_player")
+                    })
                 }
             }
         }
         MusicViewMode.LIST, MusicViewMode.COMPACT -> {
             LazyColumn(
-                contentPadding = PaddingValues(vertical = 8.dp),
+                contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 160.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 items(state.tracks) { track ->
                     TrackListItem(
                         track = track,
                         compact = state.viewMode == MusicViewMode.COMPACT,
-                        onClick = { viewModel.playTrack(track) }
+                        onClick = { 
+                            viewModel.playTrack(track)
+                            navController.navigate("music_player")
+                        }
                     )
                 }
             }
@@ -275,39 +303,45 @@ private fun SongsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMode
 }
 
 @Composable
-private fun AlbumsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel) {
+private fun AlbumsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(state.albums) { album ->
-            AlbumGridItem(album = album, onClick = { viewModel.playAlbum(album) })
+            AlbumGridItem(album = album, onClick = { 
+                navController.navigate("album/${album.name}")
+            })
         }
     }
 }
 
 @Composable
-private fun ArtistsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel) {
+private fun ArtistsTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(state.artists) { artist ->
-            ArtistListItem(artist = artist, onClick = { viewModel.playArtist(artist) })
+            ArtistListItem(artist = artist, onClick = { 
+                navController.navigate("artist/${artist.name}")
+            })
         }
     }
 }
 
 @Composable
-private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel) {
+private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewModel, navController: androidx.navigation.NavController) {
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 160.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(state.genres) { genre ->
-            GenreListItem(genre = genre, onClick = { viewModel.playGenre(genre) })
+            GenreListItem(genre = genre, onClick = { 
+                navController.navigate("genre/${genre.name}")
+            })
         }
     }
 }

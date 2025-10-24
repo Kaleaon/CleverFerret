@@ -227,6 +227,36 @@ fun AppNavigation() {
                 onNavigateToVisualizer = { navController.navigate("visualizer") }
             )
         }
+        composable("queue") {
+            com.universalmedialibrary.ui.player.QueueScreen()
+        }
+        composable("album/{albumName}") { backStackEntry ->
+            val albumName = backStackEntry.arguments?.getString("albumName") ?: ""
+            com.universalmedialibrary.ui.music.AlbumDetailScreen(
+                albumName = java.net.URLDecoder.decode(albumName, "UTF-8"),
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { navController.navigate("music_player") }
+            )
+        }
+        composable("artist/{artistName}") { backStackEntry ->
+            val artistName = backStackEntry.arguments?.getString("artistName") ?: ""
+            com.universalmedialibrary.ui.music.ArtistDetailScreen(
+                artistName = java.net.URLDecoder.decode(artistName, "UTF-8"),
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { navController.navigate("music_player") },
+                onNavigateToAlbum = { albumName ->
+                    navController.navigate("album/${java.net.URLEncoder.encode(albumName, "UTF-8")}")
+                }
+            )
+        }
+        composable("genre/{genreName}") { backStackEntry ->
+            val genreName = backStackEntry.arguments?.getString("genreName") ?: ""
+            com.universalmedialibrary.ui.music.GenreDetailScreen(
+                genreName = java.net.URLDecoder.decode(genreName, "UTF-8"),
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { navController.navigate("music_player") }
+            )
+        }
 
         // Reader routes
         composable("bookshelf/{libraryId}") { backStackEntry ->
