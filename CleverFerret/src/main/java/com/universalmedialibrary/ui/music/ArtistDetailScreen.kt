@@ -17,6 +17,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.music.ArtistInfo
+import com.universalmedialibrary.services.music.ArtistInfoService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +38,8 @@ fun ArtistDetailScreen(
     val artist by viewModel.artist.collectAsState()
     val albums by viewModel.albums.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val artistInfo by viewModel.artistInfo.collectAsState()
+    val infoLoading by viewModel.infoLoading.collectAsState()
 
     LaunchedEffect(artistName) {
         viewModel.loadArtist(artistName)
@@ -48,6 +52,15 @@ fun ArtistDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.refreshArtistInfo() }) {
+                        Icon(
+                            if (infoLoading) Icons.Default.HourglassEmpty 
+                            else Icons.Default.Refresh,
+                            "Refresh Info"
+                        )
                     }
                 }
             )
@@ -97,6 +110,15 @@ fun ArtistDetailScreen(
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                    }
+
+                    // Artist enriched info
+                    artistInfo?.let { info ->
+                        if (info.hasDetailedInfo) {
+                            item {
+                                ArtistInfoCard(info = info)
+                            }
                         }
                     }
 
@@ -183,10 +205,163 @@ private fun AlbumListItem(album: Album, onClick: () -> Unit) {
     )
 }
 
+@Composable
+private fun ArtistInfoCard(info: ArtistInfo) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Years active
+            if (info.startYear != "Unknown") {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.CalendarMonth,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = info.yearsActive,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            // Origin
+            if (info.origin.isNotBlank()) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Place,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = info.origin,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            // Genres
+            if (info.genres.isNotEmpty()) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.MusicNote,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = info.genres.joinToString(", "),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            Divider()
+
+            // Biography
+            if (info.biography.isNotBlank()) {
+                Text(
+                    text = info.biography,
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+                )
+            }
+
+            // Interesting facts
+            if (info.facts.isNotEmpty()) {
+                Divider()
+                Text(
+                    text = "Interesting Facts",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                info.facts.forEachIndexed { index, fact ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = if (index == 0) 0.dp else 4.dp)
+                    ) {
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = fact,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
+            // Notable works
+            if (info.notableWorks.isNotEmpty()) {
+                Divider()
+                Text(
+                    text = "Notable Works",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = info.notableWorks.take(5).joinToString(", "),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // Confidence indicator (only for low confidence)
+            if (info.confidence < 0.7f) {
+                Text(
+                    text = "ℹ️ Some information may be incomplete or uncertain",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                )
+            }
+        }
+    }
+}
+
 @HiltViewModel
 class ArtistDetailViewModel @Inject constructor(
     private val musicLibraryViewModel: MusicLibraryViewModel,
-    private val playback: AudioPlaybackManager
+    private val playback: AudioPlaybackManager,
+    private val artistInfoService: ArtistInfoService
 ) : ViewModel() {
 
     private val _artist = MutableStateFlow<Artist?>(null)
@@ -198,13 +373,60 @@ class ArtistDetailViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    fun loadArtist(artistName: String) {
+    private val _artistInfo = MutableStateFlow<ArtistInfo?>(null)
+    val artistInfo: StateFlow<ArtistInfo?> = _artistInfo.asStateFlow()
+
+    private val _infoLoading = MutableStateFlow(false)
+    val infoLoading: StateFlow<Boolean> = _infoLoading.asStateFlow()
+
+    private var currentArtistName: String? = null
+
+    init {
         viewModelScope.launch {
+            artistInfoService.initialize()
+        }
+    }
+
+    fun loadArtist(artistName: String) {
+        currentArtistName = artistName
+        
+        viewModelScope.launch {
+            // Load basic artist data
             _isLoading.value = true
             val uiState = musicLibraryViewModel.uiState.value
             _artist.value = uiState.artists.find { it.name == artistName }
             _albums.value = uiState.albums.filter { it.artist == artistName }
             _isLoading.value = false
+
+            // Load enriched artist info from Gemini
+            loadArtistInfo(artistName)
+        }
+    }
+
+    private suspend fun loadArtistInfo(artistName: String) {
+        if (!artistInfoService.isInitialized()) {
+            return
+        }
+
+        _infoLoading.value = true
+        try {
+            val result = artistInfoService.getArtistInfo(artistName)
+            if (result.success) {
+                _artistInfo.value = result.artistInfo
+            }
+        } catch (e: Exception) {
+            // Silently fail - artist info is optional enhancement
+        } finally {
+            _infoLoading.value = false
+        }
+    }
+
+    fun refreshArtistInfo() {
+        val artistName = currentArtistName ?: return
+        viewModelScope.launch {
+            // Clear cache and reload
+            artistInfoService.clearCache(artistName)
+            loadArtistInfo(artistName)
         }
     }
 
