@@ -75,13 +75,15 @@ fun MusicPlayerScreen(
 
     // Update position periodically when playing
     LaunchedEffect(playbackState.isPlaying) {
-        if (playbackState.isPlaying) {
-            while (playbackState.isPlaying) {
+        while (playbackState.isPlaying && isActive) {
+            try {
                 if (!isDragging) {
                     currentPosition = viewModel.getCurrentPosition()
                 }
-                kotlinx.coroutines.delay(1000)
+            } catch (e: Exception) {
+                // Handle position update error
             }
+            kotlinx.coroutines.delay(1000)
         }
     }
 

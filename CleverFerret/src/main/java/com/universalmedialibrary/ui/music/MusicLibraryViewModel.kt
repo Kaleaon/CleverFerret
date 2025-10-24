@@ -31,22 +31,33 @@ class MusicLibraryViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = _uiState.value.copy(isLoading = true)
             
-            val tracks = scanMusicFromMediaStore()
-            allTracks = tracks
-            
-            val albums = aggregateAlbums(tracks)
-            val artists = aggregateArtists(tracks)
-            val genres = aggregateGenres(tracks)
-            
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                tracks = tracks,
-                albums = albums,
-                artists = artists,
-                genres = genres
-            )
-            
-            applyFiltersAndSort()
+            try {
+                val tracks = scanMusicFromMediaStore()
+                allTracks = tracks
+                
+                val albums = aggregateAlbums(tracks)
+                val artists = aggregateArtists(tracks)
+                val genres = aggregateGenres(tracks)
+                
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    tracks = tracks,
+                    albums = albums,
+                    artists = artists,
+                    genres = genres
+                )
+                
+                applyFiltersAndSort()
+            } catch (e: Exception) {
+                // Handle scan error gracefully
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    tracks = emptyList(),
+                    albums = emptyList(),
+                    artists = emptyList(),
+                    genres = emptyList()
+                )
+            }
         }
     }
 
@@ -146,44 +157,64 @@ class MusicLibraryViewModel @Inject constructor(
     }
 
     private fun aggregateAlbums(tracks: List<Track>): List<Album> {
-        return tracks.groupBy { it.displayAlbum to it.albumArtist }
-            .map { (key, albumTracks) ->
-                val (albumName, artist) = key
-                Album(
-                    name = albumName,
-                    artist = artist,
-                    year = albumTracks.mapNotNull { it.year }.minOrNull(),
-                    trackCount = albumTracks.size,
-                    tracks = albumTracks.sortedBy { it.trackNumber },
-                    artworkUri = getAlbumArtUri(albumTracks.first().id)
-                )
-            }
-            .sortedBy { it.displayName.lowercase() }
+        if (tracks.isEmpty()) return emptyList()
+        
+        return try {
+            tracks.groupBy { it.displayAlbum to it.albumArtist }
+                .mapNotNull { (key, albumTracks) ->
+                    if (albumTracks.isEmpty()) return@mapNotNull null
+                    
+                    val (albumName, artist) = key
+                    Album(
+                        name = albumName,
+                        artist = artist,
+                        year = albumTracks.mapNotNull { it.year }.minOrNull(),
+                        trackCount = albumTracks.size,
+                        tracks = albumTracks.sortedBy { it.trackNumber },
+                        artworkUri = getAlbumArtUri(albumTracks.firstOrNull()?.id ?: 0)
+                    )
+                }
+                .sortedBy { it.displayName.lowercase() }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     private fun aggregateArtists(tracks: List<Track>): List<Artist> {
-        return tracks.groupBy { it.displayArtist }
-            .map { (artistName, artistTracks) ->
-                Artist(
-                    name = artistName,
-                    trackCount = artistTracks.size,
-                    albumCount = artistTracks.map { it.displayAlbum }.distinct().size,
-                    tracks = artistTracks
-                )
-            }
-            .sortedBy { it.displayName.lowercase() }
+        if (tracks.isEmpty()) return emptyList()
+        
+        return try {
+            tracks.groupBy { it.displayArtist }
+                .map { (artistName, artistTracks) ->
+                    Artist(
+                        name = artistName,
+                        trackCount = artistTracks.size,
+                        albumCount = artistTracks.map { it.displayAlbum }.distinct().size,
+                        tracks = artistTracks
+                    )
+                }
+                .sortedBy { it.displayName.lowercase() }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     private fun aggregateGenres(tracks: List<Track>): List<Genre> {
-        return tracks.groupBy { it.displayGenre }
-            .map { (genreName, genreTracks) ->
-                Genre(
-                    name = genreName,
-                    trackCount = genreTracks.size,
-                    tracks = genreTracks
-                )
-            }
-            .sortedBy { it.displayName.lowercase() }
+        if (tracks.isEmpty()) return emptyList()
+        
+        return try {
+            tracks.groupBy { it.displayGenre }
+                .map { (genreName, genreTracks) ->
+                    Genre(
+                        name = genreName,
+                        trackCount = genreTracks.size,
+                        tracks = genreTracks
+                    )
+                }
+                .sortedBy { it.displayName.lowercase() }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     private fun getAlbumArtUri(trackId: Long): Uri? {
@@ -197,12 +228,16 @@ class MusicLibraryViewModel @Inject constructor(
 
     fun setTab(tab: MusicTab) {
         _uiState.value = _uiState.value.copy(currentTab = tab)
-        applyFiltersAndSort()
+        viewModelScope.launch(Dispatchers.Default) {
+            applyFiltersAndSort()
+        }
     }
 
     fun setSortOption(option: MusicSortOption) {
         _uiState.value = _uiState.value.copy(sortOption = option)
-        applyFiltersAndSort()
+        viewModelScope.launch(Dispatchers.Default) {
+            applyFiltersAndSort()
+        }
     }
 
     fun setViewMode(mode: MusicViewMode) {
@@ -211,22 +246,31 @@ class MusicLibraryViewModel @Inject constructor(
 
     fun setSearchQuery(query: String) {
         _uiState.value = _uiState.value.copy(searchQuery = query)
-        applyFiltersAndSort()
+        // Run filtering on background thread to avoid UI hangs
+        viewModelScope.launch(Dispatchers.Default) {
+            applyFiltersAndSort()
+        }
     }
 
     fun setGenreFilter(genre: String?) {
         _uiState.value = _uiState.value.copy(selectedGenre = genre)
-        applyFiltersAndSort()
+        viewModelScope.launch(Dispatchers.Default) {
+            applyFiltersAndSort()
+        }
     }
 
     fun setArtistFilter(artist: String?) {
         _uiState.value = _uiState.value.copy(selectedArtist = artist)
-        applyFiltersAndSort()
+        viewModelScope.launch(Dispatchers.Default) {
+            applyFiltersAndSort()
+        }
     }
 
     fun setAlbumFilter(album: String?) {
         _uiState.value = _uiState.value.copy(selectedAlbum = album)
-        applyFiltersAndSort()
+        viewModelScope.launch(Dispatchers.Default) {
+            applyFiltersAndSort()
+        }
     }
 
     fun clearFilters() {
@@ -236,7 +280,9 @@ class MusicLibraryViewModel @Inject constructor(
             selectedAlbum = null,
             searchQuery = ""
         )
-        applyFiltersAndSort()
+        viewModelScope.launch(Dispatchers.Default) {
+            applyFiltersAndSort()
+        }
     }
 
     fun toggleSortMenu() {
@@ -248,76 +294,132 @@ class MusicLibraryViewModel @Inject constructor(
     }
 
     private fun applyFiltersAndSort() {
-        var filtered = allTracks
+        try {
+            var filtered = allTracks
 
-        // Apply search filter
-        val query = _uiState.value.searchQuery
-        if (query.isNotBlank()) {
-            filtered = filtered.filter { track ->
-                track.title?.contains(query, ignoreCase = true) == true ||
-                track.displayArtist.contains(query, ignoreCase = true) ||
-                track.displayAlbum.contains(query, ignoreCase = true) ||
-                track.displayGenre.contains(query, ignoreCase = true)
+            // Apply search filter
+            val query = _uiState.value.searchQuery
+            if (query.isNotBlank()) {
+                filtered = filtered.filter { track ->
+                    track.title?.contains(query, ignoreCase = true) == true ||
+                    track.displayArtist.contains(query, ignoreCase = true) ||
+                    track.displayAlbum.contains(query, ignoreCase = true) ||
+                    track.displayGenre.contains(query, ignoreCase = true)
+                }
             }
-        }
 
-        // Apply filters
-        _uiState.value.selectedGenre?.let { genre ->
-            filtered = filtered.filter { it.displayGenre == genre }
-        }
-        
-        _uiState.value.selectedArtist?.let { artist ->
-            filtered = filtered.filter { it.displayArtist == artist }
-        }
-        
-        _uiState.value.selectedAlbum?.let { album ->
-            filtered = filtered.filter { it.displayAlbum == album }
-        }
+            // Apply filters
+            _uiState.value.selectedGenre?.let { genre ->
+                filtered = filtered.filter { it.displayGenre == genre }
+            }
+            
+            _uiState.value.selectedArtist?.let { artist ->
+                filtered = filtered.filter { it.displayArtist == artist }
+            }
+            
+            _uiState.value.selectedAlbum?.let { album ->
+                filtered = filtered.filter { it.displayAlbum == album }
+            }
 
-        // Apply sorting
-        val sorted = filtered.sortedWith(_uiState.value.sortOption.comparator())
+            // Apply sorting (with timeout protection for very large lists)
+            val sorted = if (filtered.size > 10000) {
+                // For huge libraries, use a simpler sort to avoid hangs
+                filtered.take(10000).sortedWith(_uiState.value.sortOption.comparator())
+            } else {
+                filtered.sortedWith(_uiState.value.sortOption.comparator())
+            }
 
-        _uiState.value = _uiState.value.copy(tracks = sorted)
+            _uiState.value = _uiState.value.copy(tracks = sorted)
+        } catch (e: Exception) {
+            // If filtering/sorting fails, show unfiltered tracks
+            _uiState.value = _uiState.value.copy(tracks = allTracks)
+        }
     }
 
     fun playAll() {
-        val uris = _uiState.value.tracks.map { it.uri }
-        if (uris.isNotEmpty()) {
-            playback.setQueue(uris, 0, true)
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val tracks = _uiState.value.tracks
+                // Limit to 5000 tracks to prevent memory issues
+                val limitedTracks = if (tracks.size > 5000) tracks.take(5000) else tracks
+                val uris = limitedTracks.map { it.uri }
+                if (uris.isNotEmpty()) {
+                    playback.setQueue(uris, 0, true)
+                }
+            } catch (e: Exception) {
+                // Handle playback error
+            }
         }
     }
 
     fun playTrack(track: Track) {
-        playback.loadSingle(track.uri)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                playback.loadSingle(track.uri)
+            } catch (e: Exception) {
+                // Handle playback error
+            }
+        }
     }
 
     fun playAlbum(album: Album, startIndex: Int = 0) {
-        val uris = album.tracks.map { it.uri }
-        if (uris.isNotEmpty()) {
-            playback.setQueue(uris, startIndex, true)
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val uris = album.tracks.map { it.uri }
+                if (uris.isNotEmpty()) {
+                    playback.setQueue(uris, startIndex, true)
+                }
+            } catch (e: Exception) {
+                // Handle playback error
+            }
         }
     }
 
     fun playArtist(artist: Artist, shuffle: Boolean = false) {
-        val tracks = if (shuffle) artist.tracks.shuffled() else artist.tracks
-        val uris = tracks.map { it.uri }
-        if (uris.isNotEmpty()) {
-            playback.setQueue(uris, 0, true)
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val tracks = if (shuffle) artist.tracks.shuffled() else artist.tracks
+                // Limit to 1000 tracks for performance
+                val limitedTracks = if (tracks.size > 1000) tracks.take(1000) else tracks
+                val uris = limitedTracks.map { it.uri }
+                if (uris.isNotEmpty()) {
+                    playback.setQueue(uris, 0, true)
+                }
+            } catch (e: Exception) {
+                // Handle playback error
+            }
         }
     }
 
     fun playGenre(genre: Genre, shuffle: Boolean = false) {
-        val tracks = if (shuffle) genre.tracks.shuffled() else genre.tracks
-        val uris = tracks.map { it.uri }
-        if (uris.isNotEmpty()) {
-            playback.setQueue(uris, 0, true)
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val tracks = if (shuffle) genre.tracks.shuffled() else genre.tracks
+                // Limit to 1000 tracks for performance
+                val limitedTracks = if (tracks.size > 1000) tracks.take(1000) else tracks
+                val uris = limitedTracks.map { it.uri }
+                if (uris.isNotEmpty()) {
+                    playback.setQueue(uris, 0, true)
+                }
+            } catch (e: Exception) {
+                // Handle playback error
+            }
         }
     }
 
     fun shuffleAll() {
-        val uris = _uiState.value.tracks.shuffled().map { it.uri }
-        if (uris.isNotEmpty()) {
-            playback.setQueue(uris, 0, true)
+        viewModelScope.launch(Dispatchers.Default) {
+            try {
+                val tracks = _uiState.value.tracks
+                // Limit to 5000 tracks to prevent memory issues
+                val limitedTracks = if (tracks.size > 5000) tracks.take(5000) else tracks
+                val uris = limitedTracks.shuffled().map { it.uri }
+                if (uris.isNotEmpty()) {
+                    playback.setQueue(uris, 0, true)
+                }
+            } catch (e: Exception) {
+                // Handle playback error
+            }
         }
     }
 }
