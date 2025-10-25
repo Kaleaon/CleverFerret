@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
@@ -19,6 +20,8 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Timer
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,6 +42,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.services.music.TrackInfo
+import kotlinx.coroutines.isActive
 import kotlin.math.roundToInt
 
 /**

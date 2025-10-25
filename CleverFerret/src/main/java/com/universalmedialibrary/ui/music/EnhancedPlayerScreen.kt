@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.services.music.Lyrics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -239,17 +240,12 @@ private fun AnimatedAlbumArt(
     LaunchedEffect(isPlaying) {
         if (isPlaying) {
             rotation.animateTo(
-                targetValue = 360f,
+                targetValue = Float.POSITIVE_INFINITY,
                 animationSpec = infiniteRepeatable(
                     animation = tween(20000, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart
                 )
-            ) {
-                // Reset to 0 when reaching 360
-                if (value >= 360f) {
-                    rotation.snapTo(0f)
-                }
-            }
+            )
         } else {
             rotation.stop()
         }

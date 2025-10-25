@@ -237,6 +237,7 @@ fun MusicLibraryScreen(
                         MusicTab.ARTISTS -> ArtistsTab(state, viewModel, navController)
                         MusicTab.GENRES -> GenresTab(state, viewModel, navController)
                         MusicTab.PLAYLISTS -> PlaylistsTab()
+                        MusicTab.RADIO -> RadioTab()
                     }
                 }
                 
@@ -357,6 +358,16 @@ private fun PlaylistsTab() {
 }
 
 @Composable
+private fun RadioTab() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Radio - Coming Soon", style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@Composable
 private fun TrackGridItem(track: Track, onClick: () -> Unit) {
     Card(
         modifier = Modifier
@@ -405,7 +416,7 @@ private fun TrackGridItem(track: Track, onClick: () -> Unit) {
 }
 
 @Composable
-private fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -> Unit) {
+internal fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(track.title ?: "Unknown", maxLines = 1) },
         supportingContent = {

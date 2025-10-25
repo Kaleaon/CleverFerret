@@ -318,16 +318,6 @@ private fun getMetallicColorsForTheme(theme: CleverFerretTheme): MetallicGradien
 }
 
 /**
- * Data class for metallic gradient effects
- */
-data class MetallicGradient(
-    val base: Color,
-    val highlight: Color,
-    val shadow: Color,
-    val shimmer: Color
-)
-
-/**
  * Composition local for metallic colors
  */
 val LocalMetallicColors = compositionLocalOf {
@@ -344,7 +334,7 @@ val LocalMetallicColors = compositionLocalOf {
  */
 @Composable
 fun metallicColors(): MetallicGradient {
-    return LocalMetallicColorsInternal.current
+    return LocalMetallicColors.current
 }
 
 /**
