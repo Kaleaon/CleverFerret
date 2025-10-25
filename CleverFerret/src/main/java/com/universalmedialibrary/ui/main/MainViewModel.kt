@@ -46,4 +46,10 @@ class MainViewModel @Inject constructor(
             libraryDao.insertLibrary(newLibrary)
         }
     }
+    
+    fun setTheme(theme: ThemePalette) {
+        viewModelScope.launch {
+            settingsRepository.setTheme(theme)
+        }
+    }
 }
