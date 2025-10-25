@@ -369,7 +369,6 @@ private fun ArtistInfoCard(info: ArtistInfo) {
 
 @HiltViewModel
 class ArtistDetailViewModel @Inject constructor(
-    private val musicLibraryViewModel: MusicLibraryViewModel,
     private val playback: AudioPlaybackManager,
     private val artistInfoService: ArtistInfoService
 ) : ViewModel() {
@@ -391,23 +390,13 @@ class ArtistDetailViewModel @Inject constructor(
 
     private var currentArtistName: String? = null
 
-    init {
-        viewModelScope.launch {
-            artistInfoService.initialize()
-        }
-    }
-
     fun loadArtist(artistName: String) {
         currentArtistName = artistName
-        
         viewModelScope.launch {
-            // Load basic artist data
             _isLoading.value = true
-            val uiState = musicLibraryViewModel.uiState.value
-            _artist.value = uiState.artists.find { it.name == artistName }
-            _albums.value = uiState.albums.filter { it.artist == artistName }
+            // TODO: Load artist from a proper repository
             _isLoading.value = false
-
+            
             // Load enriched artist info from Gemini
             loadArtistInfo(artistName)
         }

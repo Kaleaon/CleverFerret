@@ -250,7 +250,6 @@ fun AlbumDetailScreen(
 
 @HiltViewModel
 class AlbumDetailViewModel @Inject constructor(
-    private val musicLibraryViewModel: MusicLibraryViewModel,
     private val playback: AudioPlaybackManager
 ) : ViewModel() {
 
@@ -263,9 +262,7 @@ class AlbumDetailViewModel @Inject constructor(
     fun loadAlbum(albumName: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            // Get album from MusicLibraryViewModel's cached data
-            val uiState = musicLibraryViewModel.uiState.value
-            _album.value = uiState.albums.find { it.name == albumName }
+            // TODO: Load album from a proper repository
             _isLoading.value = false
         }
     }
