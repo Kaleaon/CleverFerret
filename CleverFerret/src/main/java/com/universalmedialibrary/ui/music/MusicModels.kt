@@ -137,6 +137,7 @@ enum class MusicTab(val displayName: String, val icon: ImageVector) {
     ALBUMS("Albums", Icons.Default.Album),
     ARTISTS("Artists", Icons.Default.Person),
     GENRES("Genres", Icons.Default.Category),
+    RADIO("Radio", Icons.Default.Radio),
     PLAYLISTS("Playlists", Icons.Default.PlaylistPlay)
 }
 
@@ -156,6 +157,25 @@ data class MusicLibraryUiState(
     val selectedGenre: String? = null,
     val selectedArtist: String? = null,
     val selectedAlbum: String? = null,
+    val selectedTag: String? = null,
     val showSortMenu: Boolean = false,
     val showFilterMenu: Boolean = false
 )
+
+/**
+ * Radio station model
+ */
+data class RadioStation(
+    val id: Long,
+    val name: String,
+    val url: String,
+    val genre: String?,
+    val country: String?,
+    val language: String?,
+    val bitrate: Int?,
+    val isFavorite: Boolean = false,
+    val addedAt: Long = System.currentTimeMillis()
+) {
+    val displayGenre: String get() = genre ?: "Unknown"
+    val displayCountry: String get() = country ?: "Unknown"
+}

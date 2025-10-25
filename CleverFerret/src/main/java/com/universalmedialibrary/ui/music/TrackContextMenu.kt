@@ -20,6 +20,7 @@ fun TrackContextMenu(
     onPlayNext: () -> Unit,
     onAddToQueue: () -> Unit,
     onAddToPlaylist: () -> Unit,
+    onManageTags: () -> Unit,
     onGoToAlbum: () -> Unit,
     onGoToArtist: () -> Unit,
     onShare: () -> Unit,
@@ -52,6 +53,17 @@ fun TrackContextMenu(
                 onDismiss()
             },
             leadingIcon = { Icon(Icons.Default.Add, null) }
+        )
+        
+        Divider()
+        
+        DropdownMenuItem(
+            text = { Text("Manage Tags") },
+            onClick = {
+                onManageTags()
+                onDismiss()
+            },
+            leadingIcon = { Icon(Icons.Default.Label, null) }
         )
         
         Divider()
