@@ -811,6 +811,7 @@ fun LibraryListScreen(
             }
         }
     }
+    }
 
     if (showCreateDialog) {
         CreateLibraryDialog(
