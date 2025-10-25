@@ -116,7 +116,7 @@ class SmartRecommendationService @Inject constructor(
             val sample = items.take(limit / itemsByType.size.coerceAtLeast(1))
             recommendations.addAll(sample.map { item ->
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Based on your library",
@@ -143,7 +143,7 @@ class SmartRecommendationService @Inject constructor(
         recentItems.take(limit).forEach { item ->
             recommendations.add(
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Recently added to library",
@@ -170,7 +170,7 @@ class SmartRecommendationService @Inject constructor(
             .take(limit)
             .map { item ->
                 Recommendation(
-                    mediaItemId = item.itemId,
+                    itemId = item.itemId,
                     title = item.fileName,
                     mediaType = item.mediaType,
                     reason = "Popular in your library",
@@ -265,7 +265,7 @@ class SmartRecommendationService @Inject constructor(
                 val item = allItems.find { it.itemId == aiRec.itemId }
                 item?.let {
                     Recommendation(
-                        mediaItemId = it.itemId,
+                        itemId = it.itemId,
                         title = it.fileName,
                         mediaType = it.mediaType,
                         reason = aiRec.reason,
@@ -284,21 +284,20 @@ class SmartRecommendationService @Inject constructor(
      * Get trending items (most recently accessed by any user - if multi-user)
      */
     suspend fun getTrendingItems(limit: Int = 10): List<Recommendation> {
-        // For single-user app, return recently accessed
-        val recentProgress = readingProgressDao.getRecentProgress(limit = limit)
+        // For single-user app, return recently added items as trending
+        val recentItems = mediaItemDao.getAllMediaItems()
+            .sortedByDescending { it.dateAdded }
+            .take(limit)
         
-        return recentProgress.mapNotNull { progress ->
-            val item = mediaItemDao.getMediaItemById(progress.itemId)
-            item?.let {
-                Recommendation(
-                    itemId = it.itemId,
-                    title = it.fileName,
-                    mediaType = it.mediaType,
-                    reason = "Recently accessed",
-                    confidence = 0.9f,
-                    source = "Trending"
-                )
-            }
+        return recentItems.map { item ->
+            Recommendation(
+                itemId = item.itemId,
+                title = item.fileName,
+                mediaType = item.mediaType,
+                reason = "Recently added",
+                confidence = 0.9f,
+                source = "Trending"
+            )
         }
     }
 

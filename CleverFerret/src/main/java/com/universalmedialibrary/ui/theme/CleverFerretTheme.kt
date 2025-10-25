@@ -43,20 +43,19 @@ fun CleverFerretTheme(
     dynamicColor: Boolean = false, // Disable to maintain custom branding
     content: @Composable () -> Unit
 ) {
-    // Map old enum to unified enum for backward compatibility
-    val unifiedPalette = when (palette) {
-        ThemePalette.NAVY_GOLD -> UnifiedThemePalette.NAVY_GOLD
-        ThemePalette.ROYAL_SILVER -> UnifiedThemePalette.ROYAL_SILVER
-        ThemePalette.FOREST_COPPER -> UnifiedThemePalette.FOREST_COPPER
-        ThemePalette.BURGUNDY_ROSE_GOLD -> UnifiedThemePalette.BURGUNDY_ROSE_GOLD
-        ThemePalette.CHARCOAL_CHAMPAGNE -> UnifiedThemePalette.CHARCOAL_CHAMPAGNE
-        ThemePalette.SLATE_GUNMETAL -> UnifiedThemePalette.SLATE_GUNMETAL
+    // Map old enum to new unified theme system
+    val theme = when (palette) {
+        ThemePalette.NAVY_GOLD -> CleverFerretTheme.NAVY_GOLD
+        ThemePalette.ROYAL_SILVER -> CleverFerretTheme.ROYAL_SILVER
+        ThemePalette.FOREST_COPPER -> CleverFerretTheme.FOREST_COPPER
+        ThemePalette.BURGUNDY_ROSE_GOLD -> CleverFerretTheme.BURGUNDY_ROSE_GOLD
+        ThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
+        ThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
     }
 
-    CleverFerretUnifiedTheme(
-        palette = unifiedPalette,
+    UnifiedCleverFerretTheme(
+        theme = theme,
         darkTheme = darkTheme,
-        dynamicColor = dynamicColor,
         content = content
     )
 }

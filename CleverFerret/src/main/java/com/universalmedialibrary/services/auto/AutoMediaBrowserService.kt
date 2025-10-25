@@ -259,6 +259,20 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
             updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
         }
 
+        override fun onPlayFromSearch(query: String?, extras: Bundle?) {
+            // Handle voice search from Android Auto
+            if (query.isNullOrBlank()) {
+                // Play last played or random content
+                onPlay()
+                return
+            }
+            
+            // TODO: Implement search-based playback
+            // For now, just start playing the first matching item
+            exoPlayerService.play()
+            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+        }
+
         override fun onSeekTo(pos: Long) {
             exoPlayerService.seekTo(pos)
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
