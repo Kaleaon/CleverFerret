@@ -36,6 +36,9 @@ import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
 import com.universalmedialibrary.ui.collections.CollectionsScreen
 import com.universalmedialibrary.ui.home.ContinueReadingSection
+import com.universalmedialibrary.ui.home.MediaRecommendation
+import com.universalmedialibrary.ui.home.MediaPosterCard
+import com.universalmedialibrary.ui.home.QuickAccessCard
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.ui.library.CreateLibraryDialog
@@ -49,6 +52,7 @@ import com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
@@ -227,6 +231,36 @@ fun AppNavigation() {
                 onNavigateToVisualizer = { navController.navigate("visualizer") }
             )
         }
+        composable("queue") {
+            com.universalmedialibrary.ui.player.QueueScreen()
+        }
+        composable("album/{albumName}") { backStackEntry ->
+            val albumName = backStackEntry.arguments?.getString("albumName") ?: ""
+            com.universalmedialibrary.ui.music.AlbumDetailScreen(
+                albumName = java.net.URLDecoder.decode(albumName, "UTF-8"),
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { navController.navigate("music_player") }
+            )
+        }
+        composable("artist/{artistName}") { backStackEntry ->
+            val artistName = backStackEntry.arguments?.getString("artistName") ?: ""
+            com.universalmedialibrary.ui.music.ArtistDetailScreen(
+                artistName = java.net.URLDecoder.decode(artistName, "UTF-8"),
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { navController.navigate("music_player") },
+                onNavigateToAlbum = { albumName ->
+                    navController.navigate("album/${java.net.URLEncoder.encode(albumName, "UTF-8")}")
+                }
+            )
+        }
+        composable("genre/{genreName}") { backStackEntry ->
+            val genreName = backStackEntry.arguments?.getString("genreName") ?: ""
+            com.universalmedialibrary.ui.music.GenreDetailScreen(
+                genreName = java.net.URLDecoder.decode(genreName, "UTF-8"),
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { navController.navigate("music_player") }
+            )
+        }
 
         // Reader routes
         composable("bookshelf/{libraryId}") { backStackEntry ->
@@ -343,9 +377,34 @@ fun AppNavigation() {
             )
         }
 
-        // Theme preview for testing
+        // Theme preview for testing (old)
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
+        }
+        
+        // New unified theme showcase with all 15 themes
+        composable("theme_showcase") {
+            val mainViewModel: MainViewModel = hiltViewModel()
+            val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+            val currentUnifiedTheme = selectedTheme.toCleverFerretTheme()
+            
+            com.universalmedialibrary.ui.screens.ThemeShowcaseScreen(
+                currentTheme = currentUnifiedTheme,
+                onThemeSelected = { newTheme ->
+                    // Convert back to old ThemePalette if needed
+                    val oldPalette = when (newTheme) {
+                        CleverFerretTheme.NAVY_GOLD -> ThemePalette.NAVY_GOLD
+                        CleverFerretTheme.ROYAL_SILVER -> ThemePalette.ROYAL_SILVER
+                        CleverFerretTheme.FOREST_COPPER -> ThemePalette.FOREST_COPPER
+                        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> ThemePalette.BURGUNDY_ROSE_GOLD
+                        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> ThemePalette.CHARCOAL_CHAMPAGNE
+                        CleverFerretTheme.SLATE_GUNMETAL -> ThemePalette.SLATE_GUNMETAL
+                        else -> ThemePalette.NAVY_GOLD
+                    }
+                    mainViewModel.setTheme(oldPalette)
+                },
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
 
         // Enhanced Media Library Screen route
@@ -420,8 +479,8 @@ fun AppNavigation() {
 
 
 /**
- * The main screen of the application, displaying a list of media libraries.
- * It handles user interactions for adding new libraries and initiating a Calibre import.
+ * The main screen of the application, displaying an artistic recommendations feed
+ * with navigation rail and search functionality.
  *
  * @param navController The [NavController] for handling navigation events.
  * @param viewModel The [MainViewModel] instance for this screen, provided by Hilt.
@@ -434,10 +493,10 @@ fun LibraryListScreen(
 ) {
     val libraries by viewModel.libraries.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
-
-    var showImportDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
     var showLibrarySelectionDialog by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedNavItem by remember { mutableStateOf(0) }
     val context = LocalContext.current
     var dbFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedLibraryForImport by remember { mutableStateOf<Library?>(null) }
@@ -470,208 +529,311 @@ fun LibraryListScreen(
             onResult = { uri ->
                 if (uri != null) {
                     dbFileUri = uri
-                    // Show library selection dialog if libraries exist, otherwise prompt to create one
                     if (libraries.isNotEmpty()) {
                         showLibrarySelectionDialog = true
-                    } else {
-                        // No libraries exist, show a message
-                        showImportDialog = false
-                        // Could show a dialog to create a library first
                     }
                 }
             },
         )
 
+    // Sample media data for recommendations
+    val sampleMedia = listOf(
+        MediaRecommendation("The Great Gatsby", "F. Scott Fitzgerald", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))),
+        MediaRecommendation("Inception", "Christopher Nolan", "MOVIE", listOf(Color(0xFF0D47A1), Color(0xFF2196F3))),
+        MediaRecommendation("Abbey Road", "The Beatles", "MUSIC", listOf(Color(0xFF4A148C), Color(0xFF9C27B0))),
+        MediaRecommendation("1984", "George Orwell", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))),
+        MediaRecommendation("The Godfather", "Francis Ford Coppola", "MOVIE", listOf(Color(0xFF0D47A1), Color(0xFF2196F3))),
+        MediaRecommendation("Dark Side of the Moon", "Pink Floyd", "MUSIC", listOf(Color(0xFF4A148C), Color(0xFF9C27B0))),
+        MediaRecommendation("To Kill a Mockingbird", "Harper Lee", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))),
+        MediaRecommendation("Interstellar", "Christopher Nolan", "MOVIE", listOf(Color(0xFF0D47A1), Color(0xFF2196F3))),
+        MediaRecommendation("Thriller", "Michael Jackson", "MUSIC", listOf(Color(0xFF4A148C), Color(0xFF9C27B0))),
+        MediaRecommendation("Pride and Prejudice", "Jane Austen", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)))
+    )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Libraries") },
-                actions = {
-                    IconButton(onClick = { navController.navigate("settings") }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
-                    IconButton(onClick = { navController.navigate("maintenance") }) {
-                        Icon(Icons.Default.Build, contentDescription = "Maintenance")
-                    }
-                    IconButton(onClick = { navController.navigate("collections") }) {
-                        Icon(Icons.Default.Collections, contentDescription = "Collections")
-                    }
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("OPDS Server") },
-                            onClick = {
-                                showMenu = false
-                                navController.navigate("settings/opds")
+
+    Row(modifier = Modifier.fillMaxSize()) {
+        // Navigation Rail
+        NavigationRail(
+            modifier = Modifier.fillMaxHeight(),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Logo/Icon at top
+            Icon(
+                imageVector = Icons.Default.Favorite,
+                contentDescription = "CleverFerret",
+                modifier = Modifier
+                    .size(48.dp)
+                    .padding(bottom = 24.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                label = { Text("Home") },
+                selected = selectedNavItem == 0,
+                onClick = { selectedNavItem = 0 }
+            )
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
+                label = { Text("Libraries") },
+                selected = selectedNavItem == 1,
+                onClick = { 
+                    selectedNavItem = 1
+                    navController.navigate("media_library")
+                }
+            )
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.MusicNote, contentDescription = "Music") },
+                label = { Text("Music") },
+                selected = selectedNavItem == 2,
+                onClick = { 
+                    selectedNavItem = 2
+                    navController.navigate("music")
+                }
+            )
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.Movie, contentDescription = "Videos") },
+                label = { Text("Videos") },
+                selected = selectedNavItem == 3,
+                onClick = { 
+                    selectedNavItem = 3
+                    navController.navigate("videos")
+                }
+            )
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                label = { Text("Podcasts") },
+                selected = selectedNavItem == 4,
+                onClick = { 
+                    selectedNavItem = 4
+                    navController.navigate("podcasts")
+                }
+            )
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.Radio, contentDescription = "Radio") },
+                label = { Text("Radio") },
+                selected = selectedNavItem == 5,
+                onClick = { 
+                    selectedNavItem = 5
+                    navController.navigate("radio")
+                }
+            )
+            
+            Spacer(modifier = Modifier.weight(1f))
+            
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                label = { Text("Settings") },
+                selected = selectedNavItem == 6,
+                onClick = { 
+                    selectedNavItem = 6
+                    navController.navigate("settings")
+                }
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // Main Content Area
+        Scaffold(
+            topBar = {
+                Column {
+                    TopAppBar(
+                        title = { 
+                            Text(
+                                "Discover",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        actions = {
+                            IconButton(onClick = { navController.navigate("collections") }) {
+                                Icon(Icons.Default.Collections, contentDescription = "Collections")
                             }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Import Calibre Library") },
-                            onClick = {
-                                showMenu = false
-                                dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
-                            },
-                            enabled = libraries.isNotEmpty()
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        // Sample libraries for demonstration - showing restored functionality
-        val sampleLibraries = listOf(
-            SampleLibrary("My Books", "BOOK", 1),
-            SampleLibrary("Music Collection", "MUSIC", 2),
-            SampleLibrary("Movie Library", "MOVIE", 3)
-        )
-
-        Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
-            // Continue Reading section
-            ContinueReadingSection(onOpenItem = { id -> navController.navigate("open/$id") })
-
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 128.dp),
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-
-            // Progress status card
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Column(
+                            IconButton(onClick = { navController.navigate("maintenance") }) {
+                                Icon(Icons.Default.Build, contentDescription = "Maintenance")
+                            }
+                            IconButton(onClick = { showMenu = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("OPDS Server") },
+                                    onClick = {
+                                        showMenu = false
+                                        navController.navigate("settings/opds")
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Import Calibre Library") },
+                                    onClick = {
+                                        showMenu = false
+                                        dbFilePicker.launch(arrayOf("application/x-sqlite3", "application/octet-stream"))
+                                    },
+                                    enabled = libraries.isNotEmpty()
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Theme Preview") },
+                                    onClick = {
+                                        showMenu = false
+                                        navController.navigate("theme_preview")
+                                    }
+                                )
+                            }
+                        }
+                    )
+                    
+                    // Search Bar
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        placeholder = { Text("Search books, music, movies...") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Clear")
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(24.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                        )
+                    )
+                }
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                contentPadding = PaddingValues(bottom = 24.dp)
+            ) {
+                // Continue Reading/Watching section
+                item {
+                    ContinueReadingSection(onOpenItem = { id -> navController.navigate("open/$id") })
+                }
+
+                // Recommendations Header
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "✅ Phase 2 Progress",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            text = "Recommended for You",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        TextButton(onClick = { navController.navigate("recommendations") }) {
+                            Text("See All")
+                            Icon(
+                                Icons.Default.ArrowForward,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Poster Grid
+                item {
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 160.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(800.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+
+                        items(sampleMedia) { media ->
+                            MediaPosterCard(
+                                media = media,
+                                onClick = {
+                                    when (media.type) {
+                                        "BOOK" -> navController.navigate("bookshelf/1")
+                                        "MOVIE" -> navController.navigate("videos")
+                                        "MUSIC" -> navController.navigate("music")
+                                    }
+                                }
+                            )
+                        }
+                    }
+                
+                // Quick Access Features
+                item {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
-                            text = "📱 UI Layer: Complete\n🔧 Build System: Fixed\n🎨 Enhanced UI: Active\n📊 Room Database: Enabled\n⚡ Hilt DI: Enabled\n🔗 Repositories: Active",
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            text = "Quick Access",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 12.dp)
                         )
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            QuickAccessCard(
+                                title = "Visualizer",
+                                icon = Icons.Default.GraphicEq,
+                                colors = listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)),
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate("visualizer") }
+                            )
+                            QuickAccessCard(
+                                title = "Sync",
+                                icon = Icons.Default.Sync,
+                                colors = listOf(Color(0xFF0A1630), Color(0xFFD4AF37)),
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate("sync") }
+                            )
+                        }
                     }
                 }
             }
-
-            items(sampleLibraries) { library ->
-                LibraryCard(
-                    library = library,
-                    onClick = {
-                        navController.navigate("library_details/${library.libraryId}")
-                    },
-                )
-            }
-
-            // Podcast Manager Card
-            item {
-                FeatureCard(
-                    title = "Podcasts",
-                    icon = Icons.Default.Podcasts,
-                    colors = listOf(Color(0xFF0D1F12), Color(0xFF4A7C59)),
-                    onClick = { navController.navigate("podcasts") }
-                )
-            }
-
-            // Music Library Card
-            item {
-                FeatureCard(
-                    title = "Music",
-                    icon = Icons.Default.MusicNote,
-                    colors = listOf(Color(0xFF4A148C), Color(0xFF9C27B0)),
-                    onClick = { navController.navigate("music") }
-                )
-            }
-
-            // Radio Streaming Card
-            item {
-                FeatureCard(
-                    title = "Radio",
-                    icon = Icons.Default.Radio,
-                    colors = listOf(Color(0xFF1A0F2E), Color(0xFF6B4BA3)),
-                    onClick = { navController.navigate("radio") }
-                )
-            }
-
-            // Video Library Card
-            item {
-                FeatureCard(
-                    title = "Videos",
-                    icon = Icons.Default.VideoLibrary,
-                    colors = listOf(Color(0xFF0D47A1), Color(0xFF2196F3)),
-                    onClick = { navController.navigate("videos") }
-                )
-            }
-
-            // Audio Visualizer Card
-            item {
-                FeatureCard(
-                    title = "Visualizer",
-                    icon = Icons.Default.GraphicEq,
-                    colors = listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)),
-                    onClick = { navController.navigate("visualizer") }
-                )
-            }
-
-            // Theme Preview Card (for testing)
-            item {
-                FeatureCard(
-                    title = "Themes",
-                    icon = Icons.Default.Palette,
-                    colors = listOf(Color(0xFFD4AF37), Color(0xFFFFD700)),
-                    onClick = { navController.navigate("theme_preview") }
-                )
-            }
-
-            // Enhanced Media Library Card (NEW!)
-            item {
-                FeatureCard(
-                    title = "Media Library",
-                    icon = Icons.Default.LibraryBooks,
-                    colors = listOf(Color(0xFF0A1630), Color(0xFFD4AF37)),
-                    onClick = { navController.navigate("media_library") }
-                )
-            }
-        }
-
-
-        if (showCreateDialog) {
-            CreateLibraryDialog(
-                open = true,
-                onDismiss = { showCreateDialog = false },
-                onConfirm = { name, type, path ->
-                    viewModel.addLibrary(name, type, path)
-                    showCreateDialog = false
-                },
-            )
         }
     }
-}
 
+    if (showCreateDialog) {
+        CreateLibraryDialog(
+            open = true,
+            onDismiss = { showCreateDialog = false },
+            onConfirm = { name, type, path ->
+                viewModel.addLibrary(name, type, path)
+                showCreateDialog = false
+            },
+        )
+    }
+    
+    if (showLibrarySelectionDialog && libraries.isNotEmpty()) {
+        LibrarySelectionDialog(
+            libraries = libraries,
+            onDismiss = { showLibrarySelectionDialog = false },
+            onSelect = { library ->
+                selectedLibraryForImport = library
+                showLibrarySelectionDialog = false
+                rootFolderPicker.launch(null)
+            }
+        )
+    }
 }
 
 @Composable

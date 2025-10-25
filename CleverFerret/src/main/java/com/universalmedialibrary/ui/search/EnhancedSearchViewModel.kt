@@ -46,12 +46,8 @@ class EnhancedSearchViewModel @Inject constructor(
             ) { query, filters, sort ->
                 Triple(query, filters, sort)
             }.collect { (query, filters, sort) ->
-```suggestion
-                val hasActiveFilters = filters.hasActiveFilters()
-                                     filters.genres.isNotEmpty() || 
-                                     filters.libraryIds.isNotEmpty()
-                if (query.isNotBlank() || hasActiveFilters) {
-if (query.isNotBlank() || filters.hasActiveFilters()) {
+                if (query.isNotBlank() || filters.hasActiveFilters()) {
+                    performSearch(query, filters, sort)
                 } else {
                     _uiState.value = _uiState.value.copy(
                         results = emptyList(),

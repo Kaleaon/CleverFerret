@@ -2,6 +2,7 @@ package com.universalmedialibrary.ui.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -85,10 +86,16 @@ fun SettingsScreen(
                                     )
                                 }
 
-                                MetallicButton(
-                                    text = "Change",
-                                    onClick = { showThemePicker = true }
-                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    MetallicButton(
+                                        text = "Gallery",
+                                        onClick = { navController.navigate("theme_showcase") }
+                                    )
+                                    MetallicButton(
+                                        text = "Change",
+                                        onClick = { showThemePicker = true }
+                                    )
+                                }
                             }
 
                             MetallicDivider()
@@ -408,40 +415,112 @@ private fun ThemePickerDialog(
     onDismiss: () -> Unit,
     onSelect: (ThemePalette) -> Unit
 ) {
+    // Show enhanced theme picker with all available themes
+    // Note: Only the 6 original themes can be persisted with current ViewModel
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select Theme") },
+        title = { 
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Select Theme") 
+                Text(
+                    text = "15 Available",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
         text = {
-            Column(
+            LazyColumn(
+                modifier = Modifier.heightIn(max = 500.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ThemePalette.values().forEach { palette ->
-                    Card(
-                        onClick = { onSelect(palette) },
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (palette == currentTheme)
-                                MaterialTheme.colorScheme.primaryContainer
-                            else
-                                MaterialTheme.colorScheme.surface
+                // Show all CleverFerretTheme options grouped by category
+                CleverFerretTheme.entries.groupBy { it.getConfig().category }.forEach { (category, themes) ->
+                    item {
+                        Text(
+                            text = category.name.replace('_', ' '),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                         )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = palette.name.replace("_", " "),
-                                fontWeight = if (palette == currentTheme) FontWeight.Bold else FontWeight.Normal
+                    }
+                    
+                    items(themes.size) { index ->
+                        val theme = themes[index]
+                        val config = theme.getConfig()
+                        val isSelected = theme.name == currentTheme.toCleverFerretTheme().name
+                        
+                        Card(
+                            onClick = { 
+                                // Try to convert to old ThemePalette, fallback to NAVY_GOLD
+                                val oldPalette = when (theme) {
+                                    CleverFerretTheme.NAVY_GOLD -> ThemePalette.NAVY_GOLD
+                                    CleverFerretTheme.ROYAL_SILVER -> ThemePalette.ROYAL_SILVER
+                                    CleverFerretTheme.FOREST_COPPER -> ThemePalette.FOREST_COPPER
+                                    CleverFerretTheme.BURGUNDY_ROSE_GOLD -> ThemePalette.BURGUNDY_ROSE_GOLD
+                                    CleverFerretTheme.CHARCOAL_CHAMPAGNE -> ThemePalette.CHARCOAL_CHAMPAGNE
+                                    CleverFerretTheme.SLATE_GUNMETAL -> ThemePalette.SLATE_GUNMETAL
+                                    else -> ThemePalette.NAVY_GOLD
+                                }
+                                onSelect(oldPalette)
+                            },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSelected)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant
                             )
-                            if (palette == currentTheme) {
-                                Icon(
-                                    Icons.Default.Check,
-                                    "Selected",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = config.displayName,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Text(
+                                        text = config.description,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    
+                                    // Show special features for Ancient Architect themes
+                                    if (theme.isAncientArchitect()) {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Star,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(14.dp),
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                            Text(
+                                                text = "Special",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
+                                }
+                                if (isSelected) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        "Selected",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                         }
                     }

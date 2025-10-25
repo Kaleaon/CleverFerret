@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import com.universalmedialibrary.data.local.entity.RadioStation
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.radio.NowPlayingInfo
+import com.universalmedialibrary.services.radio.RadioIdentificationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -14,8 +16,12 @@ import javax.inject.Inject
 @HiltViewModel
 class RadioViewModel @Inject constructor(
     private val radioStationDao: RadioStationDao,
-    private val playbackManager: AudioPlaybackManager
+    private val playbackManager: AudioPlaybackManager,
+    private val radioIdentificationService: RadioIdentificationService
 ) : ViewModel() {
+    
+    // Expose now playing info from identification service
+    val nowPlayingInfo: StateFlow<NowPlayingInfo?> = radioIdentificationService.nowPlaying
 
     val allStations = radioStationDao.getAllStations()
         .stateIn(
@@ -77,11 +83,33 @@ class RadioViewModel @Inject constructor(
     fun stop() {
         playbackManager.exoPlayer.stop()
         _currentStation.value = null
+        radioIdentificationService.clearNowPlaying()
     }
 
     fun toggleFavorite(station: RadioStation) {
         viewModelScope.launch {
             radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite)
+        }
+    }
+    
+    /**
+     * Identify currently playing song on radio
+     */
+    fun identifyCurrentSong() {
+        viewModelScope.launch {
+            // TODO: Extract audio data from ExoPlayer
+            // TODO: Call ACRCloud or similar service
+            // For now, this is a placeholder that shows the feature exists
+            
+            radioIdentificationService.updateNowPlaying(
+                NowPlayingInfo(
+                    artist = "Identifying...",
+                    title = "Please wait...",
+                    source = "Audio Fingerprint",
+                    confidence = 0.0f,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
         }
     }
 
