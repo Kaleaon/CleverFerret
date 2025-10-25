@@ -55,12 +55,22 @@ fun ArtistDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.refreshArtistInfo() }) {
-                        Icon(
-                            if (infoLoading) Icons.Default.HourglassEmpty 
-                            else Icons.Default.Refresh,
-                            "Refresh Info"
-                        )
+                    IconButton(
+                        onClick = { viewModel.refreshArtistInfo() },
+                        enabled = !infoLoading
+                    ) {
+                        if (infoLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Refresh,
+                                "Refresh Artist Info",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             )
@@ -424,9 +434,18 @@ class ArtistDetailViewModel @Inject constructor(
     fun refreshArtistInfo() {
         val artistName = currentArtistName ?: return
         viewModelScope.launch {
-            // Clear cache and reload
-            artistInfoService.clearCache(artistName)
-            loadArtistInfo(artistName)
+            _infoLoading.value = true
+            try {
+                // Fetch with force refresh (bypasses cache)
+                val result = artistInfoService.getArtistInfo(artistName, forceRefresh = true)
+                if (result.success) {
+                    _artistInfo.value = result.artistInfo
+                }
+            } catch (e: Exception) {
+                // Silently fail - artist info is optional enhancement
+            } finally {
+                _infoLoading.value = false
+            }
         }
     }
 

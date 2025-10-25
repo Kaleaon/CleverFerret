@@ -55,13 +55,8 @@ class ArtistInfoCacheRepository @Inject constructor(
     suspend fun getArtistInfo(artistName: String): ArtistInfo? = withContext(Dispatchers.IO) {
         val entity = dao.getArtistInfo(artistName.lowercase().trim()) ?: return@withContext null
 
-        // Check if cache is too old (30 days)
-        val ageMs = System.currentTimeMillis() - entity.lastUpdated
-        val thirtyDaysMs = 30L * 24 * 60 * 60 * 1000
-        if (ageMs > thirtyDaysMs) {
-            return@withContext null
-        }
-
+        // Permanent cache - no expiration
+        // User can manually refresh if needed
         ArtistInfo(
             name = entity.displayName,
             biography = entity.biography,

@@ -49,15 +49,17 @@ class LyricsService @Inject constructor(
      * Get lyrics for a track
      * First checks cache, then fetches from AI
      */
-    suspend fun getLyrics(track: Track): LyricsResult = withContext(Dispatchers.IO) {
-        // Check cache first
-        val cached = lyricsCache.getLyrics(track.id)
-        if (cached != null) {
-            return@withContext LyricsResult(
-                success = true,
-                lyrics = cached,
-                fromCache = true
-            )
+    suspend fun getLyrics(track: Track, forceRefresh: Boolean = false): LyricsResult = withContext(Dispatchers.IO) {
+        // Check cache first (unless forcing refresh)
+        if (!forceRefresh) {
+            val cached = lyricsCache.getLyrics(track.id)
+            if (cached != null) {
+                return@withContext LyricsResult(
+                    success = true,
+                    lyrics = cached,
+                    fromCache = true
+                )
+            }
         }
 
         // Fetch from AI

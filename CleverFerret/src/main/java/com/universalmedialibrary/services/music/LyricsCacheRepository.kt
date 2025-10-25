@@ -39,13 +39,8 @@ class LyricsCacheRepository @Inject constructor(
     suspend fun getLyrics(trackId: Long): Lyrics? = withContext(Dispatchers.IO) {
         val entity = dao.getLyrics(trackId) ?: return@withContext null
         
-        // Check if cache is too old (30 days)
-        val ageMs = System.currentTimeMillis() - entity.fetchedAt
-        val thirtyDaysMs = 30L * 24 * 60 * 60 * 1000
-        if (ageMs > thirtyDaysMs) {
-            return@withContext null
-        }
-
+        // Permanent cache - no expiration
+        // User can manually refresh if needed
         deserializeLyrics(trackId, entity)
     }
 

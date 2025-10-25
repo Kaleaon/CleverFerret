@@ -58,7 +58,7 @@ class ArtistInfoService @Inject constructor(
      * Fetch comprehensive artist information
      * First checks cache, then queries Gemini if not found
      */
-    suspend fun getArtistInfo(artistName: String): ArtistInfoResult = withContext(Dispatchers.IO) {
+    suspend fun getArtistInfo(artistName: String, forceRefresh: Boolean = false): ArtistInfoResult = withContext(Dispatchers.IO) {
         if (artistName.isBlank() || artistName == "Unknown Artist" || artistName == "<unknown>") {
             return@withContext ArtistInfoResult(
                 success = false,
@@ -66,14 +66,16 @@ class ArtistInfoService @Inject constructor(
             )
         }
 
-        // Check cache first
-        val cached = artistInfoCache.getArtistInfo(artistName)
-        if (cached != null) {
-            return@withContext ArtistInfoResult(
-                success = true,
-                artistInfo = cached,
-                fromCache = true
-            )
+        // Check cache first (unless forcing refresh)
+        if (!forceRefresh) {
+            val cached = artistInfoCache.getArtistInfo(artistName)
+            if (cached != null) {
+                return@withContext ArtistInfoResult(
+                    success = true,
+                    artistInfo = cached,
+                    fromCache = true
+                )
+            }
         }
 
         // Query Gemini if not in cache

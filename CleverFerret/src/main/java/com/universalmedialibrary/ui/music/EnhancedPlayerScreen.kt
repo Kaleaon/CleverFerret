@@ -116,15 +116,31 @@ fun EnhancedPlayerUI(
 
             // Lyrics toggle
             if (lyrics != null) {
-                TextButton(
-                    onClick = { showLyrics = !showLyrics }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        if (showLyrics) Icons.Default.MusicNote else Icons.Default.Lyrics,
-                        contentDescription = null
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(if (showLyrics) "Hide Lyrics" else "Show Lyrics")
+                    TextButton(
+                        onClick = { showLyrics = !showLyrics }
+                    ) {
+                        Icon(
+                            if (showLyrics) Icons.Default.MusicNote else Icons.Default.Lyrics,
+                            contentDescription = null
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(if (showLyrics) "Hide Lyrics" else "Show Lyrics")
+                    }
+                    
+                    // Refresh lyrics button
+                    IconButton(
+                        onClick = { /* Trigger refresh */ }
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "Refresh Lyrics",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
