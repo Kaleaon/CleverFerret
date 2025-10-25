@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.music.ArtistInfo
 import com.universalmedialibrary.services.music.ArtistInfoService
@@ -369,6 +370,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
 
 @HiltViewModel
 class ArtistDetailViewModel @Inject constructor(
+    private val musicRepository: MusicRepository,
     private val playback: AudioPlaybackManager,
     private val artistInfoService: ArtistInfoService
 ) : ViewModel() {
@@ -394,7 +396,8 @@ class ArtistDetailViewModel @Inject constructor(
         currentArtistName = artistName
         viewModelScope.launch {
             _isLoading.value = true
-            // TODO: Load artist from a proper repository
+            _artist.value = musicRepository.getArtist(artistName)
+            _albums.value = musicRepository.getAlbumsByArtist(artistName)
             _isLoading.value = false
             
             // Load enriched artist info from Gemini

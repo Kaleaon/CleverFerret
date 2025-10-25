@@ -239,7 +239,7 @@ class MusicRepository @Inject constructor(
                     val albums = artistTracks.groupBy { it.album }.size
                     
                     Artist(
-                        name = artistName,
+                        name = artistName ?: "Unknown Artist",
                         trackCount = artistTracks.size,
                         albumCount = albums,
                         tracks = artistTracks.sortedBy { it.title }

@@ -1,19 +1,25 @@
 package com.universalmedialibrary.ui.music
 
+import android.content.ContentUris
+import android.content.Context
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MusicLibraryViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
     private val playback: AudioPlaybackManager
 ) : ViewModel() {
@@ -24,45 +30,63 @@ class MusicLibraryViewModel @Inject constructor(
     private var allTracks: List<Track> = emptyList()
 
     init {
-        // Observe repository data and update UI state
+        // Also observe repository for updates (future enhancement)
         viewModelScope.launch {
-            combine(
-                musicRepository.tracks,
-                musicRepository.albums,
-                musicRepository.artists,
-                musicRepository.genres,
-                musicRepository.isLoading
-            ) { tracks, albums, artists, genres, isLoading ->
+            musicRepository.tracks.collect { tracks ->
+                if (tracks.isNotEmpty() && allTracks.isEmpty()) {
+                    // Initial load from repository
+                    allTracks = tracks
+                    _uiState.value = _uiState.value.copy(
+                        tracks = tracks,
+                        albums = musicRepository.albums.value,
+                        artists = musicRepository.artists.value,
+                        genres = musicRepository.genres.value
+                    )
+                    applyFiltersAndSort()
+                }
+            }
+        }
+    }
+
+    fun scan() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            
+            try {
+                // Use repository for scanning
+                musicRepository.scanLibrary()
+                
+                // Get data from repository
+                val tracks = musicRepository.tracks.value
                 allTracks = tracks
+                
+                val albums = musicRepository.albums.value
+                val artists = musicRepository.artists.value
+                val genres = musicRepository.genres.value
+                
                 _uiState.value = _uiState.value.copy(
-                    isLoading = isLoading,
+                    isLoading = false,
                     tracks = tracks,
                     albums = albums,
                     artists = artists,
                     genres = genres
                 )
-                if (!isLoading && tracks.isNotEmpty()) {
-                    applyFiltersAndSort()
-                }
-            }.collect {}
-        }
-    }
-
-    fun scan() {
-        viewModelScope.launch {
-            try {
-                musicRepository.scanLibrary()
+                
+                applyFiltersAndSort()
             } catch (e: Exception) {
                 // Handle scan error gracefully
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false
+                    isLoading = false,
+                    tracks = emptyList(),
+                    albums = emptyList(),
+                    artists = emptyList(),
+                    genres = emptyList()
                 )
             }
         }
     }
 
-    // Remove all the MediaStore scanning code as it's now in MusicRepository
-    private fun oldScanCode(): List<Track> {
+    private fun scanMusicFromMediaStore(): List<Track> {
         val songs = mutableListOf<Track>()
         
         val projection = arrayOf(

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -161,6 +162,7 @@ fun GenreDetailScreen(
 
 @HiltViewModel
 class GenreDetailViewModel @Inject constructor(
+    private val musicRepository: MusicRepository,
     private val playback: AudioPlaybackManager
 ) : ViewModel() {
 
@@ -173,8 +175,7 @@ class GenreDetailViewModel @Inject constructor(
     fun loadGenre(genreName: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            // TODO: Load genre from a proper repository
-            // For now, just set loading to false
+            _genre.value = musicRepository.getGenre(genreName)
             _isLoading.value = false
         }
     }
