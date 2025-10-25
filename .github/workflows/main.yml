@@ -126,6 +126,9 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
         
+    - name: Build Android App
+      uses: sparkfabrik/android-build-action@v1.5.0
+        
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
