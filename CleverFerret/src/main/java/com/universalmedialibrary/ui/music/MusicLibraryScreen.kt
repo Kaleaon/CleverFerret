@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -237,6 +239,7 @@ fun MusicLibraryScreen(
                         MusicTab.ARTISTS -> ArtistsTab(state, viewModel, navController)
                         MusicTab.GENRES -> GenresTab(state, viewModel, navController)
                         MusicTab.PLAYLISTS -> PlaylistsTab()
+                        MusicTab.RADIO -> RadioTab()
                     }
                 }
                 
@@ -348,11 +351,75 @@ private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMod
 
 @Composable
 private fun PlaylistsTab() {
+    // TODO: Implement full playlist viewing and management
+    // This is a placeholder that will be implemented with proper playlist UI
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("Playlists - Coming Soon", style = MaterialTheme.typography.titleMedium)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(
+                Icons.Default.PlaylistPlay,
+                contentDescription = null,
+                modifier = Modifier.size(80.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                "Music Playlists",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "Create and manage your music playlists here. This feature is under development.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(
+                onClick = { /* TODO: Navigate to playlist creation */ }
+            ) {
+                Icon(Icons.Default.Add, null)
+                Spacer(Modifier.width(8.dp))
+                Text("Create Playlist")
+            }
+        }
+    }
+}
+
+@Composable
+private fun RadioTab() {
+    // Placeholder for radio integration - radio is accessed through main navigation
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(
+                Icons.Default.Radio,
+                contentDescription = null,
+                modifier = Modifier.size(80.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                "Internet Radio",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "Access internet radio stations and streaming services. Use the Radio section in the main navigation.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -405,7 +472,7 @@ private fun TrackGridItem(track: Track, onClick: () -> Unit) {
 }
 
 @Composable
-private fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -> Unit) {
+internal fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(track.title ?: "Unknown", maxLines = 1) },
         supportingContent = {

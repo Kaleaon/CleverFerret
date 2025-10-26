@@ -1,5 +1,9 @@
 package com.universalmedialibrary.ui.music
 
+import android.content.ContentUris
+import android.content.Context
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,8 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -155,7 +162,7 @@ fun GenreDetailScreen(
 
 @HiltViewModel
 class GenreDetailViewModel @Inject constructor(
-    private val musicLibraryViewModel: MusicLibraryViewModel,
+    private val musicRepository: MusicRepository,
     private val playback: AudioPlaybackManager
 ) : ViewModel() {
 
@@ -168,8 +175,7 @@ class GenreDetailViewModel @Inject constructor(
     fun loadGenre(genreName: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            val uiState = musicLibraryViewModel.uiState.value
-            _genre.value = uiState.genres.find { it.name == genreName }
+            _genre.value = musicRepository.getGenre(genreName)
             _isLoading.value = false
         }
     }

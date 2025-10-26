@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
+import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -250,7 +251,7 @@ fun AlbumDetailScreen(
 
 @HiltViewModel
 class AlbumDetailViewModel @Inject constructor(
-    private val musicLibraryViewModel: MusicLibraryViewModel,
+    private val musicRepository: MusicRepository,
     private val playback: AudioPlaybackManager
 ) : ViewModel() {
 
@@ -263,9 +264,7 @@ class AlbumDetailViewModel @Inject constructor(
     fun loadAlbum(albumName: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            // Get album from MusicLibraryViewModel's cached data
-            val uiState = musicLibraryViewModel.uiState.value
-            _album.value = uiState.albums.find { it.name == albumName }
+            _album.value = musicRepository.getAlbum(albumName)
             _isLoading.value = false
         }
     }

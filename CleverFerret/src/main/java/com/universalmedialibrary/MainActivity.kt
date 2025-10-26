@@ -11,9 +11,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -296,8 +298,23 @@ fun AppNavigation() {
 
         // Radio routes
         composable("radio") {
-            com.universalmedialibrary.ui.radio.RadioScreen(
-                onBack = { navController.navigateUp() }
+            com.universalmedialibrary.ui.radio.EnhancedRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToOTR = { navController.navigate("old_time_radio") },
+                onNavigateToInternetRadio = { navController.navigate("internet_radio") },
+                onNavigateToFMRadio = { navController.navigate("fm_radio") }
+            )
+        }
+        
+        composable("internet_radio") {
+            com.universalmedialibrary.ui.radio.InternetRadioScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+        
+        composable("fm_radio") {
+            com.universalmedialibrary.ui.radio.FMRadioScreen(
+                onNavigateBack = { navController.navigateUp() }
             )
         }
 
@@ -763,7 +780,7 @@ fun LibraryListScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
 
-                        items(sampleMedia) { media ->
+                        gridItems(sampleMedia) { media ->
                             MediaPosterCard(
                                 media = media,
                                 onClick = {
@@ -776,6 +793,7 @@ fun LibraryListScreen(
                             )
                         }
                     }
+                }
                 
                 // Quick Access Features
                 item {
@@ -979,7 +997,7 @@ fun LibrarySelectionDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.height(300.dp)
                 ) {
-                    items(libraries) { library ->
+                    gridItems(libraries) { library ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()

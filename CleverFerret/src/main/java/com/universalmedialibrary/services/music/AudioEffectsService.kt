@@ -154,13 +154,13 @@ class AudioEffectsService @Inject constructor(
  * Reverb presets
  */
 enum class ReverbPreset(val value: Int, val displayName: String) {
-    NONE(PresetReverb.PRESET_NONE, "None"),
-    SMALL_ROOM(PresetReverb.PRESET_SMALLROOM, "Small Room"),
-    MEDIUM_ROOM(PresetReverb.PRESET_MEDIUMROOM, "Medium Room"),
-    LARGE_ROOM(PresetReverb.PRESET_LARGEROOM, "Large Room"),
-    MEDIUM_HALL(PresetReverb.PRESET_MEDIUMHALL, "Medium Hall"),
-    LARGE_HALL(PresetReverb.PRESET_LARGEHALL, "Large Hall"),
-    PLATE(PresetReverb.PRESET_PLATE, "Plate")
+    NONE(PresetReverb.PRESET_NONE.toInt(), "None"),
+    SMALL_ROOM(PresetReverb.PRESET_SMALLROOM.toInt(), "Small Room"),
+    MEDIUM_ROOM(PresetReverb.PRESET_MEDIUMROOM.toInt(), "Medium Room"),
+    LARGE_ROOM(PresetReverb.PRESET_LARGEROOM.toInt(), "Large Room"),
+    MEDIUM_HALL(PresetReverb.PRESET_MEDIUMHALL.toInt(), "Medium Hall"),
+    LARGE_HALL(PresetReverb.PRESET_LARGEHALL.toInt(), "Large Hall"),
+    PLATE(PresetReverb.PRESET_PLATE.toInt(), "Plate")
 }
 
 /**

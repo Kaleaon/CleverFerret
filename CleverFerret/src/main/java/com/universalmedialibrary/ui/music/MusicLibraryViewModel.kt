@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.repository.MusicRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MusicLibraryViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val musicRepository: MusicRepository,
     private val playback: AudioPlaybackManager
 ) : ViewModel() {
 
@@ -27,17 +29,40 @@ class MusicLibraryViewModel @Inject constructor(
 
     private var allTracks: List<Track> = emptyList()
 
+    init {
+        // Also observe repository for updates (future enhancement)
+        viewModelScope.launch {
+            musicRepository.tracks.collect { tracks ->
+                if (tracks.isNotEmpty() && allTracks.isEmpty()) {
+                    // Initial load from repository
+                    allTracks = tracks
+                    _uiState.value = _uiState.value.copy(
+                        tracks = tracks,
+                        albums = musicRepository.albums.value,
+                        artists = musicRepository.artists.value,
+                        genres = musicRepository.genres.value
+                    )
+                    applyFiltersAndSort()
+                }
+            }
+        }
+    }
+
     fun scan() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = _uiState.value.copy(isLoading = true)
             
             try {
-                val tracks = scanMusicFromMediaStore()
+                // Use repository for scanning
+                musicRepository.scanLibrary()
+                
+                // Get data from repository
+                val tracks = musicRepository.tracks.value
                 allTracks = tracks
                 
-                val albums = aggregateAlbums(tracks)
-                val artists = aggregateArtists(tracks)
-                val genres = aggregateGenres(tracks)
+                val albums = musicRepository.albums.value
+                val artists = musicRepository.artists.value
+                val genres = musicRepository.genres.value
                 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
