@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Plex-inspired dark theme colors -->
+    <!-- CleverFerret Color Palette - Material 3 Dark Theme
+         Inspired by premium media apps with elegant gold accents -->
 
     <!-- Primary colors -->
     <color name="primary">#E5A00D</color>

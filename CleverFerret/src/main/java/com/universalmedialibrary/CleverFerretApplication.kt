@@ -13,15 +13,22 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Clever Ferret Application
+ * CleverFerretApplication - Main application class
  * 
- * Main application class with critical initialization:
- * - Hilt dependency injection
- * - App upgrade detection and backup
- * - Database migration handling
- * - User data protection
+ * Manages critical app-wide initialization and lifecycle operations:
+ * - Hilt dependency injection setup via [@HiltAndroidApp]
+ * - App upgrade detection and automatic backup creation
+ * - Database migration handling with data protection
+ * - User library preservation across version updates
  * 
- * This ensures user library NEVER gets wiped during upgrades!
+ * Safety Features:
+ * - Automatic backups before any database migrations
+ * - Upgrade status tracking and logging
+ * - Restoration support in case of migration failures
+ * - Never wipes user data during upgrades
+ * 
+ * @see AppUpgradeManager for upgrade handling logic
+ * @see BackupRestorationManager for backup/restore operations
  */
 @HiltAndroidApp
 class CleverFerretApplication : Application() {

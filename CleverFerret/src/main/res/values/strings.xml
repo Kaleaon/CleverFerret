@@ -2,7 +2,7 @@
 <resources>
     <!-- App name and basic strings -->
     <string name="app_name">Clever Ferret Media Library</string>
-    <string name="app_description">Universal Media Library</string>
+    <string name="app_description">Universal Media Library for Android - Manage books, music, movies, and more</string>
 
     <!-- Navigation and UI -->
     <string name="navigation_library">Library</string>

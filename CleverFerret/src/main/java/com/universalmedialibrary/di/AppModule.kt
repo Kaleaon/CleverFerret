@@ -11,8 +11,16 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
- * Main application module for dependency injection
- * Provides core application-level dependencies
+ * AppModule - Core dependency injection module
+ * 
+ * Provides fundamental application-level dependencies that are
+ * shared across the entire app:
+ * - Application Context for accessing Android system services
+ * - OkHttpClient for all network operations (singleton, configured with timeouts)
+ * 
+ * All dependencies are scoped to [SingletonComponent] for app-wide availability.
+ * 
+ * @see NetworkModule for additional network-specific dependencies
  */
 @Module
 @InstallIn(SingletonComponent::class)

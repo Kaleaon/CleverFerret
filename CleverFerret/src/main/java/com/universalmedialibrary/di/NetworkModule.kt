@@ -13,7 +13,15 @@ import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 /**
- * Dependency injection module for network services
+ * NetworkModule - Dependency injection for network-related services
+ * 
+ * Provides network clients and services for:
+ * - Jellyfin media server integration
+ * - WebDAV network storage access
+ * - General network storage operations
+ * 
+ * All services use the shared [OkHttpClient] from [AppModule] for
+ * consistent timeout configuration and connection pooling.
  */
 @Module
 @InstallIn(SingletonComponent::class)
