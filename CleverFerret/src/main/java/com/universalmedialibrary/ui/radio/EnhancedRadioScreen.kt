@@ -40,6 +40,8 @@ import javax.inject.Inject
 fun EnhancedRadioScreen(
     onNavigateBack: () -> Unit,
     onNavigateToOTR: () -> Unit,
+    onNavigateToInternetRadio: () -> Unit,
+    onNavigateToFMRadio: () -> Unit,
     viewModel: EnhancedRadioViewModel = hiltViewModel()
 ) {
     val nowPlaying by viewModel.nowPlaying.collectAsState()
@@ -95,9 +97,9 @@ fun EnhancedRadioScreen(
             item {
                 RadioCategoryCard(
                     title = "Internet Radio",
-                    subtitle = "Stream online radio stations",
+                    subtitle = "Stream online radio stations worldwide",
                     icon = Icons.Default.Radio,
-                    onClick = { /* Navigate to internet radio */ }
+                    onClick = onNavigateToInternetRadio
                 )
             }
 
@@ -105,9 +107,9 @@ fun EnhancedRadioScreen(
                 item {
                     RadioCategoryCard(
                         title = "FM Radio",
-                        subtitle = "Tune to local FM stations",
+                        subtitle = "Tune to local FM stations (Hardware FM)",
                         icon = Icons.Default.SignalCellularAlt,
-                        onClick = { /* Navigate to FM radio */ }
+                        onClick = onNavigateToFMRadio
                     )
                 }
             }

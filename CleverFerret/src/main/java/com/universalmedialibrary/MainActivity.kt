@@ -298,8 +298,23 @@ fun AppNavigation() {
 
         // Radio routes
         composable("radio") {
-            com.universalmedialibrary.ui.radio.RadioScreen(
-                onBack = { navController.navigateUp() }
+            com.universalmedialibrary.ui.radio.EnhancedRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToOTR = { navController.navigate("old_time_radio") },
+                onNavigateToInternetRadio = { navController.navigate("internet_radio") },
+                onNavigateToFMRadio = { navController.navigate("fm_radio") }
+            )
+        }
+        
+        composable("internet_radio") {
+            com.universalmedialibrary.ui.radio.InternetRadioScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+        
+        composable("fm_radio") {
+            com.universalmedialibrary.ui.radio.FMRadioScreen(
+                onNavigateBack = { navController.navigateUp() }
             )
         }
 
