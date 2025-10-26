@@ -5,9 +5,9 @@
  * Individual module configurations are in their respective build.gradle.kts files.
  * 
  * Pinned Versions (per project standards):
- * - Kotlin: 2.0.20
+ * - Kotlin: 2.1.0
  * - Android Gradle Plugin: 8.13.0
- * - Hilt: 2.52
+ * - Hilt: 2.57
  * - Gradle: 8.13
  */
 
