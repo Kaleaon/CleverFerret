@@ -153,7 +153,9 @@ export class CleverFerretDatabase extends Dexie {
   constructor() {
     super('CleverFerretDB');
 
-    this.version(1).stores({
+    // Version 50 - consolidated database schema
+    // Higher version number to handle upgrades from older database versions
+    this.version(50).stores({
       // Core tables
       libraries: '++libraryId, type, source, isActive, lastScanned',
       mediaItems: '++itemId, libraryId, filePath, fileHash, mediaType, dateAdded, lastScanned',

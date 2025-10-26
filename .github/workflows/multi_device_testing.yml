@@ -99,7 +99,12 @@ jobs:
           target: ${{ matrix.config.target }}
           emulator-options: -no-window -gpu swiftshader_indirect -no-boot-anim
           disable-animations: true
-          script: ./gradlew connectedCheck
+          emulator-timeout: 600
+          script: |
+            echo "Verifying emulator is available..."
+            $ANDROID_HOME/platform-tools/adb devices
+            echo "Running connected tests..."
+            ./gradlew connectedCheck
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4

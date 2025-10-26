@@ -16,6 +16,9 @@ interface RadioStationDao {
     @Query("SELECT * FROM radio_stations WHERE id = :id")
     fun getStationById(id: Long): Flow<RadioStation?>
 
+    @Query("SELECT * FROM radio_stations WHERE id = :id LIMIT 1")
+    suspend fun getStationByIdDirect(id: Long): RadioStation?
+
     @Query("SELECT * FROM radio_stations WHERE isFavorite = 1 ORDER BY name ASC")
     fun getFavoriteStations(): Flow<List<RadioStation>>
 

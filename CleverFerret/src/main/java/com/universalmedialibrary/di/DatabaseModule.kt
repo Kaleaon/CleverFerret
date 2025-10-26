@@ -117,6 +117,26 @@ object DatabaseModule {
         return database.readerSettingsDao()
     }
 
+    @Provides
+    fun provideGeneralSettingsDao(database: AppDatabase): GeneralSettingsDao {
+        return database.generalSettingsDao()
+    }
+
+    @Provides
+    fun provideSecuritySettingsDao(database: AppDatabase): SecuritySettingsDao {
+        return database.securitySettingsDao()
+    }
+
+    @Provides
+    fun provideApiSettingsDao(database: AppDatabase): ApiSettingsDao {
+        return database.apiSettingsDao()
+    }
+
+    @Provides
+    fun provideComicPanelDao(database: AppDatabase): ComicPanelDao {
+        return database.comicPanelDao()
+    }
+
     /**
      * Provides the TagDao instance from the application database.
      *

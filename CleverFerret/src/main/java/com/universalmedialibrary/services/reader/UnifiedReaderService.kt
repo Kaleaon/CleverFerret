@@ -7,7 +7,7 @@ import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.epub.ReadiumAudiobookService
 import com.universalmedialibrary.services.epub.ReadiumEpubService
 import com.universalmedialibrary.services.epub.ReadiumPdfService
-// import com.universalmedialibrary.services.comic.GeminiComicService // Disabled - not currently operational
+import com.universalmedialibrary.services.comic.GeminiComicService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -41,7 +41,7 @@ class UnifiedReaderService @Inject constructor(
     private val readiumEpubService: ReadiumEpubService,
     private val readiumPdfService: ReadiumPdfService,
     private val readiumAudiobookService: ReadiumAudiobookService,
-    // private val geminiComicService: GeminiComicService, // Disabled - not currently operational
+    private val geminiComicService: GeminiComicService,
     private val audioPlaybackManager: AudioPlaybackManager
 ) {
     private val TAG = "UnifiedReaderService"
@@ -106,9 +106,10 @@ class UnifiedReaderService @Inject constructor(
                 
                 // Use our Gemini AI for comics (superior to Readium's partial CBZ)
                 "cbz", "cbr" -> {
-                    // TODO: Re-enable when GeminiComicService is operational
-                    Log.w(TAG, "Comic service currently disabled")
-                    throw UnsupportedOperationException("Comic service currently disabled")
+                    ReaderType.Comic(
+                        filePath = filePath,
+                        service = geminiComicService
+                    )
                 }
                 
                 // Use ExoPlayer for standalone audio files
@@ -226,11 +227,10 @@ sealed class ReaderType {
         val service: ReadiumAudiobookService
     ) : ReaderType()
     
-    // TODO: Re-enable when GeminiComicService is operational
-    // data class Comic(
-    //     val filePath: String,
-    //     val service: GeminiComicService
-    // ) : ReaderType()
+    data class Comic(
+        val filePath: String,
+        val service: GeminiComicService
+    ) : ReaderType()
     
     data class Audio(
         val filePath: String,

@@ -1,6 +1,8 @@
 package com.universalmedialibrary.services.tts
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,6 +38,7 @@ class GeminiTtsService @Inject constructor(
     override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
     
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var mediaPlayer: MediaPlayer? = null
 
     private val cloudTtsApi: CloudTextToSpeechApi by lazy {
         Retrofit.Builder()
@@ -43,8 +48,14 @@ class GeminiTtsService @Inject constructor(
             .create(CloudTextToSpeechApi::class.java)
     }
 
+    private var voiceName: String = "gemini-2.5-flash-tts-001" // Default Gemini voice
+
     fun setApiKey(key: String) {
         apiKey = key
+    }
+
+    fun setVoice(voice: String) {
+        voiceName = voice
     }
 
     override suspend fun initialize(): Boolean = withContext(Dispatchers.IO) {
@@ -89,7 +100,7 @@ class GeminiTtsService @Inject constructor(
                 input = TextInput(text = text),
                 voice = VoiceSelectionParams(
                     languageCode = _ttsState.value.currentLanguage,
-                    name = "gemini-2.5-flash-tts-001" // Gemini TTS voice
+                    name = voiceName
                 ),
                 audioConfig = AudioConfig(
                     audioEncoding = "MP3",
@@ -122,15 +133,51 @@ class GeminiTtsService @Inject constructor(
                 return@withContext false
             }
 
-            // TODO: Play audioBytes via AudioTrack or MediaPlayer
-            // For now, we mark as complete but actual playback needs implementation
-            _ttsState.value = _ttsState.value.copy(
-                isPlaying = false,
-                currentText = ""
-            )
-            
-            // Return false until actual playback is implemented
-            false
+            // Play audio using MediaPlayer
+            try {
+                // Write audio bytes to temporary file
+                val tempFile = File.createTempFile("tts_", ".mp3", context.cacheDir)
+                FileOutputStream(tempFile).use { fos ->
+                    fos.write(audioBytes)
+                }
+
+                // Initialize MediaPlayer
+                mediaPlayer?.release()
+                mediaPlayer = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+                    )
+                    setDataSource(tempFile.absolutePath)
+                    setOnCompletionListener {
+                        _ttsState.value = _ttsState.value.copy(
+                            isPlaying = false,
+                            currentText = ""
+                        )
+                        tempFile.delete()
+                    }
+                    setOnErrorListener { _, what, extra ->
+                        _ttsState.value = _ttsState.value.copy(
+                            isPlaying = false,
+                            error = "MediaPlayer error: $what, $extra"
+                        )
+                        tempFile.delete()
+                        true
+                    }
+                    prepare()
+                    start()
+                }
+                
+                true
+            } catch (e: Exception) {
+                _ttsState.value = _ttsState.value.copy(
+                    isPlaying = false,
+                    error = "Failed to play audio: ${e.message}"
+                )
+                false
+            }
         } catch (e: Exception) {
             _ttsState.value = _ttsState.value.copy(
                 isPlaying = false,
@@ -141,12 +188,11 @@ class GeminiTtsService @Inject constructor(
     }
 
     override fun pause() {
-        // Mark paused without clearing current text
+        mediaPlayer?.pause()
         _ttsState.value = _ttsState.value.copy(
             isPlaying = false,
             isPaused = true
         )
-        // TODO: Cancel any in-flight playback job when implemented
     }
 
     override fun resume() {
@@ -158,6 +204,9 @@ class GeminiTtsService @Inject constructor(
     }
 
     override fun stop() {
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
         _ttsState.value = _ttsState.value.copy(
             isPlaying = false,
             isPaused = false,

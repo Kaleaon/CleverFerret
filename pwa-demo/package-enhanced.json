@@ -1,0 +1,128 @@
+{
+  "name": "cleverferret-pwa-enhanced",
+  "version": "2.0.0",
+  "description": "Enhanced Progressive Web App version of CleverFerret universal media manager with full feature parity to Android app",
+  "type": "module",
+  "private": true,
+  
+  "scripts": {
+    "dev": "vite --config vite.config-enhanced.ts",
+    "build": "tsc && vite build --config vite.config-enhanced.ts",
+    "build:check": "tsc --noEmit && vite build --config vite.config-enhanced.ts",
+    "preview": "vite preview --config vite.config-enhanced.ts",
+    "serve": "vite preview --config vite.config-enhanced.ts --port 4173",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix --report-unused-disable-directives",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "pwa:build": "npm run build && npm run pwa:generate",
+    "pwa:generate": "vite-pwa generate-sw",
+    "analyze": "npm run build && npx vite-bundle-analyzer dist"
+  },
+  
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@google/generative-ai": "^0.21.0",
+    "@mui/icons-material": "^5.15.0",
+    "@mui/material": "^5.15.0",
+    "dexie": "^3.2.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "workbox-window": "^7.0.0",
+    "zustand": "^4.4.7",
+    "comlink": "^4.4.1",
+    "idb": "^8.0.0",
+    "fuse.js": "^7.0.0"
+  },
+  
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@vitest/ui": "^1.0.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "jsdom": "^23.0.1",
+    "postcss": "^8.4.32",
+    "prettier": "^3.1.1",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8",
+    "vite-plugin-pwa": "^0.17.4",
+    "vitest": "^1.0.4",
+    "workbox-precaching": "^7.0.0",
+    "workbox-routing": "^7.0.0",
+    "workbox-strategies": "^7.0.0"
+  },
+  
+  "pwa": {
+    "name": "CleverFerret",
+    "short_name": "CleverFerret",
+    "description": "Universal Media Manager PWA",
+    "theme_color": "#ffc300",
+    "background_color": "#010919",
+    "display": "standalone",
+    "orientation": "any",
+    "scope": "/",
+    "start_url": "/"
+  },
+  
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  
+  "keywords": [
+    "pwa",
+    "media-manager",
+    "books",
+    "movies",
+    "music",
+    "comics",
+    "podcasts",
+    "react",
+    "typescript",
+    "offline-first",
+    "file-system-api",
+    "ai-powered"
+  ],
+  
+  "author": "CleverFerret Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cleverferret/pwa-enhanced.git"
+  },
+  
+  "bugs": {
+    "url": "https://github.com/cleverferret/pwa-enhanced/issues"
+  },
+  
+  "homepage": "https://cleverferret.github.io/pwa-enhanced"
+}

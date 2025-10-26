@@ -25,6 +25,7 @@ class AudioVisualizerService @Inject constructor(
 ) {
     private var visualizer: Visualizer? = null
     private var captureSize = 0
+    private var currentPlayer: ExoPlayer? = null
 
     private val _visualizerState = MutableStateFlow(VisualizerState())
     val visualizerState: StateFlow<VisualizerState> = _visualizerState.asStateFlow()
@@ -37,13 +38,27 @@ class AudioVisualizerService @Inject constructor(
      */
     fun attachToPlayer(player: ExoPlayer) {
         try {
+            // Only re-attach if player changed
+            if (currentPlayer == player && visualizer != null && visualizer?.enabled == true) {
+                return
+            }
+            
             release()
 
             // Get audio session ID from ExoPlayer
             val audioSessionId = player.audioSessionId
+            
+            // Validate audio session ID
+            if (audioSessionId == androidx.media3.common.C.AUDIO_SESSION_ID_UNSET) {
+                _visualizerState.value = _visualizerState.value.copy(
+                    error = "Invalid audio session ID. Player may not be ready."
+                )
+                return
+            }
 
             visualizer = Visualizer(audioSessionId).apply {
-                captureSize = Visualizer.getCaptureSizeRange()[1]
+                val maxCaptureSize = Visualizer.getCaptureSizeRange()[1]
+                setCaptureSize(maxCaptureSize)
                 scalingMode = Visualizer.SCALING_MODE_NORMALIZED
 
                 // Set up data capture callback
@@ -73,6 +88,9 @@ class AudioVisualizerService @Inject constructor(
                 enabled = true
                 _isEnabled.value = true
             }
+            
+            // Only set currentPlayer after successful attachment
+            currentPlayer = player
         } catch (e: Exception) {
             _visualizerState.value = _visualizerState.value.copy(
                 error = "Failed to attach visualizer: ${e.message}"
@@ -127,10 +145,12 @@ class AudioVisualizerService @Inject constructor(
 
         val bassEnd = (numBands * 0.1).toInt()
         val midEnd = (numBands * 0.5).toInt()
+        
+        fun avgOrZero(xs: List<Float>) = if (xs.isEmpty()) 0f else xs.average().toFloat()
 
-        val bass = magnitudes.take(bassEnd).average().toFloat()
-        val mid = magnitudes.subList(bassEnd, midEnd).average().toFloat()
-        val treble = magnitudes.subList(midEnd, numBands).average().toFloat()
+        val bass = avgOrZero(magnitudes.take(bassEnd))
+        val mid = avgOrZero(magnitudes.subList(bassEnd, midEnd))
+        val treble = avgOrZero(magnitudes.subList(midEnd, numBands))
 
         return FrequencyBands(
             bass = normalizeLevel(bass),
@@ -174,12 +194,18 @@ class AudioVisualizerService @Inject constructor(
             visualizer?.enabled = false
             visualizer?.release()
             visualizer = null
+            currentPlayer = null
             _isEnabled.value = false
             _visualizerState.value = VisualizerState()
         } catch (e: Exception) {
-            // Ignore release errors
+            android.util.Log.w("AudioVisualizerService", "Error releasing visualizer", e)
         }
     }
+    
+    /**
+     * Get the currently attached player
+     */
+    fun getCurrentPlayer(): ExoPlayer? = currentPlayer
 }
 
 /**

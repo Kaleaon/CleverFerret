@@ -31,8 +31,13 @@ jobs:
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: 11076708
-        accept-android-sdk-licenses: true
-        packages: platforms;android-34 build-tools;34.0.0 platform-tools
+        
+    - name: Install required Android SDK packages
+      run: |
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+        echo "Installed SDK packages:"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:
@@ -121,12 +126,20 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
         
+    - name: Build Android App
+      uses: sparkfabrik/android-build-action@v1.5.0
+        
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
         cmdline-tools-version: 11076708
-        accept-android-sdk-licenses: true
-        packages: platforms;android-34 build-tools;34.0.0 platform-tools
+        
+    - name: Install required Android SDK packages
+      run: |
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+        echo "Installed SDK packages:"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
       uses: actions/cache@v4
       with:

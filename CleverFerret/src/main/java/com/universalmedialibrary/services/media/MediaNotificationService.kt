@@ -47,7 +47,9 @@ class MediaNotificationService : MediaSessionService() {
     /**
      * Artwork loader for notification images.
      * Currently null - requires manual initialization when artwork feature is implemented.
-     * TODO: Implement proper initialization strategy (manual factory or lazy initialization)
+     * TODO: Initialize ArtworkLoader using Hilt injection or factory:
+     * @Inject lateinit var artworkLoaderFactory: ArtworkLoader.Factory
+     * Then: artworkLoader = artworkLoaderFactory.create(context)
      */
     private var artworkLoader: ArtworkLoader? = null
 
@@ -91,8 +93,10 @@ class MediaNotificationService : MediaSessionService() {
         super.onCreate()
         createNotificationChannel()
 
-        // TODO: Get MediaSession from proper source
+        // TODO: Inject MediaSessionManager and get MediaSession:
+        // @Inject lateinit var mediaSessionManager: MediaSessionManager
         // mediaSession = mediaSessionManager.getMediaSession()
+        // This enables proper Media3 integration with playback controls
 
         // Start as foreground service with initial notification
         val notification = createMediaNotification(
@@ -177,7 +181,8 @@ class MediaNotificationService : MediaSessionService() {
     ) {
         serviceScope.launch {
             // Load artwork with notification-appropriate size (512x512)
-            // TODO: Initialize artworkLoader properly when this feature is implemented
+            // TODO: Ensure artworkLoader is initialized before calling this method
+            // Initialize in onCreate: artworkLoader = ArtworkLoader(context, defaultSize = 512)
             val artwork = artworkLoader?.let { loader ->
                 loader.loadArtwork(
                     mediaItem = mediaItem,
@@ -293,7 +298,9 @@ class MediaNotificationService : MediaSessionService() {
         // Set MediaSession token if available
         // Note: Media3's MediaSession doesn't expose sessionCompatToken directly
         // The notification will still work without it, but media controls may be limited
-        // TODO: Investigate proper Media3 notification integration with MediaNotificationManager
+        // TODO: Use Media3's MediaNotificationManager instead of custom notification:
+        // val notificationManager = DefaultMediaNotificationProvider(this)
+        // This provides better integration with system media controls
 
         builder.setStyle(mediaStyle)
 

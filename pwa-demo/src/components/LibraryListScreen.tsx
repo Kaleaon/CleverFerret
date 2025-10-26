@@ -33,11 +33,13 @@ import {
   VideoLibrary as VideoIcon,
   LibraryMusic as LibraryMusicIcon,
   Collections as CollectionsIcon,
+  FolderOpen as FolderOpenIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/app-store';
 import { DownloadService } from '../services/database';
 import { Library } from '../types';
+import { FileUtils } from '../utils/FileUtils';
 
 // Plex-inspired library card component
 const LibraryCard: React.FC<{
@@ -56,6 +58,10 @@ const LibraryCard: React.FC<{
     switch (library.type) {
       case 'BOOK':
         return <BookIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'AUDIOBOOK':
+        return <LibraryMusicIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
+      case 'COMIC':
+        return <CollectionsIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
       case 'MOVIE':
         return <VideoIcon sx={{ fontSize: 40, color: '#ffffff' }} />;
       case 'MUSIC':
@@ -73,6 +79,10 @@ const LibraryCard: React.FC<{
     switch (library.type) {
       case 'BOOK':
         return 'linear-gradient(135deg, #2C5F2D 0%, #97BC62 100%)';
+      case 'AUDIOBOOK':
+        return 'linear-gradient(135deg, #00695C 0%, #4DB6AC 100%)';
+      case 'COMIC':
+        return 'linear-gradient(135deg, #F57C00 0%, #FFB74D 100%)';
       case 'MOVIE':
         return 'linear-gradient(135deg, #1565C0 0%, #42A5F5 100%)';
       case 'MUSIC':
@@ -268,6 +278,23 @@ const AddLibraryDialog: React.FC<{
   const [name, setName] = useState('');
   const [type, setType] = useState<Library['type']>('BOOK');
   const [path, setPath] = useState('');
+  const [isDirectoryPickerSupported, setIsDirectoryPickerSupported] = useState(false);
+
+  useEffect(() => {
+    // Check support when dialog opens
+    setIsDirectoryPickerSupported(FileUtils.isDirectoryPickerSupported());
+  }, [open]);
+
+  const handleBrowseFolder = async () => {
+    if (!isDirectoryPickerSupported) {
+      alert('Folder picker is not supported in this browser. Please use Chrome or Edge, or enter the path manually.');
+      return;
+    }
+    const dirHandle = await FileUtils.pickDirectory();
+    if (dirHandle) {
+      setPath(dirHandle.name);
+    }
+  };
 
   const handleSubmit = () => {
     if (name.trim()) {
@@ -280,6 +307,8 @@ const AddLibraryDialog: React.FC<{
 
   const mediaTypes = [
     { value: 'BOOK', label: 'Books', icon: '📚' },
+    { value: 'AUDIOBOOK', label: 'Audiobooks', icon: '🎧' },
+    { value: 'COMIC', label: 'Comics', icon: '📗' },
     { value: 'MOVIE', label: 'Movies & TV', icon: '🎬' },
     { value: 'MUSIC', label: 'Music', icon: '🎵' },
     { value: 'PODCAST', label: 'Podcasts', icon: '🎙️' },
@@ -354,21 +383,42 @@ const AddLibraryDialog: React.FC<{
             </MenuItem>
           ))}
         </TextField>
-        <TextField
-          margin="normal"
-          label="Library Path (optional)"
-          fullWidth
-          variant="outlined"
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
-          placeholder="/path/to/library"
-          helperText="Optional path to your media files on disk"
-          sx={{
-            '& .MuiOutlinedInput-root': {
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+          <TextField
+            margin="normal"
+            label="Library Path (optional)"
+            fullWidth
+            variant="outlined"
+            value={path}
+            onChange={(e) => setPath(e.target.value)}
+            placeholder="/path/to/library"
+            helperText="Click Browse to select a folder or type path manually"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              },
+            }}
+          />
+          <Button
+            variant="outlined"
+            onClick={handleBrowseFolder}
+            startIcon={<FolderOpenIcon />}
+            sx={{
+              mt: 2,
+              minWidth: 120,
+              height: 56,
               borderRadius: 2,
-            },
-          }}
-        />
+              borderColor: '#2d3136',
+              color: 'text.secondary',
+              '&:hover': {
+                borderColor: 'primary.main',
+                bgcolor: 'rgba(229, 160, 13, 0.1)',
+              },
+            }}
+          >
+            Browse
+          </Button>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 2, gap: 2 }}>
         <Button
@@ -568,6 +618,21 @@ export const LibraryListScreen: React.FC = () => {
               }}
             >
               ⬇️ Queue Demo Download
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleMenuClose();
+                navigate('/radio');
+              }}
+              sx={{
+                py: 1.5,
+                px: 2,
+                '&:hover': {
+                  bgcolor: 'secondary.main',
+                },
+              }}
+            >
+              📻 Streaming Radio
             </MenuItem>
             <MenuItem
               onClick={() => {

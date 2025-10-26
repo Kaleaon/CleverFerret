@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import java.util.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.preferences.*
@@ -131,7 +132,7 @@ fun ReadingPreferencesScreen(
                     value = audiobookPrefs.playbackSpeed,
                     valueRange = 0.5f..2.5f,
                     onValueChange = { viewModel.updatePlaybackSpeed(it) },
-                    valueDisplay = "${String.format("%.2f", audiobookPrefs.playbackSpeed)}x"
+                    valueDisplay = "${String.format(Locale.getDefault(), "%.2f", audiobookPrefs.playbackSpeed)}x"
                 )
                 
                 SliderPreference(
@@ -451,15 +452,15 @@ class ReadingPreferencesViewModel @Inject constructor(
     // Backup/Restore
     fun createBackup() {
         viewModelScope.launch {
-            // TODO: Re-enable when backup service is operational
-            // val path = backupService.createAutomaticBackup()
-            Log.w("ReadingPreferencesViewModel", "Backup service currently disabled")
-            // TODO: Show toast/snackbar with result
+            // TODO: Integrate SettingsBackupService.exportToStorage() and handle Result
+            // TODO: Show snackbar with success/error message using SnackbarHostState
+            Log.w("ReadingPreferencesViewModel", "Backup service integration pending")
         }
     }
 
     fun showRestoreDialog() {
-        // TODO: Show file picker for backup selection
+        // TODO: Show Android file picker using ActivityResultContracts.OpenDocument
+        // TODO: Pass selected file URI to SettingsBackupService.importFromFile()
     }
 
     fun resetToDefaults() {

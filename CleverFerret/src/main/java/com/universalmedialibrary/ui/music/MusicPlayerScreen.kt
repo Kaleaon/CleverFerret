@@ -7,7 +7,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.RepeatOne
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Timer
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,6 +42,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.services.music.TrackInfo
+import kotlinx.coroutines.isActive
 import kotlin.math.roundToInt
 
 /**
@@ -46,19 +61,33 @@ fun MusicPlayerScreen(
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val playlistMode by viewModel.playlistMode.collectAsStateWithLifecycle()
     val queue by viewModel.queue.collectAsStateWithLifecycle()
+    val playbackSpeed by viewModel.playbackSpeed.collectAsStateWithLifecycle()
+    val volume by viewModel.volume.collectAsStateWithLifecycle()
+    val equalizerPreset by viewModel.equalizerPreset.collectAsStateWithLifecycle()
+    val isFavorite by viewModel.isFavorite.collectAsStateWithLifecycle()
+    val sleepTimerState by viewModel.sleepTimerState.collectAsStateWithLifecycle()
 
     var currentPosition by remember { mutableLongStateOf(0L) }
     var isDragging by remember { mutableStateOf(false) }
+    
+    // Dialog states
+    var showSpeedDialog by remember { mutableStateOf(false) }
+    var showVolumeDialog by remember { mutableStateOf(false) }
+    var showEqualizerDialog by remember { mutableStateOf(false) }
+    var showSleepTimerDialog by remember { mutableStateOf(false) }
+    var showAddToPlaylistDialog by remember { mutableStateOf(false) }
 
     // Update position periodically when playing
     LaunchedEffect(playbackState.isPlaying) {
-        if (playbackState.isPlaying) {
-            while (playbackState.isPlaying) {
+        while (playbackState.isPlaying && isActive) {
+            try {
                 if (!isDragging) {
                     currentPosition = viewModel.getCurrentPosition()
                 }
-                kotlinx.coroutines.delay(1000)
+            } catch (e: Exception) {
+                // Handle position update error
             }
+            kotlinx.coroutines.delay(1000)
         }
     }
 
@@ -88,8 +117,54 @@ fun MusicPlayerScreen(
                     com.universalmedialibrary.ui.visualizer.VisualizerButton(
                         onClick = onNavigateToVisualizer
                     )
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    
+                    // Sleep timer indicator
+                    if (sleepTimerState.isActive) {
+                        IconButton(onClick = { showSleepTimerDialog = true }) {
+                            Badge(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ) {
+                                Text(sleepTimerState.minutesRemaining.toString())
+                            }
+                            Icon(Icons.Default.Timer, contentDescription = "Sleep Timer Active")
+                        }
+                    }
+                    
+                    // More menu
+                    var showMoreMenu by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { showMoreMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More")
+                        }
+                        DropdownMenu(
+                            expanded = showMoreMenu,
+                            onDismissRequest = { showMoreMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Add to Playlist") },
+                                onClick = {
+                                    showAddToPlaylistDialog = true
+                                    showMoreMenu = false
+                                },
+                                leadingIcon = { Icon(Icons.Default.Add, null) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Playback Speed") },
+                                onClick = {
+                                    showSpeedDialog = true
+                                    showMoreMenu = false
+                                },
+                                leadingIcon = { Icon(Icons.Default.Speed, null) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Sleep Timer") },
+                                onClick = {
+                                    showSleepTimerDialog = true
+                                    showMoreMenu = false
+                                },
+                                leadingIcon = { Icon(Icons.Default.Timer, null) }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -164,6 +239,8 @@ fun MusicPlayerScreen(
                     onSkipPrevious = viewModel::skipToPrevious,
                     onSkipNext = viewModel::skipToNext,
                     onToggleMode = viewModel::togglePlaylistMode,
+                    isFavorite = isFavorite,
+                    onToggleFavorite = viewModel::toggleFavorite,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
@@ -171,9 +248,9 @@ fun MusicPlayerScreen(
 
                 // Secondary Controls
                 SecondaryControlsSection(
-                    onVolumeClick = { },
-                    onEqualizerClick = { },
-                    onShareClick = { },
+                    onVolumeClick = { showVolumeDialog = true },
+                    onEqualizerClick = { showEqualizerDialog = true },
+                    onShareClick = viewModel::shareTrack,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
@@ -214,9 +291,54 @@ fun MusicPlayerScreen(
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
-                // TODO: Show error snackbar
+                // TODO: Add SnackbarHostState parameter to MusicPlayerScreen
+                // Then show error: snackbarHostState.showSnackbar(
+                //   message = playbackState.error ?: "Playback error",
+                //   duration = SnackbarDuration.Long
+                // )
             }
         }
+    }
+    
+    // Dialogs
+    if (showSpeedDialog) {
+        PlaybackSpeedDialog(
+            currentSpeed = playbackSpeed,
+            onSpeedSelected = viewModel::setPlaybackSpeed,
+            onDismiss = { showSpeedDialog = false }
+        )
+    }
+    
+    if (showVolumeDialog) {
+        VolumeDialog(
+            currentVolume = volume,
+            onVolumeChange = viewModel::setVolume,
+            onDismiss = { showVolumeDialog = false }
+        )
+    }
+    
+    if (showEqualizerDialog) {
+        EqualizerDialog(
+            currentPreset = equalizerPreset,
+            onPresetSelected = viewModel::setEqualizerPreset,
+            onDismiss = { showEqualizerDialog = false }
+        )
+    }
+    
+    if (showSleepTimerDialog) {
+        SleepTimerDialog(
+            onTimerSet = viewModel::startSleepTimer,
+            onDismiss = { showSleepTimerDialog = false }
+        )
+    }
+    
+    if (showAddToPlaylistDialog) {
+        AddToPlaylistDialog(
+            playlists = emptyList(), // TODO: Load actual playlists
+            onPlaylistSelected = { /* TODO: Add to playlist */ },
+            onCreateNew = { /* TODO: Create new playlist */ },
+            onDismiss = { showAddToPlaylistDialog = false }
+        )
     }
 }
 
@@ -366,6 +488,8 @@ private fun ControlButtonsSection(
     onSkipPrevious: () -> Unit,
     onSkipNext: () -> Unit,
     onToggleMode: () -> Unit,
+    isFavorite: Boolean = false,
+    onToggleFavorite: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -427,13 +551,14 @@ private fun ControlButtonsSection(
 
         // Add to Favorites
         IconButton(
-            onClick = { },
+            onClick = onToggleFavorite,
             modifier = Modifier.size(48.dp)
         ) {
             Icon(
-                Icons.Default.FavoriteBorder,
+                if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                 contentDescription = "Favorite",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = if (isFavorite) MaterialTheme.colorScheme.primary 
+                       else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

@@ -35,6 +35,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    
+    <!-- Android Auto - MEDIA_CONTENT_CONTROL removed as it's only granted to system apps -->
 
     <application
         android:name=".CleverFerretApplication"
@@ -69,6 +71,23 @@
             android:launchMode="singleTask"
             android:screenOrientation="fullSensor"
             android:theme="@style/Theme.CleverFerretMediaLibrary" />
+            
+        <!-- Android Auto MediaBrowserService -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+            
+        <service
+            android:name=".services.auto.AutoMediaBrowserService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name=".MainActivity"

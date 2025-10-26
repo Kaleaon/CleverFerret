@@ -28,6 +28,11 @@ import {
   Avatar,
   TextField,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -48,6 +53,8 @@ export const MusicLibraryScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [tracks, setTracks] = useState<MediaItem[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [feedUrl, setFeedUrl] = useState('');
 
   useEffect(() => {
     loadMusicData();
@@ -212,4 +219,4 @@ export const MusicLibraryScreen: React.FC = () => {
   );
 };
 
-export default PodcastManagerScreen;
+export default MusicLibraryScreen;

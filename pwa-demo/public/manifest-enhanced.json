@@ -1,0 +1,207 @@
+{
+  "id": "/",
+  "name": "CleverFerret - Universal Media Manager",
+  "short_name": "CleverFerret",
+  "description": "A comprehensive Progressive Web App for managing and organizing your personal library of books, movies, music, comics, podcasts, and more. Features AI-powered metadata enhancement, advanced file system integration, offline support, and cross-platform synchronization.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "background_color": "#010919",
+  "theme_color": "#ffc300",
+  "orientation": "any",
+  "lang": "en",
+  "dir": "ltr",
+  
+  "icons": [
+    {
+      "src": "./icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  
+  "categories": ["books", "entertainment", "lifestyle", "productivity", "utilities", "education"],
+  
+  "screenshots": [
+    {
+      "src": "./screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Home screen showing media library overview"
+    },
+    {
+      "src": "./screenshots/mobile-library.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view of book library with search"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "My Libraries",
+      "short_name": "Libraries",
+      "description": "View and manage your media libraries",
+      "url": "/",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Add Media",
+      "short_name": "Add",
+      "description": "Add new media to your library",
+      "url": "/?action=add",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Import Files",
+      "short_name": "Import",
+      "description": "Import media files from your device",
+      "url": "/?action=import",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "description": "Configure app preferences and sync",
+      "url": "/?action=settings",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  
+  "protocol_handlers": [
+    {
+      "protocol": "web+cleverferret",
+      "url": "/?url=%s"
+    },
+    {
+      "protocol": "web+opds",
+      "url": "/?opds=%s"
+    }
+  ],
+  
+  "share_target": {
+    "action": "/import",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "application/epub+zip",
+            "application/pdf",
+            "audio/mpeg",
+            "audio/mp4",
+            "audio/flac",
+            "audio/wav",
+            "audio/ogg",
+            "video/mp4",
+            "video/x-matroska",
+            "video/quicktime",
+            "image/jpeg",
+            "image/png",
+            "application/x-cbr",
+            "application/x-cbz",
+            "application/x-sqlite3",
+            "text/plain",
+            "application/json"
+          ]
+        }
+      ]
+    }
+  },
+  
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "application/epub+zip": [".epub"],
+        "application/pdf": [".pdf"],
+        "audio/mpeg": [".mp3"],
+        "audio/mp4": [".m4a", ".aac"],
+        "audio/flac": [".flac"],
+        "audio/wav": [".wav"],
+        "audio/ogg": [".ogg"],
+        "video/mp4": [".mp4"],
+        "video/x-matroska": [".mkv"],
+        "video/quicktime": [".mov"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "image/png": [".png"],
+        "application/x-cbr": [".cbr"],
+        "application/x-cbz": [".cbz"],
+        "application/x-sqlite3": [".db"],
+        "text/plain": [".txt", ".md"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  
+  "handle_links": "preferred",
+  
+  "prefer_related_applications": false,
+  
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.universalmedialibrary",
+      "id": "com.universalmedialibrary"
+    }
+  ]
+}

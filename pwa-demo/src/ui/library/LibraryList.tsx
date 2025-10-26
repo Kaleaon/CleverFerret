@@ -72,6 +72,8 @@ export const LibraryListScreen: React.FC = () => {
         path: newLibraryPath,
         source: 'LOCAL',
         description: undefined,
+        dateModified: Date.now(),
+        isActive: true,
       });
       setShowCreateDialog(false);
       setNewLibraryName('');

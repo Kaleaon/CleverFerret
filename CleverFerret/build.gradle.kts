@@ -16,12 +16,12 @@ plugins {
 
 android {
     namespace = "com.universalmedialibrary"
-    compileSdk = 36  // Required by AndroidX Core 1.17.0+ dependencies
+    compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
-        targetSdk = 34
+        targetSdk = 36  // Android 15 (latest)
         versionCode = 1
         versionName = "1.0"
 
@@ -46,12 +46,12 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
         isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
         freeCompilerArgs += listOf(
             "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
         )
@@ -177,6 +177,9 @@ dependencies {
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
+    // ML Kit for text recognition and OCR
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+    
     // Media metadata extraction libraries
     // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library
     // Replaces old epublib with actively-maintained, feature-rich toolkit
@@ -188,10 +191,24 @@ dependencies {
     
     // Testing
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.3.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    testImplementation("org.mockito:mockito-core:5.14.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+    testImplementation("androidx.test:core:1.6.1")
+    testImplementation("androidx.test:core-ktx:1.6.1")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation("androidx.test.ext:junit:1.2.1")
+    testImplementation("androidx.test.ext:junit-ktx:1.2.1")
+    testImplementation("com.google.truth:truth:1.4.4")
+    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("io.mockk:mockk-android:1.13.13")
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.10.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("org.mockito:mockito-android:5.14.2")
+    androidTestImplementation("io.mockk:mockk-android:1.13.13")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

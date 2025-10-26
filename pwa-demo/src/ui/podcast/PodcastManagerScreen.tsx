@@ -18,7 +18,6 @@ import {
   Card,
   CardMedia,
   CardContent,
-  CardActionArea,
   Grid,
   Button,
   Chip,
@@ -54,7 +53,7 @@ export const PodcastManagerScreen: React.FC = () => {
   }, []);
 
   const loadPodcasts = async () => {
-    const subs = await db.podcasts.where('isSubscribed').equals(true).toArray();
+    const subs = await db.podcasts.where('isSubscribed').equals(1).toArray();
     setPodcasts(subs);
   };
 
@@ -126,11 +125,16 @@ export const PodcastManagerScreen: React.FC = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Podcasts
           </Typography>
+          <Button
+            color="inherit"
+            startIcon={<Search />}
+            onClick={() => navigate('/podcasts/discover')}
+            sx={{ mr: 1 }}
+          >
+            Discover
+          </Button>
           <IconButton color="inherit" onClick={() => setShowAddDialog(true)}>
             <Add />
-          </IconButton>
-          <IconButton color="inherit">
-            <Search />
           </IconButton>
         </Toolbar>
         <Tabs
@@ -149,35 +153,36 @@ export const PodcastManagerScreen: React.FC = () => {
           <Grid container spacing={2}>
             {podcasts.map((podcast) => (
               <Grid item xs={12} sm={6} md={4} key={podcast.id}>
-                <Card>
-                  <CardActionArea onClick={() => navigate(`/podcast/${podcast.id}`)}>
-                    {podcast.imageUrl && (
-                      <CardMedia
-                        component="img"
-                        height="200"
-                        image={podcast.imageUrl}
-                        alt={podcast.title}
-                      />
-                    )}
-                    <CardContent>
-                      <Typography variant="h6" noWrap>
-                        {podcast.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {podcast.author}
-                      </Typography>
-                      <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-                        <Chip size="small" label={`${podcast.totalEpisodes} episodes`} />
-                        {podcast.newEpisodeCount > 0 && (
-                          <Chip
-                            size="small"
-                            label={`${podcast.newEpisodeCount} new`}
-                            color="primary"
-                          />
-                        )}
-                      </Box>
-                    </CardContent>
-                  </CardActionArea>
+                <Card 
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => navigate(`/podcast/${podcast.id}`)}
+                >
+                  {podcast.imageUrl && (
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={podcast.imageUrl}
+                      alt={podcast.title}
+                    />
+                  )}
+                  <CardContent>
+                    <Typography variant="h6" noWrap>
+                      {podcast.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" noWrap>
+                      {podcast.author}
+                    </Typography>
+                    <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
+                      <Chip size="small" label={`${podcast.totalEpisodes} episodes`} />
+                      {podcast.newEpisodeCount > 0 && (
+                        <Chip
+                          size="small"
+                          label={`${podcast.newEpisodeCount} new`}
+                          color="primary"
+                        />
+                      )}
+                    </Box>
+                  </CardContent>
                 </Card>
               </Grid>
             ))}
@@ -191,14 +196,22 @@ export const PodcastManagerScreen: React.FC = () => {
                   <Typography variant="body2" color="text.secondary" gutterBottom>
                     Subscribe to your favorite podcasts
                   </Typography>
-                  <Button
-                    variant="contained"
-                    startIcon={<Add />}
-                    onClick={() => setShowAddDialog(true)}
-                    sx={{ mt: 2 }}
-                  >
-                    Add Podcast
-                  </Button>
+                  <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<Search />}
+                      onClick={() => navigate('/podcasts/discover')}
+                    >
+                      Discover Podcasts
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Add />}
+                      onClick={() => setShowAddDialog(true)}
+                    >
+                      Add by URL
+                    </Button>
+                  </Box>
                 </Box>
               </Grid>
             )}

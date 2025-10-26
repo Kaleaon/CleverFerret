@@ -11,13 +11,13 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 
 // Screens - these will be created as we migrate
-import LibraryListScreen from './components/LibraryListScreen';
-import LibraryDetailsScreen from './components/LibraryDetailsScreen';
-import MediaViewerScreen from './components/MediaViewerScreen';
-import MetadataEditorScreen from './components/MetadataEditorScreen';
-import ServerIntegrationScreen from './components/ServerIntegrationScreen';
-import SettingsScreen from './components/SettingsScreen';
-import ThemePreviewScreen from './components/ThemePreviewScreen';
+import { LibraryListScreen } from './components/LibraryListScreen';
+import { LibraryDetailsScreen } from './components/LibraryDetailsScreen';
+import { MediaViewerScreen } from './components/MediaViewerScreen';
+import { MetadataEditorScreen } from './components/MetadataEditorScreen';
+import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
+import { SettingsScreen } from './components/SettingsScreen';
+import { ThemePreviewScreen } from './components/ThemePreviewScreen';
 
 // Additional screens to be migrated
 // import MediaItemDetailScreen from './ui/detail/MediaItemDetailScreen';

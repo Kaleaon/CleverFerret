@@ -6,11 +6,13 @@ import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.PlaylistItem
+import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.firstOrNull
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,7 +33,8 @@ class AudiobookPlaylistManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playlistDao: PlaylistDao,
     private val mediaItemDao: MediaItemDao,
-    private val queueManager: UnifiedPlaybackQueueManager
+    private val queueManager: UnifiedPlaybackQueueManager,
+    private val historyRepository: HistoryRepository
 ) {
 
     /**
@@ -289,8 +292,20 @@ class AudiobookPlaylistManager @Inject constructor(
      * Continue series from where left off
      */
     suspend fun continueSeries(playlistId: Long) {
-        // TODO: Integrate with reading progress to find last read book
-        startPlaylist(playlistId, 0)
+        // Get playlist items
+        val playlistItems = playlistDao.getPlaylistItemsFlow(playlistId).first()
+        
+        // Find last read book from progress
+        var startIndex = 0
+        for ((index, item) in playlistItems.withIndex()) {
+            val progress = historyRepository.getReadingProgress(item.mediaItemId).firstOrNull()
+            if (progress != null && progress.percentage < 95.0f) {
+                startIndex = index
+                break
+            }
+        }
+        
+        startPlaylist(playlistId, startIndex)
     }
 
     /**

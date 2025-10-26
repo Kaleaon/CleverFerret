@@ -75,7 +75,7 @@ data class SyncState(
     val errorMessage: String? = null
 )
 
-data class SyncConflict(
+data class CloudSyncConflict(
     val itemId: String,
     val itemType: String,          // "reading_position", "annotation", "setting"
     val localData: Any,
@@ -105,8 +105,8 @@ class CloudSyncService @Inject constructor(
     private val _syncState = MutableStateFlow(SyncState())
     val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
 
-    private val _conflicts = MutableStateFlow<List<SyncConflict>>(emptyList())
-    val conflicts: StateFlow<List<SyncConflict>> = _conflicts.asStateFlow()
+    private val _conflicts = MutableStateFlow<List<CloudSyncConflict>>(emptyList())
+    val conflicts: StateFlow<List<CloudSyncConflict>> = _conflicts.asStateFlow()
 
     private val pendingSyncItems = mutableListOf<SyncItem>()
 
@@ -385,8 +385,8 @@ class CloudSyncService @Inject constructor(
     private fun identifyConflicts(
         localItems: List<SyncItem>,
         remoteItems: List<SyncItem>
-    ): List<SyncConflict> {
-        val conflicts = mutableListOf<SyncConflict>()
+    ): List<CloudSyncConflict> {
+        val conflicts = mutableListOf<CloudSyncConflict>()
 
         val remoteMap = remoteItems.associateBy { it.id }
 
@@ -395,7 +395,7 @@ class CloudSyncService @Inject constructor(
             if (remote != null && remote.timestamp != local.timestamp) {
                 // Conflict detected
                 conflicts.add(
-                    SyncConflict(
+                    CloudSyncConflict(
                         itemId = local.id,
                         itemType = local.type,
                         localData = local.data,
@@ -413,7 +413,7 @@ class CloudSyncService @Inject constructor(
     /**
      * Resolve conflicts automatically using last-write-wins
      */
-    private suspend fun resolveConflictsAutomatically(conflicts: List<SyncConflict>) {
+    private suspend fun resolveConflictsAutomatically(conflicts: List<CloudSyncConflict>) {
         conflicts.forEach { conflict ->
             if (conflict.remoteTimestamp > conflict.localTimestamp) {
                 // Remote wins
@@ -436,7 +436,7 @@ class CloudSyncService @Inject constructor(
     /**
      * Resolve conflicts with local wins
      */
-    private suspend fun resolveConflictsLocalWins(conflicts: List<SyncConflict>) {
+    private suspend fun resolveConflictsLocalWins(conflicts: List<CloudSyncConflict>) {
         // Keep local version, overwrite remote
         // Pending items will be uploaded
     }
@@ -444,7 +444,7 @@ class CloudSyncService @Inject constructor(
     /**
      * Resolve conflicts with remote wins
      */
-    private suspend fun resolveConflictsRemoteWins(conflicts: List<SyncConflict>) {
+    private suspend fun resolveConflictsRemoteWins(conflicts: List<CloudSyncConflict>) {
         conflicts.forEach { conflict ->
             val remoteItem = SyncItem(
                 id = conflict.itemId,
@@ -461,7 +461,7 @@ class CloudSyncService @Inject constructor(
     /**
      * Attempt to merge conflicts
      */
-    private suspend fun mergeConflicts(conflicts: List<SyncConflict>) {
+    private suspend fun mergeConflicts(conflicts: List<CloudSyncConflict>) {
         conflicts.forEach { conflict ->
             val merged = when (conflict.itemType) {
                 "reading_position" -> mergeReadingPosition(conflict)
@@ -474,7 +474,7 @@ class CloudSyncService @Inject constructor(
         }
     }
 
-    private fun mergeReadingPosition(conflict: SyncConflict): SyncItem? {
+    private fun mergeReadingPosition(conflict: CloudSyncConflict): SyncItem? {
         // Use the furthest reading position
         val localProgress = (conflict.localData as Map<*, *>)["progress"] as? Float ?: 0f
         val remoteProgress = (conflict.remoteData as Map<*, *>)["progress"] as? Float ?: 0f
@@ -492,12 +492,12 @@ class CloudSyncService @Inject constructor(
         }
     }
 
-    private fun mergeAnnotation(conflict: SyncConflict): SyncItem? {
+    private fun mergeAnnotation(conflict: CloudSyncConflict): SyncItem? {
         // Annotations are merged by keeping both
         return null // Manual resolution needed
     }
 
-    private fun mergeSettings(conflict: SyncConflict): SyncItem? {
+    private fun mergeSettings(conflict: CloudSyncConflict): SyncItem? {
         // Merge settings by combining non-conflicting values
         val local = conflict.localData as? Map<*, *> ?: return null
         val remote = conflict.remoteData as? Map<*, *> ?: return null

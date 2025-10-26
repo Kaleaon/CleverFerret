@@ -610,6 +610,7 @@ data class UnifiedPlaybackState(
     val currentPositionMs: Long = 0,
     val duration: Long = 0,
     val playbackSpeed: Float = 1.0f,
+    val albumArtUrl: String? = null,
     val error: String? = null
 ) {
     val hasError: Boolean get() = error != null

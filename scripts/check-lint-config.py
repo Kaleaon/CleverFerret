@@ -19,8 +19,7 @@ class LintConfigChecker:
         if settings_file.exists():
             try:
                 content = settings_file.read_text()
-                import re as _re
-                m = _re.search(r'include\(\s*"\s*:(.+?)\s*"\s*\)', content)
+                m = re.search(r'include\(\s*"\s*:(.+?)\s*"\s*\)', content)
                 if m:
                     module_name = m.group(1)
             except Exception:
