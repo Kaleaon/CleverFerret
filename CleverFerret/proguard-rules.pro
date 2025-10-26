@@ -1,9 +1,18 @@
-# Add project specific ProGuard rules here.
-# By default, the shrinker preserves all classes that have a public entry point (such as activities, services, etc.).
-# You can add additional rules here for specific classes that you want to keep.
-#
-# For more information, see the Android documentation:
+#======================================
+# CleverFerret ProGuard Rules
+#======================================
+# Project-specific rules for code shrinking and obfuscation
+# 
+# These rules ensure:
+# - Proper preservation of framework classes
+# - Room database functionality
+# - Hilt dependency injection
+# - Compose UI rendering
+# - Network operations with Retrofit/OkHttp
+# 
+# For more information:
 # https://developer.android.com/studio/build/shrink-code
+#======================================
 
 # Keep Android and AndroidX classes
 -keep class android.** { *; }

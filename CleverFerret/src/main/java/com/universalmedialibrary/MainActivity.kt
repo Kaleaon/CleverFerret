@@ -10,7 +10,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -60,7 +72,13 @@ import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 
 
-// Sample library data class for demonstration
+/**
+ * Sample library data class for demonstration purposes.
+ * 
+ * @property name Display name of the library
+ * @property type Media type (BOOK, MOVIE, MUSIC, etc.)
+ * @property libraryId Unique identifier for the library
+ */
 data class SampleLibrary(
     val name: String,
     val type: String,
@@ -69,8 +87,18 @@ data class SampleLibrary(
 
 
 /**
- * The main and only activity of the application, serving as the entry point for the UI.
- * It is annotated with [AndroidEntryPoint] to enable Hilt dependency injection.
+ * MainActivity - The main and only activity of the application.
+ * 
+ * This activity serves as the entry point for the CleverFerret app's UI,
+ * hosting the entire Compose-based navigation graph. It is annotated with
+ * [AndroidEntryPoint] to enable Hilt dependency injection throughout the app.
+ * 
+ * Key responsibilities:
+ * - Theme configuration based on user settings
+ * - Main navigation setup
+ * - Permission handling
+ * 
+ * @see AppNavigation for the navigation graph structure
  */
 
 @AndroidEntryPoint
@@ -854,6 +882,14 @@ fun LibraryListScreen(
     }
 }
 
+/**
+ * Displays a feature card with an icon, gradient background, and title.
+ * 
+ * @param title The title text to display
+ * @param icon The icon to show in the center of the gradient
+ * @param colors Gradient colors for the card background
+ * @param onClick Callback invoked when the card is clicked
+ */
 @Composable
 fun FeatureCard(
     title: String,
@@ -912,6 +948,12 @@ fun FeatureCard(
     }
 }
 
+/**
+ * Displays a library card with media type-specific gradient colors.
+ * 
+ * @param library The library information to display
+ * @param onClick Callback invoked when the card is clicked
+ */
 @Composable
 fun LibraryCard(library: SampleLibrary, onClick: () -> Unit) {
     val backgroundColor = when (library.type.uppercase()) {
@@ -974,7 +1016,15 @@ fun LibraryCard(library: SampleLibrary, onClick: () -> Unit) {
 }
 
 /**
- * Dialog to select a library for importing Calibre data
+ * Dialog to select a target library for importing Calibre data.
+ * 
+ * Displays all available libraries in a grid format with icons,
+ * allowing users to choose which library to import their Calibre
+ * metadata and books into.
+ * 
+ * @param libraries List of available libraries to choose from
+ * @param onDismiss Callback invoked when the dialog is dismissed
+ * @param onSelect Callback invoked when a library is selected
  */
 @Composable
 fun LibrarySelectionDialog(
@@ -1042,9 +1092,12 @@ fun LibrarySelectionDialog(
     )
 }
 
-// Removed duplicate LibraryCard overload that accepted Library entity to reduce ambiguity
-
-
+/**
+ * Returns the appropriate Material Icon for a given library media type.
+ * 
+ * @param type The media type (BOOK, MOVIE, MUSIC, etc.)
+ * @return Corresponding Material Icon
+ */
 private fun getIconForLibraryType(type: String): ImageVector {
     return when (type.uppercase()) {
 
@@ -1056,7 +1109,14 @@ private fun getIconForLibraryType(type: String): ImageVector {
 }
 
 /**
- * Permission request dialog
+ * Permission request dialog for storage and media access.
+ * 
+ * Displays a user-friendly explanation of why CleverFerret needs
+ * storage permissions, with visual indicators for each permission type.
+ * Adapts for Android 13+ notification permissions and shows rationale
+ * when permissions have been previously denied.
+ * 
+ * @param permissionState Current permission state and request handler
  */
 @Composable
 fun PermissionDialog(

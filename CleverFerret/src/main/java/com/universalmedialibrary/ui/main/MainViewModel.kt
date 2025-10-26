@@ -13,6 +13,17 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * MainViewModel - ViewModel for the main application screen
+ * 
+ * Manages:
+ * - Library list state
+ * - Theme selection and dark mode preferences
+ * - Library creation operations
+ * 
+ * @property libraryDao Data access for library operations
+ * @property settingsRepository Repository for user preferences and settings
+ */
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val libraryDao: LibraryDao,
