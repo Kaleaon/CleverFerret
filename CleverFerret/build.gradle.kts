@@ -14,6 +14,15 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlin:kotlin-stdlib:2.0.20")
+        force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20")
+        force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.20")
+        force("org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20")
+    }
+}
+
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
@@ -80,13 +89,6 @@ android {
 }
 
 dependencies {
-    // Force Kotlin stdlib version to match our Kotlin version
-    constraints {
-        implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.20")
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20")
-        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.20")
-    }
-    
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     
