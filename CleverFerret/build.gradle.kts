@@ -16,12 +16,10 @@ plugins {
 
 configurations.all {
     resolutionStrategy {
-        force("org.jetbrains.kotlin:kotlin-stdlib:2.0.20")
-        force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20")
-        force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.20")
-        force("org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20")
-        force("com.squareup.okhttp3:okhttp:4.12.0")
-        force("com.squareup.okio:okio:3.6.0")  // Last version compiled with Kotlin 2.0
+        force("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
+        force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0")
+        force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0")
+        force("org.jetbrains.kotlin:kotlin-stdlib-common:2.1.0")
     }
 }
 
@@ -132,14 +130,14 @@ dependencies {
     // Basic networking
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.2.1")
     
     // Kotlinx Serialization for Retrofit
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("com.squareup.okhttp3:okhttp:5.2.1")
     
     // Jellyfin SDK
-    implementation("org.jellyfin.sdk:jellyfin-core:1.5.3")
+    implementation("org.jellyfin.sdk:jellyfin-core:1.7.1")
     
     // SMB/CIFS support for network drives
     implementation("eu.agno3.jcifs:jcifs-ng:2.1.10")
