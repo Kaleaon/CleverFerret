@@ -14,6 +14,15 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
+        force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0")
+        force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0")
+        force("org.jetbrains.kotlin:kotlin-stdlib-common:2.1.0")
+    }
+}
+
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
