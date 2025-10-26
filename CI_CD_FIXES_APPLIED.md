@@ -176,7 +176,7 @@ These actions are no longer maintained and may break in future.
 ### Local Build
 - ✅ `./gradlew clean` - successful
 - ✅ `./gradlew compileDebugKotlin` - successful  
-- ✅ `./gradlew assembleDebug` - successful (7m 45s)
+- ✅ `./gradlew assembleDebug` - successful (7m 45s; first build with cold cache)
 
 ---
 

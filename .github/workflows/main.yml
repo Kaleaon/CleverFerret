@@ -428,7 +428,8 @@ jobs:
         draft: false
         prerelease: false
         files: |
-          ./apks/release-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release*.apk
+          ./apks/release-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release.apk
+          ./apks/release-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-release-unsigned.apk
           ./apks/debug-apk/CleverFerret-v${{ needs.build.outputs.version-name }}-debug.apk
           ./apks/release-apk/*.sha256
           ./apks/debug-apk/*.sha256
