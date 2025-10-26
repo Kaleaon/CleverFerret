@@ -35,7 +35,7 @@ jobs:
     - name: Install required Android SDK packages
       run: |
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
         echo "Installed SDK packages:"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
@@ -126,9 +126,6 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: ${{ env.JAVA_DISTRIBUTION }}
         
-    - name: Build Android App
-      uses: sparkfabrik/android-build-action@v1.5.0
-        
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
@@ -137,7 +134,7 @@ jobs:
     - name: Install required Android SDK packages
       run: |
         yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;33.0.2" "platform-tools"
         echo "Installed SDK packages:"
         $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
     - name: Cache Gradle packages
@@ -202,7 +199,7 @@ jobs:
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             "$KEY_ALIAS"
             
-          $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
+          $ANDROID_HOME/build-tools/33.0.2/zipalign -v 4 \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-unsigned.apk \
             CleverFerret/build/outputs/apk/release/CleverFerret-release-signed.apk
             
