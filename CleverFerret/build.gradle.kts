@@ -20,6 +20,8 @@ configurations.all {
         force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20")
         force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.20")
         force("org.jetbrains.kotlin:kotlin-stdlib-common:2.0.20")
+        force("com.squareup.okhttp3:okhttp:4.12.0")
+        force("com.squareup.okio:okio:3.6.0")  // Last version compiled with Kotlin 2.0
     }
 }
 

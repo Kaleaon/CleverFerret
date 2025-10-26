@@ -9,10 +9,11 @@
 - [x] Downgraded dependencies compiled with Kotlin 2.2.0:
   - okhttp logging-interceptor: 5.2.1 → 4.12.0
   - jellyfin-core: 1.7.1 → 1.5.3
-- [x] Added resolutionStrategy to force Kotlin stdlib 2.0.20 across all configurations
+- [x] Added resolutionStrategy to force Kotlin stdlib 2.0.20 and compatible library versions
+- [x] Forced okio to 3.6.0 (last version compiled with Kotlin 2.0)
 - [ ] Testing final fix in CI
 
 ## Current Status
-Using resolutionStrategy.force() to ensure all Kotlin stdlib dependencies use version 2.0.20
+Using resolutionStrategy.force() for Kotlin stdlib, okhttp, and okio to ensure compatibility
 
 **Pull Request:** https://github.com/Kaleaon/CleverFerret/pull/306
