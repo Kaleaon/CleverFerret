@@ -53,7 +53,7 @@ jobs:
       
     - name: Compile project
       id: compile
-      run: ./gradlew compileDebugKotlin --continue
+      run: ./gradlew compileDebugKotlin --continue --stacktrace --info
       continue-on-error: true
       
     - name: Report compilation results
@@ -163,7 +163,7 @@ jobs:
         
     - name: Build debug APK
       id: build-debug
-      run: ./gradlew assembleDebug --continue
+      run: ./gradlew assembleDebug --continue --stacktrace --info
       continue-on-error: true
       
     - name: Report build status
