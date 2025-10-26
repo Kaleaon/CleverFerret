@@ -62,7 +62,7 @@ jobs:
       
       - name: Create issue for new version
         if: steps.compare.outputs.update_available == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const currentVersion = '${{ steps.current.outputs.version }}';
