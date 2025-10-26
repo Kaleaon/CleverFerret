@@ -1,5 +1,9 @@
 <resources>
-    <!-- Base application theme using Android Theme.AppCompat -->
+    <!-- 
+        CleverFerret Material 3 Theme
+        Base application theme with no action bar (using Compose TopAppBar instead)
+        Supports day/night mode with elegant color palette
+    -->
     <style name="Theme.CleverFerretMediaLibrary" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Primary colors -->
         <item name="colorPrimary">@color/primary</item>
