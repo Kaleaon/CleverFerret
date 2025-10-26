@@ -9,9 +9,10 @@
 - [x] Downgraded dependencies compiled with Kotlin 2.2.0:
   - okhttp logging-interceptor: 5.2.1 → 4.12.0
   - jellyfin-core: 1.7.1 → 1.5.3
+- [x] Added dependency constraints to force Kotlin stdlib 2.0.20 (transitive dependencies were pulling 2.2.20)
 - [ ] Testing final fix in CI
 
 ## Current Status
-Working on final fix - using Kotlin 2.0.20 with Hilt 2.53 and compatible dependency versions
+Added Kotlin stdlib version constraints to prevent transitive dependencies from pulling incompatible versions
 
 **Pull Request:** https://github.com/Kaleaon/CleverFerret/pull/306

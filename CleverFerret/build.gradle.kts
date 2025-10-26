@@ -80,6 +80,13 @@ android {
 }
 
 dependencies {
+    // Force Kotlin stdlib version to match our Kotlin version
+    constraints {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.20")
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20")
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.20")
+    }
+    
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     
