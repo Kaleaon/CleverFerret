@@ -128,7 +128,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
     // Jellyfin SDK
-    implementation("org.jellyfin.sdk:jellyfin-core:1.5.4")
+    implementation("org.jellyfin.sdk:jellyfin-core:1.7.1")
     
     // SMB/CIFS support for network drives
     implementation("eu.agno3.jcifs:jcifs-ng:2.1.10")
