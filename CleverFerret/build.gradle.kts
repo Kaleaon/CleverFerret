@@ -146,7 +146,7 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.1.0")
     
     // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     
     // Glance for widgets
     implementation("androidx.glance:glance-appwidget:1.1.1")
@@ -193,7 +193,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.14.2")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("androidx.test:core:1.6.1")
     testImplementation("androidx.test:core-ktx:1.6.1")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
