@@ -186,7 +186,7 @@ glance = [
 ]
 
 [plugins]
-android-application = { id = "com.android.application", version = "8.10.2" }
+android-application = { id = "com.android.application", version = "8.13.0" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
