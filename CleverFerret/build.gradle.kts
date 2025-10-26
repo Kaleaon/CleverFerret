@@ -153,7 +153,7 @@ dependencies {
     implementation("androidx.glance:glance-material3:1.1.1")
     
     // Archives: RAR (CBR) support for comic reader
-    implementation("com.github.junrar:junrar:7.5.5")
+    implementation("com.github.junrar:junrar:7.5.7")
     
     // HTML parsing for web scraping
     implementation("org.jsoup:jsoup:1.21.2")
