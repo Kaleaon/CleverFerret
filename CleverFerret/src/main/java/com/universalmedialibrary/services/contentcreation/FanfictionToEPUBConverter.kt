@@ -60,6 +60,14 @@ class FanfictionToEPUBConverter @Inject constructor(
     }
 
     /**
+     * Result of story conversion
+     */
+    data class ConversionResult(
+        val file: File,
+        val story: Story
+    )
+
+    /**
      * Convert a fanfiction story URL to EPUB
      */
     suspend fun convertStoryToEPUB(
@@ -95,6 +103,41 @@ class FanfictionToEPUBConverter @Inject constructor(
     }
 
     /**
+     * Convert a fanfiction story URL to EPUB with detailed result
+     */
+    suspend fun convertStoryToEPUBWithDetails(
+        storyUrl: String,
+        outputFileName: String? = null
+    ): ConversionResult? = withContext(Dispatchers.IO) {
+        try {
+            val site = FanfictionSite.fromUrl(storyUrl)
+            if (site == null) {
+                return@withContext null
+            }
+
+            val story = when (site) {
+                FanfictionSite.FANFICTION_NET -> fetchFFNetStory(storyUrl)
+                FanfictionSite.ARCHIVE_OF_OUR_OWN -> fetchAO3Story(storyUrl)
+                FanfictionSite.WATTPAD -> fetchWattpadStory(storyUrl)
+            }
+
+            if (story == null) {
+                return@withContext null
+            }
+
+            val fileName = outputFileName ?: "${sanitizeFileName(story.title)}.epub"
+            val outputFile = File(context.filesDir, fileName)
+
+            createEPUB(story, outputFile)
+
+            ConversionResult(outputFile, story)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
      * Fetch story from FanFiction.Net
      */
     private suspend fun fetchFFNetStory(url: String): Story? = withContext(Dispatchers.IO) {
@@ -119,10 +162,14 @@ class FanfictionToEPUBConverter @Inject constructor(
 
             // Fetch all chapters
             val chapters = mutableListOf<Chapter>()
-            val storyId = extractStoryId(url)
+            val storyId = extractStoryId(url) ?: return@withContext null
 
             for (i in 1..chapterCount) {
-                val chapterUrl = if (i == 1) url else url.replace("/s/$storyId/\\d+/".toRegex(), "/s/$storyId/$i/")
+                val chapterUrl = if (i == 1) {
+                    url
+                } else {
+                    url.replace("(/s/$storyId/)(\\d+)(/|$)".toRegex(), "$1$i$3")
+                }
                 val chapter = fetchFFNetChapter(chapterUrl, i)
                 if (chapter != null) {
                     chapters.add(chapter)
@@ -300,9 +347,12 @@ class FanfictionToEPUBConverter @Inject constructor(
      */
     private fun parseFFNetMetadata(text: String): StoryMetadata {
         val parts = text.split(" - ")
+        val commonLanguages = setOf("English", "Spanish", "French", "German", "Italian", "Portuguese", "Russian", "Chinese", "Japanese")
         return StoryMetadata(
             rating = parts.find { it.startsWith("Rated:") }?.removePrefix("Rated: "),
-            language = parts.find { it.matches(Regex("[A-Za-z]+")) && it.length == 2 || it == "English" } ?: "English",
+            language = parts.find { 
+                (it.matches(Regex("[A-Za-z]+")) && it.length == 2) || it in commonLanguages 
+            } ?: "English",
             genre = parts.find { it.contains("/") },
             wordCount = parts.find { it.contains("Words:") }
                 ?.replace("Words:", "")
@@ -578,8 +628,8 @@ hr {
         doc.select("script, style").remove()
 
         // Convert to clean HTML
-        doc.select("br").append("\\n")
-        doc.select("p").prepend("\\n\\n")
+        doc.select("br").append("\n")
+        doc.select("p").prepend("\n\n")
 
         return doc.html()
     }
@@ -589,9 +639,9 @@ hr {
             .take(100) // Limit length
     }
 
-    private fun extractStoryId(url: String): String {
-        val pattern = "/s/(\\d+)/".toRegex()
-        return pattern.find(url)?.groupValues?.get(1) ?: ""
+    private fun extractStoryId(url: String): String? {
+        val pattern = "/s/(\\d+)".toRegex()
+        return pattern.find(url)?.groupValues?.get(1)
     }
 
     private fun escapeXml(text: String): String {
