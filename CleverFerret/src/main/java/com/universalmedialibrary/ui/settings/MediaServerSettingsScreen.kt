@@ -139,6 +139,31 @@ fun MediaServerSettingsScreen(
                     EmptyServerCard("No Emby servers configured")
                 }
             }
+
+            // YAACC (DLNA/UPnP) Servers
+            item {
+                MetallicText(
+                    text = "YAACC (DLNA/UPnP) Servers",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+            }
+
+            items(uiState.yaaccServers) { server ->
+                ServerCard(
+                    serverName = server.name,
+                    serverUrl = server.url,
+                    isConnected = server.isConnected,
+                    onTest = { viewModel.testConnection(server) },
+                    onDelete = { viewModel.deleteServer(server) }
+                )
+            }
+
+            if (uiState.yaaccServers.isEmpty()) {
+                item {
+                    EmptyServerCard("No YAACC/DLNA servers configured")
+                }
+            }
         }
     }
 
@@ -307,38 +332,49 @@ private fun AddServerDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                if (serverType == ServerType.JELLYFIN || serverType == ServerType.EMBY) {
-                    OutlinedTextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("Username") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                when (serverType) {
+                    ServerType.JELLYFIN, ServerType.EMBY -> {
+                        OutlinedTextField(
+                            value = username,
+                            onValueChange = { username = it },
+                            label = { Text("Username") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = { showPassword = !showPassword }) {
-                                Icon(
-                                    imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                    contentDescription = if (showPassword) "Hide password" else "Show password"
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                if (serverType == ServerType.PLEX) {
-                    OutlinedTextField(
-                        value = apiKey,
-                        onValueChange = { apiKey = it },
-                        label = { Text("X-Plex-Token") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text("Password") },
+                            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                            trailingIcon = {
+                                IconButton(onClick = { showPassword = !showPassword }) {
+                                    Icon(
+                                        imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        contentDescription = if (showPassword) "Hide password" else "Show password"
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    ServerType.PLEX -> {
+                        OutlinedTextField(
+                            value = apiKey,
+                            onValueChange = { apiKey = it },
+                            label = { Text("X-Plex-Token") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    ServerType.YAACC -> {
+                        // YAACC/DLNA servers typically don't require authentication
+                        // Just show a helpful message
+                        Text(
+                            text = "DLNA/UPnP servers typically don't require authentication. Enter the server address and port.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         },
@@ -364,5 +400,6 @@ private fun AddServerDialog(
 enum class ServerType(val displayName: String) {
     JELLYFIN("Jellyfin"),
     PLEX("Plex"),
-    EMBY("Emby")
+    EMBY("Emby"),
+    YAACC("YAACC (DLNA/UPnP)")
 }
