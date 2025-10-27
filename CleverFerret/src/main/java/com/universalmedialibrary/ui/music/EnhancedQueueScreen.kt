@@ -51,7 +51,6 @@ fun EnhancedQueueScreen(
     modifier: Modifier = Modifier
 ) {
     var showClearConfirmation by remember { mutableStateOf(false) }
-    val listState = rememberLazyListState()
     val reorderableState = rememberReorderableLazyListState(
         onMove = { from, to ->
             onMoveTrack(from.index, to.index)
@@ -123,7 +122,7 @@ fun EnhancedQueueScreen(
             }
         } else {
             LazyColumn(
-                state = listState,
+                state = reorderableState.listState,
                 modifier = modifier
                     .fillMaxSize()
                     .padding(paddingValues)

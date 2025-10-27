@@ -44,6 +44,8 @@ class CleverFerretAPIReceiver : BroadcastReceiver() {
             return
         }
         
+        // Use goAsync() to prevent ANR for potentially long-running operations
+        val pendingResult = goAsync()
         val command = intent.getIntExtra(CleverFerretBroadcasts.EXTRA_COMMAND, -1)
         
         if (BuildConfig.DEBUG) {
@@ -76,12 +78,12 @@ class CleverFerretAPIReceiver : BroadcastReceiver() {
                 }
                 
                 CleverFerretBroadcasts.CMD_NEXT -> {
-                    mediaCommandAPI.skipToNext()
+                    mediaCommandAPI.skipNext()
                     logCommand("NEXT")
                 }
                 
                 CleverFerretBroadcasts.CMD_PREVIOUS -> {
-                    mediaCommandAPI.skipToPrevious()
+                    mediaCommandAPI.skipPrevious()
                     logCommand("PREVIOUS")
                 }
                 
@@ -148,6 +150,9 @@ class CleverFerretAPIReceiver : BroadcastReceiver() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error executing command $command", e)
+        } finally {
+            // Finish the async operation
+            pendingResult.finish()
         }
     }
     

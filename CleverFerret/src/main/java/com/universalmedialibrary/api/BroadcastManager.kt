@@ -24,7 +24,6 @@ class BroadcastManager @Inject constructor(
     
     companion object {
         private const val TAG = "BroadcastManager"
-        private const val ENABLE_LOGGING = true // Set to false in production
     }
     
     /**
@@ -61,7 +60,7 @@ class BroadcastManager @Inject constructor(
         
         try {
             context.sendBroadcast(intent)
-            if (ENABLE_LOGGING) {
+            if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Status changed: state=$state, shuffle=${convertShuffleMode(shuffle)}, " +
                         "repeat=${convertRepeatMode(repeat)}, volume=$volume")
             }
@@ -95,7 +94,7 @@ class BroadcastManager @Inject constructor(
         
         try {
             context.sendBroadcast(intent)
-            if (ENABLE_LOGGING) {
+            if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Track changed: ${track?.title ?: "null"} by ${track?.artist ?: "null"}")
             }
         } catch (e: Exception) {
@@ -117,7 +116,7 @@ class BroadcastManager @Inject constructor(
         
         try {
             context.sendBroadcast(intent)
-            if (ENABLE_LOGGING) {
+            if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Playing mode changed: shuffle=${convertShuffleMode(shuffle)}, " +
                         "repeat=${convertRepeatMode(repeat)}")
             }
@@ -140,7 +139,7 @@ class BroadcastManager @Inject constructor(
         
         try {
             context.sendBroadcast(intent)
-            if (ENABLE_LOGGING) {
+            if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Queue changed: size=$queueSize, position=$currentPosition")
             }
         } catch (e: Exception) {
@@ -167,6 +166,10 @@ class BroadcastManager @Inject constructor(
             PlaylistMode.REPEAT_ALL -> CleverFerretBroadcasts.REPEAT_ALL
             PlaylistMode.REPEAT_ONE -> CleverFerretBroadcasts.REPEAT_ONE
             else -> CleverFerretBroadcasts.REPEAT_OFF
+        }
+    }
+}
+sts.REPEAT_OFF
         }
     }
 }

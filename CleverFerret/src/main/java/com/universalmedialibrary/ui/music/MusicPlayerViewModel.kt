@@ -262,7 +262,8 @@ class MusicPlayerViewModel @Inject constructor(
      * Remove track from queue by index
      */
     fun removeFromQueueByIndex(index: Int) {
-        musicPlayerService.removeFromQueue(index)
+        val id = queue.value.getOrNull(index)?.id ?: return
+        musicPlayerService.removeFromQueue(id)
     }
     
     /**
