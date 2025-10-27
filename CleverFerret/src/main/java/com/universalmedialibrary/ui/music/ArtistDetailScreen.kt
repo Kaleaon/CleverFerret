@@ -17,7 +17,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MusicRepository
-import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.music.ArtistInfo
 import com.universalmedialibrary.services.music.ArtistInfoService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -371,7 +370,7 @@ private fun ArtistInfoCard(info: ArtistInfo) {
 @HiltViewModel
 class ArtistDetailViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
-    private val playback: AudioPlaybackManager,
+    private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
     private val artistInfoService: ArtistInfoService
 ) : ViewModel() {
 
@@ -442,16 +441,36 @@ class ArtistDetailViewModel @Inject constructor(
     }
 
     fun playArtist(artist: Artist) {
-        val uris = artist.tracks.map { it.uri }
-        if (uris.isNotEmpty()) {
-            playback.setQueue(uris, 0, true)
+        viewModelScope.launch {
+            val tracks = artist.tracks
+            if (tracks.isNotEmpty()) {
+                val firstTrack = tracks.first()
+                musicPlayerService.playTrackFromUri(
+                    uri = firstTrack.uri.toString(),
+                    title = firstTrack.title ?: "Unknown",
+                    artist = firstTrack.artist,
+                    album = firstTrack.album,
+                    duration = firstTrack.duration,
+                    albumArtUrl = null
+                )
+            }
         }
     }
 
     fun shuffleArtist(artist: Artist) {
-        val uris = artist.tracks.shuffled().map { it.uri }
-        if (uris.isNotEmpty()) {
-            playback.setQueue(uris, 0, true)
+        viewModelScope.launch {
+            val tracks = artist.tracks.shuffled()
+            if (tracks.isNotEmpty()) {
+                val firstTrack = tracks.first()
+                musicPlayerService.playTrackFromUri(
+                    uri = firstTrack.uri.toString(),
+                    title = firstTrack.title ?: "Unknown",
+                    artist = firstTrack.artist,
+                    album = firstTrack.album,
+                    duration = firstTrack.duration,
+                    albumArtUrl = null
+                )
+            }
         }
     }
 }
