@@ -15,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WebFictionViewModel @Inject constructor(
     private val webFictionService: WebFictionService,
-    private val basicConverter: FanfictionToEpubConverterBasic
+    private val basicConverter: FanfictionToEpubConverterBasic,
+    private val redditStoryManager: com.universalmedialibrary.services.webfiction.RedditStoryManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WebFictionUiState())
@@ -23,20 +24,111 @@ class WebFictionViewModel @Inject constructor(
 
     init {
         loadStories()
+        loadTrackedRedditStories()
     }
 
-    fun downloadRedditSeriesAsEpub(seriesQuery: String = "Out of Cruel Space", subreddit: String = "HFY") {
+    /**
+     * Download Reddit series with native EPUB generation and automatic library addition
+     */
+    fun downloadRedditSeriesAsEpub(
+        seriesName: String = "Out of Cruel Space",
+        author: String = "KyleKKent",
+        subreddit: String = "HFY"
+    ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val result = basicConverter.convertRedditSeriesToEpub(seriesQuery = seriesQuery, subreddit = subreddit)
+                val config = com.universalmedialibrary.services.webfiction.RedditStoryManager.RedditSeriesConfig(
+                    seriesName = seriesName,
+                    author = author,
+                    subreddit = subreddit,
+                    autoUpdate = true
+                )
+                
+                val result = redditStoryManager.downloadAndAddToLibrary(config)
                 if (!result.success) {
-                    _uiState.value = _uiState.value.copy(isLoading = false, error = result.errorMessage ?: "Failed to convert Reddit series")
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = result.errorMessage ?: "Failed to download Reddit series"
+                    )
                 } else {
-                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        successMessage = "Downloaded ${result.chapters} chapters! Added to library."
+                    )
+                    // Reload tracked stories
+                    loadTrackedRedditStories()
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
+    }
+
+    /**
+     * Check for updates on a specific Reddit story
+     */
+    fun updateRedditStory(storyId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isCheckingUpdates = true, error = null)
+            try {
+                val result = redditStoryManager.updateStory(storyId)
+                if (!result.success) {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingUpdates = false,
+                        error = result.errorMessage
+                    )
+                } else if (result.newChapters > 0) {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingUpdates = false,
+                        successMessage = "Updated! Found ${result.newChapters} new chapters (total: ${result.totalChapters})"
+                    )
+                    loadTrackedRedditStories()
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingUpdates = false,
+                        successMessage = "Already up to date!"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false, error = e.message)
+            }
+        }
+    }
+
+    /**
+     * Check all tracked Reddit stories for updates
+     */
+    fun updateAllRedditStories() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isCheckingUpdates = true, error = null)
+            try {
+                val results = redditStoryManager.updateAllStories()
+                val updatedCount = results.count { it.success && it.newChapters > 0 }
+                val totalNewChapters = results.filter { it.success }.sumOf { it.newChapters }
+                
+                _uiState.value = _uiState.value.copy(
+                    isCheckingUpdates = false,
+                    successMessage = if (updatedCount > 0) {
+                        "Updated $updatedCount stories with $totalNewChapters new chapters!"
+                    } else {
+                        "All stories are up to date!"
+                    }
+                )
+                loadTrackedRedditStories()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isCheckingUpdates = false, error = e.message)
+            }
+        }
+    }
+
+    /**
+     * Load tracked Reddit stories
+     */
+    private fun loadTrackedRedditStories() {
+        viewModelScope.launch {
+            redditStoryManager.getAllTrackedStories().collect { stories ->
+                _uiState.value = _uiState.value.copy(trackedRedditStories = stories)
             }
         }
     }
@@ -284,7 +376,9 @@ class WebFictionViewModel @Inject constructor(
 data class WebFictionUiState(
     val stories: List<WebFictionStory> = emptyList(),
     val storiesWithUpdates: List<WebFictionStory> = emptyList(),
+    val trackedRedditStories: List<com.universalmedialibrary.data.local.entity.DownloadedStory> = emptyList(),
     val isLoading: Boolean = false,
     val isCheckingUpdates: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val successMessage: String? = null
 )

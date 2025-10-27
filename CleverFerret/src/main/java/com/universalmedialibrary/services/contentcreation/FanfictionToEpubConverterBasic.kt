@@ -48,10 +48,24 @@ class FanfictionToEpubConverterBasic @Inject constructor(
     }
 
     // New: Convert Reddit Series (e.g., Out of Cruel Space from r/HFY)
-    suspend fun convertRedditSeriesToEpub(seriesQuery: String, subreddit: String = "HFY"): ConversionResult = withContext(Dispatchers.IO) {
+    suspend fun convertRedditSeriesToEpub(
+        seriesQuery: String, 
+        subreddit: String = "HFY",
+        author: String? = null
+    ): ConversionResult = withContext(Dispatchers.IO) {
         try {
             val downloader = RedditFanficDownloader()
-            val series = downloader.fetchSeries(seriesQuery = seriesQuery, subreddit = subreddit)
+            // For "Out of Cruel Space", filter by author KyleKKent
+            val authorFilter = if (seriesQuery.contains("Out of Cruel Space", ignoreCase = true)) {
+                "KyleKKent"
+            } else {
+                author
+            }
+            val series = downloader.fetchSeries(
+                seriesQuery = seriesQuery, 
+                subreddit = subreddit,
+                author = authorFilter
+            )
             if (series.chapters.isEmpty()) {
                 return@withContext ConversionResult(success = false, errorMessage = "No chapters found")
             }

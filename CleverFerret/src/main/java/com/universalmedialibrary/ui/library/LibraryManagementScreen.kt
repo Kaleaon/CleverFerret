@@ -36,6 +36,7 @@ fun LibraryManagementScreen(
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
     var showImportDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
 
     val libraries by viewModel.libraries.collectAsState()
@@ -143,6 +144,17 @@ fun LibraryManagementScreen(
             onConfirm = { name, path ->
                 viewModel.importCalibreLibrary(path, name)
                 showImportDialog = false
+            }
+        )
+    }
+    
+    if (showExportDialog) {
+        ExportCalibreDialog(
+            open = showExportDialog,
+            onDismiss = { showExportDialog = false },
+            onConfirm = { path ->
+                viewModel.exportToCalibre(path)
+                showExportDialog = false
             }
         )
     }

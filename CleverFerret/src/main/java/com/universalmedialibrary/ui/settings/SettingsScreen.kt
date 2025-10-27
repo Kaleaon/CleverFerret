@@ -280,6 +280,46 @@ fun SettingsScreen(
                     }
                 }
 
+                // Safety & Privacy Section
+                   item {
+                       MetallicText(
+                           text = "Safety & Privacy",
+                           style = MaterialTheme.typography.titleMedium,
+                           modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                       )
+                   }
+
+                   item {
+                       MetallicCard(
+                           onClick = { navController.navigate("settings/parental_controls") }
+                       ) {
+                           Row(
+                               modifier = Modifier
+                                   .fillMaxWidth()
+                                   .padding(16.dp),
+                               horizontalArrangement = Arrangement.SpaceBetween,
+                               verticalAlignment = Alignment.CenterVertically
+                           ) {
+                               Column(modifier = Modifier.weight(1f)) {
+                                   Text(
+                                       text = "Parental Controls",
+                                       style = MaterialTheme.typography.titleSmall,
+                                       fontWeight = FontWeight.Medium
+                                   )
+                                   Text(
+                                       text = "Content filtering and safety settings",
+                                       style = MaterialTheme.typography.bodySmall,
+                                       color = MaterialTheme.colorScheme.onSurfaceVariant
+                                   )
+                               }
+                               Icon(
+                                   imageVector = Icons.Default.ChevronRight,
+                                   contentDescription = "Navigate"
+                               )
+                           }
+                       }
+                   }
+
                 // Media Servers Section
                    item {
                        MetallicText(
@@ -456,17 +496,8 @@ private fun ThemePickerDialog(
                         
                         Card(
                             onClick = { 
-                                // Try to convert to old ThemePalette, fallback to NAVY_GOLD
-                                val oldPalette = when (theme) {
-                                    CleverFerretTheme.NAVY_GOLD -> ThemePalette.NAVY_GOLD
-                                    CleverFerretTheme.ROYAL_SILVER -> ThemePalette.ROYAL_SILVER
-                                    CleverFerretTheme.FOREST_COPPER -> ThemePalette.FOREST_COPPER
-                                    CleverFerretTheme.BURGUNDY_ROSE_GOLD -> ThemePalette.BURGUNDY_ROSE_GOLD
-                                    CleverFerretTheme.CHARCOAL_CHAMPAGNE -> ThemePalette.CHARCOAL_CHAMPAGNE
-                                    CleverFerretTheme.SLATE_GUNMETAL -> ThemePalette.SLATE_GUNMETAL
-                                    else -> ThemePalette.NAVY_GOLD
-                                }
-                                onSelect(oldPalette)
+                                // Convert CleverFerretTheme to ThemePalette
+                                onSelect(theme.toThemePalette())
                             },
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected)

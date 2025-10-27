@@ -111,8 +111,8 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
     
     // Hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.57")
-    ksp("com.google.dagger:hilt-compiler:2.57")
+    implementation("com.google.dagger:hilt-android:2.53")
+    ksp("com.google.dagger:hilt-compiler:2.53")
     
     // ViewModel and LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
@@ -144,6 +144,9 @@ dependencies {
     
     // Image loading
     implementation("io.coil-kt:coil-compose:2.7.0")
+    
+    // Drag and drop reorderable lists
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
     
     // Basic media
     implementation("androidx.media:media:1.7.1")

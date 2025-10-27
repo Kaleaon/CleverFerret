@@ -63,20 +63,20 @@ class WebDavClient @Inject constructor(
                 .header("Depth", "1")
                 .build()
             
-            val response = okHttpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("WebDAV request failed: ${response.code} ${response.message}")
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("WebDAV request failed: ${response.code} ${response.message}")
+                    )
+                }
+                
+                val responseBody = response.body?.string() ?: return@withContext Result.failure(
+                    Exception("Empty response body")
                 )
+                
+                val files = parseWebDavResponse(responseBody, path)
+                Result.success(files)
             }
-            
-            val responseBody = response.body?.string() ?: return@withContext Result.failure(
-                Exception("Empty response body")
-            )
-            
-            val files = parseWebDavResponse(responseBody, path)
-            Result.success(files)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -94,19 +94,19 @@ class WebDavClient @Inject constructor(
                 .header("Authorization", credentials)
                 .build()
             
-            val response = okHttpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("Download failed: ${response.code} ${response.message}")
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("Download failed: ${response.code} ${response.message}")
+                    )
+                }
+                
+                val inputStream = response.body?.byteStream() ?: return@withContext Result.failure(
+                    Exception("Empty response body")
                 )
+                
+                Result.success(inputStream)
             }
-            
-            val inputStream = response.body?.byteStream() ?: return@withContext Result.failure(
-                Exception("Empty response body")
-            )
-            
-            Result.success(inputStream)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -133,15 +133,15 @@ class WebDavClient @Inject constructor(
                 .header("Authorization", credentials)
                 .build()
             
-            val response = okHttpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("Upload failed: ${response.code} ${response.message}")
-                )
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("Upload failed: ${response.code} ${response.message}")
+                    )
+                }
+                
+                Result.success(Unit)
             }
-            
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -160,15 +160,15 @@ class WebDavClient @Inject constructor(
                 .header("Authorization", credentials)
                 .build()
             
-            val response = okHttpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful && response.code != 405) { // 405 means already exists
-                return@withContext Result.failure(
-                    Exception("Create directory failed: ${response.code} ${response.message}")
-                )
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful && response.code != 405) { // 405 means already exists
+                    return@withContext Result.failure(
+                        Exception("Create directory failed: ${response.code} ${response.message}")
+                    )
+                }
+                
+                Result.success(Unit)
             }
-            
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -187,15 +187,15 @@ class WebDavClient @Inject constructor(
                 .header("Authorization", credentials)
                 .build()
             
-            val response = okHttpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("Delete failed: ${response.code} ${response.message}")
-                )
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("Delete failed: ${response.code} ${response.message}")
+                    )
+                }
+                
+                Result.success(Unit)
             }
-            
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -216,15 +216,15 @@ class WebDavClient @Inject constructor(
                 .header("Destination", destinationUrl)
                 .build()
             
-            val response = okHttpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("Move failed: ${response.code} ${response.message}")
-                )
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("Move failed: ${response.code} ${response.message}")
+                    )
+                }
+                
+                Result.success(Unit)
             }
-            
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -245,15 +245,15 @@ class WebDavClient @Inject constructor(
                 .header("Destination", destinationUrl)
                 .build()
             
-            val response = okHttpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("Copy failed: ${response.code} ${response.message}")
-                )
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("Copy failed: ${response.code} ${response.message}")
+                    )
+                }
+                
+                Result.success(Unit)
             }
-            
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

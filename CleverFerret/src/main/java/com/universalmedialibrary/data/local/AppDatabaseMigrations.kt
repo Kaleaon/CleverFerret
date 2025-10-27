@@ -254,4 +254,135 @@ object AppDatabaseMigrations {
             """.trimIndent())
         }
     }
+    
+    /**
+     * Migration from version 26 to 27
+     * Adds YAACC (DLNA/UPnP) server support
+     */
+    val MIGRATION_26_27 = object : Migration(26, 27) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create yaacc_servers table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS yaacc_servers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    host TEXT NOT NULL,
+                    port INTEGER NOT NULL DEFAULT 8200,
+                    deviceType TEXT,
+                    friendlyName TEXT,
+                    manufacturer TEXT,
+                    modelName TEXT,
+                    udn TEXT,
+                    lastSynced INTEGER NOT NULL DEFAULT 0,
+                    isActive INTEGER NOT NULL DEFAULT 1,
+                    dateAdded INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            // Create unique index for host and port combination
+            database.execSQL("""
+                CREATE UNIQUE INDEX IF NOT EXISTS index_yaacc_servers_host_port 
+                ON yaacc_servers (host, port)
+            """.trimIndent())
+        }
+    }
+    
+    /**
+     * Migration from version 27 to 28
+     * Adds Calibre features: Fanfiction and Audiobook support
+     */
+    val MIGRATION_27_28 = object : Migration(27, 28) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create fanfiction_stories table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS fanfiction_stories (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    url TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    author TEXT,
+                    summary TEXT,
+                    site_name TEXT NOT NULL,
+                    word_count INTEGER NOT NULL DEFAULT 0,
+                    chapter_count INTEGER NOT NULL DEFAULT 0,
+                    completion_status TEXT NOT NULL,
+                    rating TEXT,
+                    language TEXT NOT NULL DEFAULT 'en',
+                    genre TEXT,
+                    characters TEXT,
+                    tags TEXT NOT NULL,
+                    cover_url TEXT,
+                    date_published INTEGER,
+                    date_updated INTEGER,
+                    date_downloaded INTEGER NOT NULL,
+                    last_checked INTEGER NOT NULL,
+                    local_epub_path TEXT,
+                    has_updates INTEGER NOT NULL DEFAULT 0
+                )
+            """.trimIndent())
+            
+            // Create indices for fanfiction_stories
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_fanfiction_stories_site_name 
+                ON fanfiction_stories(site_name)
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_fanfiction_stories_completion_status 
+                ON fanfiction_stories(completion_status)
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_fanfiction_stories_date_updated 
+                ON fanfiction_stories(date_updated)
+            """.trimIndent())
+            
+            // Create audiobooks table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS audiobooks (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    filePath TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    author TEXT,
+                    narrator TEXT,
+                    description TEXT,
+                    genre TEXT,
+                    publisher TEXT,
+                    publishDate TEXT,
+                    duration INTEGER NOT NULL,
+                    bitrate INTEGER,
+                    sampleRate INTEGER,
+                    codec TEXT,
+                    coverPath TEXT,
+                    chapterCount INTEGER NOT NULL DEFAULT 0,
+                    chapters TEXT NOT NULL,
+                    language TEXT NOT NULL DEFAULT 'en',
+                    lastPlayedPosition INTEGER NOT NULL DEFAULT 0,
+                    isFinished INTEGER NOT NULL DEFAULT 0,
+                    dateAdded INTEGER NOT NULL,
+                    lastPlayed INTEGER
+                )
+            """.trimIndent())
+            
+            // Create indices for audiobooks
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_audiobooks_author 
+                ON audiobooks(author)
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_audiobooks_genre 
+                ON audiobooks(genre)
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_audiobooks_dateAdded 
+                ON audiobooks(dateAdded)
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_audiobooks_isFinished 
+                ON audiobooks(isFinished)
+            """.trimIndent())
+        }
+    }
 }

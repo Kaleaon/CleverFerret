@@ -153,7 +153,23 @@ fun AppNavigation() {
         startDestination = "home"
     ) {
         composable("home") {
-            LibraryListScreen(navController = navController)
+            com.universalmedialibrary.ui.home.HomeScreen(
+                onNavigateToMedia = { type, id -> 
+                    when (type) {
+                        "music" -> navController.navigate("music")
+                        "video" -> navController.navigate("videos")
+                        "book" -> navController.navigate("bookshelf/1")
+                        "comic" -> navController.navigate("bookshelf/2")
+                        else -> navController.navigate("library_details/1")
+                    }
+                },
+                onNavigateToSearch = { navController.navigate("enhanced_search") },
+                onNavigateToLibrary = { navController.navigate("library_details/1") },
+                onNavigateToVisualizer = { navController.navigate("visualizer") },
+                onNavigateToFanfiction = { navController.navigate("fanfiction_library") },
+                onNavigateToAudiobooks = { navController.navigate("audiobook_library") },
+                onNavigateToDuplicates = { navController.navigate("duplicate_detection") }
+            )
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
@@ -222,6 +238,11 @@ fun AppNavigation() {
                 onBack = { navController.navigateUp() }
             )
         }
+        composable("settings/parental_controls") {
+            com.universalmedialibrary.ui.settings.ParentalControlsScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
         
         composable("collection_detail/{collectionId}") { backStackEntry ->
             val collectionId = backStackEntry.arguments?.getString("collectionId")?.toLongOrNull() ?: -1L
@@ -254,7 +275,7 @@ fun AppNavigation() {
             com.universalmedialibrary.ui.music.MusicLibraryScreen(navController = navController)
         }
         composable("music_player") {
-            com.universalmedialibrary.ui.music.MusicPlayerScreen(
+            com.universalmedialibrary.ui.music.EnhancedMusicPlayerScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToQueue = { navController.navigate("queue") },
                 onNavigateToAlbum = { albumId -> navController.navigate("album/$albumId") },
@@ -262,7 +283,18 @@ fun AppNavigation() {
             )
         }
         composable("queue") {
-            com.universalmedialibrary.ui.player.QueueScreen()
+            val musicPlayerViewModel: com.universalmedialibrary.ui.music.MusicPlayerViewModel = hiltViewModel()
+            com.universalmedialibrary.ui.music.EnhancedQueueScreen(
+                queue = musicPlayerViewModel.queue.collectAsState().value,
+                currentTrackId = musicPlayerViewModel.currentTrack.collectAsState().value?.id,
+                currentIndex = musicPlayerViewModel.getCurrentQueueIndex(),
+                onTrackClick = { index -> musicPlayerViewModel.jumpToQueuePosition(index) },
+                onRemoveTrack = { index -> musicPlayerViewModel.removeFromQueueByIndex(index) },
+                onMoveTrack = { from, to -> musicPlayerViewModel.moveTrackInQueue(from, to) },
+                onClearQueue = { musicPlayerViewModel.clearQueue() },
+                onShuffleQueue = { musicPlayerViewModel.shuffleQueue() },
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
         composable("album/{albumName}") { backStackEntry ->
             val albumName = backStackEntry.arguments?.getString("albumName") ?: ""
@@ -322,6 +354,25 @@ fun AppNavigation() {
             } else {
                 Text("Invalid media item")
             }
+        }
+
+        // Web Fiction routes
+        composable("universal_tag_browser") {
+            com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
+                navController = navController
+            )
+        }
+        composable("universal_tag_browser/{siteType}") { backStackEntry ->
+            val siteTypeStr = backStackEntry.arguments?.getString("siteType")
+            val siteType = try {
+                siteTypeStr?.let { com.universalmedialibrary.services.webfiction.WebFictionSiteType.valueOf(it.uppercase()) }
+            } catch (e: Exception) {
+                null
+            }
+            com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
+                initialSiteType = siteType,
+                navController = navController
+            )
         }
 
         // Radio routes
@@ -422,6 +473,52 @@ fun AppNavigation() {
             )
         }
 
+        // ========== Calibre Features Routes ==========
+        
+        // Fanfiction routes
+        composable("fanfiction_download") {
+            com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToLibrary = { navController.navigate("fanfiction_library") }
+            )
+        }
+        
+        composable("fanfiction_library") {
+            com.universalmedialibrary.ui.fanfiction.FanfictionLibraryScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToDownload = { navController.navigate("fanfiction_download") },
+                onStoryClick = { story ->
+                    // Open the EPUB file if it exists
+                    story.localEpubPath?.let { path ->
+                        val encoded = android.net.Uri.encode(path)
+                        navController.navigate("reader?path=$encoded")
+                    }
+                }
+            )
+        }
+        
+        // Audiobook routes
+        composable("audiobook_library") {
+            com.universalmedialibrary.ui.audiobook.AudiobookLibraryScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onImportClick = { 
+                    // TODO: Implement file picker for audiobook import
+                    navController.navigate("storage_browser")
+                },
+                onAudiobookClick = { audiobook ->
+                    // TODO: Navigate to audiobook player when implemented
+                    // navController.navigate("audiobook_player/${audiobook.id}")
+                }
+            )
+        }
+        
+        // Organization routes
+        composable("duplicate_detection") {
+            com.universalmedialibrary.ui.organization.DuplicateDetectionScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
         // Theme preview for testing (old)
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
@@ -494,6 +591,41 @@ fun AppNavigation() {
                    onPresetSelected = { preset ->
                        // Pass the selected preset to the visualizer
                        visualizerViewModel.setPreset(preset)
+                       navController.navigateUp()
+                   },
+                   onNavigateToEditor = { presetId ->
+                       if (presetId != null) {
+                           navController.navigate("visualizer_editor/$presetId")
+                       } else {
+                           navController.navigate("visualizer_editor")
+                       }
+                   }
+               )
+           }
+           
+           // Visualizer parameter editor
+           composable("visualizer_editor/{presetId}") { backStackEntry ->
+               val presetId = backStackEntry.arguments?.getString("presetId")
+               val presetManager = com.universalmedialibrary.services.visualizer.VisualizerPresetManager()
+               val preset = presetId?.let { presetManager.getPresetById(it) }
+               
+               com.universalmedialibrary.ui.visualizer.ParameterEditorScreen(
+                   preset = preset,
+                   onBack = { navController.navigateUp() },
+                   onSave = { newPreset ->
+                       // Save the preset and navigate back
+                       navController.navigateUp()
+                   }
+               )
+           }
+           
+           // Visualizer parameter editor (new preset)
+           composable("visualizer_editor") {
+               com.universalmedialibrary.ui.visualizer.ParameterEditorScreen(
+                   preset = null,
+                   onBack = { navController.navigateUp() },
+                   onSave = { newPreset ->
+                       // Save the preset and navigate back
                        navController.navigateUp()
                    }
                )
