@@ -165,7 +165,10 @@ fun AppNavigation() {
                 },
                 onNavigateToSearch = { navController.navigate("enhanced_search") },
                 onNavigateToLibrary = { navController.navigate("library_details/1") },
-                onNavigateToVisualizer = { navController.navigate("visualizer") }
+                onNavigateToVisualizer = { navController.navigate("visualizer") },
+                onNavigateToFanfiction = { navController.navigate("fanfiction_library") },
+                onNavigateToAudiobooks = { navController.navigate("audiobook_library") },
+                onNavigateToDuplicates = { navController.navigate("duplicate_detection") }
             )
         }
         composable("library_details/{libraryId}") { backStackEntry ->
@@ -466,6 +469,52 @@ fun AppNavigation() {
             val videoPath = backStackEntry.arguments?.getString("videoPath") ?: ""
             com.universalmedialibrary.ui.player.ModernVideoPlayerScreen(
                 videoPath = videoPath,
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // ========== Calibre Features Routes ==========
+        
+        // Fanfiction routes
+        composable("fanfiction_download") {
+            com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToLibrary = { navController.navigate("fanfiction_library") }
+            )
+        }
+        
+        composable("fanfiction_library") {
+            com.universalmedialibrary.ui.fanfiction.FanfictionLibraryScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToDownload = { navController.navigate("fanfiction_download") },
+                onStoryClick = { story ->
+                    // Open the EPUB file if it exists
+                    story.localEpubPath?.let { path ->
+                        val encoded = android.net.Uri.encode(path)
+                        navController.navigate("reader?path=$encoded")
+                    }
+                }
+            )
+        }
+        
+        // Audiobook routes
+        composable("audiobook_library") {
+            com.universalmedialibrary.ui.audiobook.AudiobookLibraryScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onImportClick = { 
+                    // TODO: Implement file picker for audiobook import
+                    navController.navigate("storage_browser")
+                },
+                onAudiobookClick = { audiobook ->
+                    // TODO: Navigate to audiobook player when implemented
+                    // navController.navigate("audiobook_player/${audiobook.id}")
+                }
+            )
+        }
+        
+        // Organization routes
+        composable("duplicate_detection") {
+            com.universalmedialibrary.ui.organization.DuplicateDetectionScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
         }

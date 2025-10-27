@@ -81,4 +81,27 @@ interface MediaItemDao {
      */
     @Query("SELECT * FROM media_items ORDER BY dateAdded DESC")
     suspend fun getAllMediaItems(): List<MediaItem>
+    
+    /**
+     * Get books by series name
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN metadata_book mb ON mi.itemId = mb.itemId
+        INNER JOIN series s ON mb.series = s.seriesId
+        WHERE s.name = :seriesName
+        ORDER BY mb.seriesIndex ASC
+    """)
+    suspend fun getBooksBySeries(seriesName: String): List<MediaItem>
+    
+    /**
+     * Get all books that have series information
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN metadata_book mb ON mi.itemId = mb.itemId
+        WHERE mb.series IS NOT NULL
+        ORDER BY mi.dateAdded DESC
+    """)
+    suspend fun getBooksWithSeries(): List<MediaItem>
 }
