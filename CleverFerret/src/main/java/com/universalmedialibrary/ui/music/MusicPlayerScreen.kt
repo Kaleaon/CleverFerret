@@ -343,7 +343,7 @@ fun MusicPlayerScreen(
 }
 
 @Composable
-private fun AlbumArtSection(
+internal fun AlbumArtSection(
     track: TrackInfo,
     isPlaying: Boolean,
     onAlbumClick: (TrackInfo) -> Unit
