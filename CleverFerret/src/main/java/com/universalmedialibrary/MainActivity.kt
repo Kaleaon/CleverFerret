@@ -270,7 +270,7 @@ fun AppNavigation() {
             com.universalmedialibrary.ui.music.MusicLibraryScreen(navController = navController)
         }
         composable("music_player") {
-            com.universalmedialibrary.ui.music.MusicPlayerScreen(
+            com.universalmedialibrary.ui.music.EnhancedMusicPlayerScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToQueue = { navController.navigate("queue") },
                 onNavigateToAlbum = { albumId -> navController.navigate("album/$albumId") },
@@ -278,7 +278,18 @@ fun AppNavigation() {
             )
         }
         composable("queue") {
-            com.universalmedialibrary.ui.player.QueueScreen()
+            val musicPlayerViewModel: com.universalmedialibrary.ui.music.MusicPlayerViewModel = hiltViewModel()
+            com.universalmedialibrary.ui.music.EnhancedQueueScreen(
+                queue = musicPlayerViewModel.queue.collectAsState().value,
+                currentTrackId = musicPlayerViewModel.currentTrack.collectAsState().value?.id,
+                currentIndex = musicPlayerViewModel.getCurrentQueueIndex(),
+                onTrackClick = { index -> musicPlayerViewModel.jumpToQueuePosition(index) },
+                onRemoveTrack = { index -> musicPlayerViewModel.removeFromQueueByIndex(index) },
+                onMoveTrack = { from, to -> musicPlayerViewModel.moveTrackInQueue(from, to) },
+                onClearQueue = { musicPlayerViewModel.clearQueue() },
+                onShuffleQueue = { musicPlayerViewModel.shuffleQueue() },
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
         composable("album/{albumName}") { backStackEntry ->
             val albumName = backStackEntry.arguments?.getString("albumName") ?: ""

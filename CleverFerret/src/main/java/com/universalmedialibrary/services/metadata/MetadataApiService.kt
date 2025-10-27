@@ -8,7 +8,8 @@ import javax.inject.Singleton
 
 @Singleton
 class MetadataApiService @Inject constructor(
-    private val apiKeyRepository: APIKeyRepository
+    private val apiKeyRepository: APIKeyRepository,
+    private val tvMazeService: TVMazeService
 ) {
 
     private val googleBooksApi: GoogleBooksApi by lazy {
@@ -155,6 +156,122 @@ class MetadataApiService @Inject constructor(
         return results
     }
 
+    /**
+     * Search for TV shows using TVMaze API
+     * 
+     * TVMaze provides comprehensive TV show data including:
+     * - Complete episode listings
+     * - Cast and crew information
+     * - High-quality images
+     * - Air dates and schedules
+     * - Network information
+     * - Links to IMDb and TheTVDB
+     * 
+     * Best of all: No API key required!
+     * 
+     * Example:
+     * ```kotlin
+     * val results = searchTVShows("Breaking Bad")
+     * results.forEach { show ->
+     *     println("${show.title} (${show.year}) - Rating: ${show.rating}")
+     * }
+     * ```
+     */
+    suspend fun searchTVShows(query: String): List<UnifiedMetadataSearchResult> {
+        val results = mutableListOf<UnifiedMetadataSearchResult>()
+
+        try {
+            // Search using TVMaze API (no API key required!)
+            val tvMazeResults = tvMazeService.searchShows(query)
+            
+            tvMazeResults.shows.forEach { show ->
+                // Clean HTML from summary
+                val cleanSummary = show.summary?.replace(Regex("<[^>]*>"), "")?.trim()
+                
+                results.add(
+                    UnifiedMetadataSearchResult(
+                        id = show.id.toString(),
+                        title = show.name,
+                        year = show.premiered?.take(4)?.toIntOrNull(),
+                        coverUrl = show.image?.original ?: show.image?.medium,
+                        description = cleanSummary,
+                        genres = show.genres,
+                        rating = show.rating?.average?.toFloat(),
+                        language = show.language,
+                        imdbId = show.externals?.imdb,
+                        mediaType = com.universalmedialibrary.data.MediaType.TV_SHOW,
+                        source = MetadataSource.TVMAZE.name,
+                        additionalData = mapOf(
+                            "tvMazeId" to show.id,
+                            "status" to (show.status ?: "Unknown"),
+                            "network" to (show.network?.name ?: show.webChannel?.name ?: "Unknown"),
+                            "runtime" to (show.runtime ?: show.averageRuntime ?: 0),
+                            "premiered" to (show.premiered ?: ""),
+                            "ended" to (show.ended ?: ""),
+                            "tvdbId" to (show.externals?.thetvdb ?: 0),
+                            "officialSite" to (show.officialSite ?: "")
+                        )
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            // Log error and return empty list to avoid contaminating production data
+            android.util.Log.e("MetadataApiService", "Error searching TV shows: ${e.message}", e)
+            return emptyList()
+        }
+
+        return results
+    }
+
+    /**
+     * Get comprehensive TV show details including episodes
+     * 
+     * This fetches complete show information from TVMaze including:
+     * - All episodes with air dates
+     * - Cast information
+     * - Season information
+     * - Network and streaming details
+     */
+    suspend fun getTVShowDetails(tvMazeId: Int): UnifiedMetadataSearchResult? {
+        return try {
+            val details = tvMazeService.getCompleteShowDetails(tvMazeId)
+            val show = details.show ?: return null
+            
+            val cleanSummary = show.summary?.replace(Regex("<[^>]*>"), "")?.trim()
+            
+            UnifiedMetadataSearchResult(
+                id = show.id.toString(),
+                title = show.name,
+                year = show.premiered?.take(4)?.toIntOrNull(),
+                coverUrl = show.image?.original ?: show.image?.medium,
+                description = cleanSummary,
+                genres = show.genres,
+                rating = show.rating?.average?.toFloat(),
+                language = show.language,
+                imdbId = show.externals?.imdb,
+                mediaType = com.universalmedialibrary.data.MediaType.TV_SHOW,
+                source = MetadataSource.TVMAZE.name,
+                additionalData = mapOf(
+                    "tvMazeId" to show.id,
+                    "status" to (show.status ?: "Unknown"),
+                    "network" to (show.network?.name ?: show.webChannel?.name ?: "Unknown"),
+                    "runtime" to (show.runtime ?: show.averageRuntime ?: 0),
+                    "premiered" to (show.premiered ?: ""),
+                    "ended" to (show.ended ?: ""),
+                    "tvdbId" to (show.externals?.thetvdb ?: 0),
+                    "officialSite" to (show.officialSite ?: ""),
+                    "totalEpisodes" to details.totalEpisodes,
+                    "totalSeasons" to details.totalSeasons,
+                    "episodes" to details.episodes,
+                    "cast" to details.cast,
+                    "seasons" to details.seasons
+                )
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     private fun createDemoMovieResults(query: String): List<UnifiedMetadataSearchResult> {
         return listOf(
             UnifiedMetadataSearchResult(
@@ -184,6 +301,23 @@ class MetadataApiService @Inject constructor(
                 genres = listOf("Electronic", "Ambient"),
                 mediaType = com.universalmedialibrary.data.MediaType.MUSIC,
                 source = MetadataSource.MUSICBRAINZ.name
+            )
+        )
+    }
+
+    private fun createDemoTVShowResults(query: String): List<UnifiedMetadataSearchResult> {
+        return listOf(
+            UnifiedMetadataSearchResult(
+                id = "demo1",
+                title = "Demo TV Show: $query",
+                director = "Demo Creator",
+                year = 2024,
+                coverUrl = "https://via.placeholder.com/500x750/FF9800/ffffff?text=TV+Show",
+                description = "This is a demo TV show result for '$query'. In production, this would use the TVMaze API.",
+                genres = listOf("Drama", "Sci-Fi"),
+                rating = 8.5f,
+                mediaType = com.universalmedialibrary.data.MediaType.TV_SHOW,
+                source = MetadataSource.TVMAZE.name
             )
         )
     }

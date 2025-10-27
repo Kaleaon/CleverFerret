@@ -10,6 +10,8 @@ import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.services.music.MusicMetadataService
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.media.SleepTimerManager
+import com.universalmedialibrary.services.metadata.EnhancedMetadataService
+import com.universalmedialibrary.services.metadata.EnhancedTrackMetadata
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +29,7 @@ class MusicPlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val musicPlayerService: AdvancedMusicPlayerService,
     private val musicMetadataService: MusicMetadataService,
+    private val enhancedMetadataService: EnhancedMetadataService,
     private val exoPlayerService: ExoPlayerService,
     private val sleepTimerManager: SleepTimerManager
 ) : ViewModel() {
@@ -56,6 +59,14 @@ class MusicPlayerViewModel @Inject constructor(
     
     private val _isFavorite = MutableStateFlow(false)
     val isFavorite: StateFlow<Boolean> = _isFavorite.asStateFlow()
+    
+    // Enhanced metadata for current track
+    private val _currentTrackMetadata = MutableStateFlow<EnhancedTrackMetadata?>(null)
+    val currentTrackMetadata: StateFlow<EnhancedTrackMetadata?> = _currentTrackMetadata.asStateFlow()
+    
+    // Seek amounts (configurable)
+    private val seekBackwardMs = 10000L // 10 seconds
+    private val seekForwardMs = 30000L // 30 seconds
 
     /**
      * Toggle play/pause
@@ -201,6 +212,93 @@ class MusicPlayerViewModel @Inject constructor(
         _isFavorite.value = !_isFavorite.value
         // Favorites would be persisted to database in production
         // Example: favoritesDao.toggleFavorite(currentTrack.value?.id)
+    }
+    
+    /**
+     * Seek backward (default -10s)
+     */
+    fun seekBackward(amountMs: Long = seekBackwardMs) {
+        val currentPos = getCurrentPosition()
+        val newPos = (currentPos - amountMs).coerceAtLeast(0)
+        seekTo(newPos)
+    }
+    
+    /**
+     * Seek forward (default +30s)
+     */
+    fun seekForward(amountMs: Long = seekForwardMs) {
+        val currentPos = getCurrentPosition()
+        val duration = currentTrack.value?.duration ?: 0L
+        val newPos = (currentPos + amountMs).coerceAtMost(duration)
+        seekTo(newPos)
+    }
+    
+    /**
+     * Toggle shuffle mode
+     */
+    fun toggleShuffle() {
+        musicPlayerService.toggleShuffle()
+    }
+    
+    /**
+     * Toggle repeat mode
+     */
+    fun toggleRepeat() {
+        musicPlayerService.toggleRepeat()
+    }
+    
+    /**
+     * Jump to specific track in queue
+     */
+    fun jumpToQueuePosition(index: Int) {
+        musicPlayerService.skipToQueuePosition(index)
+    }
+    
+    /**
+     * Move track in queue
+     */
+    fun moveTrackInQueue(fromIndex: Int, toIndex: Int) {
+        musicPlayerService.moveInQueue(fromIndex, toIndex)
+    }
+    
+    /**
+     * Remove track from queue by index
+     */
+    fun removeFromQueueByIndex(index: Int) {
+        val id = queue.value.getOrNull(index)?.id ?: return
+        musicPlayerService.removeFromQueue(id)
+    }
+    
+    /**
+     * Shuffle queue
+     */
+    fun shuffleQueue() {
+        musicPlayerService.shuffleQueue()
+    }
+    
+    /**
+     * Load enhanced metadata for current track
+     */
+    fun loadEnhancedMetadata() {
+        val track = currentTrack.value ?: return
+        
+        viewModelScope.launch {
+            try {
+                val metadata = enhancedMetadataService.extractMetadata(track.filePath)
+                _currentTrackMetadata.value = metadata
+            } catch (e: Exception) {
+                // Handle error silently or log
+                _currentTrackMetadata.value = null
+            }
+        }
+    }
+    
+    /**
+     * Get current queue index
+     */
+    fun getCurrentQueueIndex(): Int {
+        val track = currentTrack.value ?: return -1
+        return queue.value.indexOfFirst { it.id == track.id }
     }
     
     /**
