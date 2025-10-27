@@ -62,36 +62,36 @@ class AmazonCoverSource @Inject constructor(
                 .header("User-Agent", "Mozilla/5.0 (Android)")
                 .build()
             
-            val response = httpClient.newCall(request).execute()
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return null
+                }
+                
+                val doc = Jsoup.parse(response.body?.string() ?: return null)
             
-            if (!response.isSuccessful) {
-                return null
+                // Find first product image
+                val imageElement = doc.select("img.s-image").firstOrNull() ?: return null
+                val imageUrl = imageElement.attr("src")
+                
+                if (imageUrl.isBlank()) {
+                    return null
+                }
+                
+                // Amazon image URL manipulation for HD
+                // Change resolution in the URL
+                val hdUrl = imageUrl
+                    .replace(Regex("\\._AC_[A-Z0-9]+_"), "._AC_SX2000_")
+                    .replace(Regex("\\._SX\\d+_"), "._SX2000_")
+                    .replace(Regex("\\._SY\\d+_"), "._SY2000_")
+                
+                return CoverResult(
+                    url = hdUrl,
+                    width = 1600,
+                    height = 2400,
+                    quality = CoverQuality.ULTRA_HD,
+                    source = "$sourceName ($domain)"
+                )
             }
-            
-            val doc = Jsoup.parse(response.body?.string() ?: return null)
-            
-            // Find first product image
-            val imageElement = doc.select("img.s-image").firstOrNull() ?: return null
-            val imageUrl = imageElement.attr("src")
-            
-            if (imageUrl.isBlank()) {
-                return null
-            }
-            
-            // Amazon image URL manipulation for HD
-            // Change resolution in the URL
-            val hdUrl = imageUrl
-                .replace(Regex("\\._AC_[A-Z0-9]+_"), "._AC_SX2000_")
-                .replace(Regex("\\._SX\\d+_"), "._SX2000_")
-                .replace(Regex("\\._SY\\d+_"), "._SY2000_")
-            
-            return CoverResult(
-                url = hdUrl,
-                width = 1600,
-                height = 2400,
-                quality = CoverQuality.ULTRA_HD,
-                source = "$sourceName ($domain)"
-            )
         } catch (e: Exception) {
             return null
         }
@@ -109,15 +109,17 @@ class AmazonCoverSource @Inject constructor(
                     .header("User-Agent", "Mozilla/5.0 (Android)")
                     .build()
                 
-                val response = httpClient.newCall(request).execute()
-                
-                if (!response.isSuccessful) {
-                    return@withContext Result.failure(
-                        Exception("HTTP error: ${response.code}")
-                    )
+                httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        return@withContext Result.failure(
+                            Exception("HTTP error: ${response.code}")
+                        )
+                    }
+                    
+                    val bytes = response.body?.bytes() 
+                        ?: return@withContext Result.failure(IllegalStateException("Empty body"))
+                    Result.success(bytes)
                 }
-                
-                Result.success(response.body?.bytes() ?: ByteArray(0))
             } catch (e: Exception) {
                 Result.failure(e)
             }

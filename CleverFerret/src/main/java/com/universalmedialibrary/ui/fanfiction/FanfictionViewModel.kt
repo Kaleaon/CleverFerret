@@ -83,6 +83,11 @@ class FanfictionViewModel @Inject constructor(
     }
     
     fun updateStory(storyId: String) {
+        if (storyId.isBlank()) {
+            _downloadState.value = DownloadState.Error("Invalid story ID")
+            return
+        }
+        
         viewModelScope.launch {
             try {
                 _downloadState.value = DownloadState.Downloading(0, 0, "Updating story...")

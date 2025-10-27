@@ -42,6 +42,6 @@ data class CoverResult(
 enum class CoverQuality(val minSize: Int) {
     THUMBNAIL(300),      // < 300px
     STANDARD(800),       // 300-800px
-    HIGH(1400),          // 800-1400px
-    ULTRA_HD(1400)       // 1400px+
+    HIGH(1400),          // 800-2000px
+    ULTRA_HD(2000)       // 2000px+
 }

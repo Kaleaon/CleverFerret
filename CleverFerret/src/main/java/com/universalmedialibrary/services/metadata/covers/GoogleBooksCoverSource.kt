@@ -44,53 +44,56 @@ class GoogleBooksCoverSource @Inject constructor(
                 .url(url)
                 .build()
             
-            val response = httpClient.newCall(request).execute()
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.success(null)
+                }
+                
+                val bodyStr = response.body?.string() ?: return@withContext Result.success(null)
+                val json = JSONObject(bodyStr)
+                val items = json.optJSONArray("items")
             
-            if (!response.isSuccessful) {
-                return@withContext Result.success(null)
+                if (items == null || items.length() == 0) {
+                    return@withContext Result.success(null)
+                }
+                
+                val book = items.getJSONObject(0)
+                val volumeInfo = book.getJSONObject("volumeInfo")
+                val imageLinks = volumeInfo.optJSONObject("imageLinks")
+                
+                if (imageLinks == null) {
+                    return@withContext Result.success(null)
+                }
+                
+                // Try to get highest quality image available
+                val imageUrl = imageLinks.optString("extraLarge")
+                    .ifBlank { imageLinks.optString("large") }
+                    .ifBlank { imageLinks.optString("medium") }
+                    .ifBlank { imageLinks.optString("thumbnail") }
+                
+                if (imageUrl.isBlank()) {
+                    return@withContext Result.success(null)
+                }
+                
+                // Enhance URL for better quality by changing zoom parameter
+                val hdUrl = imageUrl
+                    .replace("&zoom=1", "&zoom=3")
+                    .replace("http://", "https://")
+                
+                val coverResult = CoverResult(
+                    url = hdUrl,
+                    width = 1200,
+                    height = 1800,
+                    quality = CoverQuality.HIGH,
+                    source = sourceName,
+                    sourceId = book.getString("id")
+                )
+                
+                Result.success(coverResult)
             }
-            
-            val json = JSONObject(response.body?.string() ?: return@withContext Result.success(null))
-            val items = json.optJSONArray("items")
-            
-            if (items == null || items.length() == 0) {
-                return@withContext Result.success(null)
-            }
-            
-            val book = items.getJSONObject(0)
-            val volumeInfo = book.getJSONObject("volumeInfo")
-            val imageLinks = volumeInfo.optJSONObject("imageLinks")
-            
-            if (imageLinks == null) {
-                return@withContext Result.success(null)
-            }
-            
-            // Try to get highest quality image available
-            val imageUrl = imageLinks.optString("extraLarge")
-                .ifBlank { imageLinks.optString("large") }
-                .ifBlank { imageLinks.optString("medium") }
-                .ifBlank { imageLinks.optString("thumbnail") }
-            
-            if (imageUrl.isBlank()) {
-                return@withContext Result.success(null)
-            }
-            
-            // Enhance URL for better quality by changing zoom parameter
-            val hdUrl = imageUrl
-                .replace("&zoom=1", "&zoom=3")
-                .replace("http://", "https://")
-            
-            val coverResult = CoverResult(
-                url = hdUrl,
-                width = 1200,
-                height = 1800,
-                quality = CoverQuality.HIGH,
-                source = sourceName,
-                sourceId = book.getString("id")
-            )
-            
-            Result.success(coverResult)
         } catch (e: Exception) {
+            // Log error but return null to allow trying other sources
+            android.util.Log.w("GoogleBooksCoverSource", "Failed to search cover", e)
             Result.success(null)
         }
     }
@@ -106,15 +109,17 @@ class GoogleBooksCoverSource @Inject constructor(
                     .url(url)
                     .build()
                 
-                val response = httpClient.newCall(request).execute()
-                
-                if (!response.isSuccessful) {
-                    return@withContext Result.failure(
-                        Exception("HTTP error: ${response.code}")
-                    )
+                httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        return@withContext Result.failure(
+                            Exception("HTTP error: ${response.code}")
+                        )
+                    }
+                    
+                    val bytes = response.body?.bytes() 
+                        ?: return@withContext Result.failure(IllegalStateException("Empty body"))
+                    Result.success(bytes)
                 }
-                
-                Result.success(response.body?.bytes() ?: ByteArray(0))
             } catch (e: Exception) {
                 Result.failure(e)
             }

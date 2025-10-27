@@ -66,9 +66,11 @@ class CoverService @Inject constructor(
         bookId: String
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
-            // Find the source
-            val source = sources.find { it.sourceName == coverResult.source }
-                ?: return@withContext Result.failure(
+            // Find the source (handle Amazon's domain-specific naming)
+            val source = sources.find { 
+                coverResult.source == it.sourceName || 
+                coverResult.source.startsWith(it.sourceName + " (")
+            } ?: return@withContext Result.failure(
                     Exception("Source ${coverResult.source} not found")
                 )
             
