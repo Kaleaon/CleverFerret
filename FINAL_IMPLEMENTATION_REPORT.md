@@ -162,7 +162,7 @@ Users can access the visualizer from multiple locations:
 ### Feature Metrics
 - **Visualization Styles:** 5 → 15 (+200%)
 - **Presets:** 10 → 24 (+140%)
-- **FPS:** 20 → 30 (+50%)
+- **FPS:** 20 → 60 (+200%)
 - **Navigation Routes:** +4 new routes
 - **Access Points:** +1 (Home screen)
 

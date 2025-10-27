@@ -68,6 +68,10 @@ class AudioVisualizerService @Inject constructor(
                 scalingMode = Visualizer.SCALING_MODE_NORMALIZED
 
                 // Set up data capture callback
+                // Use maximum capture rate for 60 FPS rendering
+                val maxCaptureRate = Visualizer.getMaxCaptureRate()
+                android.util.Log.d("AudioVisualizerService", "Max capture rate: $maxCaptureRate Hz")
+                
                 setDataCaptureListener(
                     object : Visualizer.OnDataCaptureListener {
                         override fun onWaveFormDataCapture(
@@ -86,7 +90,7 @@ class AudioVisualizerService @Inject constructor(
                             fft?.let { processFft(it) }
                         }
                     },
-                    Visualizer.getMaxCaptureRate() / 2, // ~30 FPS
+                    maxCaptureRate, // Maximum rate for 60 FPS (typically 60-120 Hz)
                     true,
                     true
                 )

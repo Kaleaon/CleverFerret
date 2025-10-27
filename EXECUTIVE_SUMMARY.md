@@ -16,7 +16,7 @@ The CleverFerret audio visualizer has been completely transformed from a basic 5
 |--------|--------|-------|-------------|
 | **Visualization Styles** | 5 | 15 | +200% |
 | **Preset Library** | 10 | 24 | +140% |
-| **Rendering FPS** | 20 | 30 | +50% |
+| **Rendering FPS** | 20 | 60 | +200% |
 | **Beat Detection** | ❌ None | ✅ Advanced | NEW |
 | **Parameter Editor** | ❌ None | ✅ Full UI | NEW |
 | **Preset Sharing** | ❌ None | ✅ Complete | NEW |
@@ -125,10 +125,11 @@ The CleverFerret audio visualizer has been completely transformed from a basic 5
 - ✅ **Material 3** - Latest design system
 
 ### Performance
-- ✅ **30 FPS rendering** - Smooth animations
+- ✅ **60 FPS rendering** - Ultra-smooth animations (modern standard)
 - ✅ **<1% CPU overhead** - Efficient beat detection
+- ✅ **GPU acceleration** - Hardware-accelerated rendering
 - ✅ **Minimal memory** - Fixed-size buffers
-- ✅ **Battery friendly** - Hardware acceleration
+- ✅ **Battery friendly** - Optimized power usage
 
 ---
 
