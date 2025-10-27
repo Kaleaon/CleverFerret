@@ -21,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryManagementViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val libraryRepository: LibraryRepository
+    private val libraryRepository: LibraryRepository,
+    private val calibreExportService: CalibreExportService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LibraryManagementUiState>(LibraryManagementUiState.Success)
@@ -178,6 +179,30 @@ class LibraryManagementViewModel @Inject constructor(
             } catch (e: Exception) {
                 _uiState.value = LibraryManagementUiState.Error(
                     "Failed to import Calibre library: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Exports library to Calibre format
+     */
+    fun exportToCalibre(exportPath: String, libraryId: Long? = null) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = LibraryManagementUiState.Loading
+                
+                val result = calibreExportService.exportToCalibre(exportPath, libraryId)
+                
+                if (result.success) {
+                    _uiState.value = LibraryManagementUiState.Success
+                } else {
+                    _uiState.value = LibraryManagementUiState.Error(result.message)
+                }
+                
+            } catch (e: Exception) {
+                _uiState.value = LibraryManagementUiState.Error(
+                    "Failed to export to Calibre: ${e.message}"
                 )
             }
         }

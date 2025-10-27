@@ -380,11 +380,14 @@ private fun PlaylistsTab() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Button(
-                onClick = { /* TODO: Navigate to playlist creation */ }
+                onClick = { 
+                    // Placeholder for playlist creation feature
+                    // In production, this would navigate to a playlist creation screen
+                }
             ) {
                 Icon(Icons.Default.Add, null)
                 Spacer(Modifier.width(8.dp))
-                Text("Create Playlist")
+                Text("Create Playlist (Coming Soon)")
             }
         }
     }

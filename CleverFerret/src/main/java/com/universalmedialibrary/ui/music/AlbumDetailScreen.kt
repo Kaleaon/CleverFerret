@@ -303,6 +303,11 @@ class AlbumDetailViewModel @Inject constructor(
     }
 
     fun addAlbumToQueue(album: Album) {
-        // TODO: Implement queue functionality
+        // Queue functionality would require implementation of a persistent queue system
+        // For now, this is a placeholder - in production, tracks would be added to 
+        // the music player's queue for sequential playback
+        viewModelScope.launch {
+            // Future: musicPlayerService.addToQueue(album.tracks)
+        }
     }
 }
