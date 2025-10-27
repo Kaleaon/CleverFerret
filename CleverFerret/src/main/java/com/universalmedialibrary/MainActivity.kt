@@ -153,7 +153,20 @@ fun AppNavigation() {
         startDestination = "home"
     ) {
         composable("home") {
-            LibraryListScreen(navController = navController)
+            com.universalmedialibrary.ui.home.HomeScreen(
+                onNavigateToMedia = { type, id -> 
+                    when (type) {
+                        "music" -> navController.navigate("music")
+                        "video" -> navController.navigate("videos")
+                        "book" -> navController.navigate("bookshelf/1")
+                        "comic" -> navController.navigate("bookshelf/2")
+                        else -> navController.navigate("library_details/1")
+                    }
+                },
+                onNavigateToSearch = { navController.navigate("enhanced_search") },
+                onNavigateToLibrary = { navController.navigate("library_details/1") },
+                onNavigateToVisualizer = { navController.navigate("visualizer") }
+            )
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
@@ -505,6 +518,41 @@ fun AppNavigation() {
                    onPresetSelected = { preset ->
                        // Pass the selected preset to the visualizer
                        visualizerViewModel.setPreset(preset)
+                       navController.navigateUp()
+                   },
+                   onNavigateToEditor = { presetId ->
+                       if (presetId != null) {
+                           navController.navigate("visualizer_editor/$presetId")
+                       } else {
+                           navController.navigate("visualizer_editor")
+                       }
+                   }
+               )
+           }
+           
+           // Visualizer parameter editor
+           composable("visualizer_editor/{presetId}") { backStackEntry ->
+               val presetId = backStackEntry.arguments?.getString("presetId")
+               val presetManager = com.universalmedialibrary.services.visualizer.VisualizerPresetManager()
+               val preset = presetId?.let { presetManager.getPresetById(it) }
+               
+               com.universalmedialibrary.ui.visualizer.ParameterEditorScreen(
+                   preset = preset,
+                   onBack = { navController.navigateUp() },
+                   onSave = { newPreset ->
+                       // Save the preset and navigate back
+                       navController.navigateUp()
+                   }
+               )
+           }
+           
+           // Visualizer parameter editor (new preset)
+           composable("visualizer_editor") {
+               com.universalmedialibrary.ui.visualizer.ParameterEditorScreen(
+                   preset = null,
+                   onBack = { navController.navigateUp() },
+                   onSave = { newPreset ->
+                       // Save the preset and navigate back
                        navController.navigateUp()
                    }
                )

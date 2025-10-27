@@ -7,21 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Repeat
-import androidx.compose.material.icons.filled.RepeatOne
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.*
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -333,11 +319,16 @@ fun MusicPlayerScreen(
     }
     
     if (showAddToPlaylistDialog) {
-        AddToPlaylistDialog(
-            playlists = emptyList(), // TODO: Load actual playlists
-            onPlaylistSelected = { /* TODO: Add to playlist */ },
-            onCreateNew = { /* TODO: Create new playlist */ },
-            onDismiss = { showAddToPlaylistDialog = false }
+        // Simple placeholder dialog for playlist feature
+        AlertDialog(
+            onDismissRequest = { showAddToPlaylistDialog = false },
+            title = { Text("Add to Playlist") },
+            text = { Text("Playlist feature coming soon! You'll be able to create and manage custom playlists.") },
+            confirmButton = {
+                TextButton(onClick = { showAddToPlaylistDialog = false }) {
+                    Text("OK")
+                }
+            }
         )
     }
 }

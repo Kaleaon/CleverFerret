@@ -1,6 +1,8 @@
 package com.universalmedialibrary.ui.visualizer
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -40,6 +42,7 @@ fun VisualizerScreen(
     val castState by viewModel.castState.collectAsState()
     val isVisualizerEnabled by viewModel.isVisualizerEnabled.collectAsState()
     val currentPreset by viewModel.currentPreset.collectAsState(initial = null)
+    val beatDetected by viewModel.beatDetected.collectAsState()
     var currentStyle by remember { mutableStateOf(VisualizerStyle.SPECTRUM_BARS) }
     var showPresetBrowser by remember { mutableStateOf(false) }
 
@@ -127,14 +130,41 @@ fun VisualizerScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Visualizer display
-            ProjectMVisualizer(
-                visualizerState = visualizerState,
-                style = currentStyle,
+            // Visualizer display with beat indicator
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-            )
+            ) {
+                ProjectMVisualizer(
+                    visualizerState = visualizerState,
+                    style = currentStyle,
+                    modifier = Modifier.fillMaxSize()
+                )
+                
+                // Beat indicator
+                if (beatDetected) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp)
+                            .size(48.dp),
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.MusicNote,
+                                contentDescription = "Beat",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+                }
+            }
 
             // Cast status banner
             if (castState.isConnected) {
@@ -201,7 +231,7 @@ fun VisualizerScreen(
                 }
             }
             
-            // Style selector
+            // Style selector with scrolling support
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -227,36 +257,25 @@ fun VisualizerScreen(
                             Text("${com.universalmedialibrary.services.visualizer.VisualizerPresetManager.DEFAULT_PRESETS.size} Presets")
                         }
                     }
+                    
                     Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        VisualizerStyle.values().take(3).forEach { style ->
-                            FilterChip(
-                                selected = currentStyle == style,
-                                onClick = { currentStyle = style },
-                                label = {
-                                    Text(
-                                        text = style.name.replace("_", " ").lowercase()
-                                            .replaceFirstChar { it.uppercase() },
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                },
-                                modifier = Modifier.weight(1f),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                                )
-                            )
-                        }
-                    }
+                    
+                    Text(
+                        text = currentStyle.name.replace("_", " ").lowercase()
+                            .replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    
                     Spacer(modifier = Modifier.height(8.dp))
-                    Row(
+                    
+                    // Scrollable style chips
+                    androidx.compose.foundation.lazy.LazyRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        VisualizerStyle.values().drop(3).forEach { style ->
+                        items(VisualizerStyle.values().size) { index ->
+                            val style = VisualizerStyle.values()[index]
                             FilterChip(
                                 selected = currentStyle == style,
                                 onClick = { currentStyle = style },
@@ -267,7 +286,6 @@ fun VisualizerScreen(
                                         style = MaterialTheme.typography.labelMedium
                                     )
                                 },
-                                modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = MaterialTheme.colorScheme.primary,
                                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary
@@ -351,7 +369,8 @@ class VisualizerViewModel @Inject constructor(
     private val audioVisualizerService: AudioVisualizerService,
     private val chromecastManager: ChromecastManager,
     private val audioPlaybackManager: AudioPlaybackManager,
-    private val exoPlayerService: com.universalmedialibrary.services.exoplayer.ExoPlayerService
+    private val exoPlayerService: com.universalmedialibrary.services.exoplayer.ExoPlayerService,
+    private val advancedMusicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 ) : ViewModel() {
     
     companion object {
@@ -361,6 +380,7 @@ class VisualizerViewModel @Inject constructor(
     val visualizerState = audioVisualizerService.visualizerState
     val castState = chromecastManager.castState
     val isVisualizerEnabled = audioVisualizerService.isEnabled
+    val beatDetected = audioVisualizerService.beatDetected
     
     private val _currentPreset = MutableStateFlow<com.universalmedialibrary.services.visualizer.VisualizerPreset?>(null)
     val currentPreset: StateFlow<com.universalmedialibrary.services.visualizer.VisualizerPreset?> = _currentPreset.asStateFlow()
@@ -374,23 +394,30 @@ class VisualizerViewModel @Inject constructor(
         chromecastManager.initialize()
 
         // Attach visualizer to the active player
-        // Try music player first (ExoPlayerService), then fall back to AudioPlaybackManager
-        val activePlayer = exoPlayerService.getPlayer() ?: audioPlaybackManager.exoPlayer
+        // Try AdvancedMusicPlayerService first (used for music AND radio), then ExoPlayerService, then AudioPlaybackManager
+        val activePlayer = advancedMusicPlayerService.getExoPlayer() 
+            ?: exoPlayerService.getPlayer() 
+            ?: audioPlaybackManager.exoPlayer
         audioVisualizerService.attachToPlayer(activePlayer)
         audioVisualizerService.setEnabled(true)
 
-        // Monitor both players and reattach when active player changes
+        // Monitor all players and reattach when active player changes
         viewModelScope.launch {
             while (isActive) {
                 // Check if we need to switch players
+                val advancedPlayer = advancedMusicPlayerService.getExoPlayer()  // Music + Radio
                 val musicPlayer = exoPlayerService.getPlayer()
                 val audioPlayer = audioPlaybackManager.exoPlayer
                 val currentPlayer = audioVisualizerService.getCurrentPlayer()
                 
+                delay(500L) // Prevent busy-loop CPU/battery drain
+                
                 // Prefer the player that's actually playing
                 val targetPlayer = when {
+                    advancedPlayer?.isPlaying == true -> advancedPlayer  // Highest priority - music/radio
                     musicPlayer?.isPlaying == true -> musicPlayer
                     audioPlayer.isPlaying -> audioPlayer
+                    advancedPlayer != null -> advancedPlayer
                     musicPlayer != null -> musicPlayer
                     else -> audioPlayer
                 }

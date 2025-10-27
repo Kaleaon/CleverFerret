@@ -349,6 +349,29 @@ fun CleverFerretTheme.isAncientArchitect(): Boolean {
 }
 
 /**
+ * Convert CleverFerretTheme to ThemePalette
+ */
+fun CleverFerretTheme.toThemePalette(): com.universalmedialibrary.ui.theme.ThemePalette {
+    return when (this) {
+        CleverFerretTheme.NAVY_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
+        CleverFerretTheme.ROYAL_SILVER -> com.universalmedialibrary.ui.theme.ThemePalette.ROYAL_SILVER
+        CleverFerretTheme.FOREST_COPPER -> com.universalmedialibrary.ui.theme.ThemePalette.FOREST_COPPER
+        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.BURGUNDY_ROSE_GOLD
+        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> com.universalmedialibrary.ui.theme.ThemePalette.CHARCOAL_CHAMPAGNE
+        CleverFerretTheme.SLATE_GUNMETAL -> com.universalmedialibrary.ui.theme.ThemePalette.SLATE_GUNMETAL
+        CleverFerretTheme.COPPER_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.COPPER_BRONZE
+        CleverFerretTheme.AMBER_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.AMBER_GOLD
+        CleverFerretTheme.ROSE_BRASS -> com.universalmedialibrary.ui.theme.ThemePalette.ROSE_BRASS
+        CleverFerretTheme.STEEL_TITANIUM -> com.universalmedialibrary.ui.theme.ThemePalette.STEEL_TITANIUM
+        CleverFerretTheme.PLATINUM_SILVER -> com.universalmedialibrary.ui.theme.ThemePalette.PLATINUM_SILVER
+        CleverFerretTheme.COBALT_CHROME -> com.universalmedialibrary.ui.theme.ThemePalette.COBALT_CHROME
+        CleverFerretTheme.ANCIENT_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.ANCIENT_BRONZE
+        CleverFerretTheme.SILVER_ARCHITECT -> com.universalmedialibrary.ui.theme.ThemePalette.SILVER_ARCHITECT
+        CleverFerretTheme.OBSIDIAN_TECH -> com.universalmedialibrary.ui.theme.ThemePalette.OBSIDIAN_TECH
+    }
+}
+
+/**
  * Helper to get theme by index (for preference storage)
  */
 fun Int.toCleverFerretTheme(): CleverFerretTheme {

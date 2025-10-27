@@ -422,5 +422,38 @@ enum class ThemePalette {
     FOREST_COPPER,
     BURGUNDY_ROSE_GOLD,
     CHARCOAL_CHAMPAGNE,
-    SLATE_GUNMETAL
+    SLATE_GUNMETAL,
+    // Warm Metallic Themes
+    COPPER_BRONZE,
+    AMBER_GOLD,
+    ROSE_BRASS,
+    // Cool Metallic Themes
+    STEEL_TITANIUM,
+    PLATINUM_SILVER,
+    COBALT_CHROME,
+    // Ancient Architect Themes
+    ANCIENT_BRONZE,
+    SILVER_ARCHITECT,
+    OBSIDIAN_TECH;
+    
+    // Convert ThemePalette to CleverFerretTheme
+    fun toCleverFerretTheme(): com.universalmedialibrary.ui.theme.CleverFerretTheme {
+        return when (this) {
+            NAVY_GOLD -> com.universalmedialibrary.ui.theme.CleverFerretTheme.NAVY_GOLD
+            ROYAL_SILVER -> com.universalmedialibrary.ui.theme.CleverFerretTheme.ROYAL_SILVER
+            FOREST_COPPER -> com.universalmedialibrary.ui.theme.CleverFerretTheme.FOREST_COPPER
+            BURGUNDY_ROSE_GOLD -> com.universalmedialibrary.ui.theme.CleverFerretTheme.BURGUNDY_ROSE_GOLD
+            CHARCOAL_CHAMPAGNE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.CHARCOAL_CHAMPAGNE
+            SLATE_GUNMETAL -> com.universalmedialibrary.ui.theme.CleverFerretTheme.SLATE_GUNMETAL
+            COPPER_BRONZE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.COPPER_BRONZE
+            AMBER_GOLD -> com.universalmedialibrary.ui.theme.CleverFerretTheme.AMBER_GOLD
+            ROSE_BRASS -> com.universalmedialibrary.ui.theme.CleverFerretTheme.ROSE_BRASS
+            STEEL_TITANIUM -> com.universalmedialibrary.ui.theme.CleverFerretTheme.STEEL_TITANIUM
+            PLATINUM_SILVER -> com.universalmedialibrary.ui.theme.CleverFerretTheme.PLATINUM_SILVER
+            COBALT_CHROME -> com.universalmedialibrary.ui.theme.CleverFerretTheme.COBALT_CHROME
+            ANCIENT_BRONZE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.ANCIENT_BRONZE
+            SILVER_ARCHITECT -> com.universalmedialibrary.ui.theme.CleverFerretTheme.SILVER_ARCHITECT
+            OBSIDIAN_TECH -> com.universalmedialibrary.ui.theme.CleverFerretTheme.OBSIDIAN_TECH
+        }
+    }
 }

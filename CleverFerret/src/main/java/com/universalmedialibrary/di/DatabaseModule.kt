@@ -79,7 +79,7 @@ object DatabaseModule {
         return database.plexSyncDao()
     }
 
-    // Emby/Jellyfin DAOs
+    // Emby/Jellyfin/YAACC DAOs
     @Provides
     fun provideEmbyServerDao(database: AppDatabase): EmbyServerDao {
         return database.embyServerDao()
@@ -88,6 +88,11 @@ object DatabaseModule {
     @Provides
     fun provideJellyfinServerDao(database: AppDatabase): JellyfinServerDao {
         return database.jellyfinServerDao()
+    }
+
+    @Provides
+    fun provideYaaccServerDao(database: AppDatabase): YaaccServerDao {
+        return database.yaaccServerDao()
     }
 
     // OPDS DAO

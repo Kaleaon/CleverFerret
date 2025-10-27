@@ -11,6 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.log10
 import kotlin.math.sqrt
+import java.util.ArrayDeque
 
 /**
  * Audio Visualizer Service inspired by projectM
@@ -32,6 +33,11 @@ class AudioVisualizerService @Inject constructor(
 
     private val _isEnabled = MutableStateFlow(false)
     val isEnabled: StateFlow<Boolean> = _isEnabled.asStateFlow()
+    
+    // Beat detection
+    private val beatDetector = BeatDetector()
+    private val _beatDetected = MutableStateFlow(false)
+    val beatDetected: StateFlow<Boolean> = _beatDetected.asStateFlow()
 
     /**
      * Attach visualizer to an ExoPlayer instance
@@ -62,6 +68,10 @@ class AudioVisualizerService @Inject constructor(
                 scalingMode = Visualizer.SCALING_MODE_NORMALIZED
 
                 // Set up data capture callback
+                // Use maximum capture rate for 60 FPS rendering
+                val maxCaptureRate = Visualizer.getMaxCaptureRate()
+                android.util.Log.d("AudioVisualizerService", "Max capture rate: $maxCaptureRate Hz")
+                
                 setDataCaptureListener(
                     object : Visualizer.OnDataCaptureListener {
                         override fun onWaveFormDataCapture(
@@ -80,7 +90,7 @@ class AudioVisualizerService @Inject constructor(
                             fft?.let { processFft(it) }
                         }
                     },
-                    Visualizer.getMaxCaptureRate() / 2,
+                    maxCaptureRate, // Maximum rate for 60 FPS (typically 60-120 Hz)
                     true,
                     true
                 )
@@ -113,7 +123,7 @@ class AudioVisualizerService @Inject constructor(
     }
 
     /**
-     * Process FFT data for frequency-domain visualization
+     * Process FFT data for frequency-domain visualization with beat detection
      */
     private fun processFft(fft: ByteArray) {
         val magnitudes = mutableListOf<Float>()
@@ -128,11 +138,16 @@ class AudioVisualizerService @Inject constructor(
 
         // Calculate frequency bands for projectM-style visualization
         val bands = calculateFrequencyBands(magnitudes)
+        
+        // Detect beats
+        val isBeat = beatDetector.detectBeat(magnitudes)
+        _beatDetected.value = isBeat
 
         _visualizerState.value = _visualizerState.value.copy(
             fftData = magnitudes,
             frequencyBands = bands,
-            timestamp = System.currentTimeMillis()
+            timestamp = System.currentTimeMillis(),
+            isBeat = isBeat
         )
     }
 
@@ -216,7 +231,8 @@ data class VisualizerState(
     val fftData: List<Float> = emptyList(),
     val frequencyBands: FrequencyBands = FrequencyBands(),
     val timestamp: Long = 0,
-    val error: String? = null
+    val error: String? = null,
+    val isBeat: Boolean = false
 )
 
 /**
@@ -228,3 +244,47 @@ data class FrequencyBands(
     val treble: Float = 0f,
     val spectrum: List<Float> = emptyList()
 )
+
+/**
+ * Beat Detector using energy-based algorithm
+ */
+private class BeatDetector {
+    private val energyHistory = ArrayDeque<Float>(43) // ~1 second at 43 Hz
+    private var lastBeatTime = 0L
+    private val minBeatInterval = 300L // ms between beats
+    private val energyThreshold = 1.5f // Beat threshold multiplier
+    
+    fun detectBeat(spectrum: List<Float>): Boolean {
+        if (spectrum.isEmpty()) return false
+        
+        // Calculate instant energy from bass frequencies (focus on low end)
+        val bassRange = spectrum.take((spectrum.size * 0.1).toInt().coerceAtLeast(1))
+        val energy = bassRange.average().toFloat()
+        
+        // Add to history
+        energyHistory.addLast(energy)
+        if (energyHistory.size > 43) {
+            energyHistory.removeFirst()
+        }
+        
+        // Need enough history
+        if (energyHistory.size < 10) return false
+        
+        // Calculate average energy
+        val avgEnergy = energyHistory.average().toFloat()
+        
+        // Detect beat if current energy significantly exceeds average
+        val now = System.currentTimeMillis()
+        val timeSinceLastBeat = now - lastBeatTime
+        val isEnergySpike = energy > avgEnergy * energyThreshold
+        val isCooldownExpired = timeSinceLastBeat > minBeatInterval
+        
+        val isBeat = isEnergySpike && isCooldownExpired && avgEnergy > 0.01f
+        
+        if (isBeat) {
+            lastBeatTime = now
+        }
+        
+        return isBeat
+    }
+}
