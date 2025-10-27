@@ -1,7 +1,9 @@
 package com.universalmedialibrary.services.organization
 
 import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.Series
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -12,7 +14,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class SeriesManagementService @Inject constructor(
-    private val mediaItemDao: MediaItemDao
+    private val mediaItemDao: MediaItemDao,
+    private val metadataDao: MetadataDao
 ) {
     
     /**
@@ -20,9 +23,7 @@ class SeriesManagementService @Inject constructor(
      */
     suspend fun getBooksInSeries(seriesName: String): List<MediaItem> = 
         withContext(Dispatchers.IO) {
-            // This would need a proper DAO query
-            // For now, return empty list as placeholder
-            emptyList()
+            mediaItemDao.getBooksBySeries(seriesName)
         }
     
     /**
@@ -30,11 +31,18 @@ class SeriesManagementService @Inject constructor(
      */
     suspend fun reorderSeries(
         seriesName: String,
-        newOrder: List<Pair<String, Float>> // mediaItemId to new index
+        newOrder: List<Pair<Long, Float>> // itemId to new index
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // TODO: Implement when MediaItem has series support
-            // This would update the series index in the metadata
+            newOrder.forEach { (itemId, newIndex) ->
+                // Update the series index in metadata_book
+                val bookMetadata = metadataDao.getMetadataBookByItemId(itemId)
+                if (bookMetadata != null) {
+                    metadataDao.insertMetadataBook(
+                        bookMetadata.copy(seriesIndex = newIndex)
+                    )
+                }
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -129,8 +137,35 @@ class SeriesManagementService @Inject constructor(
         books: List<MediaItem>
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // TODO: Implement when MediaItem has series metadata support
-            // This would update the metadata to add series information
+            // Find or create the series
+            var seriesId = metadataDao.findSeriesByName(seriesName)
+            if (seriesId == null) {
+                val newSeries = Series(
+                    name = seriesName,
+                    sortName = seriesName,
+                    mediaType = "BOOK",
+                    totalItems = books.size,
+                    autoDetected = true
+                )
+                seriesId = metadataDao.insertSeries(newSeries)
+            }
+            
+            // Update each book with the series
+            books.forEachIndexed { index, book ->
+                metadataDao.updateBookWithSeries(book.itemId, seriesId)
+                
+                // Also update the series index
+                val bookMetadata = metadataDao.getMetadataBookByItemId(book.itemId)
+                if (bookMetadata != null) {
+                    metadataDao.insertMetadataBook(
+                        bookMetadata.copy(
+                            series = seriesId.toString(),
+                            seriesIndex = (index + 1).toFloat()
+                        )
+                    )
+                }
+            }
+            
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
