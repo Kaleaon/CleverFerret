@@ -29,6 +29,14 @@ class FanartTvService @Inject constructor(
 ) {
     private val api: FanartTvApi by lazy { apiManager.createFanartTvApi() }
     
+    // Reusable OkHttpClient for image downloads with proper timeouts
+    private val downloadClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .build()
+    }
+    
     companion object {
         private const val TAG = "FanartTvService"
         private const val CACHE_DIR = "fanart_cache"
@@ -194,17 +202,12 @@ class FanartTvService @Inject constructor(
                     return@withContext null
                 }
                 
-                // Use OkHttp for downloads with proper timeouts and connection pooling
-                val client = OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
-                    .build()
-                
+                // Download using reusable OkHttp client with proper timeouts
                 val request = Request.Builder()
                     .url(imageUrl)
                     .build()
                 
-                client.newCall(request).execute().use { response ->
+                downloadClient.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
                         Log.w(TAG, "Failed to download image: HTTP ${response.code}")
                         return@withContext null
