@@ -1,7 +1,7 @@
 package com.universalmedialibrary.services.organization
 
-import com.universalmedialibrary.data.local.dao.BookDao
-import com.universalmedialibrary.data.local.entity.BookEntity
+import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.entity.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -12,13 +12,13 @@ import javax.inject.Singleton
  */
 @Singleton
 class SeriesManagementService @Inject constructor(
-    private val bookDao: BookDao
+    private val mediaItemDao: MediaItemDao
 ) {
     
     /**
      * Get all books in a series, sorted by series index
      */
-    suspend fun getBooksInSeries(seriesName: String): List<BookEntity> = 
+    suspend fun getBooksInSeries(seriesName: String): List<MediaItem> = 
         withContext(Dispatchers.IO) {
             // This would need a proper DAO query
             // For now, return empty list as placeholder
@@ -30,18 +30,11 @@ class SeriesManagementService @Inject constructor(
      */
     suspend fun reorderSeries(
         seriesName: String,
-        newOrder: List<Pair<String, Float>> // bookId to new index
+        newOrder: List<Pair<String, Float>> // mediaItemId to new index
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            newOrder.forEach { (bookId, newIndex) ->
-                val book = bookDao.getBook(bookId.toLong())
-                book?.let {
-                    val updated = it.copy(
-                        seriesIndex = newIndex
-                    )
-                    bookDao.updateBook(updated)
-                }
-            }
+            // TODO: Implement when MediaItem has series support
+            // This would update the series index in the metadata
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -52,7 +45,7 @@ class SeriesManagementService @Inject constructor(
      * Auto-detect series from titles
      * e.g., "Harry Potter and the...", "The Lord of the Rings: ..."
      */
-    suspend fun autoDetectSeries(books: List<BookEntity>): List<SeriesSuggestion> = 
+    suspend fun autoDetectSeries(books: List<MediaItem>): List<SeriesSuggestion> = 
         withContext(Dispatchers.Default) {
             val suggestions = mutableListOf<SeriesSuggestion>()
             
@@ -104,33 +97,26 @@ class SeriesManagementService @Inject constructor(
     /**
      * Calculate confidence that books form a series
      */
-    private fun calculateSeriesConfidence(books: List<BookEntity>): Float {
+    private fun calculateSeriesConfidence(books: List<MediaItem>): Float {
         var score = 0f
         
-        // Same author increases confidence
-        val sameAuthor = books.map { it.author }.distinct().size == 1
-        if (sameAuthor) score += 0.4f
-        
         // Sequential numbering in titles
-        val hasNumbering = books.count { title ->
-            title.title.contains(Regex("\\d+|#\\d+|Book \\d+|Vol\\.? \\d+"))
+        val hasNumbering = books.count { item ->
+            item.title.contains(Regex("\\d+|#\\d+|Book \\d+|Vol\\.? \\d+"))
         } > books.size * 0.5
-        if (hasNumbering) score += 0.3f
+        if (hasNumbering) score += 0.5f
         
         // Similar file sizes
-        val avgSize = books.map { it.fileSize }.average()
+        val avgSize = books.map { it.size }.average()
         val similarSizes = books.count { 
-            val ratio = it.fileSize / avgSize
+            val ratio = it.size / avgSize
             ratio in 0.7..1.3
         } > books.size * 0.7
-        if (similarSizes) score += 0.2f
+        if (similarSizes) score += 0.3f
         
-        // Close publication dates
-        val dates = books.mapNotNull { it.publishDate }
-        if (dates.size > 1) {
-            // Add points if dates are sequential
-            score += 0.1f
-        }
+        // Same media type
+        val sameType = books.map { it.type }.distinct().size == 1
+        if (sameType) score += 0.2f
         
         return score.coerceIn(0f, 1f)
     }
@@ -140,16 +126,11 @@ class SeriesManagementService @Inject constructor(
      */
     suspend fun createSeries(
         seriesName: String,
-        books: List<BookEntity>
+        books: List<MediaItem>
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            books.forEachIndexed { index, book ->
-                val updated = book.copy(
-                    series = seriesName,
-                    seriesIndex = (index + 1).toFloat()
-                )
-                bookDao.updateBook(updated)
-            }
+            // TODO: Implement when MediaItem has series metadata support
+            // This would update the metadata to add series information
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -162,6 +143,6 @@ class SeriesManagementService @Inject constructor(
  */
 data class SeriesSuggestion(
     val seriesName: String,
-    val books: List<BookEntity>,
+    val books: List<MediaItem>,
     val confidence: Float // 0.0 to 1.0
 )

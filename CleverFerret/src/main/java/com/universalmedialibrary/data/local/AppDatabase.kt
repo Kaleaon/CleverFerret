@@ -122,13 +122,17 @@ import com.universalmedialibrary.data.Tag
         OPDSDownload::class,
 
         // Comic Translation Cache (Gemini AI)
-        ComicTranslationCache::class
+        ComicTranslationCache::class,
+
+        // Calibre Features
+        FanfictionStoryEntity::class,
+        AudiobookEntity::class
 
     ],
-    version = 27, // Incremented for YAACC server support
+    version = 28, // Incremented for Calibre features (Fanfiction & Audiobooks)
     exportSchema = false
 )
-@TypeConverters(Converters::class)
+@TypeConverters(Converters::class, AudioChapterListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -195,6 +199,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun securitySettingsDao(): SecuritySettingsDao
     abstract fun apiSettingsDao(): ApiSettingsDao
 
+    // Calibre Features DAOs
+    abstract fun fanfictionDao(): FanfictionDao
+    abstract fun audiobookDao(): AudiobookDao
+
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
@@ -216,7 +224,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_23_24,
                     AppDatabaseMigrations.MIGRATION_24_25,
                     AppDatabaseMigrations.MIGRATION_25_26,
-                    AppDatabaseMigrations.MIGRATION_26_27
+                    AppDatabaseMigrations.MIGRATION_26_27,
+                    AppDatabaseMigrations.MIGRATION_27_28
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

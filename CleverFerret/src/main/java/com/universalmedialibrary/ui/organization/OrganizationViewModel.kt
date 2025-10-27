@@ -2,7 +2,7 @@ package com.universalmedialibrary.ui.organization
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.local.dao.BookDao
+import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.services.organization.DuplicateDetectionService
 import com.universalmedialibrary.services.organization.DuplicateGroup
 import com.universalmedialibrary.services.organization.SeriesManagementService
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OrganizationViewModel @Inject constructor(
-    private val bookDao: BookDao,
+    private val mediaItemDao: MediaItemDao,
     private val duplicateDetectionService: DuplicateDetectionService,
     private val seriesManagementService: SeriesManagementService
 ) : ViewModel() {
@@ -36,12 +36,12 @@ class OrganizationViewModel @Inject constructor(
             try {
                 _isScanning.value = true
                 
-                // Get all books
-                val books = bookDao.getAllBooks().first()
+                // Get all media items
+                val items = mediaItemDao.getAllMediaItems().first()
                 
                 // Find duplicates
                 val result = duplicateDetectionService.findDuplicates(
-                    books = books,
+                    items = items,
                     threshold = _duplicateThreshold.value
                 )
                 
@@ -59,11 +59,11 @@ class OrganizationViewModel @Inject constructor(
             try {
                 _isScanning.value = true
                 
-                // Get all books
-                val books = bookDao.getAllBooks().first()
+                // Get all media items
+                val items = mediaItemDao.getAllMediaItems().first()
                 
                 // Find series
-                val suggestions = seriesManagementService.autoDetectSeries(books)
+                val suggestions = seriesManagementService.autoDetectSeries(items)
                 
                 _seriesSuggestions.value = suggestions
             } catch (e: Exception) {
@@ -74,11 +74,10 @@ class OrganizationViewModel @Inject constructor(
         }
     }
     
-    fun deleteBook(bookId: String) {
+    fun deleteMediaItem(itemId: String) {
         viewModelScope.launch {
             try {
-                val book = bookDao.getBook(bookId.toLong())
-                book?.let { bookDao.deleteBook(it) }
+                mediaItemDao.deleteMediaItem(itemId.toLong())
                 
                 // Refresh duplicates
                 scanForDuplicates()
@@ -88,14 +87,14 @@ class OrganizationViewModel @Inject constructor(
         }
     }
     
-    fun keepOneDeleteOthers(keepBookId: String, groupIndex: Int) {
+    fun keepOneDeleteOthers(keepItemId: String, groupIndex: Int) {
         viewModelScope.launch {
             try {
                 val group = _duplicateGroups.value.getOrNull(groupIndex) ?: return@launch
                 
                 group.matches.forEach { match ->
-                    if (match.book.id.toString() != keepBookId) {
-                        bookDao.deleteBook(match.book)
+                    if (match.item.id.toString() != keepItemId) {
+                        mediaItemDao.deleteMediaItem(match.item.id)
                     }
                 }
                 

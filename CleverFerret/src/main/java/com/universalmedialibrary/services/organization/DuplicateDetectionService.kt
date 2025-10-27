@@ -1,46 +1,46 @@
 package com.universalmedialibrary.services.organization
 
-import com.universalmedialibrary.data.local.entity.BookEntity
+import com.universalmedialibrary.data.local.entity.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Service for detecting duplicate books
+ * Service for detecting duplicate media items (books, audiobooks, etc.)
  */
 @Singleton
 class DuplicateDetectionService @Inject constructor() {
     
     /**
-     * Find potential duplicates in a list of books
+     * Find potential duplicates in a list of media items
      */
     suspend fun findDuplicates(
-        books: List<BookEntity>,
+        items: List<MediaItem>,
         threshold: Float = 0.85f
     ): List<DuplicateGroup> = withContext(Dispatchers.Default) {
         val duplicateGroups = mutableListOf<DuplicateGroup>()
-        val processed = mutableSetOf<String>()
+        val processed = mutableSetOf<Long>()
         
-        books.forEach { book1 ->
-            if (book1.id in processed) return@forEach
+        items.forEach { item1 ->
+            if (item1.id in processed) return@forEach
             
             val duplicates = mutableListOf<DuplicateMatch>()
-            duplicates.add(DuplicateMatch(book1, 1.0f, listOf("Original")))
+            duplicates.add(DuplicateMatch(item1, 1.0f, listOf("Original")))
             
-            books.forEach { book2 ->
-                if (book1.id != book2.id && book2.id !in processed) {
-                    val similarity = calculateSimilarity(book1, book2)
+            items.forEach { item2 ->
+                if (item1.id != item2.id && item2.id !in processed) {
+                    val similarity = calculateSimilarity(item1, item2)
                     if (similarity >= threshold) {
-                        val reasons = getSimilarityReasons(book1, book2)
-                        duplicates.add(DuplicateMatch(book2, similarity, reasons))
-                        processed.add(book2.id)
+                        val reasons = getSimilarityReasons(item1, item2)
+                        duplicates.add(DuplicateMatch(item2, similarity, reasons))
+                        processed.add(item2.id)
                     }
                 }
             }
             
             if (duplicates.size > 1) {
-                processed.add(book1.id)
+                processed.add(item1.id)
                 duplicateGroups.add(DuplicateGroup(duplicates))
             }
         }
@@ -49,34 +49,40 @@ class DuplicateDetectionService @Inject constructor() {
     }
     
     /**
-     * Calculate similarity between two books (0.0 to 1.0)
+     * Calculate similarity between two media items (0.0 to 1.0)
      */
-    private fun calculateSimilarity(book1: BookEntity, book2: BookEntity): Float {
+    private fun calculateSimilarity(item1: MediaItem, item2: MediaItem): Float {
         var score = 0f
         var maxScore = 0f
         
-        // ISBN match (strongest signal)
-        if (!book1.isbn.isNullOrBlank() && !book2.isbn.isNullOrBlank()) {
-            maxScore += 50f
-            if (book1.isbn == book2.isbn) {
-                score += 50f
-            }
-        }
+        // Same media type (required)
+        if (item1.type != item2.type) return 0f
         
         // Title similarity
-        maxScore += 30f
-        score += titleSimilarity(book1.title, book2.title) * 30f
+        maxScore += 50f
+        score += titleSimilarity(item1.title, item2.title) * 50f
         
-        // Author similarity
-        maxScore += 15f
-        score += authorSimilarity(book1.author, book2.author) * 15f
+        // File path similarity (same filename)
+        maxScore += 20f
+        val file1 = item1.path.substringAfterLast("/")
+        val file2 = item2.path.substringAfterLast("/")
+        score += titleSimilarity(file1, file2) * 20f
         
-        // File size similarity (if both have files)
-        if (book1.fileSize > 0 && book2.fileSize > 0) {
-            maxScore += 5f
-            val sizeRatio = minOf(book1.fileSize, book2.fileSize).toFloat() / 
-                           maxOf(book1.fileSize, book2.fileSize).toFloat()
-            if (sizeRatio > 0.9f) score += 5f
+        // File size similarity
+        if (item1.size > 0 && item2.size > 0) {
+            maxScore += 20f
+            val sizeRatio = minOf(item1.size, item2.size).toFloat() / 
+                           maxOf(item1.size, item2.size).toFloat()
+            if (sizeRatio > 0.95f) score += 20f
+            else if (sizeRatio > 0.85f) score += 10f
+        }
+        
+        // Duration similarity (for audio/video)
+        if (item1.duration > 0 && item2.duration > 0) {
+            maxScore += 10f
+            val durationRatio = minOf(item1.duration, item2.duration).toFloat() / 
+                               maxOf(item1.duration, item2.duration).toFloat()
+            if (durationRatio > 0.95f) score += 10f
         }
         
         return if (maxScore > 0) score / maxScore else 0f
@@ -85,26 +91,32 @@ class DuplicateDetectionService @Inject constructor() {
     /**
      * Get reasons for similarity
      */
-    private fun getSimilarityReasons(book1: BookEntity, book2: BookEntity): List<String> {
+    private fun getSimilarityReasons(item1: MediaItem, item2: MediaItem): List<String> {
         val reasons = mutableListOf<String>()
         
-        if (!book1.isbn.isNullOrBlank() && book1.isbn == book2.isbn) {
-            reasons.add("Same ISBN")
-        }
-        
-        if (titleSimilarity(book1.title, book2.title) > 0.9f) {
+        if (titleSimilarity(item1.title, item2.title) > 0.9f) {
             reasons.add("Very similar title")
         }
         
-        if (authorSimilarity(book1.author, book2.author) > 0.9f) {
-            reasons.add("Same author")
+        val file1 = item1.path.substringAfterLast("/")
+        val file2 = item2.path.substringAfterLast("/")
+        if (titleSimilarity(file1, file2) > 0.9f) {
+            reasons.add("Same filename")
         }
         
-        if (book1.fileSize > 0 && book2.fileSize > 0) {
-            val sizeRatio = minOf(book1.fileSize, book2.fileSize).toFloat() / 
-                           maxOf(book1.fileSize, book2.fileSize).toFloat()
+        if (item1.size > 0 && item2.size > 0) {
+            val sizeRatio = minOf(item1.size, item2.size).toFloat() / 
+                           maxOf(item1.size, item2.size).toFloat()
             if (sizeRatio > 0.95f) {
-                reasons.add("Similar file size")
+                reasons.add("Identical file size")
+            }
+        }
+        
+        if (item1.duration > 0 && item2.duration > 0) {
+            val durationRatio = minOf(item1.duration, item2.duration).toFloat() / 
+                               maxOf(item1.duration, item2.duration).toFloat()
+            if (durationRatio > 0.95f) {
+                reasons.add("Same duration")
             }
         }
         
@@ -129,28 +141,6 @@ class DuplicateDetectionService @Inject constructor() {
     }
     
     /**
-     * Calculate author similarity
-     */
-    private fun authorSimilarity(author1: String?, author2: String?): Float {
-        if (author1.isNullOrBlank() || author2.isNullOrBlank()) return 0f
-        
-        val a1 = normalizeAuthor(author1)
-        val a2 = normalizeAuthor(author2)
-        
-        if (a1 == a2) return 1.0f
-        
-        // Check if one contains the other (handles "J.K. Rowling" vs "Rowling, J.K.")
-        if (a1.contains(a2) || a2.contains(a1)) return 0.9f
-        
-        val distance = levenshteinDistance(a1, a2)
-        val maxLength = maxOf(a1.length, a2.length)
-        
-        return if (maxLength > 0) {
-            1f - (distance.toFloat() / maxLength)
-        } else 0f
-    }
-    
-    /**
      * Normalize title for comparison
      */
     private fun normalizeTitle(title: String): String {
@@ -161,16 +151,6 @@ class DuplicateDetectionService @Inject constructor() {
             .removePrefix("the ")
             .removePrefix("a ")
             .removePrefix("an ")
-    }
-    
-    /**
-     * Normalize author name for comparison
-     */
-    private fun normalizeAuthor(author: String): String {
-        return author.lowercase()
-            .replace(Regex("[^a-z\\s]"), "")
-            .replace(Regex("\\s+"), " ")
-            .trim()
     }
     
     /**
@@ -211,10 +191,10 @@ data class DuplicateGroup(
 }
 
 /**
- * A book that matches as a duplicate
+ * A media item that matches as a duplicate
  */
 data class DuplicateMatch(
-    val book: BookEntity,
+    val item: MediaItem,
     val similarity: Float, // 0.0 to 1.0
     val reasons: List<String>
 )
