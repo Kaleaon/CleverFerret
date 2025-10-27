@@ -561,6 +561,7 @@ private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
         WebFictionSiteType.QUESTIONABLE_QUESTING -> "Questionable Questing"
         WebFictionSiteType.FIMFICTION -> "FimFiction"
         WebFictionSiteType.LITEROTICA -> "Literotica"
+        WebFictionSiteType.METABODS -> "Metabods"
         WebFictionSiteType.GENERIC -> "Generic Site"
     }
 }
@@ -578,6 +579,7 @@ private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
         WebFictionSiteType.QUESTIONABLE_QUESTING -> "forum.questionablequesting.com"
         WebFictionSiteType.FIMFICTION -> "fimfiction.net"
         WebFictionSiteType.LITEROTICA -> "literotica.com"
+        WebFictionSiteType.METABODS -> "metabods.com"
         WebFictionSiteType.GENERIC -> ""
     }
 }
