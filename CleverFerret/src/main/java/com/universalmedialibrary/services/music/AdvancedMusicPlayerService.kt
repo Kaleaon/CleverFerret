@@ -512,6 +512,13 @@ class AdvancedMusicPlayerService @Inject constructor(
     }
 
     /**
+     * Get the underlying ExoPlayer instance for advanced features (visualizer, effects, etc.)
+     */
+    fun getExoPlayer(): ExoPlayer? {
+        return exoPlayerService.getPlayer()
+    }
+
+    /**
      * Release all resources
      */
     fun release() {

@@ -122,8 +122,9 @@ fun InternetRadioScreen(
                 }
             }
 
-            // Genre Tabs - Updated to match actual station categories
-            val genres = listOf("All", "Music", "Ambient", "Electronic", "Rock", "Jazz", "Classical", "News", "Hip Hop")
+            // Genre Tabs - Dynamically generated from available stations
+            val availableGenres by viewModel.availableGenres.collectAsState()
+            val genres = listOf("All") + availableGenres.sorted()
             ScrollableTabRow(
                 selectedTabIndex = genres.indexOf(selectedGenre).coerceAtLeast(0),
                 modifier = Modifier.fillMaxWidth(),
@@ -170,7 +171,8 @@ fun InternetRadioScreen(
             onAdd = { name, url, genre ->
                 viewModel.addCustomStation(name, url, genre)
                 showAddStationDialog = false
-            }
+            },
+            availableGenres = availableGenres
         )
     }
 }
@@ -265,6 +267,15 @@ class InternetRadioViewModel @Inject constructor(
         scope = viewModelScope,
         started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
         initialValue = false
+    )
+
+    // Dynamically extract available genres from all stations
+    val availableGenres: StateFlow<List<String>> = _stations.map { stationList ->
+        stationList.map { it.genre }.distinct().filter { it.isNotBlank() }
+    }.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
     )
 
     init {
@@ -372,14 +383,26 @@ class InternetRadioViewModel @Inject constructor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddStationDialog(
     onDismiss: () -> Unit,
-    onAdd: (String, String, String) -> Unit
+    onAdd: (String, String, String) -> Unit,
+    availableGenres: List<String> = emptyList()
 ) {
     var name by remember { mutableStateOf("") }
     var url by remember { mutableStateOf("") }
     var genre by remember { mutableStateOf("") }
+    var showGenreDropdown by remember { mutableStateOf(false) }
+    
+    // Suggest genres based on input
+    val genreSuggestions = remember(genre, availableGenres) {
+        if (genre.isBlank()) {
+            availableGenres
+        } else {
+            availableGenres.filter { it.contains(genre, ignoreCase = true) }
+        }
+    }
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -403,12 +426,64 @@ private fun AddStationDialog(
                     singleLine = true,
                     placeholder = { Text("https://...") }
                 )
-                OutlinedTextField(
-                    value = genre,
-                    onValueChange = { genre = it },
-                    label = { Text("Genre") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                
+                // Genre field with dropdown suggestions
+                ExposedDropdownMenuBox(
+                    expanded = showGenreDropdown && genreSuggestions.isNotEmpty(),
+                    onExpandedChange = { showGenreDropdown = it }
+                ) {
+                    OutlinedTextField(
+                        value = genre,
+                        onValueChange = { 
+                            genre = it
+                            showGenreDropdown = true
+                        },
+                        label = { Text("Genre") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        singleLine = true,
+                        placeholder = { Text("Select or type genre...") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGenreDropdown)
+                        }
+                    )
+                    
+                    if (genreSuggestions.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            expanded = showGenreDropdown,
+                            onDismissRequest = { showGenreDropdown = false }
+                        ) {
+                            genreSuggestions.forEach { suggestion ->
+                                DropdownMenuItem(
+                                    text = { Text(suggestion) },
+                                    onClick = {
+                                        genre = suggestion
+                                        showGenreDropdown = false
+                                    }
+                                )
+                            }
+                            // Option to add custom genre
+                            if (genre.isNotBlank() && genre !in availableGenres) {
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text("Add \"$genre\" as new genre") },
+                                    onClick = {
+                                        showGenreDropdown = false
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Add, "Add")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                Text(
+                    text = "Tip: Choose an existing genre or create a new one",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
@@ -417,6 +492,7 @@ private fun AddStationDialog(
                 onClick = {
                     if (name.isNotBlank() && url.isNotBlank()) {
                         onAdd(name, url, genre.ifBlank { "Other" })
+                        onDismiss()
                     }
                 },
                 enabled = name.isNotBlank() && url.isNotBlank()
