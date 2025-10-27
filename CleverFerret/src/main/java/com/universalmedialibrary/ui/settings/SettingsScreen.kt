@@ -456,17 +456,8 @@ private fun ThemePickerDialog(
                         
                         Card(
                             onClick = { 
-                                // Try to convert to old ThemePalette, fallback to NAVY_GOLD
-                                val oldPalette = when (theme) {
-                                    CleverFerretTheme.NAVY_GOLD -> ThemePalette.NAVY_GOLD
-                                    CleverFerretTheme.ROYAL_SILVER -> ThemePalette.ROYAL_SILVER
-                                    CleverFerretTheme.FOREST_COPPER -> ThemePalette.FOREST_COPPER
-                                    CleverFerretTheme.BURGUNDY_ROSE_GOLD -> ThemePalette.BURGUNDY_ROSE_GOLD
-                                    CleverFerretTheme.CHARCOAL_CHAMPAGNE -> ThemePalette.CHARCOAL_CHAMPAGNE
-                                    CleverFerretTheme.SLATE_GUNMETAL -> ThemePalette.SLATE_GUNMETAL
-                                    else -> ThemePalette.NAVY_GOLD
-                                }
-                                onSelect(oldPalette)
+                                // Convert CleverFerretTheme to ThemePalette
+                                onSelect(theme.toThemePalette())
                             },
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected)
