@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.universalmedialibrary.api.MediaCommandAPI
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.local.entity.MediaItem as LocalMediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
@@ -33,7 +34,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val musicMetadataService: MusicMetadataService,
     private val mediaController: MediaController
-) {
+) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
     val playbackState: StateFlow<AdvancedPlaybackState> = _playbackState.asStateFlow()
