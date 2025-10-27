@@ -84,3 +84,74 @@ sealed class WebFictionResult {
     data class Error(val message: String, val exception: Throwable? = null) : WebFictionResult()
     object Loading : WebFictionResult()
 }
+
+/**
+ * Tag information for categorizing and browsing stories
+ */
+data class WebFictionTag(
+    val id: String,
+    val name: String,
+    val displayName: String,
+    val category: TagCategory = TagCategory.GENERAL,
+    val count: Int = 0, // Number of stories with this tag
+    val description: String? = null,
+    val parentTag: String? = null // For hierarchical tags
+)
+
+enum class TagCategory {
+    GENRE,          // Genre tags (sci-fi, romance, etc.)
+    THEME,          // Theme tags (transformation, growth, etc.)
+    CHARACTER,      // Character types
+    RATING,         // Content rating
+    STATUS,         // Story status
+    TRANSFORMATION, // Transformation-specific (for Metabods)
+    GENERAL         // General/uncategorized
+}
+
+/**
+ * Search/filter criteria for browsing stories by tags
+ */
+data class StorySearchCriteria(
+    val tags: List<String> = emptyList(),           // Tags to include
+    val excludeTags: List<String> = emptyList(),    // Tags to exclude
+    val tagMatchMode: TagMatchMode = TagMatchMode.ANY,
+    val minWordCount: Long? = null,
+    val maxWordCount: Long? = null,
+    val status: StoryStatus? = null,
+    val rating: String? = null,
+    val sortBy: StorySortField = StorySortField.UPDATED,
+    val sortOrder: SortOrder = SortOrder.DESCENDING,
+    val limit: Int = 50,                            // Max results
+    val offset: Int = 0                             // For pagination
+)
+
+enum class TagMatchMode {
+    ANY,  // Match stories with ANY of the selected tags (OR)
+    ALL   // Match stories with ALL selected tags (AND)
+}
+
+enum class StorySortField {
+    TITLE,
+    AUTHOR,
+    UPDATED,
+    CREATED,
+    WORD_COUNT,
+    CHAPTER_COUNT,
+    RATING,
+    VIEWS
+}
+
+enum class SortOrder {
+    ASCENDING,
+    DESCENDING
+}
+
+/**
+ * Result of a story search/browse operation
+ */
+data class StorySearchResult(
+    val stories: List<WebFictionStory>,
+    val totalCount: Int,
+    val hasMore: Boolean,
+    val nextOffset: Int?
+)

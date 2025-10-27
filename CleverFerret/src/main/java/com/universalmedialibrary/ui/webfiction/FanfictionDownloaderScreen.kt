@@ -281,6 +281,61 @@ fun FanfictionDownloaderScreen(
                     }
                 }
 
+                // Metabods Tag Browser Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.LocalOffer,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Browse Metabods by Tags",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Select multiple tags to find stories",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
+                        }
+
+                        Text(
+                            text = "• Browse transformation fiction by categories\n" +
+                                    "• Select multiple tags (muscle growth, size change, etc.)\n" +
+                                    "• Filter by word count, rating, and more\n" +
+                                    "• Respects Metabods download buttons",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+
+                        Button(
+                            onClick = { /* TODO: Navigate to tag browser */ },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Explore, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Open Tag Browser")
+                        }
+                    }
+                }
+
                 // Supported Sites Card
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -310,7 +365,7 @@ fun FanfictionDownloaderScreen(
                             SupportedSiteItem("FanFiction.Net", "fanfiction.net", "✓ Multi-chapter")
                             SupportedSiteItem("Wattpad", "wattpad.com", "✓ Basic support")
                             SupportedSiteItem("Royal Road", "royalroad.com", "Via Web Fiction Manager")
-                            SupportedSiteItem("Metabods", "metabods.com", "✓ Adult content")
+                            SupportedSiteItem("Metabods", "metabods.com", "✓ Adult content + Tag browsing")
                             SupportedSiteItem("Literotica", "literotica.com", "✓ Adult content")
                             SupportedSiteItem("Other Sites", "Generic", "Limited support")
                         }
