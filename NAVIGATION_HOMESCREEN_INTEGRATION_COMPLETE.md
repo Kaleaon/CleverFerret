@@ -1,6 +1,6 @@
 # Navigation & Home Screen Integration Complete
 
-**Date**: October 27, 2025  
+**Date**: October 27, 2025,  
 **Status**: ✅ Complete
 
 ## Overview
@@ -32,7 +32,8 @@ composable("fanfiction_library") {
         onNavigateToDownload = { navController.navigate("fanfiction_download") },
         onStoryClick = { story ->
             story.localEpubPath?.let { path ->
-                navController.navigate("reader/$path")
+                val encoded = android.net.Uri.encode(path)
+                navController.navigate("reader?path=$encoded")
             }
         }
     )
