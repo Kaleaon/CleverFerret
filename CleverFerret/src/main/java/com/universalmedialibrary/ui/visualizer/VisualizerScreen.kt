@@ -351,7 +351,8 @@ class VisualizerViewModel @Inject constructor(
     private val audioVisualizerService: AudioVisualizerService,
     private val chromecastManager: ChromecastManager,
     private val audioPlaybackManager: AudioPlaybackManager,
-    private val exoPlayerService: com.universalmedialibrary.services.exoplayer.ExoPlayerService
+    private val exoPlayerService: com.universalmedialibrary.services.exoplayer.ExoPlayerService,
+    private val advancedMusicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 ) : ViewModel() {
     
     companion object {
@@ -374,23 +375,30 @@ class VisualizerViewModel @Inject constructor(
         chromecastManager.initialize()
 
         // Attach visualizer to the active player
-        // Try music player first (ExoPlayerService), then fall back to AudioPlaybackManager
-        val activePlayer = exoPlayerService.getPlayer() ?: audioPlaybackManager.exoPlayer
+        // Try AdvancedMusicPlayerService first (used for music AND radio), then ExoPlayerService, then AudioPlaybackManager
+        val activePlayer = advancedMusicPlayerService.getExoPlayer() 
+            ?: exoPlayerService.getPlayer() 
+            ?: audioPlaybackManager.exoPlayer
         audioVisualizerService.attachToPlayer(activePlayer)
         audioVisualizerService.setEnabled(true)
 
-        // Monitor both players and reattach when active player changes
+        // Monitor all players and reattach when active player changes
         viewModelScope.launch {
             while (isActive) {
                 // Check if we need to switch players
+                val advancedPlayer = advancedMusicPlayerService.getExoPlayer()  // Music + Radio
                 val musicPlayer = exoPlayerService.getPlayer()
                 val audioPlayer = audioPlaybackManager.exoPlayer
                 val currentPlayer = audioVisualizerService.getCurrentPlayer()
                 
+                delay(500L) // Prevent busy-loop CPU/battery drain
+                
                 // Prefer the player that's actually playing
                 val targetPlayer = when {
+                    advancedPlayer?.isPlaying == true -> advancedPlayer  // Highest priority - music/radio
                     musicPlayer?.isPlaying == true -> musicPlayer
                     audioPlayer.isPlaying -> audioPlayer
+                    advancedPlayer != null -> advancedPlayer
                     musicPlayer != null -> musicPlayer
                     else -> audioPlayer
                 }

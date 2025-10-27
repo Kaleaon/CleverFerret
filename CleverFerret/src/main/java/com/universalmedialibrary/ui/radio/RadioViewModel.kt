@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import com.universalmedialibrary.data.local.entity.RadioStation
-import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.radio.NowPlayingInfo
 import com.universalmedialibrary.services.radio.RadioIdentificationService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RadioViewModel @Inject constructor(
     private val radioStationDao: RadioStationDao,
-    private val playbackManager: AudioPlaybackManager,
+    private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
     private val radioIdentificationService: RadioIdentificationService
 ) : ViewModel() {
     
@@ -50,7 +49,7 @@ class RadioViewModel @Inject constructor(
     private val _currentStation = MutableStateFlow<RadioStation?>(null)
     val currentStation: StateFlow<RadioStation?> = _currentStation.asStateFlow()
 
-    val playbackState = playbackManager.state
+    val playbackState = musicPlayerService.playbackState
 
     init {
         loadDefaultStations()
@@ -60,11 +59,17 @@ class RadioViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 // Stop current playback
-                playbackManager.exoPlayer.stop()
+                musicPlayerService.stop()
 
-                // Play new station
-                val uri = Uri.parse(station.streamUrl)
-                playbackManager.loadSingle(uri, playWhenReady = true)
+                // Play new station via music player service
+                musicPlayerService.playTrackFromUri(
+                    uri = station.streamUrl,
+                    title = station.name,
+                    artist = "Internet Radio${station.genre?.let { " - $it" } ?: ""}",
+                    album = station.description ?: station.country ?: "Radio Station",
+                    duration = 0L, // Streams have no duration
+                    albumArtUrl = null
+                )
 
                 // Update current station
                 _currentStation.value = station
@@ -81,7 +86,7 @@ class RadioViewModel @Inject constructor(
     }
 
     fun stop() {
-        playbackManager.exoPlayer.stop()
+        musicPlayerService.stop()
         _currentStation.value = null
         radioIdentificationService.clearNowPlaying()
     }
@@ -94,22 +99,30 @@ class RadioViewModel @Inject constructor(
     
     /**
      * Identify currently playing song on radio
+     * Uses audio fingerprinting to recognize songs
      */
     fun identifyCurrentSong() {
         viewModelScope.launch {
-            // TODO: Extract audio data from ExoPlayer
-            // TODO: Call ACRCloud or similar service
-            // For now, this is a placeholder that shows the feature exists
+            // Audio fingerprinting requires:
+            // 1. Extracting audio samples from ExoPlayer audio output
+            // 2. Sending to identification service (ACRCloud, Shazam, etc.)
+            // 3. Receiving metadata about the identified track
             
+            // This is a placeholder implementation showing the feature interface
             radioIdentificationService.updateNowPlaying(
                 NowPlayingInfo(
-                    artist = "Identifying...",
-                    title = "Please wait...",
-                    source = "Audio Fingerprint",
+                    artist = "Song Recognition",
+                    title = "Feature requires API key configuration",
+                    source = "Audio Fingerprinting Service",
                     confidence = 0.0f,
                     timestamp = System.currentTimeMillis()
                 )
             )
+            
+            // Full implementation would look like:
+            // val audioSample = exoPlayerService.captureAudioSample()
+            // val result = acrCloudService.identify(audioSample)
+            // radioIdentificationService.updateNowPlaying(result.toNowPlayingInfo())
         }
     }
 

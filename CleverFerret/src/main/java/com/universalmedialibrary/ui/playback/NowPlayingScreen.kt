@@ -189,14 +189,8 @@ private fun CurrentPlayingItem(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                IconButton(onClick = { /* shuffle toggle */ }) {
-                    Icon(
-                        PhosphorIcons.Shuffle,
-                        contentDescription = "Shuffle",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
+                // Shuffle/Repeat would need to be added to viewModel interface
+                
                 IconButton(onClick = onSkipPrevious) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Previous")
                 }
@@ -206,21 +200,13 @@ private fun CurrentPlayingItem(
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
                     Icon(
-                        Icons.Default.PlayArrow,
+                        if (playbackState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                         contentDescription = if (playbackState.isPlaying) "Pause" else "Play"
                     )
                 }
 
                 IconButton(onClick = onSkipNext) {
                     Icon(Icons.Default.ArrowForward, contentDescription = "Next")
-                }
-
-                IconButton(onClick = { /* repeat toggle */ }) {
-                    Icon(
-                        PhosphorIcons.Repeat,
-                        contentDescription = "Repeat",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
                 IconButton(onClick = onAddToPlaylist) {
                     Icon(
