@@ -275,6 +275,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_reading_goal_info" />
         </receiver>
+        
+        <!-- CleverFerret API Receiver for external control -->
+        <receiver
+            android:name=".api.CleverFerretAPIReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.universalmedialibrary.API_COMMAND" />
+                <action android:name="com.universalmedialibrary.STATUS_CHANGED" />
+                <action android:name="com.universalmedialibrary.TRACK_CHANGED" />
+                <action android:name="com.universalmedialibrary.PLAYING_MODE_CHANGED" />
+                <action android:name="com.universalmedialibrary.QUEUE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
