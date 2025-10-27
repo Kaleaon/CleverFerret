@@ -80,6 +80,7 @@ enum class MetadataSource {
     OMDB,
     IMDB,
     TVDB,
+    TVMAZE,
     NYT_MOVIE_REVIEWS,
     YOUTUBE_TRAILERS,
     GUIDEBOX,
