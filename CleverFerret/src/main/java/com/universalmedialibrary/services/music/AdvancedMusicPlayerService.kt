@@ -91,6 +91,62 @@ class AdvancedMusicPlayerService @Inject constructor(
     }
 
     /**
+     * Load and play a single track from URI with metadata
+     */
+    suspend fun playTrackFromUri(
+        uri: String,
+        title: String,
+        artist: String? = null,
+        album: String? = null,
+        duration: Long = 0L,
+        albumArtUrl: String? = null
+    ) {
+        if (!FeatureFlags.ENABLE_EXOPLAYER) {
+            updatePlaybackState(error = "Advanced music player is disabled")
+            return
+        }
+
+        try {
+            // Ensure ExoPlayer is initialized
+            exoPlayerService.initialize()
+            
+            updatePlaybackState(isLoading = true)
+
+            // Create track info
+            val trackInfo = TrackInfo(
+                id = uri.hashCode().toString(),
+                title = title,
+                artist = artist,
+                album = album,
+                duration = duration,
+                filePath = uri,
+                albumArtUrl = albumArtUrl,
+                queuePosition = 0
+            )
+
+            // Set single track queue
+            _queue.value = listOf(trackInfo)
+            _currentTrack.value = trackInfo
+            currentQueueIndex = 0
+
+            // Use the MediaSession-integrated method
+            exoPlayerService.loadMediaWithSession(
+                mediaPath = uri,
+                title = title,
+                artist = artist,
+                album = album,
+                artwork = null,
+                serviceType = MediaServiceType.MUSIC
+            )
+
+            exoPlayerService.play()
+            updatePlaybackState(isPlaying = true, isLoading = false)
+        } catch (e: Exception) {
+            updatePlaybackState(error = "Error playing track: ${e.message}")
+        }
+    }
+
+    /**
      * Load and play a queue of tracks
      */
     suspend fun playQueue(mediaItems: List<LocalMediaItem>, startIndex: Int = 0) {

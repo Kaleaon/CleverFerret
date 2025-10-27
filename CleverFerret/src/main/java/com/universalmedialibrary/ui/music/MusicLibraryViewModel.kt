@@ -7,7 +7,6 @@ import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MusicRepository
-import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +20,7 @@ import javax.inject.Inject
 class MusicLibraryViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
-    private val playback: AudioPlaybackManager
+    private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MusicLibraryUiState())
@@ -362,14 +361,22 @@ class MusicLibraryViewModel @Inject constructor(
     }
 
     fun playAll() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val tracks = _uiState.value.tracks
                 // Limit to 5000 tracks to prevent memory issues
                 val limitedTracks = if (tracks.size > 5000) tracks.take(5000) else tracks
-                val uris = limitedTracks.map { it.uri }
-                if (uris.isNotEmpty()) {
-                    playback.setQueue(uris, 0, true)
+                if (limitedTracks.isNotEmpty()) {
+                    // Play first track
+                    val firstTrack = limitedTracks.first()
+                    musicPlayerService.playTrackFromUri(
+                        uri = firstTrack.uri.toString(),
+                        title = firstTrack.title ?: "Unknown",
+                        artist = firstTrack.artist,
+                        album = firstTrack.album,
+                        duration = firstTrack.duration,
+                        albumArtUrl = null
+                    )
                 }
             } catch (e: Exception) {
                 // Handle playback error
@@ -380,7 +387,14 @@ class MusicLibraryViewModel @Inject constructor(
     fun playTrack(track: Track) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                playback.loadSingle(track.uri)
+                musicPlayerService.playTrackFromUri(
+                    uri = track.uri.toString(),
+                    title = track.title ?: "Unknown",
+                    artist = track.artist,
+                    album = track.album,
+                    duration = track.duration,
+                    albumArtUrl = null
+                )
             } catch (e: Exception) {
                 // Handle playback error
             }
@@ -388,11 +402,19 @@ class MusicLibraryViewModel @Inject constructor(
     }
 
     fun playAlbum(album: Album, startIndex: Int = 0) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val uris = album.tracks.map { it.uri }
-                if (uris.isNotEmpty()) {
-                    playback.setQueue(uris, startIndex, true)
+                val tracks = album.tracks
+                if (tracks.isNotEmpty()) {
+                    val trackToPlay = tracks.getOrNull(startIndex) ?: tracks.first()
+                    musicPlayerService.playTrackFromUri(
+                        uri = trackToPlay.uri.toString(),
+                        title = trackToPlay.title ?: "Unknown",
+                        artist = trackToPlay.artist,
+                        album = trackToPlay.album,
+                        duration = trackToPlay.duration,
+                        albumArtUrl = null
+                    )
                 }
             } catch (e: Exception) {
                 // Handle playback error
@@ -401,14 +423,21 @@ class MusicLibraryViewModel @Inject constructor(
     }
 
     fun playArtist(artist: Artist, shuffle: Boolean = false) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val tracks = if (shuffle) artist.tracks.shuffled() else artist.tracks
                 // Limit to 1000 tracks for performance
                 val limitedTracks = if (tracks.size > 1000) tracks.take(1000) else tracks
-                val uris = limitedTracks.map { it.uri }
-                if (uris.isNotEmpty()) {
-                    playback.setQueue(uris, 0, true)
+                if (limitedTracks.isNotEmpty()) {
+                    val firstTrack = limitedTracks.first()
+                    musicPlayerService.playTrackFromUri(
+                        uri = firstTrack.uri.toString(),
+                        title = firstTrack.title ?: "Unknown",
+                        artist = firstTrack.artist,
+                        album = firstTrack.album,
+                        duration = firstTrack.duration,
+                        albumArtUrl = null
+                    )
                 }
             } catch (e: Exception) {
                 // Handle playback error
@@ -417,14 +446,21 @@ class MusicLibraryViewModel @Inject constructor(
     }
 
     fun playGenre(genre: Genre, shuffle: Boolean = false) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val tracks = if (shuffle) genre.tracks.shuffled() else genre.tracks
                 // Limit to 1000 tracks for performance
                 val limitedTracks = if (tracks.size > 1000) tracks.take(1000) else tracks
-                val uris = limitedTracks.map { it.uri }
-                if (uris.isNotEmpty()) {
-                    playback.setQueue(uris, 0, true)
+                if (limitedTracks.isNotEmpty()) {
+                    val firstTrack = limitedTracks.first()
+                    musicPlayerService.playTrackFromUri(
+                        uri = firstTrack.uri.toString(),
+                        title = firstTrack.title ?: "Unknown",
+                        artist = firstTrack.artist,
+                        album = firstTrack.album,
+                        duration = firstTrack.duration,
+                        albumArtUrl = null
+                    )
                 }
             } catch (e: Exception) {
                 // Handle playback error
@@ -433,14 +469,22 @@ class MusicLibraryViewModel @Inject constructor(
     }
 
     fun shuffleAll() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val tracks = _uiState.value.tracks
                 // Limit to 5000 tracks to prevent memory issues
                 val limitedTracks = if (tracks.size > 5000) tracks.take(5000) else tracks
-                val uris = limitedTracks.shuffled().map { it.uri }
-                if (uris.isNotEmpty()) {
-                    playback.setQueue(uris, 0, true)
+                val shuffledTracks = limitedTracks.shuffled()
+                if (shuffledTracks.isNotEmpty()) {
+                    val firstTrack = shuffledTracks.first()
+                    musicPlayerService.playTrackFromUri(
+                        uri = firstTrack.uri.toString(),
+                        title = firstTrack.title ?: "Unknown",
+                        artist = firstTrack.artist,
+                        album = firstTrack.album,
+                        duration = firstTrack.duration,
+                        albumArtUrl = null
+                    )
                 }
             } catch (e: Exception) {
                 // Handle playback error
