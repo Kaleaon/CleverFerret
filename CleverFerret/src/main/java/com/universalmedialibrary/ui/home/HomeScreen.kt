@@ -37,6 +37,7 @@ fun HomeScreen(
     onNavigateToMedia: (String, Long) -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToLibrary: () -> Unit,
+    onNavigateToVisualizer: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -355,36 +356,57 @@ private fun QuickActionsGrid(
     onNavigateToMusic: () -> Unit,
     onNavigateToVideos: () -> Unit,
     onNavigateToBooks: () -> Unit,
-    onNavigateToComics: () -> Unit
+    onNavigateToComics: () -> Unit,
+    onNavigateToVisualizer: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        QuickActionCard(
-            title = "Music",
-            icon = Icons.Default.MusicNote,
-            onClick = onNavigateToMusic,
-            modifier = Modifier.weight(1f)
-        )
-        QuickActionCard(
-            title = "Videos",
-            icon = Icons.Default.Movie,
-            onClick = onNavigateToVideos,
-            modifier = Modifier.weight(1f)
-        )
-        QuickActionCard(
-            title = "Books",
-            icon = Icons.Default.MenuBook,
-            onClick = onNavigateToBooks,
-            modifier = Modifier.weight(1f)
-        )
-        QuickActionCard(
-            title = "Comics",
-            icon = Icons.Default.Book,
-            onClick = onNavigateToComics,
-            modifier = Modifier.weight(1f)
-        )
+        // First row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            QuickActionCard(
+                title = "Music",
+                icon = Icons.Default.MusicNote,
+                onClick = onNavigateToMusic,
+                modifier = Modifier.weight(1f)
+            )
+            QuickActionCard(
+                title = "Videos",
+                icon = Icons.Default.Movie,
+                onClick = onNavigateToVideos,
+                modifier = Modifier.weight(1f)
+            )
+            QuickActionCard(
+                title = "Books",
+                icon = Icons.Default.MenuBook,
+                onClick = onNavigateToBooks,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        
+        // Second row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            QuickActionCard(
+                title = "Comics",
+                icon = Icons.Default.Book,
+                onClick = onNavigateToComics,
+                modifier = Modifier.weight(1f)
+            )
+            QuickActionCard(
+                title = "Visualizer",
+                icon = Icons.Default.GraphicEq,
+                onClick = onNavigateToVisualizer,
+                modifier = Modifier.weight(1f)
+            )
+            // Empty card for symmetry
+            Spacer(modifier = Modifier.weight(1f))
+        }
     }
 }
 
@@ -512,4 +534,6 @@ data class Statistics(
     val booksCount: Int,
     val videosCount: Int,
     val totalHours: Int
+)
+  val totalHours: Int
 )
