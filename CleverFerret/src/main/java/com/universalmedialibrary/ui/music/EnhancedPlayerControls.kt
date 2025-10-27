@@ -204,7 +204,7 @@ fun VolumeControlSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(
-                if (volume == 0f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                if (volume < 0.01f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
                 contentDescription = "Volume",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -217,7 +217,7 @@ fun VolumeControlSection(
             )
             
             Text(
-                text = "${(volume * 100).toInt()}%",
+                text = "${kotlin.math.round(volume * 100).toInt().coerceIn(0, 100)}%",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.widthIn(min = 40.dp)
@@ -245,7 +245,7 @@ fun PlaybackSpeedControl(
         speeds.forEach { speed ->
             SpeedChip(
                 speed = speed,
-                isSelected = currentSpeed == speed,
+                isSelected = kotlin.math.abs(currentSpeed - speed) < 0.01f,
                 onClick = { onSpeedChange(speed) }
             )
         }
@@ -443,8 +443,8 @@ fun CompactSecondaryControls(
     ) {
         // Volume
         SecondaryControlButton(
-            icon = if (volume == 0f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-            label = "${(volume * 100).toInt()}%",
+            icon = if (volume < 0.01f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+            label = "${kotlin.math.round(volume * 100).toInt().coerceIn(0, 100)}%",
             onClick = onVolumeClick
         )
         
