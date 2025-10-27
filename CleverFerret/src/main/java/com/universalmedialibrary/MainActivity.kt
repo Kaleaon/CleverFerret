@@ -235,6 +235,11 @@ fun AppNavigation() {
                 onBack = { navController.navigateUp() }
             )
         }
+        composable("settings/parental_controls") {
+            com.universalmedialibrary.ui.settings.ParentalControlsScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
         
         composable("collection_detail/{collectionId}") { backStackEntry ->
             val collectionId = backStackEntry.arguments?.getString("collectionId")?.toLongOrNull() ?: -1L
@@ -346,6 +351,25 @@ fun AppNavigation() {
             } else {
                 Text("Invalid media item")
             }
+        }
+
+        // Web Fiction routes
+        composable("universal_tag_browser") {
+            com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
+                navController = navController
+            )
+        }
+        composable("universal_tag_browser/{siteType}") { backStackEntry ->
+            val siteTypeStr = backStackEntry.arguments?.getString("siteType")
+            val siteType = try {
+                siteTypeStr?.let { com.universalmedialibrary.services.webfiction.WebFictionSiteType.valueOf(it.uppercase()) }
+            } catch (e: Exception) {
+                null
+            }
+            com.universalmedialibrary.ui.webfiction.UniversalTagBrowserScreen(
+                initialSiteType = siteType,
+                navController = navController
+            )
         }
 
         // Radio routes
