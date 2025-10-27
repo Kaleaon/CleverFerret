@@ -17,9 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -237,7 +235,7 @@ data class InternetRadioStation(
 
 @HiltViewModel
 class InternetRadioViewModel @Inject constructor(
-    // Inject internet radio service when available
+    private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 ) : ViewModel() {
 
     private val _stations = MutableStateFlow<List<InternetRadioStation>>(emptyList())
@@ -246,8 +244,12 @@ class InternetRadioViewModel @Inject constructor(
     private val _currentStation = MutableStateFlow<InternetRadioStation?>(null)
     val currentStation: StateFlow<InternetRadioStation?> = _currentStation.asStateFlow()
 
-    private val _isPlaying = MutableStateFlow(false)
-    val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+    val playbackState = musicPlayerService.playbackState
+    val isPlaying: StateFlow<Boolean> = playbackState.map { it.isPlaying }.stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
 
     init {
         loadSampleStations()
@@ -268,14 +270,28 @@ class InternetRadioViewModel @Inject constructor(
 
     fun selectStation(station: InternetRadioStation) {
         viewModelScope.launch {
-            _currentStation.value = station
-            _isPlaying.value = true
-            // Start playback via media service
+            try {
+                _currentStation.value = station
+                // Play radio station via music player service
+                musicPlayerService.playTrackFromUri(
+                    uri = station.url,
+                    title = station.name,
+                    artist = "Internet Radio",
+                    album = station.genre,
+                    duration = 0L, // Streams have no duration
+                    albumArtUrl = null
+                )
+            } catch (e: Exception) {
+                // Handle error
+            }
         }
     }
 
     fun togglePlayback() {
-        _isPlaying.value = !_isPlaying.value
-        // Toggle playback via media service
+        if (playbackState.value.isPlaying) {
+            musicPlayerService.pause()
+        } else {
+            musicPlayerService.play()
+        }
     }
 }
