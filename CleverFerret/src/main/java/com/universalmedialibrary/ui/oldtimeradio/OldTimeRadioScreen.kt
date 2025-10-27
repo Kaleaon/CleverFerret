@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.oldtimeradio.OTRCategory
 import com.universalmedialibrary.data.oldtimeradio.OTRSeries
+import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioDao
 import com.universalmedialibrary.data.oldtimeradio.OldTimeRadioEpisode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -298,7 +299,7 @@ private fun OTRSeriesCard(
 
 @HiltViewModel
 class OldTimeRadioViewModel @Inject constructor(
-    // Add repository injection when created
+    private val oldTimeRadioDao: OldTimeRadioDao
 ) : ViewModel() {
 
     private val _series = MutableStateFlow<List<OTRSeries>>(emptyList())
@@ -314,9 +315,31 @@ class OldTimeRadioViewModel @Inject constructor(
     private fun loadSeries() {
         viewModelScope.launch {
             _isLoading.value = true
-            // TODO: Load from database
-            // _series.value = repository.getAllSeries()
-            _isLoading.value = false
+            try {
+                val seriesInfoList = oldTimeRadioDao.getAllSeries()
+                
+                // Convert SeriesInfo to OTRSeries with episodes
+                val seriesList = seriesInfoList.map { info ->
+                    val episodes = oldTimeRadioDao.getEpisodesBySeries(info.series_title)
+                    OTRSeries(
+                        seriesTitle = info.series_title,
+                        episodeCount = info.episodeCount,
+                        category = info.category,
+                        genre = info.genre,
+                        network = info.network,
+                        firstAirDate = info.firstAirDate,
+                        lastAirDate = info.lastAirDate,
+                        episodes = emptyList() // Episodes loaded on-demand via Flow
+                    )
+                }
+                
+                _series.value = seriesList
+            } catch (e: Exception) {
+                // Handle error - could emit error state
+                _series.value = emptyList()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 }

@@ -34,9 +34,12 @@ class RecommendationsViewModel @Inject constructor(
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-                val recommendations = recommendationService.getRecommendations(
+                val allRecommendations = recommendationService.getRecommendations(
                     options = _options.value
                 )
+                
+                // Filter out dismissed recommendations
+                val recommendations = allRecommendations.filterNot { isRecommendationDismissed(it) }
 
                 // Group recommendations by source
                 val grouped = recommendations.groupBy { it.source }
@@ -104,11 +107,19 @@ class RecommendationsViewModel @Inject constructor(
                     groupedRecommendations = grouped
                 )
 
-                // TODO: Persist dismissal to prevent showing again
+                // Persist dismissal
+                dismissedPrefs.edit()
+                    .putBoolean("dismissed_$id", true)
+                    .putLong("dismissed_${id}_time", System.currentTimeMillis())
+                    .apply()
             } catch (e: Exception) {
                 // Silently fail
             }
         }
+    }
+    
+    private fun isRecommendationDismissed(recommendation: Recommendation): Boolean {
+        return dismissedPrefs.getBoolean("dismissed_${recommendation.id}", false)
     }
 
     fun refreshRecommendations() {

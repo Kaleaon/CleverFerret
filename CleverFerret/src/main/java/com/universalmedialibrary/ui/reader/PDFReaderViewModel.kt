@@ -36,7 +36,9 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
         val searchQuery: String = "",
         val searchResults: List<SearchResult> = emptyList(),
         val zoomLevel: Float = 1.0f,
-        val zoomMode: ZoomMode = ZoomMode.FIT_WIDTH
+        val zoomMode: ZoomMode = ZoomMode.FIT_WIDTH,
+        val showPageSelector: Boolean = false,
+        val showBookmarks: Boolean = false
     )
 
     fun loadPDF(filePath: String) {
@@ -158,20 +160,19 @@ class PDFReaderViewModel @Inject constructor() : ViewModel() {
     }
 
     fun showPageSelector() {
-        // TODO: Implement page selector dialog UI
-        // - Show AlertDialog with TextField for page number input
-        // - Validate input is between 1 and pageCount
-        // - Call goToPage(selectedPage - 1) when confirmed
-        // - Display hint: "Go to page (1-${pageCount})"
+        _uiState.value = _uiState.value.copy(showPageSelector = true)
+    }
+    
+    fun hidePageSelector() {
+        _uiState.value = _uiState.value.copy(showPageSelector = false)
     }
 
     fun showBookmarks() {
-        // TODO: Implement bookmarks dialog UI
-        // - Show BottomSheet or Dialog with LazyColumn of bookmarks
-        // - Display page number, optional note/timestamp for each bookmark
-        // - Click handler: goToPage(bookmark.page)
-        // - Add "New Bookmark" FAB to create bookmark at current page
-        // - Delete option for each bookmark (IconButton or swipe)
+        _uiState.value = _uiState.value.copy(showBookmarks = true)
+    }
+    
+    fun hideBookmarks() {
+        _uiState.value = _uiState.value.copy(showBookmarks = false)
     }
 
     private fun generateSamplePDFContent(pageNumber: Int): String {

@@ -343,10 +343,18 @@ fun EnhancedMusicPlayerScreen(
     }
     
     if (showAddToPlaylistDialog) {
+        val playlists by viewModel.playlists.collectAsState()
+        
         AddToPlaylistDialog(
-            playlists = emptyList(), // TODO: Load actual playlists
-            onPlaylistSelected = { /* TODO: Add to playlist */ },
-            onCreateNew = { /* TODO: Create new playlist */ },
+            playlists = playlists,
+            onPlaylistSelected = { playlistId ->
+                viewModel.addToPlaylist(playlistId)
+                showAddToPlaylistDialog = false
+            },
+            onCreateNew = { name ->
+                viewModel.createPlaylistWithCurrentTrack(name)
+                showAddToPlaylistDialog = false
+            },
             onDismiss = { showAddToPlaylistDialog = false }
         )
     }

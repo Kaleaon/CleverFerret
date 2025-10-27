@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.universalmedialibrary.core.FeatureFlags
 import com.universalmedialibrary.data.local.dao.BookmarkDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.data.repository.MediaRepository
@@ -39,7 +40,8 @@ class AudiobookService @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val exoPlayerService: ExoPlayerService,
     private val mediaController: MediaController,
-    private val bookmarkDao: BookmarkDao
+    private val bookmarkDao: BookmarkDao,
+    private val metadataDao: MetadataDao
 ) {
     
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -149,10 +151,12 @@ class AudiobookService @Inject constructor(
     private suspend fun parseAudiobook(mediaItem: MediaItem): Audiobook? {
         return try {
             val chapters = parseAudiobookChapters(mediaItem)
+            val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
+            
             Audiobook(
                 id = mediaItem.itemId,
                 title = mediaItem.fileName.substringBeforeLast('.'),
-                author = "Unknown Author", // TODO: Query BookMetadata.author via mediaItemDao.getBookMetadata(itemId)
+                author = authors.firstOrNull() ?: "Unknown Author",
                 chapters = chapters,
                 totalDuration = chapters.sumOf { it.durationMs }
             )

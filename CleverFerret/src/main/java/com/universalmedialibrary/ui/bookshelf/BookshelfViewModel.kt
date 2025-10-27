@@ -123,12 +123,15 @@ class BookshelfViewModel @Inject constructor(
                         )
                     val bookMetadata = metadataDao.getMetadataBookByItemId(mediaItem.itemId)
 
+                    val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
+                    val seriesName = metadataDao.getSeriesByItemId(mediaItem.itemId)
+                    
                     BookDetails(
                         mediaItem = mediaItem,
                         metadata = metadata,
                         bookMetadata = bookMetadata,
-                        authorName = null, // TODO: Query via BookPeople join: peopleDao.getAuthorsForBook(bookId)
-                        seriesName = null  // TODO: Query via book_series_link: seriesDao.getSeriesForBook(bookId)
+                        authorName = authors.firstOrNull(),
+                        seriesName = seriesName
                     )
                 }
                 _allBooks.value = bookDetailsList

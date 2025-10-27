@@ -43,6 +43,10 @@ class AudiobookPlayerViewModel @Inject constructor(
     val audiobookState: StateFlow<AudiobookState> = audiobookService.audiobookState
 
     // Synchronization state
+    
+    // UI events for feedback
+    private val _uiEvents = MutableSharedFlow<UiEvent>()
+    val uiEvents: SharedFlow<UiEvent> = _uiEvents.asSharedFlow()
     val synchronizationState: StateFlow<SynchronizationState> = audiobookService.synchronizationState
 
     // Current highlighted text for read-along
@@ -229,13 +233,26 @@ class AudiobookPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 audiobookService.deleteBookmark(bookmark)
-                // TODO: Show success feedback via SharedFlow<UiEvent>
-                // Example: _uiEvents.emit(UiEvent.ShowSnackbar("Bookmark deleted"))
+                _uiEvents.emit(UiEvent.ShowSnackbar("Bookmark deleted"))
             } catch (e: Exception) {
                 // Handle error and log
                 android.util.Log.e("AudiobookPlayerViewModel", "Failed to delete bookmark", e)
-                // TODO: Show error message via SharedFlow<UiEvent>
-                // Example: _uiEvents.emit(UiEvent.ShowSnackbar("Failed to delete bookmark"))
+                _uiEvents.emit(UiEvent.ShowSnackbar("Failed to delete bookmark: ${e.message}"))
+            }
+        }
+    }
+    
+    /**
+     * Create new bookmark at current position
+     */
+    fun createBookmark(note: String? = null) {
+        viewModelScope.launch {
+            try {
+                audiobookService.createBookmark(note)
+                _uiEvents.emit(UiEvent.ShowSnackbar("Bookmark created"))
+            } catch (e: Exception) {
+                android.util.Log.e("AudiobookPlayerViewModel", "Failed to create bookmark", e)
+                _uiEvents.emit(UiEvent.ShowSnackbar("Failed to create bookmark: ${e.message}"))
             }
         }
     }
@@ -311,4 +328,12 @@ class AudiobookPlayerViewModel @Inject constructor(
         // Clean up resources
         audiobookService.stop()
     }
+}
+
+/**
+ * UI events for user feedback
+ */
+sealed class UiEvent {
+    data class ShowSnackbar(val message: String) : UiEvent()
+    data class NavigateTo(val route: String) : UiEvent()
 }

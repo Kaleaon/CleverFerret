@@ -19,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NowPlayingViewModel @Inject constructor(
     private val playbackQueueManager: UnifiedPlaybackQueueManager,
-    private val playlistRepository: PlaylistRepository
+    private val playlistRepository: PlaylistRepository,
+    private val playlistDao: PlaylistDao
 ) : ViewModel() {
 
     // Expose state flows from the queue manager
@@ -28,6 +29,14 @@ class NowPlayingViewModel @Inject constructor(
     val queueItems = playbackQueueManager.queueItems
     val currentQueue = playbackQueueManager.currentQueue
     val currentSession = playbackQueueManager.currentSession
+    
+    // Available playlists for "Add to Playlist" feature
+    val availablePlaylists: StateFlow<List<Playlist>> = playlistDao.getAllPlaylistsFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     /**
      * Toggle play/pause
@@ -132,15 +141,18 @@ class NowPlayingViewModel @Inject constructor(
         }
     }
 
-    fun addCurrentTrackToPlaylist() {
+    fun addCurrentTrackToPlaylist(playlistId: Long) {
         viewModelScope.launch {
-            // TODO: Show dialog to choose/create playlist:
-            // - List existing playlists from PlaylistDao.getAllPlaylists()
-            // - "Create New Playlist" option with TextField for name
-            // - On selection: playlistRepository.addToPlaylist(playlistId, mediaItemId)
-            val defaultName = "My Playlist"
             currentItem.value?.let { item ->
-                playlistRepository.addToPlaylistByName(defaultName, item.mediaItemId)
+                playlistRepository.addToPlaylist(playlistId, item.mediaItemId)
+            }
+        }
+    }
+    
+    fun createPlaylistWithCurrentTrack(playlistName: String) {
+        viewModelScope.launch {
+            currentItem.value?.let { item ->
+                playlistRepository.addToPlaylistByName(playlistName, item.mediaItemId)
             }
         }
     }
