@@ -3,16 +3,21 @@ package com.universalmedialibrary.services.audiobook
 import android.content.Context
 import android.net.Uri
 import com.universalmedialibrary.core.FeatureFlags
+import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.media.MediaServiceType
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,8 +38,11 @@ class AudiobookService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaRepository: MediaRepository,
     private val exoPlayerService: ExoPlayerService,
-    private val mediaController: MediaController
+    private val mediaController: MediaController,
+    private val bookmarkDao: BookmarkDao
 ) {
+    
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _audiobookState = MutableStateFlow(AudiobookState())
     val audiobookState: StateFlow<AudiobookState> = _audiobookState.asStateFlow()
@@ -237,8 +245,53 @@ class AudiobookService @Inject constructor(
     }
 
     fun createBookmark(note: String? = null) {
-        // Create bookmark at current position
-        // Would need bookmark persistence implementation
+        val audiobook = currentAudiobook ?: return
+        val state = _audiobookState.value
+        
+        serviceScope.launch {
+            try {
+                val bookmark = Bookmark(
+                    itemId = audiobook.id,
+                    title = "Bookmark at ${formatTime(state.currentPosition)}",
+                    description = note,
+                    position = state.currentPosition,
+                    chapter = state.currentChapter.toString(),
+                    percentage = (state.currentPosition.toFloat() / audiobook.totalDuration) * 100f,
+                    bookmarkType = "MANUAL",
+                    dateCreated = System.currentTimeMillis()
+                )
+                
+                val bookmarkId = bookmarkDao.insertBookmark(bookmark)
+                
+                // Update in-memory state with new bookmark
+                val audiobookBookmark = AudiobookBookmark(
+                    id = bookmarkId,
+                    position = state.currentPosition,
+                    chapterIndex = state.currentChapter,
+                    note = note,
+                    timestamp = System.currentTimeMillis()
+                )
+                
+                _audiobookState.value = _audiobookState.value.copy(
+                    bookmarks = _audiobookState.value.bookmarks + audiobookBookmark
+                )
+            } catch (e: Exception) {
+                // Handle error - could emit error state
+            }
+        }
+    }
+    
+    private fun formatTime(milliseconds: Long): String {
+        val totalSeconds = milliseconds / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+        
+        return if (hours > 0) {
+            String.format("%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format("%d:%02d", minutes, seconds)
+        }
     }
 
     fun jumpToBookmark(bookmark: AudiobookBookmark) {
@@ -251,9 +304,17 @@ class AudiobookService @Inject constructor(
         val updatedBookmarks = _audiobookState.value.bookmarks.filterNot { it.id == bookmark.id }
         _audiobookState.value = _audiobookState.value.copy(bookmarks = updatedBookmarks)
         
-        // TODO: Persist deletion when AudiobookBookmarkDao is implemented
-        // Call: audiobookBookmarkDao.deleteBookmark(bookmark.id)
-        // Add rollback logic if database delete fails
+        // Persist deletion to database
+        serviceScope.launch {
+            try {
+                bookmarkDao.deleteBookmark(bookmark.id)
+            } catch (e: Exception) {
+                // Rollback on failure
+                _audiobookState.value = _audiobookState.value.copy(
+                    bookmarks = _audiobookState.value.bookmarks + bookmark
+                )
+            }
+        }
     }
 
     fun stop() {

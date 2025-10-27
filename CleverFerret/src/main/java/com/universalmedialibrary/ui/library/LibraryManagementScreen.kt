@@ -42,6 +42,7 @@ fun LibraryManagementScreen(
 
     val libraries by viewModel.libraries.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+    val libraryItemCounts by viewModel.libraryItemCounts.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -416,8 +417,6 @@ private fun LibraryCard(
                     }
                 }
 
-                // TODO: Implement item count query in LibraryManagementViewModel
-                // Add Flow<Map<Long, Int>> libraryItemCounts that queries MediaItem count per library
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
@@ -425,8 +424,9 @@ private fun LibraryCard(
                         color = Color.White.copy(alpha = 0.2f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
+                        val itemCount = libraryItemCounts[library.libraryId] ?: 0
                         Text(
-                            text = "0 items", // TODO: Replace with actual count from libraryItemCounts[library.id]
+                            text = "$itemCount ${if (itemCount == 1) "item" else "items"}",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
