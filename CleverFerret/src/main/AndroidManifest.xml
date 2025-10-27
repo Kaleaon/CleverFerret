@@ -275,6 +275,17 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_reading_goal_info" />
         </receiver>
+        
+        <!-- CleverFerret API Receiver for internal broadcast control -->
+        <!-- exported=false: Internal use only. For external control, use exported=true with signature permission -->
+        <receiver
+            android:name=".api.CleverFerretAPIReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.universalmedialibrary.API_COMMAND" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

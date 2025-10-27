@@ -145,6 +145,9 @@ dependencies {
     // Image loading
     implementation("io.coil-kt:coil-compose:2.7.0")
     
+    // Drag and drop reorderable lists
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
+    
     // Basic media
     implementation("androidx.media:media:1.7.1")
     implementation("androidx.media3:media3-exoplayer:1.8.0")
