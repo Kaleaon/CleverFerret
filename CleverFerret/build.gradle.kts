@@ -99,7 +99,7 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.11.0")
     
     // Compose BOM and core components
-    implementation(platform("androidx.compose:compose-bom:2025.10.00"))
+    implementation(platform("androidx.compose:compose-bom:2025.10.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -177,7 +177,7 @@ dependencies {
     implementation("androidx.biometric:biometric:1.4.0-alpha04")
     
     // WorkManager for background tasks
-    implementation("androidx.work:work-runtime-ktx:2.10.5")
+    implementation("androidx.work:work-runtime-ktx:2.11.0")
     
     // Embedded HTTP server for OPDS
     implementation("org.nanohttpd:nanohttpd:2.3.1")
@@ -206,18 +206,18 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.14.2")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
-    testImplementation("androidx.test:core:1.6.1")
-    testImplementation("androidx.test:core-ktx:1.6.1")
+    testImplementation("androidx.test:core:1.7.0")
+    testImplementation("androidx.test:core-ktx:1.7.0")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation("androidx.test.ext:junit:1.2.1")
-    testImplementation("androidx.test.ext:junit-ktx:1.2.1")
+    testImplementation("androidx.test.ext:junit:1.3.0")
+    testImplementation("androidx.test.ext:junit-ktx:1.3.0")
     testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("io.mockk:mockk-android:1.13.13")
     testImplementation("org.robolectric:robolectric:4.14.1")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.10.00"))
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("org.mockito:mockito-android:5.14.2")
     androidTestImplementation("io.mockk:mockk-android:1.13.13")

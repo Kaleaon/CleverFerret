@@ -10,7 +10,7 @@
 [versions]
 # Kotlin & Compose
 kotlin = "2.1.21"
-compose-bom = "2025.10.00"
+compose-bom = "2025.10.01"
 compose-compiler = "2.1.21"
 
 # AndroidX Core
@@ -51,7 +51,7 @@ junrar = "7.5.7"
 jsoup = "1.21.2"
 security-crypto = "1.1.0"
 biometric = "1.4.0-alpha04"
-work = "2.10.5"
+work = "2.11.0"
 nanohttpd = "2.3.1"
 cast = "22.1.0"
 
