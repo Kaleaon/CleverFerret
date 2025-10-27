@@ -53,7 +53,7 @@ security-crypto = "1.1.0"
 biometric = "1.4.0-alpha04"
 work = "2.10.5"
 nanohttpd = "2.3.1"
-cast = "22.1.0"
+cast = "22.2.0"
 
 [libraries]
 # Kotlin

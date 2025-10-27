@@ -183,7 +183,7 @@ dependencies {
     implementation("org.nanohttpd:nanohttpd:2.3.1")
     
     // Google Cast SDK for Chromecast
-    implementation("com.google.android.gms:play-services-cast-framework:22.1.0")
+    implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
     implementation("androidx.media3:media3-cast:1.8.0")
     
     // Gemini AI for content analysis and translation
