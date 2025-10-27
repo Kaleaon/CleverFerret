@@ -230,13 +230,12 @@ class NewsDownloadService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val request = Request.Builder().url(rssUrl).build()
-                val response = httpClient.newCall(request).execute()
-
-                if (!response.isSuccessful) {
-                    return@withContext emptyList()
+                val xml = httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        return@withContext emptyList()
+                    }
+                    response.body?.string() ?: return@withContext emptyList()
                 }
-
-                val xml = response.body?.string() ?: return@withContext emptyList()
                 val doc = Jsoup.parse(xml, "", org.jsoup.parser.Parser.xmlParser())
 
                 doc.select("item").take(maxArticles).mapNotNull { item ->

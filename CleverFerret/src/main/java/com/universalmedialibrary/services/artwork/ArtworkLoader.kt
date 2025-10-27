@@ -363,29 +363,29 @@ class ArtworkLoader @Inject constructor(
                 .url(url)
                 .build()
 
-            val response = okHttpClient.newCall(request).execute()
+            okHttpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    Log.w(TAG, "Failed to load artwork from URL: $url, code: ${response.code}")
+                    return@withContext null
+                }
 
-            if (!response.isSuccessful) {
-                Log.w(TAG, "Failed to load artwork from URL: $url, code: ${response.code}")
-                return@withContext null
+                val bytes = response.body?.bytes() ?: return@withContext null
+
+                // Decode with scaling if requested
+                val bitmap = if (maxWidth > 0 || maxHeight > 0) {
+                    decodeBitmapWithScaling(bytes, maxWidth, maxHeight)
+                } else {
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                }
+
+                // Cache if successful
+                bitmap?.let { 
+                    memoryCache.put(cacheKey, it)
+                    saveToDiskCache(diskCacheFile, it)
+                }
+
+                bitmap
             }
-
-            val bytes = response.body?.bytes() ?: return@withContext null
-
-            // Decode with scaling if requested
-            val bitmap = if (maxWidth > 0 || maxHeight > 0) {
-                decodeBitmapWithScaling(bytes, maxWidth, maxHeight)
-            } else {
-                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            }
-
-            // Cache if successful
-            bitmap?.let { 
-                memoryCache.put(cacheKey, it)
-                saveToDiskCache(diskCacheFile, it)
-            }
-
-            bitmap
         } catch (e: Exception) {
             Log.e(TAG, "Error loading artwork from URL: $url", e)
             null
