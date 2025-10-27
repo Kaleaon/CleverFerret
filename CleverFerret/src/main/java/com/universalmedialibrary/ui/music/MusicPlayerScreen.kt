@@ -47,6 +47,7 @@ fun MusicPlayerScreen(
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val playlistMode by viewModel.playlistMode.collectAsStateWithLifecycle()
     val queue by viewModel.queue.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
     val playbackSpeed by viewModel.playbackSpeed.collectAsStateWithLifecycle()
     val volume by viewModel.volume.collectAsStateWithLifecycle()
     val equalizerPreset by viewModel.equalizerPreset.collectAsStateWithLifecycle()
@@ -78,6 +79,7 @@ fun MusicPlayerScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -277,11 +279,10 @@ fun MusicPlayerScreen(
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
-                // TODO: Add SnackbarHostState parameter to MusicPlayerScreen
-                // Then show error: snackbarHostState.showSnackbar(
-                //   message = playbackState.error ?: "Playback error",
-                //   duration = SnackbarDuration.Long
-                // )
+                snackbarHostState.showSnackbar(
+                    message = playbackState.error ?: "Playback error",
+                    duration = SnackbarDuration.Long
+                )
             }
         }
     }
