@@ -391,6 +391,8 @@ class VisualizerViewModel @Inject constructor(
                 val audioPlayer = audioPlaybackManager.exoPlayer
                 val currentPlayer = audioVisualizerService.getCurrentPlayer()
                 
+                delay(500L) // Prevent busy-loop CPU/battery drain
+                
                 // Prefer the player that's actually playing
                 val targetPlayer = when {
                     advancedPlayer?.isPlaying == true -> advancedPlayer  // Highest priority - music/radio

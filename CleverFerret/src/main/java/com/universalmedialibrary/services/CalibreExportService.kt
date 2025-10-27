@@ -183,6 +183,18 @@ class CalibreExportService @Inject constructor(
             )
         """)
 
+        // Create data table - required by Calibre to link books to their file formats
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                book INTEGER NOT NULL,
+                format TEXT NOT NULL,
+                name TEXT NOT NULL,
+                uncompressed_size INTEGER NOT NULL DEFAULT 0,
+                UNIQUE(book, format)
+            )
+        """)
+
         db.close()
     }
 
@@ -221,6 +233,16 @@ class CalibreExportService @Inject constructor(
             put("last_modified", item.lastModified.toString())
             put("uuid", java.util.UUID.randomUUID().toString())
             put("has_cover", if (metadata?.coverImagePath != null) 1 else 0)
+        })
+
+        // Insert data record - required by Calibre to recognize the book file
+        val format = destFile.extension.uppercase()
+        val fileNameNoExt = destFile.nameWithoutExtension
+        db.insert("data", null, android.content.ContentValues().apply {
+            put("book", bookId)
+            put("format", format)
+            put("name", fileNameNoExt)
+            put("uncompressed_size", sourceFile.length())
         })
 
         // Insert authors

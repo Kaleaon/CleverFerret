@@ -10,8 +10,10 @@ import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.services.CalibreImportService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -192,7 +194,10 @@ class LibraryManagementViewModel @Inject constructor(
             try {
                 _uiState.value = LibraryManagementUiState.Loading
                 
-                val result = calibreExportService.exportToCalibre(exportPath, libraryId)
+                // Run export on IO dispatcher to avoid blocking main thread
+                val result = withContext(Dispatchers.IO) {
+                    calibreExportService.exportToCalibre(exportPath, libraryId)
+                }
                 
                 if (result.success) {
                     _uiState.value = LibraryManagementUiState.Success

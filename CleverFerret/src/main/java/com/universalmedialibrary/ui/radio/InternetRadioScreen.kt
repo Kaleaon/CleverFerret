@@ -33,6 +33,7 @@ fun InternetRadioScreen(
     val stations by viewModel.stations.collectAsState()
     val currentStation by viewModel.currentStation.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
+    val availableGenres by viewModel.availableGenres.collectAsState() // Hoisted to composable scope
     var searchQuery by remember { mutableStateOf("") }
     var selectedGenre by remember { mutableStateOf("All") }
     var showAddStationDialog by remember { mutableStateOf(false) }
@@ -123,7 +124,6 @@ fun InternetRadioScreen(
             }
 
             // Genre Tabs - Dynamically generated from available stations
-            val availableGenres by viewModel.availableGenres.collectAsState()
             val genres = listOf("All") + availableGenres.sorted()
             ScrollableTabRow(
                 selectedTabIndex = genres.indexOf(selectedGenre).coerceAtLeast(0),
