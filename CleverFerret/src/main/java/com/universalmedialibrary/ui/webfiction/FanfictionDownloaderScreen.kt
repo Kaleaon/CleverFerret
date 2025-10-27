@@ -310,6 +310,8 @@ fun FanfictionDownloaderScreen(
                             SupportedSiteItem("FanFiction.Net", "fanfiction.net", "✓ Multi-chapter")
                             SupportedSiteItem("Wattpad", "wattpad.com", "✓ Basic support")
                             SupportedSiteItem("Royal Road", "royalroad.com", "Via Web Fiction Manager")
+                            SupportedSiteItem("Metabods", "metabods.com", "✓ Adult content")
+                            SupportedSiteItem("Literotica", "literotica.com", "✓ Adult content")
                             SupportedSiteItem("Other Sites", "Generic", "Limited support")
                         }
                     }
