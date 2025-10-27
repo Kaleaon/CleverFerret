@@ -34,6 +34,7 @@ import javax.inject.Inject
 fun PresetBrowserScreen(
     onBack: () -> Unit,
     onPresetSelected: (VisualizerPreset) -> Unit,
+    onNavigateToEditor: (String?) -> Unit = {},
     viewModel: PresetBrowserViewModel = hiltViewModel()
 ) {
     val presets by viewModel.presets.collectAsState()
@@ -57,9 +58,15 @@ fun PresetBrowserScreen(
                     }
                 },
                 actions = {
+                    // Create new preset button
+                    IconButton(onClick = { onNavigateToEditor(null) }) {
+                        Icon(Icons.Default.Add, "Create New Preset")
+                    }
+                    // Import preset button
                     IconButton(onClick = { showImportDialog = true }) {
                         Icon(Icons.Default.Download, "Import Preset")
                     }
+                    // Help button
                     IconButton(onClick = { /* Show help dialog */ }) {
                         Icon(Icons.Default.Info, "Help")
                     }
@@ -112,7 +119,8 @@ fun PresetBrowserScreen(
                             selectedPreset = preset
                             onPresetSelected(preset)
                         },
-                        onShare = { presetToShare = preset }
+                        onShare = { presetToShare = preset },
+                        onEdit = { onNavigateToEditor(preset.id) }
                     )
                 }
             }
@@ -141,7 +149,8 @@ fun PresetBrowserScreen(
 private fun PresetCard(
     preset: VisualizerPreset,
     onClick: () -> Unit,
-    onShare: () -> Unit
+    onShare: () -> Unit,
+    onEdit: () -> Unit
 ) {
     Card(
         onClick = onClick,
@@ -228,8 +237,24 @@ private fun PresetCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                // Edit button (only for custom presets)
+                if (preset.tags.contains("custom") || preset.tags.contains("user-created")) {
+                    OutlinedButton(
+                        onClick = onEdit,
+                        modifier = Modifier.weight(0.8f)
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Edit", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+                
                 OutlinedButton(
                     onClick = onShare,
                     modifier = Modifier.weight(1f)
