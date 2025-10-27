@@ -122,8 +122,8 @@ fun InternetRadioScreen(
                 }
             }
 
-            // Genre Tabs
-            val genres = listOf("All", "News", "Music", "Talk", "Sports", "Jazz", "Classical")
+            // Genre Tabs - Updated to match actual station categories
+            val genres = listOf("All", "Music", "Ambient", "Electronic", "Rock", "Jazz", "Classical", "News", "Hip Hop")
             ScrollableTabRow(
                 selectedTabIndex = genres.indexOf(selectedGenre).coerceAtLeast(0),
                 modifier = Modifier.fillMaxWidth(),
@@ -272,15 +272,64 @@ class InternetRadioViewModel @Inject constructor(
     }
 
     private fun loadSampleStations() {
-        // Sample stations - these would come from a service/API in production
+        // Curated stations from https://github.com/mikepierce/internet-radio-streams
         _stations.value = listOf(
-            InternetRadioStation("1", "NPR News", "https://npr-ice.streamguys1.com/live.mp3", "News", "128 kbps"),
-            InternetRadioStation("2", "Jazz FM", "https://jazz-wr01.ice.infomaniak.ch/jazz-wr01-128.mp3", "Jazz", "128 kbps"),
-            InternetRadioStation("3", "Classical Music", "https://stream.live.vc.bbcmedia.co.uk/bbc_radio_three", "Classical", "320 kbps"),
-            InternetRadioStation("4", "Rock Radio", "https://stream.rockradio.com/rock", "Rock", "128 kbps"),
-            InternetRadioStation("5", "Electronic Music", "https://stream.electronicmusic.com/main", "Electronic", "256 kbps"),
-            InternetRadioStation("6", "Talk Radio", "https://stream.talkradio.com/main", "Talk", "64 kbps"),
-            InternetRadioStation("7", "Sports Radio", "https://stream.sportsradio.com/main", "Sports", "128 kbps")
+            // Electronic & EDM
+            InternetRadioStation("1", "313.FM Detroit", "http://icecast.ofdoom.com:8000/burst.mp3", "Electronic", "128 kbps"),
+            InternetRadioStation("4", "AH.FM - EDM Radio", "http://nl.ah.fm:8000/live", "Electronic", "128 kbps"),
+            InternetRadioStation("31", "Dogglounge Deep House", "http://dogglounge.com:8000", "Electronic", "128 kbps"),
+            InternetRadioStation("45", "Frisky Chill", "https://chill.friskyradio.com", "Electronic", "128 kbps"),
+            InternetRadioStation("46", "Frisky Deep", "https://deep.friskyradio.com", "Electronic", "128 kbps"),
+            InternetRadioStation("47", "Frisky Radio", "https://stream.friskyradio.com", "Electronic", "128 kbps"),
+            
+            // Ambient & Chill
+            InternetRadioStation("2", "9128.live Ambient", "http://streams.radio.co:80/s0aa1e6f4a/listen", "Ambient", "128 kbps"),
+            InternetRadioStation("3", "A.M. Ambient", "http://radio.stereoscenic.com/ama-h", "Ambient", "128 kbps"),
+            InternetRadioStation("16", "Ambient Sleeping Pill", "http://radio.stereoscenic.com/asp-h", "Ambient", "128 kbps"),
+            InternetRadioStation("24", "Bluemars - Cryosleep", "http://50.116.12.253:8000/cryosleep", "Ambient", "128 kbps"),
+            InternetRadioStation("25", "Bluemars - Voices", "http://50.116.12.253:8000/voicesfromwithin", "Ambient", "128 kbps"),
+            InternetRadioStation("26", "Bluemars", "http://50.116.12.253:8000/bluemars", "Ambient", "128 kbps"),
+            InternetRadioStation("29", "Dark Ambient Radio", "http://s3.viastreaming.net:8835/", "Ambient", "128 kbps"),
+            
+            // BBC Radio
+            InternetRadioStation("17", "BBC Radio 1", "http://as-hls-ww-live.akamaized.net/pool_01505109/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
+            InternetRadioStation("18", "BBC Radio 1Xtra", "http://as-hls-ww-live.akamaized.net/pool_92079267/live/ww/bbc_1xtra/bbc_1xtra.isml/bbc_1xtra-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
+            InternetRadioStation("19", "BBC Radio 1Dance", "http://as-hls-ww-live.akamaized.net/pool_62063831/live/ww/bbc_radio_one_dance/bbc_radio_one_dance.isml/bbc_radio_one_dance-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
+            InternetRadioStation("20", "BBC Radio 2", "http://as-hls-ww-live.akamaized.net/pool_74208725/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
+            InternetRadioStation("21", "BBC Radio 6 Music", "http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d96000.norewind.m3u8", "Rock", "96 kbps"),
+            InternetRadioStation("22", "BBC World Service", "http://stream.live.vc.bbcmedia.co.uk/bbc_world_service", "News", "128 kbps"),
+            
+            // French Radio
+            InternetRadioStation("33", "FIP", "http://direct.fipradio.fr/live/fip-midfi.mp3", "Music", "128 kbps"),
+            InternetRadioStation("35", "FIP Jazz", "http://direct.fipradio.fr/live/fip-webradio2.mp3", "Jazz", "128 kbps"),
+            InternetRadioStation("36", "FIP Groove", "http://direct.fipradio.fr/live/fip-webradio3.mp3", "Music", "128 kbps"),
+            InternetRadioStation("43", "France Musique", "http://direct.francemusique.fr/live/francemusique-midfi.mp3", "Classical", "128 kbps"),
+            
+            // SomaFM Stations
+            InternetRadioStation("71", "SomaFM - Groove Salad", "http://ice2.somafm.com/groovesalad-128-aac", "Ambient", "128 kbps"),
+            InternetRadioStation("72", "SomaFM - Drone Zone", "http://ice2.somafm.com/dronezone-128-aac", "Ambient", "128 kbps"),
+            InternetRadioStation("73", "SomaFM - Deep Space One", "http://ice2.somafm.com/deepspaceone-128-aac", "Ambient", "128 kbps"),
+            InternetRadioStation("74", "SomaFM - Space Station", "http://ice2.somafm.com/spacestation-128-aac", "Ambient", "128 kbps"),
+            InternetRadioStation("75", "SomaFM - Lush", "http://ice2.somafm.com/lush-128-aac", "Electronic", "128 kbps"),
+            InternetRadioStation("76", "SomaFM - Illinois Street Lounge", "http://ice2.somafm.com/illstreet-128-aac", "Music", "128 kbps"),
+            
+            // Alternative & Indie
+            InternetRadioStation("57", "KEXP Seattle", "http://live-mp3-128.kexp.org", "Rock", "128 kbps"),
+            InternetRadioStation("32", "Dublab Los Angeles", "https://dublab.out.airtime.pro/dublab_a", "Music", "128 kbps"),
+            InternetRadioStation("64", "NTS Radio 1", "http://stream-relay-geo.ntslive.net/stream", "Music", "128 kbps"),
+            InternetRadioStation("65", "NTS Radio 2", "http://stream-relay-geo.ntslive.net/stream2", "Music", "128 kbps"),
+            InternetRadioStation("67", "Newtown Radio", "https://streaming.radio.co/s0d090ee43/listen", "Music", "128 kbps"),
+            
+            // Specialty & Niche
+            InternetRadioStation("23", "Badradio Phonk", "https://s2.radio.co/s2b2b68744/listen", "Hip Hop", "128 kbps"),
+            InternetRadioStation("27", "Cashmere Radio", "https://cashmereradio.out.airtime.pro/cashmereradio_b", "Music", "128 kbps"),
+            InternetRadioStation("61", "Kiosk Radio Brussels", "https://kioskradiobxl.out.airtime.pro/kioskradiobxl_b", "Music", "128 kbps"),
+            InternetRadioStation("63", "NASA Third Rock Radio", "http://rfcm.streamguys1.com/thirdrock-icy", "Music", "128 kbps"),
+            InternetRadioStation("68", "Nightwave Plaza", "http://radio.plaza.one/ogg", "Music", "128 kbps"),
+            InternetRadioStation("70", "Radio Paradise", "http://stream.radioparadise.com/global-192", "Music", "192 kbps"),
+            InternetRadioStation("69", "Radio Caroline", "http://78.129.202.10:8030/", "Music", "128 kbps"),
+            InternetRadioStation("79", "The Lot Radio NYC", "https://thelot.out.airtime.pro/thelot_a", "Music", "128 kbps"),
+            InternetRadioStation("80", "Worldwide FM", "https://worldwidefm.out.airtime.pro/worldwidefm_a", "Music", "128 kbps")
         )
     }
 
