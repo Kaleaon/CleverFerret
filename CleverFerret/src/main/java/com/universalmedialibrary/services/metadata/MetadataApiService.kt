@@ -215,8 +215,9 @@ class MetadataApiService @Inject constructor(
                 )
             }
         } catch (e: Exception) {
-            // Return demo data on error
-            return createDemoTVShowResults(query)
+            // Log error and return empty list to avoid contaminating production data
+            android.util.Log.e("MetadataApiService", "Error searching TV shows: ${e.message}", e)
+            return emptyList()
         }
 
         return results

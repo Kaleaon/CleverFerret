@@ -125,6 +125,15 @@ interface TVMazeApi {
     suspend fun getShowSeasons(
         @Path("id") showId: Int
     ): List<TVMazeSeason>
+    
+    /**
+     * Lookup show by IMDb ID
+     * @param imdbId The IMDb ID (e.g., "tt0903747")
+     */
+    @GET("lookup/shows")
+    suspend fun lookupShowByImdb(
+        @Query("imdb") imdbId: String
+    ): TVMazeShow
 }
 
 // ================================

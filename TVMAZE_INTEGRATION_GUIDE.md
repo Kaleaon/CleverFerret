@@ -2,7 +2,7 @@
 
 ## Overview
 
-CleverFerret now includes comprehensive integration with the **TVMaze API** (https://www.tvmaze.com/api) for TV show metadata. TVMaze provides extensive TV show data including episodes, cast, crew, images, and more - all without requiring an API key!
+CleverFerret now includes comprehensive integration with the **TVMaze API** (https://www.tvmaze.com/api) for TV show metadata. TVMaze provides extensive TV show data including episodes, cast, crew, images, and more - all without requiring an API key! (Rate limit: ~20 requests per 10 seconds per IP)
 
 ## Features
 

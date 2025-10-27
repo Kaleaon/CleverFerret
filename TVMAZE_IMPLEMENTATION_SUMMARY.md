@@ -93,7 +93,7 @@ class MetadataApiService @Inject constructor(
 
 ### No API Key Required
 - ✅ Works immediately without authentication
-- ✅ No rate limit on free tier
+- ⚠️ Rate limit: ~20 requests per 10 seconds per IP
 - ✅ Simple setup
 
 ### Comprehensive TV Show Data

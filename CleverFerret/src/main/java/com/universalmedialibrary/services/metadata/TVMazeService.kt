@@ -41,6 +41,12 @@ class TVMazeService @Inject constructor() {
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
+        .addInterceptor { chain ->
+            val request = chain.request().newBuilder()
+                .addHeader("User-Agent", "CleverFerret/1.0 (Android)")
+                .build()
+            chain.proceed(request)
+        }
         .build()
     
     private val tvMazeApi: TVMazeApi by lazy {
@@ -207,24 +213,31 @@ class TVMazeService @Inject constructor() {
     }
     
     /**
-     * Find show by external ID (IMDb, TheTVDB)
+     * Find show by IMDb ID
      * 
-     * This is useful when you have an IMDb ID from another source
-     * and want to get the TVMaze data for it.
+     * This uses TVMaze's direct lookup endpoint for IMDb IDs.
+     * Falls back to search if the direct lookup fails.
      * 
      * Example:
      * ```kotlin
-     * val shows = service.searchShows("Breaking Bad")
-     * val breakingBad = shows.shows.firstOrNull { 
-     *     it.externals?.imdb == "tt0903747" 
-     * }
+     * val show = service.findShowByImdbId("tt0903747") // Breaking Bad
+     * println("Found: ${show?.name}")
      * ```
      */
     suspend fun findShowByImdbId(imdbId: String): TVMazeShow? {
-        // TVMaze doesn't have a direct lookup by IMDb ID endpoint
-        // So we need to search and filter
-        // This is a limitation, but for most use cases search works well
-        return null
+        return try {
+            // Preferred: direct IMDb lookup
+            tvMazeApi.lookupShowByImdb(imdbId)
+        } catch (e: Exception) {
+            // Fallback: search and filter by IMDb ID
+            try {
+                val results = tvMazeApi.searchShows(imdbId)
+                results.map { it.show }
+                    .firstOrNull { it.externals?.imdb?.equals(imdbId, ignoreCase = true) == true }
+            } catch (e2: Exception) {
+                null
+            }
+        }
     }
     
     /**

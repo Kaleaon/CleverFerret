@@ -102,6 +102,8 @@ Unlike TMDB and TheTVDB, TVMaze works without authentication:
 @Inject lateinit var tvMazeService: TVMazeService
 ```
 
+**Note**: TVMaze has rate limiting of approximately 20 requests per 10 seconds per IP address. The service automatically handles this through queuing.
+
 ### Rich Episode Data
 Every episode includes:
 - Episode title and number
