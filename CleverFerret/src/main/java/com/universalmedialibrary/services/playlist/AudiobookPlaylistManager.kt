@@ -334,12 +334,15 @@ class AudiobookPlaylistManager @Inject constructor(
         return playlistDao.getPlaylistItemsFlow(playlistId).map { items ->
             val books = items.mapNotNull { item ->
                 mediaItemDao.getMediaItemById(item.mediaItemId)?.let { mediaItem ->
+                    val progressData = historyRepository.getReadingProgress(item.mediaItemId).firstOrNull()
+                    val bookmarksList = historyRepository.getBookmarks(item.mediaItemId)
+                    
                     PlaylistAudiobook(
                         playlistItem = item,
                         mediaItem = mediaItem,
-                        progress = 0f, // TODO: Integrate with reading progress
-                        isFinished = false, // TODO: Check finished list
-                        bookmarks = emptyList() // TODO: Load bookmarks
+                        progress = progressData?.percentage ?: 0f,
+                        isFinished = historyRepository.isFinished(item.mediaItemId),
+                        bookmarks = bookmarksList
                     )
                 }
             }
@@ -347,7 +350,7 @@ class AudiobookPlaylistManager @Inject constructor(
             AudiobookPlaylist(
                 playlistId = playlistId,
                 books = books,
-                totalDuration = 0L, // TODO: Calculate from book durations
+                totalDuration = 0L, // Calculate from book durations when metadata available
                 totalBooks = books.size,
                 completedBooks = books.count { it.isFinished }
             )

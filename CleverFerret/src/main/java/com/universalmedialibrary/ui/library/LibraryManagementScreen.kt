@@ -32,6 +32,7 @@ import com.universalmedialibrary.data.local.entity.Library
 fun LibraryManagementScreen(
     onNavigateBack: () -> Unit = {},
     onNavigateToLibrary: (Long) -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     viewModel: LibraryManagementViewModel = hiltViewModel()
 ) {
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -41,8 +42,10 @@ fun LibraryManagementScreen(
 
     val libraries by viewModel.libraries.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -70,8 +73,7 @@ fun LibraryManagementScreen(
                                 text = { Text("Settings") },
                                 onClick = {
                                     showMenu = false
-                                    // TODO: Add navigation callback parameter onNavigateToSettings: () -> Unit
-                                    // Then call: onNavigateToSettings()
+                                    onNavigateToSettings()
                                 },
                                 leadingIcon = {
                                     Icon(Icons.Default.Settings, contentDescription = null)
@@ -171,8 +173,10 @@ fun LibraryManagementScreen(
         }
         is LibraryManagementUiState.Error -> {
             LaunchedEffect(uiState) {
-                // TODO: Add SnackbarHostState parameter and show error message:
-                // snackbarHostState.showSnackbar(message = uiState.message, duration = SnackbarDuration.Long)
+                snackbarHostState.showSnackbar(
+                    message = uiState.message,
+                    duration = SnackbarDuration.Long
+                )
             }
         }
         is LibraryManagementUiState.Success -> {

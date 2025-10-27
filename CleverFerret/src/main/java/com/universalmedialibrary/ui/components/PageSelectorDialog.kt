@@ -1,272 +1,133 @@
 package com.universalmedialibrary.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Pages
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 
 /**
  * Page Selector Dialog
+ * 
+ * Allows users to jump to a specific page in a PDF or eBook by entering the page number.
  *
- * Allows users to jump to a specific page in ebooks and PDFs with:
- * - Current page display
- * - Total pages display
- * - Direct page number input
- * - Quick navigation buttons (First, Last)
- * - Page validation
+ * @param currentPage Current page number
+ * @param totalPages Total number of pages
+ * @param onPageSelect Callback with selected page number
+ * @param onDismiss Callback when dialog is dismissed
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PageSelectorDialog(
     currentPage: Int,
     totalPages: Int,
-    onPageSelected: (Int) -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    onPageSelect: (Int) -> Unit,
+    onDismiss: () -> Unit
 ) {
     var pageInput by remember { mutableStateOf(currentPage.toString()) }
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = modifier.fillMaxWidth(0.9f),
-            shape = MaterialTheme.shapes.large,
-            tonalElevation = 6.dp
-        ) {
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Default.Pages,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = {
+            Text(
+                "Go to Page",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MenuBook,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Go to Page",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close"
-                        )
-                    }
-                }
-
-                // Current position indicator
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Current Page",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                        Text(
-                            text = "$currentPage of $totalPages",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                        LinearProgressIndicator(
-                            progress = { if (totalPages > 0) currentPage.toFloat() / totalPages.toFloat() else 0f },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                        )
-                    }
-                }
-
-                // Page input
+                Text(
+                    "Current: Page $currentPage of $totalPages",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
                 OutlinedTextField(
                     value = pageInput,
-                    onValueChange = { value ->
-                        if (value.isEmpty() || value.all { it.isDigit() }) {
-                            pageInput = value
+                    onValueChange = { newValue ->
+                        pageInput = newValue
+                        // Validate input
+                        val pageNum = newValue.toIntOrNull()
+                        errorMessage = when {
+                            newValue.isBlank() -> "Please enter a page number"
+                            pageNum == null -> "Invalid page number"
+                            pageNum < 1 -> "Page must be at least 1"
+                            pageNum > totalPages -> "Page cannot exceed $totalPages"
+                            else -> null
                         }
                     },
                     label = { Text("Page Number") },
                     placeholder = { Text("Enter page number") },
-                    supportingText = { Text("Pages 1 - $totalPages") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    singleLine = true,
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Go
+                        keyboardType = KeyboardType.Number
                     ),
-                    keyboardActions = KeyboardActions(
-                        onGo = {
-                            val page = pageInput.toIntOrNull()
-                            if (page != null && page in 1..totalPages) {
-                                onPageSelected(page)
-                                onDismiss()
-                            }
-                        }
-                    ),
-                    isError = pageInput.toIntOrNull()?.let { it !in 1..totalPages } == true
+                    isError = errorMessage != null,
+                    supportingText = errorMessage?.let { { Text(it) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
-
-                // Quick navigation buttons
+                
+                // Quick jump buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = {
-                            onPageSelected(1)
-                            onDismiss()
-                        },
+                        onClick = { pageInput = "1" },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("First Page")
+                        Text("First")
                     }
-                    
                     OutlinedButton(
-                        onClick = {
-                            onPageSelected(totalPages)
-                            onDismiss()
-                        },
+                        onClick = { pageInput = (totalPages / 2).toString() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Last Page")
+                        Text("Middle")
                     }
-                }
-
-                // Action buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TextButton(
-                        onClick = onDismiss,
+                    OutlinedButton(
+                        onClick = { pageInput = totalPages.toString() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Cancel")
-                    }
-                    
-                    Button(
-                        onClick = {
-                            val page = pageInput.toIntOrNull()
-                            if (page != null && page in 1..totalPages) {
-                                onPageSelected(page)
-                                onDismiss()
-                            }
-                        },
-                        enabled = pageInput.toIntOrNull()?.let { it in 1..totalPages } == true,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Go")
+                        Text("Last")
                     }
                 }
             }
-        }
-    }
-}
-
-/**
- * Compact Page Selector for Bottom Sheet
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CompactPageSelector(
-    currentPage: Int,
-    totalPages: Int,
-    onPageSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var pageInput by remember(currentPage) { mutableStateOf(currentPage.toString()) }
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedTextField(
-            value = pageInput,
-            onValueChange = { value ->
-                if (value.isEmpty() || value.all { it.isDigit() }) {
-                    pageInput = value
-                }
-            },
-            label = { Text("Page") },
-            modifier = Modifier.width(100.dp),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Go
-            ),
-            keyboardActions = KeyboardActions(
-                onGo = {
-                    val page = pageInput.toIntOrNull()
-                    if (page != null && page in 1..totalPages) {
-                        onPageSelected(page)
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val pageNum = pageInput.toIntOrNull()
+                    if (pageNum != null && pageNum in 1..totalPages) {
+                        onPageSelect(pageNum)
+                        onDismiss()
                     }
-                }
-            )
-        )
-        
-        Text(
-            text = "of $totalPages",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        
-        Spacer(modifier = Modifier.weight(1f))
-        
-        Button(
-            onClick = {
-                val page = pageInput.toIntOrNull()
-                if (page != null && page in 1..totalPages) {
-                    onPageSelected(page)
-                }
-            },
-            enabled = pageInput.toIntOrNull()?.let { it in 1..totalPages } == true
-        ) {
-            Text("Go")
+                },
+                enabled = errorMessage == null && pageInput.isNotBlank()
+            ) {
+                Text("Go")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
         }
-    }
+    )
 }

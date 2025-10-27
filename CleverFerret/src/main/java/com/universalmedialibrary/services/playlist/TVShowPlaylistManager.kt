@@ -6,10 +6,12 @@ import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.PlaylistItem
+import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
@@ -31,7 +33,8 @@ class TVShowPlaylistManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playlistDao: PlaylistDao,
     private val mediaItemDao: MediaItemDao,
-    private val queueManager: UnifiedPlaybackQueueManager
+    private val queueManager: UnifiedPlaybackQueueManager,
+    private val historyRepository: HistoryRepository
 ) {
 
     /**
@@ -280,8 +283,16 @@ class TVShowPlaylistManager @Inject constructor(
      * Continue watching from last watched episode
      */
     suspend fun continueWatching(playlistId: Long) {
-        // TODO: Integrate with watch history to find last watched episode
-        startBingeWatch(playlistId, 0)
+        val items = playlistDao.getPlaylistItemsFlow(playlistId).first()
+        
+        // Find first unwatched episode
+        val firstUnwatchedIndex = items.indexOfFirst { item ->
+            !historyRepository.isWatched(item.mediaItemId)
+        }
+        
+        // If all watched, start from beginning; otherwise start from first unwatched
+        val startIndex = if (firstUnwatchedIndex >= 0) firstUnwatchedIndex else 0
+        startBingeWatch(playlistId, startIndex)
     }
 
     /**
@@ -333,13 +344,15 @@ class TVShowPlaylistManager @Inject constructor(
         return playlistDao.getPlaylistItemsFlow(playlistId).map { items ->
             val episodes = items.mapNotNull { item ->
                 mediaItemDao.getMediaItemById(item.mediaItemId)?.let { mediaItem ->
+                    val progressData = historyRepository.getReadingProgress(item.mediaItemId).firstOrNull()
+                    
                     PlaylistEpisode(
                         playlistItem = item,
                         mediaItem = mediaItem,
                         seasonNumber = extractSeasonNumber(mediaItem.fileName),
                         episodeNumber = extractEpisodeNumber(mediaItem.fileName),
-                        watched = false, // TODO: Integrate with watch history
-                        progress = 0f // TODO: Integrate with progress tracking
+                        watched = historyRepository.isWatched(item.mediaItemId),
+                        progress = progressData?.percentage ?: 0f
                     )
                 }
             }
@@ -349,7 +362,7 @@ class TVShowPlaylistManager @Inject constructor(
                 episodes = episodes,
                 totalEpisodes = episodes.size,
                 watchedEpisodes = episodes.count { it.watched },
-                totalDuration = 0L, // TODO: Calculate from episode durations
+                totalDuration = 0L, // Calculate from episode durations when metadata extraction available
                 seasons = episodes.mapNotNull { it.seasonNumber }.distinct().sorted()
             )
         }
@@ -400,7 +413,7 @@ class TVShowPlaylistManager @Inject constructor(
      * Mark episode as watched
      */
     suspend fun markEpisodeAsWatched(playlistId: Long, episodeId: Long) {
-        // TODO: Integrate with watch history
+        historyRepository.markAsFinished(episodeId)
     }
 
     /**
