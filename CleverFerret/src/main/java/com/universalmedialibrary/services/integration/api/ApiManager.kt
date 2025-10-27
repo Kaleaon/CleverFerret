@@ -113,4 +113,16 @@ class ApiManager @Inject constructor(
             .build()
             .create(EmbyApiService::class.java)
     }
+
+    /**
+     * Creates a Retrofit instance for Fanart.tv API
+     */
+    fun createFanartTvApi(): FanartTvApi {
+        return Retrofit.Builder()
+            .baseUrl("https://webservice.fanart.tv/v3/")
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(FanartTvApi::class.java)
+    }
 }
