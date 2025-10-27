@@ -535,5 +535,3 @@ data class Statistics(
     val videosCount: Int,
     val totalHours: Int
 )
-  val totalHours: Int
-)

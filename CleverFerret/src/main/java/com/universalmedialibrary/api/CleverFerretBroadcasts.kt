@@ -116,10 +116,10 @@ object CleverFerretBroadcasts {
     const val EXTRA_TRACK_ALBUM = "album"
     
     /** Track duration in milliseconds (Long) */
-    const val EXTRA_TRACK_DURATION = "duration"
+    const val EXTRA_TRACK_DURATION = "trackDuration"
     
     /** Current playback position in milliseconds (Long) */
-    const val EXTRA_TRACK_POSITION = "position"
+    const val EXTRA_TRACK_POSITION = "trackPosition"
     
     /** Album art URI (String) */
     const val EXTRA_ALBUM_ART_URI = "albumArtUri"
