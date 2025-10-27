@@ -314,9 +314,9 @@ fun removeFromQueueByIndex(index: Int) {
 
 ---
 
-### High Priority Issues (All Verified ✅)
+### High-Priority Issues (All Verified ✅)
 
-#### 6. ✅ LazyListState Mismatch
+#### 6. ✅ Lazy-ListState Mismatch
 **File**: `EnhancedQueueScreen.kt`
 
 **Claimed Fix**: Uses `reorderableState.listState`
@@ -352,7 +352,7 @@ if (BuildConfig.DEBUG) {  // ✅ Uses BuildConfig.DEBUG
 
 ---
 
-### Medium Priority Issues (All Verified ✅)
+### Medium-Priority Issues (All Verified ✅)
 
 #### 9-15. Various Documentation & Code Quality Issues
 - Date inconsistencies: ✅ Fixed across 15 files

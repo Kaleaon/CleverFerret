@@ -260,7 +260,11 @@ class AudiobookService @Inject constructor(
                     description = note,
                     position = state.currentPosition,
                     chapter = state.currentChapter.toString(),
-                    percentage = (state.currentPosition.toFloat() / audiobook.totalDuration) * 100f,
+                    percentage = if (audiobook.totalDuration > 0L) {
+                        (state.currentPosition.coerceIn(0L, audiobook.totalDuration).toFloat() / audiobook.totalDuration) * 100f
+                    } else {
+                        0f
+                    },
                     bookmarkType = "MANUAL",
                     dateCreated = System.currentTimeMillis()
                 )

@@ -48,7 +48,6 @@ fun ReadingPreferencesScreen(
     val globalPrefs by viewModel.globalPreferences.collectAsState()
     
     val snackbarHostState = remember { SnackbarHostState() }
-    var showRestorePicker by remember { mutableStateOf(false) }
     
     // Listen for backup results
     LaunchedEffect(Unit) {

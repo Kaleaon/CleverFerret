@@ -170,7 +170,3 @@ class BroadcastManager @Inject constructor(
         }
     }
 }
-sts.REPEAT_OFF
-        }
-    }
-}

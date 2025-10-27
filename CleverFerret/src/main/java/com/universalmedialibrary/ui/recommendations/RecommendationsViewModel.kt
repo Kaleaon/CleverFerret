@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.recommendations
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.recommendations.SmartRecommendationService
@@ -7,14 +8,21 @@ import com.universalmedialibrary.services.recommendations.RecommendationsState
 import com.universalmedialibrary.services.recommendations.RecommendationOptions
 import com.universalmedialibrary.services.recommendations.Recommendation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RecommendationsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val recommendationService: SmartRecommendationService
 ) : ViewModel() {
+    
+    private val dismissedPrefs = context.getSharedPreferences(
+        "dismissed_recommendations",
+        Context.MODE_PRIVATE
+    )
 
     private val _uiState = MutableStateFlow(RecommendationsUiState())
     val uiState: StateFlow<RecommendationsUiState> = _uiState.asStateFlow()
@@ -109,8 +117,8 @@ class RecommendationsViewModel @Inject constructor(
 
                 // Persist dismissal
                 dismissedPrefs.edit()
-                    .putBoolean("dismissed_$id", true)
-                    .putLong("dismissed_${id}_time", System.currentTimeMillis())
+                    .putBoolean("dismissed_${recommendation.id}", true)
+                    .putLong("dismissed_${recommendation.id}_time", System.currentTimeMillis())
                     .apply()
             } catch (e: Exception) {
                 // Silently fail
