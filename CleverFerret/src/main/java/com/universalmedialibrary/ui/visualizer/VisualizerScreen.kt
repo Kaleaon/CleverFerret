@@ -42,6 +42,7 @@ fun VisualizerScreen(
     val castState by viewModel.castState.collectAsState()
     val isVisualizerEnabled by viewModel.isVisualizerEnabled.collectAsState()
     val currentPreset by viewModel.currentPreset.collectAsState(initial = null)
+    val beatDetected by viewModel.beatDetected.collectAsState()
     var currentStyle by remember { mutableStateOf(VisualizerStyle.SPECTRUM_BARS) }
     var showPresetBrowser by remember { mutableStateOf(false) }
 
@@ -129,14 +130,41 @@ fun VisualizerScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Visualizer display
-            ProjectMVisualizer(
-                visualizerState = visualizerState,
-                style = currentStyle,
+            // Visualizer display with beat indicator
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-            )
+            ) {
+                ProjectMVisualizer(
+                    visualizerState = visualizerState,
+                    style = currentStyle,
+                    modifier = Modifier.fillMaxSize()
+                )
+                
+                // Beat indicator
+                if (beatDetected) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp)
+                            .size(48.dp),
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.MusicNote,
+                                contentDescription = "Beat",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+                }
+            }
 
             // Cast status banner
             if (castState.isConnected) {
@@ -351,6 +379,7 @@ class VisualizerViewModel @Inject constructor(
     val visualizerState = audioVisualizerService.visualizerState
     val castState = chromecastManager.castState
     val isVisualizerEnabled = audioVisualizerService.isEnabled
+    val beatDetected = audioVisualizerService.beatDetected
     
     private val _currentPreset = MutableStateFlow<com.universalmedialibrary.services.visualizer.VisualizerPreset?>(null)
     val currentPreset: StateFlow<com.universalmedialibrary.services.visualizer.VisualizerPreset?> = _currentPreset.asStateFlow()
