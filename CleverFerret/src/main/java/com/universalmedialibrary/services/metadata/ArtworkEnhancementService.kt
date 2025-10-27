@@ -333,7 +333,12 @@ class ArtworkEnhancementService @Inject constructor(
     ): Int {
         return withContext(Dispatchers.IO) {
             var successCount = 0
-            items.forEach { (itemId, externalId, type) ->
+            items.forEachIndexed { index, (itemId, externalId, type) ->
+                // Add throttling to respect Fanart.tv's 2 requests/second limit
+                if (index > 0) {
+                    kotlinx.coroutines.delay(600) // 600ms delay = ~1.67 req/sec (safe margin)
+                }
+                
                 val success = when (type) {
                     ArtworkType.MOVIE -> enhanceMovieArtwork(itemId, externalId)
                     ArtworkType.TV_SHOW -> enhanceTvArtwork(itemId, externalId)

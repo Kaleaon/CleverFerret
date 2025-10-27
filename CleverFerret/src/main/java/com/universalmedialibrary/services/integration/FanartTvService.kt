@@ -9,8 +9,10 @@ import com.universalmedialibrary.services.integration.api.FanartImage
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.File
-import java.net.URL
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -171,22 +173,51 @@ class FanartTvService @Inject constructor(
     suspend fun downloadAndCacheImage(imageUrl: String, filename: String): String? {
         return withContext(Dispatchers.IO) {
             try {
+                // Enforce HTTPS for security
+                if (!imageUrl.startsWith("https://", ignoreCase = true)) {
+                    Log.w(TAG, "Rejecting non-HTTPS URL: $imageUrl")
+                    return@withContext null
+                }
+
                 val cacheDir = File(context.cacheDir, CACHE_DIR)
                 if (!cacheDir.exists()) {
                     cacheDir.mkdirs()
                 }
 
-                val imageFile = File(cacheDir, filename)
+                // Sanitize filename to prevent path traversal attacks
+                val safeName = File(filename).name
+                val imageFile = File(cacheDir, safeName)
                 
-                // Download the image
-                val url = URL(imageUrl)
-                url.openStream().use { input ->
-                    imageFile.outputStream().use { output ->
-                        input.copyTo(output)
+                // Verify the canonical path stays within cache directory
+                if (imageFile.canonicalFile.parentFile != cacheDir.canonicalFile) {
+                    Log.e(TAG, "Invalid filename: path traversal attempt detected")
+                    return@withContext null
+                }
+                
+                // Use OkHttp for downloads with proper timeouts and connection pooling
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .build()
+                
+                val request = Request.Builder()
+                    .url(imageUrl)
+                    .build()
+                
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        Log.w(TAG, "Failed to download image: HTTP ${response.code}")
+                        return@withContext null
+                    }
+                    
+                    response.body?.byteStream()?.use { input ->
+                        imageFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
                     }
                 }
                 
-                Log.d(TAG, "Downloaded and cached image: $filename")
+                Log.d(TAG, "Downloaded and cached image: $safeName")
                 imageFile.absolutePath
             } catch (e: Exception) {
                 Log.e(TAG, "Error downloading image from $imageUrl", e)
