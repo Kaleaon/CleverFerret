@@ -88,8 +88,9 @@ class VisualizerPresetManager {
     }
     
     companion object {
-        // Built-in presets
+        // Built-in presets (now 20+ presets!)
         val DEFAULT_PRESETS = listOf(
+            // Original presets
             VisualizerPreset(
                 id = "classic_spectrum",
                 name = "Classic Spectrum",
@@ -237,6 +238,215 @@ class VisualizerPresetManager {
                     blendMode = "additive"
                 ),
                 tags = listOf("particles", "chaotic", "energetic")
+            ),
+            // New visualization style presets
+            VisualizerPreset(
+                id = "oscilloscope",
+                name = "Oscilloscope XY",
+                author = "CleverFerret",
+                description = "Classic oscilloscope XY mode display",
+                baseStyle = "oscilloscope",
+                parameters = VisualizerParameters(
+                    waveformPoints = 256,
+                    sensitivity = 1.2f
+                ),
+                tags = listOf("oscilloscope", "classic", "technical")
+            ),
+            VisualizerPreset(
+                id = "spectrograph",
+                name = "Frequency Waterfall",
+                author = "CleverFerret",
+                description = "Scrolling frequency spectrograph",
+                baseStyle = "spectrograph",
+                parameters = VisualizerParameters(
+                    barCount = 64,
+                    smoothing = 0.8f,
+                    colorCycleSpeed = 1.2f
+                ),
+                tags = listOf("spectrograph", "waterfall", "technical")
+            ),
+            VisualizerPreset(
+                id = "lissajous",
+                name = "Lissajous Curves",
+                author = "CleverFerret",
+                description = "Beautiful mathematical Lissajous patterns",
+                baseStyle = "lissajous",
+                parameters = VisualizerParameters(
+                    waveformPoints = 256,
+                    smoothing = 0.6f
+                ),
+                tags = listOf("lissajous", "curves", "mathematical")
+            ),
+            VisualizerPreset(
+                id = "radial_wave",
+                name = "Radial Pulse",
+                author = "CleverFerret",
+                description = "Waveform radiating from center",
+                baseStyle = "radial_waveform",
+                parameters = VisualizerParameters(
+                    waveformPoints = 256,
+                    circularRotationSpeed = 1.0f,
+                    sensitivity = 1.3f
+                ),
+                tags = listOf("radial", "pulse", "circular")
+            ),
+            VisualizerPreset(
+                id = "beat_pulse",
+                name = "Beat Reactor",
+                author = "CleverFerret",
+                description = "Shapes that react strongly to beats",
+                baseStyle = "beat_reactive",
+                parameters = VisualizerParameters(
+                    bassBoost = 2.0f,
+                    pulseEffect = true,
+                    sensitivity = 1.5f
+                ),
+                tags = listOf("beat", "reactive", "energetic")
+            ),
+            VisualizerPreset(
+                id = "kaleidoscope",
+                name = "Kaleidoscope Dream",
+                author = "CleverFerret",
+                description = "Symmetric kaleidoscope patterns",
+                baseStyle = "kaleidoscope",
+                parameters = VisualizerParameters(
+                    mirrorEffect = true,
+                    circularRotationSpeed = 0.8f,
+                    colorCycleSpeed = 1.5f
+                ),
+                tags = listOf("kaleidoscope", "symmetric", "psychedelic")
+            ),
+            VisualizerPreset(
+                id = "fractal",
+                name = "Fractal Recursion",
+                author = "CleverFerret",
+                description = "Recursive fractal circle patterns",
+                baseStyle = "fractal",
+                parameters = VisualizerParameters(
+                    circularRotationSpeed = 0.5f,
+                    sensitivity = 1.0f
+                ),
+                tags = listOf("fractal", "recursive", "mathematical")
+            ),
+            VisualizerPreset(
+                id = "matrix_rain",
+                name = "Matrix Rain",
+                author = "CleverFerret",
+                description = "Digital rain effect inspired by The Matrix",
+                baseStyle = "matrix_rain",
+                parameters = VisualizerParameters(
+                    speed = 1.2f,
+                    sensitivity = 1.0f
+                ),
+                colorScheme = ColorScheme(
+                    primary = "#00FF41",
+                    secondary = "#008F11",
+                    tertiary = "#003B00",
+                    background = "#000000"
+                ),
+                tags = listOf("matrix", "digital", "cyberpunk")
+            ),
+            VisualizerPreset(
+                id = "dual_stereo",
+                name = "Dual Channel Stereo",
+                author = "CleverFerret",
+                description = "Separate left and right channel visualization",
+                baseStyle = "dual_channel",
+                parameters = VisualizerParameters(
+                    waveformPoints = 256,
+                    waveformThickness = 2.5f
+                ),
+                tags = listOf("stereo", "dual", "technical")
+            ),
+            VisualizerPreset(
+                id = "cube_3d",
+                name = "3D Cube Spectrum",
+                author = "CleverFerret",
+                description = "Pseudo-3D rotating cube with spectrum",
+                baseStyle = "cube_3d",
+                parameters = VisualizerParameters(
+                    circularRotationSpeed = 1.0f,
+                    barCount = 12,
+                    sensitivity = 1.2f
+                ),
+                tags = listOf("3d", "cube", "rotation")
+            ),
+            // Additional themed presets
+            VisualizerPreset(
+                id = "neon_pulse",
+                name = "Neon Pulse",
+                author = "CleverFerret",
+                description = "Neon colored beat reactive visualization",
+                baseStyle = "beat_reactive",
+                parameters = VisualizerParameters(
+                    bassBoost = 1.8f,
+                    pulseEffect = true,
+                    glowEffect = true
+                ),
+                colorScheme = ColorScheme(
+                    primary = "#FF006E",
+                    secondary = "#8338EC",
+                    tertiary = "#3A86FF",
+                    background = "#000000"
+                ),
+                tags = listOf("neon", "pulse", "glow", "colorful")
+            ),
+            VisualizerPreset(
+                id = "aurora",
+                name = "Aurora Borealis",
+                author = "CleverFerret",
+                description = "Flowing aurora-like waveforms",
+                baseStyle = "radial_waveform",
+                parameters = VisualizerParameters(
+                    smoothing = 0.9f,
+                    circularRotationSpeed = 0.3f,
+                    waveformAmplitude = 0.7f
+                ),
+                colorScheme = ColorScheme(
+                    primary = "#0FA",
+                    secondary = "#08F",
+                    tertiary = "#C0F",
+                    background = "#001529"
+                ),
+                tags = listOf("aurora", "flowing", "calm", "colorful")
+            ),
+            VisualizerPreset(
+                id = "cyber_grid",
+                name = "Cyber Grid",
+                author = "CleverFerret",
+                description = "Cyberpunk-style grid visualization",
+                baseStyle = "spectrograph",
+                parameters = VisualizerParameters(
+                    barCount = 80,
+                    sensitivity = 1.5f,
+                    colorCycleSpeed = 2.0f
+                ),
+                colorScheme = ColorScheme(
+                    primary = "#FF00FF",
+                    secondary = "#00FFFF",
+                    tertiary = "#FFFF00",
+                    background = "#0A0A0A"
+                ),
+                tags = listOf("cyberpunk", "grid", "neon", "energetic")
+            ),
+            VisualizerPreset(
+                id = "sunset_wave",
+                name = "Sunset Wave",
+                author = "CleverFerret",
+                description = "Warm sunset-colored waveforms",
+                baseStyle = "dual_channel",
+                parameters = VisualizerParameters(
+                    smoothing = 0.85f,
+                    waveformAmplitude = 0.6f,
+                    speed = 0.8f
+                ),
+                colorScheme = ColorScheme(
+                    primary = "#FF6B35",
+                    secondary = "#F7931E",
+                    tertiary = "#FDC830",
+                    background = "#1A0F0A"
+                ),
+                tags = listOf("sunset", "warm", "calm", "colorful")
             )
         )
     }

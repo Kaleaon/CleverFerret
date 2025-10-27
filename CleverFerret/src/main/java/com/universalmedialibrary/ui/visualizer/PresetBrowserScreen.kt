@@ -40,6 +40,7 @@ fun PresetBrowserScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     var showImportDialog by remember { mutableStateOf(false) }
     var selectedPreset by remember { mutableStateOf<VisualizerPreset?>(null) }
+    var presetToShare by remember { mutableStateOf<VisualizerPreset?>(null) }
     
     Scaffold(
         topBar = {
@@ -111,7 +112,7 @@ fun PresetBrowserScreen(
                             selectedPreset = preset
                             onPresetSelected(preset)
                         },
-                        onExport = { viewModel.exportPreset(preset) }
+                        onShare = { presetToShare = preset }
                     )
                 }
             }
@@ -127,13 +128,20 @@ fun PresetBrowserScreen(
             }
         )
     }
+    
+    presetToShare?.let { preset ->
+        PresetShareDialog(
+            preset = preset,
+            onDismiss = { presetToShare = null }
+        )
+    }
 }
 
 @Composable
 private fun PresetCard(
     preset: VisualizerPreset,
     onClick: () -> Unit,
-    onExport: () -> Unit
+    onShare: () -> Unit
 ) {
     Card(
         onClick = onClick,
@@ -223,7 +231,7 @@ private fun PresetCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = onExport,
+                    onClick = onShare,
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
@@ -232,7 +240,7 @@ private fun PresetCard(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Export")
+                    Text("Share")
                 }
                 
                 Button(
