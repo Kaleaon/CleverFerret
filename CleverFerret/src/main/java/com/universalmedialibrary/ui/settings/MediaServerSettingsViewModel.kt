@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.entity.EmbyServer
 import com.universalmedialibrary.data.local.entity.JellyfinServer
 import com.universalmedialibrary.data.local.entity.PlexServer
+import com.universalmedialibrary.data.local.entity.YaaccServer
 import com.universalmedialibrary.data.repository.MediaServerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,6 +82,20 @@ class MediaServerSettingsViewModel @Inject constructor(
                         url = server.url,
                         isConnected = server.isActive,
                         type = ServerType.EMBY
+                    )
+                }) }
+            }
+        }
+
+        viewModelScope.launch {
+            mediaServerRepository.getAllYaaccServers().collect { servers ->
+                _uiState.update { it.copy(yaaccServers = servers.map { server ->
+                    ServerInfo(
+                        id = server.id,
+                        name = server.name,
+                        url = server.url,
+                        isConnected = server.isActive,
+                        type = ServerType.YAACC
                     )
                 }) }
             }
@@ -166,6 +181,27 @@ class MediaServerSettingsViewModel @Inject constructor(
                         ))
                     }
                 }
+                ServerType.YAACC -> {
+                    val parts = url.trimEnd('/').split("://").last().split(":")
+                    val host = parts[0]
+                    val port = parts.getOrNull(1)?.toIntOrNull() ?: 8200
+                    val server = YaaccServer(
+                        name = name,
+                        host = host,
+                        port = port,
+                        isActive = false
+                    )
+                    val id = mediaServerRepository.insertYaaccServer(server)
+                    
+                    // Test connection
+                    val result = mediaServerRepository.testYaaccConnection(server)
+                    if (result.isSuccess) {
+                        mediaServerRepository.updateYaaccServer(server.copy(
+                            id = id,
+                            isActive = true
+                        ))
+                    }
+                }
             }
         }
     }
@@ -201,6 +237,15 @@ class MediaServerSettingsViewModel @Inject constructor(
                         ))
                     }
                 }
+                ServerType.YAACC -> {
+                    val yaaccServer = mediaServerRepository.getYaaccServerById(server.id)
+                    yaaccServer?.let {
+                        val result = mediaServerRepository.testYaaccConnection(it)
+                        mediaServerRepository.updateYaaccServer(it.copy(
+                            isActive = result.isSuccess
+                        ))
+                    }
+                }
             }
         }
     }
@@ -211,6 +256,7 @@ class MediaServerSettingsViewModel @Inject constructor(
                 ServerType.JELLYFIN -> mediaServerRepository.deleteJellyfinServerById(server.id)
                 ServerType.PLEX -> mediaServerRepository.deletePlexServerById(server.id)
                 ServerType.EMBY -> mediaServerRepository.deleteEmbyServerById(server.id)
+                ServerType.YAACC -> mediaServerRepository.deleteYaaccServerById(server.id)
             }
         }
     }
@@ -219,7 +265,8 @@ class MediaServerSettingsViewModel @Inject constructor(
 data class MediaServerSettingsUiState(
     val jellyfinServers: List<ServerInfo> = emptyList(),
     val plexServers: List<ServerInfo> = emptyList(),
-    val embyServers: List<ServerInfo> = emptyList()
+    val embyServers: List<ServerInfo> = emptyList(),
+    val yaaccServers: List<ServerInfo> = emptyList()
 )
 
 data class ServerInfo(

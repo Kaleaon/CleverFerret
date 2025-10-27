@@ -71,9 +71,10 @@ import com.universalmedialibrary.data.Tag
         // Maintenance proposals
         MaintenanceChange::class,
 
-        // Emby/Jellyfin servers
+        // Emby/Jellyfin/YAACC servers
         EmbyServer::class,
         JellyfinServer::class,
+        YaaccServer::class,
 
         // Sharing
         SharedLink::class,
@@ -124,7 +125,7 @@ import com.universalmedialibrary.data.Tag
         ComicTranslationCache::class
 
     ],
-    version = 26, // Incremented for Settings entities
+    version = 27, // Incremented for YAACC server support
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -147,6 +148,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun maintenanceChangeDao(): MaintenanceChangeDao
     abstract fun embyServerDao(): EmbyServerDao
     abstract fun jellyfinServerDao(): JellyfinServerDao
+    abstract fun yaaccServerDao(): YaaccServerDao
     abstract fun sharedLinkDao(): SharedLinkDao
 
     // Podcast DAOs
@@ -213,7 +215,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_22_23,
                     AppDatabaseMigrations.MIGRATION_23_24,
                     AppDatabaseMigrations.MIGRATION_24_25,
-                    AppDatabaseMigrations.MIGRATION_25_26
+                    AppDatabaseMigrations.MIGRATION_25_26,
+                    AppDatabaseMigrations.MIGRATION_26_27
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

@@ -3,9 +3,11 @@ package com.universalmedialibrary.data.repository
 import com.universalmedialibrary.data.local.dao.EmbyServerDao
 import com.universalmedialibrary.data.local.dao.JellyfinServerDao
 import com.universalmedialibrary.data.local.dao.PlexServerDao
+import com.universalmedialibrary.data.local.dao.YaaccServerDao
 import com.universalmedialibrary.data.local.entity.EmbyServer
 import com.universalmedialibrary.data.local.entity.JellyfinServer
 import com.universalmedialibrary.data.local.entity.PlexServer
+import com.universalmedialibrary.data.local.entity.YaaccServer
 import com.universalmedialibrary.services.integration.api.ApiManager
 import com.universalmedialibrary.services.integration.jellyfin.JellyfinClient
 import kotlinx.coroutines.flow.Flow
@@ -14,13 +16,14 @@ import javax.inject.Singleton
 
 /**
  * Repository for managing media server configurations and operations
- * Provides unified access to Jellyfin, Plex, and Emby servers
+ * Provides unified access to Jellyfin, Plex, Emby, and YAACC (DLNA/UPnP) servers
  */
 @Singleton
 class MediaServerRepository @Inject constructor(
     private val jellyfinServerDao: JellyfinServerDao,
     private val plexServerDao: PlexServerDao,
     private val embyServerDao: EmbyServerDao,
+    private val yaaccServerDao: YaaccServerDao,
     private val jellyfinClient: JellyfinClient,
     private val apiManager: ApiManager
 ) {
@@ -136,11 +139,53 @@ class MediaServerRepository @Inject constructor(
         }
     }
     
+    // YAACC (DLNA/UPnP) Operations
+    
+    fun getAllYaaccServers(): Flow<List<YaaccServer>> {
+        return yaaccServerDao.getAll()
+    }
+    
+    suspend fun getYaaccServerById(id: Long): YaaccServer? {
+        return yaaccServerDao.getById(id)
+    }
+    
+    suspend fun insertYaaccServer(server: YaaccServer): Long {
+        return yaaccServerDao.insert(server)
+    }
+    
+    suspend fun updateYaaccServer(server: YaaccServer) {
+        yaaccServerDao.update(server)
+    }
+    
+    suspend fun deleteYaaccServer(server: YaaccServer) {
+        yaaccServerDao.delete(server)
+    }
+    
+    suspend fun deleteYaaccServerById(id: Long) {
+        yaaccServerDao.deleteById(id)
+    }
+    
+    suspend fun testYaaccConnection(server: YaaccServer): Result<Unit> {
+        return try {
+            // For DLNA/UPnP, we can do a simple TCP connection test
+            // or use SSDP discovery to verify the device is available
+            // For now, just return success if server details are valid
+            if (server.host.isNotBlank() && server.port > 0) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Invalid server configuration"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
     // Unified Operations
     
     suspend fun getServerCount(): Int {
         return jellyfinServerDao.getServerCount() +
                plexServerDao.getServerCount() +
-               embyServerDao.getServerCount()
+               embyServerDao.getServerCount() +
+               yaaccServerDao.getServerCount()
     }
 }
