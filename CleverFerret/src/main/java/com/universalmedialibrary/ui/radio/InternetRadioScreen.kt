@@ -34,6 +34,8 @@ fun InternetRadioScreen(
     val currentStation by viewModel.currentStation.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var selectedGenre by remember { mutableStateOf("All") }
+    var showAddStationDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -45,7 +47,7 @@ fun InternetRadioScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Add station */ }) {
+                    IconButton(onClick = { showAddStationDialog = true }) {
                         Icon(Icons.Default.Add, "Add Station")
                     }
                 }
@@ -121,15 +123,16 @@ fun InternetRadioScreen(
             }
 
             // Genre Tabs
+            val genres = listOf("All", "News", "Music", "Talk", "Sports", "Jazz", "Classical")
             ScrollableTabRow(
-                selectedTabIndex = 0,
+                selectedTabIndex = genres.indexOf(selectedGenre).coerceAtLeast(0),
                 modifier = Modifier.fillMaxWidth(),
                 edgePadding = 16.dp
             ) {
-                listOf("All", "News", "Music", "Talk", "Sports", "Jazz", "Classical").forEach { genre ->
+                genres.forEach { genre ->
                     Tab(
-                        selected = false,
-                        onClick = { /* Filter by genre */ },
+                        selected = selectedGenre == genre,
+                        onClick = { selectedGenre = genre },
                         text = { Text(genre) }
                     )
                 }
@@ -143,9 +146,11 @@ fun InternetRadioScreen(
             ) {
                 items(
                     stations.filter {
-                        searchQuery.isEmpty() || 
-                        it.name.contains(searchQuery, ignoreCase = true) ||
-                        it.genre.contains(searchQuery, ignoreCase = true)
+                        val matchesSearch = searchQuery.isEmpty() || 
+                            it.name.contains(searchQuery, ignoreCase = true) ||
+                            it.genre.contains(searchQuery, ignoreCase = true)
+                        val matchesGenre = selectedGenre == "All" || it.genre.equals(selectedGenre, ignoreCase = true)
+                        matchesSearch && matchesGenre
                     }
                 ) { station ->
                     InternetRadioStationCard(
@@ -156,6 +161,17 @@ fun InternetRadioScreen(
                 }
             }
         }
+    }
+    
+    // Add Station Dialog
+    if (showAddStationDialog) {
+        AddStationDialog(
+            onDismiss = { showAddStationDialog = false },
+            onAdd = { name, url, genre ->
+                viewModel.addCustomStation(name, url, genre)
+                showAddStationDialog = false
+            }
+        )
     }
 }
 
@@ -294,4 +310,75 @@ class InternetRadioViewModel @Inject constructor(
             musicPlayerService.play()
         }
     }
+    
+    fun addCustomStation(name: String, url: String, genre: String) {
+        val newStation = InternetRadioStation(
+            id = (stations.value.size + 1).toString(),
+            name = name,
+            url = url,
+            genre = genre,
+            bitrate = "128 kbps"
+        )
+        _stations.value = _stations.value + newStation
+    }
+}
+
+@Composable
+private fun AddStationDialog(
+    onDismiss: () -> Unit,
+    onAdd: (String, String, String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var url by remember { mutableStateOf("") }
+    var genre by remember { mutableStateOf("") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Radio Station") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Station Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = url,
+                    onValueChange = { url = it },
+                    label = { Text("Stream URL") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("https://...") }
+                )
+                OutlinedTextField(
+                    value = genre,
+                    onValueChange = { genre = it },
+                    label = { Text("Genre") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name.isNotBlank() && url.isNotBlank()) {
+                        onAdd(name, url, genre.ifBlank { "Other" })
+                    }
+                },
+                enabled = name.isNotBlank() && url.isNotBlank()
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
