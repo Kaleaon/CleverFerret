@@ -174,9 +174,10 @@ object CalibreModule {
     @Provides
     @Singleton
     fun provideSeriesManagementService(
-        mediaItemDao: com.universalmedialibrary.data.local.dao.MediaItemDao
+        mediaItemDao: com.universalmedialibrary.data.local.dao.MediaItemDao,
+        metadataDao: com.universalmedialibrary.data.local.dao.MetadataDao
     ): SeriesManagementService {
-        return SeriesManagementService(mediaItemDao)
+        return SeriesManagementService(mediaItemDao, metadataDao)
     }
     
     // ========== AI Services ==========

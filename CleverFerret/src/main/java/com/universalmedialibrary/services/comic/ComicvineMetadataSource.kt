@@ -43,31 +43,31 @@ class ComicvineMetadataSource @Inject constructor(
                     .header("User-Agent", "CleverFerret/1.0")
                     .build()
                 
-                val response = httpClient.newCall(request).execute()
-                
-                if (!response.isSuccessful) {
-                    return@withContext Result.failure(
-                        Exception("HTTP error: ${response.code}")
-                    )
+                httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        return@withContext Result.failure(
+                            Exception("HTTP error: ${response.code}")
+                        )
+                    }
+                    
+                    val json = JSONObject(response.body?.string() ?: "")
+                    val results = json.getJSONArray("results")
+                    
+                    val series = (0 until results.length()).map { i ->
+                        val volume = results.getJSONObject(i)
+                        ComicSeries(
+                            id = volume.getString("id"),
+                            name = volume.getString("name"),
+                            startYear = volume.optInt("start_year", 0).takeIf { it > 0 },
+                            publisher = volume.optJSONObject("publisher")?.optString("name"),
+                            description = volume.optString("description"),
+                            imageUrl = volume.optJSONObject("image")?.optString("medium_url"),
+                            issueCount = volume.optInt("count_of_issues", 0)
+                        )
+                    }
+                    
+                    Result.success(series)
                 }
-                
-                val json = JSONObject(response.body?.string() ?: "")
-                val results = json.getJSONArray("results")
-                
-                val series = (0 until results.length()).map { i ->
-                    val volume = results.getJSONObject(i)
-                    ComicSeries(
-                        id = volume.getString("id"),
-                        name = volume.getString("name"),
-                        startYear = volume.optInt("start_year", 0).takeIf { it > 0 },
-                        publisher = volume.optJSONObject("publisher")?.optString("name"),
-                        description = volume.optString("description"),
-                        imageUrl = volume.optJSONObject("image")?.optString("medium_url"),
-                        issueCount = volume.optInt("count_of_issues", 0)
-                    )
-                }
-                
-                Result.success(series)
             } catch (e: Exception) {
                 Result.failure(e)
             }
@@ -94,40 +94,40 @@ class ComicvineMetadataSource @Inject constructor(
                 .header("User-Agent", "CleverFerret/1.0")
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val json = JSONObject(response.body?.string() ?: "")
+                val results = json.getJSONArray("results")
+                
+                if (results.length() == 0) {
+                    return@withContext Result.success(null)
+                }
+                
+                val issue = results.getJSONObject(0)
+                
+                val comicIssue = ComicIssue(
+                    id = issue.getString("id"),
+                    volumeId = volumeId,
+                    issueNumber = issue.getString("issue_number"),
+                    name = issue.optString("name"),
+                    description = issue.optString("description"),
+                    coverUrl = issue.optJSONObject("image")?.optString("medium_url"),
+                    coverDate = issue.optString("cover_date"),
+                    creators = parseCreators(issue),
+                    characters = parseCharacters(issue),
+                    teams = parseTeams(issue),
+                    locations = parseLocations(issue),
+                    storyArcs = parseStoryArcs(issue),
+                    publisher = parsePublisher(issue)
                 )
+                
+                Result.success(comicIssue)
             }
-            
-            val json = JSONObject(response.body?.string() ?: "")
-            val results = json.getJSONArray("results")
-            
-            if (results.length() == 0) {
-                return@withContext Result.success(null)
-            }
-            
-            val issue = results.getJSONObject(0)
-            
-            val comicIssue = ComicIssue(
-                id = issue.getString("id"),
-                volumeId = volumeId,
-                issueNumber = issue.getString("issue_number"),
-                name = issue.optString("name"),
-                description = issue.optString("description"),
-                coverUrl = issue.optJSONObject("image")?.optString("medium_url"),
-                coverDate = issue.optString("cover_date"),
-                creators = parseCreators(issue),
-                characters = parseCharacters(issue),
-                teams = parseTeams(issue),
-                locations = parseLocations(issue),
-                storyArcs = parseStoryArcs(issue),
-                publisher = parsePublisher(issue)
-            )
-            
-            Result.success(comicIssue)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -150,31 +150,31 @@ class ComicvineMetadataSource @Inject constructor(
                     .header("User-Agent", "CleverFerret/1.0")
                     .build()
                 
-                val response = httpClient.newCall(request).execute()
-                
-                if (!response.isSuccessful) {
-                    return@withContext Result.failure(
-                        Exception("HTTP error: ${response.code}")
+                httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        return@withContext Result.failure(
+                            Exception("HTTP error: ${response.code}")
+                        )
+                    }
+                    
+                    val json = JSONObject(response.body?.string() ?: "")
+                    val results = json.getJSONObject("results")
+                    
+                    val volume = ComicVolume(
+                        id = results.getString("id"),
+                        name = results.getString("name"),
+                        startYear = results.optInt("start_year", 0).takeIf { it > 0 },
+                        publisher = results.optJSONObject("publisher")?.let {
+                            Publisher(it.getString("name"), it.getString("id"))
+                        },
+                        description = results.optString("description"),
+                        imageUrl = results.optJSONObject("image")?.optString("medium_url"),
+                        issueCount = results.optInt("count_of_issues", 0),
+                        creators = emptyList() // Would need additional API call
                     )
+                    
+                    Result.success(volume)
                 }
-                
-                val json = JSONObject(response.body?.string() ?: "")
-                val results = json.getJSONObject("results")
-                
-                val volume = ComicVolume(
-                    id = results.getString("id"),
-                    name = results.getString("name"),
-                    startYear = results.optInt("start_year", 0).takeIf { it > 0 },
-                    publisher = results.optJSONObject("publisher")?.let {
-                        Publisher(it.getString("name"), it.getString("id"))
-                    },
-                    description = results.optString("description"),
-                    imageUrl = results.optJSONObject("image")?.optString("medium_url"),
-                    issueCount = results.optInt("count_of_issues", 0),
-                    creators = emptyList() // Would need additional API call
-                )
-                
-                Result.success(volume)
             } catch (e: Exception) {
                 Result.failure(e)
             }
@@ -191,19 +191,19 @@ class ComicvineMetadataSource @Inject constructor(
                 .url(url)
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (response.isSuccessful) {
-                val json = JSONObject(response.body?.string() ?: "")
-                val statusCode = json.optInt("status_code")
-                
-                if (statusCode == 1) {
-                    Result.success(true)
+            httpClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val json = JSONObject(response.body?.string() ?: "")
+                    val statusCode = json.optInt("status_code")
+                    
+                    if (statusCode == 1) {
+                        Result.success(true)
+                    } else {
+                        Result.failure(Exception("Invalid API key"))
+                    }
                 } else {
-                    Result.failure(Exception("Invalid API key"))
+                    Result.failure(Exception("HTTP error: ${response.code}"))
                 }
-            } else {
-                Result.failure(Exception("HTTP error: ${response.code}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

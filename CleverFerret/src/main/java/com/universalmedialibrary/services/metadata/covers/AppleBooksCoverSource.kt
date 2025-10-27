@@ -82,15 +82,15 @@ class AppleBooksCoverSource @Inject constructor(
                     .url(url)
                     .build()
                 
-                val response = httpClient.newCall(request).execute()
-                
-                if (!response.isSuccessful) {
-                    return@withContext Result.failure(
-                        Exception("HTTP error: ${response.code}")
-                    )
+                httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        return@withContext Result.failure(
+                            Exception("HTTP error: ${response.code}")
+                        )
+                    }
+                    
+                    Result.success(response.body?.bytes() ?: ByteArray(0))
                 }
-                
-                Result.success(response.body?.bytes() ?: ByteArray(0))
             } catch (e: Exception) {
                 Result.failure(e)
             }

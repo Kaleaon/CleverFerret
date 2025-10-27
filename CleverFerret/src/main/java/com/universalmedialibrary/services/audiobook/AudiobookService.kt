@@ -84,7 +84,8 @@ class AudiobookService @Inject constructor(
                     ?: File(filePath).nameWithoutExtension
                 val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
                 val narrator = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-                val description = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPILATION)
+                // METADATA_KEY_COMMENT is used for description/comments in audio files
+                val description = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMMENT)
                 val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                 val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
                 val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)

@@ -46,31 +46,31 @@ class OpenLibraryMetadataSource @Inject constructor(
                 .url(searchUrl)
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
-                )
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val json = JSONObject(response.body?.string() ?: "")
+                
+                // Handle ISBN direct lookup
+                if (!isbn.isNullOrBlank()) {
+                    val result = parseSingleWork(json, isbn)
+                    return@withContext Result.success(listOfNotNull(result))
+                }
+                
+                // Handle search results
+                val docs = json.optJSONArray("docs") ?: return@withContext Result.success(emptyList())
+                
+                val results = (0 until minOf(docs.length(), maxResults)).mapNotNull { i ->
+                    val doc = docs.getJSONObject(i)
+                    parseSearchResult(doc)
+                }
+                
+                Result.success(results)
             }
-            
-            val json = JSONObject(response.body?.string() ?: "")
-            
-            // Handle ISBN direct lookup
-            if (!isbn.isNullOrBlank()) {
-                val result = parseSingleWork(json, isbn)
-                return@withContext Result.success(listOfNotNull(result))
-            }
-            
-            // Handle search results
-            val docs = json.optJSONArray("docs") ?: return@withContext Result.success(emptyList())
-            
-            val results = (0 until minOf(docs.length(), maxResults)).mapNotNull { i ->
-                val doc = docs.getJSONObject(i)
-                parseSearchResult(doc)
-            }
-            
-            Result.success(results)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -85,18 +85,18 @@ class OpenLibraryMetadataSource @Inject constructor(
                     .url(url)
                     .build()
                 
-                val response = httpClient.newCall(request).execute()
-                
-                if (!response.isSuccessful) {
-                    return@withContext Result.failure(
-                        Exception("HTTP error: ${response.code}")
-                    )
+                httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        return@withContext Result.failure(
+                            Exception("HTTP error: ${response.code}")
+                        )
+                    }
+                    
+                    val json = JSONObject(response.body?.string() ?: "")
+                    val metadata = parseWorkDetails(json, sourceId)
+                    
+                    Result.success(metadata)
                 }
-                
-                val json = JSONObject(response.body?.string() ?: "")
-                val metadata = parseWorkDetails(json, sourceId)
-                
-                Result.success(metadata)
             } catch (e: Exception) {
                 Result.failure(e)
             }
@@ -204,13 +204,13 @@ class OpenLibraryMetadataSource @Inject constructor(
                 .url(url)
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (response.isSuccessful) {
-                val json = JSONObject(response.body?.string() ?: "")
-                json.optString("name")
-            } else {
-                null
+            httpClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val json = JSONObject(response.body?.string() ?: "")
+                    json.optString("name")
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             null

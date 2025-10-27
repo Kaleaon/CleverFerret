@@ -158,17 +158,16 @@ class AO3Adapter @Inject constructor(
             .header("User-Agent", "CleverFerret/1.0 (Android)")
             .build()
         
-        val response = httpClient.newCall(request).execute()
-        
-        if (!response.isSuccessful) {
-            throw Exception("HTTP error: ${response.code}")
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw Exception("HTTP error: ${response.code}")
+            }
+            Jsoup.parse(response.body?.string() ?: "")
         }
-        
-        return Jsoup.parse(response.body?.string() ?: "")
     }
     
     private fun extractStatus(doc: Document): CompletionStatus {
-        val statusText = doc.select("dt.status").text().lowercase()
+        val statusText = doc.select("dd.status").text().lowercase()
         return when {
             statusText.contains("complete") -> CompletionStatus.COMPLETE
             statusText.contains("hiatus") -> CompletionStatus.HIATUS

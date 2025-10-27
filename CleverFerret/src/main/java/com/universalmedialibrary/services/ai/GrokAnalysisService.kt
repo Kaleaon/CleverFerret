@@ -61,22 +61,22 @@ class GrokAnalysisService @Inject constructor(
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
-                )
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val responseJson = JSONObject(response.body?.string() ?: "")
+                val answer = responseJson
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                
+                Result.success(answer)
             }
-            
-            val responseJson = JSONObject(response.body?.string() ?: "")
-            val answer = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-            
-            Result.success(answer)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -136,25 +136,25 @@ class GrokAnalysisService @Inject constructor(
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
-                )
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val responseJson = JSONObject(response.body?.string() ?: "")
+                val content = responseJson
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                
+                // Parse the response into structured data
+                val summary = parseSummaryResponse(content)
+                
+                Result.success(summary)
             }
-            
-            val responseJson = JSONObject(response.body?.string() ?: "")
-            val content = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-            
-            // Parse the response into structured data
-            val summary = parseSummaryResponse(content)
-            
-            Result.success(summary)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -205,24 +205,24 @@ class GrokAnalysisService @Inject constructor(
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
-                )
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val responseJson = JSONObject(response.body?.string() ?: "")
+                val content = responseJson
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                
+                val recommendations = parseRecommendations(content)
+                
+                Result.success(recommendations)
             }
-            
-            val responseJson = JSONObject(response.body?.string() ?: "")
-            val content = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-            
-            val recommendations = parseRecommendations(content)
-            
-            Result.success(recommendations)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -272,22 +272,22 @@ class GrokAnalysisService @Inject constructor(
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
-                )
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val responseJson = JSONObject(response.body?.string() ?: "")
+                val analysis = responseJson
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                
+                Result.success(analysis)
             }
-            
-            val responseJson = JSONObject(response.body?.string() ?: "")
-            val analysis = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-            
-            Result.success(analysis)
         } catch (e: Exception) {
             Result.failure(e)
         }

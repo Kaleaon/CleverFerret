@@ -59,22 +59,22 @@ class TranslationService @Inject constructor(
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
-                )
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val responseJson = JSONObject(response.body?.string() ?: "")
+                val translatedText = responseJson
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                
+                Result.success(translatedText)
             }
-            
-            val responseJson = JSONObject(response.body?.string() ?: "")
-            val translatedText = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-            
-            Result.success(translatedText)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -119,22 +119,22 @@ class TranslationService @Inject constructor(
                 .post(json.toString().toRequestBody("application/json".toMediaType()))
                 .build()
             
-            val response = httpClient.newCall(request).execute()
-            
-            if (!response.isSuccessful) {
-                return@withContext Result.failure(
-                    Exception("HTTP error: ${response.code}")
-                )
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(
+                        Exception("HTTP error: ${response.code}")
+                    )
+                }
+                
+                val responseJson = JSONObject(response.body?.string() ?: "")
+                val translatedText = responseJson
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                
+                Result.success(translatedText)
             }
-            
-            val responseJson = JSONObject(response.body?.string() ?: "")
-            val translatedText = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-            
-            Result.success(translatedText)
         } catch (e: Exception) {
             Result.failure(e)
         }

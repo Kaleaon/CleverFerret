@@ -58,12 +58,11 @@ interface FanfictionDao {
     @Query("SELECT DISTINCT sourceSite FROM fanfiction_stories ORDER BY sourceSite")
     fun getAllSites(): Flow<List<String>>
     
-    @Query("""
-        SELECT DISTINCT tag FROM (
-            SELECT tag FROM fanfiction_stories, 
-            json_each(fanfiction_stories.tags) AS tag
-        )
-        ORDER BY tag
-    """)
-    fun getAllTags(): Flow<List<String>>
+    /**
+     * Get all tags from all stories
+     * Note: Tags are stored as JSON strings and parsed client-side
+     * to avoid dependency on SQLite JSON1 extension
+     */
+    @Query("SELECT tags FROM fanfiction_stories WHERE tags IS NOT NULL AND tags != ''")
+    suspend fun getAllTagsRaw(): List<String>
 }
