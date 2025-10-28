@@ -1,9 +1,6 @@
 package com.universalmedialibrary.services.analysis.nlp
 
 import android.content.Context
-import android.graphics.Bitmap
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.universalmedialibrary.services.analysis.ExtractedMetadata
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
@@ -15,13 +12,14 @@ import javax.inject.Singleton
 
 /**
  * Extracts metadata from text content using NLP techniques
+ * 
+ * Note: OCR functionality has been migrated to GeminiService.
+ * This service now focuses on text-based metadata extraction from existing text content.
  */
 @Singleton
 class MetadataExtractor @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-
-    private val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     /**
      * Extract metadata from text content

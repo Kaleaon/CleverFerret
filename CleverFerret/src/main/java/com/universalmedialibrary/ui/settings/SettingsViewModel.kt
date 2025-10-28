@@ -264,7 +264,7 @@ class SettingsViewModel @Inject constructor(
         id = 1,
         requireBiometric = enableBiometric,
         lockTimeoutMinutes = (autoLockTimeout / 60000).toInt(), // Convert ms to minutes
-        allowScreenshots = !hideContentInRecents, // Inverse logic
+        allowScreenshots = true, // TODO: Add allowScreenshots field to SecuritySettings data class and map here
         hideInRecents = hideContentInRecents,
         requireAuthForContentChanges = requireAuthForExport,
         lastUpdated = System.currentTimeMillis()
@@ -272,6 +272,10 @@ class SettingsViewModel @Inject constructor(
     
     /**
      * Convert GeneralSettings to GeneralSettingsEntity for persistence
+     * TODO: Add missing fields to GeneralSettings data class (themePalette, defaultFontSize, 
+     * useDynamicColors, enableAnimations, autoPlayNext, defaultPlaybackSpeed, 
+     * rememberPlaybackPosition, skipIntroSeconds, skipOutroSeconds) and map them here
+     * instead of using hardcoded defaults
      */
     private fun GeneralSettings.toEntity() = GeneralSettingsEntity(
         id = 1,
@@ -281,15 +285,15 @@ class SettingsViewModel @Inject constructor(
             AppTheme.DARK -> "dark"
             AppTheme.SYSTEM -> "auto"
         },
-        themePalette = "BURGUNDY_ROSE_GOLD", // Map appropriately if needed
-        defaultFontSize = 16,
-        useDynamicColors = true,
-        enableAnimations = true,
-        autoPlayNext = true,
-        defaultPlaybackSpeed = 1.0f,
-        rememberPlaybackPosition = true,
-        skipIntroSeconds = 0,
-        skipOutroSeconds = 0,
+        themePalette = "BURGUNDY_ROSE_GOLD", // TODO: Map from settings.themePalette when field is added
+        defaultFontSize = 16, // TODO: Map from settings.defaultFontSize when field is added
+        useDynamicColors = true, // TODO: Map from settings.useDynamicColors when field is added
+        enableAnimations = true, // TODO: Map from settings.enableAnimations when field is added
+        autoPlayNext = true, // TODO: Map from settings.autoPlayNext when field is added
+        defaultPlaybackSpeed = 1.0f, // TODO: Map from settings.defaultPlaybackSpeed when field is added
+        rememberPlaybackPosition = true, // TODO: Map from settings.rememberPlaybackPosition when field is added
+        skipIntroSeconds = 0, // TODO: Map from settings.skipIntroSeconds when field is added
+        skipOutroSeconds = 0, // TODO: Map from settings.skipOutroSeconds when field is added
         lastUpdated = System.currentTimeMillis()
     )
 }

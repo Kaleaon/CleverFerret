@@ -116,19 +116,19 @@ class GoogleCloudTtsService @Inject constructor(
             .post(requestBody)
             .build()
 
-        val response = httpClient.newCall(request).execute()
-        
-        if (!response.isSuccessful) {
-            val errorBody = response.body?.string() ?: "Unknown error"
-            throw Exception("Google Cloud TTS API error (${response.code}): $errorBody")
-        }
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                val errorBody = response.body?.string() ?: "Unknown error"
+                throw Exception("Google Cloud TTS API error (${response.code}): $errorBody")
+            }
 
-        val responseBody = response.body?.string() ?: throw Exception("Empty response")
-        val responseJson = JSONObject(responseBody)
-        val audioContent = responseJson.getString("audioContent")
-        
-        // Decode base64 audio
-        Base64.decode(audioContent, Base64.DEFAULT)
+            val responseBody = response.body?.string() ?: throw Exception("Empty response")
+            val responseJson = JSONObject(responseBody)
+            val audioContent = responseJson.getString("audioContent")
+            
+            // Decode base64 audio
+            Base64.decode(audioContent, Base64.DEFAULT)
+        }
     }
 
     private suspend fun playAudio(audioBytes: ByteArray) = withContext(Dispatchers.Main) {
@@ -275,22 +275,23 @@ class GoogleCloudTtsService @Inject constructor(
                 .get()
                 .build()
 
-            val response = httpClient.newCall(request).execute()
-            if (!response.isSuccessful) return@withContext emptyList()
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext emptyList()
 
-            val jsonResponse = response.body?.string() ?: return@withContext emptyList()
-            val json = JSONObject(jsonResponse)
-            val voicesArray = json.getJSONArray("voices")
+                val jsonResponse = response.body?.string() ?: return@withContext emptyList()
+                val json = JSONObject(jsonResponse)
+                val voicesArray = json.getJSONArray("voices")
 
-            (0 until voicesArray.length()).map { i ->
-                val voice = voicesArray.getJSONObject(i)
-                val languageCodes = voice.getJSONArray("languageCodes")
-                CloudVoiceInfo(
-                    name = voice.getString("name"),
-                    languageCode = if (languageCodes.length() > 0) languageCodes.getString(0) else "",
-                    gender = voice.optString("ssmlGender", ""),
-                    type = if (voice.getString("name").contains("Neural")) "Neural" else "Standard"
-                )
+                (0 until voicesArray.length()).map { i ->
+                    val voice = voicesArray.getJSONObject(i)
+                    val languageCodes = voice.getJSONArray("languageCodes")
+                    CloudVoiceInfo(
+                        name = voice.getString("name"),
+                        languageCode = if (languageCodes.length() > 0) languageCodes.getString(0) else "",
+                        gender = voice.optString("ssmlGender", ""),
+                        type = if (voice.getString("name").contains("Neural")) "Neural" else "Standard"
+                    )
+                }
             }
         } catch (e: Exception) {
             emptyList()

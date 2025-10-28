@@ -262,7 +262,7 @@ private fun AnimatedAlbumArt(
         // Glow effect
         Box(
             modifier = Modifier
-                .fillMaxSize(1.1f)
+                .fillMaxSize(1.0f)
                 .blur(40.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
                 .background(
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),

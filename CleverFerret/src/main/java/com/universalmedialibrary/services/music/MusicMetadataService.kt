@@ -125,13 +125,14 @@ class MusicMetadataService @Inject constructor(
             val url = "https://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=$encodedArtist&api_key=$lastFmKey&format=json&limit=$limit"
 
             val request = Request.Builder().url(url).build()
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
 
-            if (response.isSuccessful && responseBody != null) {
-                parseLastFmSimilarArtists(responseBody)
-            } else {
-                emptyList()
+                if (response.isSuccessful && responseBody != null) {
+                    parseLastFmSimilarArtists(responseBody)
+                } else {
+                    emptyList()
+                }
             }
         } catch (e: Exception) {
             emptyList()
@@ -152,13 +153,14 @@ class MusicMetadataService @Inject constructor(
             val url = "https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=$encodedArtist&api_key=$lastFmKey&format=json&limit=$limit"
 
             val request = Request.Builder().url(url).build()
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
 
-            if (response.isSuccessful && responseBody != null) {
-                parseLastFmTopTracks(responseBody)
-            } else {
-                emptyList()
+                if (response.isSuccessful && responseBody != null) {
+                    parseLastFmTopTracks(responseBody)
+                } else {
+                    emptyList()
+                }
             }
         } catch (e: Exception) {
             emptyList()
@@ -177,13 +179,14 @@ class MusicMetadataService @Inject constructor(
             val url = "https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=$lastFmKey&artist=$encodedArtist&track=$encodedTitle&format=json"
 
             val request = Request.Builder().url(url).build()
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
 
-            if (response.isSuccessful && responseBody != null) {
-                parseLastFmTrackResponse(responseBody)
-            } else {
-                null
+                if (response.isSuccessful && responseBody != null) {
+                    parseLastFmTrackResponse(responseBody)
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             null
@@ -206,13 +209,14 @@ class MusicMetadataService @Inject constructor(
                 .header("User-Agent", "CleverFerret/1.0 (contact@example.com)")
                 .build()
 
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
 
-            if (response.isSuccessful && responseBody != null) {
-                parseMusicBrainzTrackResponse(responseBody)
-            } else {
-                null
+                if (response.isSuccessful && responseBody != null) {
+                    parseMusicBrainzTrackResponse(responseBody)
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             null
@@ -225,13 +229,14 @@ class MusicMetadataService @Inject constructor(
             val url = "https://www.theaudiodb.com/api/v1/json/2/search.php?s=$encodedArtist"
 
             val request = Request.Builder().url(url).build()
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
 
-            if (response.isSuccessful && responseBody != null) {
-                parseAudioDbArtistResponse(responseBody)
-            } else {
-                null
+                if (response.isSuccessful && responseBody != null) {
+                    parseAudioDbArtistResponse(responseBody)
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             null
@@ -250,13 +255,14 @@ class MusicMetadataService @Inject constructor(
             val url = "https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=$lastFmKey&artist=$encodedArtist&album=$encodedAlbum&format=json"
 
             val request = Request.Builder().url(url).build()
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
 
-            if (response.isSuccessful && responseBody != null) {
-                parseLastFmAlbumResponse(responseBody)
-            } else {
-                null
+                if (response.isSuccessful && responseBody != null) {
+                    parseLastFmAlbumResponse(responseBody)
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             null
@@ -274,13 +280,14 @@ class MusicMetadataService @Inject constructor(
                 .header("User-Agent", "CleverFerret/1.0 (contact@example.com)")
                 .build()
 
-            val response = httpClient.newCall(request).execute()
-            val responseBody = response.body?.string()
+            httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
 
-            if (response.isSuccessful && responseBody != null) {
-                parseMusicBrainzAlbumResponse(responseBody)
-            } else {
-                null
+                if (response.isSuccessful && responseBody != null) {
+                    parseMusicBrainzAlbumResponse(responseBody)
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             null

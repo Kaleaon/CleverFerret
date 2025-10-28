@@ -31,6 +31,7 @@ enum class WebFictionSiteType(
     QUESTIONABLE_QUESTING("Questionable Questing", "https://forum.questionablequesting.com"),
     FIMFICTION("Fimfiction", "https://www.fimfiction.net"),
     LITEROTICA("Literotica", "https://www.literotica.com"),
+    METABODS("Metabods", "https://www.metabods.com"),
     GENERIC("Generic Web Fiction", "")
 }
 
@@ -97,6 +98,8 @@ class WebFictionService @Inject constructor() {
                     WebFictionSiteType.WATTPAD -> extractFromWattpad(url)
                     WebFictionSiteType.SCRIBBLE_HUB -> extractFromScribbleHub(url)
                     WebFictionSiteType.FIMFICTION -> extractFromFimFiction(url)
+                    WebFictionSiteType.METABODS -> extractFromMetabods(url)
+                    WebFictionSiteType.LITEROTICA -> extractFromLiterotica(url)
                     else -> extractGeneric(url)
                 }
             } catch (e: Exception) {
@@ -136,6 +139,8 @@ class WebFictionService @Inject constructor() {
                     WebFictionSiteType.ROYAL_ROAD -> downloadRoyalRoadChapters(story)
                     WebFictionSiteType.WEBNOVEL -> downloadWebnovelChapters(story)
                     WebFictionSiteType.WATTPAD -> downloadWattpadChapters(story)
+                    WebFictionSiteType.METABODS -> downloadMetabodsChapters(story)
+                    WebFictionSiteType.LITEROTICA -> downloadLiteroticaChapters(story)
                     else -> emptyList()
                 }
             } catch (e: Exception) {
@@ -157,6 +162,8 @@ class WebFictionService @Inject constructor() {
             "sufficientvelocity.com" in domain -> WebFictionSiteType.SUFFICIENT_VELOCITY
             "questionablequesting.com" in domain -> WebFictionSiteType.QUESTIONABLE_QUESTING
             "fimfiction.net" in domain -> WebFictionSiteType.FIMFICTION
+            "metabods.com" in domain -> WebFictionSiteType.METABODS
+            "literotica.com" in domain -> WebFictionSiteType.LITEROTICA
             else -> WebFictionSiteType.GENERIC
         }
     }
@@ -186,6 +193,7 @@ class WebFictionService @Inject constructor() {
             WebFictionSiteType.QUESTIONABLE_QUESTING -> "Questionable Questing"
             WebFictionSiteType.FIMFICTION -> "FimFiction"
             WebFictionSiteType.LITEROTICA -> "Literotica"
+            WebFictionSiteType.METABODS -> "Metabods"
             WebFictionSiteType.GENERIC -> "Generic"
         }
     }
@@ -628,5 +636,172 @@ class WebFictionService @Inject constructor() {
 
     private fun extractFimFictionId(url: String): String {
         return Regex("story/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+    }
+
+    // Metabods scraper - Adult transformation fiction site
+    private suspend fun extractFromMetabods(url: String): WebFictionStory? {
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        // Metabods has a specific structure for stories
+        val title = doc.select("h1.story-title, h1").first()?.text() ?: doc.title()
+        val author = doc.select("span.author, a.author, div.author-name").text()
+        val description = doc.select("div.story-description, div.description, p.description").text()
+        val tags = doc.select("a.tag, span.tag").map { it.text() }
+        val rating = "M" // Metabods is adult content, default to Mature
+        val statusText = doc.select("span.status, div.status").text()
+
+        // Extract chapter count
+        val chapterLinks = doc.select("a[href*=/chapter], div.chapter-list a")
+        val chapterCount = if (chapterLinks.isNotEmpty()) chapterLinks.size else 1
+
+        val storyId = extractMetabodsId(url)
+
+        return WebFictionStory(
+            id = storyId,
+            url = url,
+            title = title,
+            author = author.ifEmpty { "Unknown" },
+            description = description,
+            status = parseStoryStatus(statusText),
+            genre = tags.firstOrNull() ?: "Transformation",
+            fandom = "Original",
+            language = "English",
+            wordCount = null,
+            chapterCount = chapterCount,
+            lastUpdated = null,
+            rating = rating,
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.METABODS),
+            totalChapters = chapterCount
+        )
+    }
+
+    // Literotica scraper - Adult fiction site
+    private suspend fun extractFromLiterotica(url: String): WebFictionStory? {
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val title = doc.select("h1").first()?.text() ?: doc.title()
+        val author = doc.select("span.y_eU, a.y_eU").text()
+        val description = doc.select("div.aa_ht").text()
+        val tags = doc.select("a.y_eV").map { it.text() }
+        val rating = "E" // Literotica is explicit adult content
+
+        val storyId = extractLiteroticaId(url)
+
+        return WebFictionStory(
+            id = storyId,
+            url = url,
+            title = title,
+            author = author.ifEmpty { "Unknown" },
+            description = description,
+            status = StoryStatus.COMPLETED,
+            genre = tags.firstOrNull(),
+            fandom = "Original",
+            language = "English",
+            wordCount = null,
+            chapterCount = 1,
+            lastUpdated = null,
+            rating = rating,
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.LITEROTICA)
+        )
+    }
+
+    private suspend fun downloadMetabodsChapters(story: WebFictionStory): List<WebFictionChapter> {
+        val chapters = mutableListOf<WebFictionChapter>()
+
+        val doc = Jsoup.connect(story.url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        // Get all chapter links
+        val chapterLinks = doc.select("a[href*=/chapter], div.chapter-list a")
+
+        if (chapterLinks.isEmpty()) {
+            // Single chapter story
+            val content = doc.select("div.story-content, div.chapter-content, article").html()
+            chapters.add(
+                WebFictionChapter(
+                    id = "${story.id}_1",
+                    storyId = story.id,
+                    number = 1,
+                    title = story.title,
+                    content = content,
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
+                )
+            )
+        } else {
+            // Multi-chapter story
+            chapterLinks.forEachIndexed { index, link ->
+                val chapterUrl = link.absUrl("href")
+                val chapterTitle = link.text()
+
+                val chapterDoc = Jsoup.connect(chapterUrl)
+                    .timeout(30000)
+                    .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+                    .get()
+
+                val content = chapterDoc.select("div.story-content, div.chapter-content, article").html()
+
+                chapters.add(
+                    WebFictionChapter(
+                        id = "${story.id}_${index + 1}",
+                        storyId = story.id,
+                        number = index + 1,
+                        title = chapterTitle.ifEmpty { "Chapter ${index + 1}" },
+                        content = content,
+                        publishDate = null,
+                        wordCount = null,
+                        notes = null
+                    )
+                )
+            }
+        }
+
+        return chapters
+    }
+
+    private suspend fun downloadLiteroticaChapters(story: WebFictionStory): List<WebFictionChapter> {
+        val chapters = mutableListOf<WebFictionChapter>()
+
+        val doc = Jsoup.connect(story.url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val content = doc.select("div.aa_ht").html()
+
+        chapters.add(
+            WebFictionChapter(
+                id = "${story.id}_1",
+                storyId = story.id,
+                number = 1,
+                title = story.title,
+                content = content,
+                publishDate = null,
+                wordCount = null,
+                notes = null
+            )
+        )
+
+        return chapters
+    }
+
+    private fun extractMetabodsId(url: String): String {
+        return Regex("story/(\\d+)|s/(\\d+)").find(url)?.groupValues?.getOrNull(1)
+            ?: url.substringAfterLast("/").substringBefore("?").ifEmpty { url.hashCode().toString() }
+    }
+
+    private fun extractLiteroticaId(url: String): String {
+        return Regex("s/(\\w+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
     }
 }

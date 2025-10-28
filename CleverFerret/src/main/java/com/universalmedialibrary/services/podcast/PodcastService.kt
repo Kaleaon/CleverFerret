@@ -580,26 +580,26 @@ class PodcastService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val request = Request.Builder().url(episode.audioUrl).build()
-                val response = httpClient.newCall(request).execute()
+                httpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) return@withContext null
 
-                if (!response.isSuccessful) return@withContext null
+                    // Create download directory
+                    val podcastDir = File(context.getExternalFilesDir("podcasts"), sanitizeFileName(podcastTitle))
+                    podcastDir.mkdirs()
 
-                // Create download directory
-                val podcastDir = File(context.getExternalFilesDir("podcasts"), sanitizeFileName(podcastTitle))
-                podcastDir.mkdirs()
+                    // Generate filename
+                    val fileName = "${sanitizeFileName(episode.title)}.${getFileExtension(episode.audioUrl)}"
+                    val file = File(podcastDir, fileName)
 
-                // Generate filename
-                val fileName = "${sanitizeFileName(episode.title)}.${getFileExtension(episode.audioUrl)}"
-                val file = File(podcastDir, fileName)
-
-                // Download file
-                response.body?.byteStream()?.use { input ->
-                    FileOutputStream(file).use { output ->
-                        input.copyTo(output)
+                    // Download file
+                    response.body?.byteStream()?.use { input ->
+                        FileOutputStream(file).use { output ->
+                            input.copyTo(output)
+                        }
                     }
-                }
 
-                file.absolutePath
+                    file.absolutePath
+                }
             } catch (e: Exception) {
                 null
             }
@@ -626,8 +626,9 @@ class PodcastService @Inject constructor(
      */
     suspend fun parseRSSFeed(feedUrl: String): RSSFeed {
         val request = Request.Builder().url(feedUrl).build()
-        val response = httpClient.newCall(request).execute()
-        val xml = response.body?.string() ?: throw Exception("Empty RSS feed")
+        val xml = httpClient.newCall(request).execute().use { response ->
+            response.body?.string() ?: throw Exception("Empty RSS feed")
+        }
 
         val doc = Jsoup.parse(xml, "", Parser.xmlParser())
 

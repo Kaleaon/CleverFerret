@@ -120,14 +120,14 @@ class ElevenLabsTtsService @Inject constructor(
             .post(requestBody)
             .build()
 
-        val response = httpClient.newCall(request).execute()
-        
-        if (!response.isSuccessful) {
-            val errorBody = response.body?.string() ?: "Unknown error"
-            throw Exception("ElevenLabs API error (${response.code}): $errorBody")
-        }
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                val errorBody = response.body?.string() ?: "Unknown error"
+                throw Exception("ElevenLabs API error (${response.code}): $errorBody")
+            }
 
-        response.body?.bytes() ?: throw Exception("Empty response from ElevenLabs")
+            response.body?.bytes() ?: throw Exception("Empty response from ElevenLabs")
+        }
     }
 
     private suspend fun playAudio(audioBytes: ByteArray) = withContext(Dispatchers.Main) {
@@ -260,21 +260,22 @@ class ElevenLabsTtsService @Inject constructor(
                 .get()
                 .build()
 
-            val response = httpClient.newCall(request).execute()
-            if (!response.isSuccessful) return@withContext emptyList()
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext emptyList()
 
-            val jsonResponse = response.body?.string() ?: return@withContext emptyList()
-            val json = JSONObject(jsonResponse)
-            val voicesArray = json.getJSONArray("voices")
+                val jsonResponse = response.body?.string() ?: return@withContext emptyList()
+                val json = JSONObject(jsonResponse)
+                val voicesArray = json.getJSONArray("voices")
 
-            (0 until voicesArray.length()).map { i ->
-                val voice = voicesArray.getJSONObject(i)
-                VoiceInfo(
-                    id = voice.getString("voice_id"),
-                    name = voice.getString("name"),
-                    description = voice.optString("description", ""),
-                    category = voice.optString("category", "generated")
-                )
+                (0 until voicesArray.length()).map { i ->
+                    val voice = voicesArray.getJSONObject(i)
+                    VoiceInfo(
+                        id = voice.getString("voice_id"),
+                        name = voice.getString("name"),
+                        description = voice.optString("description", ""),
+                        category = voice.optString("category", "generated")
+                    )
+                }
             }
         } catch (e: Exception) {
             emptyList()
