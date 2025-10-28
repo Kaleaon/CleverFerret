@@ -240,7 +240,7 @@ fun AppNavigation() {
         }
         composable("settings/parental_controls") {
             com.universalmedialibrary.ui.settings.ParentalControlsScreen(
-                onBack = { navController.navigateUp() }
+                navController = navController
             )
         }
         
@@ -479,7 +479,7 @@ fun AppNavigation() {
         composable("fanfiction_download") {
             com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
                 onNavigateBack = { navController.navigateUp() },
-                onNavigateToLibrary = { navController.navigate("fanfiction_library") }
+                onDownloadComplete = { navController.navigate("fanfiction_library") }
             )
         }
         
@@ -489,7 +489,7 @@ fun AppNavigation() {
                 onNavigateToDownload = { navController.navigate("fanfiction_download") },
                 onStoryClick = { story ->
                     // Open the EPUB file if it exists
-                    story.localEpubPath?.let { path ->
+                    story.epubPath?.let { path ->
                         val encoded = android.net.Uri.encode(path)
                         navController.navigate("reader?path=$encoded")
                     }

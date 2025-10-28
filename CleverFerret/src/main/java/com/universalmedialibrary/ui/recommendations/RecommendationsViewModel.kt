@@ -117,8 +117,8 @@ class RecommendationsViewModel @Inject constructor(
 
                 // Persist dismissal
                 dismissedPrefs.edit()
-                    .putBoolean("dismissed_${recommendation.id}", true)
-                    .putLong("dismissed_${recommendation.id}_time", System.currentTimeMillis())
+                    .putBoolean("dismissed_${recommendation.track.id}", true)
+                    .putLong("dismissed_${recommendation.track.id}_time", System.currentTimeMillis())
                     .apply()
             } catch (e: Exception) {
                 // Silently fail
@@ -127,7 +127,7 @@ class RecommendationsViewModel @Inject constructor(
     }
     
     private fun isRecommendationDismissed(recommendation: Recommendation): Boolean {
-        return dismissedPrefs.getBoolean("dismissed_${recommendation.id}", false)
+        return dismissedPrefs.getBoolean("dismissed_${recommendation.track.id}", false)
     }
 
     fun refreshRecommendations() {
