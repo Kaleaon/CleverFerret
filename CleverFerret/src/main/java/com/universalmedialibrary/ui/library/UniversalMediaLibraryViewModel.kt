@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.MediaType
+import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.data.repository.MediaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

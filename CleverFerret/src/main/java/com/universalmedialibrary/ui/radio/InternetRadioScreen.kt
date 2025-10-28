@@ -531,7 +531,7 @@ InternetRadioStation("fm237", "La Grosse Radio Rock", "https://hd.lagrosseradio.
 InternetRadioStation("fm238", "Paul in Rio", "https://usa10.fastcast4u.com/paulinrio/;*.mp3", "World", "128 kbps"),
 InternetRadioStation("fm239", "Exotica", "https://solid67.streamupsolutions.com/proxy/repadnom?mp=/;type=mp3", "World", "128 kbps"),
 InternetRadioStation("fm240", "ILoveRio", "https://eu10.fastcast4u.com/iloverio", "World", "128 kbps"),
-InternetRadioStation("fm241", "Salseo", "https://stream.radio.co/s579ede15c/listen", "World", "128 kbps"),,
+InternetRadioStation("fm241", "Salseo", "https://stream.radio.co/s579ede15c/listen", "World", "128 kbps"),
             
             // ==================================================================
             // streamdir.com Collection (190 stations)
@@ -1058,8 +1058,6 @@ InternetRadioStation("gh37", "Radio Caroline", "http://78.129.202.10:8030/", "Mu
 InternetRadioStation("gh38", "The Lot Radio NYC", "https://thelot.out.airtime.pro/thelot_a", "Music", "128 kbps"),
 InternetRadioStation("gh39", "Worldwide FM", "https://worldwidefm.out.airtime.pro/worldwidefm_a", "Music", "128 kbps")
         )
-    }
-
     }
 
     fun togglePlayback() {
