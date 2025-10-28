@@ -63,6 +63,20 @@ fun EPUBReaderScreen(
     // WebView reference for JavaScript interaction
     var webView by remember { mutableStateOf<WebView?>(null) }
 
+    // Clean up WebView to prevent memory leaks
+    DisposableEffect(Unit) {
+        onDispose {
+            webView?.apply {
+                loadUrl("about:blank")
+                clearHistory()
+                clearCache(true)
+                removeAllViews()
+                destroy()
+            }
+            webView = null
+        }
+    }
+
     LaunchedEffect(bookUri) {
         // Minimal inline loader stub; replace with real VM/service call when ready
         // For now we mark as loaded and set placeholder content

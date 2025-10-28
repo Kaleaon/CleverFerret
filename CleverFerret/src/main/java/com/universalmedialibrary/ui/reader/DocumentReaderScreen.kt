@@ -87,11 +87,28 @@ private fun TextReaderView(uri: Uri) {
 
 @Composable
 private fun HtmlReaderView(uri: Uri) {
+    var webView by remember { mutableStateOf<android.webkit.WebView?>(null) }
+    
+    // Clean up WebView to prevent memory leaks
+    DisposableEffect(Unit) {
+        onDispose {
+            webView?.apply {
+                loadUrl("about:blank")
+                clearHistory()
+                clearCache(true)
+                removeAllViews()
+                destroy()
+            }
+            webView = null
+        }
+    }
+    
     AndroidView(
         factory = { ctx ->
             android.webkit.WebView(ctx).apply {
                 settings.javaScriptEnabled = false
                 loadUrl(uri.toString())
+                webView = this
             }
         },
         modifier = Modifier.fillMaxSize()
