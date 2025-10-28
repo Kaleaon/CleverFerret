@@ -88,7 +88,7 @@ fun DuplicateDetectionScreen(
                         duplicateGroups = duplicateGroups,
                         onDeleteBook = { viewModel.deleteBook(it) },
                         onKeepBook = { bookId, groupIndex -> 
-                            viewModel.keepOneDelete Others(bookId, groupIndex)
+                            viewModel.keepOneDeleteOthers(bookId, groupIndex)
                         }
                     )
                 }
