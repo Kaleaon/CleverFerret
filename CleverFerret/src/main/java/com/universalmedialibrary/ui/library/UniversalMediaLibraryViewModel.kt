@@ -42,6 +42,10 @@ class UniversalMediaLibraryViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    
+    // Stub for library item counts - TODO: implement actual counting
+    private val _libraryItemCounts = MutableStateFlow<Map<Long, Int>>(emptyMap())
+    val libraryItemCounts: StateFlow<Map<Long, Int>> = _libraryItemCounts.asStateFlow()
 
     private var currentLibraryId: Long = -1
     private var allMediaItems: List<MediaItemWithMetadata> = emptyList()

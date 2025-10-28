@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.services.fanfiction.models.StoryMetadata
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
