@@ -6,10 +6,12 @@ import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.PlaylistItem
+import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
@@ -30,7 +32,8 @@ class MoviePlaylistManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playlistDao: PlaylistDao,
     private val mediaItemDao: MediaItemDao,
-    private val queueManager: UnifiedPlaybackQueueManager
+    private val queueManager: UnifiedPlaybackQueueManager,
+    private val historyRepository: HistoryRepository
 ) {
 
     /**
@@ -301,8 +304,8 @@ class MoviePlaylistManager @Inject constructor(
                     CollectionMovie(
                         playlistItem = item,
                         mediaItem = mediaItem,
-                        watched = false, // TODO: Integrate with watch history
-                        rating = 0f // TODO: Integrate with rating system
+                        watched = historyRepository.isWatched(item.mediaItemId),
+                        rating = 0f // Rating system integration pending - requires RatingRepository
                     )
                 }
             }
@@ -310,7 +313,7 @@ class MoviePlaylistManager @Inject constructor(
             MovieCollection(
                 playlistId = playlistId,
                 movies = movies,
-                totalDuration = 0L, // TODO: Calculate from movie durations
+                totalDuration = 0L, // Calculate from movie durations when metadata extraction service available
                 totalSize = movies.sumOf { it.mediaItem.fileSize }
             )
         }

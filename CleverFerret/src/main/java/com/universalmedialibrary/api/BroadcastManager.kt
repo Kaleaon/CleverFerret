@@ -3,6 +3,7 @@ package com.universalmedialibrary.api
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.services.music.TrackInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -166,10 +167,6 @@ class BroadcastManager @Inject constructor(
             PlaylistMode.REPEAT_ALL -> CleverFerretBroadcasts.REPEAT_ALL
             PlaylistMode.REPEAT_ONE -> CleverFerretBroadcasts.REPEAT_ONE
             else -> CleverFerretBroadcasts.REPEAT_OFF
-        }
-    }
-}
-sts.REPEAT_OFF
         }
     }
 }

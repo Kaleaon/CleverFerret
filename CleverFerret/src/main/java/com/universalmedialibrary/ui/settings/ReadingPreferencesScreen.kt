@@ -17,6 +17,7 @@ import java.util.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.preferences.*
+import com.universalmedialibrary.data.services.SettingsBackupService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -45,8 +46,25 @@ fun ReadingPreferencesScreen(
     val audiobookPrefs by viewModel.audiobookPreferences.collectAsState()
     val comicPrefs by viewModel.comicPreferences.collectAsState()
     val globalPrefs by viewModel.globalPreferences.collectAsState()
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    
+    // Listen for backup results
+    LaunchedEffect(Unit) {
+        viewModel.backupResult.collect { result ->
+            result.onSuccess { message ->
+                snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Long)
+            }.onFailure { error ->
+                snackbarHostState.showSnackbar(
+                    error.message ?: "Operation failed",
+                    duration = SnackbarDuration.Long
+                )
+            }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Reading Preferences") },
@@ -334,9 +352,13 @@ private fun SwitchPreference(
 
 @HiltViewModel
 class ReadingPreferencesViewModel @Inject constructor(
-    private val preferencesStore: ReadiumPreferencesStore
-    // private val backupService: UserLibraryBackupService // Disabled - not currently operational
+    private val preferencesStore: ReadiumPreferencesStore,
+    private val settingsBackupService: SettingsBackupService
 ) : ViewModel() {
+    
+    // Events for UI feedback
+    private val _backupResult = MutableSharedFlow<Result<String>>()
+    val backupResult = _backupResult.asSharedFlow()
 
     val epubPreferences = preferencesStore.epubPreferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), EpubPreferences())
@@ -452,15 +474,37 @@ class ReadingPreferencesViewModel @Inject constructor(
     // Backup/Restore
     fun createBackup() {
         viewModelScope.launch {
-            // TODO: Integrate SettingsBackupService.exportToStorage() and handle Result
-            // TODO: Show snackbar with success/error message using SnackbarHostState
-            Log.w("ReadingPreferencesViewModel", "Backup service integration pending")
+            try {
+                val result = settingsBackupService.exportToStorage()
+                
+                if (result.isSuccess) {
+                    val file = result.getOrNull()
+                    _backupResult.emit(Result.success("Backup saved to ${file?.name}"))
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Unknown error"
+                    _backupResult.emit(Result.failure(Exception("Backup failed: $error")))
+                }
+            } catch (e: Exception) {
+                _backupResult.emit(Result.failure(e))
+            }
         }
     }
 
-    fun showRestoreDialog() {
-        // TODO: Show Android file picker using ActivityResultContracts.OpenDocument
-        // TODO: Pass selected file URI to SettingsBackupService.importFromFile()
+    fun restoreFromFile(uri: android.net.Uri) {
+        viewModelScope.launch {
+            try {
+                val result = settingsBackupService.importFromFile(uri)
+                
+                if (result.isSuccess) {
+                    _backupResult.emit(Result.success("Settings restored successfully"))
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Unknown error"
+                    _backupResult.emit(Result.failure(Exception("Restore failed: $error")))
+                }
+            } catch (e: Exception) {
+                _backupResult.emit(Result.failure(e))
+            }
+        }
     }
 
     fun resetToDefaults() {

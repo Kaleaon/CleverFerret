@@ -42,6 +42,7 @@ fun EnhancedMusicPlayerScreen(
 ) {
     // State from ViewModel
     val playbackState by viewModel.playbackState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
     val currentTrack by viewModel.currentTrack.collectAsStateWithLifecycle()
     val currentTrackMetadata by viewModel.currentTrackMetadata.collectAsStateWithLifecycle()
     val playlistMode by viewModel.playlistMode.collectAsStateWithLifecycle()
@@ -85,6 +86,7 @@ fun EnhancedMusicPlayerScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -300,7 +302,10 @@ fun EnhancedMusicPlayerScreen(
         // Error state
         if (playbackState.hasError) {
             LaunchedEffect(playbackState.error) {
-                // TODO: Add SnackbarHostState parameter to show error
+                snackbarHostState.showSnackbar(
+                    message = playbackState.error ?: "Playback error",
+                    duration = SnackbarDuration.Long
+                )
             }
         }
     }
@@ -338,10 +343,18 @@ fun EnhancedMusicPlayerScreen(
     }
     
     if (showAddToPlaylistDialog) {
+        val playlists by viewModel.playlists.collectAsState()
+        
         AddToPlaylistDialog(
-            playlists = emptyList(), // TODO: Load actual playlists
-            onPlaylistSelected = { /* TODO: Add to playlist */ },
-            onCreateNew = { /* TODO: Create new playlist */ },
+            playlists = playlists,
+            onPlaylistSelected = { playlistId ->
+                viewModel.addToPlaylist(playlistId)
+                showAddToPlaylistDialog = false
+            },
+            onCreateNew = { name ->
+                viewModel.createPlaylistWithCurrentTrack(name)
+                showAddToPlaylistDialog = false
+            },
             onDismiss = { showAddToPlaylistDialog = false }
         )
     }

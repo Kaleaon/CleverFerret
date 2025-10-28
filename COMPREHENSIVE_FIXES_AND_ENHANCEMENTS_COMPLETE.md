@@ -565,27 +565,30 @@ Recommendation(
 
 ## Testing Recommendations
 
+**⚠️ STATUS**: All testing is **BLOCKED** until compilation errors are fixed  
+**See**: `CONSOLIDATED_TODOS_INCOMPLETE.md` for full testing checklist
+
 ### High-Priority Bug Fixes
 
-1. **Album Art Display** ✓
+1. **Album Art Display** ✓ (Code complete, testing blocked)
    - [ ] Play music with album art metadata
    - [ ] Verify art displays in Now Playing screen
    - [ ] Test with different media types
    - [ ] Check null handling for missing art
 
-2. **Media Duration** ✓
+2. **Media Duration** ✓ (Code complete, testing blocked)
    - [ ] Play various audio/video formats
    - [ ] Verify progress bar accuracy
    - [ ] Test time remaining calculations
    - [ ] Verify no divide-by-zero errors
 
-3. **Complete Backups** ✓
+3. **Complete Backups** ✓ (Code complete, testing blocked)
    - [ ] Create backup with all data types
    - [ ] Verify all tables exported
    - [ ] Restore on fresh install
    - [ ] Verify data integrity
 
-4. **Widget Responsiveness** ✓
+4. **Widget Responsiveness** ✓ (Code complete, testing blocked)
    - [ ] Add radio widget to home screen
    - [ ] Rapidly click widget buttons
    - [ ] Verify no ANR dialogs
@@ -593,20 +596,20 @@ Recommendation(
 
 ### Feature Enhancements
 
-5. **Enhanced Search** ✓
+5. **Enhanced Search** ✓ (Code complete, testing blocked)
    - [ ] Search with various queries
    - [ ] Apply multiple filters
    - [ ] Verify facet counts
    - [ ] Test search suggestions
    - [ ] Check result relevance
 
-6. **Intelligent Sync** ✓
+6. **Intelligent Sync** ✓ (Code complete, testing blocked)
    - [ ] Create conflicts on two devices
    - [ ] Sync and verify resolution
    - [ ] Test each resolution strategy
    - [ ] Verify no data loss
 
-7. **Smart Recommendations** ✓
+7. **Smart Recommendations** ✓ (Code complete, testing blocked)
    - [ ] Request recommendations
    - [ ] Verify relevance to history
    - [ ] Test AI recommendations (with API key)

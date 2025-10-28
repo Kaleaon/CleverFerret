@@ -37,12 +37,8 @@ This module provides on-demand, AI-powered translations of comic book pages usin
 The following dependencies are included in `build.gradle.kts`:
 
 ```kotlin
-// Gemini API
+// Gemini API - handles OCR, translation, and all AI tasks
 implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-
-// Google Cloud Translation API
-// ML Kit for on-device translation
-implementation("com.google.mlkit:translate:17.0.3")
 
 // Room Database (already configured)
 implementation("androidx.room:room-runtime:2.8.2")

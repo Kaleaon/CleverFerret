@@ -16,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UniversalMediaLibraryViewModel @Inject constructor(
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
     private val _mediaItems = MutableStateFlow<List<MediaItemWithMetadata>>(emptyList())
@@ -56,14 +57,16 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                             // Get metadata for each item
                             val metadata = mediaRepository.getCommonMetadata(mediaItem.itemId)
                             
+                            val progressData = historyRepository.getReadingProgress(mediaItem.itemId).firstOrNull()
+                            
                             MediaItemWithMetadata(
                                 itemId = mediaItem.itemId,
                                 title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
                                 mediaType = parseMediaType(mediaItem.mediaType),
-                                author = extractAuthorFromFileName(mediaItem.fileName), // TODO: Query BookMetadata.author via MediaItemDao join
+                                author = extractAuthorFromFileName(mediaItem.fileName), // Author from metadata not yet implemented - requires BookMetadata table
                                 dateAdded = mediaItem.dateAdded,
-                                isFavorite = false, // TODO: Add isFavorite boolean field to MediaItem entity
-                                progress = 0f // TODO: Query ReadingProgressRepository.getProgressForItem(itemId)
+                                isFavorite = false, // Favorite feature not yet implemented - requires isFavorite field in MediaItem entity
+                                progress = progressData?.percentage ?: 0f
                             )
                         }
                     }

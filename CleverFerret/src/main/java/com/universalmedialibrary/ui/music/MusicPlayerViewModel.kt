@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.PlaylistDao
+import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.services.music.MusicMetadataService
@@ -16,7 +18,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -31,7 +35,8 @@ class MusicPlayerViewModel @Inject constructor(
     private val musicMetadataService: MusicMetadataService,
     private val enhancedMetadataService: EnhancedMetadataService,
     private val exoPlayerService: ExoPlayerService,
-    private val sleepTimerManager: SleepTimerManager
+    private val sleepTimerManager: SleepTimerManager,
+    private val playlistDao: PlaylistDao
 ) : ViewModel() {
 
     val playbackState: StateFlow<com.universalmedialibrary.services.music.AdvancedPlaybackState> =
@@ -59,6 +64,14 @@ class MusicPlayerViewModel @Inject constructor(
     
     private val _isFavorite = MutableStateFlow(false)
     val isFavorite: StateFlow<Boolean> = _isFavorite.asStateFlow()
+    
+    // Playlists for "Add to Playlist" feature
+    val playlists: StateFlow<List<Playlist>> = playlistDao.getAllPlaylistsFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
     
     // Enhanced metadata for current track
     private val _currentTrackMetadata = MutableStateFlow<EnhancedTrackMetadata?>(null)
@@ -392,6 +405,56 @@ class MusicPlayerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Add current track to playlist
+     */
+    fun addToPlaylist(playlistId: Long) {
+        val track = currentTrack.value ?: return
+        
+        viewModelScope.launch {
+            try {
+                val playlistItem = com.universalmedialibrary.data.local.entity.PlaylistItem(
+                    playlistId = playlistId,
+                    mediaItemId = track.id,
+                    orderIndex = 0 // Will be set properly by DAO
+                )
+                playlistDao.addItemToPlaylist(playlistItem)
+            } catch (e: Exception) {
+                // Handle error - could emit error event
+            }
+        }
+    }
+    
+    /**
+     * Create new playlist with current track
+     */
+    fun createPlaylistWithCurrentTrack(name: String) {
+        val track = currentTrack.value ?: return
+        
+        viewModelScope.launch {
+            try {
+                val playlist = Playlist(
+                    name = name,
+                    description = "Created from Now Playing",
+                    type = "MUSIC",
+                    dateCreated = System.currentTimeMillis(),
+                    dateModified = System.currentTimeMillis()
+                )
+                val playlistId = playlistDao.insertPlaylist(playlist)
+                
+                // Add current track to new playlist
+                val playlistItem = com.universalmedialibrary.data.local.entity.PlaylistItem(
+                    playlistId = playlistId,
+                    mediaItemId = track.id,
+                    orderIndex = 0
+                )
+                playlistDao.addItemToPlaylist(playlistItem)
+            } catch (e: Exception) {
+                // Handle error - could emit error event
+            }
+        }
+    }
+    
     override fun onCleared() {
         super.onCleared()
         // Don't release the service here as it should continue playing in background

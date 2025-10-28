@@ -603,19 +603,13 @@ fun ChapterListBottomSheet(
     onChapterSelected: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement chapter list UI with LazyColumn showing:
-    // - Chapter number, title, and duration for each chapter
-    // - Highlight current chapter with different background color
-    // - Click handler to call onChapterSelected(index)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Chapter List Bottom Sheet")
-    }
+    // Use the existing ChapterListDialog component
+    com.universalmedialibrary.ui.components.ChapterListDialog(
+        chapters = chapters.map { it.title },
+        currentChapter = currentChapterIndex,
+        onChapterSelect = onChapterSelected,
+        onDismiss = onDismiss
+    )
 }
 
 @Composable
@@ -625,19 +619,42 @@ fun BookmarksBottomSheet(
     onBookmarkDelete: (AudiobookBookmark) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement bookmarks UI with LazyColumn showing:
-    // - Bookmark timestamp, note/title for each bookmark
-    // - Click handler to seek to bookmark (call onBookmarkSelected)
-    // - Swipe-to-delete or IconButton for delete (call onBookmarkDelete)
-    // - Empty state when bookmarks list is empty
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Bookmarks Bottom Sheet")
+    // Convert AudiobookBookmark to Bookmark entity for the dialog
+    val bookmarkEntities = bookmarks.map { ab ->
+        com.universalmedialibrary.data.local.entity.Bookmark(
+            bookmarkId = ab.id,
+            itemId = 0, // Not needed for display
+            title = ab.note ?: "Bookmark at ${formatTimestamp(ab.position)}",
+            description = formatTimestamp(ab.position),
+            position = ab.position,
+            dateCreated = ab.timestamp
+        )
+    }
+    
+    com.universalmedialibrary.ui.components.BookmarksDialog(
+        bookmarks = bookmarkEntities,
+        onBookmarkSelect = { bookmark ->
+            // Find the corresponding AudiobookBookmark
+            bookmarks.find { it.id == bookmark.bookmarkId }?.let { onBookmarkSelected(it) }
+        },
+        onBookmarkDelete = { bookmark ->
+            // Find the corresponding AudiobookBookmark
+            bookmarks.find { it.id == bookmark.bookmarkId }?.let { onBookmarkDelete(it) }
+        },
+        onDismiss = onDismiss
+    )
+}
+
+private fun formatTimestamp(millis: Long): String {
+    val totalSeconds = millis / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    
+    return if (hours > 0) {
+        String.format("%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%d:%02d", minutes, seconds)
     }
 }
 
@@ -647,21 +664,13 @@ fun SleepTimerDialog(
     onTimerSet: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // TODO: Implement sleep timer dialog with:
-    // - Preset buttons: 5, 10, 15, 30, 45, 60 minutes
-    // - Custom time picker option
-    // - "End of chapter" option
-    // - Display remaining time if timer is active
-    // - Cancel button to clear timer (pass 0 or null)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .background(MaterialTheme.colorScheme.surface),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Sleep Timer Dialog")
-    }
+    // Use the existing SleepTimerDialog component
+    com.universalmedialibrary.ui.components.SleepTimerDialog(
+        onDismiss = onDismiss,
+        onSetTimer = { minutes ->
+            onTimerSet(minutes * 60L * 1000L) // Convert minutes to milliseconds
+        }
+    )
 }
 private fun formatTime(milliseconds: Long): String {
     val totalSeconds = milliseconds / 1000

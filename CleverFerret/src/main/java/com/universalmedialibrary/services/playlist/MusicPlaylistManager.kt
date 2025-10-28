@@ -2,14 +2,17 @@ package com.universalmedialibrary.services.playlist
 
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.PlaylistItem
+import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
@@ -30,7 +33,9 @@ class MusicPlaylistManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playlistDao: PlaylistDao,
     private val mediaItemDao: MediaItemDao,
-    private val queueManager: UnifiedPlaybackQueueManager
+    private val metadataDao: MetadataDao,
+    private val queueManager: UnifiedPlaybackQueueManager,
+    private val historyRepository: HistoryRepository
 ) {
 
     /**
@@ -250,10 +255,16 @@ class MusicPlaylistManager @Inject constructor(
                 }
             }
             
+            // Calculate total duration from track metadata
+            val totalDuration = tracks.sumOf { track ->
+                val metadata = metadataDao.getMetadataMusicTrackByItemId(track.itemId)
+                metadata?.duration ?: 0L
+            }
+            
             PlaylistWithTracks(
                 playlistId = playlistId,
                 tracks = tracks,
-                totalDuration = 0L // TODO: Calculate from track durations
+                totalDuration = totalDuration
             )
         }
     }

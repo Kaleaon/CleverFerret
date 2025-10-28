@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.recommendations
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.recommendations.SmartRecommendationService
@@ -7,14 +8,21 @@ import com.universalmedialibrary.services.recommendations.RecommendationsState
 import com.universalmedialibrary.services.recommendations.RecommendationOptions
 import com.universalmedialibrary.services.recommendations.Recommendation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RecommendationsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val recommendationService: SmartRecommendationService
 ) : ViewModel() {
+    
+    private val dismissedPrefs = context.getSharedPreferences(
+        "dismissed_recommendations",
+        Context.MODE_PRIVATE
+    )
 
     private val _uiState = MutableStateFlow(RecommendationsUiState())
     val uiState: StateFlow<RecommendationsUiState> = _uiState.asStateFlow()
@@ -34,9 +42,12 @@ class RecommendationsViewModel @Inject constructor(
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-                val recommendations = recommendationService.getRecommendations(
+                val allRecommendations = recommendationService.getRecommendations(
                     options = _options.value
                 )
+                
+                // Filter out dismissed recommendations
+                val recommendations = allRecommendations.filterNot { isRecommendationDismissed(it) }
 
                 // Group recommendations by source
                 val grouped = recommendations.groupBy { it.source }
@@ -104,11 +115,19 @@ class RecommendationsViewModel @Inject constructor(
                     groupedRecommendations = grouped
                 )
 
-                // TODO: Persist dismissal to prevent showing again
+                // Persist dismissal
+                dismissedPrefs.edit()
+                    .putBoolean("dismissed_${recommendation.id}", true)
+                    .putLong("dismissed_${recommendation.id}_time", System.currentTimeMillis())
+                    .apply()
             } catch (e: Exception) {
                 // Silently fail
             }
         }
+    }
+    
+    private fun isRecommendationDismissed(recommendation: Recommendation): Boolean {
+        return dismissedPrefs.getBoolean("dismissed_${recommendation.id}", false)
     }
 
     fun refreshRecommendations() {

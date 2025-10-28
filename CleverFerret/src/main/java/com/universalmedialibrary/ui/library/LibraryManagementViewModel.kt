@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.services.MediaScannerService
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class LibraryManagementViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val libraryRepository: LibraryRepository,
-    private val calibreExportService: CalibreExportService
+    private val calibreExportService: CalibreExportService,
+    private val mediaItemDao: MediaItemDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LibraryManagementUiState>(LibraryManagementUiState.Success)
@@ -40,6 +42,26 @@ class LibraryManagementViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
+        )
+    
+    /**
+     * Flow that emits item counts for each library
+     * Maps library ID to item count
+     */
+    val libraryItemCounts: StateFlow<Map<Long, Int>> = libraries
+        .map { libraryList ->
+            libraryList.associate { library ->
+                library.libraryId to (mediaItemDao.getItemCountByLibrary(library.libraryId))
+            }
+        }
+        .catch { throwable ->
+            // On error, emit empty map
+            emit(emptyMap())
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
         )
 
     /**

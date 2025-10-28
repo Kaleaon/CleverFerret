@@ -4,8 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.repository.SettingsRepository
+import com.universalmedialibrary.data.local.dao.SecuritySettingsDao
+import com.universalmedialibrary.data.local.dao.GeneralSettingsDao
 import com.universalmedialibrary.data.local.entity.ReaderSettingsEntity
 import com.universalmedialibrary.data.local.entity.ReaderSettings
+import com.universalmedialibrary.data.local.entity.SecuritySettingsEntity
+import com.universalmedialibrary.data.local.entity.GeneralSettingsEntity
 import com.universalmedialibrary.data.local.entity.toEntity
 import com.universalmedialibrary.data.settings.ApiSettings
 import com.universalmedialibrary.data.settings.BookApiSettings
@@ -17,6 +21,7 @@ import com.universalmedialibrary.data.settings.ArtworkApiSettings
 import com.universalmedialibrary.data.settings.LyricsApiSettings
 import com.universalmedialibrary.data.settings.SecuritySettings
 import com.universalmedialibrary.data.settings.GeneralSettings
+import com.universalmedialibrary.data.settings.AppTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +35,9 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val apiKeyRepository: APIKeyRepository,
-    private val readerSettingsRepository: com.universalmedialibrary.data.repository.ReaderSettingsRepository
+    private val readerSettingsRepository: com.universalmedialibrary.data.repository.ReaderSettingsRepository,
+    private val securitySettingsDao: SecuritySettingsDao,
+    private val generalSettingsDao: GeneralSettingsDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -237,20 +244,58 @@ class SettingsViewModel @Inject constructor(
     fun updateSecuritySettings(settings: SecuritySettings) {
         viewModelScope.launch {
             _securitySettings.value = settings
-            // TODO: Integrate SecuritySettingsDao (already exists) for database persistence
-            // Example: securitySettingsDao.insertSettings(settings.toEntity())
-            // SecuritySettingsDao and SecuritySettingsEntity are already defined and used in SettingsBackupService
+            // Persist to database
+            securitySettingsDao.insertSettings(settings.toEntity())
         }
     }
 
     fun updateGeneralSettings(settings: GeneralSettings) {
         viewModelScope.launch {
             _generalSettings.value = settings
-            // TODO: Integrate GeneralSettingsDao (already exists) for database persistence
-            // Example: generalSettingsDao.insertSettings(settings.toEntity())
-            // GeneralSettingsDao and GeneralSettingsEntity are already defined and used in SettingsBackupService
+            // Persist to database
+            generalSettingsDao.insertSettings(settings.toEntity())
         }
     }
+    
+    /**
+     * Convert SecuritySettings to SecuritySettingsEntity for persistence
+     */
+    private fun SecuritySettings.toEntity() = SecuritySettingsEntity(
+        id = 1,
+        requireBiometric = enableBiometric,
+        lockTimeoutMinutes = (autoLockTimeout / 60000).toInt(), // Convert ms to minutes
+        allowScreenshots = true, // TODO: Add allowScreenshots field to SecuritySettings data class and map here
+        hideInRecents = hideContentInRecents,
+        requireAuthForContentChanges = requireAuthForExport,
+        lastUpdated = System.currentTimeMillis()
+    )
+    
+    /**
+     * Convert GeneralSettings to GeneralSettingsEntity for persistence
+     * TODO: Add missing fields to GeneralSettings data class (themePalette, defaultFontSize, 
+     * useDynamicColors, enableAnimations, autoPlayNext, defaultPlaybackSpeed, 
+     * rememberPlaybackPosition, skipIntroSeconds, skipOutroSeconds) and map them here
+     * instead of using hardcoded defaults
+     */
+    private fun GeneralSettings.toEntity() = GeneralSettingsEntity(
+        id = 1,
+        languageCode = language,
+        themeMode = when(theme) {
+            AppTheme.LIGHT -> "light"
+            AppTheme.DARK -> "dark"
+            AppTheme.SYSTEM -> "auto"
+        },
+        themePalette = "BURGUNDY_ROSE_GOLD", // TODO: Map from settings.themePalette when field is added
+        defaultFontSize = 16, // TODO: Map from settings.defaultFontSize when field is added
+        useDynamicColors = true, // TODO: Map from settings.useDynamicColors when field is added
+        enableAnimations = true, // TODO: Map from settings.enableAnimations when field is added
+        autoPlayNext = true, // TODO: Map from settings.autoPlayNext when field is added
+        defaultPlaybackSpeed = 1.0f, // TODO: Map from settings.defaultPlaybackSpeed when field is added
+        rememberPlaybackPosition = true, // TODO: Map from settings.rememberPlaybackPosition when field is added
+        skipIntroSeconds = 0, // TODO: Map from settings.skipIntroSeconds when field is added
+        skipOutroSeconds = 0, // TODO: Map from settings.skipOutroSeconds when field is added
+        lastUpdated = System.currentTimeMillis()
+    )
 }
 
 data class SettingsUiState(
