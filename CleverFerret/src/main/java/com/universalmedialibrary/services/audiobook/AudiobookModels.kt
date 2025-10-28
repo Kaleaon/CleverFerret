@@ -6,6 +6,9 @@ import com.universalmedialibrary.services.audiobook.AudioChapter
  * Data classes for Audiobook functionality
  */
 
+// Type alias for consistency
+typealias AudiobookChapter = AudioChapter
+
 /**
  * Represents the current state of audiobook playback
  */
