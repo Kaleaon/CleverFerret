@@ -115,12 +115,14 @@ class UniversalReaderService @Inject constructor(
                 }
 
                 val pages = htmlEntries.mapIndexed { index, entry ->
-                    val content = zipFile.getInputStream(entry).bufferedReader().readText()
-                    DocumentPage(
-                        pageNumber = index + 1,
-                        content = content,
-                        title = "Chapter ${index + 1}"
-                    )
+                    zipFile.getInputStream(entry).use { inputStream ->
+                        val content = inputStream.bufferedReader().readText()
+                        DocumentPage(
+                            pageNumber = index + 1,
+                            content = content,
+                            title = "Chapter ${index + 1}"
+                        )
+                    }
                 }
 
                 DocumentContent(

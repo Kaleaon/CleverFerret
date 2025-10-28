@@ -134,21 +134,23 @@ class EpubSplitService @Inject constructor(
                     }
                     .sortedBy { it.name }
                     .forEach { entry ->
-                        val content = zip.getInputStream(entry).bufferedReader().readText()
-                        
-                        val titleMatch = Regex("<title>([^<]+)</title>").find(content)
-                        val title = titleMatch?.groupValues?.get(1) ?: "Chapter ${chapters.size + 1}"
-                        
-                        val bodyMatch = Regex("<body[^>]*>(.*)</body>", RegexOption.DOT_MATCHES_ALL)
-                            .find(content)
-                        val bodyContent = bodyMatch?.groupValues?.get(1) ?: content
-                        
-                        chapters.add(
-                            EpubCreatorService.EpubChapter(
-                                title = title,
-                                content = bodyContent
+                        zip.getInputStream(entry).use { inputStream ->
+                            val content = inputStream.bufferedReader().readText()
+                            
+                            val titleMatch = Regex("<title>([^<]+)</title>").find(content)
+                            val title = titleMatch?.groupValues?.get(1) ?: "Chapter ${chapters.size + 1}"
+                            
+                            val bodyMatch = Regex("<body[^>]*>(.*)</body>", RegexOption.DOT_MATCHES_ALL)
+                                .find(content)
+                            val bodyContent = bodyMatch?.groupValues?.get(1) ?: content
+                            
+                            chapters.add(
+                                EpubCreatorService.EpubChapter(
+                                    title = title,
+                                    content = bodyContent
+                                )
                             )
-                        )
+                        }
                     }
             }
         } catch (e: Exception) {

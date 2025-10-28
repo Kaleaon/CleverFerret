@@ -267,18 +267,20 @@ class EpubReaderService @Inject constructor(
                 val entry = zipFile.getEntry(fullPath) ?: zipFile.getEntry(manifestItem.href)
 
                 if (entry != null) {
-                    val content = zipFile.getInputStream(entry).bufferedReader().readText()
-                    val title = tocItems.find { it.src.contains(manifestItem.href) }?.title
-                        ?: "Chapter ${index + 1}"
+                    zipFile.getInputStream(entry).use { inputStream ->
+                        val content = inputStream.bufferedReader().readText()
+                        val title = tocItems.find { it.src.contains(manifestItem.href) }?.title
+                            ?: "Chapter ${index + 1}"
 
-                    chapters.add(
-                        EpubChapter(
-                            index = index,
-                            title = title,
-                            content = content,
-                            resourceId = itemRef
+                        chapters.add(
+                            EpubChapter(
+                                index = index,
+                                title = title,
+                                content = content,
+                                resourceId = itemRef
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

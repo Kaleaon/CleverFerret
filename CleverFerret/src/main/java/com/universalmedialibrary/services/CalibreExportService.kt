@@ -49,153 +49,149 @@ class CalibreExportService @Inject constructor(
                 return ExportResult(false, "No books found to export")
             }
 
-            val db = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE)
-            
-            var successCount = 0
-            var failureCount = 0
+            SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE).use { db ->
+                var successCount = 0
+                var failureCount = 0
 
-            for (item in bookItems) {
-                try {
-                    exportBookToCalibre(db, item, exportDir)
-                    successCount++
-                } catch (e: Exception) {
-                    failureCount++
+                for (item in bookItems) {
+                    try {
+                        exportBookToCalibre(db, item, exportDir)
+                        successCount++
+                    } catch (e: Exception) {
+                        failureCount++
+                    }
                 }
+
+                ExportResult(
+                    success = true,
+                    message = "Exported $successCount books successfully" +
+                        (if (failureCount > 0) ", $failureCount failed" else "")
+                )
             }
-
-            db.close()
-
-            ExportResult(
-                success = true,
-                message = "Exported $successCount books successfully" +
-                    (if (failureCount > 0) ", $failureCount failed" else "")
-            )
         } catch (e: Exception) {
             ExportResult(false, "Export failed: ${e.message}")
         }
     }
 
     private fun createCalibreDatabase(dbPath: String) {
-        val db = SQLiteDatabase.openOrCreateDatabase(dbPath, null)
-        
-        // Create Calibre database schema
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS books (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                sort TEXT,
-                timestamp TEXT,
-                pubdate TEXT,
-                series_index REAL,
-                author_sort TEXT,
-                isbn TEXT,
-                lccn TEXT,
-                path TEXT NOT NULL,
-                flags INTEGER,
-                uuid TEXT,
-                has_cover BOOL,
-                last_modified TEXT
-            )
-        """)
+        SQLiteDatabase.openOrCreateDatabase(dbPath, null).use { db ->
+            // Create Calibre database schema
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS books (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    sort TEXT,
+                    timestamp TEXT,
+                    pubdate TEXT,
+                    series_index REAL,
+                    author_sort TEXT,
+                    isbn TEXT,
+                    lccn TEXT,
+                    path TEXT NOT NULL,
+                    flags INTEGER,
+                    uuid TEXT,
+                    has_cover BOOL,
+                    last_modified TEXT
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS authors (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL COLLATE NOCASE,
-                sort TEXT COLLATE NOCASE,
-                link TEXT
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS authors (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL COLLATE NOCASE,
+                    sort TEXT COLLATE NOCASE,
+                    link TEXT
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS books_authors_link (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book INTEGER NOT NULL,
-                author INTEGER NOT NULL,
-                UNIQUE(book, author)
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS books_authors_link (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    author INTEGER NOT NULL,
+                    UNIQUE(book, author)
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS publishers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL COLLATE NOCASE
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS publishers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL COLLATE NOCASE
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS books_publishers_link (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book INTEGER NOT NULL,
-                publisher INTEGER NOT NULL,
-                UNIQUE(book, publisher)
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS books_publishers_link (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    publisher INTEGER NOT NULL,
+                    UNIQUE(book, publisher)
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS tags (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL COLLATE NOCASE
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS tags (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL COLLATE NOCASE
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS books_tags_link (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book INTEGER NOT NULL,
-                tag INTEGER NOT NULL,
-                UNIQUE(book, tag)
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS books_tags_link (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    tag INTEGER NOT NULL,
+                    UNIQUE(book, tag)
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS series (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL COLLATE NOCASE,
-                sort TEXT COLLATE NOCASE
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS series (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL COLLATE NOCASE,
+                    sort TEXT COLLATE NOCASE
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS books_series_link (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book INTEGER NOT NULL,
-                series INTEGER NOT NULL,
-                UNIQUE(book, series)
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS books_series_link (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    series INTEGER NOT NULL,
+                    UNIQUE(book, series)
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS comments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book INTEGER NOT NULL,
-                text TEXT NOT NULL COLLATE NOCASE
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS comments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    text TEXT NOT NULL COLLATE NOCASE
+                )
+            """)
 
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS identifiers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book INTEGER NOT NULL,
-                type TEXT NOT NULL,
-                val TEXT NOT NULL COLLATE NOCASE,
-                UNIQUE(book, type)
-            )
-        """)
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS identifiers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    type TEXT NOT NULL,
+                    val TEXT NOT NULL COLLATE NOCASE,
+                    UNIQUE(book, type)
+                )
+            """)
 
-        // Create data table - required by Calibre to link books to their file formats
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                book INTEGER NOT NULL,
-                format TEXT NOT NULL,
-                name TEXT NOT NULL,
-                uncompressed_size INTEGER NOT NULL DEFAULT 0,
-                UNIQUE(book, format)
-            )
-        """)
-
-        db.close()
+            // Create data table - required by Calibre to link books to their file formats
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS data (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    book INTEGER NOT NULL,
+                    format TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    uncompressed_size INTEGER NOT NULL DEFAULT 0,
+                    UNIQUE(book, format)
+                )
+            """)
+        }
     }
 
     private suspend fun exportBookToCalibre(

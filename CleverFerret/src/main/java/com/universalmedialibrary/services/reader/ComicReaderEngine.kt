@@ -223,8 +223,9 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                     // Extract from ZIP
                     val zip = zipFile ?: return@withContext null
                     val entry = zip.getEntry(page.entryName)
-                    val inputStream = zip.getInputStream(entry)
-                    BitmapFactory.decodeStream(inputStream)
+                    zip.getInputStream(entry).use { inputStream ->
+                        BitmapFactory.decodeStream(inputStream)
+                    }
                 }
             } catch (e: Exception) {
                 null

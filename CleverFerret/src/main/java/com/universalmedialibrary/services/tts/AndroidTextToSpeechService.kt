@@ -4,8 +4,9 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +31,9 @@ class AndroidTextToSpeechService @Inject constructor(
     private var tts: TextToSpeech? = null
     private val _ttsState = MutableStateFlow(TtsServiceState())
     override val ttsState: StateFlow<TtsServiceState> = _ttsState.asStateFlow()
+
+    // Use a properly scoped coroutine scope instead of GlobalScope to prevent memory leaks
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private var currentUtteranceId = 0
 
@@ -119,7 +123,7 @@ class AndroidTextToSpeechService @Inject constructor(
         // This is a limitation of the Android TTS API
         val currentText = _ttsState.value.currentText
         if (currentText.isNotEmpty() && _ttsState.value.isPaused) {
-            GlobalScope.launch {
+            serviceScope.launch {
                 speak(currentText)
             }
         }
