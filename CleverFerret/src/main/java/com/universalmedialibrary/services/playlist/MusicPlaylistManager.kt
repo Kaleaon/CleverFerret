@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.playlist
 
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.MediaItemDao
+import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Playlist
@@ -32,6 +33,7 @@ class MusicPlaylistManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playlistDao: PlaylistDao,
     private val mediaItemDao: MediaItemDao,
+    private val metadataDao: MetadataDao,
     private val queueManager: UnifiedPlaybackQueueManager,
     private val historyRepository: HistoryRepository
 ) {
@@ -253,10 +255,16 @@ class MusicPlaylistManager @Inject constructor(
                 }
             }
             
+            // Calculate total duration from track metadata
+            val totalDuration = tracks.sumOf { track ->
+                val metadata = metadataDao.getMetadataMusicTrackByItemId(track.itemId)
+                metadata?.duration ?: 0L
+            }
+            
             PlaylistWithTracks(
                 playlistId = playlistId,
                 tracks = tracks,
-                totalDuration = 0L // TODO: Calculate from track durations
+                totalDuration = totalDuration
             )
         }
     }
