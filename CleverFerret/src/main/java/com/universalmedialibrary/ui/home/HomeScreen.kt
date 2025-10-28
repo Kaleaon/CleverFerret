@@ -38,6 +38,9 @@ fun HomeScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToLibrary: () -> Unit,
     onNavigateToVisualizer: () -> Unit = {},
+    onNavigateToFanfiction: () -> Unit = {},
+    onNavigateToAudiobooks: () -> Unit = {},
+    onNavigateToDuplicates: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -128,7 +131,11 @@ fun HomeScreen(
                     onNavigateToMusic = { onNavigateToMedia("music", 0) },
                     onNavigateToVideos = { onNavigateToMedia("video", 0) },
                     onNavigateToBooks = { onNavigateToMedia("book", 0) },
-                    onNavigateToComics = { onNavigateToMedia("comic", 0) }
+                    onNavigateToComics = { onNavigateToMedia("comic", 0) },
+                    onNavigateToVisualizer = onNavigateToVisualizer,
+                    onNavigateToFanfiction = onNavigateToFanfiction,
+                    onNavigateToAudiobooks = onNavigateToAudiobooks,
+                    onNavigateToDuplicates = onNavigateToDuplicates
                 )
             }
             
@@ -357,7 +364,10 @@ private fun QuickActionsGrid(
     onNavigateToVideos: () -> Unit,
     onNavigateToBooks: () -> Unit,
     onNavigateToComics: () -> Unit,
-    onNavigateToVisualizer: () -> Unit
+    onNavigateToVisualizer: () -> Unit,
+    onNavigateToFanfiction: () -> Unit = {},
+    onNavigateToAudiobooks: () -> Unit = {},
+    onNavigateToDuplicates: () -> Unit = {}
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -399,9 +409,34 @@ private fun QuickActionsGrid(
                 modifier = Modifier.weight(1f)
             )
             QuickActionCard(
+                title = "Fanfiction",
+                icon = Icons.Default.AutoStories,
+                onClick = onNavigateToFanfiction,
+                modifier = Modifier.weight(1f)
+            )
+            QuickActionCard(
+                title = "Audiobooks",
+                icon = Icons.Default.Headphones,
+                onClick = onNavigateToAudiobooks,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        
+        // Third row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            QuickActionCard(
                 title = "Visualizer",
                 icon = Icons.Default.GraphicEq,
                 onClick = onNavigateToVisualizer,
+                modifier = Modifier.weight(1f)
+            )
+            QuickActionCard(
+                title = "Organize",
+                icon = Icons.Default.Settings,
+                onClick = onNavigateToDuplicates,
                 modifier = Modifier.weight(1f)
             )
             // Empty card for symmetry
@@ -534,6 +569,4 @@ data class Statistics(
     val booksCount: Int,
     val videosCount: Int,
     val totalHours: Int
-)
-  val totalHours: Int
 )

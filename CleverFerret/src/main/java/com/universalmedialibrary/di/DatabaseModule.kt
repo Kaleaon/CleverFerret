@@ -230,4 +230,15 @@ object DatabaseModule {
         )
     }
 
+    // Calibre Features DAOs
+    @Provides
+    fun provideFanfictionDao(database: AppDatabase): FanfictionDao {
+        return database.fanfictionDao()
+    }
+
+    @Provides
+    fun provideAudiobookDao(database: AppDatabase): AudiobookDao {
+        return database.audiobookDao()
+    }
+
 }

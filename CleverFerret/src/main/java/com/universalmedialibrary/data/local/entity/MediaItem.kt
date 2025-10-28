@@ -56,4 +56,9 @@ data class MediaItem(
     val creator: String? get() = null // Should be fetched from MetadataCommon
     val rating: Float? get() = null // Should be fetched from MetadataCommon
     val lastViewed: Long? get() = null // Should be fetched from ReadingProgress or viewing history
+    
+    // Compatibility properties for legacy code
+    val title: String get() = fileName.substringBeforeLast('.')
+    val size: Long get() = fileSize
+    val type: String get() = mediaType
 }

@@ -126,14 +126,14 @@ class OpenAiTtsService @Inject constructor(
             .post(requestBody)
             .build()
 
-        val response = httpClient.newCall(request).execute()
-        
-        if (!response.isSuccessful) {
-            val errorBody = response.body?.string() ?: "Unknown error"
-            throw Exception("OpenAI API error (${response.code}): $errorBody")
-        }
+        return httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                val errorBody = response.body?.string() ?: "Unknown error"
+                throw Exception("OpenAI API error (${response.code}): $errorBody")
+            }
 
-        response.body?.bytes() ?: throw Exception("Empty response from OpenAI")
+            response.body?.bytes() ?: throw Exception("Empty response from OpenAI")
+        }
     }
 
     private suspend fun playAudio(audioBytes: ByteArray) = withContext(Dispatchers.Main) {

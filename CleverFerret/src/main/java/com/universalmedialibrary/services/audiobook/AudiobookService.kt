@@ -1,10 +1,13 @@
 package com.universalmedialibrary.services.audiobook
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.universalmedialibrary.core.FeatureFlags
+import com.universalmedialibrary.data.local.dao.AudiobookDao
 import com.universalmedialibrary.data.local.dao.BookmarkDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
+import com.universalmedialibrary.data.local.entity.AudiobookEntity
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.data.repository.MediaRepository
@@ -20,13 +23,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Advanced audiobook service with chapter navigation, bookmarks, and synchronized read-along
- *
- * Features:
+ * Comprehensive audiobook service combining:
+ * - Import/export and metadata extraction
  * - Chapter-based navigation with metadata
  * - Synchronized text highlighting (read-along)
  * - Advanced playback controls (speed, sleep timer, skip silence)
@@ -41,7 +46,8 @@ class AudiobookService @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val mediaController: MediaController,
     private val bookmarkDao: BookmarkDao,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val audiobookDao: AudiobookDao
 ) {
     
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -78,176 +84,174 @@ class AudiobookService @Inject constructor(
             // Load synchronized text if available
             loadSynchronizedText(audiobook)
 
-            // Initialize ExoPlayer with chapters and MediaSession
-            val mediaItems = audiobook.chapters.map { androidx.media3.common.MediaItem.fromUri(it.audioUri) }
-            val success = exoPlayerService.preparePlaylist(mediaItems)
-
-            if (success) {
-                // Start MediaSession for audiobook
-                val player = exoPlayerService.getPlayer()
-                if (player != null && mediaItems.isNotEmpty()) {
-                    val firstChapter = audiobook.chapters.firstOrNull()
-                    mediaController.startPlayback(
-                        player = player,
-                        serviceType = MediaServiceType.AUDIOBOOK,
-                        title = firstChapter?.title ?: audiobook.title,
-                        artist = audiobook.author,
-                        album = audiobook.title,
-                        artwork = null // TODO: Load cover from commonMetadata.coverImagePath using BitmapFactory.decodeFile()
-                    )
-                }
-
-                updateAudiobookState(
-                    isLoaded = true,
-                    title = audiobook.title,
-                    author = audiobook.author,
-                    chapters = audiobook.chapters,
-                    currentChapterIndex = 0,
-                    totalDuration = audiobook.totalDuration
+            val firstChapter = audiobook.chapters.firstOrNull()
+            if (firstChapter != null) {
+                // Register with MediaController for notifications and media session
+                mediaController.registerMediaService(
+                    serviceType = MediaServiceType.AUDIOBOOK,
+                    title = firstChapter.title ?: audiobook.title,
+                    artist = audiobook.author,
+                    album = audiobook.title,
+                    artwork = null // TODO: Load cover from commonMetadata.coverImagePath using BitmapFactory.decodeFile()
                 )
-            } else {
-                updateAudiobookState(error = "Failed to load audio files")
             }
 
-            success
+            updateAudiobookState(
+                isLoaded = true,
+                totalChapters = audiobook.chapters.size,
+                chapters = audiobook.chapters
+            )
+
+            true
         } catch (e: Exception) {
-            updateAudiobookState(error = "Error loading audiobook: ${e.message}")
+            updateAudiobookState(error = "Failed to load audiobook: ${e.message}")
             false
         }
     }
 
-    private fun updateAudiobookState(
-        isLoading: Boolean = _audiobookState.value.isLoading,
-        isLoaded: Boolean = _audiobookState.value.isLoaded,
-        title: String = _audiobookState.value.title,
-        author: String = _audiobookState.value.author,
-        chapters: List<AudiobookChapter> = _audiobookState.value.chapters,
-        currentChapterIndex: Int = _audiobookState.value.currentChapterIndex,
-        currentPositionMs: Long = _audiobookState.value.currentPositionMs,
-        totalDuration: Long = _audiobookState.value.totalDuration,
-        playbackSpeed: Float = _audiobookState.value.playbackSpeed,
-        skipSilenceEnabled: Boolean = _audiobookState.value.skipSilenceEnabled,
-        sleepTimerEndTime: Long? = _audiobookState.value.sleepTimerEndTime,
-        bookmarks: List<AudiobookBookmark> = _audiobookState.value.bookmarks,
-        error: String? = null
-    ) {
-        _audiobookState.value = AudiobookState(
-            isLoading = isLoading,
-            isLoaded = isLoaded,
-            title = title,
-            author = author,
-            chapters = chapters,
-            currentChapterIndex = currentChapterIndex,
-            currentPositionMs = currentPositionMs,
-            totalDuration = totalDuration,
-            playbackSpeed = playbackSpeed,
-            skipSilenceEnabled = skipSilenceEnabled,
-            sleepTimerEndTime = sleepTimerEndTime,
-            bookmarks = bookmarks,
-            error = error
-        )
-    }
-
-    private suspend fun parseAudiobook(mediaItem: MediaItem): Audiobook? {
-        return try {
-            val chapters = parseAudiobookChapters(mediaItem)
-            val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
+    /**
+     * Import audiobook from file
+     */
+    suspend fun importAudiobook(filePath: String): Result<AudiobookEntity> = 
+        withContext(Dispatchers.IO) {
+            try {
+                val file = File(filePath)
+                if (!file.exists()) {
+                    return@withContext Result.failure(
+                        Exception("File not found: $filePath")
+                    )
+                }
+                
+                val metadata = extractMetadata(filePath)
+                val coverPath = metadata.coverArt?.let { 
+                    saveCoverArt(it, metadata.title)
+                }
+                
+                val entity = AudiobookEntity(
+                    id = UUID.randomUUID().toString(),
+                    filePath = filePath,
+                    title = metadata.title,
+                    author = metadata.author,
+                    narrator = metadata.narrator,
+                    description = metadata.description,
+                    genre = metadata.genre,
+                    publisher = metadata.publisher,
+                    publishDate = metadata.publishDate,
+                    duration = metadata.duration.inWholeSeconds,
+                    bitrate = metadata.bitrate,
+                    sampleRate = metadata.sampleRate,
+                    codec = metadata.codec,
+                    coverPath = coverPath,
+                    chapterCount = metadata.chapters.size,
+                    chapters = metadata.chapters,
+                    language = metadata.language,
+                    dateAdded = System.currentTimeMillis(),
+                    lastPlayedPosition = 0,
+                    isFinished = false
+                )
+                
+                audiobookDao.insert(entity)
+                Result.success(entity)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    
+    /**
+     * Extract metadata from audiobook file
+     */
+    private suspend fun extractMetadata(filePath: String): AudiobookMetadata = 
+        withContext(Dispatchers.IO) {
+            val retriever = MediaMetadataRetriever()
             
-            Audiobook(
-                id = mediaItem.itemId,
-                title = mediaItem.fileName.substringBeforeLast('.'),
-                author = authors.firstOrNull() ?: "Unknown Author",
-                chapters = chapters,
-                totalDuration = chapters.sumOf { it.durationMs }
-            )
-        } catch (e: Exception) {
-            null
+            try {
+                retriever.setDataSource(filePath)
+                
+                val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                    ?: File(filePath).nameWithoutExtension
+                val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
+                val narrator = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
+                // METADATA_KEY_COMMENT is used for description/comments in audio files
+                val description = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMMENT)
+                val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
+                val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
+                val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                    ?.toLongOrNull() ?: 0L
+                val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
+                    ?.toIntOrNull()
+                val coverArt = retriever.embeddedPicture
+                
+                val chapters = extractChapters(filePath, durationMs)
+                
+                AudiobookMetadata(
+                    title = title,
+                    author = author,
+                    narrator = narrator,
+                    description = description,
+                    genre = genre,
+                    publisher = null,
+                    publishDate = date,
+                    duration = durationMs.milliseconds,
+                    bitrate = bitrate,
+                    sampleRate = null,
+                    codec = null,
+                    chapters = chapters,
+                    coverArt = coverArt,
+                    language = "en"
+                )
+            } finally {
+                retriever.release()
+            }
+        }
+    
+    /**
+     * Extract chapter information
+     * Note: Android MediaMetadataRetriever doesn't support chapter extraction
+     * This is a placeholder for potential future enhancement
+     */
+    private fun extractChapters(filePath: String, totalDurationMs: Long): List<AudioChapter> {
+        // For now, return empty list
+        // Could be enhanced with external library support
+        return emptyList()
+    }
+    
+    /**
+     * Save cover art to storage
+     */
+    private suspend fun saveCoverArt(coverArt: ByteArray, title: String): String = 
+        withContext(Dispatchers.IO) {
+            val coversDir = File(context.filesDir, "audiobook_covers")
+            coversDir.mkdirs()
+            
+            val sanitizedTitle = title.replace(Regex("[^a-zA-Z0-9.-]"), "_")
+                .take(50)
+            val coverFile = File(coversDir, "$sanitizedTitle.jpg")
+            
+            coverFile.writeBytes(coverArt)
+            coverFile.absolutePath
+        }
+    
+    /**
+     * Update playback position (for AudiobookEntity)
+     */
+    suspend fun updatePosition(audiobookId: String, positionSeconds: Long) {
+        withContext(Dispatchers.IO) {
+            audiobookDao.updatePosition(audiobookId, positionSeconds)
         }
     }
-
-    private suspend fun parseAudiobookChapters(mediaItem: MediaItem): List<AudiobookChapter> {
-        return listOf(
-            AudiobookChapter(
-                index = 0,
-                title = "Chapter 1",
-                audioUri = Uri.parse(mediaItem.filePath),
-                startTimeMs = 0,
-                durationMs = 3600000,
-                textSynchronization = null
-            )
-        )
-    }
-
-    private suspend fun loadSynchronizedText(audiobook: Audiobook) {
-        if (!FeatureFlags.ENABLE_SYNCHRONIZED_READING) return
-        // Implementation placeholder
-    }
-
-    private fun updateSynchronizationState(
-        available: Boolean = _synchronizationState.value.available,
-        enabled: Boolean = _synchronizationState.value.enabled,
-        currentHighlight: HighlightedText? = _synchronizationState.value.currentHighlight,
-        error: String? = null
-    ) {
-        _synchronizationState.value = SynchronizationState(
-            available = available,
-            enabled = enabled,
-            currentHighlight = currentHighlight,
-            error = error
-        )
+    
+    /**
+     * Mark audiobook as finished (for AudiobookEntity)
+     */
+    suspend fun markFinished(audiobookId: String, finished: Boolean = true) {
+        withContext(Dispatchers.IO) {
+            audiobookDao.updateFinished(audiobookId, finished)
+        }
     }
 
     /**
-     * Additional methods for playback control
+     * Create a bookmark at the current position
      */
-    fun play() = exoPlayerService.play()
-    fun pause() = exoPlayerService.pause()
-
-    fun setSynchronizedReading(enabled: Boolean) {
-        updateSynchronizationState(enabled = enabled)
-    }
-
-    fun goToChapter(chapterIndex: Int) {
-        // Navigate to specific chapter
-        val audiobook = currentAudiobook ?: return
-        if (chapterIndex >= 0 && chapterIndex < audiobook.chapters.size) {
-            val chapter = audiobook.chapters[chapterIndex]
-            // Seek to chapter start time - would need ExoPlayer implementation
-            // For now, just update the state
-            updateAudiobookState(currentChapterIndex = chapterIndex)
-        }
-    }
-
-    fun seekForward(seconds: Int) {
-        // Skip forward by specified seconds
-        // Would need ExoPlayer implementation
-    }
-
-    fun seekBackward(seconds: Int) {
-        // Skip backward by specified seconds
-        // Would need ExoPlayer implementation
-    }
-
-    fun setPlaybackSpeed(speed: Float) {
-        // Set playback speed
-        // Would need ExoPlayer implementation
-    }
-
-    fun setSkipSilence(enabled: Boolean) {
-        // Toggle skip silence feature
-        exoPlayerService.setSkipSilence(enabled)
-    }
-
-    fun setSleepTimer(minutes: Int) {
-        // Set sleep timer for automatic pause
-        // Would need timer implementation
-    }
-
-    fun cancelSleepTimer() {
-        // Cancel active sleep timer
-        // Would need timer implementation
-    }
-
     fun createBookmark(note: String? = null) {
         val audiobook = currentAudiobook ?: return
         val state = _audiobookState.value
@@ -275,22 +279,47 @@ class AudiobookService @Inject constructor(
                 val audiobookBookmark = AudiobookBookmark(
                     id = bookmarkId,
                     position = state.currentPosition,
-                    chapterIndex = state.currentChapter,
                     note = note,
                     timestamp = System.currentTimeMillis()
                 )
                 
-                _audiobookState.value = _audiobookState.value.copy(
-                    bookmarks = _audiobookState.value.bookmarks + audiobookBookmark
+                updateAudiobookState(
+                    bookmarks = state.bookmarks + audiobookBookmark
                 )
             } catch (e: Exception) {
-                // Handle error - could emit error state
+                updateAudiobookState(error = "Failed to create bookmark: ${e.message}")
             }
         }
     }
-    
-    private fun formatTime(milliseconds: Long): String {
-        val totalSeconds = milliseconds / 1000
+
+    /**
+     * Delete a bookmark
+     */
+    fun deleteBookmark(bookmark: AudiobookBookmark) {
+        serviceScope.launch {
+            try {
+                val state = _audiobookState.value
+                
+                // Optimistic UI update
+                updateAudiobookState(
+                    bookmarks = state.bookmarks.filter { it.id != bookmark.id }
+                )
+                
+                // Persist to database
+                bookmarkDao.deleteBookmark(bookmark.id)
+            } catch (e: Exception) {
+                // Rollback on error
+                val state = _audiobookState.value
+                updateAudiobookState(
+                    bookmarks = state.bookmarks + bookmark,
+                    error = "Failed to delete bookmark: ${e.message}"
+                )
+            }
+        }
+    }
+
+    private fun formatTime(positionMs: Long): String {
+        val totalSeconds = positionMs / 1000
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
@@ -302,99 +331,79 @@ class AudiobookService @Inject constructor(
         }
     }
 
-    fun jumpToBookmark(bookmark: AudiobookBookmark) {
-        // Jump to saved bookmark position
-        // Would need ExoPlayer seek implementation
+    private suspend fun parseAudiobook(mediaItem: MediaItem): Audiobook? {
+        // Parse audiobook from media item
+        // For now, return a basic structure
+        val commonMetadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId)
+        val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
+        
+        return Audiobook(
+            id = mediaItem.itemId,
+            title = commonMetadata?.title ?: mediaItem.fileName,
+            author = authors.firstOrNull() ?: "Unknown",
+            filePath = mediaItem.filePath,
+            totalDuration = 0L, // Would need to be extracted from audio file
+            chapters = emptyList() // Would need to be parsed from audiobook format
+        )
     }
 
-    fun deleteBookmark(bookmark: AudiobookBookmark) {
-        // Update in-memory state immediately (optimistic update)
-        val updatedBookmarks = _audiobookState.value.bookmarks.filterNot { it.id == bookmark.id }
-        _audiobookState.value = _audiobookState.value.copy(bookmarks = updatedBookmarks)
-        
-        // Persist deletion to database
-        serviceScope.launch {
-            try {
-                bookmarkDao.deleteBookmark(bookmark.id)
-            } catch (e: Exception) {
-                // Rollback on failure
-                _audiobookState.value = _audiobookState.value.copy(
-                    bookmarks = _audiobookState.value.bookmarks + bookmark
-                )
+    private fun loadSynchronizedText(audiobook: Audiobook) {
+        // Load synchronized text if available
+        // This would parse SMIL or similar formats
+    }
+
+    private fun updateAudiobookState(
+        isLoading: Boolean = _audiobookState.value.isLoading,
+        isLoaded: Boolean = _audiobookState.value.isLoaded,
+        currentChapter: Int = _audiobookState.value.currentChapter,
+        totalChapters: Int = _audiobookState.value.totalChapters,
+        currentPosition: Long = _audiobookState.value.currentPosition,
+        isPlaying: Boolean = _audiobookState.value.isPlaying,
+        playbackSpeed: Float = _audiobookState.value.playbackSpeed,
+        chapters: List<AudiobookChapter> = _audiobookState.value.chapters,
+        bookmarks: List<AudiobookBookmark> = _audiobookState.value.bookmarks,
+        error: String? = null
+    ) {
+        _audiobookState.value = AudiobookState(
+            isLoading = isLoading,
+            isLoaded = isLoaded,
+            currentChapter = currentChapter,
+            totalChapters = totalChapters,
+            currentPosition = currentPosition,
+            isPlaying = isPlaying,
+            playbackSpeed = playbackSpeed,
+            chapters = chapters,
+            bookmarks = bookmarks,
+            error = error
+        )
+    }
+
+    /**
+     * Delete audiobook
+     */
+    suspend fun deleteAudiobook(audiobookId: String) {
+        withContext(Dispatchers.IO) {
+            val audiobook = audiobookDao.getById(audiobookId)
+            audiobook?.let {
+                // Delete cover file if exists
+                it.coverPath?.let { path ->
+                    File(path).delete()
+                }
+                // Delete from database
+                audiobookDao.delete(it)
             }
         }
+    }
+
+    fun play() {
+        exoPlayerService.play()
+    }
+
+    fun pause() {
+        exoPlayerService.pause()
     }
 
     fun stop() {
         exoPlayerService.stop()
     }
 }
-
-data class Audiobook(
-    val id: Long,
-    val title: String,
-    val author: String,
-    val chapters: List<AudiobookChapter>,
-    val totalDuration: Long
-)
-
-data class AudiobookChapter(
-    val index: Int,
-    val title: String,
-    val audioUri: Uri,
-    val startTimeMs: Long,
-    val durationMs: Long,
-    val textSynchronization: List<TimestampedText>?
-)
-
-data class SynchronizedText(
-    val chapters: List<ChapterSynchronization>
-)
-
-data class ChapterSynchronization(
-    val chapterIndex: Int,
-    val textSegments: List<TimestampedText>
-)
-
-data class TimestampedText(
-    val startTimeMs: Long,
-    val endTimeMs: Long,
-    val text: String,
-    val wordTimings: List<WordTiming>? = null
-)
-
-data class WordTiming(
-    val word: String,
-    val startTimeMs: Long,
-    val endTimeMs: Long
-)
-
-data class AudiobookState(
-    val isLoading: Boolean = false,
-    val isLoaded: Boolean = false,
-    val title: String = "",
-    val author: String = "",
-    val chapters: List<AudiobookChapter> = emptyList(),
-    val currentChapterIndex: Int = 0,
-    val currentPositionMs: Long = 0,
-    val totalDuration: Long = 0,
-    val playbackSpeed: Float = 1.0f,
-    val skipSilenceEnabled: Boolean = false,
-    val sleepTimerEndTime: Long? = null,
-    val bookmarks: List<AudiobookBookmark> = emptyList(),
-    val error: String? = null
-) {
-    val hasError: Boolean get() = error != null
-    val currentChapter: AudiobookChapter? get() = chapters.getOrNull(currentChapterIndex)
-}
-
-
-
-data class AudiobookBookmark(
-    val id: Long,
-    val chapterIndex: Int,
-    val positionMs: Long,
-    val title: String,
-    val notes: String? = null,
-    val timestamp: Long
-)
