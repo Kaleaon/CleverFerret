@@ -18,8 +18,9 @@ data class AudiobookState(
     val hasError: Boolean = false,
     val error: String? = null,
     val audiobook: Audiobook? = null,
-    val currentChapter: AudioChapter? = null,
-    val currentChapterIndex: Int = 0,
+    val currentChapter: Int = 0, // Current chapter index
+    val totalChapters: Int = 0, // Total number of chapters
+    val currentChapterIndex: Int = 0, // Alternative name for currentChapter
     val currentPosition: Long = 0, // milliseconds
     val currentPositionMs: Long = 0, // milliseconds (alternative name)
     val duration: Long = 0, // milliseconds
@@ -27,6 +28,7 @@ data class AudiobookState(
     val isPlaying: Boolean = false,
     val playbackSpeed: Float = 1.0f,
     val skipSilenceEnabled: Boolean = false,
+    val chapters: List<AudiobookChapter> = emptyList(), // List of all chapters
     val bookmarks: List<AudiobookBookmark> = emptyList()
 )
 
