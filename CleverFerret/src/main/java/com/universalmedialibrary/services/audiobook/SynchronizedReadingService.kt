@@ -503,13 +503,6 @@ data class AudioStructure(
     val chapters: List<AudioChapter>
 )
 
-data class AudioChapter(
-    val index: Int,
-    val title: String,
-    val startTimeMs: Long,
-    val durationMs: Long
-)
-
 data class CalibrationPoint(
     val audioPositionMs: Long,
     val textPosition: Int,

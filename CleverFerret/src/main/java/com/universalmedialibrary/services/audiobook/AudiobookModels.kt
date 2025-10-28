@@ -1,10 +1,18 @@
 package com.universalmedialibrary.services.audiobook
 
-import com.universalmedialibrary.services.audiobook.AudioChapter
-
 /**
  * Data classes for Audiobook functionality
  */
+
+/**
+ * Audiobook chapter information
+ */
+data class AudioChapter(
+    val index: Int,
+    val title: String,
+    val startTimeMs: Long,
+    val durationMs: Long
+)
 
 // Type alias for consistency
 typealias AudiobookChapter = AudioChapter

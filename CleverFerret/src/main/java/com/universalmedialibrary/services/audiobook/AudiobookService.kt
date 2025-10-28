@@ -171,8 +171,8 @@ class AudiobookService @Inject constructor(
                     ?: File(filePath).nameWithoutExtension
                 val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
                 val narrator = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-                // METADATA_KEY_COMMENT is used for description/comments in audio files
-                val description = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMMENT)
+                // Use album name as description fallback (no direct COMMENT metadata key in Android)
+                val description = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
                 val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                 val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
                 val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
@@ -259,7 +259,7 @@ class AudiobookService @Inject constructor(
         serviceScope.launch {
             try {
                 val bookmark = Bookmark(
-                    itemId = audiobook.id,
+                    itemId = audiobook.id.toLongOrNull() ?: 0L,
                     title = "Bookmark at ${formatTime(state.currentPosition)}",
                     description = note,
                     position = state.currentPosition,
@@ -278,9 +278,13 @@ class AudiobookService @Inject constructor(
                 // Update in-memory state with new bookmark
                 val audiobookBookmark = AudiobookBookmark(
                     id = bookmarkId,
+                    audiobookId = state.audiobook?.id ?: "",
+                    chapterIndex = state.currentChapter,
                     position = state.currentPosition,
+                    currentPosition = state.currentPosition,
+                    title = note ?: "Bookmark at ${formatTime(state.currentPosition)}",
                     note = note,
-                    timestamp = System.currentTimeMillis()
+                    createdAt = System.currentTimeMillis()
                 )
                 
                 updateAudiobookState(
@@ -306,7 +310,7 @@ class AudiobookService @Inject constructor(
                 )
                 
                 // Persist to database
-                bookmarkDao.deleteBookmark(bookmark.id)
+                bookmarkDao.deleteBookmark(bookmark.id.toLongOrNull() ?: 0L)
             } catch (e: Exception) {
                 // Rollback on error
                 val state = _audiobookState.value
@@ -338,7 +342,7 @@ class AudiobookService @Inject constructor(
         val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
         
         return Audiobook(
-            id = mediaItem.itemId,
+            id = mediaItem.itemId.toString(),
             title = commonMetadata?.title ?: mediaItem.fileName,
             author = authors.firstOrNull() ?: "Unknown",
             filePath = mediaItem.filePath,
