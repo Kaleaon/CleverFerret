@@ -97,16 +97,18 @@ class EPUBReaderService @Inject constructor(
 
                 val entry = zipFile.getEntry(fullPath)
                 if (entry != null) {
-                    val content = zipFile.getInputStream(entry).bufferedReader().readText()
-                    val cleanContent = parseHTMLContent(content)
-                    val title = extractChapterTitle(content) ?: "Chapter ${index + 1}"
+                    zipFile.getInputStream(entry).use { inputStream ->
+                        val content = inputStream.bufferedReader().readText()
+                        val cleanContent = parseHTMLContent(content)
+                        val title = extractChapterTitle(content) ?: "Chapter ${index + 1}"
 
-                    chapters.add(Chapter(
-                        index = index,
-                        title = title,
-                        href = href,
-                        content = cleanContent
-                    ))
+                        chapters.add(Chapter(
+                            index = index,
+                            title = title,
+                            href = href,
+                            content = cleanContent
+                        ))
+                    }
                 }
             }
 

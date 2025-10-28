@@ -25,8 +25,10 @@ class ComicInfoHandler @Inject constructor() {
         return try {
             ZipFile(cbzPath).use { zip ->
                 val entry = zip.getEntry("ComicInfo.xml") ?: return null
-                val xml = zip.getInputStream(entry).bufferedReader().readText()
-                parseComicInfo(xml)
+                zip.getInputStream(entry).use { inputStream ->
+                    val xml = inputStream.bufferedReader().readText()
+                    parseComicInfo(xml)
+                }
             }
         } catch (e: Exception) {
             null
@@ -49,7 +51,9 @@ class ComicInfoHandler @Inject constructor() {
                         .filter { it.name != "ComicInfo.xml" }
                         .forEach { entry ->
                             zipOut.putNextEntry(ZipEntry(entry.name))
-                            zipIn.getInputStream(entry).copyTo(zipOut)
+                            zipIn.getInputStream(entry).use { inputStream ->
+                                inputStream.copyTo(zipOut)
+                            }
                             zipOut.closeEntry()
                         }
                 }

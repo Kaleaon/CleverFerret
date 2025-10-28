@@ -120,13 +120,14 @@ class EReaderViewModel @Inject constructor() : ViewModel() {
             
             chapters = contentFiles.mapNotNull { entry ->
                 try {
-                    val inputStream = zipFile.getInputStream(entry)
-                    val content = inputStream.bufferedReader().use { it.readText() }
-                    // Strip HTML tags
-                    content.replace(Regex("<[^>]*>"), "")
-                        .replace(Regex("&nbsp;"), " ")
-                        .replace(Regex("&[a-z]+;"), "")
-                        .trim()
+                    zipFile.getInputStream(entry).use { inputStream ->
+                        val content = inputStream.bufferedReader().use { it.readText() }
+                        // Strip HTML tags
+                        content.replace(Regex("<[^>]*>"), "")
+                            .replace(Regex("&nbsp;"), " ")
+                            .replace(Regex("&[a-z]+;"), "")
+                            .trim()
+                    }
                 } catch (e: Exception) {
                     null
                 }
