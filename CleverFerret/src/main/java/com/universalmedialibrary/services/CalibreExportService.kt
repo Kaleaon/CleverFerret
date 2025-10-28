@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.*
+import kotlinx.coroutines.flow.first
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,13 +38,13 @@ class CalibreExportService @Inject constructor(
             val dbPath = File(exportDir, "metadata.db").absolutePath
             createCalibreDatabase(dbPath)
 
-            val items = if (libraryId != null) {
-                mediaItemDao.getMediaItemsByLibrary(libraryId)
+            val itemsList = if (libraryId != null) {
+                mediaItemDao.getMediaItemsByLibrary(libraryId).first()
             } else {
                 mediaItemDao.getAllMediaItems()
             }
 
-            val bookItems = items.filter { it.mediaType == "BOOK" }
+            val bookItems = itemsList.filter { it.mediaType == "BOOK" }
             
             if (bookItems.isEmpty()) {
                 return ExportResult(false, "No books found to export")
@@ -209,7 +210,7 @@ class CalibreExportService @Inject constructor(
         val sourceFile = File(item.filePath)
         if (!sourceFile.exists()) return
 
-        val authorName = authors.firstOrNull()?.name ?: "Unknown"
+        val authorName = authors.firstOrNull() ?: "Unknown"
         val bookTitle = metadata?.title ?: item.fileName
         val sanitizedAuthor = sanitizePath(authorName)
         val sanitizedTitle = sanitizePath(bookTitle)
