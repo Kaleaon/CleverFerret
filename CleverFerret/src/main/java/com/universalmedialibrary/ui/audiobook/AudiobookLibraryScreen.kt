@@ -64,7 +64,7 @@ fun AudiobookLibraryScreen(
                 },
                 actions = {
                     IconButton(onClick = { showFilterMenu = true }) {
-                        Icon(PhosphorIcons.Funnel, "Filter")
+                        Icon(Icons.Default.FilterList, "Filter")
                     }
                     
                     DropdownMenu(
@@ -96,7 +96,7 @@ fun AudiobookLibraryScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onImportClick,
-                icon = { Icon(PhosphorIcons.FilePlus, "Import") },
+                icon = { Icon(Icons.Default.Add, "Import") },
                 text = { Text("Import") }
             )
         }
@@ -171,7 +171,7 @@ private fun EmptyState(
             Spacer(Modifier.height(24.dp))
             
             Button(onClick = onImportClick) {
-                Icon(PhosphorIcons.FilePlus, "Import")
+                Icon(Icons.Default.Add, "Import")
                 Spacer(Modifier.width(8.dp))
                 Text("Import Audiobook")
             }

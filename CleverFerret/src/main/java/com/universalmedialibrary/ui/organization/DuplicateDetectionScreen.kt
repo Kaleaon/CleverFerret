@@ -51,7 +51,7 @@ fun DuplicateDetectionScreen(
                 },
                 actions = {
                     IconButton(onClick = { showThresholdDialog = true }) {
-                        Icon(PhosphorIcons.SlidersHorizontal, "Adjust Threshold")
+                        Icon(Icons.Default.Settings, "Adjust Threshold")
                     }
                 }
             )
@@ -121,7 +121,7 @@ private fun EmptyState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            PhosphorIcons.CopySimple,
+            Icons.Default.ContentCopy,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant

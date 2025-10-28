@@ -142,7 +142,7 @@ fun EnhancedMusicPlayerScreen(
                                     showTrackDetailsDialog = true
                                     showMoreMenu = false
                                 },
-                                leadingIcon = { Icon(Icons.Default.InfoOutline, null) }
+                                leadingIcon = { Icon(Icons.Default.Info, null) }
                             )
                             DropdownMenuItem(
                                 text = { Text("Add to Playlist") },
