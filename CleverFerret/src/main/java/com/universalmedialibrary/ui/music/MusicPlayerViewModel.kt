@@ -419,7 +419,7 @@ class MusicPlayerViewModel @Inject constructor(
                 val nextPosition = playlistDao.getMaxPosition(playlistId) + 1
                 val playlistItem = com.universalmedialibrary.data.local.entity.PlaylistItem(
                     playlistId = playlistId,
-                    mediaItemId = track.id,
+                    mediaItemId = track.id.toLongOrNull() ?: 0L, // Convert String ID to Long
                     position = nextPosition
                 )
                 playlistDao.insertPlaylistItem(playlistItem)
@@ -446,7 +446,7 @@ class MusicPlayerViewModel @Inject constructor(
                 // Add current track to new playlist
                 val playlistItem = com.universalmedialibrary.data.local.entity.PlaylistItem(
                     playlistId = playlistId,
-                    mediaItemId = track.id,
+                    mediaItemId = track.id.toLongOrNull() ?: 0L, // Convert String ID to Long
                     position = 0
                 )
                 playlistDao.insertPlaylistItem(playlistItem)

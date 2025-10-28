@@ -3,6 +3,8 @@ package com.universalmedialibrary.ui.music
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Timer
@@ -140,7 +142,7 @@ fun EnhancedMusicPlayerScreen(
                                     showTrackDetailsDialog = true
                                     showMoreMenu = false
                                 },
-                                leadingIcon = { Icon(Icons.Default.Info, null) }
+                                leadingIcon = { Icon(Icons.Default.InfoOutline, null) }
                             )
                             DropdownMenuItem(
                                 text = { Text("Add to Playlist") },
@@ -210,18 +212,39 @@ fun EnhancedMusicPlayerScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Progress Section (using existing component)
-                ProgressSection(
-                    currentPosition = currentPosition,
-                    duration = currentTrack?.duration ?: 0L,
-                    onSeek = { position ->
-                        currentPosition = position
-                        viewModel.seekTo(position)
-                    },
-                    onDragStart = { isDragging = true },
-                    onDragEnd = { isDragging = false },
-                    modifier = Modifier.padding(horizontal = 24.dp)
-                )
+                // Progress Section (inline implementation)
+                Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                    val progress = if ((currentTrack?.duration ?: 0L) > 0) 
+                        currentPosition.toFloat() / (currentTrack?.duration ?: 1L).toFloat() 
+                    else 0f
+
+                    Slider(
+                        value = progress,
+                        onValueChange = { newProgress ->
+                            val newPosition = (newProgress * (currentTrack?.duration ?: 0L)).toLong()
+                            currentPosition = newPosition
+                            viewModel.seekTo(newPosition)
+                        },
+                        onValueChangeFinished = { isDragging = false },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = formatTime(currentPosition),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = formatTime(currentTrack?.duration ?: 0L),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -366,4 +389,14 @@ fun EnhancedMusicPlayerScreen(
             onDismiss = { showTrackDetailsDialog = false }
         )
     }
+}
+
+/**
+ * Format time in milliseconds to MM:SS format
+ */
+private fun formatTime(timeMs: Long): String {
+    val totalSeconds = timeMs / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%d:%02d", minutes, seconds)
 }
