@@ -278,6 +278,36 @@ private fun getThemePreviewColors(theme: CleverFerretTheme): List<Color> {
             Color(0xFFE5E4E2),
             Color(0xFFF5F4F2)
         )
+        CleverFerretTheme.COPPER_BRONZE -> listOf(
+            Color(0xFF1A1510),
+            Color(0xFFB87333),
+            Color(0xFFCD7F32)
+        )
+        CleverFerretTheme.AMBER_GOLD -> listOf(
+            Color(0xFF1F1A0A),
+            Color(0xFFFFBF00),
+            Color(0xFFD4AF37)
+        )
+        CleverFerretTheme.ROSE_BRASS -> listOf(
+            Color(0xFF2D1820),
+            Color(0xFFB76E79),
+            Color(0xFFB5A642)
+        )
+        CleverFerretTheme.STEEL_TITANIUM -> listOf(
+            Color(0xFF1A1C1F),
+            Color(0xFF8F9CA8),
+            Color(0xFFC0C0C0)
+        )
+        CleverFerretTheme.PLATINUM_SILVER -> listOf(
+            Color(0xFF1A1C1E),
+            Color(0xFFE5E4E2),
+            Color(0xFFC0C0C0)
+        )
+        CleverFerretTheme.COBALT_CHROME -> listOf(
+            Color(0xFF0A1824),
+            Color(0xFF0047AB),
+            Color(0xFFB0BDC9)
+        )
         CleverFerretTheme.ANCIENT_BRONZE -> listOf(
             Color(0xFF1A1D23),
             Color(0xFFCD7F32),

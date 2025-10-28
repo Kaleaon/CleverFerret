@@ -145,10 +145,11 @@ fun MetabodsTagBrowserScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Result count
-                    if (uiState.searchResult != null) {
+                    val searchResult = uiState.searchResult
+                    if (searchResult != null) {
                         item {
                             Text(
-                                text = "Found ${uiState.searchResult.totalCount} stories",
+                                text = "Found ${searchResult.totalCount} stories",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Medium
                             )
@@ -156,7 +157,7 @@ fun MetabodsTagBrowserScreen(
                     }
 
                     // Stories
-                    items(uiState.searchResult?.stories ?: emptyList()) { story ->
+                    items(searchResult?.stories ?: emptyList()) { story ->
                         StoryResultCard(
                             story = story,
                             onStoryClick = { viewModel.downloadStory(story) },
@@ -165,7 +166,7 @@ fun MetabodsTagBrowserScreen(
                     }
 
                     // Load more button
-                    if (uiState.searchResult?.hasMore == true) {
+                    if (searchResult?.hasMore == true) {
                         item {
                             Button(
                                 onClick = { viewModel.loadMore() },
@@ -178,10 +179,11 @@ fun MetabodsTagBrowserScreen(
                     }
 
                     // Error display
-                    if (uiState.error != null) {
+                    val error = uiState.error
+                    if (error != null) {
                         item {
                             ErrorCard(
-                                error = uiState.error,
+                                error = error,
                                 onDismiss = { viewModel.clearError() }
                             )
                         }

@@ -163,7 +163,8 @@ fun LibraryManagementScreen(
     }
 
     // Show loading or error states
-    when (uiState) {
+    val currentState = uiState
+    when (currentState) {
         is LibraryManagementUiState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -173,9 +174,9 @@ fun LibraryManagementScreen(
             }
         }
         is LibraryManagementUiState.Error -> {
-            LaunchedEffect(uiState) {
+            LaunchedEffect(currentState) {
                 snackbarHostState.showSnackbar(
-                    message = uiState.message,
+                    message = currentState.message,
                     duration = SnackbarDuration.Long
                 )
             }
