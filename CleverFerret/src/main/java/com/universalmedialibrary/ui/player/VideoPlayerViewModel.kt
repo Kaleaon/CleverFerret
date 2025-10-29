@@ -30,6 +30,7 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
+                Player.STATE_IDLE -> { /* No action needed */ }
                 Player.STATE_READY -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,

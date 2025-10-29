@@ -54,6 +54,7 @@ class AudioPlaybackManager @Inject constructor(
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         when (playbackState) {
+                            Player.STATE_IDLE -> { /* No action needed */ }
                             Player.STATE_READY -> updateState(isLoading = false, duration = duration)
                             Player.STATE_BUFFERING -> updateState(isLoading = true)
                             Player.STATE_ENDED -> updateState(isPlaying = false)
