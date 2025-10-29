@@ -121,6 +121,7 @@ fun LibraryManagementScreen(
             } else {
                 LibraryListContent(
                     libraries = libraries,
+                    libraryItemCounts = libraryItemCounts,
                     onLibraryClick = { library ->
                         onNavigateToLibrary(library.libraryId)
                     }
@@ -325,6 +326,7 @@ private fun WelcomeScreen(
 @Composable
 private fun LibraryListContent(
     libraries: List<Library>,
+    libraryItemCounts: Map<Long, Int>,
     onLibraryClick: (Library) -> Unit
 ) {
     LazyColumn(
@@ -344,6 +346,7 @@ private fun LibraryListContent(
         items(libraries) { library ->
             LibraryCard(
                 library = library,
+                itemCount = libraryItemCounts[library.libraryId] ?: 0,
                 onClick = { onLibraryClick(library) }
             )
         }
@@ -353,6 +356,7 @@ private fun LibraryListContent(
 @Composable
 private fun LibraryCard(
     library: Library,
+    itemCount: Int,
     onClick: () -> Unit
 ) {
     val gradientColors = getLibraryGradientColors(library.type)
@@ -425,9 +429,9 @@ private fun LibraryCard(
                         color = Color.White.copy(alpha = 0.2f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        val itemCount = libraryItemCounts[library.libraryId] ?: 0
+                        val itemCountText = itemCount
                         Text(
-                            text = "$itemCount ${if (itemCount == 1) "item" else "items"}",
+                            text = "$itemCountText ${if (itemCountText == 1) "item" else "items"}",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

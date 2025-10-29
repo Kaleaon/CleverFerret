@@ -375,8 +375,8 @@ fun EnhancedMusicPlayerScreen(
                 playlist?.let { viewModel.addToPlaylist(it.playlistId) }
                 showAddToPlaylistDialog = false
             },
-            onCreateNew = { name ->
-                viewModel.createPlaylistWithCurrentTrack(name)
+            onCreateNew = {
+                // TODO: Show dialog to input playlist name, then call viewModel.createPlaylistWithCurrentTrack(name)
                 showAddToPlaylistDialog = false
             },
             onDismiss = { showAddToPlaylistDialog = false }

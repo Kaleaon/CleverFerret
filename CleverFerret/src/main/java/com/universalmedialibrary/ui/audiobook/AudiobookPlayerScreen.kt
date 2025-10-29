@@ -116,7 +116,7 @@ fun AudiobookPlayerScreen(
                     AudiobookArtSection(
                         title = audiobookState.title,
                         author = audiobookState.author,
-                        currentChapter = audiobookState.currentChapter,
+                        currentChapter = audiobookState.chapters.getOrNull(audiobookState.currentChapter),
                         modifier = Modifier.weight(1f)
                     )
 
@@ -134,7 +134,7 @@ fun AudiobookPlayerScreen(
                     AudiobookProgressSection(
                         currentPosition = audiobookState.currentPositionMs,
                         totalDuration = audiobookState.totalDuration,
-                        currentChapter = audiobookState.currentChapter,
+                        currentChapter = audiobookState.chapters.getOrNull(audiobookState.currentChapter),
                         onSeek = viewModel::seekTo
                     )
 
@@ -622,12 +622,12 @@ fun BookmarksBottomSheet(
     // Convert AudiobookBookmark to Bookmark entity for the dialog
     val bookmarkEntities = bookmarks.map { ab ->
         com.universalmedialibrary.data.local.entity.Bookmark(
-            bookmarkId = ab.id,
+            bookmarkId = ab.id.toLongOrNull() ?: 0L,
             itemId = 0, // Not needed for display
             title = ab.note ?: "Bookmark at ${formatTimestamp(ab.position)}",
             description = formatTimestamp(ab.position),
             position = ab.position,
-            dateCreated = ab.timestamp
+            dateCreated = ab.createdAt
         )
     }
     
@@ -635,11 +635,11 @@ fun BookmarksBottomSheet(
         bookmarks = bookmarkEntities,
         onBookmarkSelect = { bookmark ->
             // Find the corresponding AudiobookBookmark
-            bookmarks.find { it.id == bookmark.bookmarkId }?.let { onBookmarkSelected(it) }
+            bookmarks.find { it.id.toLongOrNull() == bookmark.bookmarkId }?.let { onBookmarkSelected(it) }
         },
         onBookmarkDelete = { bookmark ->
             // Find the corresponding AudiobookBookmark
-            bookmarks.find { it.id == bookmark.bookmarkId }?.let { onBookmarkDelete(it) }
+            bookmarks.find { it.id.toLongOrNull() == bookmark.bookmarkId }?.let { onBookmarkDelete(it) }
         },
         onDismiss = onDismiss
     )

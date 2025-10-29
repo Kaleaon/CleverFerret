@@ -109,7 +109,7 @@ fun FanfictionLibraryScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToDownload,
-                icon = { Icon(PhosphorIcons.Download, "Download") },
+                icon = { Icon(Icons.Filled.Download, "Download") },
                 text = { Text("Download") }
             )
         }
@@ -232,7 +232,7 @@ private fun EmptyState(
             Spacer(Modifier.height(24.dp))
             
             Button(onClick = onDownloadClick) {
-                Icon(PhosphorIcons.Download, "Download")
+                Icon(Icons.Filled.Download, "Download")
                 Spacer(Modifier.width(8.dp))
                 Text("Download Story")
             }

@@ -2,9 +2,11 @@ package com.universalmedialibrary.ui.organization
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
-import com.universalmedialibrary.services.organization.DuplicateDetectionService
-import com.universalmedialibrary.services.organization.DuplicateGroup
+import com.universalmedialibrary.services.duplicates.DuplicateDetectionService
+import com.universalmedialibrary.services.duplicates.DuplicateScanResult
+import com.universalmedialibrary.services.duplicates.DuplicateGroup
 import com.universalmedialibrary.services.organization.SeriesManagementService
 import com.universalmedialibrary.services.organization.SeriesSuggestion
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OrganizationViewModel @Inject constructor(
     private val mediaItemDao: MediaItemDao,
+    private val libraryDao: LibraryDao,
     private val duplicateDetectionService: DuplicateDetectionService,
     private val seriesManagementService: SeriesManagementService
 ) : ViewModel() {
@@ -36,18 +39,33 @@ class OrganizationViewModel @Inject constructor(
             try {
                 _isScanning.value = true
                 
-                // Get all media items
-                val items = mediaItemDao.getAllMediaItems().first()
+                // Use the first library for now (should be parameterized)
+                // TODO: Allow user to select library
+                val libraries = libraryDao.getAllLibraries().first()
+                if (libraries.isEmpty()) {
+                    _duplicateGroups.value = emptyList()
+                    return@launch
+                }
                 
-                // Find duplicates
-                val result = duplicateDetectionService.findDuplicates(
-                    items = items,
-                    threshold = _duplicateThreshold.value
-                )
-                
-                _duplicateGroups.value = result
+                // Collect duplicate scan results
+                duplicateDetectionService.scanLibraryForDuplicates(libraries.first().libraryId)
+                    .collect { result ->
+                        when (result) {
+                            is DuplicateScanResult.Complete -> {
+                                _duplicateGroups.value = result.groups
+                            }
+                            is DuplicateScanResult.Scanning -> {
+                                // Could update progress UI here
+                            }
+                            is DuplicateScanResult.Error -> {
+                                // Handle error
+                                _duplicateGroups.value = emptyList()
+                            }
+                        }
+                    }
             } catch (e: Exception) {
                 // Handle error
+                _duplicateGroups.value = emptyList()
             } finally {
                 _isScanning.value = false
             }
@@ -60,7 +78,7 @@ class OrganizationViewModel @Inject constructor(
                 _isScanning.value = true
                 
                 // Get all media items
-                val items = mediaItemDao.getAllMediaItems().first()
+                val items = mediaItemDao.getAllMediaItems()
                 
                 // Find series
                 val suggestions = seriesManagementService.autoDetectSeries(items)
@@ -77,10 +95,13 @@ class OrganizationViewModel @Inject constructor(
     fun deleteMediaItem(itemId: String) {
         viewModelScope.launch {
             try {
-                mediaItemDao.deleteMediaItem(itemId.toLong())
-                
-                // Refresh duplicates
-                scanForDuplicates()
+                val item = mediaItemDao.getMediaItemById(itemId.toLong())
+                if (item != null) {
+                    mediaItemDao.deleteMediaItem(item)
+                    
+                    // Refresh duplicates
+                    scanForDuplicates()
+                }
             } catch (e: Exception) {
                 // Handle error
             }
@@ -92,9 +113,9 @@ class OrganizationViewModel @Inject constructor(
             try {
                 val group = _duplicateGroups.value.getOrNull(groupIndex) ?: return@launch
                 
-                group.matches.forEach { match ->
-                    if (match.item.itemId.toString() != keepItemId) {
-                        mediaItemDao.deleteMediaItem(match.item.itemId)
+                group.items.forEach { item ->
+                    if (item.itemId.toString() != keepItemId) {
+                        mediaItemDao.deleteMediaItem(item)
                     }
                 }
                 
