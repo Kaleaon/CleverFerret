@@ -44,5 +44,25 @@ pwa-demo/yarn-error.log*
 build_*.log
 compile_*.log
 
+# Development artifacts and temporary files
+*.pdf
+*.csv
+*_SUMMARY.txt
+*SUMMARY*.txt
+*_MANIFEST.txt
+*DEPLOYMENT*.txt
+all_todos.txt
+conflicts.txt
+merge_log.txt
+
+# Temporary development scripts (keep release scripts)
+fix_*.sh
+check_*.sh
+simple_build.sh
+build_enhanced*.sh
+build-test-verification.sh
+build-validation.sh
+branch_cleanup.sh
+
 # Cursor temp files
 .cursor/temp/

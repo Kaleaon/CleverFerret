@@ -241,4 +241,43 @@ object DatabaseModule {
         return database.audiobookDao()
     }
 
+    // Story Management DAOs
+    @Provides
+    fun provideDownloadedStoryDao(database: AppDatabase): DownloadedStoryDao {
+        return database.downloadedStoryDao()
+    }
+
+    @Provides
+    fun provideStoryUpdateDao(database: AppDatabase): StoryUpdateDao {
+        return database.storyUpdateDao()
+    }
+
+    // Playlist DAO
+    @Provides
+    fun providePlaylistDao(database: AppDatabase): PlaylistDao {
+        return database.playlistDao()
+    }
+
+    // Playback DAOs
+    @Provides
+    fun providePlaybackQueueDao(database: AppDatabase): PlaybackQueueDao {
+        return database.playbackQueueDao()
+    }
+
+    @Provides
+    fun provideQueueItemDao(database: AppDatabase): QueueItemDao {
+        return database.queueItemDao()
+    }
+
+    @Provides
+    fun providePlaybackSessionDao(database: AppDatabase): PlaybackSessionDao {
+        return database.playbackSessionDao()
+    }
+
+    // Unified Tag DAO
+    @Provides
+    fun provideUnifiedTagDao(database: AppDatabase): UnifiedTagDao {
+        return database.unifiedTagDao()
+    }
+
 }
