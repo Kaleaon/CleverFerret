@@ -125,8 +125,7 @@ class RedditStoryManager @Inject constructor(
             val metadata = MetadataCommon(
                 itemId = mediaItemId,
                 title = config.seriesName,
-                author = config.author,
-                summary = "Reddit series from r/${config.subreddit} - ${series.chapters.size} chapters"
+                summary = "Reddit series from r/${config.subreddit} by ${config.author} - ${series.chapters.size} chapters"
             )
             mediaRepository.saveCommonMetadata(metadata)
 
@@ -401,14 +400,12 @@ class RedditStoryManager @Inject constructor(
             libraryId = libraryId,
             filePath = filePath,
             fileName = file.name,
+            fileExtension = file.extension,
             fileSize = file.length(),
             mediaType = "BOOK",
             mimeType = "application/epub+zip",
             dateAdded = System.currentTimeMillis(),
             lastModified = System.currentTimeMillis(),
-            title = title,
-            artist = author,
-            duration = 0L,
             isAvailable = true
         )
     }
@@ -461,9 +458,7 @@ class RedditStoryManager @Inject constructor(
             path = libraryPath,
             type = "BOOK",
             isActive = true,
-            dateAdded = System.currentTimeMillis(),
-            lastScanned = System.currentTimeMillis(),
-            itemCount = 0
+            lastScanned = System.currentTimeMillis()
         )
 
         val libraryId = libraryRepository.createLibrary(library)

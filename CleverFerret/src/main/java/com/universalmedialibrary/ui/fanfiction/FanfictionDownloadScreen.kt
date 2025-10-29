@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -106,7 +107,7 @@ fun FanfictionDownloadScreen(
                 maxLines = 3,
                 enabled = downloadState !is DownloadState.Downloading,
                 leadingIcon = {
-                    Icon(Icons.Default.Link, "URL") // Replace PhosphorIcons.Link
+                    Icon(Icons.Default.Link, "URL")
                 }
             )
             

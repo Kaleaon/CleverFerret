@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chapter
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,7 +36,7 @@ fun ChapterListDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                Icons.Default.Chapter,
+                Icons.Default.List,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -73,7 +73,7 @@ fun ChapterListDialog(
                                 )
                             } else {
                                 Icon(
-                                    Icons.Default.Chapter,
+                                    Icons.Default.List,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

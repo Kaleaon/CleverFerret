@@ -116,7 +116,7 @@ fun BookmarksDialog(
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
-                                        text = bookmark.title,
+                                        text = bookmark.title ?: "Untitled Bookmark",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Medium
                                     )

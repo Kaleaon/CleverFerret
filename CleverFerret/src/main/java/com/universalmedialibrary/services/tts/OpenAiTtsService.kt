@@ -126,7 +126,7 @@ class OpenAiTtsService @Inject constructor(
             .post(requestBody)
             .build()
 
-        return httpClient.newCall(request).execute().use { response ->
+        httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 val errorBody = response.body?.string() ?: "Unknown error"
                 throw Exception("OpenAI API error (${response.code}): $errorBody")

@@ -17,10 +17,24 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Hilt module providing service-layer dependencies.
+ * 
+ * This module provides singleton instances of various services including
+ * storage access, API key management, fanfiction conversion, and web fiction downloading.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object ServicesModule {
 
+    /**
+     * Provides a singleton StorageAccessService for managing media library storage.
+     * 
+     * @param libraryDao DAO for accessing library data
+     * @param mediaItemDao DAO for accessing media items
+     * @param metadataDao DAO for accessing metadata
+     * @return Singleton StorageAccessService instance
+     */
     @Provides
     @Singleton
     fun provideStorageAccessService(
@@ -29,6 +43,12 @@ object ServicesModule {
         metadataDao: MetadataDao
     ): StorageAccessService = StorageAccessService(libraryDao, mediaItemDao, metadataDao)
 
+    /**
+     * Provides a singleton APIKeyRepository for managing third-party API keys.
+     * 
+     * @param apiKeyDao DAO for accessing API key data
+     * @return Singleton APIKeyRepository instance
+     */
     @Provides
     @Singleton
     fun provideAPIKeyRepository(apiKeyDao: APIKeyDao): APIKeyRepository = APIKeyRepository(apiKeyDao)
@@ -36,8 +56,8 @@ object ServicesModule {
     /**
      * Creates a singleton StoryUpdateManager using the provided StoryRepository.
      *
-     * @param storyRepository Repository used by the manager to fetch, update, and persist stories.
-     * @return The configured `StoryUpdateManager` instance.
+     * @param storyRepository Repository used by the manager to fetch, update, and persist stories
+     * @return The configured StoryUpdateManager instance
      */
     @Provides
     @Singleton
@@ -45,15 +65,13 @@ object ServicesModule {
         storyRepository: StoryRepository
     ): StoryUpdateManager = StoryUpdateManager(storyRepository)
 
-    // Note: PodcastService uses @Inject constructor instead of @Provides
     /**
      * Provides a singleton FanfictionToEpubConverter configured with the application context and a StoryUpdateManager.
      *
-     * @param context The application Context used for file and resource access.
-     * @param updateManager Manager responsible for fetching or updating story content used during conversion.
-     * @return A FanfictionToEpubConverter instance that converts fanfiction stories into EPUB format.
+     * @param context The application Context used for file and resource access
+     * @param updateManager Manager responsible for fetching or updating story content used during conversion
+     * @return A FanfictionToEpubConverter instance that converts fanfiction stories into EPUB format
      */
-
     @Provides
     @Singleton
     fun provideFanfictionToEpubConverter(
@@ -61,6 +79,11 @@ object ServicesModule {
         updateManager: StoryUpdateManager
     ): FanfictionToEpubConverter = FanfictionToEpubConverter(context, updateManager)
 
+    /**
+     * Provides a singleton RedditFanficDownloader for downloading fanfiction from Reddit.
+     * 
+     * @return Singleton RedditFanficDownloader instance
+     */
     @Provides
     @Singleton
     fun provideRedditFanficDownloader(): RedditFanficDownloader = RedditFanficDownloader()

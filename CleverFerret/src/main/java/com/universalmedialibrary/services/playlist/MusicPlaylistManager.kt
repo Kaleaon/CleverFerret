@@ -257,7 +257,7 @@ class MusicPlaylistManager @Inject constructor(
             
             // Calculate total duration from track metadata
             val totalDuration = tracks.sumOf { track ->
-                val metadata = metadataDao.getMetadataMusicTrackByItemId(track.itemId)
+                val metadata = metadataDao.getMetadataMusicTrackByItemId(track.mediaItem.itemId)
                 metadata?.duration ?: 0L
             }
             

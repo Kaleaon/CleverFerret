@@ -92,14 +92,14 @@ class MusicPlayerViewModel @Inject constructor(
      * Skip to previous track
      */
     fun skipToPrevious() {
-        musicPlayerService.skipToPrevious()
+        musicPlayerService.skipPrevious()
     }
 
     /**
      * Skip to next track
      */
     fun skipToNext() {
-        musicPlayerService.skipToNext()
+        musicPlayerService.skipNext()
     }
 
     /**

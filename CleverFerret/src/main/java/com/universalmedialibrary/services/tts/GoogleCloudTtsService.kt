@@ -116,7 +116,7 @@ class GoogleCloudTtsService @Inject constructor(
             .post(requestBody)
             .build()
 
-        return httpClient.newCall(request).execute().use { response ->
+        httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 val errorBody = response.body?.string() ?: "Unknown error"
                 throw Exception("Google Cloud TTS API error (${response.code}): $errorBody")

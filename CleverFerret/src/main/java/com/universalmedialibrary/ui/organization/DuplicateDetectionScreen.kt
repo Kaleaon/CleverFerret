@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.MediaItem
-import com.universalmedialibrary.services.organization.DuplicateGroup
+import com.universalmedialibrary.services.duplicates.DuplicateGroup
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -205,7 +205,7 @@ private fun DuplicateGroupCard(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        "${group.count} copies • ${(group.averageSimilarity * 100).toInt()}% similar",
+                        "${group.items.size} copies • ${formatFileSize(group.wastedSpace)} wasted",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -222,16 +222,16 @@ private fun DuplicateGroupCard(
             if (expanded) {
                 Spacer(Modifier.height(16.dp))
                 
-                group.matches.forEach { match ->
+                group.items.forEachIndexed { index, item ->
                     DuplicateBookItem(
-                        item = match.item,
-                        similarity = match.similarity,
-                        reasons = match.reasons,
-                        onDelete = { onDeleteBook(match.item.itemId.toString()) },
-                        onKeep = { onKeepBook(match.item.itemId.toString()) }
+                        item = item,
+                        similarity = 1.0f, // Simplified - no similarity score in new model
+                        reasons = listOf("Same file hash"), // Simplified
+                        onDelete = { onDeleteBook(item.itemId.toString()) },
+                        onKeep = { onKeepBook(item.itemId.toString()) }
                     )
                     
-                    if (match != group.matches.last()) {
+                    if (index != group.items.lastIndex) {
                         Spacer(Modifier.height(12.dp))
                         HorizontalDivider()
                         Spacer(Modifier.height(12.dp))
@@ -261,9 +261,9 @@ private fun DuplicateBookItem(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
-            if (item.coverImagePath != null) {
+            if (item.thumbnailPath != null) {
                 AsyncImage(
-                    model = item.coverImagePath,
+                    model = item.thumbnailPath,
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxSize()
                 )
@@ -385,4 +385,17 @@ private fun ThresholdDialog(
             }
         }
     )
+}
+
+/**
+ * Format file size in bytes to human-readable format
+ */
+private fun formatFileSize(bytes: Long): String {
+    if (bytes < 1024) return "$bytes B"
+    val kb = bytes / 1024.0
+    if (kb < 1024) return String.format("%.1f KB", kb)
+    val mb = kb / 1024.0
+    if (mb < 1024) return String.format("%.1f MB", mb)
+    val gb = mb / 1024.0
+    return String.format("%.1f GB", gb)
 }

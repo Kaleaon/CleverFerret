@@ -265,7 +265,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         if (index < 0 || index >= currentQueue.size) return
         
         currentQueueIndex = index
-        playTrackAtIndex(index)
+        playCurrentTrack()
     }
 
     /**

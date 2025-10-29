@@ -386,6 +386,14 @@ class UniversalTagService @Inject constructor(
     }
 
     /**
+     * Browse ScribbleHub stories by tags
+     */
+    private suspend fun browseScribbleHubByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+        // TODO: Implement ScribbleHub tag browsing
+        return Result.failure(Exception("ScribbleHub tag browsing not yet implemented"))
+    }
+
+    /**
      * Get site capabilities
      */
     fun getSiteCapabilities(siteType: WebFictionSiteType): SiteCapabilities {

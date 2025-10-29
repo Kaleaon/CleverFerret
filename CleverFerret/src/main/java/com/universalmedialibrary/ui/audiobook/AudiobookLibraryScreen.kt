@@ -142,7 +142,7 @@ private fun EmptyState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            PhosphorIcons.Headphones,
+            Icons.Filled.Headset,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -217,7 +217,7 @@ private fun AudiobookCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            PhosphorIcons.Headphones,
+                            Icons.Filled.Headset,
                             contentDescription = null,
                             modifier = Modifier.size(40.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant

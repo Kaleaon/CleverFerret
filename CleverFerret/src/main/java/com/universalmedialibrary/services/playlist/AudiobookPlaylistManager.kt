@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.PlaylistItem
+import com.universalmedialibrary.data.local.entity.Bookmark
 import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -498,14 +499,4 @@ data class PlaylistAudiobook(
     val progress: Float,
     val isFinished: Boolean,
     val bookmarks: List<Bookmark>
-)
-
-/**
- * Data class for audiobook bookmarks
- */
-data class Bookmark(
-    val bookmarkId: Long,
-    val timestamp: Long,
-    val note: String?,
-    val createdAt: Long
 )
