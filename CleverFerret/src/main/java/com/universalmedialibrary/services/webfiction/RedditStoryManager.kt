@@ -146,6 +146,7 @@ class RedditStoryManager @Inject constructor(
                     previousChapters = 0,
                     newChapters = series.chapters.size,
                     updateDescription = "Initial download: ${series.chapters.size} chapters",
+                    timestamp = System.currentTimeMillis(),
                     wasSuccessful = true
                 )
             )
@@ -262,6 +263,7 @@ class RedditStoryManager @Inject constructor(
                     previousChapters = previousChapters,
                     newChapters = currentChapters,
                     updateDescription = "Added $newChapterCount new chapters",
+                    timestamp = System.currentTimeMillis(),
                     wasSuccessful = true
                 )
             )
