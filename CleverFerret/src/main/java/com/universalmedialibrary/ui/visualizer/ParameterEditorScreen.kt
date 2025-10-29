@@ -396,7 +396,7 @@ private fun ParameterSlider(
                 )
             }
             Text(
-                text = String.format("%.2f", value),
+                text = String.format(java.util.Locale.US, "%.2f", value),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary
             )
