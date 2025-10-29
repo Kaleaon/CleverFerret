@@ -64,24 +64,26 @@ class DuplicateDetectionService @Inject constructor() {
         
         // File path similarity (same filename)
         maxScore += 20f
-        val file1 = item1.path.substringAfterLast("/")
-        val file2 = item2.path.substringAfterLast("/")
+        val file1 = item1.filePath.substringAfterLast("/")
+        val file2 = item2.filePath.substringAfterLast("/")
         score += titleSimilarity(file1, file2) * 20f
         
         // File size similarity
-        if (item1.size > 0 && item2.size > 0) {
+        if (item1.fileSize > 0 && item2.fileSize > 0) {
             maxScore += 20f
-            val sizeRatio = minOf(item1.size, item2.size).toFloat() / 
-                           maxOf(item1.size, item2.size).toFloat()
+            val sizeRatio = minOf(item1.fileSize, item2.fileSize).toFloat() / 
+                           maxOf(item1.fileSize, item2.fileSize).toFloat()
             if (sizeRatio > 0.95f) score += 20f
             else if (sizeRatio > 0.85f) score += 10f
         }
         
         // Duration similarity (for audio/video)
-        if (item1.duration > 0 && item2.duration > 0) {
+        val duration1 = item1.duration ?: 0L
+        val duration2 = item2.duration ?: 0L
+        if (duration1 > 0 && duration2 > 0) {
             maxScore += 10f
-            val durationRatio = minOf(item1.duration, item2.duration).toFloat() / 
-                               maxOf(item1.duration, item2.duration).toFloat()
+            val durationRatio = minOf(duration1, duration2).toFloat() / 
+                               maxOf(duration1, duration2).toFloat()
             if (durationRatio > 0.95f) score += 10f
         }
         
@@ -98,23 +100,25 @@ class DuplicateDetectionService @Inject constructor() {
             reasons.add("Very similar title")
         }
         
-        val file1 = item1.path.substringAfterLast("/")
-        val file2 = item2.path.substringAfterLast("/")
+        val file1 = item1.filePath.substringAfterLast("/")
+        val file2 = item2.filePath.substringAfterLast("/")
         if (titleSimilarity(file1, file2) > 0.9f) {
             reasons.add("Same filename")
         }
         
-        if (item1.size > 0 && item2.size > 0) {
-            val sizeRatio = minOf(item1.size, item2.size).toFloat() / 
-                           maxOf(item1.size, item2.size).toFloat()
+        if (item1.fileSize > 0 && item2.fileSize > 0) {
+            val sizeRatio = minOf(item1.fileSize, item2.fileSize).toFloat() / 
+                           maxOf(item1.fileSize, item2.fileSize).toFloat()
             if (sizeRatio > 0.95f) {
                 reasons.add("Identical file size")
             }
         }
         
-        if (item1.duration > 0 && item2.duration > 0) {
-            val durationRatio = minOf(item1.duration, item2.duration).toFloat() / 
-                               maxOf(item1.duration, item2.duration).toFloat()
+        val duration1 = item1.duration ?: 0L
+        val duration2 = item2.duration ?: 0L
+        if (duration1 > 0 && duration2 > 0) {
+            val durationRatio = minOf(duration1, duration2).toFloat() / 
+                               maxOf(duration1, duration2).toFloat()
             if (durationRatio > 0.95f) {
                 reasons.add("Same duration")
             }
