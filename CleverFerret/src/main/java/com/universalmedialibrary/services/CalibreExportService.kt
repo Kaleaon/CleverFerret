@@ -244,7 +244,7 @@ class CalibreExportService @Inject constructor(
 
         // Insert authors
         for (author in authors) {
-            val authorId = getOrCreateAuthor(db, author.name, author.sortName)
+            val authorId = getOrCreateAuthor(db, author, author) // author name is already String
             db.insert("books_authors_link", null, android.content.ContentValues().apply {
                 put("book", bookId)
                 put("author", authorId)
@@ -262,7 +262,7 @@ class CalibreExportService @Inject constructor(
 
         // Insert tags/genres
         for (genre in genres) {
-            val tagId = getOrCreateTag(db, genre.name)
+            val tagId = getOrCreateTag(db, genre) // genre name is already String
             db.insert("books_tags_link", null, android.content.ContentValues().apply {
                 put("book", bookId)
                 put("tag", tagId)

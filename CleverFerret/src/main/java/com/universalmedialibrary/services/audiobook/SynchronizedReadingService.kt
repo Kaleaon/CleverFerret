@@ -124,9 +124,9 @@ class SynchronizedReadingService @Inject constructor(
 
         return HighlightedText(
             text = segment.text,
-            startPosition = segment.textStartPosition,
-            endPosition = segment.textEndPosition,
-            chapterIndex = chapterIndex,
+            startOffset = segment.textStartPosition,
+            endOffset = segment.textEndPosition,
+            timestamp = audioPositionMs,
             confidence = segment.confidence
         )
     }

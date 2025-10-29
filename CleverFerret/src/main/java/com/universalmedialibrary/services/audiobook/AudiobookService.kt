@@ -277,7 +277,7 @@ class AudiobookService @Inject constructor(
                 
                 // Update in-memory state with new bookmark
                 val audiobookBookmark = AudiobookBookmark(
-                    id = bookmarkId,
+                    id = bookmarkId.toString(), // Convert Long to String
                     audiobookId = state.audiobook?.id ?: "",
                     chapterIndex = state.currentChapter,
                     position = state.currentPosition,

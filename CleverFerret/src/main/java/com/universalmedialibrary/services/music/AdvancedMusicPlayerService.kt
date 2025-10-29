@@ -188,7 +188,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Play/pause toggle
      */
-    fun togglePlayPause() {
+    override fun togglePlayPause() {
         if (_playbackState.value.isPlaying) {
             pause()
         } else {
@@ -199,7 +199,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Start playback
      */
-    fun play() {
+    override fun play() {
         exoPlayerService.play()
         updatePlaybackState(isPlaying = true)
     }
@@ -207,7 +207,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Pause playback
      */
-    fun pause() {
+    override fun pause() {
         exoPlayerService.pause()
         updatePlaybackState(isPlaying = false)
     }
@@ -215,12 +215,30 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Stop playback and clear queue
      */
-    fun stop() {
+    override fun stop() {
         exoPlayerService.stop() // This will also stop MediaController
         _queue.value = emptyList()
         _currentTrack.value = null
         currentQueueIndex = 0
         updatePlaybackState(isPlaying = false)
+    }
+
+    /**
+     * Add track to queue
+     */
+    override fun addToQueue(mediaId: String) {
+        viewModelScope.launch {
+            try {
+                val mediaIdLong = mediaId.toLongOrNull() ?: return@launch
+                val mediaItem = mediaRepository.getMediaItemById(mediaIdLong)
+                if (mediaItem != null) {
+                    val currentQueue = _queue.value
+                    _queue.value = currentQueue + mediaItem
+                }
+            } catch (e: Exception) {
+                // Handle error silently
+            }
+        }
     }
 
     /**

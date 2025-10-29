@@ -44,12 +44,7 @@ object CalibreModule {
     
     // ========== Fanfiction Services ==========
     // Note: FanfictionDownloadService uses @Inject constructor, so Hilt provides it automatically
-    
-    @Provides
-    @Singleton
-    fun provideEpubCreatorService(): EpubCreatorService {
-        return EpubCreatorService()
-    }
+    // Note: EpubCreatorService uses @Inject constructor, so Hilt provides it automatically
     
     // ========== EPUB Tools ==========
     
