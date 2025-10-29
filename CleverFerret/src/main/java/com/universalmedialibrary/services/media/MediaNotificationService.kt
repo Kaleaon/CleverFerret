@@ -73,11 +73,7 @@ class MediaNotificationService : MediaSessionService() {
          */
         fun start(context: Context, player: Player) {
             val intent = Intent(context, MediaNotificationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startForegroundService(intent)
         }
 
         /**
@@ -204,22 +200,20 @@ class MediaNotificationService : MediaSessionService() {
 
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                getString(resources.getIdentifier("notification_channel_media_playback", "string", packageName)),
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = getString(resources.getIdentifier("notification_channel_media_playback_description", "string", packageName))
-                setShowBadge(false)
-                enableLights(false)
-                enableVibration(false)
-                setSound(null, null)
-            }
-
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            getString(resources.getIdentifier("notification_channel_media_playback", "string", packageName)),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = getString(resources.getIdentifier("notification_channel_media_playback_description", "string", packageName))
+            setShowBadge(false)
+            enableLights(false)
+            enableVibration(false)
+            setSound(null, null)
         }
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun createMediaNotification(

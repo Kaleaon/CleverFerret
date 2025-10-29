@@ -258,9 +258,7 @@ fun AdvancedVideoPlayerScreen(
                     onBack = onBack,
                     onCast = { },
                     onPip = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            enterPictureInPictureMode(context)
-                        }
+                        enterPictureInPictureMode(context)
                     },
                     onSettings = { showSettings = true }
                 )
@@ -541,7 +539,6 @@ private fun formatTime(milliseconds: Long): String {
     }
 }
 
-@androidx.annotation.RequiresApi(Build.VERSION_CODES.O)
 private fun enterPictureInPictureMode(context: Context) {
     val activity = context as? androidx.activity.ComponentActivity
     activity?.let {

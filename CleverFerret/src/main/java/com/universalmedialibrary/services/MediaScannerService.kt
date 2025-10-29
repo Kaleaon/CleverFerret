@@ -480,17 +480,15 @@ class MediaScannerService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Media Scanner",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Media scanning progress"
-            }
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Media Scanner",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Media scanning progress"
         }
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun createNotification(contentText: String) = NotificationCompat.Builder(this, CHANNEL_ID)
