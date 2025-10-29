@@ -84,7 +84,7 @@ fun FilteredMediaCard(
                     
                     if (mediaItem.author != null) {
                         Text(
-                            text = mediaItem.author,
+                            text = mediaItem.author ?: "",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -117,7 +117,7 @@ fun FilteredMediaCard(
             if (mediaItem.contentRating != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 ContentRatingBadge(
-                    rating = mediaItem.contentRating,
+                    rating = mediaItem.contentRating ?: "",
                     isRestricted = contentStatus == ContentStatus.Locked || contentStatus == ContentStatus.Blocked
                 )
             }
@@ -273,7 +273,7 @@ fun FilteredMediaGridItem(
                     if (mediaItem.contentRating != null) {
                         Spacer(modifier = Modifier.height(4.dp))
                         ContentRatingBadge(
-                            rating = mediaItem.contentRating,
+                            rating = mediaItem.contentRating ?: "",
                             isRestricted = contentStatus == ContentStatus.Locked || contentStatus == ContentStatus.Blocked
                         )
                     }
