@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -41,6 +42,10 @@ class UniversalMediaLibraryViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    
+    // Stub for library item counts - TODO: implement actual counting
+    private val _libraryItemCounts = MutableStateFlow<Map<Long, Int>>(emptyMap())
+    val libraryItemCounts: StateFlow<Map<Long, Int>> = _libraryItemCounts.asStateFlow()
 
     private var currentLibraryId: Long = -1
     private var allMediaItems: List<MediaItemWithMetadata> = emptyList()

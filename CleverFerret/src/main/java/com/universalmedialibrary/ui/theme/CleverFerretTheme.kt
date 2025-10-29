@@ -33,6 +33,15 @@ private fun getMetallicEffectForTheme(palette: ThemePalette): MetallicGradient {
         ThemePalette.BURGUNDY_ROSE_GOLD -> MetallicEffects.RoseGold
         ThemePalette.CHARCOAL_CHAMPAGNE -> MetallicEffects.Champagne
         ThemePalette.SLATE_GUNMETAL -> MetallicEffects.Gunmetal
+        ThemePalette.COPPER_BRONZE -> MetallicEffects.Copper
+        ThemePalette.AMBER_GOLD -> MetallicEffects.Gold
+        ThemePalette.ROSE_BRASS -> MetallicEffects.RoseGold
+        ThemePalette.STEEL_TITANIUM -> MetallicEffects.Silver
+        ThemePalette.PLATINUM_SILVER -> MetallicEffects.Silver
+        ThemePalette.COBALT_CHROME -> MetallicEffects.Silver
+        ThemePalette.ANCIENT_BRONZE -> MetallicEffects.Copper
+        ThemePalette.SILVER_ARCHITECT -> MetallicEffects.Silver
+        ThemePalette.OBSIDIAN_TECH -> MetallicEffects.Gunmetal
     }
 }
 
@@ -51,6 +60,15 @@ fun CleverFerretTheme(
         ThemePalette.BURGUNDY_ROSE_GOLD -> CleverFerretTheme.BURGUNDY_ROSE_GOLD
         ThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
         ThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
+        ThemePalette.COPPER_BRONZE -> CleverFerretTheme.COPPER_BRONZE
+        ThemePalette.AMBER_GOLD -> CleverFerretTheme.AMBER_GOLD
+        ThemePalette.ROSE_BRASS -> CleverFerretTheme.ROSE_BRASS
+        ThemePalette.STEEL_TITANIUM -> CleverFerretTheme.STEEL_TITANIUM
+        ThemePalette.PLATINUM_SILVER -> CleverFerretTheme.PLATINUM_SILVER
+        ThemePalette.COBALT_CHROME -> CleverFerretTheme.COBALT_CHROME
+        ThemePalette.ANCIENT_BRONZE -> CleverFerretTheme.ANCIENT_BRONZE
+        ThemePalette.SILVER_ARCHITECT -> CleverFerretTheme.SILVER_ARCHITECT
+        ThemePalette.OBSIDIAN_TECH -> CleverFerretTheme.OBSIDIAN_TECH
     }
 
     UnifiedCleverFerretTheme(

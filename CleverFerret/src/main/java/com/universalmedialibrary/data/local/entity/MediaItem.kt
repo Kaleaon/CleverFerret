@@ -58,7 +58,11 @@ data class MediaItem(
     val lastViewed: Long? get() = null // Should be fetched from ReadingProgress or viewing history
     
     // Compatibility properties for legacy code
+    val id: Long get() = itemId // Alias for itemId for compatibility
     val title: String get() = fileName.substringBeforeLast('.')
     val size: Long get() = fileSize
     val type: String get() = mediaType
+    val contentRating: String? get() = null // Should be fetched from metadata
+    val author: String? get() = null // Should be fetched from metadata
+    val duration: Long? get() = null // Should be fetched from metadata (for audio/video)
 }

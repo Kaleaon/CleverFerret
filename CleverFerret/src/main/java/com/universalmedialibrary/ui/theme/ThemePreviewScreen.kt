@@ -367,4 +367,13 @@ private fun getThemeDescription(palette: ThemePalette): String = when (palette) 
     ThemePalette.BURGUNDY_ROSE_GOLD -> "Burgundy + Rose Gold • Luxurious"
     ThemePalette.CHARCOAL_CHAMPAGNE -> "Charcoal + Champagne • Sophisticated"
     ThemePalette.SLATE_GUNMETAL -> "Slate + Gunmetal • Modern"
+    ThemePalette.COPPER_BRONZE -> "Copper + Bronze • Warm & Rich"
+    ThemePalette.AMBER_GOLD -> "Amber + Gold • Luminous"
+    ThemePalette.ROSE_BRASS -> "Rose + Brass • Romantic"
+    ThemePalette.STEEL_TITANIUM -> "Steel + Titanium • Industrial"
+    ThemePalette.PLATINUM_SILVER -> "Platinum + Silver • Premium"
+    ThemePalette.COBALT_CHROME -> "Cobalt + Chrome • Bold"
+    ThemePalette.ANCIENT_BRONZE -> "Ancient Bronze • Architectural"
+    ThemePalette.SILVER_ARCHITECT -> "Silver Architect • Modern Classic"
+    ThemePalette.OBSIDIAN_TECH -> "Obsidian Tech • High-Tech"
 }

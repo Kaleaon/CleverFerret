@@ -171,8 +171,8 @@ class AudiobookService @Inject constructor(
                     ?: File(filePath).nameWithoutExtension
                 val author = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_AUTHOR)
                 val narrator = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-                // METADATA_KEY_COMMENT is used for description/comments in audio files
-                val description = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMMENT)
+                // Use album name as description fallback (no direct COMMENT metadata key in Android)
+                val description = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
                 val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                 val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
                 val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
@@ -259,7 +259,7 @@ class AudiobookService @Inject constructor(
         serviceScope.launch {
             try {
                 val bookmark = Bookmark(
-                    itemId = audiobook.id,
+                    itemId = audiobook.id.toLongOrNull() ?: 0L,
                     title = "Bookmark at ${formatTime(state.currentPosition)}",
                     description = note,
                     position = state.currentPosition,
@@ -277,10 +277,14 @@ class AudiobookService @Inject constructor(
                 
                 // Update in-memory state with new bookmark
                 val audiobookBookmark = AudiobookBookmark(
-                    id = bookmarkId,
+                    id = bookmarkId.toString(), // Convert Long to String
+                    audiobookId = state.audiobook?.id ?: "",
+                    chapterIndex = state.currentChapter,
                     position = state.currentPosition,
+                    currentPosition = state.currentPosition,
+                    title = note ?: "Bookmark at ${formatTime(state.currentPosition)}",
                     note = note,
-                    timestamp = System.currentTimeMillis()
+                    createdAt = System.currentTimeMillis()
                 )
                 
                 updateAudiobookState(
@@ -306,7 +310,7 @@ class AudiobookService @Inject constructor(
                 )
                 
                 // Persist to database
-                bookmarkDao.deleteBookmark(bookmark.id)
+                bookmarkDao.deleteBookmark(bookmark.id.toLongOrNull() ?: 0L)
             } catch (e: Exception) {
                 // Rollback on error
                 val state = _audiobookState.value
@@ -338,7 +342,7 @@ class AudiobookService @Inject constructor(
         val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
         
         return Audiobook(
-            id = mediaItem.itemId,
+            id = mediaItem.itemId.toString(),
             title = commonMetadata?.title ?: mediaItem.fileName,
             author = authors.firstOrNull() ?: "Unknown",
             filePath = mediaItem.filePath,
@@ -405,5 +409,108 @@ class AudiobookService @Inject constructor(
 
     fun stop() {
         exoPlayerService.stop()
+    }
+
+    /**
+     * Navigate to a specific chapter
+     */
+    fun goToChapter(chapterIndex: Int) {
+        val audiobook = currentAudiobook ?: return
+        if (chapterIndex < 0 || chapterIndex >= audiobook.chapters.size) return
+        
+        val chapter = audiobook.chapters[chapterIndex]
+        exoPlayerService.seekTo(chapter.startTimeMs)
+        
+        _audiobookState.value = _audiobookState.value.copy(
+            currentChapter = chapterIndex,
+            currentChapterIndex = chapterIndex
+        )
+    }
+
+    /**
+     * Seek forward by specified seconds
+     */
+    fun seekForward(seconds: Int) {
+        val currentPos = exoPlayerService.getCurrentPosition()
+        val newPos = currentPos + (seconds * 1000L)
+        exoPlayerService.seekTo(newPos)
+    }
+
+    /**
+     * Seek backward by specified seconds
+     */
+    fun seekBackward(seconds: Int) {
+        val currentPos = exoPlayerService.getCurrentPosition()
+        val newPos = (currentPos - (seconds * 1000L)).coerceAtLeast(0L)
+        exoPlayerService.seekTo(newPos)
+    }
+
+    /**
+     * Set playback speed
+     */
+    fun setPlaybackSpeed(speed: Float) {
+        exoPlayerService.setPlaybackSpeed(speed)
+        _audiobookState.value = _audiobookState.value.copy(
+            playbackSpeed = speed
+        )
+    }
+
+    /**
+     * Toggle skip silence feature
+     */
+    fun setSkipSilence(enabled: Boolean) {
+        // ExoPlayer skip silence would be configured here
+        // For now, just update state
+        _audiobookState.value = _audiobookState.value.copy(
+            skipSilenceEnabled = enabled
+        )
+    }
+
+    /**
+     * Set synchronized reading enabled/disabled
+     */
+    fun setSynchronizedReading(enabled: Boolean) {
+        _synchronizationState.value = _synchronizationState.value.copy(
+            enabled = enabled,
+            isEnabled = enabled
+        )
+    }
+
+    /**
+     * Set sleep timer
+     */
+    fun setSleepTimer(minutes: Int) {
+        val endTime = System.currentTimeMillis() + (minutes * 60 * 1000L)
+        _audiobookState.value = _audiobookState.value.copy(
+            sleepTimerEndTime = endTime
+        )
+        
+        // Schedule timer to pause playback
+        serviceScope.launch {
+            kotlinx.coroutines.delay(minutes * 60 * 1000L)
+            if (_audiobookState.value.sleepTimerEndTime == endTime) {
+                pause()
+                _audiobookState.value = _audiobookState.value.copy(
+                    sleepTimerEndTime = null
+                )
+            }
+        }
+    }
+
+    /**
+     * Cancel sleep timer
+     */
+    fun cancelSleepTimer() {
+        _audiobookState.value = _audiobookState.value.copy(
+            sleepTimerEndTime = null
+        )
+    }
+
+    /**
+     * Jump to a bookmark
+     */
+    fun jumpToBookmark(bookmark: AudiobookBookmark) {
+        goToChapter(bookmark.chapterIndex)
+        exoPlayerService.seekTo(bookmark.position)
     }
 }

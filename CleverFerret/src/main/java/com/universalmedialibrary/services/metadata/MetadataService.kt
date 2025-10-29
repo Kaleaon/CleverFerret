@@ -160,10 +160,8 @@ class MetadataService @Inject constructor(
             genres = metadataList.flatMap { it.genres }.distinct(),
             tags = metadataList.flatMap { it.tags }.distinct(),
             series = metadataList.firstNotNullOfOrNull { it.series } ?: base.series,
-            seriesIndex = metadataList.firstNotNullOfOrNull { it.seriesIndex } ?: base.seriesIndex,
-            relatedBooks = metadataList.flatMap { it.relatedBooks }.distinctBy { it.isbn ?: it.title },
             awards = metadataList.flatMap { it.awards }.distinct(),
-            editions = metadataList.flatMap { it.editions }.distinct(),
+            similarBooks = metadataList.flatMap { it.similarBooks }.distinctBy { it.sourceId ?: it.title },
             sourceId = base.sourceId,
             source = "Merged",
             coverUrl = metadataList.firstNotNullOfOrNull { it.coverUrl } ?: base.coverUrl

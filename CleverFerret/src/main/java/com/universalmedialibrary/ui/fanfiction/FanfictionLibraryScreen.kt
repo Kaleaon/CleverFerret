@@ -73,11 +73,11 @@ fun FanfictionLibraryScreen(
                 },
                 actions = {
                     IconButton(onClick = { viewModel.checkForUpdates() }) {
-                        Icon(PhosphorIcons.ArrowsClockwise, "Check Updates")
+                        Icon(Icons.Default.Refresh, "Check Updates")
                     }
                     
                     IconButton(onClick = { showFilterMenu = true }) {
-                        Icon(PhosphorIcons.Funnel, "Filter")
+                        Icon(Icons.Default.FilterList, "Filter")
                     }
                     
                     DropdownMenu(
@@ -290,7 +290,7 @@ private fun StoryCard(
                                     showMenu = false
                                 },
                                 leadingIcon = {
-                                    Icon(PhosphorIcons.ArrowsClockwise, null)
+                                    Icon(Icons.Default.Refresh, null)
                                 }
                             )
                         }

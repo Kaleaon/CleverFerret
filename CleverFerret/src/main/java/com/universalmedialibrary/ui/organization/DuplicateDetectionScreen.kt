@@ -13,7 +13,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.universalmedialibrary.data.local.entity.BookEntity
+import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.organization.DuplicateGroup
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
@@ -51,7 +51,7 @@ fun DuplicateDetectionScreen(
                 },
                 actions = {
                     IconButton(onClick = { showThresholdDialog = true }) {
-                        Icon(PhosphorIcons.SlidersHorizontal, "Adjust Threshold")
+                        Icon(Icons.Default.Settings, "Adjust Threshold")
                     }
                 }
             )
@@ -82,11 +82,10 @@ fun DuplicateDetectionScreen(
                         onScanClick = { viewModel.scanForDuplicates() }
                     )
                 }
-                
                 else -> {
                     DuplicateList(
                         duplicateGroups = duplicateGroups,
-                        onDeleteBook = { viewModel.deleteBook(it) },
+                        onDeleteBook = { viewModel.deleteMediaItem(it) },
                         onKeepBook = { bookId, groupIndex -> 
                             viewModel.keepOneDeleteOthers(bookId, groupIndex)
                         }
@@ -121,7 +120,7 @@ private fun EmptyState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            PhosphorIcons.CopySimple,
+            Icons.Default.ContentCopy,
             contentDescription = null,
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -225,11 +224,11 @@ private fun DuplicateGroupCard(
                 
                 group.matches.forEach { match ->
                     DuplicateBookItem(
-                        book = match.book,
+                        item = match.item,
                         similarity = match.similarity,
                         reasons = match.reasons,
-                        onDelete = { onDeleteBook(match.book.id.toString()) },
-                        onKeep = { onKeepBook(match.book.id.toString()) }
+                        onDelete = { onDeleteBook(match.item.itemId.toString()) },
+                        onKeep = { onKeepBook(match.item.itemId.toString()) }
                     )
                     
                     if (match != group.matches.last()) {
@@ -245,7 +244,7 @@ private fun DuplicateGroupCard(
 
 @Composable
 private fun DuplicateBookItem(
-    book: BookEntity,
+    item: MediaItem,
     similarity: Float,
     reasons: List<String>,
     onDelete: () -> Unit,
@@ -262,9 +261,9 @@ private fun DuplicateBookItem(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
-            if (book.coverPath != null) {
+            if (item.coverImagePath != null) {
                 AsyncImage(
-                    model = book.coverPath,
+                    model = item.coverImagePath,
                     contentDescription = "Cover",
                     modifier = Modifier.fillMaxSize()
                 )
@@ -274,7 +273,7 @@ private fun DuplicateBookItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        PhosphorIcons.Book,
+                        Icons.Default.Book,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -285,15 +284,15 @@ private fun DuplicateBookItem(
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                book.title,
+                item.title,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
             
-            if (book.author != null) {
+            if (item.author != null) {
                 Text(
-                    book.author,
+                    item.author!!,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -34,6 +34,16 @@ enum class CleverFerretTheme {
     SLATE_GUNMETAL,
     DEEP_PURPLE_PLATINUM,
     
+    // Warm Metallic Themes (3)
+    COPPER_BRONZE,
+    AMBER_GOLD,
+    ROSE_BRASS,
+    
+    // Cool Metallic Themes (3)
+    STEEL_TITANIUM,
+    PLATINUM_SILVER,
+    COBALT_CHROME,
+    
     // Ancient Architect Variants (3)
     ANCIENT_BRONZE,
     SILVER_ARCHITECT,
@@ -127,6 +137,36 @@ fun CleverFerretTheme.getConfig(): ThemeConfig {
             displayName = "Deep Purple & Platinum",
             description = "Royal modern luxury",
             category = ThemeCategory.CLASSIC
+        )
+        CleverFerretTheme.COPPER_BRONZE -> ThemeConfig(
+            displayName = "Copper & Bronze",
+            description = "Warm metallic elegance",
+            category = ThemeCategory.METALLIC
+        )
+        CleverFerretTheme.AMBER_GOLD -> ThemeConfig(
+            displayName = "Amber & Gold",
+            description = "Rich warm luxury",
+            category = ThemeCategory.METALLIC
+        )
+        CleverFerretTheme.ROSE_BRASS -> ThemeConfig(
+            displayName = "Rose & Brass",
+            description = "Romantic metallic warmth",
+            category = ThemeCategory.METALLIC
+        )
+        CleverFerretTheme.STEEL_TITANIUM -> ThemeConfig(
+            displayName = "Steel & Titanium",
+            description = "Modern cool precision",
+            category = ThemeCategory.METALLIC
+        )
+        CleverFerretTheme.PLATINUM_SILVER -> ThemeConfig(
+            displayName = "Platinum & Silver",
+            description = "Refined cool elegance",
+            category = ThemeCategory.METALLIC
+        )
+        CleverFerretTheme.COBALT_CHROME -> ThemeConfig(
+            displayName = "Cobalt & Chrome",
+            description = "Bold cool sophistication",
+            category = ThemeCategory.METALLIC
         )
         CleverFerretTheme.ANCIENT_BRONZE -> ThemeConfig(
             displayName = "Ancient Bronze",
@@ -368,6 +408,13 @@ fun CleverFerretTheme.toThemePalette(): com.universalmedialibrary.ui.theme.Theme
         CleverFerretTheme.ANCIENT_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.ANCIENT_BRONZE
         CleverFerretTheme.SILVER_ARCHITECT -> com.universalmedialibrary.ui.theme.ThemePalette.SILVER_ARCHITECT
         CleverFerretTheme.OBSIDIAN_TECH -> com.universalmedialibrary.ui.theme.ThemePalette.OBSIDIAN_TECH
+        // Themes not in ThemePalette fall back to NAVY_GOLD
+        CleverFerretTheme.EMERALD_SILVER,
+        CleverFerretTheme.ROYAL_BRONZE,
+        CleverFerretTheme.MIDNIGHT_AMBER,
+        CleverFerretTheme.OBSIDIAN_CRIMSON,
+        CleverFerretTheme.SLATE_CYAN,
+        CleverFerretTheme.DEEP_PURPLE_PLATINUM -> com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
     }
 }
 

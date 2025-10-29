@@ -43,23 +43,8 @@ import javax.inject.Singleton
 object CalibreModule {
     
     // ========== Fanfiction Services ==========
-    
-    @Provides
-    @Singleton
-    fun provideFanfictionDownloadService(
-        @ApplicationContext context: Context,
-        httpClient: OkHttpClient,
-        epubCreator: EpubCreatorService,
-        fanfictionDao: FanfictionDao
-    ): FanfictionDownloadService {
-        return FanfictionDownloadService(context, httpClient, epubCreator, fanfictionDao)
-    }
-    
-    @Provides
-    @Singleton
-    fun provideEpubCreatorService(): EpubCreatorService {
-        return EpubCreatorService()
-    }
+    // Note: FanfictionDownloadService uses @Inject constructor, so Hilt provides it automatically
+    // Note: EpubCreatorService uses @Inject constructor, so Hilt provides it automatically
     
     // ========== EPUB Tools ==========
     
@@ -88,15 +73,7 @@ object CalibreModule {
     }
     
     // ========== Audiobook Services ==========
-    
-    @Provides
-    @Singleton
-    fun provideAudiobookService(
-        @ApplicationContext context: Context,
-        audiobookDao: AudiobookDao
-    ): AudiobookService {
-        return AudiobookService(context, audiobookDao)
-    }
+    // Note: AudiobookService uses @Inject constructor, so Hilt provides it automatically
     
     // ========== Cover Services ==========
     

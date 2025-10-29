@@ -1068,6 +1068,12 @@ InternetRadioStation("gh39", "Worldwide FM", "https://worldwidefm.out.airtime.pr
         }
     }
     
+    fun selectStation(station: InternetRadioStation) {
+        _currentStation.value = station
+        // TODO: Implement radio station playback via music player service
+        // This would require adding radio streaming capability to AdvancedMusicPlayerService
+    }
+    
     fun addCustomStation(name: String, url: String, genre: String) {
         val newStation = InternetRadioStation(
             id = (stations.value.size + 1).toString(),

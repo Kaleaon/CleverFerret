@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 fun Modifier.hardwareAccelerated(): Modifier = this.graphicsLayer {
     // Force GPU rendering for complex visualizations
     compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen
-    // Enable caching for static elements
-    cacheDrawScope = true
+    // Note: cacheDrawScope was removed in newer Compose versions
+    // The Offscreen compositing strategy provides similar caching benefits
 }
 
 /**
@@ -122,11 +122,11 @@ object VisualizerOptimizations {
  */
 @Composable
 fun rememberOptimizedGradient(
-    vararg colors: androidx.compose.ui.graphics.Color
+    colors: List<androidx.compose.ui.graphics.Color>
 ): androidx.compose.ui.graphics.Brush {
-    return remember(colors.contentHashCode()) {
+    return remember(colors.hashCode()) {
         androidx.compose.ui.graphics.Brush.verticalGradient(
-            colors = colors.toList()
+            colors = colors
         )
     }
 }

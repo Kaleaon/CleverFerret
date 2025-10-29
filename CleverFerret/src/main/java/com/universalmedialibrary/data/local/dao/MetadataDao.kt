@@ -144,4 +144,25 @@ interface MetadataDao {
      */
     @Query("SELECT * FROM metadata_common ORDER BY itemId")
     suspend fun getAllMetadata(): List<MetadataCommon>
+    
+    // Alias methods for CalibreExportService compatibility
+    @Query("SELECT * FROM metadata_common WHERE itemId = :itemId")
+    suspend fun getMetadataCommonById(itemId: Long): MetadataCommon?
+    
+    @Query("SELECT * FROM metadata_book WHERE itemId = :itemId")
+    suspend fun getMetadataBookById(itemId: Long): MetadataBook?
+    
+    @Query("""
+        SELECT p.name FROM people p
+        INNER JOIN item_person_role ipr ON p.personId = ipr.personId
+        WHERE ipr.itemId = :itemId AND ipr.role = 'AUTHOR'
+    """)
+    suspend fun getItemAuthors(itemId: Long): List<String>
+    
+    @Query("""
+        SELECT g.name FROM genre g
+        INNER JOIN item_genre ig ON g.genreId = ig.genreId
+        WHERE ig.itemId = :itemId
+    """)
+    suspend fun getItemGenres(itemId: Long): List<String>
 }

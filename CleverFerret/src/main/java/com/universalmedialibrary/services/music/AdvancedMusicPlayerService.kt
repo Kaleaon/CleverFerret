@@ -188,7 +188,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Play/pause toggle
      */
-    fun togglePlayPause() {
+    override fun togglePlayPause() {
         if (_playbackState.value.isPlaying) {
             pause()
         } else {
@@ -199,7 +199,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Start playback
      */
-    fun play() {
+    override fun play() {
         exoPlayerService.play()
         updatePlaybackState(isPlaying = true)
     }
@@ -207,7 +207,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Pause playback
      */
-    fun pause() {
+    override fun pause() {
         exoPlayerService.pause()
         updatePlaybackState(isPlaying = false)
     }
@@ -215,7 +215,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Stop playback and clear queue
      */
-    fun stop() {
+    override fun stop() {
         exoPlayerService.stop() // This will also stop MediaController
         _queue.value = emptyList()
         _currentTrack.value = null
@@ -224,9 +224,62 @@ class AdvancedMusicPlayerService @Inject constructor(
     }
 
     /**
+     * Add track to queue
+     */
+    override fun addToQueue(mediaId: String) {
+        // Convert mediaId to Long and add to queue
+        val mediaIdLong = mediaId.toLongOrNull() ?: return
+        
+        // Add to current queue (simplified - actual implementation would fetch MediaItem)
+        // For now, just trigger a queue update
+        // TODO: Fetch MediaItem from repository and add to queue properly
+    }
+
+    /**
+     * Remove track from queue
+     */
+    override fun removeFromQueue(index: Int) {
+        val currentQueue = _queue.value
+        if (index < 0 || index >= currentQueue.size) return
+        
+        _queue.value = currentQueue.filterIndexed { i, _ -> i != index }
+    }
+
+    /**
+     * Move track in queue
+     */
+    override fun moveInQueue(from: Int, to: Int) {
+        val currentQueue = _queue.value.toMutableList()
+        if (from < 0 || from >= currentQueue.size || to < 0 || to >= currentQueue.size) return
+        
+        val item = currentQueue.removeAt(from)
+        currentQueue.add(to, item)
+        _queue.value = currentQueue
+    }
+
+    /**
+     * Skip to specific position in queue
+     */
+    override fun skipToQueuePosition(index: Int) {
+        val currentQueue = _queue.value
+        if (index < 0 || index >= currentQueue.size) return
+        
+        currentQueueIndex = index
+        playTrackAtIndex(index)
+    }
+
+    /**
+     * Seek relative to current position
+     */
+    override fun seekRelative(deltaMs: Long) {
+        val currentPosition = getCurrentPosition()
+        seekTo(currentPosition + deltaMs)
+    }
+
+    /**
      * Skip to next track
      */
-    fun skipToNext() {
+    override fun skipNext() {
         val queue = _queue.value
         if (queue.isEmpty()) return
 
@@ -262,7 +315,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Skip to previous track
      */
-    fun skipToPrevious() {
+    override fun skipPrevious() {
         val queue = _queue.value
         if (queue.isEmpty()) return
 
@@ -297,7 +350,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Seek to position in milliseconds
      */
-    fun seekTo(positionMs: Long) {
+    override fun seekTo(positionMs: Long) {
         exoPlayerService.seekTo(positionMs)
     }
 
@@ -384,7 +437,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     /**
      * Clear the entire queue
      */
-    fun clearQueue() {
+    override fun clearQueue() {
         stop()
     }
 
@@ -455,7 +508,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         }
     }
 
-    private fun shuffleQueue() {
+    override fun shuffleQueue() {
         val currentTrack = _currentTrack.value
         val shuffledQueue = originalQueue.shuffled()
 
@@ -527,6 +580,103 @@ class AdvancedMusicPlayerService @Inject constructor(
         _queue.value = emptyList()
         _currentTrack.value = null
         updatePlaybackState(isPlaying = false)
+    }
+
+    // ===== PLAYBACK MODES =====
+
+    /**
+     * Set shuffle mode
+     */
+    override fun setShuffleMode(mode: com.universalmedialibrary.api.ShuffleMode) {
+        when (mode) {
+            com.universalmedialibrary.api.ShuffleMode.OFF -> _playlistMode.value = PlaylistMode.NORMAL
+            com.universalmedialibrary.api.ShuffleMode.ALL,
+            com.universalmedialibrary.api.ShuffleMode.CATEGORIES -> _playlistMode.value = PlaylistMode.SHUFFLE
+        }
+    }
+
+    /**
+     * Set repeat mode
+     */
+    override fun setRepeatMode(mode: com.universalmedialibrary.api.RepeatMode) {
+        _playlistMode.value = when (mode) {
+            com.universalmedialibrary.api.RepeatMode.OFF -> PlaylistMode.NORMAL
+            com.universalmedialibrary.api.RepeatMode.ALL,
+            com.universalmedialibrary.api.RepeatMode.ADVANCE_LIST -> PlaylistMode.REPEAT_ALL
+            com.universalmedialibrary.api.RepeatMode.ONE -> PlaylistMode.REPEAT_ONE
+        }
+    }
+
+    /**
+     * Toggle shuffle mode
+     */
+    override fun toggleShuffle() {
+        _playlistMode.value = if (_playlistMode.value == PlaylistMode.SHUFFLE) {
+            PlaylistMode.NORMAL
+        } else {
+            PlaylistMode.SHUFFLE
+        }
+    }
+
+    /**
+     * Toggle repeat mode
+     */
+    override fun toggleRepeat() {
+        _playlistMode.value = when (_playlistMode.value) {
+            PlaylistMode.NORMAL -> PlaylistMode.REPEAT_ALL
+            PlaylistMode.REPEAT_ALL -> PlaylistMode.REPEAT_ONE
+            PlaylistMode.REPEAT_ONE -> PlaylistMode.NORMAL
+            PlaylistMode.SHUFFLE -> PlaylistMode.REPEAT_ALL
+        }
+    }
+
+    // ===== VOLUME & SPEED =====
+
+    /**
+     * Set volume level
+     */
+    override fun setVolume(volume: Float) {
+        exoPlayerService.setVolume(volume.coerceIn(0f, 1f))
+    }
+
+    /**
+     * Adjust volume by delta
+     */
+    override fun adjustVolume(delta: Float) {
+        // Get current volume from ExoPlayer and adjust
+        // TODO: Implement volume retrieval from ExoPlayerService
+        val currentVolume = 0.7f // Placeholder
+        setVolume(currentVolume + delta)
+    }
+
+    /**
+     * Set playback speed
+     */
+    override fun setPlaybackSpeed(speed: Float) {
+        exoPlayerService.setPlaybackSpeed(speed.coerceIn(0.5f, 3.0f))
+    }
+
+    // ===== AUDIO EFFECTS =====
+
+    /**
+     * Set equalizer preset
+     */
+    override fun setEqualizerPreset(presetId: Int) {
+        // TODO: Implement equalizer integration
+    }
+
+    /**
+     * Enable/disable reverb effect
+     */
+    override fun enableReverb(enabled: Boolean) {
+        // TODO: Implement reverb effect
+    }
+
+    /**
+     * Set bass boost strength
+     */
+    override fun setBassBoost(strength: Int) {
+        // TODO: Implement bass boost
     }
 }
 

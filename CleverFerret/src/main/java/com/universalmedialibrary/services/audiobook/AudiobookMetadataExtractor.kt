@@ -58,13 +58,3 @@ data class AudiobookMetadata(
         return result
     }
 }
-
-/**
- * Audiobook chapter information
- */
-data class AudioChapter(
-    val number: Int,
-    val title: String,
-    val startTime: Duration,
-    val duration: Duration
-)

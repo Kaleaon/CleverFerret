@@ -14,6 +14,7 @@ import com.universalmedialibrary.data.local.entity.podcast.PodcastEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastEpisodeEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastSubscriptionEntity
 import com.universalmedialibrary.data.local.entity.podcast.PodcastChapterEntity
+import com.universalmedialibrary.data.local.converters.AudioChapterListConverter
 import com.universalmedialibrary.data.Tag
 
 

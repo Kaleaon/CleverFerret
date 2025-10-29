@@ -64,7 +64,7 @@ fun AudiobookLibraryScreen(
                 },
                 actions = {
                     IconButton(onClick = { showFilterMenu = true }) {
-                        Icon(PhosphorIcons.Funnel, "Filter")
+                        Icon(Icons.Default.FilterList, "Filter")
                     }
                     
                     DropdownMenu(
@@ -96,7 +96,7 @@ fun AudiobookLibraryScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onImportClick,
-                icon = { Icon(PhosphorIcons.FilePlus, "Import") },
+                icon = { Icon(Icons.Default.Add, "Import") },
                 text = { Text("Import") }
             )
         }
@@ -171,7 +171,7 @@ private fun EmptyState(
             Spacer(Modifier.height(24.dp))
             
             Button(onClick = onImportClick) {
-                Icon(PhosphorIcons.FilePlus, "Import")
+                Icon(Icons.Default.Add, "Import")
                 Spacer(Modifier.width(8.dp))
                 Text("Import Audiobook")
             }
@@ -271,7 +271,7 @@ private fun AudiobookCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            PhosphorIcons.Clock,
+                            Icons.Default.Schedule, // Replace PhosphorIcons.Clock
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -284,7 +284,7 @@ private fun AudiobookCard(
                         
                         if (audiobook.chapterCount > 0) {
                             Icon(
-                                PhosphorIcons.ListBullets,
+                                Icons.Default.List, // Replace PhosphorIcons.ListBullets
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant

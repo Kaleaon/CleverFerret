@@ -145,7 +145,6 @@ fun EnhancedQueueScreen(
                             onTrackClick = { onTrackClick(index) },
                             onRemove = { onRemoveTrack(index) },
                             modifier = Modifier
-                                .animateItemPlacement()
                                 .detectReorderAfterLongPress(reorderableState)
                         )
                     }

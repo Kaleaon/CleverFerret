@@ -48,6 +48,7 @@ fun ReadingPreferencesScreen(
     val globalPrefs by viewModel.globalPreferences.collectAsState()
     
     val snackbarHostState = remember { SnackbarHostState() }
+    var showRestoreDialog by remember { mutableStateOf(false) }
     
     // Listen for backup results
     LaunchedEffect(Unit) {
@@ -214,7 +215,7 @@ fun ReadingPreferencesScreen(
                 }
                 
                 OutlinedButton(
-                    onClick = { viewModel.showRestoreDialog() },
+                    onClick = { showRestoreDialog = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Default.RestorePage, null)

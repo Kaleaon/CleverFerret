@@ -74,7 +74,7 @@ fun NowPlayingScreen(
                     onSeek = viewModel::seekTo,
                     onSpeedChange = viewModel::setPlaybackSpeed,
                     onThumbsUp = { viewModel.likeCurrentTrack() },
-                    onAddToPlaylist = { viewModel.addCurrentTrackToPlaylist() }
+                    onAddToPlaylist = { /* TODO: Show playlist selection dialog */ }
                 )
             }
 

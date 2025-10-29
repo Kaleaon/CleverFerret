@@ -93,8 +93,8 @@ class OrganizationViewModel @Inject constructor(
                 val group = _duplicateGroups.value.getOrNull(groupIndex) ?: return@launch
                 
                 group.matches.forEach { match ->
-                    if (match.item.id.toString() != keepItemId) {
-                        mediaItemDao.deleteMediaItem(match.item.id)
+                    if (match.item.itemId.toString() != keepItemId) {
+                        mediaItemDao.deleteMediaItem(match.item.itemId)
                     }
                 }
                 

@@ -124,9 +124,9 @@ class SynchronizedReadingService @Inject constructor(
 
         return HighlightedText(
             text = segment.text,
-            startPosition = segment.textStartPosition,
-            endPosition = segment.textEndPosition,
-            chapterIndex = chapterIndex,
+            startOffset = segment.textStartPosition,
+            endOffset = segment.textEndPosition,
+            timestamp = audioPositionMs,
             confidence = segment.confidence
         )
     }
@@ -501,13 +501,6 @@ data class Sentence(
 data class AudioStructure(
     val totalDurationMs: Long,
     val chapters: List<AudioChapter>
-)
-
-data class AudioChapter(
-    val index: Int,
-    val title: String,
-    val startTimeMs: Long,
-    val durationMs: Long
 )
 
 data class CalibrationPoint(
