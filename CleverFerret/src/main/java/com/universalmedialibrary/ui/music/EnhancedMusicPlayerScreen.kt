@@ -369,9 +369,10 @@ fun EnhancedMusicPlayerScreen(
         val playlists by viewModel.playlists.collectAsState()
         
         AddToPlaylistDialog(
-            playlists = playlists,
-            onPlaylistSelected = { playlistId ->
-                viewModel.addToPlaylist(playlistId)
+            playlists = playlists.map { it.name },
+            onPlaylistSelected = { playlistName ->
+                val playlist = playlists.find { it.name == playlistName }
+                playlist?.let { viewModel.addToPlaylist(it.playlistId) }
                 showAddToPlaylistDialog = false
             },
             onCreateNew = { name ->
