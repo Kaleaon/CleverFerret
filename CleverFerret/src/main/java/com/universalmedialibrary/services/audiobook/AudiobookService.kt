@@ -410,4 +410,107 @@ class AudiobookService @Inject constructor(
     fun stop() {
         exoPlayerService.stop()
     }
+
+    /**
+     * Navigate to a specific chapter
+     */
+    fun goToChapter(chapterIndex: Int) {
+        val audiobook = currentAudiobook ?: return
+        if (chapterIndex < 0 || chapterIndex >= audiobook.chapters.size) return
+        
+        val chapter = audiobook.chapters[chapterIndex]
+        exoPlayerService.seekTo(chapter.startTimeMs)
+        
+        _audiobookState.value = _audiobookState.value.copy(
+            currentChapter = chapterIndex,
+            currentChapterIndex = chapterIndex
+        )
+    }
+
+    /**
+     * Seek forward by specified seconds
+     */
+    fun seekForward(seconds: Int) {
+        val currentPos = exoPlayerService.getCurrentPosition()
+        val newPos = currentPos + (seconds * 1000L)
+        exoPlayerService.seekTo(newPos)
+    }
+
+    /**
+     * Seek backward by specified seconds
+     */
+    fun seekBackward(seconds: Int) {
+        val currentPos = exoPlayerService.getCurrentPosition()
+        val newPos = (currentPos - (seconds * 1000L)).coerceAtLeast(0L)
+        exoPlayerService.seekTo(newPos)
+    }
+
+    /**
+     * Set playback speed
+     */
+    fun setPlaybackSpeed(speed: Float) {
+        exoPlayerService.setPlaybackSpeed(speed)
+        _audiobookState.value = _audiobookState.value.copy(
+            playbackSpeed = speed
+        )
+    }
+
+    /**
+     * Toggle skip silence feature
+     */
+    fun setSkipSilence(enabled: Boolean) {
+        // ExoPlayer skip silence would be configured here
+        // For now, just update state
+        _audiobookState.value = _audiobookState.value.copy(
+            skipSilenceEnabled = enabled
+        )
+    }
+
+    /**
+     * Set synchronized reading enabled/disabled
+     */
+    fun setSynchronizedReading(enabled: Boolean) {
+        _synchronizationState.value = _synchronizationState.value.copy(
+            enabled = enabled,
+            isEnabled = enabled
+        )
+    }
+
+    /**
+     * Set sleep timer
+     */
+    fun setSleepTimer(minutes: Int) {
+        val endTime = System.currentTimeMillis() + (minutes * 60 * 1000L)
+        _audiobookState.value = _audiobookState.value.copy(
+            sleepTimerEndTime = endTime
+        )
+        
+        // Schedule timer to pause playback
+        serviceScope.launch {
+            kotlinx.coroutines.delay(minutes * 60 * 1000L)
+            if (_audiobookState.value.sleepTimerEndTime == endTime) {
+                pause()
+                _audiobookState.value = _audiobookState.value.copy(
+                    sleepTimerEndTime = null
+                )
+            }
+        }
+    }
+
+    /**
+     * Cancel sleep timer
+     */
+    fun cancelSleepTimer() {
+        _audiobookState.value = _audiobookState.value.copy(
+            sleepTimerEndTime = null
+        )
+    }
+
+    /**
+     * Jump to a bookmark
+     */
+    fun jumpToBookmark(bookmark: AudiobookBookmark) {
+        goToChapter(bookmark.chapterIndex)
+        exoPlayerService.seekTo(bookmark.position)
+    }
 }

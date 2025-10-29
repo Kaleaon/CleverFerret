@@ -271,7 +271,7 @@ private fun AudiobookCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            PhosphorIcons.Clock,
+                            Icons.Default.Schedule, // Replace PhosphorIcons.Clock
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -284,7 +284,7 @@ private fun AudiobookCard(
                         
                         if (audiobook.chapterCount > 0) {
                             Icon(
-                                PhosphorIcons.ListBullets,
+                                Icons.Default.List, // Replace PhosphorIcons.ListBullets
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant

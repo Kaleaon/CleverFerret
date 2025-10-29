@@ -106,7 +106,7 @@ fun FanfictionDownloadScreen(
                 maxLines = 3,
                 enabled = downloadState !is DownloadState.Downloading,
                 leadingIcon = {
-                    Icon(PhosphorIcons.Link, "URL")
+                    Icon(Icons.Default.Link, "URL") // Replace PhosphorIcons.Link
                 }
             )
             

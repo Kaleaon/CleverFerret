@@ -37,6 +37,37 @@ class MediaController @Inject constructor(
     private var mediaNotificationService: MediaNotificationService? = null
 
     /**
+     * Register a media service with simplified parameters (for AudiobookService compatibility)
+     */
+    fun registerMediaService(
+        serviceType: MediaServiceType,
+        title: String,
+        artist: String? = null,
+        album: String? = null,
+        artwork: Bitmap? = null
+    ) {
+        // Update active service type
+        activeServiceType = serviceType
+        
+        // Update metadata in MediaSession
+        mediaSessionManager.updateMetadata(
+            title = title,
+            artist = artist,
+            album = album,
+            artwork = artwork,
+            duration = 0
+        )
+        
+        // Update controller state
+        updateControllerState(
+            currentTrack = title,
+            currentArtist = artist,
+            currentAlbum = album,
+            serviceType = serviceType
+        )
+    }
+
+    /**
      * Start media playback with MediaSession integration
      */
     fun startPlayback(

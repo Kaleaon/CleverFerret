@@ -26,6 +26,8 @@ data class AudiobookState(
     val hasError: Boolean = false,
     val error: String? = null,
     val audiobook: Audiobook? = null,
+    val title: String = "",
+    val author: String = "",
     val currentChapter: Int = 0, // Current chapter index
     val totalChapters: Int = 0, // Total number of chapters
     val currentChapterIndex: Int = 0, // Alternative name for currentChapter
@@ -36,6 +38,7 @@ data class AudiobookState(
     val isPlaying: Boolean = false,
     val playbackSpeed: Float = 1.0f,
     val skipSilenceEnabled: Boolean = false,
+    val sleepTimerEndTime: Long? = null, // System.currentTimeMillis() when sleep timer expires
     val chapters: List<AudiobookChapter> = emptyList(), // List of all chapters
     val bookmarks: List<AudiobookBookmark> = emptyList()
 )
@@ -51,6 +54,7 @@ data class Audiobook(
     val description: String? = null,
     val coverPath: String? = null,
     val duration: Long = 0, // seconds
+    val totalDuration: Long = 0, // Total duration in milliseconds
     val chapters: List<AudioChapter> = emptyList(),
     val filePath: String
 )
@@ -73,7 +77,8 @@ data class AudiobookBookmark(
  * Represents the state of text synchronization for read-along
  */
 data class SynchronizationState(
-    val isEnabled: Boolean = false,
+    val enabled: Boolean = false, // Primary property name
+    val isEnabled: Boolean = false, // Alias for compatibility
     val isActive: Boolean = false,
     val currentWordIndex: Int = -1,
     val currentSentenceIndex: Int = -1,
@@ -107,5 +112,6 @@ data class HighlightedText(
     val text: String,
     val startOffset: Int,
     val endOffset: Int,
-    val timestamp: Long
+    val timestamp: Long,
+    val confidence: Float = 1.0f // Confidence level of synchronization (0.0 - 1.0)
 )
