@@ -87,14 +87,16 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture infor
 
 ## 📚 Documentation
 
+### Quick Links
 - **[Installation Guide](docs/INSTALLATION.md)** - Installing the app on your device
-- **[Development Guide](docs/DEVELOPMENT.md)** - Building, testing, and contributing
+- **[Development Guide](DEVELOPER_GUIDE.md)** - Building, testing, and contributing
 - **[Architecture Guide](docs/ARCHITECTURE.md)** - Technical architecture details
-- **[Resources](docs/RESOURCES.md)** - External APIs, tools, and references
-- **[Release Process](docs/RELEASE.md)** - Creating and publishing releases
-- **[Import Logic](docs/analysis/IMPORT_LOGIC.md)** - Calibre import technical details
+- **[Code Quality Guide](CODE_QUALITY.md)** - Code standards and tooling
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
+- **[Database Schema](DATABASE_SCHEMA.md)** - Database design documentation
 
-For a complete documentation index, see [docs/README.md](docs/README.md).
+### Complete Index
+For a complete documentation index including historical docs, see [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md).
 
 ---
 
@@ -121,7 +123,7 @@ CleverFerret is in active development. Current implementation status:
 ⏳ In-app media players  
 ⏳ Multi-format support expansion
 
-For detailed status and roadmap, see [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md).
+For detailed status and roadmap, see [archive/planning-docs/PROJECT_ROADMAP.md](archive/planning-docs/PROJECT_ROADMAP.md).
 
 ---
 
