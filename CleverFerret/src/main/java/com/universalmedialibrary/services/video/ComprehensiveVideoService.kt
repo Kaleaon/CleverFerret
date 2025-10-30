@@ -224,8 +224,8 @@ class ComprehensiveVideoService @Inject constructor(
      */
     fun isHardwareAccelerationAvailable(): Boolean {
         return try {
-            // Check for hardware decoder support
-            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2
+            // Hardware decoder support is available since minSdk 26
+            true
         } catch (e: Exception) {
             false
         }
@@ -249,8 +249,7 @@ class ComprehensiveVideoService @Inject constructor(
     private fun isHighEndDevice(): Boolean {
         return try {
             val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
-            activityManager.isLowRamDevice.not() &&
-            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
+            activityManager.isLowRamDevice.not()
         } catch (e: Exception) {
             false
         }

@@ -13,7 +13,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CleverFerret Media Widget"
+        android:text="@string/widget_media_title"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Powered by Jetpack Glance"
+        android:text="@string/widget_powered_by"
         android:textColor="@android:color/white"
         android:textSize="12sp" />
 

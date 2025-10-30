@@ -123,7 +123,7 @@ fun ReadingPreferencesScreen(
                     value = epubPrefs.lineHeight,
                     valueRange = 1.0f..2.5f,
                     onValueChange = { viewModel.updateLineHeight(it) },
-                    valueDisplay = "${String.format("%.1f", epubPrefs.lineHeight)}"
+                    valueDisplay = "${String.format(java.util.Locale.US, "%.1f", epubPrefs.lineHeight)}"
                 )
             }
 

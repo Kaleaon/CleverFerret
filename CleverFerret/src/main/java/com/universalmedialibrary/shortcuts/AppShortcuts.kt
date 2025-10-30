@@ -20,7 +20,6 @@ import com.universalmedialibrary.R
  * - Deep links to specific screens
  */
 
-@RequiresApi(Build.VERSION_CODES.N_MR1)
 class AppShortcutsManager(private val context: Context) {
 
     private val shortcutManager: ShortcutManager? =
@@ -99,7 +98,6 @@ class AppShortcutsManager(private val context: Context) {
      */
     fun createPinnedShortcut(book: BookShortcut): Boolean {
         if (shortcutManager == null) return false
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
         if (!shortcutManager.isRequestPinShortcutSupported) return false
 
         val shortcut = ShortcutInfo.Builder(context, "pinned_book_${book.id}")

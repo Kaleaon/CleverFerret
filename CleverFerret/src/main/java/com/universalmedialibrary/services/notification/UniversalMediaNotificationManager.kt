@@ -58,65 +58,63 @@ class UniversalMediaNotificationManager @Inject constructor(
     }
 
     private fun createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channels = listOf(
-                NotificationChannel(
-                    CHANNEL_ID_MUSIC,
-                    "Music Playback",
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Music player controls"
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                },
-                NotificationChannel(
-                    CHANNEL_ID_AUDIOBOOK,
-                    "Audiobook Playback",
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Audiobook player controls"
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                },
-                NotificationChannel(
-                    CHANNEL_ID_PODCAST,
-                    "Podcast Playback",
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Podcast player controls"
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                },
-                NotificationChannel(
-                    CHANNEL_ID_RADIO,
-                    "Radio Playback",
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Radio player controls"
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                },
-                NotificationChannel(
-                    CHANNEL_ID_TTS,
-                    "Text-to-Speech",
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Text-to-Speech controls"
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                },
-                NotificationChannel(
-                    CHANNEL_ID_VIDEO,
-                    "Video Playback",
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = "Video player controls"
-                    setShowBadge(false)
-                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                }
-            )
-            channels.forEach { notificationManager.createNotificationChannel(it) }
-        }
+        val channels = listOf(
+            NotificationChannel(
+                CHANNEL_ID_MUSIC,
+                "Music Playback",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Music player controls"
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            },
+            NotificationChannel(
+                CHANNEL_ID_AUDIOBOOK,
+                "Audiobook Playback",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Audiobook player controls"
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            },
+            NotificationChannel(
+                CHANNEL_ID_PODCAST,
+                "Podcast Playback",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Podcast player controls"
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            },
+            NotificationChannel(
+                CHANNEL_ID_RADIO,
+                "Radio Playback",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Radio player controls"
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            },
+            NotificationChannel(
+                CHANNEL_ID_TTS,
+                "Text-to-Speech",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Text-to-Speech controls"
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            },
+            NotificationChannel(
+                CHANNEL_ID_VIDEO,
+                "Video Playback",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Video player controls"
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+        )
+        channels.forEach { notificationManager.createNotificationChannel(it) }
     }
 
     fun buildMusicNotification(

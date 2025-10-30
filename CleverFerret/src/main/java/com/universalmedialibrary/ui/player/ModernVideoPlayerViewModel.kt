@@ -62,6 +62,7 @@ class ModernVideoPlayerViewModel @Inject constructor(
 
                         override fun onPlaybackStateChanged(playbackState: Int) {
                             when (playbackState) {
+                                Player.STATE_IDLE -> { /* No action needed */ }
                                 Player.STATE_READY -> {
                                     _uiState.value = _uiState.value.copy(
                                         duration = duration,

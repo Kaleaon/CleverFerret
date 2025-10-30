@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Radio Station" />
+        android:text="@string/widget_radio_station" />
 
     <TextView
         android:id="@+id/widget_station_genre"
@@ -24,7 +24,7 @@
         android:layout_marginTop="4dp"
         android:textSize="12sp"
         android:alpha="0.7"
-        android:text="Genre" />
+        android:text="@string/widget_genre" />
 
     <TextView
         android:id="@+id/widget_now_playing"
@@ -34,7 +34,7 @@
         android:textSize="14sp"
         android:ellipsize="marquee"
         android:maxLines="2"
-        android:text="Now Playing: Song Title" />
+        android:text="@string/widget_now_playing" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,7 +49,7 @@
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_skip_previous"
-            android:contentDescription="Previous Station" />
+            android:contentDescription="@string/widget_previous_station" />
 
         <ImageButton
             android:id="@+id/widget_play_pause_btn"
@@ -59,7 +59,7 @@
             android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_play"
-            android:contentDescription="Play/Pause" />
+            android:contentDescription="@string/widget_play_pause" />
 
         <ImageButton
             android:id="@+id/widget_next_btn"
@@ -67,7 +67,7 @@
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_skip_next"
-            android:contentDescription="Next Station" />
+            android:contentDescription="@string/widget_next_station" />
 
         <ImageButton
             android:id="@+id/widget_favorite_btn"
@@ -75,7 +75,7 @@
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Favorite"
+            android:contentDescription="@string/widget_favorite"
             android:src="@android:drawable/star_off" />
     </LinearLayout>
 </LinearLayout>
