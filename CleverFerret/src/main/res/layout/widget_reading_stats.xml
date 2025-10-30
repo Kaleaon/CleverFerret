@@ -11,7 +11,7 @@
         android:id="@+id/widget_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reading Stats"
+        android:text="@string/widget_reading_stats"
         android:textSize="16sp"
         android:textStyle="bold" />
 
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textSize="14sp"
-        android:text="Books Read: 0" />
+        android:text="@string/widget_books_read_count" />
 
     <TextView
         android:id="@+id/widget_pages_read"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="14sp"
-        android:text="Pages Read: 0" />
+        android:text="@string/widget_pages_read_count" />
 
     <TextView
         android:id="@+id/widget_reading_time"
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="14sp"
-        android:text="Reading Time: 0h" />
+        android:text="@string/widget_reading_time" />
 
     <TextView
         android:id="@+id/widget_streak"
@@ -45,5 +45,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="14sp"
-        android:text="0 day streak 🔥" />
+        android:text="@string/widget_days_read" />
 </LinearLayout>

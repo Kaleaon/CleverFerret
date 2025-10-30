@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:ellipsize="end"
         android:maxLines="2"
-        android:text="Comic Title" />
+        android:text="@string/widget_comic_title" />
 
     <TextView
         android:id="@+id/widget_issue_number"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="14sp"
-        android:text="Issue #42" />
+        android:text="@string/widget_issue_number" />
 
     <TextView
         android:id="@+id/widget_page_number"
@@ -32,7 +32,7 @@
         android:layout_marginTop="4dp"
         android:textSize="12sp"
         android:alpha="0.7"
-        android:text="Page 15 of 24" />
+        android:text="@string/widget_page_info" />
 
     <ProgressBar
         android:id="@+id/widget_progress"
@@ -49,6 +49,6 @@
         android:layout_marginTop="12dp"
         android:textSize="14sp"
         android:gravity="center"
-        android:text="Tap to Continue Reading"
+        android:text="@string/widget_continue_reading"
         android:alpha="0.8" />
 </LinearLayout>

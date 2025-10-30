@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:ellipsize="end"
         android:maxLines="2"
-        android:text="Book Title" />
+        android:text="@string/widget_book_title" />
 
     <TextView
         android:id="@+id/widget_author"
@@ -25,7 +25,7 @@
         android:layout_marginTop="4dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Author Name" />
+        android:text="@string/widget_author_name" />
 
     <ImageView
         android:id="@+id/widget_book_cover"
@@ -58,6 +58,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="12sp"
-            android:text="0%" />
+            android:text="@string/widget_progress" />
     </LinearLayout>
 </LinearLayout>
