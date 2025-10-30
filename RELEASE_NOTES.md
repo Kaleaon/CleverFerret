@@ -1,4 +1,4 @@
-# CleverFerret v1.0.0
+# CleverFerret v1.5
 
 ## 📱 System Requirements
 - Android 8.0+ (API level 26 or higher)
@@ -68,9 +68,15 @@ Choose one of the APK files:
 - **No Analytics**: Your data stays on your device
 - **Open Source**: Transparent and auditable code
 
-## 🆕 What's New in v1.0.0
+## 🆕 What's New in v1.5
 
-### Initial Release Highlights
+### Version 1.5 Updates
+- Updated version to 1.5 for stable release
+- Improved stability and performance
+- Bug fixes and optimizations
+- Updated dependencies to latest versions
+
+### From Previous Releases
 - Complete rewrite in Kotlin with Jetpack Compose
 - Unified media library supporting 10+ formats
 - Multiple content source integrations
@@ -156,8 +162,8 @@ This project is licensed under the MIT License. See LICENSE file for details.
 
 ---
 
-**Version**: 1.0.0  
-**Build Date**: October 12, 2025  
+**Version**: 1.5  
+**Build Date**: October 30, 2025  
 **Min SDK**: 26 (Android 8.0)  
 **Target SDK**: 36  
 **APK Size**: ~17 MB
