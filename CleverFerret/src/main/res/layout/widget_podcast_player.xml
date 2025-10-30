@@ -57,7 +57,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Rewind 10s"
+            android:contentDescription="@string/widget_rewind_10s"
             android:src="@android:drawable/ic_media_rew" />
 
         <ImageButton
@@ -68,14 +68,14 @@
             android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_play"
-            android:contentDescription="Play/Pause" />
+            android:contentDescription="@string/widget_play_pause" />
 
         <ImageButton
             android:id="@+id/widget_forward_btn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Forward 30s"
+            android:contentDescription="@string/widget_forward_30s"
             android:src="@android:drawable/ic_media_ff" />
 
         <TextView
@@ -97,5 +97,5 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
-        android:contentDescription="Speed" />
+        android:contentDescription="@string/widget_speed" />
 </LinearLayout>

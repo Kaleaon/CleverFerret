@@ -258,6 +258,11 @@
     <string name="widget_pages_read_count">Pages Read: 0</string>
     <string name="widget_reading_time">Reading Time: 0h</string>
     <string name="widget_episode_progress">45:30 / 1:15:00</string>
+    <string name="widget_album_art">Album Art</string>
+    <string name="widget_rewind_10s">Rewind 10s</string>
+    <string name="widget_previous_station">Previous Station</string>
+    <string name="widget_next_station">Next Station</string>
+    <string name="widget_favorite">Favorite</string>
 
     <!-- Now Playing Screen -->
     <string name="now_playing_title">Now Playing</string>
