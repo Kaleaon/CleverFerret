@@ -94,5 +94,5 @@ Users can download and install the APK:
 - **Android Min SDK**: 26 (Android 8.0)
 - **Android Target SDK**: 36 (Android 15)
 - **Gradle Version**: 8.13
-- **Java Version**: 17
+- **JVM Target**: 11 (built with Java 17)
 - **Kotlin Version**: 2.1.0
