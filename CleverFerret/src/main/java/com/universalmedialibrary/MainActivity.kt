@@ -4,6 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import java.net.URLEncoder
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -37,6 +40,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Home
@@ -479,24 +483,29 @@ fun AppNavigation() {
                 onNavigateBack = { navController.navigateUp() },
                 onFileSelected = { file ->
                     // Determine file type and navigate to appropriate player/reader
+                    val encodedPath = URLEncoder.encode(file.absolutePath, StandardCharsets.UTF_8.toString())
                     when (file.extension.lowercase()) {
                         "epub", "pdf", "mobi", "azw", "azw3" -> {
-                            navController.navigate("reader/${file.absolutePath}")
+                            navController.navigate("reader_path/$encodedPath")
                         }
                         "mp3", "m4a", "flac", "wav", "ogg" -> {
-                            navController.navigate("audio_player/${file.absolutePath}")
+                            navController.navigate("audio_player/$encodedPath")
                         }
                         "mp4", "mkv", "avi", "mov", "webm" -> {
-                            navController.navigate("video_player/${file.absolutePath}")
+                            navController.navigate("video_player_path/$encodedPath")
+                        }
+                        "cbz", "cbr" -> {
+                            navController.navigate("reader_path/$encodedPath")
                         }
                     }
                 }
             )
         }
 
-        // Enhanced eBook Reader route
-        composable("reader/{bookPath}") { backStackEntry ->
-            val bookPath = backStackEntry.arguments?.getString("bookPath") ?: ""
+        // Enhanced eBook Reader route (for direct file paths)
+        composable("reader_path/{bookPath}") { backStackEntry ->
+            val encodedPath = backStackEntry.arguments?.getString("bookPath") ?: ""
+            val bookPath = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.reader.EnhancedEReaderScreen(
                 bookFilePath = bookPath,
                 onBack = { navController.navigateUp() }
@@ -505,15 +514,17 @@ fun AppNavigation() {
 
         // Modern Audio Player route
         composable("audio_player/{audioPath}") { backStackEntry ->
-            val audioPath = backStackEntry.arguments?.getString("audioPath") ?: ""
+            val encodedPath = backStackEntry.arguments?.getString("audioPath") ?: ""
+            val audioPath = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.player.ModernAudioPlayerScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
         }
 
-        // Modern Video Player route
-        composable("video_player/{videoPath}") { backStackEntry ->
-            val videoPath = backStackEntry.arguments?.getString("videoPath") ?: ""
+        // Modern Video Player route (for direct file paths)
+        composable("video_player_path/{videoPath}") { backStackEntry ->
+            val encodedPath = backStackEntry.arguments?.getString("videoPath") ?: ""
+            val videoPath = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.player.ModernVideoPlayerScreen(
                 videoPath = videoPath,
                 onNavigateBack = { navController.navigateUp() }
@@ -897,6 +908,16 @@ fun LibraryListScreen(
                                 onDismissRequest = { showMenu = false },
                             ) {
                                 DropdownMenuItem(
+                                    text = { Text("Browse Files") },
+                                    onClick = {
+                                        showMenu = false
+                                        navController.navigate("storage_browser")
+                                    },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.FolderOpen, contentDescription = null)
+                                    }
+                                )
+                                DropdownMenuItem(
                                     text = { Text("OPDS Server") },
                                     onClick = {
                                         showMenu = false
@@ -1027,18 +1048,40 @@ fun LibraryListScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             QuickAccessCard(
+                                title = "Browse Files",
+                                icon = Icons.Default.FolderOpen,
+                                colors = listOf(Color(0xFF0D47A1), Color(0xFF2196F3)),
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate("storage_browser") }
+                            )
+                            QuickAccessCard(
                                 title = "Visualizer",
                                 icon = Icons.Default.GraphicEq,
                                 colors = listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)),
                                 modifier = Modifier.weight(1f),
                                 onClick = { navController.navigate("visualizer") }
                             )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
                             QuickAccessCard(
                                 title = "Sync",
                                 icon = Icons.Default.Sync,
                                 colors = listOf(Color(0xFF0A1630), Color(0xFFD4AF37)),
                                 modifier = Modifier.weight(1f),
                                 onClick = { navController.navigate("sync") }
+                            )
+                            QuickAccessCard(
+                                title = "Collections",
+                                icon = Icons.Default.Collections,
+                                colors = listOf(Color(0xFF4A148C), Color(0xFF9C27B0)),
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate("collections") }
                             )
                         }
                     }
