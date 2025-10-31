@@ -102,7 +102,7 @@ import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.ui.library.CreateLibraryDialog
 import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.open.MediaOpenScreen
-import com.universalmedialibrary.ui.reader.EReaderScreen
+import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
 import com.universalmedialibrary.ui.reader.DocumentReaderScreen
 import com.universalmedialibrary.ui.reader.ComicReaderScreen
 import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
@@ -1458,25 +1458,58 @@ private fun DirectFileOpenScreen(
     when {
         extension == "epub" -> {
             // For EPUB, we need a file path, so convert URI to path
+            var errorMessage by remember { mutableStateOf<String?>(null) }
             val filePath = remember(uri) {
                 try {
                     if (uri.scheme == "file") {
-                        uri.path ?: fileUri
+                        uri.path ?: throw IllegalStateException("File URI has no path")
                     } else {
-                        // For content:// URIs, we need to copy to cache
-                        val cacheFile = File(context.cacheDir, fileName)
+                        // For content:// URIs, we need to copy to cache with unique name
+                        val timestamp = System.currentTimeMillis()
+                        val uniqueFileName = "${timestamp}_$fileName"
+                        val cacheFile = File(context.cacheDir, uniqueFileName)
                         context.contentResolver.openInputStream(uri)?.use { input ->
                             cacheFile.outputStream().use { output ->
                                 input.copyTo(output)
                             }
-                        }
+                        } ?: throw IllegalStateException("Failed to open input stream")
                         cacheFile.absolutePath
                     }
                 } catch (e: Exception) {
-                    fileUri
+                    errorMessage = "Failed to load EPUB: ${e.message}"
+                    null
                 }
             }
-            EReaderScreen(bookFilePath = filePath, onBack = onBack)
+            
+            if (errorMessage != null) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Error") },
+                            navigationIcon = {
+                                IconButton(onClick = onBack) {
+                                    Icon(Icons.Default.Close, contentDescription = "Back")
+                                }
+                            }
+                        )
+                    }
+                ) { paddingValues ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = errorMessage ?: "Unknown error",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            } else if (filePath != null) {
+                EnhancedEReaderScreen(bookFilePath = filePath, onBack = onBack)
+            }
         }
         extension in setOf("pdf", "txt", "html", "htm", "docx") -> {
             DocumentReaderScreen(uriString = fileUri, fileName = fileName, onBack = onBack)
