@@ -96,9 +96,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
 import com.universalmedialibrary.ui.collections.CollectionsScreen
 import com.universalmedialibrary.ui.home.ContinueReadingSection
@@ -627,13 +629,22 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             com.universalmedialibrary.ui.audiobook.AudiobookLibraryScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onImportClick = { 
-                    // TODO: Implement file picker for audiobook import
                     navController.navigate("storage_browser")
                 },
                 onAudiobookClick = { audiobook ->
-                    // TODO: Navigate to audiobook player when implemented
-                    // navController.navigate("audiobook_player/${audiobook.id}")
+                    navController.navigate("audiobook_player/${audiobook.itemId}")
                 }
+            )
+        }
+        
+        composable(
+            route = "audiobook_player/{audiobookId}",
+            arguments = listOf(navArgument("audiobookId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val audiobookId = backStackEntry.arguments?.getLong("audiobookId") ?: 0L
+            com.universalmedialibrary.ui.audiobook.AudiobookPlayerScreen(
+                audiobookId = audiobookId,
+                onNavigateBack = { navController.navigateUp() }
             )
         }
         

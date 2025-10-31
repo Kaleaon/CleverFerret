@@ -222,8 +222,10 @@ class EnhancedSearchService @Inject constructor(
     }
 
     private fun extractSubtitle(item: MediaItem): String {
+        // Note: Author/artist info should be retrieved separately via MetadataDao
+        // and joined in the UI layer for better performance
         return when (item.mediaType) {
-            "BOOK" -> "Book" // TODO: Get author from metadata
+            "BOOK" -> "Book"
             "AUDIO" -> "Audio"
             "VIDEO" -> "Video"
             "COMIC" -> "Comic"

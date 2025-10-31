@@ -89,12 +89,9 @@ class MediaSessionManager @Inject constructor(
             metadataBuilder.setArtworkData(stream.toByteArray(), MediaMetadata.PICTURE_TYPE_FRONT_COVER)
         }
 
-        if (duration > 0) {
-            // TODO: Duration is set on MediaItem, not MediaMetadata in Media3:
-            // Use: MediaItem.Builder().setMediaId(id).setUri(uri)
-            //   .setMediaMetadata(metadata).setDurationUs(duration * 1000).build()
-            // Media3 handles duration at the MediaItem level, not MediaMetadata level
-        }
+        // Note: Duration is handled at MediaItem level in Media3, not MediaMetadata
+        // When creating MediaItem: MediaItem.Builder().setMediaMetadata(metadata).build()
+        // Duration is automatically extracted from the media source by ExoPlayer
 
         val mediaItem = MediaItem.Builder()
             .setMediaMetadata(metadataBuilder.build())
