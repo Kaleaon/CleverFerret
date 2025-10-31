@@ -194,23 +194,7 @@ fun AppNavigation() {
         startDestination = "home"
     ) {
         composable("home") {
-            com.universalmedialibrary.ui.home.HomeScreen(
-                onNavigateToMedia = { type, id -> 
-                    when (type) {
-                        "music" -> navController.navigate("music")
-                        "video" -> navController.navigate("videos")
-                        "book" -> navController.navigate("bookshelf/1")
-                        "comic" -> navController.navigate("bookshelf/2")
-                        else -> navController.navigate("library_details/1")
-                    }
-                },
-                onNavigateToSearch = { navController.navigate("enhanced_search") },
-                onNavigateToLibrary = { navController.navigate("library_details/1") },
-                onNavigateToVisualizer = { navController.navigate("visualizer") },
-                onNavigateToFanfiction = { navController.navigate("fanfiction_library") },
-                onNavigateToAudiobooks = { navController.navigate("audiobook_library") },
-                onNavigateToDuplicates = { navController.navigate("duplicate_detection") }
-            )
+            LibraryListScreen(navController = navController)
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
