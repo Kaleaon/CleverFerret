@@ -242,5 +242,5 @@ data class HDRadioStation(
         get() = "%.1f FM".format(frequency / 1000.0)
         
     val fullName: String
-        get() = "$name $channel"
+        get() = if (name.contains(channel, ignoreCase = true)) name else "$name $channel"
 }

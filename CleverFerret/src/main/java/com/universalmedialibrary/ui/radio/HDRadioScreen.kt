@@ -427,7 +427,9 @@ class HDRadioViewModel @Inject constructor(
                 hdRadioService.setPlaying(true)
 
             } catch (e: Exception) {
-                // Error handling - in real implementation would update UI state
+                // Log error and handle gracefully
+                android.util.Log.e("HDRadioViewModel", "Error playing station: ${station.name}", e)
+                // In a production app, would show a toast or update error state
             }
         }
     }
