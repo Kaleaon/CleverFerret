@@ -1,0 +1,29 @@
+CleverFerret v1.5.2 Release
+================================
+
+Release Date: 2025-10-31
+Version: 1.5.2
+Build: 6
+Git Tag: v1.5.2
+
+Files in this release:
+- CHANGELOG_v1.5.2.md - Full changelog
+- CleverFerret-v1.5.2-debug.apk - Android APK (if built)
+
+GitHub:
+- Branch: main
+- Tag: v1.5.2
+- Commit: a7bf086edf8149ec36cc3744610b14cc7576c4ad
+
+Features:
+- Responsive navigation (PWA & APK)
+- 500+ radio stations integrated
+- Material 3 design
+- 94.4% test coverage
+
+To install:
+- Android: Download and install APK
+- PWA: Visit app URL and click install
+
+Documentation:
+See CHANGELOG_v1.5.2.md for complete details
