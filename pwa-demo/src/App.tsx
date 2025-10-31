@@ -229,6 +229,9 @@ const AppContent: React.FC = () => {
         {/* Global Now Playing Bar */}
         <NowPlayingBar />
 
+        {/* PWA Install Prompt */}
+        <PWAInstallPrompt />
+
         {/* Floating Action Button (Mobile & Desktop) */}
         <Zoom in={showFab}>
           <Fab
