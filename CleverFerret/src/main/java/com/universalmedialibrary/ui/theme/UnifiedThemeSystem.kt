@@ -238,15 +238,23 @@ fun UnifiedCleverFerretTheme(
             content = content
         )
     } else {
-        // Use traditional unified theme system
+        // Use traditional unified theme system WITH advanced effects
         val colorScheme = getColorSchemeForTheme(theme, darkTheme)
         val metallicColors = getMetallicColorsForTheme(theme)
         
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = AncientArchitectTypography, // Use the same typography
-            content = content
-        )
+        // Provide advanced effects context for all themes
+        CompositionLocalProvider(
+            LocalMetallicColors provides metallicColors,
+            LocalEnableGeometricPatterns provides enableGeometricPatterns,
+            LocalEnableMetallicShimmer provides enableMetallicShimmer,
+            LocalEnableCrystalGlow provides enableCrystalGlow
+        ) {
+            MaterialTheme(
+                colorScheme = colorScheme,
+                typography = AncientArchitectTypography, // Use the same typography
+                content = content
+            )
+        }
     }
 }
 
@@ -368,6 +376,11 @@ val LocalMetallicColors = compositionLocalOf {
         shimmer = Color(0xFFFFF8DC)
     )
 }
+
+/**
+ * Note: LocalEnableGeometricPatterns, LocalEnableMetallicShimmer, and LocalEnableCrystalGlow
+ * are defined in AncientArchitectTheme.kt and shared by all themes
+ */
 
 /**
  * Access current metallic colors
