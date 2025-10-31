@@ -213,8 +213,7 @@ class AudiobookPlaylistManager @Inject constructor(
             description = "Books by $authorName"
         )
 
-        val books = mediaItemDao.getMediaItemsByType("BOOK").first()
-        // TODO: Filter by author when metadata is available
+        val books = mediaItemDao.getMediaItemsByAuthor(authorName).first()
         
         addAudiobooksToPlaylist(collectionId, books.map { it.itemId })
         
@@ -230,8 +229,7 @@ class AudiobookPlaylistManager @Inject constructor(
             description = "Audiobooks in the $genre genre"
         )
 
-        val books = mediaItemDao.getMediaItemsByType("BOOK").first()
-        // TODO: Filter by genre when metadata is available
+        val books = mediaItemDao.getMediaItemsByGenre(genre, "BOOK").first()
         
         addAudiobooksToPlaylist(collectionId, books.map { it.itemId })
         

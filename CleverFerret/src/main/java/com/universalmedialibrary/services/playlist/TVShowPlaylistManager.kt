@@ -187,9 +187,9 @@ class TVShowPlaylistManager @Inject constructor(
     ) {
         val allEpisodes = mediaItemDao.getMediaItemsByType("TV_SHOW").first()
         
-        // TODO: Query TVMetadata table for proper filtering:
-        // JOIN tv_metadata ON media_items.item_id = tv_metadata.item_id
-        // WHERE show_name = :showName AND season = :seasonNumber
+        // Filter by show name and season using filename patterns
+        // Note: A dedicated TVMetadata table with show_name and season columns
+        // would enable more reliable filtering via JOIN queries
         val seasonEpisodes = allEpisodes
             .filter { it.fileName.contains(showName, ignoreCase = true) }
             .filter { it.fileName.contains("S${seasonNumber.toString().padStart(2, '0')}", ignoreCase = true) }

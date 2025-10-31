@@ -191,10 +191,9 @@ class MusicPlaylistManager @Inject constructor(
             description = "Auto-generated playlist for $genre music"
         )
 
-        // Get all music tracks of this genre (would need genre metadata)
-        val tracks = mediaItemDao.getMediaItemsByType("MUSIC_TRACK").first()
+        // Get all music tracks of this genre
+        val tracks = mediaItemDao.getMediaItemsByGenre(genre, "MUSIC_TRACK").first()
         
-        // TODO: Filter by genre when metadata is available
         addTracksToPlaylist(playlistId, tracks.map { it.itemId })
         
         return playlistId
