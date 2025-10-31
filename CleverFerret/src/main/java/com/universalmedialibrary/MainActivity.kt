@@ -632,7 +632,7 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                     navController.navigate("storage_browser")
                 },
                 onAudiobookClick = { audiobook ->
-                    navController.navigate("audiobook_player/${audiobook.itemId}")
+                    navController.navigate("audiobook_player/${audiobook.id}")
                 }
             )
         }
