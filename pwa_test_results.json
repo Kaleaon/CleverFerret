@@ -9,7 +9,7 @@
       "success": true,
       "message": "PWA accessible at http://localhost:5000",
       "details": {},
-      "timestamp": 1761898898.9378345
+      "timestamp": 1761898907.3346894
     },
     {
       "test": "PWA Manifest",
@@ -19,67 +19,67 @@
         "name": "CleverFerret - Universal Media Library",
         "display": "standalone"
       },
-      "timestamp": 1761898898.9395497
+      "timestamp": 1761898907.33621
     },
     {
       "test": "Service Worker",
       "success": true,
       "message": "Service worker has all required features",
       "details": {},
-      "timestamp": 1761898898.9407458
+      "timestamp": 1761898907.337463
     },
     {
       "test": "Offline Page",
       "success": true,
       "message": "Offline page is available",
       "details": {},
-      "timestamp": 1761898898.9422076
+      "timestamp": 1761898907.3387668
     },
     {
       "test": "PWA Icons",
       "success": true,
       "message": "Found 2/2 icons",
       "details": {},
-      "timestamp": 1761898898.9445207
+      "timestamp": 1761898907.3413355
     },
     {
       "test": "API Endpoints",
       "success": true,
       "message": "API endpoint found at /api (status: 200)",
       "details": {},
-      "timestamp": 1761898898.9552765
+      "timestamp": 1761898907.344106
     },
     {
       "test": "PWA Performance",
       "success": true,
-      "message": "Good performance: 0.003s load time",
+      "message": "Good performance: 0.002s load time",
       "details": {
-        "load_time_seconds": 0.003,
+        "load_time_seconds": 0.002,
         "content_size_kb": 2.6,
         "status_code": 200
       },
-      "timestamp": 1761898898.957965
+      "timestamp": 1761898907.346498
     },
     {
       "test": "Metadata APIs",
       "success": false,
       "message": "Google Books API error (status 403)",
       "details": {},
-      "timestamp": 1761898899.025537
+      "timestamp": 1761898907.40231
     },
     {
       "test": "MusicBrainz API",
       "success": true,
       "message": "MusicBrainz API is accessible",
       "details": {},
-      "timestamp": 1761898899.5887911
+      "timestamp": 1761898907.794178
     },
     {
       "test": "Open Library API",
       "success": true,
       "message": "Open Library API is accessible",
       "details": {},
-      "timestamp": 1761898901.9812148
+      "timestamp": 1761898908.8299258
     },
     {
       "test": "Gemini AI Config",
@@ -88,7 +88,7 @@
       "details": {
         "note": "Service configured but requires API_KEY environment variable"
       },
-      "timestamp": 1761898901.9818494
+      "timestamp": 1761898908.8305013
     }
   ]
 }
