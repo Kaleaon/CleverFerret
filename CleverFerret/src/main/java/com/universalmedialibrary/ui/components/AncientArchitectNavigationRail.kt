@@ -203,7 +203,7 @@ fun AncientArchitectNavigationRailItem(
 @Composable
 fun AncientArchitectNavigationRailWithItems(
     selectedIndex: Int,
-    items: List<NavigationItem>,
+    items: List<RailNavigationItem>,
     onItemSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
     header: (@Composable ColumnScope.() -> Unit)? = null
@@ -234,9 +234,9 @@ fun AncientArchitectNavigationRailWithItems(
 }
 
 /**
- * Data class for navigation items
+ * Data class for navigation rail items
  */
-data class NavigationItem(
+data class RailNavigationItem(
     val icon: ImageVector,
     val label: String,
     val badge: String? = null
