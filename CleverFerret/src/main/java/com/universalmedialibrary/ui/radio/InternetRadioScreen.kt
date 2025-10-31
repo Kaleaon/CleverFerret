@@ -259,6 +259,14 @@ class InternetRadioViewModel @Inject constructor(
     init {
         loadSampleStations()
     }
+    
+    companion object {
+        /**
+         * Delay in milliseconds to allow ExoPlayer to initialize before attaching visualizer.
+         * This ensures the audio session ID is available and the player is ready to provide audio data.
+         */
+        private const val PLAYER_INIT_DELAY_MS = 500L
+    }
 
     private fun loadSampleStations() {
         // Comprehensive collection from 4 premium sources
@@ -1060,8 +1068,8 @@ InternetRadioStation("gh39", "Worldwide FM", "https://worldwidefm.out.airtime.pr
             )
             
             // Attach visualizer to the player for audio visualization
-            // Small delay to ensure player is initialized
-            kotlinx.coroutines.delay(500)
+            // Wait for player initialization before attaching visualizer
+            kotlinx.coroutines.delay(PLAYER_INIT_DELAY_MS)
             try {
                 val exoPlayerService = musicPlayerService.getExoPlayerService()
                 exoPlayerService.getPlayer()?.let { player ->
@@ -1322,29 +1330,32 @@ private fun ScrollingText(
 ) {
     val scrollState = rememberScrollState()
     
-    // Auto-scroll effect
-    LaunchedEffect(text) {
-        while (true) {
-            // Scroll to end
-            scrollState.animateScrollTo(
-                value = scrollState.maxValue,
-                animationSpec = tween(
-                    durationMillis = (text.length * 100).coerceAtLeast(2000),
-                    easing = LinearEasing
+    // Auto-scroll effect - only if text overflows
+    LaunchedEffect(text, scrollState.maxValue) {
+        // Only animate if text actually needs scrolling
+        if (scrollState.maxValue > 0) {
+            while (true) {
+                // Scroll to end
+                scrollState.animateScrollTo(
+                    value = scrollState.maxValue,
+                    animationSpec = tween(
+                        durationMillis = (text.length * 100).coerceAtLeast(2000),
+                        easing = LinearEasing
+                    )
                 )
-            )
-            // Pause at end
-            kotlinx.coroutines.delay(1000)
-            // Scroll back to start
-            scrollState.animateScrollTo(
-                value = 0,
-                animationSpec = tween(
-                    durationMillis = 800,
-                    easing = LinearEasing
+                // Pause at end
+                kotlinx.coroutines.delay(1000)
+                // Scroll back to start
+                scrollState.animateScrollTo(
+                    value = 0,
+                    animationSpec = tween(
+                        durationMillis = 800,
+                        easing = LinearEasing
+                    )
                 )
-            )
-            // Pause at start
-            kotlinx.coroutines.delay(1000)
+                // Pause at start
+                kotlinx.coroutines.delay(1000)
+            }
         }
     }
     
