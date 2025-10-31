@@ -9,6 +9,8 @@ import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -60,6 +62,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -161,6 +164,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // Restore external file URI from saved state if available
+        savedInstanceState?.getString(KEY_EXTERNAL_FILE_URI)?.let { uriString ->
+            externalFileUri = Uri.parse(uriString)
+        }
+        
         // Handle intent for opening external files
         handleIntent(intent)
         
@@ -181,6 +189,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Save external file URI to survive configuration changes
+        externalFileUri?.toString()?.let { uriString ->
+            outState.putString(KEY_EXTERNAL_FILE_URI, uriString)
+        }
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -191,6 +207,10 @@ class MainActivity : ComponentActivity() {
         if (intent?.action == Intent.ACTION_VIEW) {
             externalFileUri = intent.data
         }
+    }
+
+    companion object {
+        private const val KEY_EXTERNAL_FILE_URI = "external_file_uri"
     }
 }
 
@@ -1505,61 +1525,118 @@ private fun DirectFileOpenScreen(
     
     val extension = remember(fileName) { fileName.substringAfterLast('.', "").lowercase() }
     
+    // State for error messages and loading - moved outside when block
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    var filePath by remember { mutableStateOf<String?>(null) }
+    
     // Route to appropriate reader based on file type
     when {
         extension == "epub" -> {
             // For EPUB, we need a file path, so convert URI to path
-            var errorMessage by remember { mutableStateOf<String?>(null) }
-            val filePath = remember(uri) {
+            // Clean up old cache files on mount
+            LaunchedEffect(Unit) {
                 try {
-                    if (uri.scheme == "file") {
-                        uri.path ?: throw IllegalStateException("File URI has no path")
-                    } else {
-                        // For content:// URIs, we need to copy to cache with unique name
-                        val uuid = UUID.randomUUID().toString()
-                        val uniqueFileName = "${uuid}_$fileName"
-                        val cacheFile = File(context.cacheDir, uniqueFileName)
-                        context.contentResolver.openInputStream(uri)?.use { input ->
-                            cacheFile.outputStream().use { output ->
-                                input.copyTo(output)
-                            }
-                        } ?: throw IllegalStateException("Unable to access the selected file. It may have been moved or deleted.")
-                        cacheFile.absolutePath
+                    val cacheDir = context.cacheDir
+                    val oldCacheFiles = cacheDir.listFiles { file ->
+                        file.name.contains("_") && file.name.endsWith(".epub")
+                    }
+                    val oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000)
+                    oldCacheFiles?.forEach { file ->
+                        if (file.lastModified() < oneDayAgo) {
+                            file.delete()
+                        }
                     }
                 } catch (e: Exception) {
-                    errorMessage = "Failed to load EPUB: ${e.message}"
-                    null
+                    // Ignore cleanup errors
                 }
             }
             
-            if (errorMessage != null) {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Error") },
-                            navigationIcon = {
-                                IconButton(onClick = onBack) {
-                                    Icon(Icons.Default.Close, contentDescription = "Back")
+            // Handle file loading asynchronously
+            LaunchedEffect(uri) {
+                isLoading = true
+                errorMessage = null
+                filePath = null
+                
+                try {
+                    if (uri.scheme == "file") {
+                        filePath = uri.path ?: throw IllegalStateException("File URI has no path")
+                    } else {
+                        // For content:// URIs, copy to cache with unique name
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            val uuid = UUID.randomUUID().toString()
+                            val uniqueFileName = "${uuid}_$fileName"
+                            val cacheFile = File(context.cacheDir, uniqueFileName)
+                            context.contentResolver.openInputStream(uri)?.use { input ->
+                                cacheFile.outputStream().use { output ->
+                                    input.copyTo(output)
                                 }
-                            }
-                        )
+                            } ?: throw IllegalStateException("Unable to access the selected file. It may have been moved or deleted.")
+                            filePath = cacheFile.absolutePath
+                        }
                     }
-                ) { paddingValues ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = errorMessage ?: "Unknown error",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
-                        )
+                } catch (e: Exception) {
+                    errorMessage = "Failed to load EPUB: ${e.message}"
+                } finally {
+                    isLoading = false
+                }
+            }
+            
+            when {
+                isLoading -> {
+                    // Show loading indicator
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = { Text("Loading...") },
+                                navigationIcon = {
+                                    IconButton(onClick = onBack) {
+                                        Icon(Icons.Default.Close, contentDescription = "Back")
+                                    }
+                                }
+                            )
+                        }
+                    ) { paddingValues ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
-            } else if (filePath != null) {
-                EnhancedEReaderScreen(bookFilePath = filePath, onBack = onBack)
+                errorMessage != null -> {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = { Text("Error") },
+                                navigationIcon = {
+                                    IconButton(onClick = onBack) {
+                                        Icon(Icons.Default.Close, contentDescription = "Back")
+                                    }
+                                }
+                            )
+                        }
+                    ) { paddingValues ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = errorMessage ?: "Unknown error",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+                filePath != null -> {
+                    EnhancedEReaderScreen(bookFilePath = filePath!!, onBack = onBack)
+                }
             }
         }
         extension in setOf("pdf", "txt", "html", "htm", "docx") -> {
