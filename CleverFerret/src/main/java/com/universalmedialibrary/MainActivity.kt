@@ -4,6 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import java.net.URLEncoder
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -114,8 +117,6 @@ import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 
 /**
@@ -497,7 +498,7 @@ fun AppNavigation() {
         // Enhanced eBook Reader route (for direct file paths)
         composable("reader_path/{bookPath}") { backStackEntry ->
             val encodedPath = backStackEntry.arguments?.getString("bookPath") ?: ""
-            val bookPath = java.net.URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
+            val bookPath = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.reader.EnhancedEReaderScreen(
                 bookFilePath = bookPath,
                 onBack = { navController.navigateUp() }
@@ -507,7 +508,7 @@ fun AppNavigation() {
         // Modern Audio Player route
         composable("audio_player/{audioPath}") { backStackEntry ->
             val encodedPath = backStackEntry.arguments?.getString("audioPath") ?: ""
-            val audioPath = java.net.URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
+            val audioPath = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.player.ModernAudioPlayerScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
@@ -516,7 +517,7 @@ fun AppNavigation() {
         // Modern Video Player route (for direct file paths)
         composable("video_player_path/{videoPath}") { backStackEntry ->
             val encodedPath = backStackEntry.arguments?.getString("videoPath") ?: ""
-            val videoPath = java.net.URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
+            val videoPath = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.player.ModernVideoPlayerScreen(
                 videoPath = videoPath,
                 onNavigateBack = { navController.navigateUp() }
