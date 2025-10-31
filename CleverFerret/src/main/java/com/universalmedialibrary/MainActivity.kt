@@ -425,7 +425,8 @@ fun AppNavigation() {
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToOTR = { navController.navigate("old_time_radio") },
                 onNavigateToInternetRadio = { navController.navigate("internet_radio") },
-                onNavigateToFMRadio = { navController.navigate("fm_radio") }
+                onNavigateToFMRadio = { navController.navigate("fm_radio") },
+                onNavigateToHDRadio = { navController.navigate("hd_radio") }
             )
         }
         
@@ -437,6 +438,12 @@ fun AppNavigation() {
         
         composable("fm_radio") {
             com.universalmedialibrary.ui.radio.FMRadioScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+        
+        composable("hd_radio") {
+            com.universalmedialibrary.ui.radio.HDRadioScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
         }
