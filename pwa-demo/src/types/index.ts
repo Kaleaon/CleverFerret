@@ -80,3 +80,9 @@ export interface ImportStatus {
   status: string;
   progress?: number;
 }
+
+export type MediaType = 'BOOK' | 'AUDIOBOOK' | 'COMIC' | 'MOVIE' | 'MUSIC' | 'PODCAST' | 'MAGAZINE' | 'DOCUMENT';
+
+export interface MediaItemWithOriginal extends MediaItem {
+  originalData?: any;
+}
