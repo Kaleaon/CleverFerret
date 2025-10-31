@@ -66,3 +66,7 @@ branch_cleanup.sh
 
 # Cursor temp files
 .cursor/temp/
+-e 
+# Environment files
+*.env
+*.env.*
