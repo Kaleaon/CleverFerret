@@ -1,0 +1,12197 @@
+/**
+ * Radio Stations Database - Aggregated from Radio-Browser.info
+ * Generated: 2025-10-31 09:44:13
+ * Total Stations: 500
+ * Source: Radio-Browser.info Community API (30,000+ stations)
+ */
+
+export interface RadioStation {
+  id: string;
+  name: string;
+  description: string;
+  streamUrl: string;
+  streamUrls: string[];
+  website?: string;
+  genres: string[];
+  country: string;
+  countryCode: string;
+  language: string;
+  bitrate?: string;
+  codec?: string;
+  favicon?: string;
+  votes?: number;
+  clickCount?: number;
+  lastCheckOk?: boolean;
+}
+
+export const radioStations: RadioStation[] = [
+  {
+    "id": "78012206-1aa1-11e9-a80b-52543be04c81",
+    "name": "MANGORADIO",
+    "description": "music,variety",
+    "streamUrl": "https://mangoradio.stream.laut.fm/mangoradio",
+    "streamUrls": [
+      "https://mangoradio.stream.laut.fm/mangoradio",
+      "https://mangoradio.stream.laut.fm/mangoradio"
+    ],
+    "website": "https://mangoradio.de/",
+    "genres": [
+      "music",
+      "variety"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://mangoradio.de/wp-content/uploads/cropped-Logo-192x192.webp",
+    "votes": 761413,
+    "clickCount": 44222,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962cc6df-0601-11e8-ae97-52543be04c81",
+    "name": "Dance Wave!",
+    "description": "club dance electronic house trance",
+    "streamUrl": "http://onair.dancewave.online:8080/dance.mp3",
+    "streamUrls": [
+      "http://onair.dancewave.online:8080/dance.mp3",
+      "https://dancewave.online/dance.mp3"
+    ],
+    "website": "https://dancewave.online/",
+    "genres": [
+      "club dance electronic house trance"
+    ],
+    "country": "Hungary",
+    "countryCode": "HU",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://dancewave.online/dw_logo.png",
+    "votes": 518207,
+    "clickCount": 25753,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f592bcd7-c052-11e9-8502-52543be04c81",
+    "name": "REYFM - #original",
+    "description": "#original,fm,rey,reyfm",
+    "streamUrl": "https://reyfm.stream17.radiohost.de/reyfm-original_mp3-192?upd-meta&upd-scheme=https&_art=dD0xNzYxODk4MDI1JmQ9YjBmYjJiODUwZjE0MGY1N2NkNWU",
+    "streamUrls": [
+      "https://reyfm.stream17.radiohost.de/reyfm-original_mp3-192?upd-meta&upd-scheme=https&_art=dD0xNzYxODk4MDI1JmQ9YjBmYjJiODUwZjE0MGY1N2NkNWU",
+      "https://listen.reyfm.de/original_192kbps.mp3"
+    ],
+    "website": "https://www.reyfm.de/",
+    "genres": [
+      "#original",
+      "fm",
+      "rey",
+      "reyfm"
+    ],
+    "country": "",
+    "countryCode": "",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.reyfm.de/icon.png",
+    "votes": 386354,
+    "clickCount": 14522,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9617a958-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Paradise Main Mix (EU) 320k AAC",
+    "description": "california,eclectic,free,internet,non-commercial,paradise,radio",
+    "streamUrl": "http://stream-uk1.radioparadise.com/aac-320",
+    "streamUrls": [
+      "http://stream-uk1.radioparadise.com/aac-320",
+      "http://stream-uk1.radioparadise.com/aac-320"
+    ],
+    "website": "https://radioparadise.com/",
+    "genres": [
+      "california",
+      "eclectic",
+      "free",
+      "internet",
+      "non-commercial"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "AAC",
+    "favicon": "https://radioparadise.com/apple-touch-icon.png",
+    "votes": 256421,
+    "clickCount": 41845,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d1a54d2e-623e-4970-ab11-35f7b56c5ec3",
+    "name": "Classic Vinyl HD",
+    "description": "1930,1940,1950,1960,beautiful music,big band,classic hits,crooners,easy,easy listening,hd,jazz,light orchestral,lounge,oldies,orchestral,otr,relaxation,strings,swing,unwind,walm",
+    "streamUrl": "https://icecast.walmradio.com:8443/classic",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/classic",
+      "https://icecast.walmradio.com:8443/classic"
+    ],
+    "website": "https://walmradio.com/classic",
+    "genres": [
+      "1930",
+      "1940",
+      "1950",
+      "1960",
+      "beautiful music"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://icecast.walmradio.com:8443/classic.jpg",
+    "votes": 222514,
+    "clickCount": 62635,
+    "lastCheckOk": true
+  },
+  {
+    "id": "ea8059be-d119-4de3-b27b-0d9bd6aedb17",
+    "name": "Adroit Jazz Underground",
+    "description": "avant-garde,bebop,big band,bop,combos,contemporary,contemporary jazz,cool,cool jazz,free jazz,fusion,hard bop,hd,mainstream,mainstream jazz,modern,modern big band,post-bop,straight-ahead,walm,west coast",
+    "streamUrl": "https://icecast.walmradio.com:8443/jazz",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/jazz",
+      "https://icecast.walmradio.com:8443/jazz"
+    ],
+    "website": "https://walmradio.com/jazz",
+    "genres": [
+      "avant-garde",
+      "bebop",
+      "big band",
+      "bop",
+      "combos"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://icecast.walmradio.com:8443/jazz.jpg",
+    "votes": 149642,
+    "clickCount": 20521,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6eff3484-4ab4-4d36-bf27-9172c5aac15c",
+    "name": "Christmas Vinyl HD",
+    "description": "christian,christmas,easy listening,hd,holiday,otr,seasonal,vintage,vinyl,walm",
+    "streamUrl": "https://icecast.walmradio.com:8443/christmas",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/christmas",
+      "https://icecast.walmradio.com:8443/christmas"
+    ],
+    "website": "https://walmradio.com/christmas",
+    "genres": [
+      "christian",
+      "christmas",
+      "easy listening",
+      "hd",
+      "holiday"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://icecast.walmradio.com:8443/christmas.png",
+    "votes": 140583,
+    "clickCount": 15521,
+    "lastCheckOk": true
+  },
+  {
+    "id": "348dfc58-ce8c-413b-b264-0384f816344b",
+    "name": "WALM HD",
+    "description": "christian,christian music,contemporary christian,jesus",
+    "streamUrl": "https://icecast.walmradio.com:8443/walm",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/walm",
+      "https://icecast.walmradio.com:8443/walm"
+    ],
+    "website": "https://walmradio.com/walm",
+    "genres": [
+      "christian",
+      "christian music",
+      "contemporary christian",
+      "jesus"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://icecast.walmradio.com:8443/walm.jpg",
+    "votes": 136541,
+    "clickCount": 11913,
+    "lastCheckOk": true
+  },
+  {
+    "id": "313046e3-b203-4b9d-bc3e-393da7d97126",
+    "name": "WALM - Old Time Radio",
+    "description": "78,78-rpm,78rpm,classic,comedy,drama,easy listening,musical,mystery,old time radio,otr,sci-fi,v-disc,vintage,walm",
+    "streamUrl": "https://icecast.walmradio.com:8443/otr",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/otr",
+      "https://icecast.walmradio.com:8443/otr"
+    ],
+    "website": "https://walmradio.com/otr",
+    "genres": [
+      "78",
+      "78-rpm",
+      "78rpm",
+      "classic",
+      "comedy"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://icecast.walmradio.com:8443/otr.jpg",
+    "votes": 123701,
+    "clickCount": 16029,
+    "lastCheckOk": true
+  },
+  {
+    "id": "ba2ff014-f77e-4983-b37f-9b61383cfd65",
+    "name": "Fantasy Italo Radio",
+    "description": "80s,disco,high enery,italo,italodisco,spacesynth",
+    "streamUrl": "https://italo.live-streams.nl/fantasy",
+    "streamUrls": [
+      "https://italo.live-streams.nl/fantasy",
+      "https://italo.live-streams.nl/fantasy"
+    ],
+    "website": "https://www.italo.nu/",
+    "genres": [
+      "80s",
+      "disco",
+      "high enery",
+      "italo",
+      "italodisco"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "https://italo.nu/fantasy-logo.png",
+    "votes": 119870,
+    "clickCount": 3679,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1cfb151d-a341-11e9-a787-52543be04c81",
+    "name": "France Info",
+    "description": "",
+    "streamUrl": "http://icecast.radiofrance.fr/franceinfo-midfi.mp3",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/franceinfo-midfi.mp3",
+      "http://direct.franceinfo.fr/live/franceinfo-midfi.mp3"
+    ],
+    "website": "https://www.francetvinfo.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.francetvinfo.fr/assets/common/images/pwa/ios/120-5487caf3.png",
+    "votes": 76905,
+    "clickCount": 29384,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d28420a4-eccf-47a2-ace1-088c7e7cb7e0",
+    "name": "101 SMOOTH JAZZ",
+    "description": "easy listening,jazz,smooth jazz",
+    "streamUrl": "http://jking.cdnstream1.com/b22139_128mp3",
+    "streamUrls": [
+      "http://jking.cdnstream1.com/b22139_128mp3",
+      "http://www.101smoothjazz.com/101-smoothjazz.m3u"
+    ],
+    "website": "http://101smoothjazz.com/",
+    "genres": [
+      "easy listening",
+      "jazz",
+      "smooth jazz"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://101smoothjazz.com/favicon.ico",
+    "votes": 76381,
+    "clickCount": 39287,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c2914-0601-11e8-ae97-52543be04c81",
+    "name": "RFI Afrique",
+    "description": "africa,news",
+    "streamUrl": "http://live02.rfi.fr/rfiafrique-64.mp3",
+    "streamUrls": [
+      "http://live02.rfi.fr/rfiafrique-64.mp3",
+      "http://live02.rfi.fr/rfiafrique-64.mp3"
+    ],
+    "website": "http://www.rfi.fr/",
+    "genres": [
+      "africa",
+      "news"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "http://www.rfi.fr/apple-touch-icon.png",
+    "votes": 75341,
+    "clickCount": 11373,
+    "lastCheckOk": true
+  },
+  {
+    "id": "64bb1467-2585-4454-a96f-34cfbc864d41",
+    "name": "WALM 2 HD",
+    "description": "choral,christian,christian music,classical music,hymns,orchestral,talk,talk radio,traditional christian",
+    "streamUrl": "https://icecast.walmradio.com:8443/walm2",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/walm2",
+      "https://icecast.walmradio.com:8443/walm2"
+    ],
+    "website": "https://walmradio.com/walm2",
+    "genres": [
+      "choral",
+      "christian",
+      "christian music",
+      "classical music",
+      "hymns"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://icecast.walmradio.com:8443/walm.jpg",
+    "votes": 74482,
+    "clickCount": 10791,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9616a843-0601-11e8-ae97-52543be04c81",
+    "name": "Mosaique FM",
+    "description": "",
+    "streamUrl": "http://radio.mosaiquefm.net:8000/mosalive",
+    "streamUrls": [
+      "http://radio.mosaiquefm.net:8000/mosalive",
+      "http://radio.mosaiquefm.net:8000/mosalive"
+    ],
+    "website": "http://www.mosaiquefm.net/ar/",
+    "genres": [],
+    "country": "Tunisia",
+    "countryCode": "TN",
+    "language": "arabic",
+    "bitrate": "90",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 74163,
+    "clickCount": 6231,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96156a3e-0601-11e8-ae97-52543be04c81",
+    "name": "Deep House Lounge",
+    "description": "deep house,disco,electronica,funky,house,jazzy,lounge,philadelphia,techno",
+    "streamUrl": "http://198.15.94.34:8006/stream",
+    "streamUrls": [
+      "http://198.15.94.34:8006/stream",
+      "http://198.15.94.34:8006/stream"
+    ],
+    "website": "http://www.deephouselounge.com/",
+    "genres": [
+      "deep house",
+      "disco",
+      "electronica",
+      "funky",
+      "house"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.deephouselounge.com/wp-content/themes/maronpro/images/favicon.ico",
+    "votes": 67848,
+    "clickCount": 11028,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7a3a3989-8f26-44f7-9ae5-fa91e5cf4f9d",
+    "name": "RMC FR",
+    "description": "france,info,sport,talk",
+    "streamUrl": "https://audio.bfmtv.com/rmcradio_128.mp3",
+    "streamUrls": [
+      "https://audio.bfmtv.com/rmcradio_128.mp3",
+      "https://audio.bfmtv.com/rmcradio_128.mp3"
+    ],
+    "website": "https://rmc.bfmtv.com/",
+    "genres": [
+      "france",
+      "info",
+      "sport",
+      "talk"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://i1.wp.com/www.mediasportif.fr/wp-content/uploads/2014/05/Radio-RMC.jpg",
+    "votes": 62262,
+    "clickCount": 10681,
+    "lastCheckOk": true
+  },
+  {
+    "id": "dcb4d366-5b06-4f4d-a5cb-0b81d1c09521",
+    "name": "parsa",
+    "description": "classical",
+    "streamUrl": "https://parsa.awsvps.com/stream",
+    "streamUrls": [
+      "https://parsa.awsvps.com/stream",
+      "http://parsa.icdndhcp.com:18000/stream"
+    ],
+    "website": "http://radio.sarcheshmeh.us/parsa.html",
+    "genres": [
+      "classical"
+    ],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://lh5.googleusercontent.com/proxy/25PMsUBa3Z6So8cdvAyZT7_93NyV26cJNuTTDY4xk6aJU1lcKPByf2C7o2HbrGrv-QxPvbI3dio2D39zYlgi1v6nLg",
+    "votes": 59792,
+    "clickCount": 7582,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96102c22-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio Blues",
+    "description": "blues,jazz",
+    "streamUrl": "http://jazzblues.ice.infomaniak.ch/jazzblues-high.mp3",
+    "streamUrls": [
+      "http://jazzblues.ice.infomaniak.ch/jazzblues-high.mp3",
+      "http://jazzblues.ice.infomaniak.ch/jazzblues-high.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/radio/webradio/3/blues",
+    "genres": [
+      "blues",
+      "jazz"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 55211,
+    "clickCount": 7536,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d2bbffaf-5d67-4a65-9772-097d8c0269d3",
+    "name": "France Inter",
+    "description": "",
+    "streamUrl": "http://icecast.radiofrance.fr/franceinter-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/franceinter-hifi.aac",
+      "http://direct.franceinter.fr/live/franceinter-hifi.aac"
+    ],
+    "website": "https://www.franceinter.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://www.franceinter.fr/favicon.ico",
+    "votes": 55112,
+    "clickCount": 14915,
+    "lastCheckOk": true
+  },
+  {
+    "id": "399b7c2a-6680-11e8-b15b-52543be04c81",
+    "name": "RMF FM",
+    "description": "fm,rmf,rmffm",
+    "streamUrl": "http://195.150.20.242:8000/rmf_fm",
+    "streamUrls": [
+      "http://195.150.20.242:8000/rmf_fm",
+      "http://195.150.20.242:8000/rmf_fm"
+    ],
+    "website": "https://www.rmf.fm/",
+    "genres": [
+      "fm",
+      "rmf",
+      "rmffm"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.rmf.fm/assets/images/favicon/apple-icon-120x120.png?3",
+    "votes": 54421,
+    "clickCount": 15368,
+    "lastCheckOk": true
+  },
+  {
+    "id": "ccac6135-cd73-4786-8e69-666df05a5881",
+    "name": "Radio IFM",
+    "description": "entertainment,music,news",
+    "streamUrl": "https://live.ifm.tn/radio/8000/ifmlive",
+    "streamUrls": [
+      "https://live.ifm.tn/radio/8000/ifmlive",
+      "https://live.ifm.tn/radio/8000/ifmlive"
+    ],
+    "website": "https://www.ifm.tn/",
+    "genres": [
+      "entertainment",
+      "music",
+      "news"
+    ],
+    "country": "Tunisia",
+    "countryCode": "TN",
+    "language": "arabic",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 54258,
+    "clickCount": 2874,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9622cd46-0601-11e8-ae97-52543be04c81",
+    "name": "Europa Plus",
+    "description": "dance,house,pop",
+    "streamUrl": "http://ep256.hostingradio.ru:8052/europaplus256.mp3",
+    "streamUrls": [
+      "http://ep256.hostingradio.ru:8052/europaplus256.mp3",
+      "http://ep256.hostingradio.ru:8052/europaplus256.mp3"
+    ],
+    "website": "http://www.europaplus.ru/",
+    "genres": [
+      "dance",
+      "house",
+      "pop"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://liveam.tv/img/2494.jpg",
+    "votes": 54017,
+    "clickCount": 15747,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961949f3-0601-11e8-ae97-52543be04c81",
+    "name": "Hit FM (UKraine) - 128kb/s",
+    "description": "dance,pop,rock",
+    "streamUrl": "http://195.95.206.17/HitFM",
+    "streamUrls": [
+      "http://195.95.206.17/HitFM",
+      "http://195.95.206.17/HitFM"
+    ],
+    "website": "http://www.hitfm.ua/",
+    "genres": [
+      "dance",
+      "pop",
+      "rock"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "russian,ukrainian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.hitfm.ua/static/img/fav-icon/apple-icon-120x120.png",
+    "votes": 53636,
+    "clickCount": 7249,
+    "lastCheckOk": true
+  },
+  {
+    "id": "964be8b7-0601-11e8-ae97-52543be04c81",
+    "name": "Dance Wave Retro!",
+    "description": "90s dance",
+    "streamUrl": "http://onair.dancewave.online:8080/retrodance.mp3",
+    "streamUrls": [
+      "http://onair.dancewave.online:8080/retrodance.mp3",
+      "https://retro.dancewave.online/retrodance.mp3"
+    ],
+    "website": "https://retro.dacemwave.online/",
+    "genres": [
+      "90s dance"
+    ],
+    "country": "Hungary",
+    "countryCode": "HU",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://dancewave.online/dwr_logo.png",
+    "votes": 51535,
+    "clickCount": 2527,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c68f8-0601-11e8-ae97-52543be04c81",
+    "name": "RFI Monde",
+    "description": "news,world music",
+    "streamUrl": "http://live02.rfi.fr/rfimonde-64.mp3",
+    "streamUrls": [
+      "http://live02.rfi.fr/rfimonde-64.mp3",
+      "http://live02.rfi.fr/rfimonde-64.mp3"
+    ],
+    "website": "http://www.rfi.fr/",
+    "genres": [
+      "news",
+      "world music"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "http://www.rfi.fr/apple-touch-icon.png",
+    "votes": 51407,
+    "clickCount": 5431,
+    "lastCheckOk": true
+  },
+  {
+    "id": "31074f8a-e6f4-11e9-a96c-52543be04c81",
+    "name": "France Info",
+    "description": "aac,information,public radio,radio france",
+    "streamUrl": "http://icecast.radiofrance.fr/franceinfo-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/franceinfo-hifi.aac",
+      "http://icecast.radiofrance.fr/franceinfo-hifi.aac"
+    ],
+    "website": "https://www.francetvinfo.fr/en-direct/radio.html",
+    "genres": [
+      "aac",
+      "information",
+      "public radio",
+      "radio france"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://www.francetvinfo.fr/assets/common/images/pwa/ios/120-0cfbd6d4.png",
+    "votes": 51359,
+    "clickCount": 7007,
+    "lastCheckOk": true
+  },
+  {
+    "id": "63688c44-e90b-11e8-a471-52543be04c81",
+    "name": "РАДИО ВАНЯ",
+    "description": "pop",
+    "streamUrl": "https://icecast-radiovanya.cdnvideo.ru/radiovanya",
+    "streamUrls": [
+      "https://icecast-radiovanya.cdnvideo.ru/radiovanya",
+      "https://icecast-radiovanya.cdnvideo.ru/radiovanya"
+    ],
+    "website": "http://www.radiovanya.ru/",
+    "genres": [
+      "pop"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 50612,
+    "clickCount": 12648,
+    "lastCheckOk": true
+  },
+  {
+    "id": "2ce23ee2-95c5-407d-9df8-54c3cdde2825",
+    "name": "Adroit Jazz Underground HD Opus",
+    "description": "avant-garde,bebop,big band,bop,combos,contemporary,contemporary jazz,cool,cool jazz,free jazz,fusion,hard bop,hd,mainstream,mainstream jazz,modern,modern big band,opus,post-bop,straight-ahead,walm,west coast",
+    "streamUrl": "https://icecast.walmradio.com:8443/jazz_opus",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/jazz_opus",
+      "https://icecast.walmradio.com:8443/jazz_opus"
+    ],
+    "website": "https://walmradio.com/jazz",
+    "genres": [
+      "avant-garde",
+      "bebop",
+      "big band",
+      "bop",
+      "combos"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "192",
+    "codec": "OGG",
+    "favicon": "https://icecast.walmradio.com:8443/jazz.jpg",
+    "votes": 50224,
+    "clickCount": 9668,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961b7325-0601-11e8-ae97-52543be04c81",
+    "name": ".977 80s",
+    "description": "80s",
+    "streamUrl": "http://27273.live.streamtheworld.com:3690/977_80_SC",
+    "streamUrls": [
+      "http://27273.live.streamtheworld.com:3690/977_80_SC",
+      "http://playerservices.streamtheworld.com/pls/977_80.pls"
+    ],
+    "website": "http://www.977music.com/",
+    "genres": [
+      "80s"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49593,
+    "clickCount": 10200,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96063f25-0601-11e8-ae97-52543be04c81",
+    "name": "Classic FM UK",
+    "description": "classical",
+    "streamUrl": "http://ice-the.musicradio.com/ClassicFMMP3",
+    "streamUrls": [
+      "http://ice-the.musicradio.com/ClassicFMMP3",
+      "http://ice-the.musicradio.com/ClassicFMMP3"
+    ],
+    "website": "http://www.classicfm.com/",
+    "genres": [
+      "classical"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.classicfm.com/assets_v4r/classic/img/favicon-196x196.png",
+    "votes": 49430,
+    "clickCount": 10360,
+    "lastCheckOk": true
+  },
+  {
+    "id": "165eab56-4a14-11e9-a4d7-52543be04c81",
+    "name": "DFM Дискач 90-х",
+    "description": "90-е,eurodance,nostalgia",
+    "streamUrl": "https://dfm-disc90.hostingradio.ru/disc9096.aacp",
+    "streamUrls": [
+      "https://dfm-disc90.hostingradio.ru/disc9096.aacp",
+      "https://dfm-disc90.hostingradio.ru/disc9096.aacp"
+    ],
+    "website": "https://dfm.ru/",
+    "genres": [
+      "90-е",
+      "eurodance",
+      "nostalgia"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "96",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 49354,
+    "clickCount": 7627,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6a1440b2-e6f0-11e9-a96c-52543be04c81",
+    "name": "France Culture",
+    "description": "aac,culture,public radio,radio france",
+    "streamUrl": "http://icecast.radiofrance.fr/franceculture-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/franceculture-hifi.aac",
+      "http://icecast.radiofrance.fr/franceculture-hifi.aac"
+    ],
+    "website": "https://www.franceculture.fr/",
+    "genres": [
+      "aac",
+      "culture",
+      "public radio",
+      "radio france"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://upload.wikimedia.org/wikipedia/fr/thumb/c/c9/France_Culture_-_2008.svg/1024px-France_Culture_-_2008.svg.png",
+    "votes": 49342,
+    "clickCount": 15634,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9606c2cd-0601-11e8-ae97-52543be04c81",
+    "name": "RTL",
+    "description": "",
+    "streamUrl": "http://streamer-01.rtl.fr/rtl-1-44-128",
+    "streamUrls": [
+      "http://streamer-01.rtl.fr/rtl-1-44-128",
+      "http://streaming.radio.rtl.fr/rtl-1-44-128"
+    ],
+    "website": "http://www.rtl.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49323,
+    "clickCount": 3668,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9627ddc0-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - Old School HipHop/RnB",
+    "description": "hiphop,oldschool,rnb,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-oldschool_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-oldschool_128k.mp3",
+      "http://listen.181fm.com/181-oldschool_128k.mp3"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "hiphop",
+      "oldschool",
+      "rnb",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 49304,
+    "clickCount": 8716,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961d9b63-0601-11e8-ae97-52543be04c81",
+    "name": ".977 Country",
+    "description": "country",
+    "streamUrl": "http://15113.live.streamtheworld.com:3690/977_COUNTRY_SC",
+    "streamUrls": [
+      "http://15113.live.streamtheworld.com:3690/977_COUNTRY_SC",
+      "http://playerservices.streamtheworld.com/pls/977_COUNTRY.pls"
+    ],
+    "website": "http://www.977music.com/",
+    "genres": [
+      "country"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49301,
+    "clickCount": 8255,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960ac54b-0601-11e8-ae97-52543be04c81",
+    "name": "Your Classical - Relax",
+    "description": "classical,relax",
+    "streamUrl": "http://relax.stream.publicradio.org/relax.mp3",
+    "streamUrls": [
+      "http://relax.stream.publicradio.org/relax.mp3",
+      "http://relax.stream.publicradio.org/relax.mp3"
+    ],
+    "website": "http://www.yourclassical.org/",
+    "genres": [
+      "classical",
+      "relax"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.yourclassical.org/apple-touch-icon.png",
+    "votes": 49299,
+    "clickCount": 6798,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960b9e98-0601-11e8-ae97-52543be04c81",
+    "name": "Вести ФМ (Vesti FM)",
+    "description": "news",
+    "streamUrl": "http://icecast.vgtrk.cdnvideo.ru/vestifm_mp3_192kbps",
+    "streamUrls": [
+      "http://icecast.vgtrk.cdnvideo.ru/vestifm_mp3_192kbps",
+      "http://icecast.vgtrk.cdnvideo.ru/vestifm_mp3_192kbps"
+    ],
+    "website": "http://radiovesti.ru/",
+    "genres": [
+      "news"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49278,
+    "clickCount": 19970,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961e5274-0601-11e8-ae97-52543be04c81",
+    "name": "дорожное радио (Dorognoe Radio)",
+    "description": "moscow",
+    "streamUrl": "http://dorognoe.hostingradio.ru:8000/dorognoe",
+    "streamUrls": [
+      "http://dorognoe.hostingradio.ru:8000/dorognoe",
+      "http://dorognoe.hostingradio.ru:8000/dorognoe"
+    ],
+    "website": "https://dorognoe.ru/",
+    "genres": [
+      "moscow"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://dorognoe.ru/assets/default/i/fav_114x114.png",
+    "votes": 49284,
+    "clickCount": 5232,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0a364b59-56b6-11e9-aa33-52543be04c81",
+    "name": "Дорожное радио",
+    "description": "dorojnoe",
+    "streamUrl": "http://dorognoe.hostingradio.ru:8000/radio",
+    "streamUrls": [
+      "http://dorognoe.hostingradio.ru:8000/radio",
+      "http://dorognoe.hostingradio.ru:8000/radio"
+    ],
+    "website": "https://dorognoe.ru/?region=piter",
+    "genres": [
+      "dorojnoe"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://dorognoe.ru/assets/default/i/fav_114x114.png",
+    "votes": 49278,
+    "clickCount": 6295,
+    "lastCheckOk": true
+  },
+  {
+    "id": "964fade0-0601-11e8-ae97-52543be04c81",
+    "name": "Ретро FM",
+    "description": "classic hits,moscow,music,pop,retro,russia,russian pop",
+    "streamUrl": "http://retroserver.streamr.ru:8043/retro256.mp3",
+    "streamUrls": [
+      "http://retroserver.streamr.ru:8043/retro256.mp3",
+      "http://retroserver.streamr.ru:8043/retro256.mp3"
+    ],
+    "website": "http://retrofm.ru/",
+    "genres": [
+      "classic hits",
+      "moscow",
+      "music",
+      "pop",
+      "retro"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49272,
+    "clickCount": 13929,
+    "lastCheckOk": true
+  },
+  {
+    "id": "964da270-0601-11e8-ae97-52543be04c81",
+    "name": "Радио Русские Песни",
+    "description": "russian pop",
+    "streamUrl": "http://listen.rusongs.ru/ru-mp3-128",
+    "streamUrls": [
+      "http://listen.rusongs.ru/ru-mp3-128",
+      "http://listen.rusongs.ru/ru-mp3-128"
+    ],
+    "website": "http://rusongs.ru/",
+    "genres": [
+      "russian pop"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49276,
+    "clickCount": 4920,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f796d445-4314-4eb6-a09d-bcac5d474661",
+    "name": "Дискотека СССР",
+    "description": "80s,90s,russian",
+    "streamUrl": "http://pub0302.101.ru:8000/stream/pro/aac/64/144?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpcCI6IjUuMTguMjQ4Ljk4IiwidXNlcmFnZW50IjoiTW96aWxsYVwvNS4wIChYMTE7IExpbnV4IHg4Nl82NDsgcnY6ODIuMCkgR2Vja29cLzIwMTAwMTAxIEZpcmVmb3hcLzgyLjAiLCJ1aWRfY2hhbm5lbCI6IjE0NCIsInR5cGVfY2hhbm5lbCI6ImNoYW5uZWwiLCJleHAiOjE2MDU5NjQ1MTZ9.Ln1wEJ8cHHzK_Ea6Zr8J8acdny0R9ShZ_KUKVf6TmQA",
+    "streamUrls": [
+      "http://pub0302.101.ru:8000/stream/pro/aac/64/144?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpcCI6IjUuMTguMjQ4Ljk4IiwidXNlcmFnZW50IjoiTW96aWxsYVwvNS4wIChYMTE7IExpbnV4IHg4Nl82NDsgcnY6ODIuMCkgR2Vja29cLzIwMTAwMTAxIEZpcmVmb3hcLzgyLjAiLCJ1aWRfY2hhbm5lbCI6IjE0NCIsInR5cGVfY2hhbm5lbCI6ImNoYW5uZWwiLCJleHAiOjE2MDU5NjQ1MTZ9.Ln1wEJ8cHHzK_Ea6Zr8J8acdny0R9ShZ_KUKVf6TmQA",
+      "http://pub0302.101.ru:8000/stream/pro/aac/64/144?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpcCI6IjUuMTguMjQ4Ljk4IiwidXNlcmFnZW50IjoiTW96aWxsYVwvNS4wIChYMTE7IExpbnV4IHg4Nl82NDsgcnY6ODIuMCkgR2Vja29cLzIwMTAwMTAxIEZpcmVmb3hcLzgyLjAiLCJ1aWRfY2hhbm5lbCI6IjE0NCIsInR5cGVfY2hhbm5lbCI6ImNoYW5uZWwiLCJleHAiOjE2MDU5NjQ1MTZ9.Ln1wEJ8cHHzK_Ea6Zr8J8acdny0R9ShZ_KUKVf6TmQA"
+    ],
+    "website": "https://discoussr.101.ru/",
+    "genres": [
+      "80s",
+      "90s",
+      "russian"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 49268,
+    "clickCount": 9544,
+    "lastCheckOk": true
+  },
+  {
+    "id": "563f5559-105c-11e9-a80b-52543be04c81",
+    "name": "DFM RUSSIAN DANCE",
+    "description": "dance",
+    "streamUrl": "https://dfm-dfmrusdance.hostingradio.ru/dfmrusdance96.aacp?0.9987259013359274",
+    "streamUrls": [
+      "https://dfm-dfmrusdance.hostingradio.ru/dfmrusdance96.aacp?0.9987259013359274",
+      "https://dfm-dfmrusdance.hostingradio.ru/dfmrusdance96.aacp?0.9987259013359274"
+    ],
+    "website": "https://dfm.ru/",
+    "genres": [
+      "dance"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "96",
+    "codec": "AAC+",
+    "favicon": "https://dfm.ru/uploads/favicon.ico",
+    "votes": 49268,
+    "clickCount": 9493,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c2698fb7-f7ec-401d-904f-ef4284501bd9",
+    "name": "RFI-Afrique",
+    "description": "france médias monde,information,public radio,world news",
+    "streamUrl": "http://live02.rfi.fr/rfiafrique-96k.mp3",
+    "streamUrls": [
+      "http://live02.rfi.fr/rfiafrique-96k.mp3",
+      "http://live02.rfi.fr/rfiafrique-96k.mp3"
+    ],
+    "website": "http://www.rfi.fr/fr/",
+    "genres": [
+      "france médias monde",
+      "information",
+      "public radio",
+      "world news"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49263,
+    "clickCount": 1850,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961d5c4e-0601-11e8-ae97-52543be04c81",
+    "name": ".977 Hitz",
+    "description": "hits,top 40",
+    "streamUrl": "http://18853.live.streamtheworld.com/977_HITS_SC",
+    "streamUrls": [
+      "http://18853.live.streamtheworld.com/977_HITS_SC",
+      "http://playerservices.streamtheworld.com/pls/977_HITS.pls"
+    ],
+    "website": "http://www.977music.com/",
+    "genres": [
+      "hits",
+      "top 40"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 49224,
+    "clickCount": 8225,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d9fc29b8-b152-11e8-afe1-52543be04c81",
+    "name": "France Inter",
+    "description": "",
+    "streamUrl": "http://icecast.radiofrance.fr/franceinter-midfi.mp3",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/franceinter-midfi.mp3",
+      "http://direct.franceinter.fr/live/franceinter-midfi.mp3"
+    ],
+    "website": "https://www.franceinter.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 48983,
+    "clickCount": 3790,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1daf83f3-6b68-11ea-b1cf-52543be04c81",
+    "name": "Авторадио - FM 90.3 - Москва",
+    "description": "",
+    "streamUrl": "http://ic4.101.ru:8000/v3_1",
+    "streamUrls": [
+      "http://ic4.101.ru:8000/v3_1",
+      "http://ic4.101.ru:8000/v3_1"
+    ],
+    "website": "https://www.avtoradio.ru/",
+    "genres": [],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 48573,
+    "clickCount": 3263,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b96225b2-8536-4b9b-8add-03582fd2e6a2",
+    "name": "WALM 2 HD Opus",
+    "description": "choral,christian,christian music,classical music,hymns,opus,orchestral,talk,talk radio,traditional christian",
+    "streamUrl": "https://icecast.walmradio.com:8443/walm2_opus",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/walm2_opus",
+      "https://icecast.walmradio.com:8443/walm2_opus"
+    ],
+    "website": "https://walmradio.com/walm2",
+    "genres": [
+      "choral",
+      "christian",
+      "christian music",
+      "classical music",
+      "hymns"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "OGG",
+    "favicon": "https://icecast.walmradio.com:8443/walm.jpg",
+    "votes": 47783,
+    "clickCount": 7684,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5aaddcc0-1695-11e9-a80b-52543be04c81",
+    "name": "Faz",
+    "description": "",
+    "streamUrl": "http://www.radiofaaz.com:8000/radiofaaz",
+    "streamUrls": [
+      "http://www.radiofaaz.com:8000/radiofaaz",
+      "http://www.radiofaaz.com:8000/radiofaaz"
+    ],
+    "website": "http://www.radiofaaz.com:8000/radiofaaz",
+    "genres": [],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 47553,
+    "clickCount": 6062,
+    "lastCheckOk": true
+  },
+  {
+    "id": "af6f51b1-0ca9-11ea-a87e-52543be04c81",
+    "name": "Intense Radio - We love Dance #HQ# FLAC",
+    "description": "90s,club,dance,house,melodic,techno,trance",
+    "streamUrl": "http://secure.live-streams.nl/flac.ogg",
+    "streamUrls": [
+      "http://secure.live-streams.nl/flac.ogg",
+      "http://secure.live-streams.nl/flac.ogg"
+    ],
+    "website": "https://www.intenseradio.net/",
+    "genres": [
+      "90s",
+      "club",
+      "dance",
+      "house",
+      "melodic"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "english",
+    "bitrate": "1411",
+    "codec": "OGG",
+    "favicon": "https://www.intenseradio.net/wp-content/uploads/fbrfg/apple-touch-icon.png?v=gaek7lvrgd",
+    "votes": 47033,
+    "clickCount": 2828,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961fa288-0601-11e8-ae97-52543be04c81",
+    "name": "Ambient Sleeping Pill",
+    "description": "ambient,meditation,sleep",
+    "streamUrl": "http://radio.stereoscenic.com/asp-h",
+    "streamUrls": [
+      "http://radio.stereoscenic.com/asp-h",
+      "http://radio.stereoscenic.com/asp-h"
+    ],
+    "website": "http://ambientsleepingpill.com/",
+    "genres": [
+      "ambient",
+      "meditation",
+      "sleep"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 46616,
+    "clickCount": 9572,
+    "lastCheckOk": true
+  },
+  {
+    "id": "24e3676a-8de5-474c-8ed2-288fbb66d447",
+    "name": "Christmas Vinyl HD Opus",
+    "description": "christian,christmas,easy listening,hd,holiday,opus,otr,seasonal,vintage,vinyl,walm",
+    "streamUrl": "https://icecast.walmradio.com:8443/christmas_opus",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/christmas_opus",
+      "https://icecast.walmradio.com:8443/christmas_opus"
+    ],
+    "website": "https://walmradio.com/christmas",
+    "genres": [
+      "christian",
+      "christmas",
+      "easy listening",
+      "hd",
+      "holiday"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "192",
+    "codec": "OGG",
+    "favicon": "https://icecast.walmradio.com:8443/christmas.jpg",
+    "votes": 46466,
+    "clickCount": 6738,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e3d8f94f-156e-11e9-a80b-52543be04c81",
+    "name": "Вести FM",
+    "description": "news,talk",
+    "streamUrl": "http://icecast.vgtrk.cdnvideo.ru/vestifm",
+    "streamUrls": [
+      "http://icecast.vgtrk.cdnvideo.ru/vestifm",
+      "http://icecast.vgtrk.cdnvideo.ru/vestifm"
+    ],
+    "website": "http://radiovesti.ru/",
+    "genres": [
+      "news",
+      "talk"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 45770,
+    "clickCount": 5432,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e23a948f-b571-49be-85a2-4f6df822fc00",
+    "name": "Европа плюс",
+    "description": "поп",
+    "streamUrl": "http://ep128server.streamr.ru:8030/ep128",
+    "streamUrls": [
+      "http://ep128server.streamr.ru:8030/ep128",
+      "http://ep128server.streamr.ru:8030/ep128"
+    ],
+    "website": "https://radiomap.eu/ru/blagoveshchensk",
+    "genres": [
+      "поп"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://radiomap.eu/2015/images/icon-120.png",
+    "votes": 45694,
+    "clickCount": 2019,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1fbda80a-41a7-11ea-a95e-52543be04c81",
+    "name": "Comedy Radio new link",
+    "description": "comedy,humor,pop,sketches",
+    "streamUrl": "http://ic6.101.ru:8000/stream/air/aac/64/202",
+    "streamUrls": [
+      "http://ic6.101.ru:8000/stream/air/aac/64/202",
+      "http://ic6.101.ru:8000/stream/air/aac/64/202"
+    ],
+    "website": "https://comedy-radio.ru/",
+    "genres": [
+      "comedy",
+      "humor",
+      "pop",
+      "sketches"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 45239,
+    "clickCount": 6590,
+    "lastCheckOk": true
+  },
+  {
+    "id": "204b0d57-2c17-11e8-91bf-52543be04c81",
+    "name": "Rockabilly-radio.net",
+    "description": "rockabilly",
+    "streamUrl": "http://lin3.ash.fast-serv.com:6026/stream_96",
+    "streamUrls": [
+      "http://lin3.ash.fast-serv.com:6026/stream_96",
+      "http://lin3.ash.fast-serv.com:6026/stream_96"
+    ],
+    "website": "http://rockabilly-radio.net/",
+    "genres": [
+      "rockabilly"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 45172,
+    "clickCount": 2520,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963c00ab-0601-11e8-ae97-52543be04c81",
+    "name": "Intense Radio - We love Dance 256k",
+    "description": "dance house club  electronic techhouse",
+    "streamUrl": "http://intenseradio.live-streams.nl:8000/main",
+    "streamUrls": [
+      "http://intenseradio.live-streams.nl:8000/main",
+      "http://intenseradio.live-streams.nl:8000/main"
+    ],
+    "website": "https://www.intenseradio.net/",
+    "genres": [
+      "dance house club  electronic techhouse"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "dutch,english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://www.intenseradio.net/wp-content/uploads/fbrfg/apple-touch-icon.png",
+    "votes": 45117,
+    "clickCount": 1626,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961787d1-0601-11e8-ae97-52543be04c81",
+    "name": "Frisky",
+    "description": "electronic,frisky,new york city,progressive",
+    "streamUrl": "http://stream2.friskyradio.com/frisky_mp3_hi",
+    "streamUrls": [
+      "http://stream2.friskyradio.com/frisky_mp3_hi",
+      "http://stream2.friskyradio.com/frisky_mp3_hi"
+    ],
+    "website": "https://www.friskyradio.com/",
+    "genres": [
+      "electronic",
+      "frisky",
+      "new york city",
+      "progressive"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://s3.amazonaws.com/media.friskyradio.com/favicon.png",
+    "votes": 44709,
+    "clickCount": 4850,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960cf833-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Groove Salad (128k MP3)",
+    "description": "ambient,chillout,downtempo,groove,lounge,sleep",
+    "streamUrl": "https://ice1.somafm.com/groovesalad-128-mp3",
+    "streamUrls": [
+      "https://ice1.somafm.com/groovesalad-128-mp3",
+      "https://somafm.com/groovesalad.pls"
+    ],
+    "website": "https://somafm.com/groovesalad/",
+    "genres": [
+      "ambient",
+      "chillout",
+      "downtempo",
+      "groove",
+      "lounge"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/groovesalad-400.jpg",
+    "votes": 44015,
+    "clickCount": 7848,
+    "lastCheckOk": true
+  },
+  {
+    "id": "59e30dda-64bf-11ea-be63-52543be04c81",
+    "name": "Radio Zet",
+    "description": "",
+    "streamUrl": "http://zt06.cdn.eurozet.pl/zet-old.mp3?redirected=06",
+    "streamUrls": [
+      "http://zt06.cdn.eurozet.pl/zet-old.mp3?redirected=06",
+      "http://zet-net-01.cdn.eurozet.pl:8400/"
+    ],
+    "website": "https://www.radiozet.pl/",
+    "genres": [],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://gfx.radiozet.pl/extension/radiozet/design/standard/images/favicon/apple-touch-icon.png",
+    "votes": 42936,
+    "clickCount": 13181,
+    "lastCheckOk": true
+  },
+  {
+    "id": "01b61e49-18bd-486d-b0e1-cb51cbaf9a6d",
+    "name": "Skyrock",
+    "description": "rap",
+    "streamUrl": "http://icecast.skyrock.net/s/natio_mp3_128k",
+    "streamUrls": [
+      "http://icecast.skyrock.net/s/natio_mp3_128k",
+      "http://icecast.skyrock.net/s/natio_mp3_128k"
+    ],
+    "website": "https://skyrock.fm/",
+    "genres": [
+      "rap"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://play-lh.googleusercontent.com/dPiQ01OUKZVfRZUbbb-EVK5g9miS_K-xrxHgmBbynGG-GQ53yt3GzFKr0zUTnb-xswQ=s200-rw",
+    "votes": 42487,
+    "clickCount": 6578,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96136fe5-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio",
+    "description": "jazz,soul",
+    "streamUrl": "http://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3",
+    "streamUrls": [
+      "http://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3",
+      "http://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/",
+    "genres": [
+      "jazz",
+      "soul"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "http://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 42398,
+    "clickCount": 4419,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1f900b9a-ea3b-4eac-9505-1df5bef175be",
+    "name": "Люкс FМ 103.1",
+    "description": "music",
+    "streamUrl": "http://lux.radio.tvstitch.com/kyiv/lux_adv_sd",
+    "streamUrls": [
+      "http://lux.radio.tvstitch.com/kyiv/lux_adv_sd",
+      "http://icecastdc.luxnet.ua/lux_mp3_128"
+    ],
+    "website": "https://lux.fm/",
+    "genres": [
+      "music"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://lux.fm/favicons/apple-touch-icon.png",
+    "votes": 40985,
+    "clickCount": 3215,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9606ceae-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Caroline",
+    "description": "country,pop,rock",
+    "streamUrl": "http://78.129.202.200:8040/;",
+    "streamUrls": [
+      "http://78.129.202.200:8040/;",
+      "http://78.129.202.200:8040/;"
+    ],
+    "website": "http://www.radiocaroline.co.uk/",
+    "genres": [
+      "country",
+      "pop",
+      "rock"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.radiocaroline.co.uk/favicon.ico",
+    "votes": 40408,
+    "clickCount": 2942,
+    "lastCheckOk": true
+  },
+  {
+    "id": "bd9c1301-562d-451f-94bf-6a76e3bb898e",
+    "name": "Kiss FM 106.5",
+    "description": "music",
+    "streamUrl": "http://online.kissfm.ua/KissFM",
+    "streamUrls": [
+      "http://online.kissfm.ua/KissFM",
+      "http://online.kissfm.ua/KissFM"
+    ],
+    "website": "https://www.kissfm.ua/",
+    "genres": [
+      "music"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 40169,
+    "clickCount": 3478,
+    "lastCheckOk": true
+  },
+  {
+    "id": "365deb9d-4422-433c-9f4a-5f243220624c",
+    "name": "Radio Sarcheshme",
+    "description": "",
+    "streamUrl": "https://sarcheshmeh.awsvps.com/stream",
+    "streamUrls": [
+      "https://sarcheshmeh.awsvps.com/stream",
+      "http://sarcheshmeh.icdndhcp.com:18452/stream"
+    ],
+    "website": "http://sarcheshmeh.icdndhcp.com:18452/stream",
+    "genres": [],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "persian",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 39637,
+    "clickCount": 3596,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9614aa8d-0601-11e8-ae97-52543be04c81",
+    "name": "Радио Маяк (Radio Mayak)",
+    "description": "music,news,talk",
+    "streamUrl": "http://icecast.vgtrk.cdnvideo.ru/mayakfm_mp3_192kbps",
+    "streamUrls": [
+      "http://icecast.vgtrk.cdnvideo.ru/mayakfm_mp3_192kbps",
+      "http://icecast.vgtrk.cdnvideo.ru/mayakfm_mp3_192kbps"
+    ],
+    "website": "http://www.radiomayak.ru/",
+    "genres": [
+      "music",
+      "news",
+      "talk"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 39074,
+    "clickCount": 5970,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961dbb40-0601-11e8-ae97-52543be04c81",
+    "name": ".977 The Mix",
+    "description": "80s,90s,hits,today",
+    "streamUrl": "http://26343.live.streamtheworld.com/977_MIX_SC",
+    "streamUrls": [
+      "http://26343.live.streamtheworld.com/977_MIX_SC",
+      "http://playerservices.streamtheworld.com/pls/977_MIX.pls"
+    ],
+    "website": "http://www.977music.com/",
+    "genres": [
+      "80s",
+      "90s",
+      "hits",
+      "today"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 38746,
+    "clickCount": 5735,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96192b59-0601-11e8-ae97-52543be04c81",
+    "name": "talkSPORT",
+    "description": "speech,sport",
+    "streamUrl": "http://radio.talksport.com/stream?aisGetOriginalStream=true",
+    "streamUrls": [
+      "http://radio.talksport.com/stream?aisGetOriginalStream=true",
+      "http://radio.talksport.com/stream?aisGetOriginalStream=true"
+    ],
+    "website": "http://talksport.com/",
+    "genres": [
+      "speech",
+      "sport"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 37728,
+    "clickCount": 3016,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d017726b-50f4-4b47-a25e-bf4114b16f9e",
+    "name": "Classic Vinyl HD",
+    "description": "1930,1940,1950,1960,beautiful music,big band,classic hits,crooners,easy,easy listening,hd,jazz,light orchestral,lounge,oldies,orchestral,otr,relaxation,strings,swing,unwind,walm",
+    "streamUrl": "https://icecast.walmradio.com:8443/classic",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/classic",
+      "https://icecast.walmradio.com:8443/classic"
+    ],
+    "website": "https://walmradio.com/classic",
+    "genres": [
+      "1930",
+      "1940",
+      "1950",
+      "1960",
+      "beautiful music"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://icecast.walmradio.com:8443/classic.jpg",
+    "votes": 37278,
+    "clickCount": 2482,
+    "lastCheckOk": true
+  },
+  {
+    "id": "91f97ab4-f883-11e8-a237-52543be04c81",
+    "name": "Synthetic FM The New Italo generation sound",
+    "description": "80s,disco,electronic,generation,italo,new,synthpop",
+    "streamUrl": "https://mediaserv38.live-streams.nl:18030/stream",
+    "streamUrls": [
+      "https://mediaserv38.live-streams.nl:18030/stream",
+      "https://mediaserv38.live-streams.nl:18030/stream"
+    ],
+    "website": "https://syntheticfm.com/",
+    "genres": [
+      "80s",
+      "disco",
+      "electronic",
+      "generation",
+      "italo"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://syntheticfm.com/logo-synth-italo.png",
+    "votes": 37108,
+    "clickCount": 2939,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c37c6-0601-11e8-ae97-52543be04c81",
+    "name": "Cadena 100",
+    "description": "music",
+    "streamUrl": "http://cadena100-streamers-mp3.flumotion.com/cope/cadena100.mp3",
+    "streamUrls": [
+      "http://cadena100-streamers-mp3.flumotion.com/cope/cadena100.mp3",
+      "http://cadena100-streamers-mp3.flumotion.com/cope/cadena100.mp3"
+    ],
+    "website": "http://www.cadena100.es/",
+    "genres": [
+      "music"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.cadena100.es/estaticos/apple-touch-icon-192x192.png",
+    "votes": 36873,
+    "clickCount": 6177,
+    "lastCheckOk": true
+  },
+  {
+    "id": "932eb148-e6f6-11e9-a96c-52543be04c81",
+    "name": "FIP",
+    "description": "aac,music,public radio,radio france",
+    "streamUrl": "http://icecast.radiofrance.fr/fip-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/fip-hifi.aac",
+      "http://icecast.radiofrance.fr/fip-hifi.aac"
+    ],
+    "website": "https://www.fip.fr/",
+    "genres": [
+      "aac",
+      "music",
+      "public radio",
+      "radio france"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://upload.wikimedia.org/wikipedia/fr/thumb/d/d5/FIP_logo_2005.svg/1024px-FIP_logo_2005.svg.png",
+    "votes": 36759,
+    "clickCount": 16916,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6ce8da92-859f-4f96-a5e4-503c1ddfbfbf",
+    "name": "Classic Vinyl HD Opus",
+    "description": "1930,1940,1950,1960,beautiful music,big band,classic hits,crooners,easy,easy listening,hd,jazz,light orchestral,lounge,oldies,opus,orchestral,otr,relaxation,strings,swing,unwind,walm",
+    "streamUrl": "https://icecast.walmradio.com:8443/classic_opus",
+    "streamUrls": [
+      "https://icecast.walmradio.com:8443/classic_opus",
+      "https://icecast.walmradio.com:8443/classic_opus"
+    ],
+    "website": "https://walmradio.com/classic",
+    "genres": [
+      "1930",
+      "1940",
+      "1950",
+      "1960",
+      "beautiful music"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "OGG",
+    "favicon": "https://icecast.walmradio.com:8443/classic.jpg",
+    "votes": 36701,
+    "clickCount": 5554,
+    "lastCheckOk": true
+  },
+  {
+    "id": "273c4a22-5a4a-11e8-b0ce-52543be04c81",
+    "name": "Fnf.Fm Hindi",
+    "description": "bollywood",
+    "streamUrl": "http://192.99.8.192:5032/;stream",
+    "streamUrls": [
+      "http://192.99.8.192:5032/;stream",
+      "http://192.99.8.192:5032/;stream"
+    ],
+    "website": "http://hi.fnf.fm/?m=1",
+    "genres": [
+      "bollywood"
+    ],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "hindi",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 36061,
+    "clickCount": 3116,
+    "lastCheckOk": true
+  },
+  {
+    "id": "aa408a3b-3d07-415d-8af1-a60b64e07043",
+    "name": " Radio Navahang",
+    "description": "middle eastern music,pop",
+    "streamUrl": "https://navairan.com/;stream.nsv",
+    "streamUrls": [
+      "https://navairan.com/;stream.nsv",
+      "https://navairan.com/;stream.nsv"
+    ],
+    "website": "https://www.navahang.com/",
+    "genres": [
+      "middle eastern music",
+      "pop"
+    ],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "persian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.navahang.com/apple-touch-icon.png",
+    "votes": 35472,
+    "clickCount": 11810,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5a299b9c-71ec-4736-b1d2-57a64793ed9e",
+    "name": "Deep House Radio",
+    "description": "electronic",
+    "streamUrl": "http://62.210.105.16:7000/stream",
+    "streamUrls": [
+      "http://62.210.105.16:7000/stream",
+      "http://62.210.105.16:7000/stream"
+    ],
+    "website": "",
+    "genres": [
+      "electronic"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 34812,
+    "clickCount": 6175,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96274cbb-0601-11e8-ae97-52543be04c81",
+    "name": "Big R Radio - 80s Metal FM",
+    "description": "80s,aor,glam metal,hair metal,hard rock,heavy metal,metal",
+    "streamUrl": "http://bigrradio.cdnstream1.com/5186_128",
+    "streamUrls": [
+      "http://bigrradio.cdnstream1.com/5186_128",
+      "http://bigrradio.cdnstream1.com/5186_128"
+    ],
+    "website": "http://www.bigrradio.com/",
+    "genres": [
+      "80s",
+      "aor",
+      "glam metal",
+      "hair metal",
+      "hard rock"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.bigrradio.com/image/favicon/apple-touch-icon.png",
+    "votes": 34549,
+    "clickCount": 3250,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960faade-0601-11e8-ae97-52543be04c81",
+    "name": "Ретро FM 70e",
+    "description": "70s",
+    "streamUrl": "http://retro70.hostingradio.ru:8025/retro70-128.mp3",
+    "streamUrls": [
+      "http://retro70.hostingradio.ru:8025/retro70-128.mp3",
+      "http://retro70.hostingradio.ru:8025/retro70-128.mp3"
+    ],
+    "website": "http://retrofm.ru/",
+    "genres": [
+      "70s"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 34325,
+    "clickCount": 3492,
+    "lastCheckOk": true
+  },
+  {
+    "id": "94f5bf2e-641d-11e8-b15b-52543be04c81",
+    "name": "Радио НВ",
+    "description": "news,politics",
+    "streamUrl": "http://91.218.212.84:8000/radionv.mp3",
+    "streamUrls": [
+      "http://91.218.212.84:8000/radionv.mp3",
+      "http://91.218.212.84:8000/radionv.mp3"
+    ],
+    "website": "https://radio.nv.ua/ru",
+    "genres": [
+      "news",
+      "politics"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://d3e54v103j8qbb.cloudfront.net/static/designer_favicon.5ea478d03e.png",
+    "votes": 34062,
+    "clickCount": 3598,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c7c81-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Secret Agent (128k MP3)",
+    "description": "ambient,downtempo,jazz,lounge,samba,sixties",
+    "streamUrl": "https://ice6.somafm.com/secretagent-128-mp3",
+    "streamUrls": [
+      "https://ice6.somafm.com/secretagent-128-mp3",
+      "https://somafm.com/secretagent.pls"
+    ],
+    "website": "https://somafm.com/secretagent/",
+    "genres": [
+      "ambient",
+      "downtempo",
+      "jazz",
+      "lounge",
+      "samba"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/secretagent-400.jpg",
+    "votes": 33772,
+    "clickCount": 3247,
+    "lastCheckOk": true
+  },
+  {
+    "id": "a5a6b881-2900-11e8-91bf-52543be04c81",
+    "name": "RTL2",
+    "description": "pop,rock",
+    "streamUrl": "http://streamer-03.rtl.fr/rtl2-1-44-128",
+    "streamUrls": [
+      "http://streamer-03.rtl.fr/rtl2-1-44-128",
+      "http://streaming.radio.rtl2.fr/rtl2-1-44-128"
+    ],
+    "website": "http://www.rtl2.fr/",
+    "genres": [
+      "pop",
+      "rock"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 33716,
+    "clickCount": 1770,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96200095-0601-11e8-ae97-52543be04c81",
+    "name": "Capital FM London",
+    "description": "pop",
+    "streamUrl": "http://media-ice.musicradio.com/CapitalMP3",
+    "streamUrls": [
+      "http://media-ice.musicradio.com/CapitalMP3",
+      "http://media-ice.musicradio.com/CapitalMP3"
+    ],
+    "website": "http://www.capitalfm.com/london/",
+    "genres": [
+      "pop"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://assets6.capitalfm.com/2016/11/capital-3d-network-logo-large-canvas-1458228638-herowidev4-0.jpg",
+    "votes": 33559,
+    "clickCount": 7426,
+    "lastCheckOk": true
+  },
+  {
+    "id": "60ceaabd-4efd-4f47-b961-0dab6f475731",
+    "name": "EuroDance 90 radio",
+    "description": "dancefloor,electronic dance music,eurodance,pop dance,pop music",
+    "streamUrl": "https://stream-eurodance90.fr/radio/8000/128.mp3?1627933323",
+    "streamUrls": [
+      "https://stream-eurodance90.fr/radio/8000/128.mp3?1627933323",
+      "https://stream-eurodance90.fr/radio/8000/128.mp3?1627933323"
+    ],
+    "website": "https://eurodance90.fr/",
+    "genres": [
+      "dancefloor",
+      "electronic dance music",
+      "eurodance",
+      "pop dance",
+      "pop music"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://eurodance90.fr/favicon.ico",
+    "votes": 33433,
+    "clickCount": 5172,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9643f966-0601-11e8-ae97-52543be04c81",
+    "name": "Радио Шансон - Radio Shanson",
+    "description": "pop",
+    "streamUrl": "http://chanson.hostingradio.ru:8041/chanson256.mp3",
+    "streamUrls": [
+      "http://chanson.hostingradio.ru:8041/chanson256.mp3",
+      "http://chanson.hostingradio.ru:8041/chanson256.mp3"
+    ],
+    "website": "http://radioshanson.fm/",
+    "genres": [
+      "pop"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 33055,
+    "clickCount": 1985,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619f126-0601-11e8-ae97-52543be04c81",
+    "name": "Virgin Radio Classic Rock",
+    "description": "classic rock,mediaset",
+    "streamUrl": "http://icy.unitedradio.it/VirginRockClassics.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/VirginRockClassics.mp3",
+      "http://icy.unitedradio.it/VirginRockClassics.mp3"
+    ],
+    "website": "http://www.virginradio.it/sezioni/1219/virgin-radio-rock-classic",
+    "genres": [
+      "classic rock",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 32182,
+    "clickCount": 3400,
+    "lastCheckOk": true
+  },
+  {
+    "id": "8e315430-4a60-4274-a9cd-2fe4462957b2",
+    "name": "Хіт FM Сучасні хіти",
+    "description": "pop",
+    "streamUrl": "http://online.hitfm.ua/HitFM_Top",
+    "streamUrls": [
+      "http://online.hitfm.ua/HitFM_Top",
+      "http://online.hitfm.ua/HitFM_Top"
+    ],
+    "website": "",
+    "genres": [
+      "pop"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 31980,
+    "clickCount": 1716,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961ee9aa-0601-11e8-ae97-52543be04c81",
+    "name": "Jawhara FM",
+    "description": "",
+    "streamUrl": "http://streaming2.toutech.net:8000/jawharafm",
+    "streamUrls": [
+      "http://streaming2.toutech.net:8000/jawharafm",
+      "http://streaming2.toutech.net:8000/jawharafm"
+    ],
+    "website": "http://www.jawharafm.net/",
+    "genres": [],
+    "country": "Tunisia",
+    "countryCode": "TN",
+    "language": "arabic",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.jawharafm.net/ar/static/fr/image/gif/favicon.gif",
+    "votes": 31462,
+    "clickCount": 1859,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619ea14-0601-11e8-ae97-52543be04c81",
+    "name": "Radio 105 Network",
+    "description": "hits,mediaset,pop,top 40",
+    "streamUrl": "http://icecast.unitedradio.it/Radio105.mp3",
+    "streamUrls": [
+      "http://icecast.unitedradio.it/Radio105.mp3",
+      "http://icecast.unitedradio.it/Radio105.mp3"
+    ],
+    "website": "http://www.105.net/",
+    "genres": [
+      "hits",
+      "mediaset",
+      "pop",
+      "top 40"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/it/0/01/105.png",
+    "votes": 30989,
+    "clickCount": 4480,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9608ade8-0601-11e8-ae97-52543be04c81",
+    "name": "Heart London 106.2 [MP3]",
+    "description": "commercial,hot adult contemporary,london",
+    "streamUrl": "http://ice-sov.musicradio.com/HeartLondonMP3",
+    "streamUrls": [
+      "http://ice-sov.musicradio.com/HeartLondonMP3",
+      "http://ice-sov.musicradio.com/HeartLondonMP3"
+    ],
+    "website": "http://www.heart.co.uk/london",
+    "genres": [
+      "commercial",
+      "hot adult contemporary",
+      "london"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-profiles.tunein.com/s2846/images/logoq.jpg",
+    "votes": 30051,
+    "clickCount": 5208,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c335b5d9-f879-11e8-a237-52543be04c81",
+    "name": "Synthetic FM - The radio for the Synth lovers",
+    "description": "darksynth,darkwave,ebm,electronic,goldwave,minimalsynth,synthwave",
+    "streamUrl": "https://mediaserv38.live-streams.nl:18040/live",
+    "streamUrls": [
+      "https://mediaserv38.live-streams.nl:18040/live",
+      "https://mediaserv38.live-streams.nl:18040/live"
+    ],
+    "website": "https://www.syntheticfm.com/",
+    "genres": [
+      "darksynth",
+      "darkwave",
+      "ebm",
+      "electronic",
+      "goldwave"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "https://syntheticfm.com/logo-syntheticfm1.png",
+    "votes": 29744,
+    "clickCount": 1049,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960cca40-0601-11e8-ae97-52543be04c81",
+    "name": "Rock Antenne - Heavy Metal",
+    "description": "heavy metal,metal",
+    "streamUrl": "http://s2-webradio.rockantenne.de/heavy-metal",
+    "streamUrls": [
+      "http://s2-webradio.rockantenne.de/heavy-metal",
+      "http://mp3channels.webradio.rockantenne.de/heavy-metal"
+    ],
+    "website": "http://www.rockantenne.de/",
+    "genres": [
+      "heavy metal",
+      "metal"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.rockantenne.de/logos/station-rock-antenne/favicon.ico",
+    "votes": 29494,
+    "clickCount": 6021,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963fa65f-0601-11e8-ae97-52543be04c81",
+    "name": "Antena 1 São Paulo, SP (ZYD823 94,7 MHz FM) [aac]",
+    "description": "adult contemporary,jazz,pop,smooth jazz",
+    "streamUrl": "http://antena1.newradio.it/stream?ext=.mp3",
+    "streamUrls": [
+      "http://antena1.newradio.it/stream?ext=.mp3",
+      "http://antena1.newradio.it/stream?ext=.mp3"
+    ],
+    "website": "http://antena1.com.br/",
+    "genres": [
+      "adult contemporary",
+      "jazz",
+      "pop",
+      "smooth jazz"
+    ],
+    "country": "Brazil",
+    "countryCode": "BR",
+    "language": "portuguese",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 29354,
+    "clickCount": 2979,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f2d01650-b84f-4d85-aa3f-4c085bf211ff",
+    "name": "Hits 1 Algérie",
+    "description": "pop,top40",
+    "streamUrl": "https://radio12.pro-fhi.net/listen/whmnrlow/stream",
+    "streamUrls": [
+      "https://radio12.pro-fhi.net/listen/whmnrlow/stream",
+      "https://radio12.pro-fhi.net/listen/whmnrlow/stream"
+    ],
+    "website": "https://www.hits1radio.com/",
+    "genres": [
+      "pop",
+      "top40"
+    ],
+    "country": "Algeria",
+    "countryCode": "DZ",
+    "language": "french",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 29254,
+    "clickCount": 1636,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96336b01-0601-11e8-ae97-52543be04c81",
+    "name": "Hard Rock Heaven",
+    "description": "80s,glam metal,hair metal,hard rock,heavy metal,overland park",
+    "streamUrl": "http://hydra.cdnstream.com/1521_128",
+    "streamUrls": [
+      "http://hydra.cdnstream.com/1521_128",
+      "http://listen.cdnstream.com/hrhradio/1521_128.m3u"
+    ],
+    "website": "http://hrhradio.com/",
+    "genres": [
+      "80s",
+      "glam metal",
+      "hair metal",
+      "hard rock",
+      "heavy metal"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 29253,
+    "clickCount": 3467,
+    "lastCheckOk": true
+  },
+  {
+    "id": "986c5985-41d7-11ea-a95e-52543be04c81",
+    "name": "Radio 24 il sole 24 ore",
+    "description": "news talk",
+    "streamUrl": "http://shoutcast2.radio24.it:8000/;",
+    "streamUrls": [
+      "http://shoutcast2.radio24.it:8000/;",
+      "http://shoutcast2.radio24.it:8000/;"
+    ],
+    "website": "https://www.radio24.ilsole24ore.com/",
+    "genres": [
+      "news talk"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://www.radio24.ilsole24ore.com/whitelabel/group-2420101401040528/img/apple-touch-icon.png",
+    "votes": 28976,
+    "clickCount": 12837,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c4077677-dc2f-11e9-a8ba-52543be04c81",
+    "name": "Heart 80s",
+    "description": "80s,national,pop,public radio,variety",
+    "streamUrl": "https://media-ssl.musicradio.com/Heart80sMP3",
+    "streamUrls": [
+      "https://media-ssl.musicradio.com/Heart80sMP3",
+      "https://media-ssl.musicradio.com/Heart80sMP3"
+    ],
+    "website": "https://www.heart.co.uk/80s",
+    "genres": [
+      "80s",
+      "national",
+      "pop",
+      "public radio",
+      "variety"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.heart.co.uk/assets_v4r/heart/img/favicon-196x196.png",
+    "votes": 28579,
+    "clickCount": 10025,
+    "lastCheckOk": true
+  },
+  {
+    "id": "caaa4c5a-16c8-11e9-a80b-52543be04c81",
+    "name": "Chocolate FM",
+    "description": "chr,dance,español,latin,latin music,latino,pop,pop latino,reggaeton,top 40,trap",
+    "streamUrl": "http://streaming5.elitecomunicacion.es:8082/live.mp3",
+    "streamUrls": [
+      "http://streaming5.elitecomunicacion.es:8082/live.mp3",
+      "http://streaming5.elitecomunicacion.es:8082/live.mp3"
+    ],
+    "website": "https://www.chocolatefm.com/",
+    "genres": [
+      "chr",
+      "dance",
+      "español",
+      "latin",
+      "latin music"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.chocolatefm.com/__ovh/common/img/favicon.ico",
+    "votes": 28487,
+    "clickCount": 1246,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9606f727-0601-11e8-ae97-52543be04c81",
+    "name": "1LIVE",
+    "description": "ard,public radio,rock,top 40,wdr",
+    "streamUrl": "http://f141.rndfnk.com/ard/wdr/1live/live/mp3/128/stream.mp3?cid=01FBRZTS1K1TCD4KA2YZ1ND8X3&sid=34or8G1bSb7gLl1dEfceB2qXPPD&token=UVDuwgGkfeyQ_2me3dMFHTCEEhiG_mlm10hCn9avVOk&tvf=bpoomNCRcxhmMTQxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://f141.rndfnk.com/ard/wdr/1live/live/mp3/128/stream.mp3?cid=01FBRZTS1K1TCD4KA2YZ1ND8X3&sid=34or8G1bSb7gLl1dEfceB2qXPPD&token=UVDuwgGkfeyQ_2me3dMFHTCEEhiG_mlm10hCn9avVOk&tvf=bpoomNCRcxhmMTQxLnJuZGZuay5jb20",
+      "http://wdr-1live-live.icecast.wdr.de/wdr/1live/live/mp3/128/stream.mp3"
+    ],
+    "website": "https://einslive.de/",
+    "genres": [
+      "ard",
+      "public radio",
+      "rock",
+      "top 40",
+      "wdr"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www1.wdr.de/radio/1live/resources/img/favicon/apple-touch-icon.png",
+    "votes": 28443,
+    "clickCount": 20224,
+    "lastCheckOk": true
+  },
+  {
+    "id": "94256dfa-f568-4954-87c7-7f446cf35c0e",
+    "name": "Radio ROKS Ballads",
+    "description": "classic rock,rock",
+    "streamUrl": "http://online.radioroks.ua/RadioROKS_Ballads_HD",
+    "streamUrls": [
+      "http://online.radioroks.ua/RadioROKS_Ballads_HD",
+      "http://online.radioroks.ua/RadioROKS_Ballads_HD"
+    ],
+    "website": "https://www.radioroks.ua/",
+    "genres": [
+      "classic rock",
+      "rock"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 27865,
+    "clickCount": 2374,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961799c0-0601-11e8-ae97-52543be04c81",
+    "name": "Спокойное радио",
+    "description": "ambient,chillout,easy listening,jazz,lounge,moscow,relax,sounds of nature",
+    "streamUrl": "https://listen1.myradio24.com/6262",
+    "streamUrls": [
+      "https://listen1.myradio24.com/6262",
+      "https://listen1.myradio24.com/6262"
+    ],
+    "website": "http://spokoinoeradio.ru/",
+    "genres": [
+      "ambient",
+      "chillout",
+      "easy listening",
+      "jazz",
+      "lounge"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://i.1.creatium.io/5f/9c/2c/4e16165627237138cbc3273f76782d56f9/196x196/favicon.png",
+    "votes": 27843,
+    "clickCount": 4144,
+    "lastCheckOk": true
+  },
+  {
+    "id": "ea78e3db-26bd-4ffd-b236-94f69ad2d59d",
+    "name": "Mosaique FM",
+    "description": "classical",
+    "streamUrl": "https://radio.mosaiquefm.net/mosalive",
+    "streamUrls": [
+      "https://radio.mosaiquefm.net/mosalive",
+      "https://radio.mosaiquefm.net/mosalive"
+    ],
+    "website": "",
+    "genres": [
+      "classical"
+    ],
+    "country": "Tunisia",
+    "countryCode": "TN",
+    "language": "",
+    "bitrate": "90",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 27837,
+    "clickCount": 1242,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9614204b-0601-11e8-ae97-52543be04c81",
+    "name": "100% Radio 80",
+    "description": "80s",
+    "streamUrl": "http://100radio-80.ice.infomaniak.ch/100radio-80-128.mp3",
+    "streamUrls": [
+      "http://100radio-80.ice.infomaniak.ch/100radio-80-128.mp3",
+      "http://100radio-80.ice.infomaniak.ch/100radio-80-128.mp3"
+    ],
+    "website": "http://www.centpourcent.com/",
+    "genres": [
+      "80s"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://bocir-prod-bucket.s3.amazonaws.com/radios/centpourcent/images/favicon.ico",
+    "votes": 27727,
+    "clickCount": 2896,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b81c57c3-eb05-47ac-a0ea-eb01a6960cc4",
+    "name": "LOS 40 Principales España",
+    "description": "music,pop,top 40",
+    "streamUrl": "https://27903.live.streamtheworld.com:443/LOS40.mp3",
+    "streamUrls": [
+      "https://27903.live.streamtheworld.com:443/LOS40.mp3",
+      "https://playerservices.streamtheworld.com/api/livestream-redirect/Los40.mp3"
+    ],
+    "website": "https://los40.com/",
+    "genres": [
+      "music",
+      "pop",
+      "top 40"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://los40es00.epimg.net/iconos/v1.x/v1.0/touch-apple.png",
+    "votes": 27623,
+    "clickCount": 6460,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961662de-0601-11e8-ae97-52543be04c81",
+    "name": "Ретро ФМ",
+    "description": "",
+    "streamUrl": "http://retroserver.streamr.ru:8043/retro128",
+    "streamUrls": [
+      "http://retroserver.streamr.ru:8043/retro128",
+      "http://retroserver.streamr.ru:8043/retro128"
+    ],
+    "website": "http://retrofm.ru/",
+    "genres": [],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 27507,
+    "clickCount": 1490,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962b35ca-0601-11e8-ae97-52543be04c81",
+    "name": "Юмор FM",
+    "description": "comedy,top 40",
+    "streamUrl": "http://live.humorfm.by:8000/veseloeradio",
+    "streamUrls": [
+      "http://live.humorfm.by:8000/veseloeradio",
+      "http://live.humorfm.by:8000/veseloeradio"
+    ],
+    "website": "http://humorfm.by/",
+    "genres": [
+      "comedy",
+      "top 40"
+    ],
+    "country": "Belarus",
+    "countryCode": "BY",
+    "language": "russian",
+    "bitrate": "160",
+    "codec": "MP3",
+    "favicon": "http://humorfm.by/apple-touch-icon.png",
+    "votes": 27447,
+    "clickCount": 9330,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9627dcf4-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - The Beat (HipHop/R&B)",
+    "description": "hiphop,rnb,urban,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-beat_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-beat_128k.mp3",
+      "http://www.181.fm/stream/pls/181-beat.pls"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "hiphop",
+      "rnb",
+      "urban",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 27306,
+    "clickCount": 2943,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9609ed67-0601-11e8-ae97-52543be04c81",
+    "name": "Cryosleep",
+    "description": "ambient,calm,music,nobeat,sleep,space",
+    "streamUrl": "http://streams.echoesofbluemars.org:8000/cryosleep",
+    "streamUrls": [
+      "http://streams.echoesofbluemars.org:8000/cryosleep",
+      "http://streams.echoesofbluemars.org:8000/cryosleep"
+    ],
+    "website": "http://www.echoesofbluemars.org/cryosleep.php",
+    "genres": [
+      "ambient",
+      "calm",
+      "music",
+      "nobeat",
+      "sleep"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.echoesofbluemars.org/images/favicon.ico",
+    "votes": 27073,
+    "clickCount": 2061,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96181819-0601-11e8-ae97-52543be04c81",
+    "name": "Rai Radio 2",
+    "description": "public radio,rai",
+    "streamUrl": "http://icecdn-19d24861e90342cc8decb03c24c8a419.msvdn.net/icecastRelay/S35942484/yp5F67151K92/icecast",
+    "streamUrls": [
+      "http://icecdn-19d24861e90342cc8decb03c24c8a419.msvdn.net/icecastRelay/S35942484/yp5F67151K92/icecast",
+      "http://icestreaming.rai.it/2.mp3"
+    ],
+    "website": "http://www.radio2.rai.it/",
+    "genres": [
+      "public radio",
+      "rai"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 26629,
+    "clickCount": 4686,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9614b5e5-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Underground 80s (128k MP3)",
+    "description": "80s,new wave,uk synthpop",
+    "streamUrl": "https://ice4.somafm.com/u80s-128-mp3",
+    "streamUrls": [
+      "https://ice4.somafm.com/u80s-128-mp3",
+      "https://somafm.com/u80s.pls"
+    ],
+    "website": "https://somafm.com/u80s/",
+    "genres": [
+      "80s",
+      "new wave",
+      "uk synthpop"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/u80s-400.png",
+    "votes": 26599,
+    "clickCount": 2835,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961a4cdd-0601-11e8-ae97-52543be04c81",
+    "name": "Infowars",
+    "description": "conspiracies,conspiracy theories,information,news,survivalism,talk",
+    "streamUrl": "http://streams1.infowars.com/stream/2/",
+    "streamUrls": [
+      "http://streams1.infowars.com/stream/2/",
+      "http://stream-mp3.infowars.com/"
+    ],
+    "website": "http://www.infowars.com/",
+    "genres": [
+      "conspiracies",
+      "conspiracy theories",
+      "information",
+      "news",
+      "survivalism"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 26175,
+    "clickCount": 1680,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960a0f41-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Meuh",
+    "description": "electronic,funk,music",
+    "streamUrl": "http://radiomeuh.ice.infomaniak.ch/radiomeuh-128.mp3",
+    "streamUrls": [
+      "http://radiomeuh.ice.infomaniak.ch/radiomeuh-128.mp3",
+      "http://radiomeuh.ice.infomaniak.ch/radiomeuh-128.mp3"
+    ],
+    "website": "http://www.radiomeuh.com/",
+    "genres": [
+      "electronic",
+      "funk",
+      "music"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 26059,
+    "clickCount": 2049,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9628632e-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Stereocittà",
+    "description": "dance,padova",
+    "streamUrl": "http://onair11.xdevel.com:8134/;stream.mp3",
+    "streamUrls": [
+      "http://onair11.xdevel.com:8134/;stream.mp3",
+      "http://onair11.xdevel.com:8134/;stream.mp3"
+    ],
+    "website": "http://www.stereocitta.it/",
+    "genres": [
+      "dance",
+      "padova"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "96",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 25939,
+    "clickCount": 688,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96201b3d-0601-11e8-ae97-52543be04c81",
+    "name": "Arabesk FM",
+    "description": "müzik,türkçe",
+    "streamUrl": "http://yayin.arabeskfm.biz:8042/",
+    "streamUrls": [
+      "http://yayin.arabeskfm.biz:8042/",
+      "http://yayin.arabeskfm.biz:8042/"
+    ],
+    "website": "http://www.arabeskfm.biz/",
+    "genres": [
+      "müzik",
+      "türkçe"
+    ],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "turkish",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 25895,
+    "clickCount": 6782,
+    "lastCheckOk": true
+  },
+  {
+    "id": "eee58136-ebe6-11e8-a471-52543be04c81",
+    "name": "Radio Freedom",
+    "description": "",
+    "streamUrl": "http://freedomice.streamakaci.com/freedom.mp3",
+    "streamUrls": [
+      "http://freedomice.streamakaci.com/freedom.mp3",
+      "http://freedomice.streamakaci.com/freedom.mp3"
+    ],
+    "website": "http://freedom.fr/free-dom-1/",
+    "genres": [],
+    "country": "",
+    "countryCode": "",
+    "language": "",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://freedom.fr/wp-content/uploads/2021/03/cropped-cropped-colombe-180x180-1-180x180.png",
+    "votes": 25577,
+    "clickCount": 663,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960ebcf5-0601-11e8-ae97-52543be04c81",
+    "name": "La Grosse Radio Reggae",
+    "description": "music,reggae",
+    "streamUrl": "http://hd.lagrosseradio.info/lagrosseradio-reggae-192.mp3",
+    "streamUrls": [
+      "http://hd.lagrosseradio.info/lagrosseradio-reggae-192.mp3",
+      "http://hd.lagrosseradio.info/lagrosseradio-reggae-192.mp3"
+    ],
+    "website": "https://www.lagrosseradio.com/",
+    "genres": [
+      "music",
+      "reggae"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.lagrosseradio.com/favicon.ico",
+    "votes": 25489,
+    "clickCount": 3014,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7ba4c184-fc2b-11e9-bbf2-52543be04c81",
+    "name": "NPR 24 Hour Program Stream",
+    "description": "news,news talk,political talk,politics,public radio,talk",
+    "streamUrl": "http://npr-ice.streamguys1.com/live.mp3",
+    "streamUrls": [
+      "http://npr-ice.streamguys1.com/live.mp3",
+      "http://npr-ice.streamguys1.com/live.mp3"
+    ],
+    "website": "https://www.npr.org/2016/04/05/472557877/npr-program-stream",
+    "genres": [
+      "news",
+      "news talk",
+      "political talk",
+      "politics",
+      "public radio"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://static-assets.npr.org/static/images/favicon/favicon-96x96.png",
+    "votes": 25350,
+    "clickCount": 5075,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7ab5fcfc-46ed-40be-9c47-27da8f8ef56c",
+    "name": "LOVE RADIO Only Love Songs 70s80s90s - www.love.radio",
+    "description": "70s,80s,90s,easy listening,love songs,romantic",
+    "streamUrl": "http://shoutcast3.streamingmedia.it:3162/",
+    "streamUrls": [
+      "http://shoutcast3.streamingmedia.it:3162/",
+      "http://shoutcast3.streamingmedia.it:3162/"
+    ],
+    "website": "https://love.radio/",
+    "genres": [
+      "70s",
+      "80s",
+      "90s",
+      "easy listening",
+      "love songs"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 24669,
+    "clickCount": 3206,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963fb390-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Nova",
+    "description": "alternative,pop,world music",
+    "streamUrl": "http://novazz.ice.infomaniak.ch/novazz-128.mp3",
+    "streamUrls": [
+      "http://novazz.ice.infomaniak.ch/novazz-128.mp3",
+      "http://novazz.ice.infomaniak.ch/novazz-128.mp3"
+    ],
+    "website": "http://www.nova.fr/radionova/radio-nova",
+    "genres": [
+      "alternative",
+      "pop",
+      "world music"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.nova.fr/wp-content/uploads/sites/2/2021/02/cropped-favicon.png?fit=180%2c180&#038;quality=75",
+    "votes": 24626,
+    "clickCount": 3134,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960e71a1-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Romania Actualități",
+    "description": "folk,news,pop,talk",
+    "streamUrl": "http://89.238.227.6:8006/;",
+    "streamUrls": [
+      "http://89.238.227.6:8006/;",
+      "http://89.238.227.6:8006/;"
+    ],
+    "website": "http://www.romania-actualitati.ro/",
+    "genres": [
+      "folk",
+      "news",
+      "pop",
+      "talk"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "romanian",
+    "bitrate": "128",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 24224,
+    "clickCount": 3849,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961ac56b-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Swiss Jazz",
+    "description": "jazz,public radio,srg ssr",
+    "streamUrl": "http://livestreaming-node-4.srg-ssr.ch/srgssr/rsj/mp3/128",
+    "streamUrls": [
+      "http://livestreaming-node-4.srg-ssr.ch/srgssr/rsj/mp3/128",
+      "http://stream.srg-ssr.ch/m/rsj/mp3_128"
+    ],
+    "website": "http://www.radioswissjazz.ch/",
+    "genres": [
+      "jazz",
+      "public radio",
+      "srg ssr"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 23897,
+    "clickCount": 5867,
+    "lastCheckOk": true
+  },
+  {
+    "id": "692a3b69-0f68-11ea-a87e-52543be04c81",
+    "name": "Cadena SER España",
+    "description": "cultural news,live,news,news talk,spanish,sports news",
+    "streamUrl": "http://27943.live.streamtheworld.com:80/CADENASER.mp3",
+    "streamUrls": [
+      "http://27943.live.streamtheworld.com:80/CADENASER.mp3",
+      "http://playerservices.streamtheworld.com/api/livestream-redirect/CADENASER.mp3"
+    ],
+    "website": "http://play.cadenaser.com/",
+    "genres": [
+      "cultural news",
+      "live",
+      "news",
+      "news talk",
+      "spanish"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cadenaser00.epimg.net/favicon.png",
+    "votes": 23672,
+    "clickCount": 10095,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96136071-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio Classic Jazz",
+    "description": "classical,jazz",
+    "streamUrl": "http://jazz-wr01.ice.infomaniak.ch/jazz-wr01-128.mp3",
+    "streamUrls": [
+      "http://jazz-wr01.ice.infomaniak.ch/jazz-wr01-128.mp3",
+      "http://jazz-wr01.ice.infomaniak.ch/jazz-wr01-128.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/radio/webradio/7/classic-jazz",
+    "genres": [
+      "classical",
+      "jazz"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 23654,
+    "clickCount": 2788,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1fdc8bd2-a8a9-11e8-a907-52543be04c81",
+    "name": "1000 HITS 80s",
+    "description": "70s,80s,90s,italo,italo dance,italo disco,oldies",
+    "streamUrl": "http://c2.auracast.net:8048/stream",
+    "streamUrls": [
+      "http://c2.auracast.net:8048/stream",
+      "http://c2.auracast.net:8048/stream"
+    ],
+    "website": "http://www.1000hits80s.eu/",
+    "genres": [
+      "70s",
+      "80s",
+      "90s",
+      "italo",
+      "italo dance"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 23561,
+    "clickCount": 2080,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960cc332-0601-11e8-ae97-52543be04c81",
+    "name": "Bassdrive",
+    "description": "drum and bass",
+    "streamUrl": "http://chi.bassdrive.co/",
+    "streamUrls": [
+      "http://chi.bassdrive.co/",
+      "http://bassdrive.com/bassdrive.m3u"
+    ],
+    "website": "http://bassdrive.com/",
+    "genres": [
+      "drum and bass"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://thumbnailer.mixcloud.com/unsafe/160x160/extaudio/8/5/8/a/f8e6-9555-4eb9-8005-1ec4dabd55ce.jpg",
+    "votes": 23099,
+    "clickCount": 5578,
+    "lastCheckOk": true
+  },
+  {
+    "id": "2067334b-59e7-11e8-b0ce-52543be04c81",
+    "name": "Radio BollyFm",
+    "description": "",
+    "streamUrl": "http://stream.radiobollyfm.in:8201/hd?t=1526570335",
+    "streamUrls": [
+      "http://stream.radiobollyfm.in:8201/hd?t=1526570335",
+      "http://stream.radiobollyfm.in:8201/hd?t=1526570335"
+    ],
+    "website": "http://www.radiobollyfm.in/",
+    "genres": [],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "hindi",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 22686,
+    "clickCount": 1428,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960d3f6f-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Space Station Soma (128k AAC)",
+    "description": "ambient,electronica,mid-tempo",
+    "streamUrl": "https://ice1.somafm.com/spacestation-128-aac",
+    "streamUrls": [
+      "https://ice1.somafm.com/spacestation-128-aac",
+      "https://somafm.com/spacestation130.pls"
+    ],
+    "website": "https://somafm.com/spacestation/",
+    "genres": [
+      "ambient",
+      "electronica",
+      "mid-tempo"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://somafm.com/img3/spacestation-400.png",
+    "votes": 22663,
+    "clickCount": 2977,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960594a6-0601-11e8-ae97-52543be04c81",
+    "name": "Rock Antenne",
+    "description": "rock",
+    "streamUrl": "http://s6-webradio.rockantenne.de/rockantenne",
+    "streamUrls": [
+      "http://s6-webradio.rockantenne.de/rockantenne",
+      "http://mp3channels.webradio.rockantenne.de/rockantenne"
+    ],
+    "website": "http://www.rockantenne.de/",
+    "genres": [
+      "rock"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.rockantenne.de/logos/rock-antenne/apple-touch-icon.png",
+    "votes": 22059,
+    "clickCount": 11615,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9605edb3-0601-11e8-ae97-52543be04c81",
+    "name": "WDR 5",
+    "description": "information,news,news talk,political talk,talk",
+    "streamUrl": "http://d111.rndfnk.com/ard/wdr/wdr5/live/mp3/128/ct/stream.mp3?cid=01FBS0E239W9R7GR1S5Q7RTQRC&sid=34oJvoW8x8CAQVqOW7dq2CNseGO&token=AK0QngOqVfpgYHBHyXImFLdnooAbOOcYh6X_2KbQKD4&tvf=fo3CyOqCcxhkMTExLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://d111.rndfnk.com/ard/wdr/wdr5/live/mp3/128/ct/stream.mp3?cid=01FBS0E239W9R7GR1S5Q7RTQRC&sid=34oJvoW8x8CAQVqOW7dq2CNseGO&token=AK0QngOqVfpgYHBHyXImFLdnooAbOOcYh6X_2KbQKD4&tvf=fo3CyOqCcxhkMTExLnJuZGZuay5jb20",
+      "http://wdr-wdr5-live.icecast.wdr.de/wdr/wdr5/live/mp3/128/stream.mp3"
+    ],
+    "website": "https://www1.wdr.de/radio/wdr5/",
+    "genres": [
+      "information",
+      "news",
+      "news talk",
+      "political talk",
+      "talk"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www1.wdr.de/resources-v5.134.1/img/favicon/apple-touch-icon.png",
+    "votes": 21689,
+    "clickCount": 20816,
+    "lastCheckOk": true
+  },
+  {
+    "id": "188c36ae-f1ef-4b5c-8587-f29c216bfaa2",
+    "name": "Sud Radio",
+    "description": "conservative,info,mp3,news,talk",
+    "streamUrl": "https://ice.creacast.com/sudradio",
+    "streamUrls": [
+      "https://ice.creacast.com/sudradio",
+      "https://ice.creacast.com/sudradio"
+    ],
+    "website": "https://www.sudradio.fr/",
+    "genres": [
+      "conservative",
+      "info",
+      "mp3",
+      "news",
+      "talk"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.sudradio.fr/wp-content/uploads/2019/06/cropped-favicon-180x180.png",
+    "votes": 21685,
+    "clickCount": 3807,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9609743b-0601-11e8-ae97-52543be04c81",
+    "name": "Chante France",
+    "description": "",
+    "streamUrl": "https://chantefrance.ice.infomaniak.ch/chantefrance-128.mp3",
+    "streamUrls": [
+      "https://chantefrance.ice.infomaniak.ch/chantefrance-128.mp3",
+      "http://stream.chantefrance.com/Chante_France"
+    ],
+    "website": "http://www.chantefrance.com/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://bocir-prod-bucket.s3.eu-west-1.amazonaws.com/radios/chante-france/images/favicon.x-icon",
+    "votes": 21648,
+    "clickCount": 4150,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f4bfa5d0-a403-11e8-abb8-52543be04c81",
+    "name": "The Big 80s Station",
+    "description": "80s",
+    "streamUrl": "http://158.69.114.190:8065/;",
+    "streamUrls": [
+      "http://158.69.114.190:8065/;",
+      "http://158.69.114.190:8065/;"
+    ],
+    "website": "http://www.thebig80sstation.com/",
+    "genres": [
+      "80s"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 21547,
+    "clickCount": 3969,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960e0117-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM PopTron (128k MP3)",
+    "description": "electropop,indie,synthpop",
+    "streamUrl": "https://ice3.somafm.com/poptron-128-mp3",
+    "streamUrls": [
+      "https://ice3.somafm.com/poptron-128-mp3",
+      "https://somafm.com/poptron.pls"
+    ],
+    "website": "https://somafm.com/poptron/",
+    "genres": [
+      "electropop",
+      "indie",
+      "synthpop"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/poptron-400.png",
+    "votes": 21231,
+    "clickCount": 1015,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e4a7e1e4-263c-11e9-a80b-52543be04c81",
+    "name": "Радио 7 на семи холмах",
+    "description": "",
+    "streamUrl": "http://radio7server.streamr.ru:8040/radio7256.mp3",
+    "streamUrls": [
+      "http://radio7server.streamr.ru:8040/radio7256.mp3",
+      "http://radio7server.streamr.ru:8040/radio7256.mp3"
+    ],
+    "website": "http://radio7.ru/",
+    "genres": [],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 20984,
+    "clickCount": 3388,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9608eb3e-0601-11e8-ae97-52543be04c81",
+    "name": "Rai Radio 3",
+    "description": "classical,culture,public radio,rai",
+    "streamUrl": "http://icecdn-19d24861e90342cc8decb03c24c8a419.msvdn.net/icecastRelay/S56630579/yEbkcBtIoSwd/icecast",
+    "streamUrls": [
+      "http://icecdn-19d24861e90342cc8decb03c24c8a419.msvdn.net/icecastRelay/S56630579/yEbkcBtIoSwd/icecast",
+      "http://icestreaming.rai.it/3.mp3"
+    ],
+    "website": "http://www.radio3.rai.it/",
+    "genres": [
+      "classical",
+      "culture",
+      "public radio",
+      "rai"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 20970,
+    "clickCount": 6489,
+    "lastCheckOk": true
+  },
+  {
+    "id": "38cb1dcb-5753-11e8-b0ce-52543be04c81",
+    "name": "Fun Radio",
+    "description": "dance,french",
+    "streamUrl": "http://streamer-04.rtl.fr/fun-1-44-128",
+    "streamUrls": [
+      "http://streamer-04.rtl.fr/fun-1-44-128",
+      "http://streaming.radio.funradio.fr/fun-1-44-128"
+    ],
+    "website": "http://www.funradio.fr/",
+    "genres": [
+      "dance",
+      "french"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 20906,
+    "clickCount": 1444,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96201019-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Schizoid - Dub Techno",
+    "description": "dub techno",
+    "streamUrl": "http://94.130.113.214:8000/dubtechno",
+    "streamUrls": [
+      "http://94.130.113.214:8000/dubtechno",
+      "http://94.130.113.214:8000/dubtechno"
+    ],
+    "website": "http://schizoid.in/",
+    "genres": [
+      "dub techno"
+    ],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "hindi",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 20746,
+    "clickCount": 2388,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962c9786-0601-11e8-ae97-52543be04c81",
+    "name": "A'LO FM",
+    "description": "",
+    "streamUrl": "http://tabassum.uz:9000/alo_low",
+    "streamUrls": [
+      "http://tabassum.uz:9000/alo_low",
+      "http://tabassum.uz:9000/alo_low"
+    ],
+    "website": "http://tabassum.uz/",
+    "genres": [],
+    "country": "Uzbekistan",
+    "countryCode": "UZ",
+    "language": "uzbek",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "http://tabassum.uz/favicon.ico",
+    "votes": 20613,
+    "clickCount": 786,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9614d7a0-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Mojdeh",
+    "description": "adventista,christian,persian",
+    "streamUrl": "http://ic2326.c1261.fast-serv.com/rm128",
+    "streamUrls": [
+      "http://ic2326.c1261.fast-serv.com/rm128",
+      "http://ic2326.c1261.fast-serv.com/rm128"
+    ],
+    "website": "http://www.radiomojdeh.com/",
+    "genres": [
+      "adventista",
+      "christian",
+      "persian"
+    ],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "persian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.radiomojdeh.com/favicon.ico",
+    "votes": 20416,
+    "clickCount": 1531,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96202f73-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Schizoid - Chillout / Ambient",
+    "description": "downtempo,glitch,psychill",
+    "streamUrl": "http://94.130.113.214:8000/chill",
+    "streamUrls": [
+      "http://94.130.113.214:8000/chill",
+      "http://94.130.113.214:8000/chill"
+    ],
+    "website": "http://schizoid.in/",
+    "genres": [
+      "downtempo",
+      "glitch",
+      "psychill"
+    ],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "hindi",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 20276,
+    "clickCount": 1979,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961f5a7a-0601-11e8-ae97-52543be04c81",
+    "name": "Blu Radio, señal nacional (HJCK, 89.9 MHz FM, Bogotá / HJN42, 96.3 MHz, San Martín, Meta / HJH87, 103.1 MHz, Paipa, Boyacá / HJOM, 1090 KHz, Cartagena de Indias / HJM47 103.1 MHz, Algeciras, Huila / HJQ43, 94.1 MHz, Bugalagrande, Valle del Cauca)",
+    "description": "armenian,bogotá,caribbean music,live sports,neiva,news,news radio,pereira,sports news,sports talk,talk radio,tunja,villavicencio",
+    "streamUrl": "http://24413.live.streamtheworld.com:3690/BLURADIO_SC",
+    "streamUrls": [
+      "http://24413.live.streamtheworld.com:3690/BLURADIO_SC",
+      "http://playerservices.streamtheworld.com/m3u/BLURADIO.m3u"
+    ],
+    "website": "http://www.bluradio.com/",
+    "genres": [
+      "armenian",
+      "bogotá",
+      "caribbean music",
+      "live sports",
+      "neiva"
+    ],
+    "country": "Colombia",
+    "countryCode": "CO",
+    "language": "spanish",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "http://www.bluradio.com/favicon.ico",
+    "votes": 20136,
+    "clickCount": 4498,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9610c519-0601-11e8-ae97-52543be04c81",
+    "name": ".977 Smooth Jazz",
+    "description": "jazz,smooth jazz",
+    "streamUrl": "http://22123.live.streamtheworld.com/977_SMOOJAZZ_SC",
+    "streamUrls": [
+      "http://22123.live.streamtheworld.com/977_SMOOJAZZ_SC",
+      "http://playerservices.streamtheworld.com/pls/977_SMOOJAZZ.pls"
+    ],
+    "website": "http://www.977music.com/",
+    "genres": [
+      "jazz",
+      "smooth jazz"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 19821,
+    "clickCount": 1536,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9605739a-0601-11e8-ae97-52543be04c81",
+    "name": "Antenne Bayern",
+    "description": "top 40",
+    "streamUrl": "http://s3-webradio.antenne.de/antenne",
+    "streamUrls": [
+      "http://s3-webradio.antenne.de/antenne",
+      "http://mp3channels.webradio.antenne.de/antenne"
+    ],
+    "website": "http://www.antenne.de/programm/empfang/antenne-bayern-hoeren-internet",
+    "genres": [
+      "top 40"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 19458,
+    "clickCount": 7780,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96266006-0601-11e8-ae97-52543be04c81",
+    "name": "Радио Книга",
+    "description": "audiobooks,literature,talk,аудиокниги,литература",
+    "streamUrl": "http://bookradio.hostingradio.ru:8069/fm",
+    "streamUrls": [
+      "http://bookradio.hostingradio.ru:8069/fm",
+      "http://bookradio.hostingradio.ru:8069/fm"
+    ],
+    "website": "https://radiokniga.com/",
+    "genres": [
+      "audiobooks",
+      "literature",
+      "talk",
+      "аудиокниги",
+      "литература"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://radiokniga.com/rk.ico",
+    "votes": 19429,
+    "clickCount": 4772,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9649dec5-0601-11e8-ae97-52543be04c81",
+    "name": "Rock FM",
+    "description": "",
+    "streamUrl": "http://flucast-bl03.flumotion.com/cope/rockfm-low.mp3",
+    "streamUrls": [
+      "http://flucast-bl03.flumotion.com/cope/rockfm-low.mp3",
+      "http://rockfm.cope.stream.flumotion.com/cope/rockfm-low.mp3.m3u"
+    ],
+    "website": "http://www.rockfm.fm/",
+    "genres": [],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://www.rockfm.fm/estaticos/apple-touch-icon-192x192.png",
+    "votes": 19309,
+    "clickCount": 5208,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961a5858-0601-11e8-ae97-52543be04c81",
+    "name": "Radio 9090 90.9",
+    "description": "",
+    "streamUrl": "https://9090streaming.mobtada.com/9090FMEGYPT",
+    "streamUrls": [
+      "https://9090streaming.mobtada.com/9090FMEGYPT",
+      "http://9090streaming.mobtada.com/9090FMEGYPT"
+    ],
+    "website": "http://www.9090.fm/",
+    "genres": [],
+    "country": "Egypt",
+    "countryCode": "EG",
+    "language": "arabic",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "http://www.9090.fm/favicon.ico",
+    "votes": 19274,
+    "clickCount": 7218,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96394224-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Indie Pop Rocks! (128k AAC)",
+    "description": "indie,indie pop,indie rock",
+    "streamUrl": "https://ice1.somafm.com/indiepop-128-aac",
+    "streamUrls": [
+      "https://ice1.somafm.com/indiepop-128-aac",
+      "https://somafm.com/indiepop130.pls"
+    ],
+    "website": "https://somafm.com/indiepop/",
+    "genres": [
+      "indie",
+      "indie pop",
+      "indie rock"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://somafm.com/img3/indiepop-400.jpg",
+    "votes": 19261,
+    "clickCount": 3093,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961fd3e5-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Schizoid - Progressive Psychedelic Trance",
+    "description": "progressive psytrance",
+    "streamUrl": "http://94.130.113.214:8000/prog",
+    "streamUrls": [
+      "http://94.130.113.214:8000/prog",
+      "http://94.130.113.214:8000/prog"
+    ],
+    "website": "http://schizoid.in/",
+    "genres": [
+      "progressive psytrance"
+    ],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "hindi",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 18976,
+    "clickCount": 2046,
+    "lastCheckOk": true
+  },
+  {
+    "id": "81440088-0a76-11e8-ae97-52543be04c81",
+    "name": "France Musique",
+    "description": "classical,jazz,music,public radio,radio france",
+    "streamUrl": "http://icecast.radiofrance.fr/francemusique-midfi.mp3",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/francemusique-midfi.mp3",
+      "http://direct.francemusique.fr/live/francemusique-midfi.mp3"
+    ],
+    "website": "https://www.francemusique.fr/",
+    "genres": [
+      "classical",
+      "jazz",
+      "music",
+      "public radio",
+      "radio france"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 18565,
+    "clickCount": 891,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961e37ee-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Left Coast 70s (320k MP3)",
+    "description": "easy listening,mellow album rock,rock,yacht rock",
+    "streamUrl": "https://ice1.somafm.com/seventies-320-mp3",
+    "streamUrls": [
+      "https://ice1.somafm.com/seventies-320-mp3",
+      "https://somafm.com/seventies320.pls"
+    ],
+    "website": "https://somafm.com/seventies/",
+    "genres": [
+      "easy listening",
+      "mellow album rock",
+      "rock",
+      "yacht rock"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/seventies400.jpg",
+    "votes": 18556,
+    "clickCount": 2541,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c6428c62-75d9-11ea-b1cf-52543be04c81",
+    "name": "AL-QURAN BANGLA",
+    "description": "",
+    "streamUrl": "http://66.45.232.131:9994/;stream/1/;",
+    "streamUrls": [
+      "http://66.45.232.131:9994/;stream/1/;",
+      "http://66.45.232.131:9994/;stream/1/;"
+    ],
+    "website": "https://www.liveonlineradio.net/bangla/bangla-al-quran.htm",
+    "genres": [],
+    "country": "Bangladesh",
+    "countryCode": "BD",
+    "language": "bengali",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 18453,
+    "clickCount": 688,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619e7d7-0601-11e8-ae97-52543be04c81",
+    "name": "TMM 1",
+    "description": "alternative,alternative rock,garage,indie,indie pop,indie rock,left-field dance",
+    "streamUrl": "https://listen-msmn.sharp-stream.com/nme1.mp3",
+    "streamUrls": [
+      "https://listen-msmn.sharp-stream.com/nme1.mp3",
+      "https://listen-msmn.sharp-stream.com/nme1.mp3"
+    ],
+    "website": "https://www.themusicmachine.co.uk/",
+    "genres": [
+      "alternative",
+      "alternative rock",
+      "garage",
+      "indie",
+      "indie pop"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-profiles.tunein.com/s159857/images/logod.png",
+    "votes": 18351,
+    "clickCount": 1375,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960969eb-0601-11e8-ae97-52543be04c81",
+    "name": "Virgin Radio Türkiye",
+    "description": "pop rock",
+    "streamUrl": "http://28553.live.streamtheworld.com:3690/VIRGIN_RADIO_SC",
+    "streamUrls": [
+      "http://28553.live.streamtheworld.com:3690/VIRGIN_RADIO_SC",
+      "http://provisioning.streamtheworld.com/pls/VIRGIN_RADIO.pls"
+    ],
+    "website": "http://www.virginradioturkiye.com/",
+    "genres": [
+      "pop rock"
+    ],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "turkish",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://i.karnavalcdn.com/media/site_media/icons/android-icon-192x192.png",
+    "votes": 18264,
+    "clickCount": 3316,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960d4889-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - Highway 181",
+    "description": "classic country,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-highway_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-highway_128k.mp3",
+      "http://www.181.fm/stream/pls/181-highway.pls"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "classic country",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 18103,
+    "clickCount": 1043,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96202500-0601-11e8-ae97-52543be04c81",
+    "name": "Virgin Radio UK",
+    "description": "information,news,pop",
+    "streamUrl": "https://virgin.live.stream.broadcasting.news/stream",
+    "streamUrls": [
+      "https://virgin.live.stream.broadcasting.news/stream",
+      "http://radio.virginradio.co.uk/stream"
+    ],
+    "website": "http://virginradio.co.uk/",
+    "genres": [
+      "information",
+      "news",
+      "pop"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "127",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 17978,
+    "clickCount": 678,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3dcd0385-1171-4a95-b31e-81d78af8bfac",
+    "name": "diwanfm",
+    "description": "",
+    "streamUrl": "https://streaming.diwanfm.net/stream",
+    "streamUrls": [
+      "https://streaming.diwanfm.net/stream",
+      "https://streaming.diwanfm.net/stream"
+    ],
+    "website": "https://diwanfm.net/",
+    "genres": [],
+    "country": "Tunisia",
+    "countryCode": "TN",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://diwanfm.net/favicon.ico",
+    "votes": 17909,
+    "clickCount": 2756,
+    "lastCheckOk": true
+  },
+  {
+    "id": "342a0e53-ab9b-11e9-88f4-52543be04c81",
+    "name": "TranceBase.FM - AAC HD 256k",
+    "description": "electronic,techno,trance",
+    "streamUrl": "http://listener1.aachd.tb-group.fm:80/trb-hd.aac",
+    "streamUrls": [
+      "http://listener1.aachd.tb-group.fm:80/trb-hd.aac",
+      "http://listen.trancebase.fm/tunein-aac-hd-pls"
+    ],
+    "website": "https://www.trancebase.fm/",
+    "genres": [
+      "electronic",
+      "techno",
+      "trance"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "256",
+    "codec": "AAC",
+    "favicon": "https://www.trancebase.fm/media/icons/trb/apple-touch-icon.png",
+    "votes": 17837,
+    "clickCount": 2010,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9617ba77-0601-11e8-ae97-52543be04c81",
+    "name": "Latina Salsa",
+    "description": "latin",
+    "streamUrl": "http://latinasalsa.ice.infomaniak.ch/latinasalsa.mp3",
+    "streamUrls": [
+      "http://latinasalsa.ice.infomaniak.ch/latinasalsa.mp3",
+      "http://latinasalsa.ice.infomaniak.ch/latinasalsa.mp3"
+    ],
+    "website": "http://www.latina.fr/",
+    "genres": [
+      "latin"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://bocir-prod-bucket.s3.eu-west-1.amazonaws.com/radios/latina/images/favicon.ico",
+    "votes": 17813,
+    "clickCount": 1518,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960e96f3-0601-11e8-ae97-52543be04c81",
+    "name": "TechnoBase.FM",
+    "description": "dance,eurodance,handsup,happy hardcore,hardcore,jumpstyle,techno",
+    "streamUrl": "http://lw2.mp3.tb-group.fm/tb.mp3",
+    "streamUrls": [
+      "http://lw2.mp3.tb-group.fm/tb.mp3",
+      "http://lw2.mp3.tb-group.fm/tb.mp3"
+    ],
+    "website": "https://technobase.fm/",
+    "genres": [
+      "dance",
+      "eurodance",
+      "handsup",
+      "happy hardcore",
+      "hardcore"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://technobase.fm/media/icons/tb/apple-touch-icon.png",
+    "votes": 17809,
+    "clickCount": 5496,
+    "lastCheckOk": true
+  },
+  {
+    "id": "14be57e4-05fa-11e9-a3cd-52543be04c81",
+    "name": "SHEMROON",
+    "description": "",
+    "streamUrl": "http://69.197.169.178:33640/;",
+    "streamUrls": [
+      "http://69.197.169.178:33640/;",
+      "http://69.197.169.178:33640/;"
+    ],
+    "website": "",
+    "genres": [],
+    "country": "",
+    "countryCode": "",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 17678,
+    "clickCount": 566,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c44104ea-4963-49f1-ad49-f74bc8080763",
+    "name": "Мелодія FM 95.2",
+    "description": "music",
+    "streamUrl": "http://online.melodiafm.ua/MelodiaFM",
+    "streamUrls": [
+      "http://online.melodiafm.ua/MelodiaFM",
+      "http://online.melodiafm.ua/MelodiaFM"
+    ],
+    "website": "https://www.melodiafm.ua/",
+    "genres": [
+      "music"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 17512,
+    "clickCount": 862,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9618a7b8-0601-11e8-ae97-52543be04c81",
+    "name": "DiscoverTranceRadio (MP3 HQ stereo 192kBit/s)",
+    "description": "dance,trance",
+    "streamUrl": "http://node-2.promo-cloud.com:8002//",
+    "streamUrls": [
+      "http://node-2.promo-cloud.com:8002//",
+      "http://www.discovertrance.com/DiscoverTrance-high.m3u"
+    ],
+    "website": "http://www.discovertrance.com/",
+    "genres": [
+      "dance",
+      "trance"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 17510,
+    "clickCount": 2030,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b1cae36e-6db3-455c-ab2e-60be72e55b7c",
+    "name": "_80 EXITOS",
+    "description": "70s,80s,90s,dance,disco,musica romantica",
+    "streamUrl": "https://80sexitos.stream.laut.fm/80sexitos",
+    "streamUrls": [
+      "https://80sexitos.stream.laut.fm/80sexitos",
+      "https://80sexitos.stream.laut.fm/80sexitos"
+    ],
+    "website": "https://musica80.radioclub.es/",
+    "genres": [
+      "70s",
+      "80s",
+      "90s",
+      "dance",
+      "disco"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 17308,
+    "clickCount": 1260,
+    "lastCheckOk": true
+  },
+  {
+    "id": "defa0e5c-f689-4db1-97db-87ebb759f7d1",
+    "name": "Antinea Radio",
+    "description": "",
+    "streamUrl": "https://listen.radioking.com/radio/6640/stream/347",
+    "streamUrls": [
+      "https://listen.radioking.com/radio/6640/stream/347",
+      "https://listen.radioking.com/radio/6640/stream/347"
+    ],
+    "website": "https://www.antinearadio.com/",
+    "genres": [],
+    "country": "Algeria",
+    "countryCode": "DZ",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.radio.net/images/broadcasts/06/f5/126428/1/c300.png",
+    "votes": 17072,
+    "clickCount": 2011,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961a5a75-0601-11e8-ae97-52543be04c81",
+    "name": "RMC Radio Monte Carlo",
+    "description": "adult contemporary,mediaset,pop",
+    "streamUrl": "http://icecast.unitedradio.it/RMC.mp3",
+    "streamUrls": [
+      "http://icecast.unitedradio.it/RMC.mp3",
+      "http://icecast.unitedradio.it/RMC.mp3"
+    ],
+    "website": "http://www.radiomontecarlo.net/",
+    "genres": [
+      "adult contemporary",
+      "mediaset",
+      "pop"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 17048,
+    "clickCount": 2952,
+    "lastCheckOk": true
+  },
+  {
+    "id": "531fced7-b22b-11e8-afe1-52543be04c81",
+    "name": "Antena 1 FM 94.7 São Paulo",
+    "description": "adult contemporary,lite",
+    "streamUrl": "http://antena1.newradio.it/stream",
+    "streamUrls": [
+      "http://antena1.newradio.it/stream",
+      "http://antena1.newradio.it/stream"
+    ],
+    "website": "https://www.antena1.com.br/",
+    "genres": [
+      "adult contemporary",
+      "lite"
+    ],
+    "country": "Brazil",
+    "countryCode": "BR",
+    "language": "portuguese",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://www.antena1.com.br/apple-touch-icon.png",
+    "votes": 16806,
+    "clickCount": 2963,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962a748b-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Deep House Radio",
+    "description": "deep house,techno",
+    "streamUrl": "http://strm112.1.fm/deephouse_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/deephouse_mobile_mp3",
+      "http://strm112.1.fm/deephouse_mobile_mp3"
+    ],
+    "website": "http://www.1.fm/",
+    "genres": [
+      "deep house",
+      "techno"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 16633,
+    "clickCount": 4971,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e7205cd4-dc30-11e9-a8ba-52543be04c81",
+    "name": "Heart 70s",
+    "description": "70s,national,pop,public radio,variety",
+    "streamUrl": "https://media-ssl.musicradio.com/Heart70sMP3",
+    "streamUrls": [
+      "https://media-ssl.musicradio.com/Heart70sMP3",
+      "https://media-ssl.musicradio.com/Heart70sMP3"
+    ],
+    "website": "https://www.heart.co.uk/70s",
+    "genres": [
+      "70s",
+      "national",
+      "pop",
+      "public radio",
+      "variety"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 16630,
+    "clickCount": 1838,
+    "lastCheckOk": true
+  },
+  {
+    "id": "2587e12f-5b2e-4ef9-9710-2510c60e9e35",
+    "name": "Cope Directo 2",
+    "description": "deportes,radio",
+    "streamUrl": "https://flucast07-o-cloud.flumotion.com/cope/net2.mp3",
+    "streamUrls": [
+      "https://flucast07-o-cloud.flumotion.com/cope/net2.mp3",
+      "https://flucast07-o-cloud.flumotion.com/cope/net2.mp3"
+    ],
+    "website": "https://www.cope.es/",
+    "genres": [
+      "deportes",
+      "radio"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://www.cope.es/estaticos/apple-touch-icon-192x192.png",
+    "votes": 16536,
+    "clickCount": 9470,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3e6e3252-dd81-4b07-baba-b61bf96cd457",
+    "name": "BFM radio",
+    "description": "information,news",
+    "streamUrl": "https://audio.bfmtv.com/bfmradio_128.mp3",
+    "streamUrls": [
+      "https://audio.bfmtv.com/bfmradio_128.mp3",
+      "https://audio.bfmtv.com/bfmradio_128.mp3"
+    ],
+    "website": "https://www.bfmtv.com/en-direct/bfm-radio/",
+    "genres": [
+      "information",
+      "news"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "https://www.radio.fr/images/broadcasts/76/27/105095/3/c300.png",
+    "votes": 16455,
+    "clickCount": 2685,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961a56e9-0601-11e8-ae97-52543be04c81",
+    "name": "Polskie Radio 24",
+    "description": "information,polskieradio,public radio",
+    "streamUrl": "http://stream3.polskieradio.pl:8080/;.mp3",
+    "streamUrls": [
+      "http://stream3.polskieradio.pl:8080/;.mp3",
+      "http://stream3.polskieradio.pl:8080/;.mp3"
+    ],
+    "website": "http://www.polskieradio.pl/130,PR24",
+    "genres": [
+      "information",
+      "polskieradio",
+      "public radio"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 16424,
+    "clickCount": 1357,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961421ae-0601-11e8-ae97-52543be04c81",
+    "name": "100% Radio Hit",
+    "description": "",
+    "streamUrl": "http://100radio-hit.ice.infomaniak.ch/100radio-hit-128.mp3",
+    "streamUrls": [
+      "http://100radio-hit.ice.infomaniak.ch/100radio-hit-128.mp3",
+      "http://100radio-hit.ice.infomaniak.ch/100radio-hit-128.mp3"
+    ],
+    "website": "http://www.centpourcent.com/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://bocir-prod-bucket.s3.amazonaws.com/radios/centpourcent/images/favicon.ico",
+    "votes": 16402,
+    "clickCount": 789,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962a61bf-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Amsterdam Trance Radio",
+    "description": "trance",
+    "streamUrl": "http://strm112.1.fm/atr_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/atr_mobile_mp3",
+      "http://strm112.1.fm/atr_mobile_mp3"
+    ],
+    "website": "http://www.1.fm/",
+    "genres": [
+      "trance"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 16343,
+    "clickCount": 3767,
+    "lastCheckOk": true
+  },
+  {
+    "id": "bf3942e0-d1cb-11e8-a54a-52543be04c81",
+    "name": "Best Fm",
+    "description": "",
+    "streamUrl": "http://46.20.7.126/;stream.mp3",
+    "streamUrls": [
+      "http://46.20.7.126/;stream.mp3",
+      "http://46.20.7.126/;stream.mp3"
+    ],
+    "website": "",
+    "genres": [],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "turkish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 16265,
+    "clickCount": 3430,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9a8f7fb5-3159-11ea-afca-52543be04c81",
+    "name": "Akaboozi FM 87.9",
+    "description": "news,talk",
+    "streamUrl": "http://162.244.80.52:8732/stream.mp3",
+    "streamUrls": [
+      "http://162.244.80.52:8732/stream.mp3",
+      "http://162.244.80.52:8732/stream.mp3"
+    ],
+    "website": "https://www.akaboozi.com/",
+    "genres": [
+      "news",
+      "talk"
+    ],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "luganda",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://akaboozi.com/wp-content/uploads/2022/03/cropped-site-logo-180x180.png",
+    "votes": 16181,
+    "clickCount": 8314,
+    "lastCheckOk": true
+  },
+  {
+    "id": "30c38245-b3f4-4481-abe4-79b8f07a5a7c",
+    "name": "Шансон без цензуры",
+    "description": "russia,russian,shanson,без,русский,цензуры,шансон",
+    "streamUrl": "http://chanson.hostingradio.ru:8041/chanson-uncensored256.mp3",
+    "streamUrls": [
+      "http://chanson.hostingradio.ru:8041/chanson-uncensored256.mp3",
+      "http://chanson.hostingradio.ru:8041/chanson-uncensored256.mp3"
+    ],
+    "website": "https://radioshanson.ru/",
+    "genres": [
+      "russia",
+      "russian",
+      "shanson",
+      "без",
+      "русский"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "https://www.eff.org/files/Button_Russian_white.png",
+    "votes": 16144,
+    "clickCount": 3711,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96237848-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Lounge",
+    "description": "320kbps,classic jazz,jazz,smooth jazz",
+    "streamUrl": "http://eu8.fastcast4u.com:5068/;",
+    "streamUrls": [
+      "http://eu8.fastcast4u.com:5068/;",
+      "http://eu8.fastcast4u.com:5068/;"
+    ],
+    "website": "http://shoutcast.flashradio.info/#/Jazz/1292701/",
+    "genres": [
+      "320kbps",
+      "classic jazz",
+      "jazz",
+      "smooth jazz"
+    ],
+    "country": "Malaysia",
+    "countryCode": "MY",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 15831,
+    "clickCount": 1673,
+    "lastCheckOk": true
+  },
+  {
+    "id": "240d28b9-7858-48d2-a816-9cf8e1875fe8",
+    "name": "SWR3",
+    "description": "news,pop,rock",
+    "streamUrl": "https://f121.rndfnk.com/ard/swr/swr3/live/mp3/128/stream.mp3?aggregator=web&cid=01FC1X5J7PN2N3YQPZYT8YDM9M&sid=34pEkL7AyJ7L2TK96ReaZAPq7uz&token=cDdSaMsSIQJFdiUA87EOuFwLn70jL5-IE-cgfCfBjHg&tvf=1owlD2mccxhmMTIxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "https://f121.rndfnk.com/ard/swr/swr3/live/mp3/128/stream.mp3?aggregator=web&cid=01FC1X5J7PN2N3YQPZYT8YDM9M&sid=34pEkL7AyJ7L2TK96ReaZAPq7uz&token=cDdSaMsSIQJFdiUA87EOuFwLn70jL5-IE-cgfCfBjHg&tvf=1owlD2mccxhmMTIxLnJuZGZuay5jb20",
+      "https://liveradio.swr.de/sw282p3/swr3/play.mp3"
+    ],
+    "website": "https://swr3.de/",
+    "genres": [
+      "news",
+      "pop",
+      "rock"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://swr3.de/assets/swr3/icons/apple-touch-icon.png",
+    "votes": 15794,
+    "clickCount": 25491,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f65094f5-2cae-4d4e-ab4a-12f2e7d274bb",
+    "name": "Deep House Radio - Bucharest Romania",
+    "description": "deep house",
+    "streamUrl": "http://live.dancemusic.ro:7000/stream",
+    "streamUrls": [
+      "http://live.dancemusic.ro:7000/stream",
+      "http://live.dancemusic.ro:7000/listen.pls?sid=1"
+    ],
+    "website": "http://www.dancemusic.ro/",
+    "genres": [
+      "deep house"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.dancemusic.ro/dancemusic-favicon.png",
+    "votes": 15768,
+    "clickCount": 3905,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4ad3c0f9-61a5-4ebb-953a-a08fc1065a78",
+    "name": "Araz fm 103.3",
+    "description": "",
+    "streamUrl": "http://s39.myradiostream.com:5458/listen.mp3?nocache=1761897243",
+    "streamUrls": [
+      "http://s39.myradiostream.com:5458/listen.mp3?nocache=1761897243",
+      "http://s39.myradiostream.com/5458/listen.mp3"
+    ],
+    "website": "http://araz.fm/",
+    "genres": [],
+    "country": "Azerbaijan",
+    "countryCode": "AZ",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 15741,
+    "clickCount": 1126,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96126f56-0601-11e8-ae97-52543be04c81",
+    "name": "NPO Radio 1",
+    "description": "news",
+    "streamUrl": "http://icecast.omroep.nl/radio1-bb-mp3",
+    "streamUrls": [
+      "http://icecast.omroep.nl/radio1-bb-mp3",
+      "http://icecast.omroep.nl/radio1-bb-mp3"
+    ],
+    "website": "http://www.radio1.nl/",
+    "genres": [
+      "news"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "dutch",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/NPO_Radio_1_logo_2014.svg/640px-NPO_Radio_1_logo_2014.svg.png",
+    "votes": 15733,
+    "clickCount": 11545,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9dc2bd8c-ef1c-421c-be0c-dd9f4a30f965",
+    "name": "Rock Ballads",
+    "description": "rock",
+    "streamUrl": "http://online.radioroks.ua/RadioROKS_Ballads",
+    "streamUrls": [
+      "http://online.radioroks.ua/RadioROKS_Ballads",
+      "http://online.radioroks.ua/RadioROKS_Ballads"
+    ],
+    "website": "https://www.radioroks.ua/",
+    "genres": [
+      "rock"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 15658,
+    "clickCount": 903,
+    "lastCheckOk": true
+  },
+  {
+    "id": "964558ba-0601-11e8-ae97-52543be04c81",
+    "name": "Polskie Radio Jedynka",
+    "description": "polskieradio,public radio",
+    "streamUrl": "http://mp3.polskieradio.pl:8900/;.mp3",
+    "streamUrls": [
+      "http://mp3.polskieradio.pl:8900/;.mp3",
+      "http://mp3.polskieradio.pl:8900/;.mp3"
+    ],
+    "website": "http://www.polskieradio.pl/jedynka/",
+    "genres": [
+      "polskieradio",
+      "public radio"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 15582,
+    "clickCount": 2642,
+    "lastCheckOk": true
+  },
+  {
+    "id": "47aa6e21-7933-4476-9c1d-f23fdb8b9e7a",
+    "name": "Наше Радіо 107.9",
+    "description": "music",
+    "streamUrl": "http://online.nasheradio.ua/NasheRadio",
+    "streamUrls": [
+      "http://online.nasheradio.ua/NasheRadio",
+      "http://online.nasheradio.ua/NasheRadio"
+    ],
+    "website": "https://www.nasheradio.ua/",
+    "genres": [
+      "music"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 15362,
+    "clickCount": 1346,
+    "lastCheckOk": true
+  },
+  {
+    "id": "a0af47c1-4efe-11ea-b877-52543be04c81",
+    "name": "Radio Anonymous",
+    "description": "radio",
+    "streamUrl": "https://anon.radio.fm/streams/radio",
+    "streamUrls": [
+      "https://anon.radio.fm/streams/radio",
+      "https://anon.radio.fm/streams/radio"
+    ],
+    "website": "http://anon.fm/",
+    "genres": [
+      "radio"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://anon.fm/imgs/logos/5.png",
+    "votes": 15357,
+    "clickCount": 308,
+    "lastCheckOk": true
+  },
+  {
+    "id": "02a0222a-f54f-11e8-a471-52543be04c81",
+    "name": "Extra FM",
+    "description": "folk",
+    "streamUrl": "http://streams.extrafm.hr:8110/;",
+    "streamUrls": [
+      "http://streams.extrafm.hr:8110/;",
+      "http://streams.extrafm.hr:8110/;"
+    ],
+    "website": "https://extrafm.hr/",
+    "genres": [
+      "folk"
+    ],
+    "country": "Croatia",
+    "countryCode": "HR",
+    "language": "croatian",
+    "bitrate": "96",
+    "codec": "AAC+",
+    "favicon": "https://extrafm.hr/apple-touch-icon.png",
+    "votes": 15336,
+    "clickCount": 1977,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962a6637-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Classic Rock Replay Radio",
+    "description": "classic rock",
+    "streamUrl": "http://strm112.1.fm/crock_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/crock_mobile_mp3",
+      "http://strm112.1.fm/crock_mobile_mp3"
+    ],
+    "website": "http://www.1.fm/",
+    "genres": [
+      "classic rock"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 15326,
+    "clickCount": 1471,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d847db37-5f89-48a5-be32-b10e5406f0e6",
+    "name": "Mixadance FM",
+    "description": "dance,electro,electronic,house,music",
+    "streamUrl": "https://stream.mixadance.fm/mixadance",
+    "streamUrls": [
+      "https://stream.mixadance.fm/mixadance",
+      "https://stream.mixadance.fm/mixadance"
+    ],
+    "website": "http://www.mixadance.fm/",
+    "genres": [
+      "dance",
+      "electro",
+      "electronic",
+      "house",
+      "music"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "http://www.mixadance.fm/apple-touch-icon.png",
+    "votes": 15141,
+    "clickCount": 2555,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962a63f2-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Absolute Country Hits Radio",
+    "description": "country",
+    "streamUrl": "http://strm112.1.fm/acountry_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/acountry_mobile_mp3",
+      "http://strm112.1.fm/acountry_mobile_mp3"
+    ],
+    "website": "http://www.1.fm/",
+    "genres": [
+      "country"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 15006,
+    "clickCount": 1666,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9610a807-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio Funk",
+    "description": "funk",
+    "streamUrl": "http://jazz-wr06.ice.infomaniak.ch/jazz-wr06-128.mp3",
+    "streamUrls": [
+      "http://jazz-wr06.ice.infomaniak.ch/jazz-wr06-128.mp3",
+      "http://jazz-wr06.ice.infomaniak.ch/jazz-wr06-128.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/radio/webradio/12/funk",
+    "genres": [
+      "funk"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 14910,
+    "clickCount": 1591,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619eb8a-0601-11e8-ae97-52543be04c81",
+    "name": "Virgin Radio Italia",
+    "description": "mediaset,pop rock",
+    "streamUrl": "http://icecast.unitedradio.it/Virgin.mp3",
+    "streamUrls": [
+      "http://icecast.unitedradio.it/Virgin.mp3",
+      "http://icecast.unitedradio.it/Virgin.mp3"
+    ],
+    "website": "http://www.virginradio.it/",
+    "genres": [
+      "mediaset",
+      "pop rock"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.virginradio.it/favicon_2.ico?v=1722509813651",
+    "votes": 14907,
+    "clickCount": 5543,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0a1e0bb0-dc37-11e9-a8ba-52543be04c81",
+    "name": "Gold",
+    "description": "classic hits,national,oldies,public radio,variety",
+    "streamUrl": "https://media-ssl.musicradio.com/GoldMP3",
+    "streamUrls": [
+      "https://media-ssl.musicradio.com/GoldMP3",
+      "https://media-ssl.musicradio.com/GoldMP3"
+    ],
+    "website": "https://www.mygoldmusic.co.uk/",
+    "genres": [
+      "classic hits",
+      "national",
+      "oldies",
+      "public radio",
+      "variety"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.mygoldmusic.co.uk/assets_v4r/gold/img/favicon-196x196.png",
+    "votes": 14902,
+    "clickCount": 4903,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c77c45c4-cf37-414c-ae34-868f7d9cd944",
+    "name": "FUNKY RADIO - Only Funk Music (60's 70's)",
+    "description": "60s,70s,70s disco,80s,black,black music,disco,funk,funky,motown,music,oldies,p-funk,r&b,r'n'b,rare groove,rnb,soul,usa",
+    "streamUrl": "https://funkyradio.streamingmedia.it/play.mp3",
+    "streamUrls": [
+      "https://funkyradio.streamingmedia.it/play.mp3",
+      "https://funkyradio.streamingmedia.it/play.mp3"
+    ],
+    "website": "https://funky.radio/",
+    "genres": [
+      "60s",
+      "70s",
+      "70s disco",
+      "80s",
+      "black"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english,italian",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 14819,
+    "clickCount": 3352,
+    "lastCheckOk": true
+  },
+  {
+    "id": "8cc2da8b-ae85-4e37-9027-9ad765a1ea7a",
+    "name": "Los 40 Urban",
+    "description": "dance,music,pop,urban",
+    "streamUrl": "https://21223.live.streamtheworld.com:443/LOS40_URBAN.mp3",
+    "streamUrls": [
+      "https://21223.live.streamtheworld.com:443/LOS40_URBAN.mp3",
+      "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_URBAN.mp3"
+    ],
+    "website": "https://los40.com/seccion/los40urban/",
+    "genres": [
+      "dance",
+      "music",
+      "pop",
+      "urban"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://los40es00.epimg.net/iconos/v1.x/v1.0/promos/promo_og_los40.png",
+    "votes": 14796,
+    "clickCount": 2280,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f3dfbec0-8ddb-457c-94cd-368631337c0f",
+    "name": "DAMAR TURK FM",
+    "description": "",
+    "streamUrl": "https://live.radyositesihazir.com:10997/",
+    "streamUrls": [
+      "https://live.radyositesihazir.com:10997/",
+      "https://live.radyositesihazir.com:10997/"
+    ],
+    "website": "https://www.damarturkfm.com/",
+    "genres": [],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "french,german,turkish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.damarturkfm.com/favicon.ico",
+    "votes": 14772,
+    "clickCount": 7056,
+    "lastCheckOk": true
+  },
+  {
+    "id": "dfcef843-6bf9-40f6-b3fe-2b224df86e48",
+    "name": "Europe 1",
+    "description": "aac,news,talk",
+    "streamUrl": "https://europe1.lmn.fm/europe1.aac",
+    "streamUrls": [
+      "https://europe1.lmn.fm/europe1.aac",
+      "https://stream.europe1.fr/europe1.aac"
+    ],
+    "website": "https://www.europe1.fr/",
+    "genres": [
+      "aac",
+      "news",
+      "talk"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://www.europe1.fr/build/e1/images/favicon-120x120.png",
+    "votes": 14579,
+    "clickCount": 8277,
+    "lastCheckOk": true
+  },
+  {
+    "id": "df369586-40fc-11e9-aa55-52543be04c81",
+    "name": "Radyo 7",
+    "description": "",
+    "streamUrl": "http://46.20.3.250/;stream",
+    "streamUrls": [
+      "http://46.20.3.250/;stream",
+      "http://46.20.3.250/;stream"
+    ],
+    "website": "http://www.radyo7.com/",
+    "genres": [],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn.kanal7.com/radyo7//application/assets/home/common/images/apple-touch-icon-114x114.png",
+    "votes": 14405,
+    "clickCount": 6315,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961e6ff1-0601-11e8-ae97-52543be04c81",
+    "name": ".977 Oldies",
+    "description": "oldies",
+    "streamUrl": "http://26433.live.streamtheworld.com:3690/977_OLDIES_SC",
+    "streamUrls": [
+      "http://26433.live.streamtheworld.com:3690/977_OLDIES_SC",
+      "http://playerservices.streamtheworld.com/pls/977_OLDIES.pls"
+    ],
+    "website": "http://www.977music.com/",
+    "genres": [
+      "oldies"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 14356,
+    "clickCount": 861,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d00a8843-b483-4de5-94bc-31bda20e732a",
+    "name": "Rádió 1 - Budapest",
+    "description": "",
+    "streamUrl": "http://icast.connectmedia.hu/5201/live.mp3",
+    "streamUrls": [
+      "http://icast.connectmedia.hu/5201/live.mp3",
+      "http://icast.connectmedia.hu/5201/live.mp3"
+    ],
+    "website": "https://radio1.hu/",
+    "genres": [],
+    "country": "Hungary",
+    "countryCode": "HU",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 14274,
+    "clickCount": 2105,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d7f5a497-40ec-11e9-aa55-52543be04c81",
+    "name": "- 0 N - Classic Rock on Radio",
+    "description": "80er,80s,90er,90s,classic rock,rock",
+    "streamUrl": "https://0n-classicrock.radionetz.de/0n-classicrock.mp3",
+    "streamUrls": [
+      "https://0n-classicrock.radionetz.de/0n-classicrock.mp3",
+      "https://0n-classicrock.radionetz.de/0n-classicrock.mp3"
+    ],
+    "website": "http://www.0nradio.com/",
+    "genres": [
+      "80er",
+      "80s",
+      "90er",
+      "90s",
+      "classic rock"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.0nradio.com/logos/0n-classic-rock_600x600.jpg",
+    "votes": 14250,
+    "clickCount": 3352,
+    "lastCheckOk": true
+  },
+  {
+    "id": "360028f5-46ba-11ea-a860-52543be04c81",
+    "name": "Türkülerle Türkiye",
+    "description": "türkü",
+    "streamUrl": "http://37.247.98.8/stream/22/;",
+    "streamUrls": [
+      "http://37.247.98.8/stream/22/;",
+      "http://37.247.98.8/listen.pls?sid=22"
+    ],
+    "website": "https://www.canliradyodinle.fm/radyo-turkulerle-turkiye-dinle.html",
+    "genres": [
+      "türkü"
+    ],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "turkish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 14186,
+    "clickCount": 2421,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4534dd5f-b22a-11e8-afe1-52543be04c81",
+    "name": "Antena 1 FM 103.7 Rio de Janeiro",
+    "description": "adult contemporary,lite",
+    "streamUrl": "https://antena1campanha.crossradio.com.br:29090/camp3",
+    "streamUrls": [
+      "https://antena1campanha.crossradio.com.br:29090/camp3",
+      "http://a1rj.streams.com.br:7801/stream"
+    ],
+    "website": "https://www.antena1rio.com.br/",
+    "genres": [
+      "adult contemporary",
+      "lite"
+    ],
+    "country": "Brazil",
+    "countryCode": "BR",
+    "language": "portuguese",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 14166,
+    "clickCount": 830,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96163b46-0601-11e8-ae97-52543be04c81",
+    "name": "комерсант (Kommersant FM) 93.6 Moscow",
+    "description": "news",
+    "streamUrl": "http://kommersant77.hostingradio.ru:8016/kommersant64.mp3",
+    "streamUrls": [
+      "http://kommersant77.hostingradio.ru:8016/kommersant64.mp3",
+      "http://kommersant77.hostingradio.ru:8016/kommersant64.mp3"
+    ],
+    "website": "http://www.kommersant.ru/fm",
+    "genres": [
+      "news"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://im.kommersant.ru/contentflex/images/favicons2020/apple-touch-icon-120.png",
+    "votes": 14126,
+    "clickCount": 3950,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962841a9-0601-11e8-ae97-52543be04c81",
+    "name": "Radio 105 - Dance 90",
+    "description": "90s,eurodance,mediaset",
+    "streamUrl": "http://icy.unitedradio.it/105Dance90.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/105Dance90.mp3",
+      "http://icy.unitedradio.it/105Dance90.mp3"
+    ],
+    "website": "http://www.105.net/sezioni/1281/105-dance-90",
+    "genres": [
+      "90s",
+      "eurodance",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 14105,
+    "clickCount": 1370,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9618a87b-0601-11e8-ae97-52543be04c81",
+    "name": "ORBITAL",
+    "description": "dance,electronic,house",
+    "streamUrl": "http://centova.radios.pt:8401/;listen.pls",
+    "streamUrls": [
+      "http://centova.radios.pt:8401/;listen.pls",
+      "http://centova.radios.pt:8401/;listen.pls"
+    ],
+    "website": "http://www.orbital.pt/",
+    "genres": [
+      "dance",
+      "electronic",
+      "house"
+    ],
+    "country": "Portugal",
+    "countryCode": "PT",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 14077,
+    "clickCount": 1196,
+    "lastCheckOk": true
+  },
+  {
+    "id": "808d64e4-4a01-11ea-9348-52543be04c81",
+    "name": "Radio Okapi",
+    "description": "",
+    "streamUrl": "http://rs1.radiostreamer.com:8000/;",
+    "streamUrls": [
+      "http://rs1.radiostreamer.com:8000/;",
+      "http://rs1.radiostreamer.com:8000/listen.pls"
+    ],
+    "website": "http://radiookapi.net/",
+    "genres": [],
+    "country": "The Democratic Republic Of The Congo",
+    "countryCode": "CD",
+    "language": "french",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://www.radiookapi.net/sites/default/files/avatar-ro_normal.gif_0.png",
+    "votes": 14028,
+    "clickCount": 1505,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4a018de7-b452-4412-b86f-86254c5d53be",
+    "name": "ABC Lounge Radio",
+    "description": "ambient,chillout,easy listening,lounge,smooth jazz",
+    "streamUrl": "https://eu1.fastcast4u.com/proxy/kpmxz?mp=/1",
+    "streamUrls": [
+      "https://eu1.fastcast4u.com/proxy/kpmxz?mp=/1",
+      "https://eu1.fastcast4u.com/proxy/kpmxz?mp=/1"
+    ],
+    "website": "https://www.abc-lounge.com/radio/lounge-jazz-folk/#home",
+    "genres": [
+      "ambient",
+      "chillout",
+      "easy listening",
+      "lounge",
+      "smooth jazz"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "english,french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 13859,
+    "clickCount": 3131,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96058859-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Banovina",
+    "description": "folk",
+    "streamUrl": "http://stream1.radio-banovina.hr:8008/;",
+    "streamUrls": [
+      "http://stream1.radio-banovina.hr:8008/;",
+      "http://stream1.radio-banovina.hr:8008/;"
+    ],
+    "website": "http://www.radio-banovina.hr/",
+    "genres": [
+      "folk"
+    ],
+    "country": "Croatia",
+    "countryCode": "HR",
+    "language": "croatian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.radio-banovina.hr/wp-content/uploads/2015/01/logo-120_00000.png",
+    "votes": 13797,
+    "clickCount": 1521,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c0a73-0601-11e8-ae97-52543be04c81",
+    "name": "Kossuth Rádió",
+    "description": "duna média,news,public radio,talk",
+    "streamUrl": "http://mr-stream.mediaconnect.hu/4734/mr1.aac",
+    "streamUrls": [
+      "http://mr-stream.mediaconnect.hu/4734/mr1.aac",
+      "http://mr-stream.mediaconnect.hu/4734/mr1.aac"
+    ],
+    "website": "http://www.mediaklikk.hu/kossuth/",
+    "genres": [
+      "duna média",
+      "news",
+      "public radio",
+      "talk"
+    ],
+    "country": "Hungary",
+    "countryCode": "HU",
+    "language": "hungarian",
+    "bitrate": "96",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 13419,
+    "clickCount": 1554,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96147fcb-0601-11e8-ae97-52543be04c81",
+    "name": "Chante France 80's",
+    "description": "80s",
+    "streamUrl": "https://chantefrance80s.ice.infomaniak.ch/chantefrance80s-128.mp3",
+    "streamUrls": [
+      "https://chantefrance80s.ice.infomaniak.ch/chantefrance80s-128.mp3",
+      "http://stream1.chantefrance.com/cf-80"
+    ],
+    "website": "http://www.chantefrance.com/",
+    "genres": [
+      "80s"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://bocir-prod-bucket.s3.eu-west-1.amazonaws.com/radios/chante-france/images/favicon.x-icon",
+    "votes": 13321,
+    "clickCount": 1736,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9612ee33-0601-11e8-ae97-52543be04c81",
+    "name": "Generations R&B",
+    "description": "",
+    "streamUrl": "http://generationfm-slowjam.ice.infomaniak.ch/generationfm-slowjam-high.mp3",
+    "streamUrls": [
+      "http://generationfm-slowjam.ice.infomaniak.ch/generationfm-slowjam-high.mp3",
+      "http://generationfm-slowjam.ice.infomaniak.ch/generationfm-slowjam-high.mp3"
+    ],
+    "website": "http://generations.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://generations.fr/media/radio/thumb/90x90_rnb.png",
+    "votes": 13300,
+    "clickCount": 603,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1e0dcee9-bfb6-41a4-8356-e8c4540dfcf0",
+    "name": "Radyo Şiran",
+    "description": "folk",
+    "streamUrl": "https://live.radyositesihazir.com/8078/stream",
+    "streamUrls": [
+      "https://live.radyositesihazir.com/8078/stream",
+      "https://live.radyositesihazir.com/8078/stream"
+    ],
+    "website": "https://live.radyositesihazir.com/8078/stream",
+    "genres": [
+      "folk"
+    ],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 13182,
+    "clickCount": 507,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4ecdc6ae-2ab9-457c-82c4-ffaa0ff2efed",
+    "name": "RNB and Hip Hop Radio",
+    "description": "1990s,90s,black,black music,classic hip hop,hiphop,house,r&b/urban,rnb,soul,urban,urban adult contemporary,urban contemporary",
+    "streamUrl": "http://192.99.41.102:5429/",
+    "streamUrls": [
+      "http://192.99.41.102:5429/",
+      "http://192.99.41.102:5429/"
+    ],
+    "website": "http://www.livefromthemia.com/",
+    "genres": [
+      "1990s",
+      "90s",
+      "black",
+      "black music",
+      "classic hip hop"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.livefromthemia.com/favicon.ico",
+    "votes": 13112,
+    "clickCount": 1980,
+    "lastCheckOk": true
+  },
+  {
+    "id": "df9f0dcf-2b1c-4ea4-8392-bed99adaef3c",
+    "name": "Radio Progreso",
+    "description": "",
+    "streamUrl": "https://icecast.teveo.cu/XjfW7qWN",
+    "streamUrls": [
+      "https://icecast.teveo.cu/XjfW7qWN",
+      "https://icecast.teveo.cu/XjfW7qWN"
+    ],
+    "website": "https://www.radioprogreso.icrt.cu/",
+    "genres": [],
+    "country": "Cuba",
+    "countryCode": "CU",
+    "language": "",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 13078,
+    "clickCount": 1049,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96201245-0601-11e8-ae97-52543be04c81",
+    "name": "Retro Soul Radio",
+    "description": "disco,funk,jazz,soul",
+    "streamUrl": "http://46.28.49.164:7504/stream",
+    "streamUrls": [
+      "http://46.28.49.164:7504/stream",
+      "http://46.28.49.164:7504/stream"
+    ],
+    "website": "http://www.retrosoulradio.co.uk/",
+    "genres": [
+      "disco",
+      "funk",
+      "jazz",
+      "soul"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 13077,
+    "clickCount": 1491,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961af0bd-0601-11e8-ae97-52543be04c81",
+    "name": "W Radio Colombia, Bogotá (HJCZ 690 AM; HJLN 99.9 MHz FM) Caracol Estéreo / Caracol Radio",
+    "description": "news,news and talk,talk radio",
+    "streamUrl": "http://13693.live.streamtheworld.com:3690/WRADIO_SC",
+    "streamUrls": [
+      "http://13693.live.streamtheworld.com:3690/WRADIO_SC",
+      "http://playerservices.streamtheworld.com/m3u/WRADIO.m3u"
+    ],
+    "website": "http://wradio.com.co/",
+    "genres": [
+      "news",
+      "news and talk",
+      "talk radio"
+    ],
+    "country": "Colombia",
+    "countryCode": "CO",
+    "language": "spanish",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "http://wradio.com.co/pf/resources/wradio-colombia/touch-icon-ipad.png?d=172",
+    "votes": 13076,
+    "clickCount": 3012,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b23c76b3-1bb9-4dd6-b2ab-7e9763e0ca33",
+    "name": "CBS FM 89.2",
+    "description": "",
+    "streamUrl": "http://s5.voscast.com:9904/EMMANDUSO",
+    "streamUrls": [
+      "http://s5.voscast.com:9904/EMMANDUSO",
+      "http://s5.voscast.com:9904/EMMANDUSO"
+    ],
+    "website": "http://cbsfm.ug/",
+    "genres": [],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 13030,
+    "clickCount": 7640,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9610c454-0601-11e8-ae97-52543be04c81",
+    "name": "Antenne Bayern - Chillout",
+    "description": "chillout",
+    "streamUrl": "http://s6-webradio.antenne.de/chillout",
+    "streamUrls": [
+      "http://s6-webradio.antenne.de/chillout",
+      "http://mp3channels.webradio.antenne.de/chillout"
+    ],
+    "website": "http://www.antenne.de/programm/empfang/antenne-bayern-hoeren-internet",
+    "genres": [
+      "chillout"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 13009,
+    "clickCount": 4069,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961d41f3-0601-11e8-ae97-52543be04c81",
+    "name": "Europa FM",
+    "description": "music,news,talkshow",
+    "streamUrl": "http://astreaming.europafm.ro:8000/europafm_aacp48k",
+    "streamUrls": [
+      "http://astreaming.europafm.ro:8000/europafm_aacp48k",
+      "http://astreaming.europafm.ro:8000/europafm_aacp48k"
+    ],
+    "website": "http://www.europafm.ro/",
+    "genres": [
+      "music",
+      "news",
+      "talkshow"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "romanian",
+    "bitrate": "64",
+    "codec": "AAC",
+    "favicon": "http://www.europafm.ro/favicon.ico",
+    "votes": 12995,
+    "clickCount": 1250,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7f753b43-eb65-4638-bcea-8dbaaf620b0d",
+    "name": "98.7 Mutundwe Christian Fellowship ",
+    "description": "christian",
+    "streamUrl": "https://streams.radio.co/s79fbbb432/listen",
+    "streamUrls": [
+      "https://streams.radio.co/s79fbbb432/listen",
+      "https://streams.radio.co/s79fbbb432/listen"
+    ],
+    "website": "http://www.mutundwechristianfellowship.org/",
+    "genres": [
+      "christian"
+    ],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "luganda",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 12953,
+    "clickCount": 4607,
+    "lastCheckOk": true
+  },
+  {
+    "id": "86fb3b9a-2b61-11e8-91bf-52543be04c81",
+    "name": "Los 40 Principales México",
+    "description": "hits,latin pop,top 40",
+    "streamUrl": "http://27033.live.streamtheworld.com:3690/LOS40_MEXICO_SC",
+    "streamUrls": [
+      "http://27033.live.streamtheworld.com:3690/LOS40_MEXICO_SC",
+      "http://provisioning.streamtheworld.com/pls/LOS40_MEXICO.pls"
+    ],
+    "website": "http://los40.com.mx/",
+    "genres": [
+      "hits",
+      "latin pop",
+      "top 40"
+    ],
+    "country": "Mexico",
+    "countryCode": "MX",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://los40es00.epimg.net/estaticos/recursosgraficos/v1/img/app/los40_192.png",
+    "votes": 12632,
+    "clickCount": 1703,
+    "lastCheckOk": true
+  },
+  {
+    "id": "777d14b2-f344-11e9-a96c-52543be04c81",
+    "name": "Los 40 Dance",
+    "description": "dance,dance music,edm,electro,electronic,house",
+    "streamUrl": "http://25693.live.streamtheworld.com:80/LOS40_DANCE_SC",
+    "streamUrls": [
+      "http://25693.live.streamtheworld.com:80/LOS40_DANCE_SC",
+      "http://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_DANCE_SC"
+    ],
+    "website": "https://los40.com/",
+    "genres": [
+      "dance",
+      "dance music",
+      "edm",
+      "electro",
+      "electronic"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://recursosweb.prisaradio.com/fotos/original/010002753887.png",
+    "votes": 12626,
+    "clickCount": 2645,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962a66fd-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Classic Country Radio",
+    "description": "classic country",
+    "streamUrl": "http://strm112.1.fm/ccountry_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/ccountry_mobile_mp3",
+      "http://strm112.1.fm/ccountry_mobile_mp3"
+    ],
+    "website": "http://www.1.fm/",
+    "genres": [
+      "classic country"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 12564,
+    "clickCount": 1301,
+    "lastCheckOk": true
+  },
+  {
+    "id": "902ea231-d537-4dc8-8708-6819418086d0",
+    "name": "Vivid Bharti ",
+    "description": "classical",
+    "streamUrl": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8",
+    "streamUrls": [
+      "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8",
+      "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8"
+    ],
+    "website": "",
+    "genres": [
+      "classical"
+    ],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "",
+    "bitrate": "93",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 12548,
+    "clickCount": 21535,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f3e19d9f-b46e-4098-8335-a9d2f38d726c",
+    "name": "Oriat Dono",
+    "description": "hits,russian hits,top100",
+    "streamUrl": "http://194.5.152.248:8000/dono",
+    "streamUrls": [
+      "http://194.5.152.248:8000/dono",
+      "http://194.5.152.248:8000/dono"
+    ],
+    "website": "http://oriatdono.uz/",
+    "genres": [
+      "hits",
+      "russian hits",
+      "top100"
+    ],
+    "country": "Uzbekistan",
+    "countryCode": "UZ",
+    "language": "english,uzbek",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 12542,
+    "clickCount": 982,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9d2b7b0b-f0cf-4c32-a1ce-bc6e964a7c1a",
+    "name": "Радио Свобода",
+    "description": "новости,политика,разговорное",
+    "streamUrl": "https://rfe-ingest.akamaized.net/hls/live/2035254/axia04/playlist.m3u8",
+    "streamUrls": [
+      "https://rfe-ingest.akamaized.net/hls/live/2035254/axia04/playlist.m3u8",
+      "https://rfe-ingest.akamaized.net/hls/live/2035254/axia04/playlist.m3u8"
+    ],
+    "website": "https://www.svoboda.org/",
+    "genres": [
+      "новости",
+      "политика",
+      "разговорное"
+    ],
+    "country": "Czechia",
+    "countryCode": "CZ",
+    "language": "язык: русский",
+    "bitrate": "140",
+    "codec": "AAC",
+    "favicon": "https://www.svoboda.org/content/responsive/rfe/img/webapp/ico-128x128.png",
+    "votes": 12531,
+    "clickCount": 5770,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961291f5-0601-11e8-ae97-52543be04c81",
+    "name": "La Grosse Radio Métal",
+    "description": "metal,music",
+    "streamUrl": "http://hd.lagrosseradio.info/lagrosseradio-metal-192.mp3",
+    "streamUrls": [
+      "http://hd.lagrosseradio.info/lagrosseradio-metal-192.mp3",
+      "http://hd.lagrosseradio.info/lagrosseradio-metal-192.mp3"
+    ],
+    "website": "http://www.lagrosseradio.com/",
+    "genres": [
+      "metal",
+      "music"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 12421,
+    "clickCount": 835,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7aecf6b1-4724-4fd5-b66e-88d2e34e9b8a",
+    "name": "Хіт ФМ Найбільші хіти ",
+    "description": "90's,pop",
+    "streamUrl": "http://online.hitfm.ua/HitFM_Best",
+    "streamUrls": [
+      "http://online.hitfm.ua/HitFM_Best",
+      "http://online.hitfm.ua/HitFM_Best"
+    ],
+    "website": "http://hitfm.ua/",
+    "genres": [
+      "90's",
+      "pop"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 12405,
+    "clickCount": 1582,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4c1ec953-fcf5-4bf1-b03b-4be73ad4cb3f",
+    "name": "Clouds FM",
+    "description": "pop,top 40",
+    "streamUrl": "http://eu6.fastcast4u.com:5306/;",
+    "streamUrls": [
+      "http://eu6.fastcast4u.com:5306/;",
+      "http://eu6.fastcast4u.com:5306/;"
+    ],
+    "website": "https://www.cloudsfm.com/",
+    "genres": [
+      "pop",
+      "top 40"
+    ],
+    "country": "United Republic Of Tanzania",
+    "countryCode": "TZ",
+    "language": "swahili",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-radiotime-logos.tunein.com/s6417q.png",
+    "votes": 12287,
+    "clickCount": 1723,
+    "lastCheckOk": true
+  },
+  {
+    "id": "bbed394d-8907-435f-8714-8b24c1c56399",
+    "name": "Café Romántico Radio (Monterrey) - Online - www.caferomanticoradio.com - Grupo Digital Radioland - Monterrey, Nuevo León",
+    "description": "80s en español,café romántico radio,clásicos,español,estación,internet,internet radio,internet station,latinoamérica,moi merino,monterrey,musica romantica,méxico,música en español,norteamérica,nuevo león,online,online only,pop clásico,radio,radio online,retro,romantic,romantic music,romantica,romántica,románticas",
+    "streamUrl": "https://panel.retrolandigital.com/radio/8110/listen",
+    "streamUrls": [
+      "https://panel.retrolandigital.com/radio/8110/listen",
+      "https://panel.retrolandigital.com/radio/8110/listen"
+    ],
+    "website": "https://caferomanticoradio.com/",
+    "genres": [
+      "80s en español",
+      "café romántico radio",
+      "clásicos",
+      "español",
+      "estación"
+    ],
+    "country": "Mexico",
+    "countryCode": "MX",
+    "language": "spanish",
+    "bitrate": "96",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 12264,
+    "clickCount": 2188,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5ce6f88b-6308-420d-aa40-343dbdab6c61",
+    "name": "Radio ROKS Hard'n'Heavy",
+    "description": "hard rock,heavy rock,rock",
+    "streamUrl": "http://online.radioroks.ua/RadioROKS_HardnHeavy_HD",
+    "streamUrls": [
+      "http://online.radioroks.ua/RadioROKS_HardnHeavy_HD",
+      "http://online.radioroks.ua/RadioROKS_HardnHeavy_HD"
+    ],
+    "website": "https://www.radioroks.ua/",
+    "genres": [
+      "hard rock",
+      "heavy rock",
+      "rock"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 12262,
+    "clickCount": 1248,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0bf02f35-7bd9-4ca0-839f-662987e4764d",
+    "name": "Radio Khatereh",
+    "description": "pershian radio",
+    "streamUrl": "https://servidor22-5.brlogic.com:7160/live?source=website",
+    "streamUrls": [
+      "https://servidor22-5.brlogic.com:7160/live?source=website",
+      "https://servidor22-5.brlogic.com:7160/live?source=website"
+    ],
+    "website": "https://servidor22-5.brlogic.com:7160/live?source=website",
+    "genres": [
+      "pershian radio"
+    ],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "persian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://firebasestorage.googleapis.com/v0/b/radiogalaxy-580f4.appspot.com/o/images%2FIMG_20240131_175345383.jpg?alt=media&token=c4e2364b-712a-4a70-b802-895b56ecbd68",
+    "votes": 12194,
+    "clickCount": 13995,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5681d06a-f5af-11e9-bbf2-52543be04c81",
+    "name": "Radio Paradise Rock Mix 320k AAC",
+    "description": "california,alternative,eclectic,rock,free,internet,non-commercial",
+    "streamUrl": "http://stream.radioparadise.com/rock-320",
+    "streamUrls": [
+      "http://stream.radioparadise.com/rock-320",
+      "http://stream.radioparadise.com/rock-320"
+    ],
+    "website": "https://radioparadise.com/",
+    "genres": [
+      "california",
+      "alternative",
+      "eclectic",
+      "rock",
+      "free"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "AAC",
+    "favicon": "https://radioparadise.com/apple-touch-icon.png",
+    "votes": 12143,
+    "clickCount": 4746,
+    "lastCheckOk": true
+  },
+  {
+    "id": "42135588-75d9-11ea-b1cf-52543be04c81",
+    "name": "AL-QURAN BANGLA",
+    "description": "",
+    "streamUrl": "http://66.45.232.131:9994/",
+    "streamUrls": [
+      "http://66.45.232.131:9994/",
+      "http://66.45.232.131:9994/"
+    ],
+    "website": "https://www.liveonlineradio.net/bangla/bangla-al-quran.htm",
+    "genres": [],
+    "country": "Bangladesh",
+    "countryCode": "BD",
+    "language": "bengali",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.liveonlineradio.net/wp-content/uploads/2011/08/bangla-al-quran-1.jpg",
+    "votes": 12137,
+    "clickCount": 492,
+    "lastCheckOk": true
+  },
+  {
+    "id": "dd10c8a8-c9b3-4e00-b0b5-7e7a9926e88f",
+    "name": "Radio Aashiqanaa",
+    "description": "added by shivam,bollywood,hindi,kanpur",
+    "streamUrl": "https://sonic.onlineaudience.co.uk/8114/stream?listening-from-radio-garden=1657427657",
+    "streamUrls": [
+      "https://sonic.onlineaudience.co.uk/8114/stream?listening-from-radio-garden=1657427657",
+      "https://sonic.onlineaudience.co.uk/8114/stream?listening-from-radio-garden=1657427657"
+    ],
+    "website": "http://radio.garden/visit/kanpur/oiLkMelg",
+    "genres": [
+      "added by shivam",
+      "bollywood",
+      "hindi",
+      "kanpur"
+    ],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "hindi",
+    "bitrate": "208",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 12127,
+    "clickCount": 2929,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963787ad-0601-11e8-ae97-52543be04c81",
+    "name": "Mercy Rádió - Kabaré",
+    "description": "comedy,talk",
+    "streamUrl": "http://stream.mercyradio.eu/kabare.mp3",
+    "streamUrls": [
+      "http://stream.mercyradio.eu/kabare.mp3",
+      "http://stream.mercyradio.eu/kabare.mp3"
+    ],
+    "website": "http://mercyradio.eu/",
+    "genres": [
+      "comedy",
+      "talk"
+    ],
+    "country": "Hungary",
+    "countryCode": "HU",
+    "language": "hungarian",
+    "bitrate": "160",
+    "codec": "MP3",
+    "favicon": "http://mercyradio.eu/favicon.ico",
+    "votes": 12121,
+    "clickCount": 1547,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960f824a-0601-11e8-ae97-52543be04c81",
+    "name": "RMF Polskie przeboje",
+    "description": "polish pop music",
+    "streamUrl": "http://195.150.20.8/PPRZEBOJE",
+    "streamUrls": [
+      "http://195.150.20.8/PPRZEBOJE",
+      "http://195.150.20.8/PPRZEBOJE"
+    ],
+    "website": "http://www.rmfon.pl/play,9",
+    "genres": [
+      "polish pop music"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "http://www.rmfon.pl/assets/images/favicon/apple-touch-icon.png",
+    "votes": 12054,
+    "clickCount": 575,
+    "lastCheckOk": true
+  },
+  {
+    "id": "cd477c35-d625-11e8-a54a-52543be04c81",
+    "name": "Miami Beach Radio",
+    "description": "hits,ocean drive,rsl",
+    "streamUrl": "https://streaming.radiostreamlive.com/miamibeachradio_devices",
+    "streamUrls": [
+      "https://streaming.radiostreamlive.com/miamibeachradio_devices",
+      "https://streaming.radiostreamlive.com/miamibeachradio_devices"
+    ],
+    "website": "https://www.miamibeachradio.com/",
+    "genres": [
+      "hits",
+      "ocean drive",
+      "rsl"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-elements.radiostreamlive.com/v1/images/favicon.ico",
+    "votes": 11956,
+    "clickCount": 1744,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961f659a-0601-11e8-ae97-52543be04c81",
+    "name": "Radio 80",
+    "description": "80s,noventa padovana",
+    "streamUrl": "https://sphera.fluidstream.eu/radio80.mp3",
+    "streamUrls": [
+      "https://sphera.fluidstream.eu/radio80.mp3",
+      "http://str01.fluidstream.net:7020/;stream.mp3"
+    ],
+    "website": "http://www.radio80.it/",
+    "genres": [
+      "80s",
+      "noventa padovana"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/it/1/1b/Radio80.jpg",
+    "votes": 11954,
+    "clickCount": 2138,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96121add-0601-11e8-ae97-52543be04c81",
+    "name": "Rádio Vlna",
+    "description": "oldies",
+    "streamUrl": "https://stream.radiovlna.sk/vlna-hi.mp3",
+    "streamUrls": [
+      "https://stream.radiovlna.sk/vlna-hi.mp3",
+      "http://stream.radiovlna.sk/vlna-hi.mp3"
+    ],
+    "website": "http://radiovlna.sk/",
+    "genres": [
+      "oldies"
+    ],
+    "country": "Slovakia",
+    "countryCode": "SK",
+    "language": "slovak",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://cdn.radiovlna.sk/img/logo/apple-touch-icon.png?v=9",
+    "votes": 11919,
+    "clickCount": 3621,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3f5d8a52-dea9-4201-9575-a58adc8e9263",
+    "name": "إذاعة محمود خليل الحصري",
+    "description": "",
+    "streamUrl": "https://qurango.net/radio/mahmoud_khalil_alhussary_warsh",
+    "streamUrls": [
+      "https://qurango.net/radio/mahmoud_khalil_alhussary_warsh",
+      "https://qurango.net/radio/mahmoud_khalil_alhussary_warsh"
+    ],
+    "website": "http://www.phantomsw.com/",
+    "genres": [],
+    "country": "Egypt",
+    "countryCode": "EG",
+    "language": "arabic",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.phantomsw.com/assets/img/apple-touch-icon.png",
+    "votes": 11850,
+    "clickCount": 2865,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961173b5-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Lush (128k MP3)",
+    "description": "electronic,femalevocals,lounge,mellow,vocal",
+    "streamUrl": "https://ice6.somafm.com/lush-128-mp3",
+    "streamUrls": [
+      "https://ice6.somafm.com/lush-128-mp3",
+      "https://somafm.com/lush.pls"
+    ],
+    "website": "https://somafm.com/lush/",
+    "genres": [
+      "electronic",
+      "femalevocals",
+      "lounge",
+      "mellow",
+      "vocal"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/lush-400.jpg",
+    "votes": 11802,
+    "clickCount": 970,
+    "lastCheckOk": true
+  },
+  {
+    "id": "32da2113-229c-11e9-a80b-52543be04c81",
+    "name": "Classic FM",
+    "description": "classic fm,classical",
+    "streamUrl": "http://media-ice.musicradio.com/ClassicFMMP3",
+    "streamUrls": [
+      "http://media-ice.musicradio.com/ClassicFMMP3",
+      "http://media-ice.musicradio.com/ClassicFMMP3"
+    ],
+    "website": "https://www.classicfm.com/",
+    "genres": [
+      "classic fm",
+      "classical"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Classic_FM_logo.svg/472px-Classic_FM_logo.svg.png",
+    "votes": 11771,
+    "clickCount": 1484,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3c1d95a5-b477-11e8-afe1-52543be04c81",
+    "name": "Rádio Bossa Nova Brazil",
+    "description": "bossa nova,brazilian music",
+    "streamUrl": "http://54.38.43.201:8009/stream-128kmp3-BossaNovaBrazil",
+    "streamUrls": [
+      "http://54.38.43.201:8009/stream-128kmp3-BossaNovaBrazil",
+      "http://54.38.43.201:8009/stream-128kmp3-BossaNovaBrazil"
+    ],
+    "website": "http://www.vip-radios.fm/station/bossa-nova-brazil/",
+    "genres": [
+      "bossa nova",
+      "brazilian music"
+    ],
+    "country": "Brazil",
+    "countryCode": "BR",
+    "language": "portuguese",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.vip-radios.fm/favicon.ico",
+    "votes": 11717,
+    "clickCount": 1275,
+    "lastCheckOk": true
+  },
+  {
+    "id": "99ac4423-0307-11ea-bbf2-52543be04c81",
+    "name": "Kiss Fm Ro",
+    "description": "romanian pop",
+    "streamUrl": "https://live.kissfm.ro/kissfm.aacp",
+    "streamUrls": [
+      "https://live.kissfm.ro/kissfm.aacp",
+      "https://www.kissfm.ro/listen.pls"
+    ],
+    "website": "https://www.kissfm.ro/",
+    "genres": [
+      "romanian pop"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "romanian",
+    "bitrate": "80",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 11672,
+    "clickCount": 2305,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96113f20-0601-11e8-ae97-52543be04c81",
+    "name": "Radioparty.pl Dj Mixes Party",
+    "description": "mixes",
+    "streamUrl": "http://djmixes.radioparty.pl:8035/",
+    "streamUrls": [
+      "http://djmixes.radioparty.pl:8035/",
+      "http://djmixes.radioparty.pl:8035/"
+    ],
+    "website": "http://www.radioparty.pl/kanaldjmixes.html",
+    "genres": [
+      "mixes"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://radioparty.pl//favicon.ico",
+    "votes": 11643,
+    "clickCount": 2044,
+    "lastCheckOk": true
+  },
+  {
+    "id": "61a570a7-8a2f-403b-8350-6ebfe0586e08",
+    "name": "Radio Simba",
+    "description": "",
+    "streamUrl": "https://www.radiosimba.ug/stream",
+    "streamUrls": [
+      "https://www.radiosimba.ug/stream",
+      "https://www.radiosimba.ug/stream"
+    ],
+    "website": "https://www.radiosimba.ug/",
+    "genres": [],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "luganda",
+    "bitrate": "112",
+    "codec": "MP3",
+    "favicon": "https://www.radiosimba.ug/wp-content/uploads/2022/03/cropped-favicon-32x32-1-180x180.png",
+    "votes": 11588,
+    "clickCount": 7129,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9641c132-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Manele FM",
+    "description": "folk music",
+    "streamUrl": "http://a.fmradiomanele.ro:8054/;",
+    "streamUrls": [
+      "http://a.fmradiomanele.ro:8054/;",
+      "http://a.fmradiomanele.ro:8054/;"
+    ],
+    "website": "https://fmradiomanele.ro/",
+    "genres": [
+      "folk music"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "romanian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://fmradiomanele.ro/favicon.ico",
+    "votes": 11548,
+    "clickCount": 1885,
+    "lastCheckOk": true
+  },
+  {
+    "id": "44c862a3-27e7-4d88-be66-4c70a642bb38",
+    "name": "70 80 Hits HQ",
+    "description": "320 kbps,70,70 80 hits,70 80 hits hq,70 music,70-80,70-80 hits,80,80 music,high quality audio,hq",
+    "streamUrl": "https://nr8.newradio.it:19574/stream",
+    "streamUrls": [
+      "https://nr8.newradio.it:19574/stream",
+      "https://nr8.newradio.it:19574/stream"
+    ],
+    "website": "https://www.70-80.it/",
+    "genres": [
+      "320 kbps",
+      "70",
+      "70 80 hits",
+      "70 80 hits hq",
+      "70 music"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 11454,
+    "clickCount": 1773,
+    "lastCheckOk": true
+  },
+  {
+    "id": "724e92cd-9d57-4fef-b7e6-adad9fcc270d",
+    "name": "Kantipur FM",
+    "description": "kantipur,kathmandu,nepal,nepali",
+    "streamUrl": "https://radio-broadcast.ekantipur.com/stream",
+    "streamUrls": [
+      "https://radio-broadcast.ekantipur.com/stream",
+      "https://radio-broadcast.ekantipur.com/stream"
+    ],
+    "website": "https://radiokantipur.com/",
+    "genres": [
+      "kantipur",
+      "kathmandu",
+      "nepal",
+      "nepali"
+    ],
+    "country": "Nepal",
+    "countryCode": "NP",
+    "language": "english,nepali",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 11387,
+    "clickCount": 1889,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960efe59-0601-11e8-ae97-52543be04c81",
+    "name": "Fun Radio",
+    "description": "pop",
+    "streamUrl": "http://stream.funradio.sk:8000/fun128.mp3",
+    "streamUrls": [
+      "http://stream.funradio.sk:8000/fun128.mp3",
+      "http://stream.funradio.sk:8000/fun128.mp3"
+    ],
+    "website": "http://www.funradio.sk/",
+    "genres": [
+      "pop"
+    ],
+    "country": "Slovakia",
+    "countryCode": "SK",
+    "language": "slovak",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://cdn.funradio.sk/img/logo/apple-icon-120x120.png?v=2022-05-26-1422",
+    "votes": 11379,
+    "clickCount": 1439,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619ec45-0601-11e8-ae97-52543be04c81",
+    "name": "Virgin Radio Rock '70",
+    "description": "70s,classic rock,mediaset",
+    "streamUrl": "http://icy.unitedradio.it/VirginRock70.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/VirginRock70.mp3",
+      "http://icy.unitedradio.it/VirginRock70.mp3"
+    ],
+    "website": "http://www.virginradio.it/sezioni/1162/virgin-radio-rock-70",
+    "genres": [
+      "70s",
+      "classic rock",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 11286,
+    "clickCount": 1734,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e4594d43-75dc-11ea-b1cf-52543be04c81",
+    "name": "BEAUTIFUL Instrumentals",
+    "description": "classical,classical music,orchestral",
+    "streamUrl": "http://s3.voscast.com:10038/",
+    "streamUrls": [
+      "http://s3.voscast.com:10038/",
+      "http://s3.voscast.com:10038/"
+    ],
+    "website": "https://beautifulmusicstation.blogspot.com/",
+    "genres": [
+      "classical",
+      "classical music",
+      "orchestral"
+    ],
+    "country": "Mexico",
+    "countryCode": "MX",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 11227,
+    "clickCount": 1476,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960553a5-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Eins",
+    "description": "adult contemporary,alternative,ard,information,pop,public radio,rbb,rock,talk",
+    "streamUrl": "http://f131.rndfnk.com/ard/rbb/radioeins/live/mp3/128/stream.mp3?cid=01FC1WH12KJ93TCQPDSE2E5PZ9&sid=34p8cK3J2QN0IcXJQiQ4QQLBCT0&token=ckOHjs1xbwx3rXAp5O60lKiIfcr5_xmvoVyQjOH8dAc&tvf=t7DZ9KiZcxhmMTMxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://f131.rndfnk.com/ard/rbb/radioeins/live/mp3/128/stream.mp3?cid=01FC1WH12KJ93TCQPDSE2E5PZ9&sid=34p8cK3J2QN0IcXJQiQ4QQLBCT0&token=ckOHjs1xbwx3rXAp5O60lKiIfcr5_xmvoVyQjOH8dAc&tvf=t7DZ9KiZcxhmMTMxLnJuZGZuay5jb20",
+      "http://radioeins.de/stream"
+    ],
+    "website": "http://www.radioeins.de/",
+    "genres": [
+      "adult contemporary",
+      "alternative",
+      "ard",
+      "information",
+      "pop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.radioeins.de/content/dam/rbb/rbb/logos/touch/rad-128.png",
+    "votes": 11222,
+    "clickCount": 8999,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963fb135-0601-11e8-ae97-52543be04c81",
+    "name": "Radio 90s Eurodance",
+    "description": "90s,eurodance,online,only music",
+    "streamUrl": "https://listen1.myradio24.com/5967",
+    "streamUrls": [
+      "https://listen1.myradio24.com/5967",
+      "https://listen1.myradio24.com/5967"
+    ],
+    "website": "http://90s-eurodance.ru/",
+    "genres": [
+      "90s",
+      "eurodance",
+      "online",
+      "only music"
+    ],
+    "country": "Kazakhstan",
+    "countryCode": "KZ",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://pp.userapi.com/c837231/v837231617/5990/ChfZPOJgSmA.jpg",
+    "votes": 11212,
+    "clickCount": 2086,
+    "lastCheckOk": true
+  },
+  {
+    "id": "500bc504-c47f-46bc-9c9a-16e15bee2353",
+    "name": "KnOOz FM",
+    "description": "",
+    "streamUrl": "http://streaming.knoozfm.net:8000/knoozfm",
+    "streamUrls": [
+      "http://streaming.knoozfm.net:8000/knoozfm",
+      "http://streaming.knoozfm.net:8000/knoozfm"
+    ],
+    "website": "http://knoozfm.net/",
+    "genres": [],
+    "country": "Tunisia",
+    "countryCode": "TN",
+    "language": "arabic",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 11203,
+    "clickCount": 2160,
+    "lastCheckOk": true
+  },
+  {
+    "id": "478fd7f4-dc36-11e9-a8ba-52543be04c81",
+    "name": "Smooth Chill",
+    "description": "chillout,national,public radio,smooth,variety",
+    "streamUrl": "https://media-ssl.musicradio.com/ChillMP3",
+    "streamUrls": [
+      "https://media-ssl.musicradio.com/ChillMP3",
+      "https://media-ssl.musicradio.com/ChillMP3"
+    ],
+    "website": "https://www.smoothradio.com/chill/",
+    "genres": [
+      "chillout",
+      "national",
+      "public radio",
+      "smooth",
+      "variety"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.smoothradio.com/assets_v4r/smooth/img/favicon-196x196.png",
+    "votes": 11135,
+    "clickCount": 3164,
+    "lastCheckOk": true
+  },
+  {
+    "id": "26edc6b6-d221-4814-a6a9-0dd5d5d365d2",
+    "name": "Pure Ibiza Radio",
+    "description": "dance,electronic music,ibiza club",
+    "streamUrl": "https://pureibizaradio.clubbingradios.com:9518/PureIbizaRadio",
+    "streamUrls": [
+      "https://pureibizaradio.clubbingradios.com:9518/PureIbizaRadio",
+      "https://pureibizaradio.clubbingradios.com:9518/PureIbizaRadio"
+    ],
+    "website": "https://www.pureibizaradio.com/",
+    "genres": [
+      "dance",
+      "electronic music",
+      "ibiza club"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "english,spanish",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 11088,
+    "clickCount": 1740,
+    "lastCheckOk": true
+  },
+  {
+    "id": "dbc018ae-1848-4f26-a677-367011a1f4b2",
+    "name": "Antena 1 (Portugal)",
+    "description": "portugal,portuguese,sports",
+    "streamUrl": "http://streaming-live-app.rtp.pt/liveradio/antena180a/playlist.m3u8",
+    "streamUrls": [
+      "http://streaming-live-app.rtp.pt/liveradio/antena180a/playlist.m3u8",
+      "http://streaming-live-app.rtp.pt/liveradio/antena180a/playlist.m3u8"
+    ],
+    "website": "https://www.rtp.pt/play/direto/antena1",
+    "genres": [
+      "portugal",
+      "portuguese",
+      "sports"
+    ],
+    "country": "Portugal",
+    "countryCode": "PT",
+    "language": "portuguese",
+    "bitrate": "182",
+    "codec": "AAC",
+    "favicon": "https://www.celsoazevedo.com/files/2022/antena-1.png",
+    "votes": 11045,
+    "clickCount": 4308,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6973a0cb-0d2e-4329-abb5-92c153907504",
+    "name": "РадиусFM",
+    "description": "",
+    "streamUrl": "https://stream2.datacenter.by/radiusfm_main",
+    "streamUrls": [
+      "https://stream2.datacenter.by/radiusfm_main",
+      "https://stream2.datacenter.by/radiusfm_main"
+    ],
+    "website": "https://radiusfm.by/",
+    "genres": [],
+    "country": "Belarus",
+    "countryCode": "BY",
+    "language": "russian,язык: русский",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://radiusfm.by/favicon.ico",
+    "votes": 10940,
+    "clickCount": 4190,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0ad8350d-7d03-4f0d-9f35-b38cc42c40af",
+    "name": "Asan Radio",
+    "description": "",
+    "streamUrl": "http://94.20.74.206:4448/stream1",
+    "streamUrls": [
+      "http://94.20.74.206:4448/stream1",
+      "http://94.20.74.206:4448/stream1"
+    ],
+    "website": "http://www.asanradio.az/",
+    "genres": [],
+    "country": "Azerbaijan",
+    "countryCode": "AZ",
+    "language": "azerbaijani",
+    "bitrate": "112",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10916,
+    "clickCount": 478,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b162d016-5628-42cf-8fb1-22866ba5f065",
+    "name": "Play 90's",
+    "description": "90s,dance,euro hits,eurodance",
+    "streamUrl": "http://live.playradio.org:9090/90HD",
+    "streamUrls": [
+      "http://live.playradio.org:9090/90HD",
+      "http://live.playradio.org:9090/90HD"
+    ],
+    "website": "https://www.playradio.org/",
+    "genres": [
+      "90s",
+      "dance",
+      "euro hits",
+      "eurodance"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "english,romanian",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://is3-ssl.mzstatic.com/image/thumb/Music/v4/b7/89/4a/b7894a1a-07c8-d9ae-fc50-5fcc33c59173/source/280x280.jpg",
+    "votes": 10890,
+    "clickCount": 1839,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961f9f7f-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz London Radio",
+    "description": "jazz",
+    "streamUrl": "http://radio.canstream.co.uk:8075/live.mp3",
+    "streamUrls": [
+      "http://radio.canstream.co.uk:8075/live.mp3",
+      "http://radio.canstream.co.uk:8075/live.mp3"
+    ],
+    "website": "http://www.jazzlondonradio.com/",
+    "genres": [
+      "jazz"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "https://www.jazzlondonradio.com/images/favicon.ico",
+    "votes": 10860,
+    "clickCount": 1641,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5e992e1e-e6ef-11e9-a96c-52543be04c81",
+    "name": "France Musique",
+    "description": "aac,musique,public radio,radio france",
+    "streamUrl": "http://icecast.radiofrance.fr/francemusique-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/francemusique-hifi.aac",
+      "http://icecast.radiofrance.fr/francemusique-hifi.aac"
+    ],
+    "website": "https://www.francemusique.fr/",
+    "genres": [
+      "aac",
+      "musique",
+      "public radio",
+      "radio france"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://upload.wikimedia.org/wikipedia/fr/thumb/2/22/France_Musique_-_2008.svg/1024px-France_Musique_-_2008.svg.png",
+    "votes": 10842,
+    "clickCount": 3999,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960b77af-0601-11e8-ae97-52543be04c81",
+    "name": "Inforadio",
+    "description": "ard,information,news,public radio,rbb",
+    "streamUrl": "http://f131.rndfnk.com/ard/rbb/inforadio/live/mp3/128/stream.mp3?cid=01FC1WYDPN76K6HSCD8QCR9D3S&sid=34oyumpCYB0aUuVUlZNB2QZm04U&token=8jcDz2wgqPpHCZqk2aO30dkOyQUCJTlqcpYkJmTOVBY&tvf=t5h0lU6VcxhmMTMxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://f131.rndfnk.com/ard/rbb/inforadio/live/mp3/128/stream.mp3?cid=01FC1WYDPN76K6HSCD8QCR9D3S&sid=34oyumpCYB0aUuVUlZNB2QZm04U&token=8jcDz2wgqPpHCZqk2aO30dkOyQUCJTlqcpYkJmTOVBY&tvf=t5h0lU6VcxhmMTMxLnJuZGZuay5jb20",
+      "http://www.inforadio.de/live.m3u"
+    ],
+    "website": "http://www.inforadio.de/",
+    "genres": [
+      "ard",
+      "information",
+      "news",
+      "public radio",
+      "rbb"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.inforadio.de/content/dam/rbb/rbb/logos/touch/inf-128.png",
+    "votes": 10825,
+    "clickCount": 8074,
+    "lastCheckOk": true
+  },
+  {
+    "id": "07b51aa7-527e-11ea-be63-52543be04c81",
+    "name": "Radio Studio Più - HQ",
+    "description": "dance",
+    "streamUrl": "http://77.241.4.100:8020/;",
+    "streamUrls": [
+      "http://77.241.4.100:8020/;",
+      "http://77.241.4.100:8020/;"
+    ],
+    "website": "https://studiopiu.net/",
+    "genres": [
+      "dance"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://studiopiu.net/offline/img/icona.png",
+    "votes": 10752,
+    "clickCount": 937,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b9e1f76e-41fd-11e9-aa55-52543be04c81",
+    "name": "Blues Radio",
+    "description": "blues",
+    "streamUrl": "http://cast3.radiohost.ovh:8352/",
+    "streamUrls": [
+      "http://cast3.radiohost.ovh:8352/",
+      "http://cast3.radiohost.ovh:8352/"
+    ],
+    "website": "http://bluesradio.gr/",
+    "genres": [
+      "blues"
+    ],
+    "country": "Greece",
+    "countryCode": "GR",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://i0.wp.com/bluesradio.gr/wp-content/uploads/2021/06/cropped-24-7bug.png?fit=180%2c180&#038;ssl=1",
+    "votes": 10745,
+    "clickCount": 2424,
+    "lastCheckOk": true
+  },
+  {
+    "id": "46b51010-c2c5-45b6-a71c-84d168a705a3",
+    "name": "La Ranchera de Monterrey - 1050 AM - XEG-AM - Núcleo Radio Monterrey - Monterrey, NL",
+    "description": "1050,1050 am,am,estación,grupera,grupero,mex,mexican music,mexico,monterrey,musica mexicana,musica regional,musica regional mexicana,musica tradicional mexicana,mx,méxico,música popular mexicana,música regional,nuevo leon,nuevo león,núcleo radio monterrey,radio,ranchera,rancheras,regional,regional mexican,regional mexicana,regional radio,traditional mexican music",
+    "streamUrl": "http://streamingcwsradio20.com:9410/stream",
+    "streamUrls": [
+      "http://streamingcwsradio20.com:9410/stream",
+      "http://streamingcwsradio20.com:9410/stream"
+    ],
+    "website": "http://www.larancherademonterrey.com.mx/",
+    "genres": [
+      "1050",
+      "1050 am",
+      "am",
+      "estación",
+      "grupera"
+    ],
+    "country": "Mexico",
+    "countryCode": "MX",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-radiotime-logos.tunein.com/s24506g.png",
+    "votes": 10734,
+    "clickCount": 1172,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0012c08a-31e7-48c6-87a9-7f64736e0a38",
+    "name": "Metro FM",
+    "description": "",
+    "streamUrl": "http://29083.live.streamtheworld.com/METRO_FMAAC_SC",
+    "streamUrls": [
+      "http://29083.live.streamtheworld.com/METRO_FMAAC_SC",
+      "http://provisioning.streamtheworld.com/pls/METRO_FMAAC.pls"
+    ],
+    "website": "https://metrofm.com.tr/",
+    "genres": [],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://metrofm.com.tr/favicon.ico",
+    "votes": 10674,
+    "clickCount": 2802,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b129bdd2-65bc-4363-8f74-14b474bc0500",
+    "name": "Radio Marca",
+    "description": "classical",
+    "streamUrl": "https://sonic.mediatelekom.net/9316/stream",
+    "streamUrls": [
+      "https://sonic.mediatelekom.net/9316/stream",
+      "https://sonic.mediatelekom.net/9316/stream"
+    ],
+    "website": "",
+    "genres": [
+      "classical"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10653,
+    "clickCount": 393,
+    "lastCheckOk": true
+  },
+  {
+    "id": "964c0c26-0601-11e8-ae97-52543be04c81",
+    "name": "Cool Radio",
+    "description": "folk",
+    "streamUrl": "http://176.9.30.66/cool64",
+    "streamUrls": [
+      "http://176.9.30.66/cool64",
+      "http://176.9.30.66/cool64"
+    ],
+    "website": "http://www.coolradio.rs/",
+    "genres": [
+      "folk"
+    ],
+    "country": "Serbia",
+    "countryCode": "RS",
+    "language": "serbian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10644,
+    "clickCount": 1259,
+    "lastCheckOk": true
+  },
+  {
+    "id": "659f5596-51a8-4e3a-802e-ef5e6ceb61d0",
+    "name": "Cumbias Inmortales Radio (Monterrey) - Online - www.cumbiasinmortales.com - Grupo Digital Retroland - Monterrey, Nuevo León",
+    "description": "clásicos,clásicos en español,cumbia,cumbias,español,estación,grupo digital retroland,internet radio,latinoamérica,moi merino,monterrey,méxico,música del recuerdo,norteamérica,nuevo león,online,radio,radio online,retro",
+    "streamUrl": "https://panel.retrolandigital.com/listen/cumbias_inmortales_radio/listen",
+    "streamUrls": [
+      "https://panel.retrolandigital.com/listen/cumbias_inmortales_radio/listen",
+      "https://panel.retrolandigital.com/listen/cumbias_inmortales_radio/listen"
+    ],
+    "website": "http://www.cumbiasinmortales.com/",
+    "genres": [
+      "clásicos",
+      "clásicos en español",
+      "cumbia",
+      "cumbias",
+      "español"
+    ],
+    "country": "Mexico",
+    "countryCode": "MX",
+    "language": "spanish",
+    "bitrate": "96",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 10621,
+    "clickCount": 1291,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960efc45-0601-11e8-ae97-52543be04c81",
+    "name": "SRo1 Rádio Slovensko",
+    "description": "news,public radio,rtvs,talk",
+    "streamUrl": "http://live.slovakradio.sk:8000/Slovensko_128.mp3",
+    "streamUrls": [
+      "http://live.slovakradio.sk:8000/Slovensko_128.mp3",
+      "http://live.slovakradio.sk:8000/Slovensko_128.mp3"
+    ],
+    "website": "https://slovensko.rtvs.sk/",
+    "genres": [
+      "news",
+      "public radio",
+      "rtvs",
+      "talk"
+    ],
+    "country": "Slovakia",
+    "countryCode": "SK",
+    "language": "slovak",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10617,
+    "clickCount": 1673,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7c1bdaa1-56a8-11e8-b0ce-52543be04c81",
+    "name": "Mefi1 tarab",
+    "description": "",
+    "streamUrl": "http://live.medi1.com/Tarab",
+    "streamUrls": [
+      "http://live.medi1.com/Tarab",
+      "http://live.medi1.com/Tarab"
+    ],
+    "website": "http://www.medi1.com/webradio/3#",
+    "genres": [],
+    "country": "Morocco",
+    "countryCode": "MA",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10595,
+    "clickCount": 1818,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1ed98005-80a7-4b91-922b-dcd99f894377",
+    "name": "HIT FM",
+    "description": "",
+    "streamUrl": "http://online.hitfm.ua/HitFM",
+    "streamUrls": [
+      "http://online.hitfm.ua/HitFM",
+      "http://online.hitfm.ua/HitFM"
+    ],
+    "website": "https://www.hitfm.ua/",
+    "genres": [],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "russian,ukrainian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10559,
+    "clickCount": 655,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96126e82-0601-11e8-ae97-52543be04c81",
+    "name": "NPO Radio 2",
+    "description": "evergreens,talk",
+    "streamUrl": "http://icecast.omroep.nl/radio2-bb-mp3",
+    "streamUrls": [
+      "http://icecast.omroep.nl/radio2-bb-mp3",
+      "http://icecast.omroep.nl/radio2-bb-mp3"
+    ],
+    "website": "http://www.nporadio2.nl/",
+    "genres": [
+      "evergreens",
+      "talk"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "dutch",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/NPO_Radio_2_logo.svg/640px-NPO_Radio_2_logo.svg.png",
+    "votes": 10526,
+    "clickCount": 11205,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960dc18b-0601-11e8-ae97-52543be04c81",
+    "name": "RMF 90s",
+    "description": "90s",
+    "streamUrl": "http://31.192.216.7/90S",
+    "streamUrls": [
+      "http://31.192.216.7/90S",
+      "http://31.192.216.7/90S"
+    ],
+    "website": "http://www.rmfon.pl/play,46",
+    "genres": [
+      "90s"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "http://www.rmfon.pl/assets/images/favicon/apple-touch-icon.png",
+    "votes": 10469,
+    "clickCount": 371,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9513b20b-e4bd-11e8-a9cc-52543be04c81",
+    "name": "Arrow Classic Rock",
+    "description": "classic rock",
+    "streamUrl": "http://stream.gal.io/arrow",
+    "streamUrls": [
+      "http://stream.gal.io/arrow",
+      "http://stream.gal.io/arrow"
+    ],
+    "website": "https://www.arrow.nl/",
+    "genres": [
+      "classic rock"
+    ],
+    "country": "The Netherlands",
+    "countryCode": "NL",
+    "language": "dutch",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.arrow.nl/wp-content/themes/bones-master/library/images/apple-touch-icon.png",
+    "votes": 10406,
+    "clickCount": 892,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96318993-0601-11e8-ae97-52543be04c81",
+    "name": "La Kalle",
+    "description": "folk music,local music,popular,ranchera,urban",
+    "streamUrl": "http://23043.live.streamtheworld.com/LA_KALLE_SC",
+    "streamUrls": [
+      "http://23043.live.streamtheworld.com/LA_KALLE_SC",
+      "http://playerservices.streamtheworld.com/m3u/LA_KALLE.m3u"
+    ],
+    "website": "http://lakalle.bluradio.com/",
+    "genres": [
+      "folk music",
+      "local music",
+      "popular",
+      "ranchera",
+      "urban"
+    ],
+    "country": "Colombia",
+    "countryCode": "CO",
+    "language": "spanish",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10398,
+    "clickCount": 574,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961a681b-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Plus Mauritius",
+    "description": "news,music",
+    "streamUrl": "https://stream.radioplus.mu:8000/radio.mp3",
+    "streamUrls": [
+      "https://stream.radioplus.mu:8000/radio.mp3",
+      "https://stream.radioplus.mu:8000/radio.mp3"
+    ],
+    "website": "https://live.radioplus.mu/",
+    "genres": [
+      "news",
+      "music"
+    ],
+    "country": "Mauritius",
+    "countryCode": "MU",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://live.radioplus.mu/wp-content/uploads/elementor/thumbs/radioplus-qohb3n7nfwchk09bu0c6dm1hvtjgr7523yeok8btoq.jpg",
+    "votes": 10396,
+    "clickCount": 1706,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619ed04-0601-11e8-ae97-52543be04c81",
+    "name": "Virgin Radio Rock '80",
+    "description": "80s,classic rock,mediaset",
+    "streamUrl": "http://icy.unitedradio.it/VirginRock80.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/VirginRock80.mp3",
+      "http://icy.unitedradio.it/VirginRock80.mp3"
+    ],
+    "website": "http://www.virginradio.it/sezioni/1163/virgin-radio-rock-80",
+    "genres": [
+      "80s",
+      "classic rock",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10324,
+    "clickCount": 698,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9628a1ee-0601-11e8-ae97-52543be04c81",
+    "name": "2000 FM - RnB & Hip-Hop",
+    "description": "hiphop,rnb",
+    "streamUrl": "http://bigrradio.cdnstream1.com/5105_128",
+    "streamUrls": [
+      "http://bigrradio.cdnstream1.com/5105_128",
+      "http://bigrradio.cdnstream1.com/5105_128"
+    ],
+    "website": "http://www.2000fm.net/",
+    "genres": [
+      "hiphop",
+      "rnb"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10316,
+    "clickCount": 1421,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619e894-0601-11e8-ae97-52543be04c81",
+    "name": "TMM 2",
+    "description": "alternative,hiphop,electronic",
+    "streamUrl": "https://listen-msmn.sharp-stream.com/nme2.mp3",
+    "streamUrls": [
+      "https://listen-msmn.sharp-stream.com/nme2.mp3",
+      "https://listen-msmn.sharp-stream.com/nme2.mp3"
+    ],
+    "website": "https://www.themusicmachine.co.uk/",
+    "genres": [
+      "alternative",
+      "hiphop",
+      "electronic"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-profiles.tunein.com/s155539/images/logod.png",
+    "votes": 10248,
+    "clickCount": 816,
+    "lastCheckOk": true
+  },
+  {
+    "id": "819e0ecb-fb3d-49de-8d8d-50fd408ff173",
+    "name": "VOA Chinese Radio",
+    "description": "",
+    "streamUrl": "http://voa-ingest.akamaized.net/hls/live/2035206/151_124L/playlist.m3u8",
+    "streamUrls": [
+      "http://voa-ingest.akamaized.net/hls/live/2035206/151_124L/playlist.m3u8",
+      "http://voa-ingest.akamaized.net/hls/live/2035206/151_124L/playlist.m3u8"
+    ],
+    "website": "http://www.voachinese.com/",
+    "genres": [],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "140",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 10205,
+    "clickCount": 1005,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9617b9cb-0601-11e8-ae97-52543be04c81",
+    "name": "Latina Reggaeton",
+    "description": "latin,reggaeton",
+    "streamUrl": "http://latinareggaeton.ice.infomaniak.ch/latinareggaeton.mp3",
+    "streamUrls": [
+      "http://latinareggaeton.ice.infomaniak.ch/latinareggaeton.mp3",
+      "http://latinareggaeton.ice.infomaniak.ch/latinareggaeton.mp3"
+    ],
+    "website": "http://www.latina.fr/",
+    "genres": [
+      "latin",
+      "reggaeton"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://bocir-prod-bucket.s3.eu-west-1.amazonaws.com/radios/latina/images/favicon.ico",
+    "votes": 10055,
+    "clickCount": 977,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960e7334-0601-11e8-ae97-52543be04c81",
+    "name": "Petőfi Rádió",
+    "description": "alternative,duna média,pop,public radio",
+    "streamUrl": "http://mr-stream.mediaconnect.hu/4737/mr2.aac",
+    "streamUrls": [
+      "http://mr-stream.mediaconnect.hu/4737/mr2.aac",
+      "http://mr-stream.mediaconnect.hu/4737/mr2.aac"
+    ],
+    "website": "http://www.petofilive.hu/",
+    "genres": [
+      "alternative",
+      "duna média",
+      "pop",
+      "public radio"
+    ],
+    "country": "Hungary",
+    "countryCode": "HU",
+    "language": "hungarian",
+    "bitrate": "112",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 10055,
+    "clickCount": 452,
+    "lastCheckOk": true
+  },
+  {
+    "id": "cdd3b5a0-47f6-46d5-8209-b78e8b10ff6e",
+    "name": "Radio Mirchi Hindi",
+    "description": "",
+    "streamUrl": "https://eu8.fastcast4u.com/proxy/clyedupq/stream",
+    "streamUrls": [
+      "https://eu8.fastcast4u.com/proxy/clyedupq/stream",
+      "https://eu8.fastcast4u.com/proxy/clyedupq/stream"
+    ],
+    "website": "",
+    "genres": [],
+    "country": "India",
+    "countryCode": "IN",
+    "language": "hindi",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://onlineradiohub.com/wp-content/uploads/2023/05/radio-mirchi-hindi-fm.jpg",
+    "votes": 10021,
+    "clickCount": 14677,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6a3c2435-6ba0-465c-84ee-fe68a07cef17",
+    "name": "Classic Country",
+    "description": "country",
+    "streamUrl": "http://185.33.21.112/ccountry_mobile_mp3",
+    "streamUrls": [
+      "http://185.33.21.112/ccountry_mobile_mp3",
+      "http://185.33.21.112/ccountry_mobile_mp3"
+    ],
+    "website": "",
+    "genres": [
+      "country"
+    ],
+    "country": "Afghanistan",
+    "countryCode": "AF",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 10024,
+    "clickCount": 923,
+    "lastCheckOk": true
+  },
+  {
+    "id": "fa76f16f-dc31-11e9-a8ba-52543be04c81",
+    "name": "Heart Dance",
+    "description": "dance,national,pop,public radio,variety",
+    "streamUrl": "https://media-ssl.musicradio.com/HeartDanceMP3",
+    "streamUrls": [
+      "https://media-ssl.musicradio.com/HeartDanceMP3",
+      "https://media-ssl.musicradio.com/HeartDanceMP3"
+    ],
+    "website": "https://www.heart.co.uk/dance",
+    "genres": [
+      "dance",
+      "national",
+      "pop",
+      "public radio",
+      "variety"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.heart.co.uk/assets_v4r/heart/img/favicon-196x196.png",
+    "votes": 10004,
+    "clickCount": 3898,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b7091c03-c698-11e8-a498-52543be04c81",
+    "name": "Capital FM",
+    "description": "",
+    "streamUrl": "http://5229.cloudrad.io:8316/;",
+    "streamUrls": [
+      "http://5229.cloudrad.io:8316/;",
+      "http://5229.cloudrad.io:8316/;"
+    ],
+    "website": "http://capitalradio-ug.com/",
+    "genres": [],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9973,
+    "clickCount": 2890,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961fb4b2-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Chillout Lounge Radio",
+    "description": "chillout,lounge",
+    "streamUrl": "http://strm112.1.fm/chilloutlounge_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/chilloutlounge_mobile_mp3",
+      "http://strm112.1.fm/chilloutlounge_mobile_mp3"
+    ],
+    "website": "https://www.1.fm/",
+    "genres": [
+      "chillout",
+      "lounge"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9943,
+    "clickCount": 5476,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f9064202-9847-49db-afea-0e69d65c297f",
+    "name": "RADIO RADIO (ITALIA)",
+    "description": "sport,talk",
+    "streamUrl": "https://sr6.inmystream.it:18102/stream",
+    "streamUrls": [
+      "https://sr6.inmystream.it:18102/stream",
+      "https://sr6.inmystream.it:18102/stream"
+    ],
+    "website": "https://www.radioradio.it/",
+    "genres": [
+      "sport",
+      "talk"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://www.radioradio.it/favicon.ico",
+    "votes": 9944,
+    "clickCount": 1758,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960f7041-0601-11e8-ae97-52543be04c81",
+    "name": "RMF Dance",
+    "description": "dance",
+    "streamUrl": "http://31.192.216.10/DANCE",
+    "streamUrls": [
+      "http://31.192.216.10/DANCE",
+      "http://31.192.216.10/DANCE"
+    ],
+    "website": "http://www.rmfon.pl/play,3",
+    "genres": [
+      "dance"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "http://www.rmfon.pl/assets/images/favicon/apple-touch-icon.png",
+    "votes": 9903,
+    "clickCount": 356,
+    "lastCheckOk": true
+  },
+  {
+    "id": "55275efc-1ee2-4a52-9aef-7fb632c7f3e8",
+    "name": "Радіо Максимум 94.2",
+    "description": "music",
+    "streamUrl": "http://lux.radio.tvstitch.com/kyiv/max_adv_sd",
+    "streamUrls": [
+      "http://lux.radio.tvstitch.com/kyiv/max_adv_sd",
+      "http://icecastdc.luxnet.ua/maximum_mp3_128"
+    ],
+    "website": "https://maximum.fm/",
+    "genres": [
+      "music"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "ukrainian",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://maximum.fm/assets/images/favicons/favicon-96x96.png?v=53",
+    "votes": 9869,
+    "clickCount": 596,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c3f9b-0601-11e8-ae97-52543be04c81",
+    "name": "ROCK ANTENNE Classic Perlen",
+    "description": "rock classics",
+    "streamUrl": "http://s1-webradio.rockantenne.de/classic-perlen",
+    "streamUrls": [
+      "http://s1-webradio.rockantenne.de/classic-perlen",
+      "http://mp3channels.webradio.rockantenne.de/classic-perlen"
+    ],
+    "website": "http://www.rockantenne.de/",
+    "genres": [
+      "rock classics"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.rockantenne.de/logos/station-rock-antenne/apple-touch-icon.png",
+    "votes": 9782,
+    "clickCount": 1540,
+    "lastCheckOk": true
+  },
+  {
+    "id": "52bb00fe-dc31-11e9-a8ba-52543be04c81",
+    "name": "Heart 90s",
+    "description": "90s,national,pop,public radio,variety",
+    "streamUrl": "https://media-ssl.musicradio.com/Heart90sMP3",
+    "streamUrls": [
+      "https://media-ssl.musicradio.com/Heart90sMP3",
+      "https://media-ssl.musicradio.com/Heart90sMP3"
+    ],
+    "website": "https://www.heart.co.uk/90s",
+    "genres": [
+      "90s",
+      "national",
+      "pop",
+      "public radio",
+      "variety"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.heart.co.uk/assets_v4r/heart/img/favicon-196x196.png",
+    "votes": 9739,
+    "clickCount": 4261,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9617ccb4-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Blues Radio",
+    "description": "blues",
+    "streamUrl": "http://strm112.1.fm/blues_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/blues_mobile_mp3",
+      "http://strm112.1.fm/blues_mobile_mp3"
+    ],
+    "website": "https://www.1.fm/",
+    "genres": [
+      "blues"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9735,
+    "clickCount": 2005,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7460fe1a-700e-4925-9990-72df7e00e1a3",
+    "name": "Radio Mojdeh - Iranian Farsi/Persian Christian music and talk",
+    "description": "christian,music,talk,world",
+    "streamUrl": "https://ic2326.c1261.fastserv.com/rm128",
+    "streamUrls": [
+      "https://ic2326.c1261.fastserv.com/rm128",
+      "https://ic2326.c1261.fastserv.com/rm128"
+    ],
+    "website": "https://radiomojdeh.com/",
+    "genres": [
+      "christian",
+      "music",
+      "talk",
+      "world"
+    ],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "faroese,iranian,persian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://radiomojdeh.com/favicon.ico",
+    "votes": 9735,
+    "clickCount": 1578,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96286b1d-0601-11e8-ae97-52543be04c81",
+    "name": "RMC 80",
+    "description": "80s,mediaset",
+    "streamUrl": "http://edge.radiomontecarlo.net/rmcweb008",
+    "streamUrls": [
+      "http://edge.radiomontecarlo.net/rmcweb008",
+      "http://edge.radiomontecarlo.net/rmcweb008"
+    ],
+    "website": "http://www.radiomontecarlo.net/",
+    "genres": [
+      "80s",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9681,
+    "clickCount": 633,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d69e38f7-f565-4217-b9a8-0075c5e32340",
+    "name": "RTL France",
+    "description": "news,pop-music",
+    "streamUrl": "http://streamer-01.rtl.fr/rtl-1-44-128",
+    "streamUrls": [
+      "http://streamer-01.rtl.fr/rtl-1-44-128",
+      "http://streaming.radio.rtl.fr/rtl-1-44-128"
+    ],
+    "website": "https://www.rtl.fr/",
+    "genres": [
+      "news",
+      "pop-music"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.radio.de/images/broadcasts/88/5b/5168/c300.png",
+    "votes": 9616,
+    "clickCount": 7284,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d1b0b82d-aa27-49e5-a98e-716ceff7e2f7",
+    "name": "Times Radio UK",
+    "description": "information,news,talk",
+    "streamUrl": "https://times.live.stream.broadcasting.news/stream",
+    "streamUrls": [
+      "https://times.live.stream.broadcasting.news/stream",
+      "http://timesradio.wireless.radio/stream"
+    ],
+    "website": "https://www.thetimes.co.uk/radio",
+    "genres": [
+      "information",
+      "news",
+      "talk"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://static.mytuner.mobi/media/tvos_radios/jehvybnq4jgc.png",
+    "votes": 9615,
+    "clickCount": 5384,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6325b56f-42b9-45d4-8e21-4a3b03791bbf",
+    "name": "WEOW FM 92.7",
+    "description": "rock",
+    "streamUrl": "http://ice42.securenetsystems.net/WEOW",
+    "streamUrls": [
+      "http://ice42.securenetsystems.net/WEOW",
+      "http://ice42.securenetsystems.net/WEOW"
+    ],
+    "website": "http://www.weow927.com/",
+    "genres": [
+      "rock"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 9613,
+    "clickCount": 225,
+    "lastCheckOk": true
+  },
+  {
+    "id": "bf841429-a5f3-11e8-abb8-52543be04c81",
+    "name": "KISS FM 100.6",
+    "description": "00s,80s,90s,adult contemporary,pop,rock",
+    "streamUrl": "http://live.radiokiss.gr/kissfm1006hq.mp3",
+    "streamUrls": [
+      "http://live.radiokiss.gr/kissfm1006hq.mp3",
+      "http://live.radiokiss.gr/kissfm1006hq.mp3"
+    ],
+    "website": "http://www.radiokiss.gr/",
+    "genres": [
+      "00s",
+      "80s",
+      "90s",
+      "adult contemporary",
+      "pop"
+    ],
+    "country": "Greece",
+    "countryCode": "GR",
+    "language": "english,greek",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9544,
+    "clickCount": 711,
+    "lastCheckOk": true
+  },
+  {
+    "id": "964071af-0601-11e8-ae97-52543be04c81",
+    "name": "Soft Classic Rock Radio",
+    "description": "classic rock,soft rock",
+    "streamUrl": "http://64.71.133.122:8000/;",
+    "streamUrls": [
+      "http://64.71.133.122:8000/;",
+      "http://64.71.133.122:8000/;"
+    ],
+    "website": "http://softclassicrock.com/",
+    "genres": [
+      "classic rock",
+      "soft rock"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-radiotime-logos.tunein.com/s106474q.png",
+    "votes": 9531,
+    "clickCount": 3200,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961f3711-0601-11e8-ae97-52543be04c81",
+    "name": "Громадське радіо / Hromadske radio",
+    "description": "news",
+    "streamUrl": "http://91.218.212.67:8000/stream",
+    "streamUrls": [
+      "http://91.218.212.67:8000/stream",
+      "http://91.218.212.67:8000/stream"
+    ],
+    "website": "https://hromadskeradio.org/",
+    "genres": [
+      "news"
+    ],
+    "country": "Ukraine",
+    "countryCode": "UA",
+    "language": "russian,ukrainian",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9441,
+    "clickCount": 555,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c341d-0601-11e8-ae97-52543be04c81",
+    "name": "NTV Radyo",
+    "description": "haber,haberler,news,türkçe",
+    "streamUrl": "http://46.20.3.207/listen.pls",
+    "streamUrls": [
+      "http://46.20.3.207/listen.pls",
+      "http://46.20.3.207/listen.pls"
+    ],
+    "website": "http://www.ntvradyo.com.tr/Home",
+    "genres": [
+      "haber",
+      "haberler",
+      "news",
+      "türkçe"
+    ],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "turkish",
+    "bitrate": "137",
+    "codec": "AAC+",
+    "favicon": "http://www.ntvradyo.com.tr/favicon.ico",
+    "votes": 9350,
+    "clickCount": 705,
+    "lastCheckOk": true
+  },
+  {
+    "id": "8c0eaabf-29b1-4fae-86f1-e7cfa7ec4953",
+    "name": "Radio 5 Turkey",
+    "description": "adult contemporary,hits,non-stop,top 100",
+    "streamUrl": "http://radyo.yayin.com.tr:4108/stream",
+    "streamUrls": [
+      "http://radyo.yayin.com.tr:4108/stream",
+      "https://radyo.yayin.com.tr/tunein/radiotrc.asx"
+    ],
+    "website": "https://www.radio5.com.tr/",
+    "genres": [
+      "adult contemporary",
+      "hits",
+      "non-stop",
+      "top 100"
+    ],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "AAC+",
+    "favicon": "https://radio5.com.tr/wp-content/plugins/under-construction-page/themes/images/favicon.png",
+    "votes": 9295,
+    "clickCount": 462,
+    "lastCheckOk": true
+  },
+  {
+    "id": "856155ee-f434-4a45-9225-391c0e618b8b",
+    "name": "RFM",
+    "description": "64kbps",
+    "streamUrl": "https://23603.live.streamtheworld.com/RFMAAC.aac",
+    "streamUrls": [
+      "https://23603.live.streamtheworld.com/RFMAAC.aac",
+      "https://23603.live.streamtheworld.com/RFMAAC.aac"
+    ],
+    "website": "https://rfm.sapo.pt/",
+    "genres": [
+      "64kbps"
+    ],
+    "country": "Portugal",
+    "countryCode": "PT",
+    "language": "portuguese",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://rfmsite-images.azureedge.net/icons/touch-icon-iphone-retina.png",
+    "votes": 9257,
+    "clickCount": 3745,
+    "lastCheckOk": true
+  },
+  {
+    "id": "84c6f3cc-3c66-415d-aff5-050b5f330adc",
+    "name": "Cadena Dial",
+    "description": "música en español",
+    "streamUrl": "http://27873.live.streamtheworld.com:80/CADENADIAL.mp3",
+    "streamUrls": [
+      "http://27873.live.streamtheworld.com:80/CADENADIAL.mp3",
+      "http://playerservices.streamtheworld.com/api/livestream-redirect/CADENADIAL.mp3"
+    ],
+    "website": "https://www.cadenadial.com/",
+    "genres": [
+      "música en español"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.cadenadial.com/wp-content/uploads/2024/03/cropped-512x512_favicon_dial-180x180.png",
+    "votes": 9247,
+    "clickCount": 3590,
+    "lastCheckOk": true
+  },
+  {
+    "id": "09669200-2711-4c54-87e7-205ec84f929c",
+    "name": "Oldies Internet Radio",
+    "description": "1970s,1980s,70s,80s,classic hits,classic rock,hard rock,hits,mexico city,rock,vintage",
+    "streamUrl": "http://162.244.81.98:8140/listen",
+    "streamUrls": [
+      "http://162.244.81.98:8140/listen",
+      "http://162.244.81.98:8140/listen"
+    ],
+    "website": "https://oldiesinternetradio.com/",
+    "genres": [
+      "1970s",
+      "1980s",
+      "70s",
+      "80s",
+      "classic hits"
+    ],
+    "country": "Mexico",
+    "countryCode": "MX",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 9201,
+    "clickCount": 803,
+    "lastCheckOk": true
+  },
+  {
+    "id": "964aa3f1-0601-11e8-ae97-52543be04c81",
+    "name": "Trojka",
+    "description": "",
+    "streamUrl": "http://stream3.polskieradio.pl:8904/",
+    "streamUrls": [
+      "http://stream3.polskieradio.pl:8904/",
+      "http://stream3.polskieradio.pl:8904/"
+    ],
+    "website": "http://moje.polskieradio.pl/OtherChannels/Trojka.aspx",
+    "genres": [],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "polish",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "http://moje.polskieradio.pl/favicon.ico",
+    "votes": 9199,
+    "clickCount": 1832,
+    "lastCheckOk": true
+  },
+  {
+    "id": "2dde8123-08df-4be6-8817-8b876efc2271",
+    "name": "radio Bandeirantes goiania",
+    "description": "classical",
+    "streamUrl": "http://suaradio2.dyndns.ws:13633/stream",
+    "streamUrls": [
+      "http://suaradio2.dyndns.ws:13633/stream",
+      "http://suaradio2.dyndns.ws:13633/stream"
+    ],
+    "website": "https://radiobandeirantesgoiania.com.br/",
+    "genres": [
+      "classical"
+    ],
+    "country": "Afghanistan",
+    "countryCode": "AF",
+    "language": "",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://radiobandeirantesgoiania.com.br/wp-content/uploads/2022/11/cropped-favcon-band-180x180.png",
+    "votes": 9193,
+    "clickCount": 263,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9614537a-0601-11e8-ae97-52543be04c81",
+    "name": "Chilltrax",
+    "description": "chillout",
+    "streamUrl": "http://server1.chilltrax.com:9000/",
+    "streamUrls": [
+      "http://server1.chilltrax.com:9000/",
+      "http://server1.chilltrax.com:9000/"
+    ],
+    "website": "https://www.chilltrax.com/",
+    "genres": [
+      "chillout"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9176,
+    "clickCount": 4042,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5b9ceedf-eb85-11e9-a96c-52543be04c81",
+    "name": "FIP Jazz",
+    "description": "aac,jazz,public radio,radio france",
+    "streamUrl": "http://icecast.radiofrance.fr/fipjazz-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/fipjazz-hifi.aac",
+      "http://icecast.radiofrance.fr/fipjazz-hifi.aac"
+    ],
+    "website": "https://www.fip.fr/jazz/webradio",
+    "genres": [
+      "aac",
+      "jazz",
+      "public radio",
+      "radio france"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://www.fip.fr/dist/favicons/logo-120.png",
+    "votes": 9135,
+    "clickCount": 2761,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963559d7-0601-11e8-ae97-52543be04c81",
+    "name": "Energy NRJ Bulgaria",
+    "description": "pop,dance,retro",
+    "streamUrl": "http://play.global.audio/nrj128",
+    "streamUrls": [
+      "http://play.global.audio/nrj128",
+      "http://play.global.audio/nrj128"
+    ],
+    "website": "https://radioenergy.bg/",
+    "genres": [
+      "pop",
+      "dance",
+      "retro"
+    ],
+    "country": "Bulgaria",
+    "countryCode": "BG",
+    "language": "bulgarian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://media.metacast.eu/pictures/10_2015/OdriLYWpbHJqKDAcGCMv-7384.png",
+    "votes": 9078,
+    "clickCount": 2814,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e2011342-2b07-40b7-a64d-af695146085b",
+    "name": "Aljazeera Arabic",
+    "description": "aljazeera,الجزيرة,قناة الجزيرة",
+    "streamUrl": "https://live-hls-web-aja.getaj.net/AJA/index.m3u8",
+    "streamUrls": [
+      "https://live-hls-web-aja.getaj.net/AJA/index.m3u8",
+      "https://live-hls-web-aja.getaj.net/AJA/index.m3u8"
+    ],
+    "website": "https://www.aljazeera.net/",
+    "genres": [
+      "aljazeera",
+      "الجزيرة",
+      "قناة الجزيرة"
+    ],
+    "country": "Qatar",
+    "countryCode": "QA",
+    "language": "arabic",
+    "bitrate": "6324",
+    "codec": "AAC,H.264",
+    "favicon": "https://www.aljazeera.net/favicon.ico",
+    "votes": 9072,
+    "clickCount": 1309,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4d01c3fb-75d8-11ea-b1cf-52543be04c81",
+    "name": "A2Z RADIO",
+    "description": "",
+    "streamUrl": "https://listen.radioking.com/radio/1743/stream/125",
+    "streamUrls": [
+      "https://listen.radioking.com/radio/1743/stream/125",
+      "https://listen.radioking.com/radio/1743/stream/125"
+    ],
+    "website": "https://www.liveonlineradio.net/bangla/a2z-radio.htm",
+    "genres": [],
+    "country": "Bangladesh",
+    "countryCode": "BD",
+    "language": "bengali",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://liveonlineradio.net/img/favicon_96.png",
+    "votes": 9061,
+    "clickCount": 617,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9a29a5f2-a60d-4eb0-8345-6454a10a53fb",
+    "name": "RequestRadio เพื่อชีวิต",
+    "description": "country,for life",
+    "streamUrl": "https://cast.requestradio.in.th:830/stream/",
+    "streamUrls": [
+      "https://cast.requestradio.in.th:830/stream/",
+      "https://cast.requestradio.in.th:830/stream/"
+    ],
+    "website": "https://www.requestradio.in.th/forlife",
+    "genres": [
+      "country",
+      "for life"
+    ],
+    "country": "Thailand",
+    "countryCode": "TH",
+    "language": "thai",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.requestradio.in.th/favicon.ico",
+    "votes": 9033,
+    "clickCount": 3118,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c3b2c7ec-da6c-4689-a20c-a4e601ff02de",
+    "name": "Cbs fm",
+    "description": "music",
+    "streamUrl": "http://s5.voscast.com:9908/EYOBUJJAJJA",
+    "streamUrls": [
+      "http://s5.voscast.com:9908/EYOBUJJAJJA",
+      "http://s5.voscast.com:9908/EYOBUJJAJJA"
+    ],
+    "website": "http://www.cbsfm.com/",
+    "genres": [
+      "music"
+    ],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "luganda",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9016,
+    "clickCount": 576,
+    "lastCheckOk": true
+  },
+  {
+    "id": "576e64fd-74ac-11ea-b1cf-52543be04c81",
+    "name": "Radio FM",
+    "description": "alternative,local music,multicultural,world music",
+    "streamUrl": "https://icecast.stv.livebox.sk/fm_128.mp3",
+    "streamUrls": [
+      "https://icecast.stv.livebox.sk/fm_128.mp3",
+      "https://icecast.stv.livebox.sk/fm_128.mp3"
+    ],
+    "website": "https://fm.rtvs.sk/",
+    "genres": [
+      "alternative",
+      "local music",
+      "multicultural",
+      "world music"
+    ],
+    "country": "Slovakia",
+    "countryCode": "SK",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 9010,
+    "clickCount": 681,
+    "lastCheckOk": true
+  },
+  {
+    "id": "909735da-70e8-4527-b771-52793d9f0086",
+    "name": "Antena 1 (Portugal)",
+    "description": "live sports,musica,talk & speech",
+    "streamUrl": "https://streaming-live.rtp.pt/liveradio/antena180a/playlist.m3u8",
+    "streamUrls": [
+      "https://streaming-live.rtp.pt/liveradio/antena180a/playlist.m3u8",
+      "https://streaming-live.rtp.pt/liveradio/antena180a/playlist.m3u8"
+    ],
+    "website": "https://www.rtp.pt/play/direto/antena1",
+    "genres": [
+      "live sports",
+      "musica",
+      "talk & speech"
+    ],
+    "country": "Portugal",
+    "countryCode": "PT",
+    "language": "portuguese",
+    "bitrate": "179",
+    "codec": "AAC",
+    "favicon": "https://cdn-images.rtp.pt/play/images/apple-touch-icon.png-120x120.png",
+    "votes": 8992,
+    "clickCount": 918,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b5455fcb-e07e-11e9-a8ba-52543be04c81",
+    "name": "Trance Athena",
+    "description": "electronic,melodic trance,music,trance,uplifting trance",
+    "streamUrl": "http://cast.streams.ovh:8008/stream",
+    "streamUrls": [
+      "http://cast.streams.ovh:8008/stream",
+      "https://cast.streams.ovh:2199/tunein/tranceathena.pls"
+    ],
+    "website": "https://www.tranceathena.com/",
+    "genres": [
+      "electronic",
+      "melodic trance",
+      "music",
+      "trance",
+      "uplifting trance"
+    ],
+    "country": "Greece",
+    "countryCode": "GR",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://static.wixstatic.com/media/7f073d_ed80ca4374ef48449f0a212faf03c149%7Emv2.jpg/v1/fit/w_2500,h_1330,al_c/7f073d_ed80ca4374ef48449f0a212faf03c149%7Emv2.jpg",
+    "votes": 8900,
+    "clickCount": 1544,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961ddf4b-0601-11e8-ae97-52543be04c81",
+    "name": "Kiss 92.9",
+    "description": "pop",
+    "streamUrl": "http://netradio.live24.gr/kissfmathens",
+    "streamUrls": [
+      "http://netradio.live24.gr/kissfmathens",
+      "http://netradio.live24.gr/kissfmathens"
+    ],
+    "website": "http://www.kiss929.gr/",
+    "genres": [
+      "pop"
+    ],
+    "country": "Greece",
+    "countryCode": "GR",
+    "language": "greek",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.kiss929.gr/sites/default/files/kiss.ico",
+    "votes": 8888,
+    "clickCount": 917,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961f9a79-0601-11e8-ae97-52543be04c81",
+    "name": "Real FM 97.8",
+    "description": "greek,news,talk",
+    "streamUrl": "http://netradio.live24.gr/realfm",
+    "streamUrls": [
+      "http://netradio.live24.gr/realfm",
+      "http://netradio.live24.gr/realfm"
+    ],
+    "website": "http://www.real.gr/",
+    "genres": [
+      "greek",
+      "news",
+      "talk"
+    ],
+    "country": "Greece",
+    "countryCode": "GR",
+    "language": "greek",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.real.gr/wp-content/uploads/2025/02/realgr-icon-150x150.png",
+    "votes": 8871,
+    "clickCount": 1965,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9620e2a3-0601-11e8-ae97-52543be04c81",
+    "name": "Kalika FM 95.2 FM",
+    "description": "",
+    "streamUrl": "http://kalika-stream.softnep.com:7740/stream",
+    "streamUrls": [
+      "http://kalika-stream.softnep.com:7740/stream",
+      "http://www.surfmusic.de/m3u/kalika-fm-95-2-fm,16363.m3u"
+    ],
+    "website": "http://www.kalikafm.com.np/",
+    "genres": [],
+    "country": "Nepal",
+    "countryCode": "NP",
+    "language": "nepali",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://www.kalikanews.com/themes/kalikanews/images/favicon.png",
+    "votes": 8835,
+    "clickCount": 1288,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96414555-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Aswat",
+    "description": "",
+    "streamUrl": "http://aswat.ice.infomaniak.ch/aswat-high.mp3",
+    "streamUrls": [
+      "http://aswat.ice.infomaniak.ch/aswat-high.mp3",
+      "http://broadcast.ice.infomaniak.ch/aswat-high.mp3?.mp3"
+    ],
+    "website": "http://www.radioaswat.ma/",
+    "genres": [],
+    "country": "Morocco",
+    "countryCode": "MA",
+    "language": "arabic",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.radioaswat.ma/favicon.ico",
+    "votes": 8833,
+    "clickCount": 3882,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5b42c7de-0774-4d6b-b2dc-3e41d7fc2daf",
+    "name": "AutoLife Radio Azerbaijan",
+    "description": "pop,pop music",
+    "streamUrl": "http://radio.autoliferadio.com:8090/radio",
+    "streamUrls": [
+      "http://radio.autoliferadio.com:8090/radio",
+      "http://radio.autoliferadio.com:8090/radio"
+    ],
+    "website": "https://autoliferadio.com/",
+    "genres": [
+      "pop",
+      "pop music"
+    ],
+    "country": "Azerbaijan",
+    "countryCode": "AZ",
+    "language": "azerbaijani,english,russian,turkish",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8818,
+    "clickCount": 652,
+    "lastCheckOk": true
+  },
+  {
+    "id": "33178054-56cd-449c-8cf7-412cc7be936a",
+    "name": "CNN",
+    "description": "news",
+    "streamUrl": "https://tunein.cdnstream1.com/2868_96.mp3",
+    "streamUrls": [
+      "https://tunein.cdnstream1.com/2868_96.mp3",
+      "https://tunein.cdnstream1.com/2868_96.mp3"
+    ],
+    "website": "https://www.cnn.com/",
+    "genres": [
+      "news"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://www.cnn.com/media/sites/cnn/favicon.ico",
+    "votes": 8814,
+    "clickCount": 6645,
+    "lastCheckOk": true
+  },
+  {
+    "id": "621f9bd0-b91e-414d-b72b-7b8f2374183f",
+    "name": "Radio ZET",
+    "description": "misc",
+    "streamUrl": "https://n-11-29.dcs.redcdn.pl/sc/o2/Eurozet/live/audio.livx?audio=5",
+    "streamUrls": [
+      "https://n-11-29.dcs.redcdn.pl/sc/o2/Eurozet/live/audio.livx?audio=5",
+      "https://r.dcs.redcdn.pl/sc/o2/Eurozet/live/audio.livx?audio=5"
+    ],
+    "website": "",
+    "genres": [
+      "misc"
+    ],
+    "country": "Poland",
+    "countryCode": "PL",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8805,
+    "clickCount": 602,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96389fbf-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - 80's Country",
+    "description": "80s,country,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-80scountry_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-80scountry_128k.mp3",
+      "http://listen.181fm.com/181-80scountry_128k.mp3"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "80s",
+      "country",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 8718,
+    "clickCount": 845,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9121aa97-ef1e-11e8-a471-52543be04c81",
+    "name": "Sky Arabia News TV",
+    "description": "",
+    "streamUrl": "https://stream.skynewsarabia.com/hls/sna_720.m3u8",
+    "streamUrls": [
+      "https://stream.skynewsarabia.com/hls/sna_720.m3u8",
+      "http://stream.skynewsarabia.com/hls/sna_720.m3u8"
+    ],
+    "website": "http://www.skynewsarabia.com/",
+    "genres": [],
+    "country": "The United Arab Emirates",
+    "countryCode": "AE",
+    "language": "arabic",
+    "bitrate": "530",
+    "codec": "AAC",
+    "favicon": "http://www.skynewsarabia.com/apple-touch-icon-72x72.png",
+    "votes": 8694,
+    "clickCount": 1673,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3c7aba81-3375-41e3-b268-5231fcf576ba",
+    "name": "Tes3enat FM",
+    "description": "classical",
+    "streamUrl": "http://178.33.135.244:20095/;?DIST=TuneIn&TGT=TuneIn&maxServers=2&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzNjA1OTE3OCwiaXNzIjoidGlzcnYifQ.Me0snc2PBcQhvlzte9L7zQxa-IHgNinhu3XdNJ6_Xa8",
+    "streamUrls": [
+      "http://178.33.135.244:20095/;?DIST=TuneIn&TGT=TuneIn&maxServers=2&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzNjA1OTE3OCwiaXNzIjoidGlzcnYifQ.Me0snc2PBcQhvlzte9L7zQxa-IHgNinhu3XdNJ6_Xa8",
+      "http://178.33.135.244:20095/;?DIST=TuneIn&TGT=TuneIn&maxServers=2&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzNjA1OTE3OCwiaXNzIjoidGlzcnYifQ.Me0snc2PBcQhvlzte9L7zQxa-IHgNinhu3XdNJ6_Xa8"
+    ],
+    "website": "",
+    "genres": [
+      "classical"
+    ],
+    "country": "Egypt",
+    "countryCode": "EG",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8688,
+    "clickCount": 3592,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e822ed30-1b14-4a90-906f-a1267e3d761d",
+    "name": "Rádio Observador",
+    "description": "",
+    "streamUrl": "http://195.23.85.126:8455/stream",
+    "streamUrls": [
+      "http://195.23.85.126:8455/stream",
+      "http://195.23.85.126:8455/listen.pls?sid=1"
+    ],
+    "website": "https://observador.pt/",
+    "genres": [],
+    "country": "Portugal",
+    "countryCode": "PT",
+    "language": "portuguese",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://observador.pt/wp-content/themes/observador-child/assets/build/img/favicon.ico",
+    "votes": 8686,
+    "clickCount": 2558,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0f2c2b91-a0d2-11e8-a9f3-52543be04c81",
+    "name": "TOK FM",
+    "description": "mix",
+    "streamUrl": "https://radiostream.pl/tuba10-1.mp3",
+    "streamUrls": [
+      "https://radiostream.pl/tuba10-1.mp3",
+      "http://www.surfmusik.de/m3u/tok-fm,5940.m3u"
+    ],
+    "website": "http://www.tok.fm/",
+    "genres": [
+      "mix"
+    ],
+    "country": "",
+    "countryCode": "",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8681,
+    "clickCount": 178,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0b14ae20-92b3-4db7-834f-ee6ba39ad080",
+    "name": " إذاعة مشاري العفاسي",
+    "description": "",
+    "streamUrl": "https://qurango.net/radio/mishary_alafasi",
+    "streamUrls": [
+      "https://qurango.net/radio/mishary_alafasi",
+      "https://qurango.net/radio/mishary_alafasi"
+    ],
+    "website": "http://www.phantomsw.com/",
+    "genres": [],
+    "country": "Egypt",
+    "countryCode": "EG",
+    "language": "arabic",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.phantomsw.com/assets/img/apple-touch-icon.png",
+    "votes": 8674,
+    "clickCount": 2385,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961ae516-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Guerrilla",
+    "description": "classic rock,indie,la unica radio con cojones,rock",
+    "streamUrl": "http://live.guerrillaradio.ro:8010/guerrilla.aac",
+    "streamUrls": [
+      "http://live.guerrillaradio.ro:8010/guerrilla.aac",
+      "http://live.guerrillaradio.ro:8010/guerrilla.aac"
+    ],
+    "website": "http://guerrillaradio.ro/",
+    "genres": [
+      "classic rock",
+      "indie",
+      "la unica radio con cojones",
+      "rock"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "romanian",
+    "bitrate": "96",
+    "codec": "AAC+",
+    "favicon": "http://guerrillaradio.ro/images/logo.png",
+    "votes": 8652,
+    "clickCount": 969,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e9c34912-885d-4c5b-accd-6c1de459562f",
+    "name": "100.5 Bukedde Fm",
+    "description": "news variety",
+    "streamUrl": "https://stream.hydeinnovations.com:2020/stream/bukeddefm/stream",
+    "streamUrls": [
+      "https://stream.hydeinnovations.com:2020/stream/bukeddefm/stream",
+      "https://stream.hydeinnovations.com:2020/stream/bukeddefm/stream"
+    ],
+    "website": "https://www.bukedde.co.ug/",
+    "genres": [
+      "news variety"
+    ],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "luganda",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8634,
+    "clickCount": 5121,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c97e2821-9f9e-4ee3-b043-25823e459832",
+    "name": "OK radio",
+    "description": "",
+    "streamUrl": "https://sslstream.okradio.net/;?type=http&nocache=8804",
+    "streamUrls": [
+      "https://sslstream.okradio.net/;?type=http&nocache=8804",
+      "https://sslstream.okradio.net/;?type=http&nocache=8804"
+    ],
+    "website": "https://www.okradio.net/",
+    "genres": [],
+    "country": "Serbia",
+    "countryCode": "RS",
+    "language": "serbian",
+    "bitrate": "128",
+    "codec": "AAC+",
+    "favicon": "https://www.okradio.net/wp-content/uploads/2021/11/ok-logo-m.png",
+    "votes": 8635,
+    "clickCount": 2727,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96385b07-0601-11e8-ae97-52543be04c81",
+    "name": "Rádio Disco Funk BR",
+    "description": "80s,90s,disco,disco funk,funk",
+    "streamUrl": "http://streaming12.hstbr.net:8084/live",
+    "streamUrls": [
+      "http://streaming12.hstbr.net:8084/live",
+      "http://streaming12.hstbr.net:8084/live"
+    ],
+    "website": "http://discofunk.com.br/",
+    "genres": [
+      "80s",
+      "90s",
+      "disco",
+      "disco funk",
+      "funk"
+    ],
+    "country": "Brazil",
+    "countryCode": "BR",
+    "language": "",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 8611,
+    "clickCount": 529,
+    "lastCheckOk": true
+  },
+  {
+    "id": "03eccedf-bf40-4413-8d52-817c298331e2",
+    "name": "Z 92 (Miami) - 92.3 FM - WCMQ-FM - Spanish Broadcasting System - Miami, Florida",
+    "description": "92.3 fm,entretenimiento,español,estación,florida,fm,miami,moi merino,music,música,música en español,música tropical,radio,salsa,spanish broadcasting system,tropical,tropical music,usa",
+    "streamUrl": "https://liveaudio.lamusica.com/MIA_WCMQ_icy",
+    "streamUrls": [
+      "https://liveaudio.lamusica.com/MIA_WCMQ_icy",
+      "https://liveaudio.lamusica.com/MIA_WCMQ_icy"
+    ],
+    "website": "https://www.lamusica.com/stations/wcmq",
+    "genres": [
+      "92.3 fm",
+      "entretenimiento",
+      "español",
+      "estación",
+      "florida"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "spanish",
+    "bitrate": "320",
+    "codec": "AAC",
+    "favicon": "https://cdn-profiles.tunein.com/s27943/images/logod.png",
+    "votes": 8560,
+    "clickCount": 410,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4e758ac3-15ad-11e9-a80b-52543be04c81",
+    "name": "Alem FM",
+    "description": "",
+    "streamUrl": "http://turkmedya.radyotvonline.com/turkmedya/alemfm.stream/playlist.m3u8",
+    "streamUrls": [
+      "http://turkmedya.radyotvonline.com/turkmedya/alemfm.stream/playlist.m3u8",
+      "http://turkmedya.radyotvonline.com/turkmedya/alemfm.stream/playlist.m3u8"
+    ],
+    "website": "https://www.alemfm.com/",
+    "genres": [],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "turkish",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://www.alemfm.com/assets/img/alemfm-apple-touch-icon.png",
+    "votes": 8556,
+    "clickCount": 2813,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9619ef9e-0601-11e8-ae97-52543be04c81",
+    "name": "Virgin Radio Hard Rock",
+    "description": "hard rock,mediaset",
+    "streamUrl": "http://icy.unitedradio.it/VirginHardRock.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/VirginHardRock.mp3",
+      "http://icy.unitedradio.it/VirginHardRock.mp3"
+    ],
+    "website": "http://www.virginradio.it/sezioni/1218/virgin-radio-hard-rock",
+    "genres": [
+      "hard rock",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8545,
+    "clickCount": 628,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9606d076-0601-11e8-ae97-52543be04c81",
+    "name": "Радио России (Radio Russia)",
+    "description": "music,news,talk",
+    "streamUrl": "http://icecast.vgtrk.cdnvideo.ru/rrzonam_mp3_128kbps",
+    "streamUrls": [
+      "http://icecast.vgtrk.cdnvideo.ru/rrzonam_mp3_128kbps",
+      "http://icecast.vgtrk.cdnvideo.ru/rrzonam_mp3_128kbps"
+    ],
+    "website": "http://www.radiorus.ru/",
+    "genres": [
+      "music",
+      "news",
+      "talk"
+    ],
+    "country": "The Russian Federation",
+    "countryCode": "RU",
+    "language": "russian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8534,
+    "clickCount": 1688,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e25470de-0bea-43c1-8c84-475c6c500c1a",
+    "name": "On sports FM",
+    "description": "",
+    "streamUrl": "https://carina.streamerr.co:2020/stream/OnSportFM",
+    "streamUrls": [
+      "https://carina.streamerr.co:2020/stream/OnSportFM",
+      "https://carina.streamerr.co:2020/stream/OnSportFM"
+    ],
+    "website": "http://www.onsportfm.com/",
+    "genres": [],
+    "country": "Egypt",
+    "countryCode": "EG",
+    "language": "",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8528,
+    "clickCount": 5070,
+    "lastCheckOk": true
+  },
+  {
+    "id": "09f8922f-56bb-41bd-ad35-a7e54c5520e3",
+    "name": "KRAL TÜRK FM",
+    "description": "",
+    "streamUrl": "https://live.radyositesihazir.com/8032/stream",
+    "streamUrls": [
+      "https://live.radyositesihazir.com/8032/stream",
+      "https://live.radyositesihazir.com/8032/stream"
+    ],
+    "website": "https://live.radyositesihazir.com/8032/stream",
+    "genres": [],
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8519,
+    "clickCount": 2637,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960985b2-0601-11e8-ae97-52543be04c81",
+    "name": "WNYC-FM 93.9 New York Public Radio",
+    "description": "information,new york city,news,npr,public radio",
+    "streamUrl": "https://fm939.wnyc.org/wnycfm",
+    "streamUrls": [
+      "https://fm939.wnyc.org/wnycfm",
+      "http://www.wnyc.org/stream/wnyc-fm939/mp3.pls"
+    ],
+    "website": "http://www.wnyc.org/",
+    "genres": [
+      "information",
+      "new york city",
+      "news",
+      "npr",
+      "public radio"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8468,
+    "clickCount": 1080,
+    "lastCheckOk": true
+  },
+  {
+    "id": "368ef657-f8b5-47ce-b578-337e401cc744",
+    "name": "Voice of Lebanon (Sawtlebnan) Radio",
+    "description": "",
+    "streamUrl": "https://l3.itworkscdn.net/itwaudio/9054/stream",
+    "streamUrls": [
+      "https://l3.itworkscdn.net/itwaudio/9054/stream",
+      "https://l3.itworkscdn.net/itwaudio/9054/stream"
+    ],
+    "website": "https://www.vdl.me/",
+    "genres": [],
+    "country": "Lebanon",
+    "countryCode": "LB",
+    "language": "arabic",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.vdl.me/wp-content/uploads/2020/12/images.png",
+    "votes": 8401,
+    "clickCount": 1342,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9610a72f-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio Only Women",
+    "description": "jazz,women",
+    "streamUrl": "http://jazz-wr16.ice.infomaniak.ch/jazz-wr16-128.mp3",
+    "streamUrls": [
+      "http://jazz-wr16.ice.infomaniak.ch/jazz-wr16-128.mp3",
+      "http://jazz-wr16.ice.infomaniak.ch/jazz-wr16-128.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/radio/webradio/25/only-women",
+    "genres": [
+      "jazz",
+      "women"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 8397,
+    "clickCount": 437,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d77d6bb3-8a1a-11e9-ad01-52543be04c81",
+    "name": "Radio Cafe Romania",
+    "description": "muzica de poveste",
+    "streamUrl": "http://live.radiocafe.ro:8048/live.aac",
+    "streamUrls": [
+      "http://live.radiocafe.ro:8048/live.aac",
+      "http://live.radiocafe.ro:8048/live.aac"
+    ],
+    "website": "http://radiocafe.ro/",
+    "genres": [
+      "muzica de poveste"
+    ],
+    "country": "Romania",
+    "countryCode": "RO",
+    "language": "romanian",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 8379,
+    "clickCount": 933,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5dcbb03d-423a-4f97-8af5-b95981094c69",
+    "name": "Rádio Saudade FM 99.7",
+    "description": "adult,classic hits,flashback",
+    "streamUrl": "https://24493.live.streamtheworld.com:443/SAUDADE_FMAAC.aac",
+    "streamUrls": [
+      "https://24493.live.streamtheworld.com:443/SAUDADE_FMAAC.aac",
+      "https://playerservices.streamtheworld.com/api/livestream-redirect/SAUDADE_FMAAC.aac"
+    ],
+    "website": "https://www.saudadefm.com.br/",
+    "genres": [
+      "adult",
+      "classic hits",
+      "flashback"
+    ],
+    "country": "Brazil",
+    "countryCode": "BR",
+    "language": "portuguese",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://img.radios.com.br/radio/lg/radio8_1626274312.png",
+    "votes": 8349,
+    "clickCount": 6865,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b45002ed-3692-11e9-9b4e-52543be04c81",
+    "name": "SRo1 Rádio Slovensko (256k)",
+    "description": "",
+    "streamUrl": "http://live.slovakradio.sk:8000/Slovensko_256.mp3",
+    "streamUrls": [
+      "http://live.slovakradio.sk:8000/Slovensko_256.mp3",
+      "http://live.slovakradio.sk:8000/Slovensko_256.mp3"
+    ],
+    "website": "http://slovensko.rtvs.sk/",
+    "genres": [],
+    "country": "Slovakia",
+    "countryCode": "SK",
+    "language": "slovak",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8341,
+    "clickCount": 2884,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9617c327-0601-11e8-ae97-52543be04c81",
+    "name": "Kringvarp Føroya (KVF)",
+    "description": "faroe islands,national,news,public service",
+    "streamUrl": "http://netvarp.kringvarp.fo:443/uvhm",
+    "streamUrls": [
+      "http://netvarp.kringvarp.fo:443/uvhm",
+      "http://netvarp.kringvarp.fo:443/uvhm"
+    ],
+    "website": "http://kvf.fo/",
+    "genres": [
+      "faroe islands",
+      "national",
+      "news",
+      "public service"
+    ],
+    "country": "The Faroe Islands",
+    "countryCode": "FO",
+    "language": "faroese",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8334,
+    "clickCount": 1046,
+    "lastCheckOk": true
+  },
+  {
+    "id": "13d416ec-2884-427d-a0dc-056f7927ce02",
+    "name": "Yoshlar Ovozi ",
+    "description": "music",
+    "streamUrl": "http://ns10.jethost.uz:8000/yoshlarovoziaac",
+    "streamUrls": [
+      "http://ns10.jethost.uz:8000/yoshlarovoziaac",
+      "http://ns10.jethost.uz:8000/yoshlarovoziaac"
+    ],
+    "website": "http://muz.uz/",
+    "genres": [
+      "music"
+    ],
+    "country": "Uzbekistan",
+    "countryCode": "UZ",
+    "language": "uzbek",
+    "bitrate": "112",
+    "codec": "AAC+",
+    "favicon": "http://muz.uz/favicon.ico",
+    "votes": 8284,
+    "clickCount": 695,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96077079-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Swiss Classic German",
+    "description": "classical,public radio,srg ssr",
+    "streamUrl": "http://livestreaming-node-2.srg-ssr.ch/srgssr/rsc_de/mp3/128",
+    "streamUrls": [
+      "http://livestreaming-node-2.srg-ssr.ch/srgssr/rsc_de/mp3/128",
+      "http://stream.srg-ssr.ch/m/rsc_de/mp3_128"
+    ],
+    "website": "http://www.radioswissclassic.ch/",
+    "genres": [
+      "classical",
+      "public radio",
+      "srg ssr"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8271,
+    "clickCount": 2875,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c67881f5-c0a4-40dd-9342-484fe3daa039",
+    "name": "CBS 88.8",
+    "description": "",
+    "streamUrl": "http://s5.voscast.com:9908/EYOBUJJAJJA",
+    "streamUrls": [
+      "http://s5.voscast.com:9908/EYOBUJJAJJA",
+      "http://s5.voscast.com:9908/EYOBUJJAJJA"
+    ],
+    "website": "http://www.cbsfm.com/",
+    "genres": [],
+    "country": "Uganda",
+    "countryCode": "UG",
+    "language": "english",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8235,
+    "clickCount": 11278,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961e1310-0601-11e8-ae97-52543be04c81",
+    "name": "Centro Suono Sport",
+    "description": "roma,sport,talk",
+    "streamUrl": "http://streaming.centrosuono.com:8000/cssport.mp3",
+    "streamUrls": [
+      "http://streaming.centrosuono.com:8000/cssport.mp3",
+      "http://streaming.centrosuono.com:8000/cssport.mp3"
+    ],
+    "website": "http://centrosuonosport.it/",
+    "genres": [
+      "roma",
+      "sport",
+      "talk"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8223,
+    "clickCount": 460,
+    "lastCheckOk": true
+  },
+  {
+    "id": "7e41d6c6-1842-4ecf-9c6e-2901fdca18ca",
+    "name": "The Jazz Groove - East",
+    "description": "cool jazz,fusion,jazz,laid-back,relax",
+    "streamUrl": "http://audio-edge-hy4wy.blr.d.radiomast.io/8a384ff3-6fd1-4e5d-b47d-0cbefeffe8d7",
+    "streamUrls": [
+      "http://audio-edge-hy4wy.blr.d.radiomast.io/8a384ff3-6fd1-4e5d-b47d-0cbefeffe8d7",
+      "http://east-mp3-128.streamthejazzgroove.com/stream"
+    ],
+    "website": "https://jazzgroove.org/",
+    "genres": [
+      "cool jazz",
+      "fusion",
+      "jazz",
+      "laid-back",
+      "relax"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 8214,
+    "clickCount": 1712,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9618e7a0-0601-11e8-ae97-52543be04c81",
+    "name": "Rádio Renascença",
+    "description": "national news",
+    "streamUrl": "http://28513.live.streamtheworld.com:3690/RADIO_RENASCENCA_SC",
+    "streamUrls": [
+      "http://28513.live.streamtheworld.com:3690/RADIO_RENASCENCA_SC",
+      "http://provisioning.streamtheworld.com/pls/RADIO_RENASCENCA.pls"
+    ],
+    "website": "http://rr.sapo.pt/",
+    "genres": [
+      "national news"
+    ],
+    "country": "Portugal",
+    "countryCode": "PT",
+    "language": "portuguese",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://rrsite-images.azureedge.net/favicon/apple-touch-icon.png",
+    "votes": 8192,
+    "clickCount": 1599,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5565dd27-8a3a-453e-9b6d-41d3a31057c1",
+    "name": "98.1 KBEAR",
+    "description": "",
+    "streamUrl": "http://desertmountainbroadcasting.streamguys1.com/KYYA",
+    "streamUrls": [
+      "http://desertmountainbroadcasting.streamguys1.com/KYYA",
+      "http://desertmountainbroadcasting.streamguys1.com/KYYA"
+    ],
+    "website": "https://www.981kbear.com/",
+    "genres": [],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://pwa.tunegenie.com/kyyaam/icon-192.png",
+    "votes": 8192,
+    "clickCount": 82,
+    "lastCheckOk": true
+  },
+  {
+    "id": "dfe95eca-06e0-11e9-a80b-52543be04c81",
+    "name": "RMNinstrumental",
+    "description": "instrumental",
+    "streamUrl": "http://stream.instrumentalhits.de:8060/",
+    "streamUrls": [
+      "http://stream.instrumentalhits.de:8060/",
+      "http://stream.instrumentalhits.de:8060/"
+    ],
+    "website": "http://www.instrumentalhits.de/",
+    "genres": [
+      "instrumental"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 7991,
+    "clickCount": 195,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6cddaca1-f2c1-11e8-a471-52543be04c81",
+    "name": "- 0 N - 70s on Radio",
+    "description": "70er,70s,oldies,pop",
+    "streamUrl": "https://0n-70s.radionetz.de/0n-70s.mp3",
+    "streamUrls": [
+      "https://0n-70s.radionetz.de/0n-70s.mp3",
+      "https://0n-70s.radionetz.de/0n-70s.mp3"
+    ],
+    "website": "http://www.0nradio.com/",
+    "genres": [
+      "70er",
+      "70s",
+      "oldies",
+      "pop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.0nradio.com/logos/0n-70s_600x600.jpg",
+    "votes": 7906,
+    "clickCount": 3471,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1c3e8be2-5b14-4933-bad3-87cbc227cba4",
+    "name": "Deutschlandfunk | DLF | MP3 128k",
+    "description": "culture,news,public service,information",
+    "streamUrl": "https://d121.rndfnk.com/ard/dlf/01/mp3/128/stream.mp3?aggregator=web&cid=01FBPWZ12X2XN8SDSMBZ7X0ZTT&sid=34okP17H9J6wzFABpKG7RQ6Cvy5&token=WxzK2Gn6odvIT3i9OCVgPHLrwcO86NV-naucKG7YFxM&tvf=N39uVcuOcxhkMTIxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "https://d121.rndfnk.com/ard/dlf/01/mp3/128/stream.mp3?aggregator=web&cid=01FBPWZ12X2XN8SDSMBZ7X0ZTT&sid=34okP17H9J6wzFABpKG7RQ6Cvy5&token=WxzK2Gn6odvIT3i9OCVgPHLrwcO86NV-naucKG7YFxM&tvf=N39uVcuOcxhkMTIxLnJuZGZuay5jb20",
+      "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3?aggregator=web"
+    ],
+    "website": "https://www.deutschlandfunk.de/",
+    "genres": [
+      "culture",
+      "news",
+      "public service",
+      "information"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.deutschlandfunk.de/static/img/deutschlandfunk/icons/apple-touch-icon-128x128.png",
+    "votes": 7864,
+    "clickCount": 36263,
+    "lastCheckOk": true
+  },
+  {
+    "id": "03387f8e-4a8b-4b2b-8740-5d35a5cc8c48",
+    "name": "RadioX UK",
+    "description": "",
+    "streamUrl": "http://icecast.thisisdax.com/RadioXUKMP3",
+    "streamUrls": [
+      "http://icecast.thisisdax.com/RadioXUKMP3",
+      "http://icecast.thisisdax.com/RadioXUKMP3.m3u"
+    ],
+    "website": "https://www.radiox.co.uk/",
+    "genres": [],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 7693,
+    "clickCount": 581,
+    "lastCheckOk": true
+  },
+  {
+    "id": "934d1811-3412-4d2d-86c8-dd1d8fbb51a7",
+    "name": "101 SMOOTH JAZZ MELLOW MIX",
+    "description": "easy listening,mellow,smooth jazz",
+    "streamUrl": "http://ais-edge90-dal03.cdnstream.com/b48071_128mp3",
+    "streamUrls": [
+      "http://ais-edge90-dal03.cdnstream.com/b48071_128mp3",
+      "http://www.101smoothjazz.com/101-mellowmix.m3u"
+    ],
+    "website": "http://www.101smoothjazz.com/mellow.html",
+    "genres": [
+      "easy listening",
+      "mellow",
+      "smooth jazz"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 7640,
+    "clickCount": 3665,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961185f5-0601-11e8-ae97-52543be04c81",
+    "name": "ChroniX Radio Metalcore",
+    "description": "death metal,heavy metal,industrial,metalcore,thrash metal",
+    "streamUrl": "http://usa17.fastcast4u.com:5508/stream",
+    "streamUrls": [
+      "http://usa17.fastcast4u.com:5508/stream",
+      "http://usa17.fastcast4u.com:5508/listen.pls"
+    ],
+    "website": "http://chronixradio.net/",
+    "genres": [
+      "death metal",
+      "heavy metal",
+      "industrial",
+      "metalcore",
+      "thrash metal"
+    ],
+    "country": "Canada",
+    "countryCode": "CA",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://storage.googleapis.com/wzukusers/user-27172421/images/fav-6a63dee4b19e4b57a9038cc5f853f41a/apple-touch-icon-120x120.png?v=fav-6a63dee4b19e4b57a9038cc5f853f41a",
+    "votes": 7628,
+    "clickCount": 1136,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9f348d9f-5285-11e8-a4d1-52543be04c81",
+    "name": "Costa Del Mar - Chillout (AAC 96kbps)",
+    "description": "chill,chillout",
+    "streamUrl": "http://stream.cdm-chillout.com:8020/stream-AAC-Chill",
+    "streamUrls": [
+      "http://stream.cdm-chillout.com:8020/stream-AAC-Chill",
+      "http://stream.cdm-chillout.com:8020/stream-AAC-Chill"
+    ],
+    "website": "http://www.costadelmar-radio.com/chillout/",
+    "genres": [
+      "chill",
+      "chillout"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "",
+    "bitrate": "96",
+    "codec": "AAC",
+    "favicon": "http://www.costadelmar-radio.com/favicon.ico",
+    "votes": 7604,
+    "clickCount": 2265,
+    "lastCheckOk": true
+  },
+  {
+    "id": "83dcfac4-b3c3-4731-afc1-a80dd271dffa",
+    "name": "Armisa Classica",
+    "description": "balera,folk,liscio",
+    "streamUrl": "https://onair.armisa.it/listen/armisa/radio.mp3",
+    "streamUrls": [
+      "https://onair.armisa.it/listen/armisa/radio.mp3",
+      "https://onair.armisa.it/listen/armisa/radio.mp3"
+    ],
+    "website": "https://armisa.it/",
+    "genres": [
+      "balera",
+      "folk",
+      "liscio"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://armisa.it/assets/favicon/android-chrome-512x512.png",
+    "votes": 7588,
+    "clickCount": 302,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96373d9b-0601-11e8-ae97-52543be04c81",
+    "name": "Tropicalisima FM Salsa",
+    "description": "ridgewood,salsa",
+    "streamUrl": "http://tropicalisima.org:8020/stream",
+    "streamUrls": [
+      "http://tropicalisima.org:8020/stream",
+      "http://tropicalisima.org:8020/stream"
+    ],
+    "website": "http://tropicalisima.fm/",
+    "genres": [
+      "ridgewood",
+      "salsa"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://cdn-radiotime-logos.tunein.com/s108725q.png",
+    "votes": 7579,
+    "clickCount": 533,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961a414c-0601-11e8-ae97-52543be04c81",
+    "name": "Cadena SER Radio MADRID",
+    "description": "cultural,local,news,talk",
+    "streamUrl": "http://server7.20comunicacion.com:8040/",
+    "streamUrls": [
+      "http://server7.20comunicacion.com:8040/",
+      "http://server7.20comunicacion.com:8040/"
+    ],
+    "website": "http://www.radiomenorca.com/ca",
+    "genres": [
+      "cultural",
+      "local",
+      "news",
+      "talk"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "catalan,spanish",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://cadenaser00.epimg.net/favicon.png",
+    "votes": 7575,
+    "clickCount": 407,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960d4bdc-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - Kickin' Country",
+    "description": "country,pop,rock,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-kickincountry_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-kickincountry_128k.mp3",
+      "http://www.181.fm/stream/pls/181-kickincountry.pls"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "country",
+      "pop",
+      "rock",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 7488,
+    "clickCount": 995,
+    "lastCheckOk": true
+  },
+  {
+    "id": "bafbd6cc-65e0-4af7-907b-dd1c425e8917",
+    "name": "70s 80s Disco Funk ModernSoul Boogie",
+    "description": "1970s,1980s,70's,70er,70s,70s disco,80,80's,80er,80s,boogie,funk",
+    "streamUrl": "https://discofunk.streamingmedia.it/usa",
+    "streamUrls": [
+      "https://discofunk.streamingmedia.it/usa",
+      "https://discofunk.streamingmedia.it/usa"
+    ],
+    "website": "https://funky.radio/discofunk_modernsoul_boogie",
+    "genres": [
+      "1970s",
+      "1980s",
+      "70's",
+      "70er",
+      "70s"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 7439,
+    "clickCount": 2406,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962878f4-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Kiss Kiss Napoli",
+    "description": "pop",
+    "streamUrl": "https://kisskiss.fluidstream.eu/KKNapoli.mp3",
+    "streamUrls": [
+      "https://kisskiss.fluidstream.eu/KKNapoli.mp3",
+      "http://wma08.fluidstream.net:3612/;listen.pls"
+    ],
+    "website": "http://www.kisskissnapoli.it/",
+    "genres": [
+      "pop"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 7404,
+    "clickCount": 1246,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962e5ddc-0601-11e8-ae97-52543be04c81",
+    "name": "B5 aktuell",
+    "description": "ard,bayerischer rundfunk,information,news,public radio,talk",
+    "streamUrl": "http://d121.rndfnk.com/ard/br/br24/live/mp3/128/stream.mp3?cid=01FBPVVJDPGF0BJ5TAJ8Z7JSX9&sid=34nwfonFjcCtzwfrS4ZdF0GUvPP&token=KMCcaiRcRnPxNqVpuv8WsfKT9qVhk15L8f6FbC-Hge8&tvf=jMVRHnt4cxhkMTIxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://d121.rndfnk.com/ard/br/br24/live/mp3/128/stream.mp3?cid=01FBPVVJDPGF0BJ5TAJ8Z7JSX9&sid=34nwfonFjcCtzwfrS4ZdF0GUvPP&token=KMCcaiRcRnPxNqVpuv8WsfKT9qVhk15L8f6FbC-Hge8&tvf=jMVRHnt4cxhkMTIxLnJuZGZuay5jb20",
+      "http://streams.br.de/b5aktuell_2.m3u"
+    ],
+    "website": "https://www.br.de/radio/b5-aktuell/service/programm/",
+    "genres": [
+      "ard",
+      "bayerischer rundfunk",
+      "information",
+      "news",
+      "public radio"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.br.de/favicon.ico",
+    "votes": 7284,
+    "clickCount": 3262,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3fd18c3f-8157-11e9-aa30-52543be04c81",
+    "name": "Café del Mar",
+    "description": "chillout,ibiza,lounge",
+    "streamUrl": "https://streams.radio.co/se1a320b47/listen",
+    "streamUrls": [
+      "https://streams.radio.co/se1a320b47/listen",
+      "https://streams.radio.co/se1a320b47/listen"
+    ],
+    "website": "https://cafedelmar.com/radio/",
+    "genres": [
+      "chillout",
+      "ibiza",
+      "lounge"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://cafedelmar.com/apple-touch-icon.png",
+    "votes": 7228,
+    "clickCount": 5066,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960de41d-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Metal Detector (128k AAC)",
+    "description": "black metal,doom metal,post-punk,progressive rock,sludge,stoner rock,trash",
+    "streamUrl": "https://ice1.somafm.com/metal-128-aac",
+    "streamUrls": [
+      "https://ice1.somafm.com/metal-128-aac",
+      "https://somafm.com/metal130.pls"
+    ],
+    "website": "https://somafm.com/metal/",
+    "genres": [
+      "black metal",
+      "doom metal",
+      "post-punk",
+      "progressive rock",
+      "sludge"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://somafm.com/img3/metal-400.png",
+    "votes": 7124,
+    "clickCount": 662,
+    "lastCheckOk": true
+  },
+  {
+    "id": "a3253a96-a1ba-4cf5-bf4b-ec7988afcfd3",
+    "name": "REGGAE CHILL CAFE",
+    "description": "chill,chillout,dancehall,reggae,relax,relaxation,relaxing,tropical",
+    "streamUrl": "https://maggie.torontocast.com:2020/stream/reggaechillcafe",
+    "streamUrls": [
+      "https://maggie.torontocast.com:2020/stream/reggaechillcafe",
+      "https://maggie.torontocast.com:2020/stream/reggaechillcafe"
+    ],
+    "website": "https://radiosuitenetwork.torontocast.stream/",
+    "genres": [
+      "chill",
+      "chillout",
+      "dancehall",
+      "reggae",
+      "relax"
+    ],
+    "country": "Canada",
+    "countryCode": "CA",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 7093,
+    "clickCount": 2205,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960d2014-0601-11e8-ae97-52543be04c81",
+    "name": ".977 Comedy",
+    "description": "comedy",
+    "streamUrl": "http://17573.live.streamtheworld.com/977_COMEDY_SC",
+    "streamUrls": [
+      "http://17573.live.streamtheworld.com/977_COMEDY_SC",
+      "http://playerservices.streamtheworld.com/pls/977_COMEDY.pls"
+    ],
+    "website": "http://www.977music.com/",
+    "genres": [
+      "comedy"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6991,
+    "clickCount": 897,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9617fe3b-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Maria",
+    "description": "catholic,christian,erba,talk",
+    "streamUrl": "http://dreamsiteradiocp.com:8092/;",
+    "streamUrls": [
+      "http://dreamsiteradiocp.com:8092/;",
+      "http://dreamsiteradiocp.com:8092/;"
+    ],
+    "website": "http://www.radiomaria.it/",
+    "genres": [
+      "catholic",
+      "christian",
+      "erba",
+      "talk"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6776,
+    "clickCount": 1670,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960d1692-0601-11e8-ae97-52543be04c81",
+    "name": "Country 108",
+    "description": "country",
+    "streamUrl": "http://streaming.silvacast.com/COUNTRY108.mp3",
+    "streamUrls": [
+      "http://streaming.silvacast.com/COUNTRY108.mp3",
+      "http://tuner.country108.com/;"
+    ],
+    "website": "http://www.country108.com/",
+    "genres": [
+      "country"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.country108.com/assets/images/logo.png",
+    "votes": 6761,
+    "clickCount": 857,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962e0e57-0601-11e8-ae97-52543be04c81",
+    "name": "MegaStarFM",
+    "description": "pop,top 40",
+    "streamUrl": "http://flucast21-h-cloud.flumotion.com/cope/megastar.mp3",
+    "streamUrls": [
+      "http://flucast21-h-cloud.flumotion.com/cope/megastar.mp3",
+      "http://megastar.cope.stream.flumotion.com/cope/megastar.mp3.m3u"
+    ],
+    "website": "http://www.megastar.fm/",
+    "genres": [
+      "pop",
+      "top 40"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.megastar.fm/estaticos/apple-touch-icon-192x192.png",
+    "votes": 6736,
+    "clickCount": 745,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963e6e4a-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Marca Barcelona",
+    "description": "sports news",
+    "streamUrl": "http://radioweb.radiomarcabarcelona.com:9000/stream",
+    "streamUrls": [
+      "http://radioweb.radiomarcabarcelona.com:9000/stream",
+      "http://radioweb.radiomarcabarcelona.com:9000/stream.m3u"
+    ],
+    "website": "http://marca.com/radio.html",
+    "genres": [
+      "sports news"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "http://e00-marca.uecdn.es/favicon.ico",
+    "votes": 6716,
+    "clickCount": 583,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9626c78f-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Kiss Kiss Italia",
+    "description": "pop",
+    "streamUrl": "https://kisskiss.fluidstream.eu/KKItalia.mp3",
+    "streamUrls": [
+      "https://kisskiss.fluidstream.eu/KKItalia.mp3",
+      "http://wma06.fluidstream.net:3614/;listen.pls"
+    ],
+    "website": "http://www.kisskissitalia.it/",
+    "genres": [
+      "pop"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://kisskissitalia.it/wp-content/uploads/2021/07/cropped-favicon-kisskissitalia-180x180.png",
+    "votes": 6623,
+    "clickCount": 1182,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9629d012-0601-11e8-ae97-52543be04c81",
+    "name": "Kiss FM 87.6, 87.8 & 88.0 Melbourne, VIC",
+    "description": "dance,electronica,melbourne",
+    "streamUrl": "http://cc.net2streams.com:8565/kissfm.mp3",
+    "streamUrls": [
+      "http://cc.net2streams.com:8565/kissfm.mp3",
+      "http://cc.net2streams.com:8565/kissfm.mp3"
+    ],
+    "website": "https://kissfm.com.au/",
+    "genres": [
+      "dance",
+      "electronica",
+      "melbourne"
+    ],
+    "country": "Australia",
+    "countryCode": "AU",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6596,
+    "clickCount": 443,
+    "lastCheckOk": true
+  },
+  {
+    "id": "48ca9396-9e19-11e9-a787-52543be04c81",
+    "name": "Virgin Radio Rock Ballads",
+    "description": "ballads,mediaset",
+    "streamUrl": "http://icy.unitedradio.it/Virgin_06.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/Virgin_06.mp3",
+      "http://icy.unitedradio.it/Virgin_06.mp3"
+    ],
+    "website": "https://www.virginradio.it/sezioni/2015/virgin-radio-rock-ballads",
+    "genres": [
+      "ballads",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6585,
+    "clickCount": 964,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962a73d1-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - High Voltage Radio",
+    "description": "alternative rock,metal,rock",
+    "streamUrl": "http://strm112.1.fm/highvoltage_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/highvoltage_mobile_mp3",
+      "http://strm112.1.fm/highvoltage_mobile_mp3"
+    ],
+    "website": "http://www.1.fm/",
+    "genres": [
+      "alternative rock",
+      "metal",
+      "rock"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6561,
+    "clickCount": 392,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960ebc25-0601-11e8-ae97-52543be04c81",
+    "name": "Reggae Radio Rastamusic.com",
+    "description": "reggae",
+    "streamUrl": "http://origin-rastamusic.streamguys1.com/rastamusic.mp3",
+    "streamUrls": [
+      "http://origin-rastamusic.streamguys1.com/rastamusic.mp3",
+      "http://ais.rastamusic.com/rastamusic.mp3.m3u"
+    ],
+    "website": "http://www.rastamusic.com/",
+    "genres": [
+      "reggae"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://static.wixstatic.com/media/a09246_33fe4aef6e5f4f17b605a8d8645ff015%7emv2.png/v1/fill/w_32%2ch_32%2clg_1%2cusm_0.66_1.00_0.01/a09246_33fe4aef6e5f4f17b605a8d8645ff015%7emv2.png",
+    "votes": 6534,
+    "clickCount": 543,
+    "lastCheckOk": true
+  },
+  {
+    "id": "2b85feeb-2fb3-4144-af8e-d1df0b5d686b",
+    "name": "Absolute Chillout",
+    "description": "",
+    "streamUrl": "http://edge4.peta.live365.net/b05055_128mp3",
+    "streamUrls": [
+      "http://edge4.peta.live365.net/b05055_128mp3",
+      "http://edge4.peta.live365.net/b05055_128mp3"
+    ],
+    "website": "http://www.absolutechillout.com/",
+    "genres": [],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.absolutechillout.com/favicon.ico",
+    "votes": 6453,
+    "clickCount": 2406,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960beb61-0601-11e8-ae97-52543be04c81",
+    "name": "R101 FM",
+    "description": "adult contemporary,mediaset,pop",
+    "streamUrl": "http://icecast.unitedradio.it/r101",
+    "streamUrls": [
+      "http://icecast.unitedradio.it/r101",
+      "http://icecast.unitedradio.it/r101"
+    ],
+    "website": "http://www.r101.it/",
+    "genres": [
+      "adult contemporary",
+      "mediaset",
+      "pop"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "95",
+    "codec": "AAC+",
+    "favicon": "http://www.r101.it/favicon_7.ico?v=1722509814243",
+    "votes": 6424,
+    "clickCount": 1808,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d88c0d24-adb2-11e9-88f4-52543be04c81",
+    "name": "Radio Paradise Mellow Mix 320k AAC",
+    "description": "california,alternative,eclectic,mellow,free,internet,non-commercial",
+    "streamUrl": "http://stream.radioparadise.com/mellow-320",
+    "streamUrls": [
+      "http://stream.radioparadise.com/mellow-320",
+      "http://stream.radioparadise.com/mellow-320"
+    ],
+    "website": "https://radioparadise.com/",
+    "genres": [
+      "california",
+      "alternative",
+      "eclectic",
+      "mellow",
+      "free"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "AAC",
+    "favicon": "https://radioparadise.com/apple-touch-icon.png",
+    "votes": 6373,
+    "clickCount": 2855,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3098a58b-5e2d-4ed4-8eb9-a38791bcec64",
+    "name": "Yoga Chill",
+    "description": "meditation,spiritual,yoga,zen",
+    "streamUrl": "http://178.32.111.41:8027/stream-128kmp3-YogaChill",
+    "streamUrls": [
+      "http://178.32.111.41:8027/stream-128kmp3-YogaChill",
+      "http://178.32.111.41:8027/stream-128kmp3-YogaChill"
+    ],
+    "website": "https://www.vip-radios.fm/station/yoga-chill/",
+    "genres": [
+      "meditation",
+      "spiritual",
+      "yoga",
+      "zen"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.vip-radios.fm/favicon.ico",
+    "votes": 6288,
+    "clickCount": 1546,
+    "lastCheckOk": true
+  },
+  {
+    "id": "88740aa4-085b-4158-a863-6d92d2129daa",
+    "name": "Nostalgie New York",
+    "description": "60s,70s,80s,90s,classic hits,classic rock,disco,music,nostalgie,pop,rock and roll,smooth jazz,world music,worlds best classic hits",
+    "streamUrl": "http://c32.radioboss.fm:8139/stream",
+    "streamUrls": [
+      "http://c32.radioboss.fm:8139/stream",
+      "http://c32.radioboss.fm:8139/stream"
+    ],
+    "website": "https://nstlgy.com/",
+    "genres": [
+      "60s",
+      "70s",
+      "80s",
+      "90s",
+      "classic hits"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://demigod-assets.sgp1.cdn.digitaloceanspaces.com/landingpages/fatcai/faviconcai.webp",
+    "votes": 6263,
+    "clickCount": 1551,
+    "lastCheckOk": true
+  },
+  {
+    "id": "034d52a3-30dc-4017-8495-004cd65383b1",
+    "name": "RTL2",
+    "description": "pop,rock",
+    "streamUrl": "http://streamer-02.rtl.fr/rtl2-1-44-128",
+    "streamUrls": [
+      "http://streamer-02.rtl.fr/rtl2-1-44-128",
+      "http://streamer-02.rtl.fr/rtl2-1-44-128"
+    ],
+    "website": "https://www.rtl2.fr/",
+    "genres": [
+      "pop",
+      "rock"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://upload.wikimedia.org/wikipedia/fr/5/51/RTL2.png",
+    "votes": 6213,
+    "clickCount": 5256,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3e2183ea-6fa4-40ec-93b3-887ce68ae67a",
+    "name": "SMOOTH JAZZ 24/7",
+    "description": "easy listening,jazz,smooth jazz",
+    "streamUrl": "http://jking.cdnstream1.com/b75154_128mp3",
+    "streamUrls": [
+      "http://jking.cdnstream1.com/b75154_128mp3",
+      "http://www.smoothjazz247.com/smoothjazz24-7.m3u"
+    ],
+    "website": "http://www.smoothjazz247.com/",
+    "genres": [
+      "easy listening",
+      "jazz",
+      "smooth jazz"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6202,
+    "clickCount": 2773,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9612308f-0601-11e8-ae97-52543be04c81",
+    "name": "Frisky Deep",
+    "description": "new york city",
+    "streamUrl": "http://deep.friskyradio.com/friskydeep_aachi",
+    "streamUrls": [
+      "http://deep.friskyradio.com/friskydeep_aachi",
+      "http://deep.friskyradio.com/friskydeep_aachi"
+    ],
+    "website": "https://www.friskyradio.com/",
+    "genres": [
+      "new york city"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "96",
+    "codec": "MP3",
+    "favicon": "https://s3.amazonaws.com/media.friskyradio.com/favicon.png",
+    "votes": 6193,
+    "clickCount": 777,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962d9407-0601-11e8-ae97-52543be04c81",
+    "name": "1980s.FM",
+    "description": "80s,classic hits,classic rock,richmond",
+    "streamUrl": "http://hi5.1980s.fm/;stream.mp3",
+    "streamUrls": [
+      "http://hi5.1980s.fm/;stream.mp3",
+      "http://hi5.1980s.fm/;stream.mp3"
+    ],
+    "website": "http://1980s.fm/",
+    "genres": [
+      "80s",
+      "classic hits",
+      "classic rock",
+      "richmond"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6189,
+    "clickCount": 649,
+    "lastCheckOk": true
+  },
+  {
+    "id": "ceb6b3af-3bfb-4135-bace-9fa6fac9e8ac",
+    "name": "metal rock radio",
+    "description": "classic rock,metal,rock",
+    "streamUrl": "https://kathy.torontocast.com:2800/;",
+    "streamUrls": [
+      "https://kathy.torontocast.com:2800/;",
+      "https://kathy.torontocast.com:2800/;"
+    ],
+    "website": "http://www.metalrock.fm/",
+    "genres": [
+      "classic rock",
+      "metal",
+      "rock"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6172,
+    "clickCount": 1842,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96162e74-0601-11e8-ae97-52543be04c81",
+    "name": "France Musique | Classique Easy",
+    "description": "classic,classical",
+    "streamUrl": "http://icecast.radiofrance.fr/francemusiqueeasyclassique-midfi.mp3",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/francemusiqueeasyclassique-midfi.mp3",
+      "http://direct.francemusique.fr/live/francemusiqueeasyclassique-hifi.mp3"
+    ],
+    "website": "https://www.francemusique.fr/webradio-classique-easy/",
+    "genres": [
+      "classic",
+      "classical"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6151,
+    "clickCount": 592,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c550de06-48be-11e8-b1b0-52543be04c81",
+    "name": "Hot 108 JAMZ",
+    "description": "rap hiphop rnb",
+    "streamUrl": "http://sc.hot108.com:4000/",
+    "streamUrls": [
+      "http://sc.hot108.com:4000/",
+      "http://sc.hot108.com:4000/"
+    ],
+    "website": "http://hot108.com/",
+    "genres": [
+      "rap hiphop rnb"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 6127,
+    "clickCount": 449,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9605ec6a-0601-11e8-ae97-52543be04c81",
+    "name": "WDR 2 Rheinland",
+    "description": "music,news,talk",
+    "streamUrl": "http://f121.rndfnk.com/ard/wdr/wdr2/rheinland/mp3/128/stream.mp3?cid=01FBS03TJ7KW307WSY5W0W4NYB&sid=34oxNyQUMBs8hut54hltuOxcV3p&token=Wo8CzDmPq41m_6iycFBFGQM4MBTV5M16QtZ_w1mGjk8&tvf=y_Y61J6UcxhmMTIxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://f121.rndfnk.com/ard/wdr/wdr2/rheinland/mp3/128/stream.mp3?cid=01FBS03TJ7KW307WSY5W0W4NYB&sid=34oxNyQUMBs8hut54hltuOxcV3p&token=Wo8CzDmPq41m_6iycFBFGQM4MBTV5M16QtZ_w1mGjk8&tvf=y_Y61J6UcxhmMTIxLnJuZGZuay5jb20",
+      "http://wdr-wdr2-rheinland.icecast.wdr.de/wdr/wdr2/rheinland/mp3/128/stream.mp3"
+    ],
+    "website": "https://www1.wdr.de/radio/wdr2/",
+    "genres": [
+      "music",
+      "news",
+      "talk"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www1.wdr.de/resources-v5.139.1/img/favicon/apple-touch-icon.png",
+    "votes": 6102,
+    "clickCount": 5973,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96135476-0601-11e8-ae97-52543be04c81",
+    "name": "Generations Rap U.S",
+    "description": "",
+    "streamUrl": "http://generationfm-underground.ice.infomaniak.ch/generationfm-underground-high.mp3",
+    "streamUrls": [
+      "http://generationfm-underground.ice.infomaniak.ch/generationfm-underground-high.mp3",
+      "http://generationfm-underground.ice.infomaniak.ch/generationfm-underground-high.mp3"
+    ],
+    "website": "http://generations.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://generations.fr/apple-touch-icon-120x120.png",
+    "votes": 6005,
+    "clickCount": 372,
+    "lastCheckOk": true
+  },
+  {
+    "id": "33d17f6d-df26-4524-8e55-79acfc796ac7",
+    "name": "BBC Afrique Radio",
+    "description": "africa,afrique,news,talk",
+    "streamUrl": "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_afrique_radio.m3u8",
+    "streamUrls": [
+      "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_afrique_radio.m3u8",
+      "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_afrique_radio.m3u8"
+    ],
+    "website": "https://www.bbc.com/afrique/bbc_afrique_radio/liveradio",
+    "genres": [
+      "africa",
+      "afrique",
+      "news",
+      "talk"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english,french",
+    "bitrate": "101",
+    "codec": "AAC+",
+    "favicon": "https://static.files.bbci.co.uk/ws/simorgh-assets/public/afrique/images/icons/icon-128x128.png",
+    "votes": 5980,
+    "clickCount": 501,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0eb3dbcf-05f7-480e-83f4-7718102a4820",
+    "name": "SmoothJazz.com 128k mp3",
+    "description": "monterey,smooth jazz",
+    "streamUrl": "https://smoothjazz.cdnstream1.com/2585_128.mp3",
+    "streamUrls": [
+      "https://smoothjazz.cdnstream1.com/2585_128.mp3",
+      "https://smoothjazz.cdnstream1.com/2585_128.mp3"
+    ],
+    "website": "https://www.smoothjazz.com/",
+    "genres": [
+      "monterey",
+      "smooth jazz"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.smoothjazz.com/sites/default/files/theme/sj-circle-logo.png",
+    "votes": 5950,
+    "clickCount": 490,
+    "lastCheckOk": true
+  },
+  {
+    "id": "8a41b60c-f115-11e8-a471-52543be04c81",
+    "name": "- 0 N - 80s on Radio",
+    "description": "80er,80s,oldies,pop",
+    "streamUrl": "https://0n-80s.radionetz.de/0n-80s.mp3",
+    "streamUrls": [
+      "https://0n-80s.radionetz.de/0n-80s.mp3",
+      "https://0n-80s.radionetz.de/0n-80s.mp3"
+    ],
+    "website": "http://www.0nradio.com/",
+    "genres": [
+      "80er",
+      "80s",
+      "oldies",
+      "pop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.0nradio.com/logos/0n-80s_600x600.jpg",
+    "votes": 5918,
+    "clickCount": 2772,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9c3f1676-9445-4d72-b4da-d3a1c4847b91",
+    "name": "Deutschrap",
+    "description": "deutscher hip-hop,deutschrap,german rap,hip-hop,hiphop,rap",
+    "streamUrl": "http://deutschrap.stream.laut.fm/deutschrap?t302=2025-10-31_02-09-22&uuid=6f61f93e-2827-4c40-986d-d10c6cdee576",
+    "streamUrls": [
+      "http://deutschrap.stream.laut.fm/deutschrap?t302=2025-10-31_02-09-22&uuid=6f61f93e-2827-4c40-986d-d10c6cdee576",
+      "http://stream.laut.fm/deutschrap"
+    ],
+    "website": "https://laut.fm/deutschrap",
+    "genres": [
+      "deutscher hip-hop",
+      "deutschrap",
+      "german rap",
+      "hip-hop",
+      "hiphop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5861,
+    "clickCount": 1523,
+    "lastCheckOk": true
+  },
+  {
+    "id": "21ef0997-adba-46c7-a2e1-03e3130bd5ad",
+    "name": "法国国际广播电台",
+    "description": "",
+    "streamUrl": "https://rfienchinois64k.ice.infomaniak.ch/rfienchinois-64.mp3",
+    "streamUrls": [
+      "https://rfienchinois64k.ice.infomaniak.ch/rfienchinois-64.mp3",
+      "https://rfienchinois64k.ice.infomaniak.ch/rfienchinois-64.mp3"
+    ],
+    "website": "",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5849,
+    "clickCount": 5222,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962c02bc-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Ibiza",
+    "description": "dance,electronica,napoli",
+    "streamUrl": "https://kisskiss.fluidstream.eu/ibiza.mp3",
+    "streamUrls": [
+      "https://kisskiss.fluidstream.eu/ibiza.mp3",
+      "http://wma08.fluidstream.net:5010/;stream.aac"
+    ],
+    "website": "http://www.radioibiza.it/",
+    "genres": [
+      "dance",
+      "electronica",
+      "napoli"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://radioibiza.it/wp-content/uploads/2021/07/cropped-favicon-ibiza-180x180.png",
+    "votes": 5849,
+    "clickCount": 1717,
+    "lastCheckOk": true
+  },
+  {
+    "id": "fd200b5d-0137-4a87-8afc-3275da795c2a",
+    "name": "VOA Learning English",
+    "description": "learn english,learn language",
+    "streamUrl": "https://voa-ingest.akamaized.net/hls/live/2035234/160_342L/playlist.m3u8",
+    "streamUrls": [
+      "https://voa-ingest.akamaized.net/hls/live/2035234/160_342L/playlist.m3u8",
+      "https://voa-ingest.akamaized.net/hls/live/2035234/160_342L/playlist.m3u8"
+    ],
+    "website": "http://www.voanews.com/t/60.html",
+    "genres": [
+      "learn english",
+      "learn language"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "140",
+    "codec": "AAC",
+    "favicon": "http://www.voanews.com/content/responsive/voa/img/webapp/ico-128x128.png",
+    "votes": 5833,
+    "clickCount": 1079,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961e719c-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - True Blues",
+    "description": "blues,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-blues_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-blues_128k.mp3",
+      "http://www.181.fm/stream/pls/181-blues.pls"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "blues",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 5808,
+    "clickCount": 799,
+    "lastCheckOk": true
+  },
+  {
+    "id": "de39fc19-0636-4d05-acbb-2aba2c0d1f7a",
+    "name": "LOS40 Classic",
+    "description": "pop rock",
+    "streamUrl": "https://25253.live.streamtheworld.com:443/LOS40_CLASSIC.mp3",
+    "streamUrls": [
+      "https://25253.live.streamtheworld.com:443/LOS40_CLASSIC.mp3",
+      "https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_CLASSIC.mp3"
+    ],
+    "website": "https://play.los40.com/emisora/los40_classic/",
+    "genres": [
+      "pop rock"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://los40es00.epimg.net/estaticos/recursosgraficos/v1/img/app/los40_192.png",
+    "votes": 5750,
+    "clickCount": 4148,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9608c0e3-0601-11e8-ae97-52543be04c81",
+    "name": "MDR Aktuell",
+    "description": "information,news",
+    "streamUrl": "http://d121.rndfnk.com/ard/mdr/284340/0/mp3/128/stream.mp3?cid=01FBQ0YDVBJASPQAE887W5S4DZ&sid=34oE6hT5npLs9b903bfDBlfmrvz&token=Y0aONPh9QJKgB4KamABX4WyWvU_EEOsfJi08Tq8HpOY&tvf=6dHun02AcxhkMTIxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://d121.rndfnk.com/ard/mdr/284340/0/mp3/128/stream.mp3?cid=01FBQ0YDVBJASPQAE887W5S4DZ&sid=34oE6hT5npLs9b903bfDBlfmrvz&token=Y0aONPh9QJKgB4KamABX4WyWvU_EEOsfJi08Tq8HpOY&tvf=6dHun02AcxhkMTIxLnJuZGZuay5jb20",
+      "http://avw.mdr.de/streams/284340-0_mp3_high.m3u"
+    ],
+    "website": "http://mdraktuell.de/",
+    "genres": [
+      "information",
+      "news"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn.mdr.de/resources/global/img/mdrde/favicons/apple-icon-120x120.png",
+    "votes": 5731,
+    "clickCount": 5406,
+    "lastCheckOk": true
+  },
+  {
+    "id": "d61e880e-e8f0-11e9-a96c-52543be04c81",
+    "name": "Radio Paradise Main Mix 128 AAC",
+    "description": "california,eclectic,free,internet,non-commercial,paradise,radio",
+    "streamUrl": "http://stream.radioparadise.com/aac-128",
+    "streamUrls": [
+      "http://stream.radioparadise.com/aac-128",
+      "http://stream.radioparadise.com/aac-128"
+    ],
+    "website": "https://radioparadise.com/",
+    "genres": [
+      "california",
+      "eclectic",
+      "free",
+      "internet",
+      "non-commercial"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://radioparadise.com/apple-touch-icon.png",
+    "votes": 5724,
+    "clickCount": 2141,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96056147-0601-11e8-ae97-52543be04c81",
+    "name": "Hit Radio FFH",
+    "description": "pop,top 40",
+    "streamUrl": "http://mp3.ffh.de/radioffh/hqlivestream.mp3",
+    "streamUrls": [
+      "http://mp3.ffh.de/radioffh/hqlivestream.mp3",
+      "http://mp3.ffh.de/radioffh/hqlivestream.mp3"
+    ],
+    "website": "http://www.ffh.de/",
+    "genres": [
+      "pop",
+      "top 40"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.ffh.de/android-icon.png",
+    "votes": 5722,
+    "clickCount": 3516,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961f33a8-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Viva FM",
+    "description": "adult contemporary,entertainment,gavardo",
+    "streamUrl": "http://stream2.vivafm.it:8002/stream",
+    "streamUrls": [
+      "http://stream2.vivafm.it:8002/stream",
+      "http://stream2.vivafm.it:8002/stream"
+    ],
+    "website": "http://www.vivafm.it/",
+    "genres": [
+      "adult contemporary",
+      "entertainment",
+      "gavardo"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://cdn-radiotime-logos.tunein.com/s63968q.png",
+    "votes": 5704,
+    "clickCount": 282,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96154a1e-0601-11e8-ae97-52543be04c81",
+    "name": "Total instrumental",
+    "description": "ambient,dance,electronic,instrumental",
+    "streamUrl": "http://total-instrumental.stream.laut.fm/total-instrumental?t302=2025-10-31_04-34-12&uuid=f48ee540-6628-405f-bf9a-738359500a55",
+    "streamUrls": [
+      "http://total-instrumental.stream.laut.fm/total-instrumental?t302=2025-10-31_04-34-12&uuid=f48ee540-6628-405f-bf9a-738359500a55",
+      "http://stream.laut.fm/total-instrumental"
+    ],
+    "website": "http://www.radio-total-instrumental.de/",
+    "genres": [
+      "ambient",
+      "dance",
+      "electronic",
+      "instrumental"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5637,
+    "clickCount": 529,
+    "lastCheckOk": true
+  },
+  {
+    "id": "45aedebf-bf75-11e9-8502-52543be04c81",
+    "name": "Houston Blues Radio",
+    "description": "blues",
+    "streamUrl": "http://edge3.peta.live365.net/b76353_128mp3",
+    "streamUrls": [
+      "http://edge3.peta.live365.net/b76353_128mp3",
+      "http://edge3.peta.live365.net/b76353_128mp3"
+    ],
+    "website": "http://www.houstonbluesradio.net/",
+    "genres": [
+      "blues"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5631,
+    "clickCount": 1664,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96392f40-0601-11e8-ae97-52543be04c81",
+    "name": "talkSPORT 2",
+    "description": "speech,sport",
+    "streamUrl": "http://radio.talksport.com/stream2?awparams=platform:ts-web&amsparams=playerid:ts-web;",
+    "streamUrls": [
+      "http://radio.talksport.com/stream2?awparams=platform:ts-web&amsparams=playerid:ts-web;",
+      "http://radio.talksport.com/stream2?awparams=platform:ts-web&amsparams=playerid:ts-web;"
+    ],
+    "website": "http://talksport.com/",
+    "genres": [
+      "speech",
+      "sport"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5624,
+    "clickCount": 643,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9615dc04-0601-11e8-ae97-52543be04c81",
+    "name": "Antenne Bayern - Classic Rock Live (MP3)",
+    "description": "classic rock",
+    "streamUrl": "http://s3-webradio.antenne.de/classic-rock-live",
+    "streamUrls": [
+      "http://s3-webradio.antenne.de/classic-rock-live",
+      "http://mp3channels.webradio.antenne.de/classic-rock-live"
+    ],
+    "website": "http://www.antenne.de/programm/empfang/antenne-bayern-hoeren-internet",
+    "genres": [
+      "classic rock"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.antenne.de/logos/station-antenne-bayern/apple-touch-icon.png",
+    "votes": 5607,
+    "clickCount": 2298,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9605d022-0601-11e8-ae97-52543be04c81",
+    "name": "Hit Radio FFH - 80er",
+    "description": "80s",
+    "streamUrl": "http://mp3.ffh.de/ffhchannels/hq80er.mp3",
+    "streamUrls": [
+      "http://mp3.ffh.de/ffhchannels/hq80er.mp3",
+      "http://mp3.ffh.de/ffhchannels/hq80er.mp3"
+    ],
+    "website": "http://www.ffh.de/",
+    "genres": [
+      "80s"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5605,
+    "clickCount": 537,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9610ac7f-0601-11e8-ae97-52543be04c81",
+    "name": "Laut.FM 1000 Oldies",
+    "description": "50s,60s,70s,80s,oldies,pop,rock",
+    "streamUrl": "http://1000oldies.stream.laut.fm/1000oldies?t302=2018-01-16_15-40-29&uuid=37780fea-d865-4439-9a4a-66f3ec1715a0",
+    "streamUrls": [
+      "http://1000oldies.stream.laut.fm/1000oldies?t302=2018-01-16_15-40-29&uuid=37780fea-d865-4439-9a4a-66f3ec1715a0",
+      "http://1000oldies.stream.laut.fm/1000oldies?t302=2018-01-16_15-40-29&uuid=37780fea-d865-4439-9a4a-66f3ec1715a0"
+    ],
+    "website": "http://1000oldies.de/",
+    "genres": [
+      "50s",
+      "60s",
+      "70s",
+      "80s",
+      "oldies"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://1000oldies.de/apple-icon-120x120.png",
+    "votes": 5492,
+    "clickCount": 948,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963b8a47-0601-11e8-ae97-52543be04c81",
+    "name": "Calm Radio - Solo Piano",
+    "description": "easy listening,piano",
+    "streamUrl": "http://streams.calmradio.com:1228/",
+    "streamUrls": [
+      "http://streams.calmradio.com:1228/",
+      "http://streams.calmradio.com:1228/"
+    ],
+    "website": "https://www.calmradio.com/",
+    "genres": [
+      "easy listening",
+      "piano"
+    ],
+    "country": "Canada",
+    "countryCode": "CA",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://calmradio.com/templates/calmradio/favicons/apple-touch-icon.png",
+    "votes": 5474,
+    "clickCount": 835,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9627dc36-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - Super 70s",
+    "description": "70s,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-70s_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-70s_128k.mp3",
+      "http://www.181.fm/stream/pls/181-70s.pls"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "70s",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 5446,
+    "clickCount": 997,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9614e0a1-0601-11e8-ae97-52543be04c81",
+    "name": "SomaFM Fluid (128k MP3)",
+    "description": "chilled trap,future soul,hiphop,woozy electronica",
+    "streamUrl": "https://ice5.somafm.com/fluid-128-mp3",
+    "streamUrls": [
+      "https://ice5.somafm.com/fluid-128-mp3",
+      "https://somafm.com/fluid.pls"
+    ],
+    "website": "https://somafm.com/fluid/",
+    "genres": [
+      "chilled trap",
+      "future soul",
+      "hiphop",
+      "woozy electronica"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/fluid-400.jpg",
+    "votes": 5419,
+    "clickCount": 477,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960567ca-0601-11e8-ae97-52543be04c81",
+    "name": "Hit Radio FFH - Eurodance",
+    "description": "eurodance",
+    "streamUrl": "http://mp3.ffh.de/ffhchannels/hqeurodance.mp3",
+    "streamUrls": [
+      "http://mp3.ffh.de/ffhchannels/hqeurodance.mp3",
+      "http://streams.ffh.de/ffhchannels/mp3/hqeurodance.m3u"
+    ],
+    "website": "http://www.ffh.de/",
+    "genres": [
+      "eurodance"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5381,
+    "clickCount": 468,
+    "lastCheckOk": true
+  },
+  {
+    "id": "eb0e95f5-5c36-48dc-9ed0-954039186465",
+    "name": "France Musique La Baroque",
+    "description": "aac,classical,public radio,radio france",
+    "streamUrl": "http://icecast.radiofrance.fr/francemusiquebaroque-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/francemusiquebaroque-hifi.aac",
+      "http://icecast.radiofrance.fr/francemusiquebaroque-hifi.aac"
+    ],
+    "website": "https://www.francemusique.fr/radios-thematiques/la-baroque",
+    "genres": [
+      "aac",
+      "classical",
+      "public radio",
+      "radio france"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "",
+    "votes": 5367,
+    "clickCount": 1681,
+    "lastCheckOk": true
+  },
+  {
+    "id": "f428a295-760d-11ea-b1cf-52543be04c81",
+    "name": "ITALIA Italia 70",
+    "description": "70s,italian,mediaset",
+    "streamUrl": "https://icy.unitedradio.it/um020.mp3",
+    "streamUrls": [
+      "https://icy.unitedradio.it/um020.mp3",
+      "https://icy.unitedradio.it/um020.mp3"
+    ],
+    "website": "http://www.unitedmusic.it/",
+    "genres": [
+      "70s",
+      "italian",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5362,
+    "clickCount": 1024,
+    "lastCheckOk": true
+  },
+  {
+    "id": "283402b5-dc2e-11e9-a8ba-52543be04c81",
+    "name": "Heart UK",
+    "description": "adult contemporary,national,pop,public radio,variety",
+    "streamUrl": "http://media-ice.musicradio.com/HeartUKMP3",
+    "streamUrls": [
+      "http://media-ice.musicradio.com/HeartUKMP3",
+      "http://media-ice.musicradio.com/HeartUKMP3"
+    ],
+    "website": "https://www.heart.co.uk/",
+    "genres": [
+      "adult contemporary",
+      "national",
+      "pop",
+      "public radio",
+      "variety"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5320,
+    "clickCount": 2354,
+    "lastCheckOk": true
+  },
+  {
+    "id": "07dbb40c-f3a8-4f45-925d-c16ef08c7293",
+    "name": "Radio Marca Madrid",
+    "description": "sports",
+    "streamUrl": "https://23543.live.streamtheworld.com:443/RADIOMARCA_NACIONAL_SC",
+    "streamUrls": [
+      "https://23543.live.streamtheworld.com:443/RADIOMARCA_NACIONAL_SC",
+      "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIOMARCA_NACIONAL_SC"
+    ],
+    "website": "https://www.marca.com/radio.html",
+    "genres": [
+      "sports"
+    ],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "spanish",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5312,
+    "clickCount": 1395,
+    "lastCheckOk": true
+  },
+  {
+    "id": "510aeeac-e7a0-41c2-aea2-e572e811ffe7",
+    "name": "Fox News Radio",
+    "description": "news",
+    "streamUrl": "https://prod-3-237-99-86.amperwave.net/foxnewsradio-foxnewsradioaac-imc?session-id=5c599d6cb96b5cec0c7e85ee7e2b12f6&source=fnr.web",
+    "streamUrls": [
+      "https://prod-3-237-99-86.amperwave.net/foxnewsradio-foxnewsradioaac-imc?session-id=5c599d6cb96b5cec0c7e85ee7e2b12f6&source=fnr.web",
+      "https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc?source=fnr.web"
+    ],
+    "website": "https://radio.foxnews.com/",
+    "genres": [
+      "news"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "american english",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://static.foxnews.com/radio.foxnews.com/content/uploads/2017/10/default_logo-150x150.png",
+    "votes": 5304,
+    "clickCount": 11081,
+    "lastCheckOk": true
+  },
+  {
+    "id": "ce18872f-ed72-4ac7-a93e-07ae3fe7b40b",
+    "name": "Music Lake - Relaxation Music, Meditation, Focus, Chill, Nature Sounds",
+    "description": "",
+    "streamUrl": "http://nap.casthost.net:8626/stream",
+    "streamUrls": [
+      "http://nap.casthost.net:8626/stream",
+      "http://nap.casthost.net:8626/stream"
+    ],
+    "website": "https://musiclake.com/",
+    "genres": [],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "https://musiclake.com/wp-content/uploads/cropped-musiclake-lg-180x180.png",
+    "votes": 5185,
+    "clickCount": 670,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962864bb-0601-11e8-ae97-52543be04c81",
+    "name": "RMC Buddha-Bar",
+    "description": "mediaset,mood",
+    "streamUrl": "http://edge.radiomontecarlo.net/rmcweb002",
+    "streamUrls": [
+      "http://edge.radiomontecarlo.net/rmcweb002",
+      "http://edge.radiomontecarlo.net/rmcweb002"
+    ],
+    "website": "http://www.radiomontecarlo.net/",
+    "genres": [
+      "mediaset",
+      "mood"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5183,
+    "clickCount": 801,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9628e770-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Kiss Kiss Hits",
+    "description": "hits",
+    "streamUrl": "http://ice08.fluidstream.net/kk_hits.aac",
+    "streamUrls": [
+      "http://ice08.fluidstream.net/kk_hits.aac",
+      "http://ice08.fluidstream.net/kk_hits.aac"
+    ],
+    "website": "http://www.kisskiss.it/radio/webradio/kiss-kiss-hits.html",
+    "genres": [
+      "hits"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://kisskiss.it/wp-content/uploads/2021/03/cropped-favicon-kisskiss-180x180.png",
+    "votes": 5155,
+    "clickCount": 768,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9610a8e7-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio Electro Swing",
+    "description": "electro,jazz,swing",
+    "streamUrl": "http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3",
+    "streamUrls": [
+      "http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3",
+      "http://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/radio/webradio/17/electro-swing",
+    "genres": [
+      "electro",
+      "jazz",
+      "swing"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 5108,
+    "clickCount": 554,
+    "lastCheckOk": true
+  },
+  {
+    "id": "ae6a44a0-2ae6-421f-b66b-d2700c8f92e8",
+    "name": "CLASSIC HITS RADIO Italia",
+    "description": "1970s,1980s,70's,70s,70s disco,80,80's,80s,classic hits",
+    "streamUrl": "https://classichitsradio.streamingmedia.it/play",
+    "streamUrls": [
+      "https://classichitsradio.streamingmedia.it/play",
+      "https://classichitsradio.streamingmedia.it/play"
+    ],
+    "website": "http://classichits.radio/italy/",
+    "genres": [
+      "1970s",
+      "1980s",
+      "70's",
+      "70s",
+      "70s disco"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "english,italian",
+    "bitrate": "192",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 5065,
+    "clickCount": 1798,
+    "lastCheckOk": true
+  },
+  {
+    "id": "51895bd4-f369-11e8-a471-52543be04c81",
+    "name": "- 0 N - Indie on Radio",
+    "description": "alternative,electro,hip hop,indie,rock",
+    "streamUrl": "https://0n-indie.radionetz.de/0n-indie.mp3",
+    "streamUrls": [
+      "https://0n-indie.radionetz.de/0n-indie.mp3",
+      "https://0n-indie.radionetz.de/0n-indie.mp3"
+    ],
+    "website": "http://www.0nradio.com/",
+    "genres": [
+      "alternative",
+      "electro",
+      "hip hop",
+      "indie",
+      "rock"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.0nradio.com/logos/0n-indie_600x600.jpg",
+    "votes": 5031,
+    "clickCount": 680,
+    "lastCheckOk": true
+  },
+  {
+    "id": "963beab0-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Arabella München",
+    "description": "hits,music,oldies,public radio,rock",
+    "streamUrl": "http://edge06.stream.radioarabella.de/radioarabella-muenchen/stream/mp3?ref=radioarabella.de&aggregator=RDs24_rs26_stream24_net",
+    "streamUrls": [
+      "http://edge06.stream.radioarabella.de/radioarabella-muenchen/stream/mp3?ref=radioarabella.de&aggregator=RDs24_rs26_stream24_net",
+      "http://rs26.stream24.net/stream?ref=radioarabella.de"
+    ],
+    "website": "https://www.radioarabella.de/",
+    "genres": [
+      "hits",
+      "music",
+      "oldies",
+      "public radio",
+      "rock"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.radioarabella.de/storage/thumbs/192x192/r:1658501906/788381.png",
+    "votes": 5028,
+    "clickCount": 1267,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9628397e-0601-11e8-ae97-52543be04c81",
+    "name": "Radio 105 - HipHop & RnB",
+    "description": "hiphop,mediaset,rnb",
+    "streamUrl": "http://icy.unitedradio.it/105HipHopRnB.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/105HipHopRnB.mp3",
+      "http://icy.unitedradio.it/105HipHopRnB.mp3"
+    ],
+    "website": "http://www.105.net/",
+    "genres": [
+      "hiphop",
+      "mediaset",
+      "rnb"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 5028,
+    "clickCount": 320,
+    "lastCheckOk": true
+  },
+  {
+    "id": "8f1e8acf-2ce6-4542-a423-bc29ea514e4a",
+    "name": "__TRANCE__ by rautemusik (rm.fm)",
+    "description": "electro,electro house,electronic,hits,progressive psytrance,progressive trance,psytrance,trance,vocal trance",
+    "streamUrl": "https://rautemusik.stream43.radiohost.de/trance?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxODQyNDkzJmQ9YzhlZDBiY2M2Zjc2MTdiODY2NjU",
+    "streamUrls": [
+      "https://rautemusik.stream43.radiohost.de/trance?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxODQyNDkzJmQ9YzhlZDBiY2M2Zjc2MTdiODY2NjU",
+      "https://trance-high.rautemusik.fm/?ref=radiobrowser"
+    ],
+    "website": "https://www.rm.fm/trance",
+    "genres": [
+      "electro",
+      "electro house",
+      "electronic",
+      "hits",
+      "progressive psytrance"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "english,german",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.rm.fm/favicon.ico",
+    "votes": 4999,
+    "clickCount": 2189,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960536e6-0601-11e8-ae97-52543be04c81",
+    "name": "MDR Klassik",
+    "description": "classical",
+    "streamUrl": "http://d131.rndfnk.com/ard/mdr/284350/0/mp3/128/stream.mp3?cid=01FBQ09PR39341DRRYP1TNBHVH&sid=34ohzClKAR5U8oca7venj3BKGL7&token=EzDkZozg7j8yQ7IiuZAjuwbepV_NEJb5beuMNVeFM50&tvf=7m3A17WNcxhkMTMxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://d131.rndfnk.com/ard/mdr/284350/0/mp3/128/stream.mp3?cid=01FBQ09PR39341DRRYP1TNBHVH&sid=34ohzClKAR5U8oca7venj3BKGL7&token=EzDkZozg7j8yQ7IiuZAjuwbepV_NEJb5beuMNVeFM50&tvf=7m3A17WNcxhkMTMxLnJuZGZuay5jb20",
+      "http://avw.mdr.de/streams/284350-0_mp3_high.m3u"
+    ],
+    "website": "http://mdrklassik.de/",
+    "genres": [
+      "classical"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn.mdr.de/resources/global/img/mdrde/favicons/apple-icon-120x120.png",
+    "votes": 4979,
+    "clickCount": 1190,
+    "lastCheckOk": true
+  },
+  {
+    "id": "143caaf5-1354-442b-bc83-3bae08aa45c7",
+    "name": "0nlineradio SOFT ROCK",
+    "description": "70s soft rock,80s soft rock,pop rock,rock,rock'n'roll,soft rock",
+    "streamUrl": "https://0nlineradio.stream42.radiohost.de/0r-soft-rock?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxOTAyNjcwJmQ9NGM4Y2M2NzYwMzEyMTAzOTQzOWY",
+    "streamUrls": [
+      "https://0nlineradio.stream42.radiohost.de/0r-soft-rock?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxOTAyNjcwJmQ9NGM4Y2M2NzYwMzEyMTAzOTQzOWY",
+      "https://stream.0nlineradio.com/soft-rock?ref=radiobrowser"
+    ],
+    "website": "https://0nlineradio.com/",
+    "genres": [
+      "70s soft rock",
+      "80s soft rock",
+      "pop rock",
+      "rock",
+      "rock'n'roll"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "english,german",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://i.ibb.co/SJFG3bt/soft-rock.jpg",
+    "votes": 4976,
+    "clickCount": 493,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961756e4-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Kiss Kiss",
+    "description": "adult contemporary,pop",
+    "streamUrl": "http://ice08.fluidstream.net:8080/KissKiss.mp3",
+    "streamUrls": [
+      "http://ice08.fluidstream.net:8080/KissKiss.mp3",
+      "http://players.fluidstream.net/kisskissnetwork.pls"
+    ],
+    "website": "http://www.kisskiss.it/",
+    "genres": [
+      "adult contemporary",
+      "pop"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://kisskiss.it/wp-content/uploads/2022/07/cropped-favicon-new-kisskiss-180x180.png",
+    "votes": 4965,
+    "clickCount": 1690,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962867e2-0601-11e8-ae97-52543be04c81",
+    "name": "RMC Love Songs",
+    "description": "love songs,mediaset,soft adult contemporary,soft music",
+    "streamUrl": "http://edge.radiomontecarlo.net/rmcweb006",
+    "streamUrls": [
+      "http://edge.radiomontecarlo.net/rmcweb006",
+      "http://edge.radiomontecarlo.net/rmcweb006"
+    ],
+    "website": "http://www.radiomontecarlo.net/",
+    "genres": [
+      "love songs",
+      "mediaset",
+      "soft adult contemporary",
+      "soft music"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4948,
+    "clickCount": 241,
+    "lastCheckOk": true
+  },
+  {
+    "id": "3aea1a2f-4468-4b1c-9d84-f9a99fd52303",
+    "name": "Loca FM Deep Techno",
+    "description": "",
+    "streamUrl": "http://s02.fjperezdj.com:8066/live",
+    "streamUrls": [
+      "http://s02.fjperezdj.com:8066/live",
+      "http://s02.fjperezdj.com:8066/live"
+    ],
+    "website": "https://www.locafm.com/deep-techno/player.html",
+    "genres": [],
+    "country": "Spain",
+    "countryCode": "ES",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4915,
+    "clickCount": 616,
+    "lastCheckOk": true
+  },
+  {
+    "id": "def842a8-e3aa-11e8-a9cc-52543be04c81",
+    "name": "BEST SMOOTH JAZZ - UK",
+    "description": "",
+    "streamUrl": "http://64.95.243.43:8002/stream",
+    "streamUrls": [
+      "http://64.95.243.43:8002/stream",
+      "http://64.95.243.43:8002/listen.pls?sid=1"
+    ],
+    "website": "http://bestsmoothjazz.com/",
+    "genres": [],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4914,
+    "clickCount": 742,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9638a3a5-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - 90's Country",
+    "description": "90s,country,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-90scountry_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-90scountry_128k.mp3",
+      "http://www.181.fm/stream/pls/181-90scountry.pls"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "90s",
+      "country",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 4908,
+    "clickCount": 646,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5b48d259-27f5-11e8-91bf-52543be04c81",
+    "name": "i love radio - hip hop turnup",
+    "description": "hiphop,rap,trap",
+    "streamUrl": "http://ilm.stream12.radiohost.de/ilm_iloveusonlyrapradio_mp3-192?upd-meta&upd-scheme=http&_art=dD0xNzYxODY4OTAyJmQ9MTc0OTk3N2JiMjM0ZjVhNDVhMDI",
+    "streamUrls": [
+      "http://ilm.stream12.radiohost.de/ilm_iloveusonlyrapradio_mp3-192?upd-meta&upd-scheme=http&_art=dD0xNzYxODY4OTAyJmQ9MTc0OTk3N2JiMjM0ZjVhNDVhMDI",
+      "http://stream02.iloveradio.de/iloveradio13.mp3?hadpreroll"
+    ],
+    "website": "https://www.iloveradio.de/",
+    "genres": [
+      "hiphop",
+      "rap",
+      "trap"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://www.iloveradio.de/favicon.ico",
+    "votes": 4902,
+    "clickCount": 512,
+    "lastCheckOk": true
+  },
+  {
+    "id": "801f1ac1-7cf1-4fe6-befc-cce8a9263d9c",
+    "name": "100hitz - Top 40",
+    "description": "top 40,us",
+    "streamUrl": "http://pureplay.cdnstream1.com/6025_128.mp3?DIST=TuneIn&TGT=TuneIn&maxServers=2&gdpr=0&us_privacy=1YNY&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzMzk1NTI4MSwiaXNzIjoidGlzcnYifQ.cUMfsrk262BNjQXnfXkKBefQOqoRn2nweLrx5obNPhM",
+    "streamUrls": [
+      "http://pureplay.cdnstream1.com/6025_128.mp3?DIST=TuneIn&TGT=TuneIn&maxServers=2&gdpr=0&us_privacy=1YNY&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzMzk1NTI4MSwiaXNzIjoidGlzcnYifQ.cUMfsrk262BNjQXnfXkKBefQOqoRn2nweLrx5obNPhM",
+      "http://pureplay.cdnstream1.com/6025_128.mp3?DIST=TuneIn&TGT=TuneIn&maxServers=2&gdpr=0&us_privacy=1YNY&partnertok=eyJhbGciOiJIUzI1NiIsImtpZCI6InR1bmVpbiIsInR5cCI6IkpXVCJ9.eyJ0cnVzdGVkX3BhcnRuZXIiOnRydWUsImlhdCI6MTYzMzk1NTI4MSwiaXNzIjoidGlzcnYifQ.cUMfsrk262BNjQXnfXkKBefQOqoRn2nweLrx5obNPhM"
+    ],
+    "website": "https://100hitz.com/",
+    "genres": [
+      "top 40",
+      "us"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://100hitz.com/favicon.ico",
+    "votes": 4831,
+    "clickCount": 1253,
+    "lastCheckOk": true
+  },
+  {
+    "id": "b342f658-2726-11e8-91bf-52543be04c81",
+    "name": "Techno.FM",
+    "description": "techno",
+    "streamUrl": "http://stream.techno.fm/radio.mp3",
+    "streamUrls": [
+      "http://stream.techno.fm/radio.mp3",
+      "http://stream.techno.fm/radio.mp3"
+    ],
+    "website": "https://techno.fm/",
+    "genres": [
+      "techno"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://techno.fm/favicon.ico",
+    "votes": 4800,
+    "clickCount": 783,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9648702b-0601-11e8-ae97-52543be04c81",
+    "name": "NDR Info (Hamburg)",
+    "description": "culture,information,kultur,local news,news,regional",
+    "streamUrl": "http://f131.rndfnk.com/ard/ndr/ndrinfo/hamburg/mp3/128/ct/stream.mp3?cid=01FBQ2FR04JVDRRM969ZTAMZNK&sid=34p3G9LO1xfpc2vQ05Ucn0J0D33&token=ywX1RlHNDrq73RYn20aNwa-GPRdEEKO4MDiVdCXBlkc&tvf=sO_qlEGXcxhmMTMxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://f131.rndfnk.com/ard/ndr/ndrinfo/hamburg/mp3/128/ct/stream.mp3?cid=01FBQ2FR04JVDRRM969ZTAMZNK&sid=34p3G9LO1xfpc2vQ05Ucn0J0D33&token=ywX1RlHNDrq73RYn20aNwa-GPRdEEKO4MDiVdCXBlkc&tvf=sO_qlEGXcxhmMTMxLnJuZGZuay5jb20",
+      "http://www.ndr.de/resources/metadaten/audio/m3u/ndrinfo_hh.m3u"
+    ],
+    "website": "https://www.ndr.de/info/",
+    "genres": [
+      "culture",
+      "information",
+      "kultur",
+      "local news",
+      "news"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.ndr.de/apple-touch-icon-120x120.png",
+    "votes": 4786,
+    "clickCount": 4110,
+    "lastCheckOk": true
+  },
+  {
+    "id": "701106b9-59e3-11ea-be63-52543be04c81",
+    "name": "SomaFM Heavyweight Reggae (256k MP3)",
+    "description": "reggae,rocksteady,roots reggae,ska",
+    "streamUrl": "https://ice2.somafm.com/reggae-256-mp3",
+    "streamUrls": [
+      "https://ice2.somafm.com/reggae-256-mp3",
+      "https://somafm.com/reggae256.pls"
+    ],
+    "website": "https://somafm.com/reggae/",
+    "genres": [
+      "reggae",
+      "rocksteady",
+      "roots reggae",
+      "ska"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://somafm.com/img3/reggae400.jpg",
+    "votes": 4778,
+    "clickCount": 2550,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962b764a-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Country Live New York",
+    "description": "country,new york city,rsl",
+    "streamUrl": "https://streaming.radiostreamlive.com/radiocountrylive_devices",
+    "streamUrls": [
+      "https://streaming.radiostreamlive.com/radiocountrylive_devices",
+      "https://streaming.radiostreamlive.com/radiocountrylive_devices"
+    ],
+    "website": "http://www.radiocountrylive.com/",
+    "genres": [
+      "country",
+      "new york city",
+      "rsl"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://cdn-elements.radiostreamlive.com/v1/images/favicon.ico",
+    "votes": 4757,
+    "clickCount": 333,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c8887-0601-11e8-ae97-52543be04c81",
+    "name": "NDR Info (Schleswig-Holstein)",
+    "description": "culture,information,kultur,local news,news,regional",
+    "streamUrl": "http://f121.rndfnk.com/ard/ndr/ndrinfo/schleswigholstein/mp3/128/ct/stream.mp3?cid=01FBRKFCQW5GDTM5HACNT0KJPB&sid=34oQU7NDXlppVgPNAzwFVIyizN2&token=DKKNNNGmxZa-r93gwddL6WVqLZl-CNSvmNeoShSRfAs&tvf=WrE1kduFcxhmMTIxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://f121.rndfnk.com/ard/ndr/ndrinfo/schleswigholstein/mp3/128/ct/stream.mp3?cid=01FBRKFCQW5GDTM5HACNT0KJPB&sid=34oQU7NDXlppVgPNAzwFVIyizN2&token=DKKNNNGmxZa-r93gwddL6WVqLZl-CNSvmNeoShSRfAs&tvf=WrE1kduFcxhmMTIxLnJuZGZuay5jb20",
+      "http://www.ndr.de/resources/metadaten/audio/m3u/ndrinfo_sh.m3u"
+    ],
+    "website": "http://www.ndr.de/info/",
+    "genres": [
+      "culture",
+      "information",
+      "kultur",
+      "local news",
+      "news"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.ndr.de/favicon.ico",
+    "votes": 4736,
+    "clickCount": 623,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9628a3bb-0601-11e8-ae97-52543be04c81",
+    "name": "2000 FM - Country",
+    "description": "country",
+    "streamUrl": "http://bigrradio.cdnstream1.com/5103_128",
+    "streamUrls": [
+      "http://bigrradio.cdnstream1.com/5103_128",
+      "http://bigrradio.cdnstream1.com/5103_128"
+    ],
+    "website": "http://www.2000fm.net/",
+    "genres": [
+      "country"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://2000fm.net/images/logo.png",
+    "votes": 4728,
+    "clickCount": 325,
+    "lastCheckOk": true
+  },
+  {
+    "id": "47edfaf4-1cc8-4e2f-abe4-79083162ef57",
+    "name": "intra Nature Radio - Meditation, Nature Sounds, Relaxation, Spa and Sleep Music",
+    "description": "",
+    "streamUrl": "http://nap.casthost.net:8793/stream",
+    "streamUrls": [
+      "http://nap.casthost.net:8793/stream",
+      "http://nap.casthost.net:8793/stream"
+    ],
+    "website": "http://intranature.com/",
+    "genres": [],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "64",
+    "codec": "MP3",
+    "favicon": "http://intranature.com/favicon.ico",
+    "votes": 4721,
+    "clickCount": 1577,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961bd688-0601-11e8-ae97-52543be04c81",
+    "name": "Different Drumz DnB Radio",
+    "description": "",
+    "streamUrl": "http://andromeda.shoutca.st:8031/",
+    "streamUrls": [
+      "http://andromeda.shoutca.st:8031/",
+      "http://andromeda.shoutca.st:8031/"
+    ],
+    "website": "http://www.differentdrumz.co.uk/",
+    "genres": [],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "http://www.differentdrumz.co.uk/wp-content/uploads/fbrfg/apple-touch-icon-114x114.png",
+    "votes": 4710,
+    "clickCount": 2229,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c7d36378-4637-11e9-aa55-52543be04c81",
+    "name": "WDR4",
+    "description": "",
+    "streamUrl": "http://d131.rndfnk.com/ard/wdr/wdr4/live/mp3/128/stream.mp3?cid=01FBS0CPYNPWV23HTXYQE8R7AR&sid=34oqYM7UxpnbBDZeWN9cTnuLxLK&token=jPKO209ybVIkCweH3kGn8aSMtQreJiMb_DHg9_UXIrg&tvf=c0EOBY6RcxhkMTMxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://d131.rndfnk.com/ard/wdr/wdr4/live/mp3/128/stream.mp3?cid=01FBS0CPYNPWV23HTXYQE8R7AR&sid=34oqYM7UxpnbBDZeWN9cTnuLxLK&token=jPKO209ybVIkCweH3kGn8aSMtQreJiMb_DHg9_UXIrg&tvf=c0EOBY6RcxhkMTMxLnJuZGZuay5jb20",
+      "http://wdr-wdr4-live.icecast.wdr.de/wdr/wdr4/live/mp3/128/stream.mp3"
+    ],
+    "website": "https://www1.wdr.de/radio/wdr4/index.html",
+    "genres": [],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www1.wdr.de/resources/img/favicon/apple-touch-icon.png",
+    "votes": 4697,
+    "clickCount": 3947,
+    "lastCheckOk": true
+  },
+  {
+    "id": "e5b81ad3-bb7d-41a5-a3d3-0f715434778e",
+    "name": "Megarock Radio 320k",
+    "description": "classic rock,hard rock,metal,requests",
+    "streamUrl": "https://stream3.megarockradio.net:80/",
+    "streamUrls": [
+      "https://stream3.megarockradio.net:80/",
+      "https://stream3.megarockradio.net:80/"
+    ],
+    "website": "https://megarockradio.net/",
+    "genres": [
+      "classic rock",
+      "hard rock",
+      "metal",
+      "requests"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "320",
+    "codec": "MP3",
+    "favicon": "https://megarockradio.net/favicon.ico",
+    "votes": 4693,
+    "clickCount": 2466,
+    "lastCheckOk": true
+  },
+  {
+    "id": "62bfcbb9-0503-11e9-a1be-52543be04c81",
+    "name": "1Mix Radio Trance",
+    "description": "club,trance",
+    "streamUrl": "http://fr2.1mix.co.uk:8000/192",
+    "streamUrls": [
+      "http://fr2.1mix.co.uk:8000/192",
+      "http://1mix.co.uk/trance/listenh.m3u"
+    ],
+    "website": "http://www.1mix.co.uk/",
+    "genres": [
+      "club",
+      "trance"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "http://www.1mix.co.uk/favicon.ico",
+    "votes": 4690,
+    "clickCount": 533,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9625c394-0601-11e8-ae97-52543be04c81",
+    "name": "1.FM - Bay Smooth Jazz Radio",
+    "description": "smooth jazz",
+    "streamUrl": "http://strm112.1.fm/smoothjazz_mobile_mp3",
+    "streamUrls": [
+      "http://strm112.1.fm/smoothjazz_mobile_mp3",
+      "http://strm112.1.fm/smoothjazz_mobile_mp3"
+    ],
+    "website": "http://www.1.fm/",
+    "genres": [
+      "smooth jazz"
+    ],
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4678,
+    "clickCount": 1263,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9606311c-0601-11e8-ae97-52543be04c81",
+    "name": "Kiss FM (de Saint-Tropez à Monaco)",
+    "description": "",
+    "streamUrl": "http://kissfm.ice.infomaniak.ch/kissfm-128.mp3",
+    "streamUrls": [
+      "http://kissfm.ice.infomaniak.ch/kissfm-128.mp3",
+      "http://kissfm.ice.infomaniak.ch/kissfm-128.mp3"
+    ],
+    "website": "http://www.kissfm.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "http://www.kissfm.fr/wp-content/uploads/2023/09/apple-touch-icon.png",
+    "votes": 4667,
+    "clickCount": 228,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9615de2d-0601-11e8-ae97-52543be04c81",
+    "name": "Antenne Bayern - Top 40",
+    "description": "top 40",
+    "streamUrl": "http://s1-webradio.antenne.de/top-40",
+    "streamUrls": [
+      "http://s1-webradio.antenne.de/top-40",
+      "http://mp3channels.webradio.antenne.de/top-40"
+    ],
+    "website": "http://www.antenne.de/programm/empfang/antenne-bayern-hoeren-internet",
+    "genres": [
+      "top 40"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.antenne.de/logos/station-antenne-bayern/apple-touch-icon.png",
+    "votes": 4579,
+    "clickCount": 1327,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960ecc44-0601-11e8-ae97-52543be04c81",
+    "name": "Generations Rap FR Gold",
+    "description": "",
+    "streamUrl": "http://gene-wr06.ice.infomaniak.ch/gene-wr06.mp3",
+    "streamUrls": [
+      "http://gene-wr06.ice.infomaniak.ch/gene-wr06.mp3",
+      "http://gene-wr06.ice.infomaniak.ch/gene-wr06.mp3"
+    ],
+    "website": "http://generations.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://generations.fr/apple-touch-icon-120x120.png",
+    "votes": 4579,
+    "clickCount": 272,
+    "lastCheckOk": true
+  },
+  {
+    "id": "4330ada4-1c36-4d39-9608-21753718c481",
+    "name": "Radio Yar Live",
+    "description": "",
+    "streamUrl": "http://192.34.153.102:8000/RadioYAR.mp3",
+    "streamUrls": [
+      "http://192.34.153.102:8000/RadioYAR.mp3",
+      "http://192.34.153.102:8000/RadioYAR.mp3"
+    ],
+    "website": "http://www.radioyar.com/",
+    "genres": [],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://radioyar.com/wp-content/uploads/2022/05/cropped-logo-black-2x-2-150x150.png",
+    "votes": 4556,
+    "clickCount": 128,
+    "lastCheckOk": true
+  },
+  {
+    "id": "cc0fdbe3-a2fb-4f0a-b67d-b47acd6354c7",
+    "name": "Technolovers DEEP HOUSE",
+    "description": "deep house,electro house,electronic,elektro,elektronik,house,progressive house,vocal house",
+    "streamUrl": "https://0nlineradio.stream13.radiohost.de/technolovers-deep-house?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxODg5NTQ5JmQ9M2NmMjFmMDFlMzZiNmJkNWI3MTU",
+    "streamUrls": [
+      "https://0nlineradio.stream13.radiohost.de/technolovers-deep-house?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxODg5NTQ5JmQ9M2NmMjFmMDFlMzZiNmJkNWI3MTU",
+      "https://stream.technolovers.fm/deep-house?ref=radiobrowser"
+    ],
+    "website": "https://technolovers.fm/",
+    "genres": [
+      "deep house",
+      "electro house",
+      "electronic",
+      "elektro",
+      "elektronik"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "english,german",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4538,
+    "clickCount": 808,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6217a525-f2c2-11e8-a471-52543be04c81",
+    "name": "- 0 N - 90s on Radio",
+    "description": "90er,90s,dance,oldies,pop,rock",
+    "streamUrl": "https://0n-90s.radionetz.de/0n-90s.mp3",
+    "streamUrls": [
+      "https://0n-90s.radionetz.de/0n-90s.mp3",
+      "https://0n-90s.radionetz.de/0n-90s.mp3"
+    ],
+    "website": "http://www.0nradio.com/",
+    "genres": [
+      "90er",
+      "90s",
+      "dance",
+      "oldies",
+      "pop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.0nradio.com/logos/0n-90s_600x600.jpg",
+    "votes": 4532,
+    "clickCount": 1249,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5facce98-2f87-11e8-91bf-52543be04c81",
+    "name": "Today's Hot Country",
+    "description": "classic country,grand rapids,new country",
+    "streamUrl": "http://ice.stream101.com:9016/stream",
+    "streamUrls": [
+      "http://ice.stream101.com:9016/stream",
+      "http://ice.stream101.com:9016/stream"
+    ],
+    "website": "https://www.todayshotcountry.com/",
+    "genres": [
+      "classic country",
+      "grand rapids",
+      "new country"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.todayshotcountry.com/wp-content/uploads/2016/10/cropped-siteicon-180x180.png",
+    "votes": 4515,
+    "clickCount": 666,
+    "lastCheckOk": true
+  },
+  {
+    "id": "fc4319aa-3c6a-4111-9529-dee11d079981",
+    "name": "BBC Arabic Radio",
+    "description": "arabic,news,talk",
+    "streamUrl": "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_arabic_radio.m3u8",
+    "streamUrls": [
+      "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_arabic_radio.m3u8",
+      "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_arabic_radio.m3u8"
+    ],
+    "website": "https://www.bbc.com/arabic/bbc_arabic_radio/liveradio",
+    "genres": [
+      "arabic",
+      "news",
+      "talk"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "arabic,english",
+    "bitrate": "101",
+    "codec": "AAC+",
+    "favicon": "https://static.files.bbci.co.uk/ws/simorgh-assets/public/arabic/images/icons/icon-128x128.png",
+    "votes": 4466,
+    "clickCount": 606,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960b364a-0601-11e8-ae97-52543be04c81",
+    "name": "98.8 Kiss FM",
+    "description": "hits,pop",
+    "streamUrl": "http://topradio.stream31.radiohost.de/kissfm_mp3-128?agend=true&upd-meta&upd-scheme=http&ref=internetradio&amsparams=internetradio&_art=dD0xNzYxODc0MTQ0JmQ9YWNmN2YxOTg5ZTlhNDM2NDE2OTA",
+    "streamUrls": [
+      "http://topradio.stream31.radiohost.de/kissfm_mp3-128?agend=true&upd-meta&upd-scheme=http&ref=internetradio&amsparams=internetradio&_art=dD0xNzYxODc0MTQ0JmQ9YWNmN2YxOTg5ZTlhNDM2NDE2OTA",
+      "http://stream.kissfm.de/kissfm/mp3-128/internetradio/"
+    ],
+    "website": "https://www.kissfm.de/",
+    "genres": [
+      "hits",
+      "pop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://upload.kissfm.de/production/static/1699276434696/icons/icon_64.be8y2280000.png",
+    "votes": 4458,
+    "clickCount": 1212,
+    "lastCheckOk": true
+  },
+  {
+    "id": "1e006e64-024e-4c04-96e5-c80559a92e96",
+    "name": "..mohammed_ayyub",
+    "description": "classical",
+    "streamUrl": "https://qurango.net/radio/mohammed_ayyub",
+    "streamUrls": [
+      "https://qurango.net/radio/mohammed_ayyub",
+      "https://qurango.net/radio/mohammed_ayyub"
+    ],
+    "website": "",
+    "genres": [
+      "classical"
+    ],
+    "country": "Islamic Republic Of Iran",
+    "countryCode": "IR",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4445,
+    "clickCount": 1037,
+    "lastCheckOk": true
+  },
+  {
+    "id": "2dffb353-5341-4438-b67b-83de8c3efbab",
+    "name": "RFM",
+    "description": "",
+    "streamUrl": "https://rfm.lmn.fm/rfm.mp3",
+    "streamUrls": [
+      "https://rfm.lmn.fm/rfm.mp3",
+      "http://stream.rfm.fr/rfm.mp3"
+    ],
+    "website": "http://www.rfm.fr/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://cdn-rfm.lanmedia.fr/apple-touch-icon-120x120.png",
+    "votes": 4361,
+    "clickCount": 6336,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96102634-0601-11e8-ae97-52543be04c81",
+    "name": "Latina",
+    "description": "latin",
+    "streamUrl": "http://start-latina.ice.infomaniak.ch/start-latina-high.mp3",
+    "streamUrls": [
+      "http://start-latina.ice.infomaniak.ch/start-latina-high.mp3",
+      "http://start-latina.ice.infomaniak.ch/start-latina-high.mp3"
+    ],
+    "website": "http://www.latina.fr/",
+    "genres": [
+      "latin"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://bocir-prod-bucket.s3.eu-west-1.amazonaws.com/radios/latina/images/favicon.ico",
+    "votes": 4352,
+    "clickCount": 537,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96135b8e-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio Soul",
+    "description": "soul",
+    "streamUrl": "http://jazz-wr10.ice.infomaniak.ch/jazz-wr10-128.mp3",
+    "streamUrls": [
+      "http://jazz-wr10.ice.infomaniak.ch/jazz-wr10-128.mp3",
+      "http://jazz-wr10.ice.infomaniak.ch/jazz-wr10-128.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/radio/webradio/13/soul",
+    "genres": [
+      "soul"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 4334,
+    "clickCount": 1238,
+    "lastCheckOk": true
+  },
+  {
+    "id": "50071895-eda0-407d-ac37-08b4c157e1d7",
+    "name": "Bob's Ska Radio",
+    "description": "punk,reggae,rocksteady,ska",
+    "streamUrl": "http://51.255.235.165:5528/stream",
+    "streamUrls": [
+      "http://51.255.235.165:5528/stream",
+      "https://www.bobskaradio.com/playlist.pls"
+    ],
+    "website": "https://www.bobskaradio.com/",
+    "genres": [
+      "punk",
+      "reggae",
+      "rocksteady",
+      "ska"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 4333,
+    "clickCount": 315,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96177334-0601-11e8-ae97-52543be04c81",
+    "name": "Beur FM",
+    "description": "",
+    "streamUrl": "http://beurfm.ice.infomaniak.ch/beurfm-high.mp3",
+    "streamUrls": [
+      "http://beurfm.ice.infomaniak.ch/beurfm-high.mp3",
+      "http://broadcast.infomaniak.ch/beurfm-high.mp3"
+    ],
+    "website": "http://www.beurfm.net/",
+    "genres": [],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.beurfm.net/favicon.ico",
+    "votes": 4301,
+    "clickCount": 331,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9e3b0f8e-95d3-11e9-a605-52543be04c81",
+    "name": "NDR 2",
+    "description": "pop",
+    "streamUrl": "https://d121.rndfnk.com/ard/ndr/ndr2/niedersachsen/mp3/128/stream.mp3?cid=01FBQ2CWDYWJHGF4QAJ0SVV730&sid=34oTKYcUyjBtXg1RrqSsySIfH7p&token=bTgR9jFVV5pKRU1ftBA_KMJ8sYYR2XV4U8S09luVQpM&tvf=OI42dyKHcxhkMTIxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "https://d121.rndfnk.com/ard/ndr/ndr2/niedersachsen/mp3/128/stream.mp3?cid=01FBQ2CWDYWJHGF4QAJ0SVV730&sid=34oTKYcUyjBtXg1RrqSsySIfH7p&token=bTgR9jFVV5pKRU1ftBA_KMJ8sYYR2XV4U8S09luVQpM&tvf=OI42dyKHcxhkMTIxLnJuZGZuay5jb20",
+      "https://www.ndr.de/resources/metadaten/audio_ssl/m3u/ndr2.m3u"
+    ],
+    "website": "https://www.ndr.de/ndr2/index.html",
+    "genres": [
+      "pop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.ndr.de//apple-touch-icon-57x57.png",
+    "votes": 4283,
+    "clickCount": 5843,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96176f80-0601-11e8-ae97-52543be04c81",
+    "name": "Acid Jazz Radio",
+    "description": "acid,acid jazz,dance",
+    "streamUrl": "http://acidjazz.stream.laut.fm/acidjazz?t302=2025-10-31_02-17-13&uuid=93658c04-eb3a-4c21-8252-7bc1ba723271",
+    "streamUrls": [
+      "http://acidjazz.stream.laut.fm/acidjazz?t302=2025-10-31_02-17-13&uuid=93658c04-eb3a-4c21-8252-7bc1ba723271",
+      "http://stream.laut.fm/acidjazz"
+    ],
+    "website": "http://www.acid-jazz-radio.de/",
+    "genres": [
+      "acid",
+      "acid jazz",
+      "dance"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4278,
+    "clickCount": 365,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6b527198-4c4e-42bd-aa1b-56d538e504d7",
+    "name": ". quran",
+    "description": "classical",
+    "streamUrl": "https://backup.qurango.net/radio/ahmad_khader_altarabulsi",
+    "streamUrls": [
+      "https://backup.qurango.net/radio/ahmad_khader_altarabulsi",
+      "https://backup.qurango.net/radio/ahmad_khader_altarabulsi"
+    ],
+    "website": "",
+    "genres": [
+      "classical"
+    ],
+    "country": "Yemen",
+    "countryCode": "YE",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4253,
+    "clickCount": 1245,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96352604-0601-11e8-ae97-52543be04c81",
+    "name": "Radio Paloma",
+    "description": "schlager",
+    "streamUrl": "http://icepool.silvacast.com/RADIOPALOMA.mp3",
+    "streamUrls": [
+      "http://icepool.silvacast.com/RADIOPALOMA.mp3",
+      "http://icepool.silvacast.com/RADIOPALOMA.mp3"
+    ],
+    "website": "http://www.radiopaloma.de/",
+    "genres": [
+      "schlager"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://schlager.radio/wp-content/uploads/2020/11/cropped-radio-paloma-fav-180x180.png",
+    "votes": 4249,
+    "clickCount": 1699,
+    "lastCheckOk": true
+  },
+  {
+    "id": "84764bda-eb7e-11e9-a96c-52543be04c81",
+    "name": "FIP Reggae",
+    "description": "aac,public radio,radio france,reggae",
+    "streamUrl": "http://icecast.radiofrance.fr/fipreggae-hifi.aac",
+    "streamUrls": [
+      "http://icecast.radiofrance.fr/fipreggae-hifi.aac",
+      "http://icecast.radiofrance.fr/fipreggae-hifi.aac"
+    ],
+    "website": "https://www.fip.fr/reggae/webradio",
+    "genres": [
+      "aac",
+      "public radio",
+      "radio france",
+      "reggae"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "192",
+    "codec": "AAC",
+    "favicon": "https://www.fip.fr/dist/favicons/logo-120.png",
+    "votes": 4233,
+    "clickCount": 2437,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961590f9-0601-11e8-ae97-52543be04c81",
+    "name": "Antenne Bayern - Oldies but Goldies",
+    "description": "70s,oldies",
+    "streamUrl": "http://s5-webradio.antenne.de/oldie-antenne",
+    "streamUrls": [
+      "http://s5-webradio.antenne.de/oldie-antenne",
+      "http://mp3channels.webradio.antenne.de/oldies-but-goldies"
+    ],
+    "website": "http://www.antenne.de/programm/empfang/antenne-bayern-hoeren-internet",
+    "genres": [
+      "70s",
+      "oldies"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4218,
+    "clickCount": 1781,
+    "lastCheckOk": true
+  },
+  {
+    "id": "961e7e8c-0601-11e8-ae97-52543be04c81",
+    "name": "Radio 105 - Zoo Radio",
+    "description": "comedy,mediaset,talk",
+    "streamUrl": "http://icy.unitedradio.it/105Zoo.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/105Zoo.mp3",
+      "http://icy.unitedradio.it/105Zoo.mp3"
+    ],
+    "website": "http://www.105.net/",
+    "genres": [
+      "comedy",
+      "mediaset",
+      "talk"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4183,
+    "clickCount": 345,
+    "lastCheckOk": true
+  },
+  {
+    "id": "962c7032-0601-11e8-ae97-52543be04c81",
+    "name": "Italia Dance Music",
+    "description": "dance,electronica,genova,house",
+    "streamUrl": "http://sr2.inmystream.info:8032/stream",
+    "streamUrls": [
+      "http://sr2.inmystream.info:8032/stream",
+      "http://sr2.inmystream.info:8032/listen.pls"
+    ],
+    "website": "http://www.italiadancemusic.com/",
+    "genres": [
+      "dance",
+      "electronica",
+      "genova",
+      "house"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "96",
+    "codec": "AAC+",
+    "favicon": "http://www.italiadancemusic.com/it/themes/corporate_lite/favicon.ico",
+    "votes": 4173,
+    "clickCount": 572,
+    "lastCheckOk": true
+  },
+  {
+    "id": "389011a1-3a96-11e9-9b4e-52543be04c81",
+    "name": "- 0 N - Smooth Jazz on Radio",
+    "description": "chillout,easy listening,jazz,smooth,smoothjazz",
+    "streamUrl": "https://0n-smoothjazz.radionetz.de/0n-smoothjazz.aac",
+    "streamUrls": [
+      "https://0n-smoothjazz.radionetz.de/0n-smoothjazz.aac",
+      "https://0n-smoothjazz.radionetz.de/0n-smoothjazz.aac"
+    ],
+    "website": "http://www.0nradio.com/",
+    "genres": [
+      "chillout",
+      "easy listening",
+      "jazz",
+      "smooth",
+      "smoothjazz"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://www.0nradio.com/logos/0n-smooth-jazz_600x600.jpg",
+    "votes": 4128,
+    "clickCount": 2757,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0e2e2f4a-c8aa-11e9-8502-52543be04c81",
+    "name": "Rai Radio Classica Filodiffusione",
+    "description": "classical,classical music,rai",
+    "streamUrl": "http://icecdn-19d24861e90342cc8decb03c24c8a419.msvdn.net/icecastRelay/S53422322/bTdUFhYMnnra/icecast",
+    "streamUrls": [
+      "http://icecdn-19d24861e90342cc8decb03c24c8a419.msvdn.net/icecastRelay/S53422322/bTdUFhYMnnra/icecast",
+      "http://icestreaming.rai.it/5.mp3"
+    ],
+    "website": "https://www.raiplayradio.it/radioclassica/",
+    "genres": [
+      "classical",
+      "classical music",
+      "rai"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "256",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4124,
+    "clickCount": 1082,
+    "lastCheckOk": true
+  },
+  {
+    "id": "96135c57-0601-11e8-ae97-52543be04c81",
+    "name": "Jazz Radio Piano Jazz",
+    "description": "jazz,piano",
+    "streamUrl": "http://jzr-piano.ice.infomaniak.ch/jzr-piano.mp3",
+    "streamUrls": [
+      "http://jzr-piano.ice.infomaniak.ch/jzr-piano.mp3",
+      "http://jzr-piano.ice.infomaniak.ch/jzr-piano.mp3"
+    ],
+    "website": "http://www.jazzradio.fr/radio/webradio/38/piano-jazz",
+    "genres": [
+      "jazz",
+      "piano"
+    ],
+    "country": "France",
+    "countryCode": "FR",
+    "language": "french",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.jazzradio.fr/apple-touch-icon-120x120.png",
+    "votes": 4117,
+    "clickCount": 568,
+    "lastCheckOk": true
+  },
+  {
+    "id": "c229f726-760d-11ea-b1cf-52543be04c81",
+    "name": "ITALIA Italia 80",
+    "description": "80s,italian,mediaset",
+    "streamUrl": "https://icy.unitedradio.it/um016.mp3",
+    "streamUrls": [
+      "https://icy.unitedradio.it/um016.mp3",
+      "https://icy.unitedradio.it/um016.mp3"
+    ],
+    "website": "http://www.unitedmusic.it/",
+    "genres": [
+      "80s",
+      "italian",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4111,
+    "clickCount": 541,
+    "lastCheckOk": true
+  },
+  {
+    "id": "0df85b66-7ef3-4e16-9283-2dc113a956dd",
+    "name": "Labgate - Progressive Rock",
+    "description": "progressive rock",
+    "streamUrl": "https://s2.ssl-stream.com/radio/8180/radio.mp3",
+    "streamUrls": [
+      "https://s2.ssl-stream.com/radio/8180/radio.mp3",
+      "https://s2.ssl-stream.com/radio/8180/radio.mp3"
+    ],
+    "website": "https://labgateradio.com/accueil/progressive-rock/",
+    "genres": [
+      "progressive rock"
+    ],
+    "country": "Canada",
+    "countryCode": "CA",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4083,
+    "clickCount": 344,
+    "lastCheckOk": true
+  },
+  {
+    "id": "be9dcb42-f365-11e8-a471-52543be04c81",
+    "name": "- 0 N - Chillout on Radio",
+    "description": "ambient,chillout,easy listening,electro",
+    "streamUrl": "https://0n-chillout.radionetz.de/0n-chillout.aac",
+    "streamUrls": [
+      "https://0n-chillout.radionetz.de/0n-chillout.aac",
+      "https://0n-chillout.radionetz.de/0n-chillout.aac"
+    ],
+    "website": "http://www.0nradio.com/",
+    "genres": [
+      "ambient",
+      "chillout",
+      "easy listening",
+      "electro"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "64",
+    "codec": "AAC+",
+    "favicon": "https://www.0nradio.com/logos/0n-chillout_600x600.jpg",
+    "votes": 4082,
+    "clickCount": 1989,
+    "lastCheckOk": true
+  },
+  {
+    "id": "cc527ea6-060f-4fe8-b31a-cad732ff7d3e",
+    "name": "ICI Radio-Canada Première Montréal",
+    "description": "news,talk",
+    "streamUrl": "https://rcavliveaudio.akamaized.net/hls/live/2006635/P-2QMTL0_MTL/playlist.m3u8",
+    "streamUrls": [
+      "https://rcavliveaudio.akamaized.net/hls/live/2006635/P-2QMTL0_MTL/playlist.m3u8",
+      "https://rcavliveaudio.akamaized.net/hls/live/2006635/P-2QMTL0_MTL/playlist.m3u8"
+    ],
+    "website": "https://ici.radio-canada.ca/premiere",
+    "genres": [
+      "news",
+      "talk"
+    ],
+    "country": "Canada",
+    "countryCode": "CA",
+    "language": "",
+    "bitrate": "128",
+    "codec": "AAC",
+    "favicon": "https://ici.radio-canada.ca/favicon.ico",
+    "votes": 4082,
+    "clickCount": 1813,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960eb9c7-0601-11e8-ae97-52543be04c81",
+    "name": "GAYFM",
+    "description": "dance,pop",
+    "streamUrl": "http://streaming.silvacast.com/GAYFM.mp3",
+    "streamUrls": [
+      "http://streaming.silvacast.com/GAYFM.mp3",
+      "http://stream.gayfm.de/"
+    ],
+    "website": "http://www.gayfm.de/",
+    "genres": [
+      "dance",
+      "pop"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.gayfm.de/favicon.png",
+    "votes": 4037,
+    "clickCount": 985,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960a6167-0601-11e8-ae97-52543be04c81",
+    "name": "1000 Discohits",
+    "description": "70s,80s,dance,disco,oldies",
+    "streamUrl": "http://1000discohits.stream.laut.fm/1000discohits?t302=2025-10-31_06-38-18&uuid=fd57dab4-265e-498c-98e9-aec37347fdd6",
+    "streamUrls": [
+      "http://1000discohits.stream.laut.fm/1000discohits?t302=2025-10-31_06-38-18&uuid=fd57dab4-265e-498c-98e9-aec37347fdd6",
+      "http://stream.laut.fm/1000discohits"
+    ],
+    "website": "http://1000discohits.de/",
+    "genres": [
+      "70s",
+      "80s",
+      "dance",
+      "disco",
+      "oldies"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 4010,
+    "clickCount": 633,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9639c07d-0601-11e8-ae97-52543be04c81",
+    "name": "NDR Info (Niedersachsen)",
+    "description": "cultural news,culture,information,kultur,local news,news,regional",
+    "streamUrl": "http://d141.rndfnk.com/ard/ndr/ndrinfo/niedersachsen/mp3/128/ct/stream.mp3?cid=01FBRKHKTB73QDVNX7A9RT082R&sid=34oHnM5Ceq9vNMo0xS8hjZfeOAh&token=ah4OyN4bPRLMa8jJR9-1hac0oUtKB99hsJLf5GP2wiE&tvf=EWLdPPWBcxhkMTQxLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://d141.rndfnk.com/ard/ndr/ndrinfo/niedersachsen/mp3/128/ct/stream.mp3?cid=01FBRKHKTB73QDVNX7A9RT082R&sid=34oHnM5Ceq9vNMo0xS8hjZfeOAh&token=ah4OyN4bPRLMa8jJR9-1hac0oUtKB99hsJLf5GP2wiE&tvf=EWLdPPWBcxhkMTQxLnJuZGZuay5jb20",
+      "http://www.ndr.de/resources/metadaten/audio/m3u/ndrinfo.m3u"
+    ],
+    "website": "https://www.ndr.de/info/",
+    "genres": [
+      "cultural news",
+      "culture",
+      "information",
+      "kultur",
+      "local news"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "https://www.ndr.de/apple-touch-icon-120x120.png",
+    "votes": 3951,
+    "clickCount": 7039,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6dea6c7d-9b22-4698-889f-e7c34203ee6a",
+    "name": "LOVE.radio Only Love Songs 70s80s90s",
+    "description": "love,love songs,lovesongs,romantic",
+    "streamUrl": "https://loveradio.streamingmedia.it/england",
+    "streamUrls": [
+      "https://loveradio.streamingmedia.it/england",
+      "https://loveradio.streamingmedia.it/england"
+    ],
+    "website": "https://love.radio/",
+    "genres": [
+      "love",
+      "love songs",
+      "lovesongs",
+      "romantic"
+    ],
+    "country": "The United Kingdom Of Great Britain And Northern Ireland",
+    "countryCode": "GB",
+    "language": "english",
+    "bitrate": "192",
+    "codec": "AAC+",
+    "favicon": "",
+    "votes": 3850,
+    "clickCount": 311,
+    "lastCheckOk": true
+  },
+  {
+    "id": "266c9ba9-7fad-11e8-a43d-52543be04c81",
+    "name": "MUSIC STAR Roger Waters - Pink Floyd",
+    "description": "classic rock,mediaset",
+    "streamUrl": "http://icy.unitedradio.it/VirginRogerWaters.mp3",
+    "streamUrls": [
+      "http://icy.unitedradio.it/VirginRogerWaters.mp3",
+      "http://icy.unitedradio.it/VirginRogerWaters.mp3"
+    ],
+    "website": "http://www.virginradio.it/sezioni/1926/music-star-roger-waters-pink-floyd",
+    "genres": [
+      "classic rock",
+      "mediaset"
+    ],
+    "country": "Italy",
+    "countryCode": "IT",
+    "language": "italian",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 3800,
+    "clickCount": 330,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9637d635-0601-11e8-ae97-52543be04c81",
+    "name": "181.FM - 80's HairBand",
+    "description": "80s,hair metal,metal,waynesboro",
+    "streamUrl": "http://listen.181fm.com/181-hairband_128k.mp3",
+    "streamUrls": [
+      "http://listen.181fm.com/181-hairband_128k.mp3",
+      "http://www.181.fm/stream/pls/181-hairband.pls"
+    ],
+    "website": "http://www.181.fm/",
+    "genres": [
+      "80s",
+      "hair metal",
+      "metal",
+      "waynesboro"
+    ],
+    "country": "The United States Of America",
+    "countryCode": "US",
+    "language": "english",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.181.fm/favicon.ico",
+    "votes": 3777,
+    "clickCount": 625,
+    "lastCheckOk": true
+  },
+  {
+    "id": "6058ff93-ee55-407e-9221-c6ad07fd2531",
+    "name": "TechnoBase.FM",
+    "description": "electronic",
+    "streamUrl": "https://listener3.mp3.tb-group.fm/tb.mp3",
+    "streamUrls": [
+      "https://listener3.mp3.tb-group.fm/tb.mp3",
+      "https://listener3.mp3.tb-group.fm/tb.mp3"
+    ],
+    "website": "",
+    "genres": [
+      "electronic"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://cdn.onlineradiobox.com/img/l/0/32040.v12.png",
+    "votes": 3728,
+    "clickCount": 294,
+    "lastCheckOk": true
+  },
+  {
+    "id": "5ea0c406-cc3e-4a36-9a32-37ed4d5a180e",
+    "name": "Technolovers EDM",
+    "description": "club house,dance,edm,electro,electro house,electronic,electronic dance music,electronica,electropop,house,pop dance",
+    "streamUrl": "https://0nlineradio.stream13.radiohost.de/technolovers-edm?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxODk4MDI4JmQ9ZjQyOGUzN2ZiYmU3ZGUxYzJlZmQ",
+    "streamUrls": [
+      "https://0nlineradio.stream13.radiohost.de/technolovers-edm?ref=radiobrowser&upd-meta&upd-scheme=https&_art=dD0xNzYxODk4MDI4JmQ9ZjQyOGUzN2ZiYmU3ZGUxYzJlZmQ",
+      "https://stream.technolovers.fm/edm?ref=radiobrowser"
+    ],
+    "website": "https://technolovers.fm/",
+    "genres": [
+      "club house",
+      "dance",
+      "edm",
+      "electro",
+      "electro house"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "english,german",
+    "bitrate": "192",
+    "codec": "MP3",
+    "favicon": "https://i.ibb.co/TmRLJsp/EDM-TL.jpg",
+    "votes": 3635,
+    "clickCount": 984,
+    "lastCheckOk": true
+  },
+  {
+    "id": "257fb845-167f-4b66-9d63-f1f3b553b76f",
+    "name": "deutschrap",
+    "description": "deutschrap,german rap,hip hop,rap",
+    "streamUrl": "http://deutschrap.stream.laut.fm/deutschrap?t302=2025-10-31_06-24-54&uuid=1b8c291b-0d96-438b-b0ce-ebaf14347914",
+    "streamUrls": [
+      "http://deutschrap.stream.laut.fm/deutschrap?t302=2025-10-31_06-24-54&uuid=1b8c291b-0d96-438b-b0ce-ebaf14347914",
+      "http://stream.laut.fm/deutschrap"
+    ],
+    "website": "https://laut.fm/deutschrap",
+    "genres": [
+      "deutschrap",
+      "german rap",
+      "hip hop",
+      "rap"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 3634,
+    "clickCount": 875,
+    "lastCheckOk": true
+  },
+  {
+    "id": "960c1970-0601-11e8-ae97-52543be04c81",
+    "name": "Fritz",
+    "description": "ard,public radio,rbb,youth",
+    "streamUrl": "http://f111.rndfnk.com/ard/rbb/fritz/live/mp3/128/stream.mp3?cid=01FC1WK1H1KDC5EBKW5Z191BW4&sid=34p15U2MYoDTy6l0eYFAV5wbFxr&token=iFPREZMfemIoHviZqIE_2tWIFjcHPiUuISOW4YefCq4&tvf=TEf7JkiWcxhmMTExLnJuZGZuay5jb20",
+    "streamUrls": [
+      "http://f111.rndfnk.com/ard/rbb/fritz/live/mp3/128/stream.mp3?cid=01FC1WK1H1KDC5EBKW5Z191BW4&sid=34p15U2MYoDTy6l0eYFAV5wbFxr&token=iFPREZMfemIoHviZqIE_2tWIFjcHPiUuISOW4YefCq4&tvf=TEf7JkiWcxhmMTExLnJuZGZuay5jb20",
+      "http://www.fritz.de/live.m3u"
+    ],
+    "website": "http://www.fritz.de/",
+    "genres": [
+      "ard",
+      "public radio",
+      "rbb",
+      "youth"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "http://www.fritz.de/content/dam/rbb/rbb/logos/touch/fritz-128.png",
+    "votes": 3628,
+    "clickCount": 2326,
+    "lastCheckOk": true
+  },
+  {
+    "id": "9611cf11-0601-11e8-ae97-52543be04c81",
+    "name": "electronic music club",
+    "description": "dance,electronic",
+    "streamUrl": "http://emc.stream.laut.fm/emc?t302=2025-10-31_02-28-50&uuid=90bcaf56-b84d-4d6a-90a4-0a8de363e812",
+    "streamUrls": [
+      "http://emc.stream.laut.fm/emc?t302=2025-10-31_02-28-50&uuid=90bcaf56-b84d-4d6a-90a4-0a8de363e812",
+      "http://stream.laut.fm/emc"
+    ],
+    "website": "http://laut.fm/emc",
+    "genres": [
+      "dance",
+      "electronic"
+    ],
+    "country": "Germany",
+    "countryCode": "DE",
+    "language": "german",
+    "bitrate": "128",
+    "codec": "MP3",
+    "favicon": "",
+    "votes": 3623,
+    "clickCount": 308,
+    "lastCheckOk": true
+  }
+];
+
+export const getStationsByGenre = (genre: string): RadioStation[] => {
+  return radioStations.filter(station => 
+    station.genres.some(g => g.toLowerCase().includes(genre.toLowerCase()))
+  );
+};
+
+export const getStationsByCountry = (country: string): RadioStation[] => {
+  return radioStations.filter(station =>
+    station.country.toLowerCase().includes(country.toLowerCase()) ||
+    station.countryCode.toLowerCase() === country.toLowerCase()
+  );
+};
+
+export const searchStations = (query: string): RadioStation[] => {
+  const searchTerm = query.toLowerCase();
+  return radioStations.filter(station =>
+    station.name.toLowerCase().includes(searchTerm) ||
+    station.description?.toLowerCase().includes(searchTerm) ||
+    station.genres.some(g => g.toLowerCase().includes(searchTerm))
+  );
+};
+
+export const getAllGenres = (): string[] => {
+  const genresSet = new Set<string>();
+  radioStations.forEach(station => {
+    station.genres.forEach(genre => {
+      if (genre) genresSet.add(genre);
+    });
+  });
+  return Array.from(genresSet).sort();
+};
+
+export const getAllCountries = (): string[] => {
+  const countriesSet = new Set<string>();
+  radioStations.forEach(station => {
+    if (station.country) countriesSet.add(station.country);
+  });
+  return Array.from(countriesSet).sort();
+};
+
+export const getTopStations = (limit: number = 50): RadioStation[] => {
+  return radioStations.slice(0, limit);
+};
+
+export default radioStations;
