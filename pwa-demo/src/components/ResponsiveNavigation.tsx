@@ -60,7 +60,7 @@ const navItems: NavItem[] = [
   { id: 'audiobooks', label: 'Audiobooks', icon: <AudioIcon />, path: '/library/2', showInBottom: true },
   { id: 'music', label: 'Music', icon: <MusicIcon />, path: '/music', showInBottom: true },
   { id: 'movies', label: 'Movies', icon: <MoviesIcon />, path: '/library/4', showInBottom: true },
-  { id: 'tv', label: 'TV Shows', icon: <MoviesIcon />, path: '/library/5', showInBottom: true },
+  { id: 'tv', label: 'TV Shows', icon: <TvIcon />, path: '/library/5', showInBottom: true },
   { id: 'radio', label: 'Radio', icon: <RadioIcon />, path: '/radio', showInBottom: true },
   { id: 'podcasts', label: 'Podcasts', icon: <PodcastsIcon />, path: '/podcasts', showInBottom: false },
   { id: 'documents', label: 'Documents', icon: <DocumentsIcon />, path: '/library/7', showInBottom: false },
