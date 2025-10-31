@@ -104,4 +104,53 @@ interface MediaItemDao {
         ORDER BY mi.dateAdded DESC
     """)
     suspend fun getBooksWithSeries(): List<MediaItem>
+    
+    /**
+     * Get media items by genre
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN item_genre ig ON mi.itemId = ig.itemId
+        INNER JOIN genre g ON ig.genreId = g.genreId
+        WHERE g.name = :genreName AND mi.mediaType = :mediaType
+        ORDER BY mi.dateAdded DESC
+    """)
+    fun getMediaItemsByGenre(genreName: String, mediaType: String): Flow<List<MediaItem>>
+    
+    /**
+     * Get media items by multiple genres (any match)
+     */
+    @Query("""
+        SELECT DISTINCT mi.* FROM media_items mi
+        INNER JOIN item_genre ig ON mi.itemId = ig.itemId
+        INNER JOIN genre g ON ig.genreId = g.genreId
+        WHERE g.name IN (:genreNames) AND mi.mediaType = :mediaType
+        ORDER BY mi.dateAdded DESC
+    """)
+    fun getMediaItemsByGenres(genreNames: List<String>, mediaType: String): Flow<List<MediaItem>>
+    
+    /**
+     * Get media items by author name (for books and audiobooks)
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN metadata_book mb ON mi.itemId = mb.itemId
+        INNER JOIN item_person_role ipr ON mi.itemId = ipr.itemId
+        INNER JOIN people p ON ipr.personId = p.personId
+        WHERE p.name = :authorName AND ipr.role = 'AUTHOR'
+        ORDER BY mi.dateAdded DESC
+    """)
+    fun getMediaItemsByAuthor(authorName: String): Flow<List<MediaItem>>
+    
+    /**
+     * Get media items by director (for movies and TV shows)
+     */
+    @Query("""
+        SELECT mi.* FROM media_items mi
+        INNER JOIN item_person_role ipr ON mi.itemId = ipr.itemId
+        INNER JOIN people p ON ipr.personId = p.personId
+        WHERE p.name = :directorName AND ipr.role = 'DIRECTOR' AND mi.mediaType IN ('MOVIE', 'TV_SHOW')
+        ORDER BY mi.dateAdded DESC
+    """)
+    fun getMediaItemsByDirector(directorName: String): Flow<List<MediaItem>>
 }

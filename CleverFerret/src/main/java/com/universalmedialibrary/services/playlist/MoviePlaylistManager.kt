@@ -158,8 +158,7 @@ class MoviePlaylistManager @Inject constructor(
             description = "Movies in the $genre genre"
         )
 
-        val movies = mediaItemDao.getMediaItemsByType("MOVIE").first()
-        // TODO: Filter by genre when metadata is available
+        val movies = mediaItemDao.getMediaItemsByGenre(genre, "MOVIE").first()
         
         addMoviesToPlaylist(collectionId, movies.map { it.itemId })
         
@@ -175,8 +174,7 @@ class MoviePlaylistManager @Inject constructor(
             description = "Movies directed by $director"
         )
 
-        val movies = mediaItemDao.getMediaItemsByType("MOVIE").first()
-        // TODO: Filter by director when metadata is available
+        val movies = mediaItemDao.getMediaItemsByDirector(director).first()
         
         addMoviesToPlaylist(collectionId, movies.map { it.itemId })
         

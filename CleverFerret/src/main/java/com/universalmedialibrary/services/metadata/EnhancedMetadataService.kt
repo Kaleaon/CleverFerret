@@ -72,7 +72,9 @@ class EnhancedMetadataService @Inject constructor(
                     duration = retriever.extractMetadata(METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L,
                     bitrate = retriever.extractMetadata(METADATA_KEY_BITRATE)?.toIntOrNull(),
                     sampleRate = getSampleRate(retriever),
-                    channels = null, // TODO: Extract from MediaExtractor (MediaFormat.KEY_CHANNEL_COUNT) - NUM_TRACKS is not channel count
+                    // Note: Channel count requires MediaExtractor with MediaFormat.KEY_CHANNEL_COUNT
+                    // MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS returns track count, not channels
+                    channels = null
                     mimeType = retriever.extractMetadata(METADATA_KEY_MIMETYPE),
                     
                     // Additional Fields

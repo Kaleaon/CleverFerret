@@ -10,6 +10,7 @@ import com.universalmedialibrary.data.local.entity.MediaItem as LocalMediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.media.MediaServiceType
+import com.universalmedialibrary.services.artwork.ArtworkLoader
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +34,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val exoPlayerService: ExoPlayerService,
     private val musicMetadataService: MusicMetadataService,
-    private val mediaController: MediaController
+    private val mediaController: MediaController,
+    private val artworkLoader: ArtworkLoader
 ) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -74,13 +76,20 @@ class AdvancedMusicPlayerService @Inject constructor(
             _currentTrack.value = trackInfo
             currentQueueIndex = 0
 
+            // Load artwork from media file
+            val artwork = artworkLoader.loadArtwork(
+                mediaItem = mediaItem,
+                maxWidth = 512,
+                maxHeight = 512
+            )
+            
             // Use the MediaSession-integrated method
             exoPlayerService.loadMediaWithSession(
                 mediaPath = mediaItem.filePath,
                 title = trackInfo.title,
                 artist = trackInfo.artist,
                 album = trackInfo.album,
-                artwork = null, // TODO: Load from albumArtUrl using Coil: imageLoader.execute(ImageRequest.Builder(context).data(albumArtUrl).build()).drawable?.toBitmap()
+                artwork = artwork,
                 serviceType = MediaServiceType.MUSIC
             )
 

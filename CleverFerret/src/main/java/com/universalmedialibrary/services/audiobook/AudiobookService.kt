@@ -14,6 +14,7 @@ import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
 import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.media.MediaServiceType
+import com.universalmedialibrary.services.artwork.ArtworkLoader
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,8 @@ class AudiobookService @Inject constructor(
     private val mediaController: MediaController,
     private val bookmarkDao: BookmarkDao,
     private val metadataDao: MetadataDao,
-    private val audiobookDao: AudiobookDao
+    private val audiobookDao: AudiobookDao,
+    private val artworkLoader: ArtworkLoader
 ) {
     
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -86,13 +88,20 @@ class AudiobookService @Inject constructor(
 
             val firstChapter = audiobook.chapters.firstOrNull()
             if (firstChapter != null) {
+                // Load cover artwork from metadata
+                val artwork = artworkLoader.loadArtwork(
+                    mediaItem = mediaItem,
+                    maxWidth = 512,
+                    maxHeight = 512
+                )
+                
                 // Register with MediaController for notifications and media session
                 mediaController.registerMediaService(
                     serviceType = MediaServiceType.AUDIOBOOK,
                     title = firstChapter.title ?: audiobook.title,
                     artist = audiobook.author,
                     album = audiobook.title,
-                    artwork = null // TODO: Load cover from commonMetadata.coverImagePath using BitmapFactory.decodeFile()
+                    artwork = artwork
                 )
             }
 

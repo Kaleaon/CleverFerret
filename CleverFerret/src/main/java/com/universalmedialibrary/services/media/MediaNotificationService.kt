@@ -17,11 +17,27 @@ import com.universalmedialibrary.MainActivity
 import com.universalmedialibrary.R
 import com.universalmedialibrary.services.artwork.ArtworkLoader
 import com.universalmedialibrary.data.local.entity.MediaItem
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+
+/**
+ * EntryPoint for accessing Hilt-provided dependencies in MediaSessionService
+ * which cannot use @AndroidEntryPoint annotation
+ */
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface MediaNotificationEntryPoint {
+    fun artworkLoader(): ArtworkLoader
+    fun mediaSessionManager(): MediaSessionManager
+}
+
 /**
  * Foreground service for media playback notifications
  *
@@ -37,21 +53,12 @@ import kotlinx.coroutines.launch
  * - Smart notification management
  *
  * Note: Does not use Hilt @AndroidEntryPoint due to MediaSessionService
- * incompatibility. Manual dependency initialization is used instead.
- * 
- * Implementation Note: Artwork loading is currently a stub pending
- * proper ArtworkLoader initialization strategy.
+ * incompatibility. Manual dependency initialization is used via EntryPointAccessors.
  */
 class MediaNotificationService : MediaSessionService() {
 
-    /**
-     * Artwork loader for notification images.
-     * Currently null - requires manual initialization when artwork feature is implemented.
-     * TODO: Initialize ArtworkLoader using Hilt injection or factory:
-     * @Inject lateinit var artworkLoaderFactory: ArtworkLoader.Factory
-     * Then: artworkLoader = artworkLoaderFactory.create(context)
-     */
-    private var artworkLoader: ArtworkLoader? = null
+    private lateinit var artworkLoader: ArtworkLoader
+    private lateinit var mediaSessionManager: MediaSessionManager
 
     private var mediaSession: MediaSession? = null
 
@@ -87,12 +94,19 @@ class MediaNotificationService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
+        
+        // Initialize Hilt dependencies via EntryPointAccessors
+        val entryPoint = EntryPointAccessors.fromApplication(
+            applicationContext,
+            MediaNotificationEntryPoint::class.java
+        )
+        artworkLoader = entryPoint.artworkLoader()
+        mediaSessionManager = entryPoint.mediaSessionManager()
+        
+        // Get MediaSession from MediaSessionManager
+        mediaSession = mediaSessionManager.getMediaSession()
+        
         createNotificationChannel()
-
-        // TODO: Inject MediaSessionManager and get MediaSession:
-        // @Inject lateinit var mediaSessionManager: MediaSessionManager
-        // mediaSession = mediaSessionManager.getMediaSession()
-        // This enables proper Media3 integration with playback controls
 
         // Start as foreground service with initial notification
         val notification = createMediaNotification(
@@ -177,15 +191,11 @@ class MediaNotificationService : MediaSessionService() {
     ) {
         serviceScope.launch {
             // Load artwork with notification-appropriate size (512x512)
-            // TODO: Ensure artworkLoader is initialized before calling this method
-            // Initialize in onCreate: artworkLoader = ArtworkLoader(context, defaultSize = 512)
-            val artwork = artworkLoader?.let { loader ->
-                loader.loadArtwork(
-                    mediaItem = mediaItem,
-                    maxWidth = 512,
-                    maxHeight = 512
-                )
-            }
+            val artwork = artworkLoader.loadArtwork(
+                mediaItem = mediaItem,
+                maxWidth = 512,
+                maxHeight = 512
+            )
 
             // Update notification with loaded artwork
             updateNotification(
