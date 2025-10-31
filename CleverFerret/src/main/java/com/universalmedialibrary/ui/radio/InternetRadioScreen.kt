@@ -1069,9 +1069,18 @@ InternetRadioStation("gh39", "Worldwide FM", "https://worldwidefm.out.airtime.pr
     }
     
     fun selectStation(station: InternetRadioStation) {
-        _currentStation.value = station
-        // TODO: Implement radio station playback via music player service
-        // This would require adding radio streaming capability to AdvancedMusicPlayerService
+        viewModelScope.launch {
+            _currentStation.value = station
+            // Play the radio stream using the music player service
+            musicPlayerService.playTrackFromUri(
+                uri = station.url,
+                title = station.name,
+                artist = "Internet Radio${if (station.genre.isNotBlank()) " - ${station.genre}" else ""}",
+                album = station.bitrate,
+                duration = 0L, // Streams have no duration
+                albumArtUrl = null
+            )
+        }
     }
     
     fun addCustomStation(name: String, url: String, genre: String) {
