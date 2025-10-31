@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import java.io.File
+import java.util.UUID
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -1465,14 +1466,14 @@ private fun DirectFileOpenScreen(
                         uri.path ?: throw IllegalStateException("File URI has no path")
                     } else {
                         // For content:// URIs, we need to copy to cache with unique name
-                        val timestamp = System.currentTimeMillis()
-                        val uniqueFileName = "${timestamp}_$fileName"
+                        val uuid = UUID.randomUUID().toString()
+                        val uniqueFileName = "${uuid}_$fileName"
                         val cacheFile = File(context.cacheDir, uniqueFileName)
                         context.contentResolver.openInputStream(uri)?.use { input ->
                             cacheFile.outputStream().use { output ->
                                 input.copyTo(output)
                             }
-                        } ?: throw IllegalStateException("Failed to open input stream")
+                        } ?: throw IllegalStateException("Unable to access the selected file. It may have been moved or deleted.")
                         cacheFile.absolutePath
                     }
                 } catch (e: Exception) {

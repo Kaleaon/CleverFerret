@@ -156,7 +156,6 @@
                 <data android:scheme="file" />
                 <data android:scheme="content" />
                 <data android:mimeType="application/x-cbz" />
-                <data android:mimeType="application/zip" />
             </intent-filter>
             
             <!-- File Type Associations for CBR (Comic Book Archive) -->
@@ -167,7 +166,6 @@
                 <data android:scheme="file" />
                 <data android:scheme="content" />
                 <data android:mimeType="application/x-cbr" />
-                <data android:mimeType="application/x-rar-compressed" />
             </intent-filter>
         </activity>
         
