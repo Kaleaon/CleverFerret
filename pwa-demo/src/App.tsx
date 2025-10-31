@@ -1,13 +1,14 @@
 /**
  * Main Application Component for CleverFerret PWA
  * 
- * Complete navigation and routing implementation
+ * Complete navigation and routing implementation with responsive design
  * Migrated from MainActivity.kt
  */
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, createTheme } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { ThemeProvider, CssBaseline, Box, TextField, InputAdornment, useMediaQuery, useTheme, Fab, Zoom } from '@mui/material';
+import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
 
 // Import all screens
 import {
@@ -54,78 +55,95 @@ import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ThemePreviewScreen } from './components/ThemePreviewScreen';
 
+// Import responsive navigation
+import { ResponsiveNavigation } from './components/ResponsiveNavigation';
+
 // Initialize database
 import { initializeDatabase } from './services/database-complete';
 import { useAppStore } from './store/app-store';
 import { getAllUnifiedThemes } from './themes/unified-themes';
-import { NavigationDrawer } from './components/NavigationDrawer';
-import { Box, TextField, InputAdornment } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
 
-function App() {
-  const { selectedTheme } = useAppStore();
+const AppContent: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [showSearchBar, setShowSearchBar] = React.useState(true);
+  const [lastScrollY, setLastScrollY] = React.useState(0);
 
+  // Hide search bar on scroll down, show on scroll up (mobile only)
   React.useEffect(() => {
-    initializeDatabase();
-  }, []);
+    if (!isMobile) {
+      setShowSearchBar(true);
+      return;
+    }
 
-  const theme = React.useMemo(() => {
-    const themeConfig = getAllUnifiedThemes().find((t) => t.name === selectedTheme);
-    return themeConfig ? themeConfig.theme : getAllUnifiedThemes()[0].theme;
-  }, [selectedTheme]);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setShowSearchBar(false);
+      } else {
+        setShowSearchBar(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY, isMobile]);
+
+  // Handle search
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const showFab = location.pathname === '/' || location.pathname.startsWith('/library/');
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        {/* Permanent Sidebar Navigation */}
-        <NavigationDrawer />
-        
-        {/* Main Content Area with Search Bar */}
+    <ResponsiveNavigation>
+      {/* Search Bar - conditionally visible */}
+      <Zoom in={showSearchBar}>
         <Box
           sx={{
-            marginLeft: '80px',
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
+            position: 'sticky',
+            top: isMobile ? 56 : 0,
+            zIndex: 1000,
+            bgcolor: 'background.paper',
+            borderBottom: 1,
+            borderColor: 'divider',
+            p: isMobile ? 1 : 2,
+            transition: 'all 0.3s ease',
           }}
         >
-          {/* Omni Search Bar */}
-          <Box
-            sx={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 1100,
-              bgcolor: 'background.paper',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              p: 2,
+          <TextField
+            fullWidth
+            size={isMobile ? 'small' : 'medium'}
+            placeholder="Search across all libraries..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleSearch}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
             }}
-          >
-            <TextField
-              fullWidth
-              placeholder="Search across all libraries..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 3,
-                },
-              }}
-            />
-          </Box>
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 3,
+              },
+            }}
+          />
+        </Box>
+      </Zoom>
 
-          {/* Routes Content */}
-          <Box sx={{ flex: 1 }}>
-            <Routes>
+      {/* Routes Content */}
+      <Box sx={{ flex: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Routes>
           {/* Home */}
           <Route path="/" element={<LibraryListScreen />} />
           
