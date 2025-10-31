@@ -169,6 +169,7 @@ class MainActivity : ComponentActivity() {
 /**
  * Sets up the navigation for the entire application using Jetpack Compose Navigation.
  * It defines the navigation graph and the composable destinations.
+ * Now with responsive navigation that adapts to screen size.
  */
 @Composable
 fun AppNavigation() {
@@ -191,10 +192,22 @@ fun AppNavigation() {
             permissionState = permissionState
         )
     }
-    NavHost(
+    
+    // Wrap navigation in responsive scaffold
+    ResponsiveNavigationScaffold(
         navController = navController,
-        startDestination = "home"
-    ) {
+        topBar = {
+            // Top bar can be customized per screen if needed
+        },
+        floatingActionButton = {
+            // FAB can be shown on specific screens
+        }
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(paddingValues)
+        ) {
         composable("home") {
             LibraryListScreen(navController = navController)
         }
