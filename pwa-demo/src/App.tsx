@@ -57,6 +57,7 @@ import { ThemePreviewScreen } from './components/ThemePreviewScreen';
 
 // Import responsive navigation
 import { ResponsiveNavigation } from './components/ResponsiveNavigation';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 // Initialize database
 import { initializeDatabase } from './services/database-complete';
