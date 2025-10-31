@@ -114,6 +114,8 @@ import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 /**
@@ -473,18 +475,19 @@ fun AppNavigation() {
                 onNavigateBack = { navController.navigateUp() },
                 onFileSelected = { file ->
                     // Determine file type and navigate to appropriate player/reader
+                    val encodedPath = URLEncoder.encode(file.absolutePath, StandardCharsets.UTF_8.toString())
                     when (file.extension.lowercase()) {
                         "epub", "pdf", "mobi", "azw", "azw3" -> {
-                            navController.navigate("reader_path/${file.absolutePath}")
+                            navController.navigate("reader_path/$encodedPath")
                         }
                         "mp3", "m4a", "flac", "wav", "ogg" -> {
-                            navController.navigate("audio_player/${file.absolutePath}")
+                            navController.navigate("audio_player/$encodedPath")
                         }
                         "mp4", "mkv", "avi", "mov", "webm" -> {
-                            navController.navigate("video_player_path/${file.absolutePath}")
+                            navController.navigate("video_player_path/$encodedPath")
                         }
                         "cbz", "cbr" -> {
-                            navController.navigate("reader_path/${file.absolutePath}")
+                            navController.navigate("reader_path/$encodedPath")
                         }
                     }
                 }
@@ -493,7 +496,8 @@ fun AppNavigation() {
 
         // Enhanced eBook Reader route (for direct file paths)
         composable("reader_path/{bookPath}") { backStackEntry ->
-            val bookPath = backStackEntry.arguments?.getString("bookPath") ?: ""
+            val encodedPath = backStackEntry.arguments?.getString("bookPath") ?: ""
+            val bookPath = java.net.URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.reader.EnhancedEReaderScreen(
                 bookFilePath = bookPath,
                 onBack = { navController.navigateUp() }
@@ -502,7 +506,8 @@ fun AppNavigation() {
 
         // Modern Audio Player route
         composable("audio_player/{audioPath}") { backStackEntry ->
-            val audioPath = backStackEntry.arguments?.getString("audioPath") ?: ""
+            val encodedPath = backStackEntry.arguments?.getString("audioPath") ?: ""
+            val audioPath = java.net.URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.player.ModernAudioPlayerScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
@@ -510,7 +515,8 @@ fun AppNavigation() {
 
         // Modern Video Player route (for direct file paths)
         composable("video_player_path/{videoPath}") { backStackEntry ->
-            val videoPath = backStackEntry.arguments?.getString("videoPath") ?: ""
+            val encodedPath = backStackEntry.arguments?.getString("videoPath") ?: ""
+            val videoPath = java.net.URLDecoder.decode(encodedPath, StandardCharsets.UTF_8.toString())
             com.universalmedialibrary.ui.player.ModernVideoPlayerScreen(
                 videoPath = videoPath,
                 onNavigateBack = { navController.navigateUp() }
