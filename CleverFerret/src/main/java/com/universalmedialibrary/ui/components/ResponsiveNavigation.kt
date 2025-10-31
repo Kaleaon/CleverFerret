@@ -46,28 +46,40 @@ object NavigationItems {
             showInBottomNav = true
         ),
         NavigationItem(
-            route = "library_details/2",
-            label = "Audiobooks",
-            icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Audiobooks") },
-            showInBottomNav = false
-        ),
-        NavigationItem(
             route = "library_details/3",
             label = "Comics",
             icon = { Icon(PhosphorIcons.Books, contentDescription = "Comics") },
-            showInBottomNav = false
+            showInBottomNav = true
         ),
         NavigationItem(
-            route = "library_details/4",
-            label = "Movies",
-            icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Movies") },
-            showInBottomNav = false
+            route = "library_details/2",
+            label = "Audiobooks",
+            icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Audiobooks") },
+            showInBottomNav = true
         ),
         NavigationItem(
             route = "music",
             label = "Music",
             icon = { Icon(PhosphorIcons.MusicNote, contentDescription = "Music") },
             selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") },
+            showInBottomNav = true
+        ),
+        NavigationItem(
+            route = "library_details/4",
+            label = "Movies",
+            icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Movies") },
+            showInBottomNav = true
+        ),
+        NavigationItem(
+            route = "library_details/5",
+            label = "TV Shows",
+            icon = { Icon(PhosphorIcons.Television, contentDescription = "TV Shows") },
+            showInBottomNav = true
+        ),
+        NavigationItem(
+            route = "radio",
+            label = "Radio",
+            icon = { Icon(PhosphorIcons.Radio, contentDescription = "Radio") },
             showInBottomNav = true
         ),
         NavigationItem(
@@ -83,12 +95,6 @@ object NavigationItems {
             showInBottomNav = false
         ),
         NavigationItem(
-            route = "radio",
-            label = "Radio",
-            icon = { Icon(PhosphorIcons.Radio, contentDescription = "Radio") },
-            showInBottomNav = false
-        ),
-        NavigationItem(
             route = "collections",
             label = "Collections",
             icon = { Icon(PhosphorIcons.Stack, contentDescription = "Collections") },
@@ -98,14 +104,14 @@ object NavigationItems {
             route = "search",
             label = "Search",
             icon = { Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search") },
-            showInBottomNav = true
+            showInBottomNav = false
         ),
         NavigationItem(
             route = "settings",
             label = "Settings",
             icon = { Icon(PhosphorIcons.Gear, contentDescription = "Settings") },
             selectedIcon = { Icon(PhosphorIcons.GearFill, contentDescription = "Settings") },
-            showInBottomNav = true
+            showInBottomNav = false
         )
     )
 
