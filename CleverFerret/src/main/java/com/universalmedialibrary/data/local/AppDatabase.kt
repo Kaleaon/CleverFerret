@@ -127,10 +127,14 @@ import com.universalmedialibrary.data.Tag
 
         // Calibre Features
         FanfictionStoryEntity::class,
-        AudiobookEntity::class
+        AudiobookEntity::class,
+
+        // Search history
+        SearchHistory::class,
+        SavedSearchEntity::class
 
     ],
-    version = 28, // Incremented for Calibre features (Fanfiction & Audiobooks)
+    version = 29, // Incremented for search history support
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class)
@@ -203,6 +207,9 @@ abstract class AppDatabase : RoomDatabase() {
     // Calibre Features DAOs
     abstract fun fanfictionDao(): FanfictionDao
     abstract fun audiobookDao(): AudiobookDao
+
+    // Search History DAO
+    abstract fun searchHistoryDao(): SearchHistoryDao
 
 
     companion object {

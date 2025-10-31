@@ -21,7 +21,7 @@ import androidx.navigation.NavController
 import com.universalmedialibrary.services.search.SearchResult
 import com.universalmedialibrary.services.search.SortBy
 import com.universalmedialibrary.services.search.SearchFilters
-import com.universalmedialibrary.services.search.SearchHistory
+import com.universalmedialibrary.data.local.entity.SearchHistory
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)

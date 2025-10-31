@@ -3,6 +3,8 @@ package com.universalmedialibrary.services.search
 import android.content.Context
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.SearchHistory
+import com.universalmedialibrary.data.local.entity.SavedSearchEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -29,8 +31,7 @@ class EnhancedSearchService @Inject constructor(
 
     private val mediaItemDao = database.mediaItemDao()
     private val metadataDao = database.metadataDao()
-    // TODO: Add searchHistoryDao when implemented in database
-    // private val searchHistoryDao = database.searchHistoryDao()
+    private val searchHistoryDao = database.searchHistoryDao()
 
     /**
      * Advanced search with multiple filters
@@ -73,10 +74,10 @@ class EnhancedSearchService @Inject constructor(
             )
         })
 
-        // TODO: Save search to history when implemented
-        // if (query.textQuery.isNotEmpty()) {
-        //     saveSearchHistory(query.textQuery, results.size)
-        // }
+        // Save search to history
+        if (query.textQuery.isNotEmpty()) {
+            saveSearchHistory(query.textQuery, results.size)
+        }
 
         return results
     }
@@ -87,9 +88,15 @@ class EnhancedSearchService @Inject constructor(
     suspend fun getSuggestions(partial: String): List<String> {
         val suggestions = mutableListOf<String>()
 
-        // TODO: Get from search history when implemented
-        // val history = searchHistoryDao.getRecentSearches(limit = 5)
-        // suggestions.addAll(history.filter { it.contains(partial, ignoreCase = true) })
+        // Get from search history
+        if (partial.isNotEmpty()) {
+            val history = searchHistoryDao.searchHistory(partial, limit = 5)
+            suggestions.addAll(history.map { it.query })
+        } else {
+            // If no partial query, show recent searches
+            val history = searchHistoryDao.getRecentSearches(limit = 5)
+            suggestions.addAll(history.map { it.query })
+        }
 
         // Get from metadata (titles, authors)
         if (partial.length >= 2) {
@@ -117,24 +124,46 @@ class EnhancedSearchService @Inject constructor(
      * Save a search for later use
      */
     suspend fun saveSearch(name: String, query: SearchQuery) {
-        // TODO: Implement saved searches table
-        // searchHistoryDao.insertSearch(...)
+        val savedSearch = SavedSearchEntity(
+            name = name,
+            query = query.textQuery,
+            mediaTypes = query.filters.mediaTypes.joinToString(","),
+            sortBy = query.sortBy.name,
+            filterCriteria = null // Can be extended to store more complex filters
+        )
+        searchHistoryDao.insertSavedSearch(savedSearch)
     }
 
     /**
      * Get saved searches
      */
     suspend fun getSavedSearches(): List<SavedSearch> {
-        // TODO: Implement saved searches retrieval
-        return emptyList()
+        val savedSearchEntities = searchHistoryDao.getAllSavedSearches()
+        return savedSearchEntities.map { entity ->
+            SavedSearch(
+                savedSearchId = entity.savedSearchId,
+                name = entity.name,
+                query = SearchQuery(
+                    textQuery = entity.query,
+                    filters = SearchFilters(
+                        mediaTypes = entity.mediaTypes?.split(",")?.filter { it.isNotEmpty() } ?: emptyList()
+                    ),
+                    sortBy = try {
+                        SortBy.valueOf(entity.sortBy ?: "RELEVANCE")
+                    } catch (e: IllegalArgumentException) {
+                        SortBy.RELEVANCE
+                    }
+                ),
+                createdAt = entity.createdAt
+            )
+        }
     }
 
     /**
      * Clear search history
      */
     suspend fun clearHistory() {
-        // TODO: Implement when search history DAO is available
-        // searchHistoryDao.clearHistory()
+        searchHistoryDao.clearHistory()
     }
 
     // Helper methods
@@ -221,8 +250,11 @@ class EnhancedSearchService @Inject constructor(
     }
 
     private suspend fun saveSearchHistory(query: String, resultCount: Int) {
-        // TODO: Implement when search history DAO is available
-        // searchHistoryDao.insertSearch(...)
+        val searchHistory = SearchHistory(
+            query = query,
+            resultCount = resultCount
+        )
+        searchHistoryDao.insertSearch(searchHistory)
     }
 
     private fun calculateDateRanges(items: List<MediaItem>): Map<String, Int> {
@@ -325,17 +357,7 @@ data class SearchFacets(
 )
 
 /**
- * Search history entry
- */
-data class SearchHistory(
-    val historyId: Long = 0,
-    val query: String,
-    val timestamp: Long,
-    val resultCount: Int
-)
-
-/**
- * Saved search
+ * Saved search DTO for UI
  */
 data class SavedSearch(
     val savedSearchId: Long = 0,
@@ -343,10 +365,3 @@ data class SavedSearch(
     val query: SearchQuery,
     val createdAt: Long
 )
-
-// TODO: Add SearchHistoryDao to AppDatabase
-interface SearchHistoryDao {
-    suspend fun insertSearch(search: SearchHistory)
-    suspend fun getRecentSearches(limit: Int): List<SearchHistory>
-    suspend fun clearHistory()
-}

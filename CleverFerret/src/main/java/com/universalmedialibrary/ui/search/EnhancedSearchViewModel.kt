@@ -7,7 +7,7 @@ import com.universalmedialibrary.services.search.SearchQuery
 import com.universalmedialibrary.services.search.SearchFilters
 import com.universalmedialibrary.services.search.SearchResult
 import com.universalmedialibrary.services.search.SearchFacets
-import com.universalmedialibrary.services.search.SearchHistory
+import com.universalmedialibrary.data.local.entity.SearchHistory
 import com.universalmedialibrary.services.search.SortBy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
