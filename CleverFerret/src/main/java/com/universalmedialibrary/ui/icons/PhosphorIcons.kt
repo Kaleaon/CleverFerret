@@ -1653,6 +1653,71 @@ object PhosphorIcons {
             return _podcast!!
         }
 
+    val Television: ImageVector
+        get() {
+            if (_television != null) {
+                return _television!!
+            }
+            _television = materialIcon(name = "Television") {
+                materialPath {
+                    moveTo(21.0f, 17.0f)
+                    horizontalLineTo(3.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(21.0f)
+                    verticalLineTo(17.0f)
+                    close()
+                    moveTo(21.0f, 3.0f)
+                    horizontalLineTo(3.0f)
+                    curveTo(1.9f, 3.0f, 1.0f, 3.9f, 1.0f, 5.0f)
+                    verticalLineTo(17.0f)
+                    curveTo(1.0f, 18.1f, 1.9f, 19.0f, 3.0f, 19.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(21.0f)
+                    horizontalLineTo(16.0f)
+                    verticalLineTo(19.0f)
+                    horizontalLineTo(21.0f)
+                    curveTo(22.1f, 19.0f, 23.0f, 18.1f, 23.0f, 17.0f)
+                    verticalLineTo(5.0f)
+                    curveTo(23.0f, 3.9f, 22.1f, 3.0f, 21.0f, 3.0f)
+                    close()
+                }
+            }
+            return _television!!
+        }
+
+    val FilmSlate: ImageVector
+        get() {
+            if (_filmSlate != null) {
+                return _filmSlate!!
+            }
+            _filmSlate = materialIcon(name = "FilmSlate") {
+                materialPath {
+                    moveTo(18.0f, 4.0f)
+                    lineTo(20.29f, 5.63f)
+                    lineTo(18.42f, 9.0f)
+                    horizontalLineTo(21.0f)
+                    lineTo(19.0f, 12.0f)
+                    horizontalLineTo(17.0f)
+                    lineTo(17.0f, 21.0f)
+                    curveTo(17.0f, 21.55f, 16.55f, 22.0f, 16.0f, 22.0f)
+                    horizontalLineTo(4.0f)
+                    curveTo(3.45f, 22.0f, 3.0f, 21.55f, 3.0f, 21.0f)
+                    lineTo(3.0f, 5.0f)
+                    curveTo(3.0f, 3.9f, 3.9f, 3.0f, 5.0f, 3.0f)
+                    horizontalLineTo(14.0f)
+                    lineTo(18.0f, 4.0f)
+                    close()
+                    moveTo(5.0f, 5.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(15.0f)
+                    verticalLineTo(5.0f)
+                    horizontalLineTo(5.0f)
+                    close()
+                }
+            }
+            return _filmSlate!!
+        }
+
     private var _lightbulb: ImageVector? = null
     private var _note: ImageVector? = null
     private var _bookmark: ImageVector? = null
@@ -1662,4 +1727,6 @@ object PhosphorIcons {
     private var _caretDown: ImageVector? = null
     private var _info: ImageVector? = null
     private var _podcast: ImageVector? = null
+    private var _television: ImageVector? = null
+    private var _filmSlate: ImageVector? = null
 }
