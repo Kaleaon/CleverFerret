@@ -200,10 +200,10 @@ fun ThemeShowcaseScreen(
                             AncientArchitectNavigationRailWithItems(
                                 selectedIndex = 0,
                                 items = listOf(
-                                    NavigationItem(Icons.Default.Home, "Home"),
-                                    NavigationItem(Icons.Default.Search, "Search"),
-                                    NavigationItem(Icons.Default.Favorite, "Favorites"),
-                                    NavigationItem(Icons.Default.Settings, "Settings")
+                                    RailNavigationItem(Icons.Default.Home, "Home"),
+                                    RailNavigationItem(Icons.Default.Search, "Search"),
+                                    RailNavigationItem(Icons.Default.Favorite, "Favorites"),
+                                    RailNavigationItem(Icons.Default.Settings, "Settings")
                                 ),
                                 onItemSelected = {}
                             )

@@ -1718,6 +1718,276 @@ object PhosphorIcons {
             return _filmSlate!!
         }
 
+    // Additional icons needed for navigation
+    val HouseFill: ImageVector
+        get() {
+            if (_houseFill != null) {
+                return _houseFill!!
+            }
+            _houseFill = materialIcon(name = "HouseFill") {
+                materialPath {
+                    moveTo(10.0f, 20.0f)
+                    verticalLineTo(14.0f)
+                    horizontalLineTo(14.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(19.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(22.0f)
+                    lineTo(12.0f, 3.0f)
+                    lineTo(2.0f, 12.0f)
+                    horizontalLineTo(5.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(10.0f)
+                    close()
+                }
+            }
+            return _houseFill!!
+        }
+
+    val BookFill: ImageVector
+        get() {
+            if (_bookFill != null) {
+                return _bookFill!!
+            }
+            _bookFill = materialIcon(name = "BookFill") {
+                materialPath {
+                    moveTo(6.0f, 2.0f)
+                    curveTo(4.9f, 2.0f, 4.0f, 2.9f, 4.0f, 4.0f)
+                    verticalLineTo(20.0f)
+                    curveTo(4.0f, 21.1f, 4.9f, 22.0f, 6.0f, 22.0f)
+                    horizontalLineTo(18.0f)
+                    curveTo(19.1f, 22.0f, 20.0f, 21.1f, 20.0f, 20.0f)
+                    verticalLineTo(4.0f)
+                    curveTo(20.0f, 2.9f, 19.1f, 2.0f, 18.0f, 2.0f)
+                    horizontalLineTo(6.0f)
+                    close()
+                }
+            }
+            return _bookFill!!
+        }
+
+    val Books: ImageVector
+        get() {
+            if (_books != null) {
+                return _books!!
+            }
+            _books = materialIcon(name = "Books") {
+                materialPath {
+                    moveTo(4.0f, 6.0f)
+                    horizontalLineTo(2.0f)
+                    verticalLineTo(20.0f)
+                    curveTo(2.0f, 21.1f, 2.9f, 22.0f, 4.0f, 22.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(4.0f)
+                    verticalLineTo(6.0f)
+                    close()
+                    moveTo(20.0f, 2.0f)
+                    horizontalLineTo(8.0f)
+                    curveTo(6.9f, 2.0f, 6.0f, 2.9f, 6.0f, 4.0f)
+                    verticalLineTo(16.0f)
+                    curveTo(6.0f, 17.1f, 6.9f, 18.0f, 8.0f, 18.0f)
+                    horizontalLineTo(20.0f)
+                    curveTo(21.1f, 18.0f, 22.0f, 17.1f, 22.0f, 16.0f)
+                    verticalLineTo(4.0f)
+                    curveTo(22.0f, 2.9f, 21.1f, 2.0f, 20.0f, 2.0f)
+                    close()
+                }
+            }
+            return _books!!
+        }
+
+    val Headphones: ImageVector
+        get() {
+            if (_headphones != null) {
+                return _headphones!!
+            }
+            _headphones = materialIcon(name = "Headphones") {
+                materialPath {
+                    moveTo(12.0f, 1.0f)
+                    curveTo(7.03f, 1.0f, 3.0f, 5.03f, 3.0f, 10.0f)
+                    verticalLineTo(17.0f)
+                    curveTo(3.0f, 18.66f, 4.34f, 20.0f, 6.0f, 20.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(5.0f)
+                    verticalLineTo(10.0f)
+                    curveTo(5.0f, 6.13f, 8.13f, 3.0f, 12.0f, 3.0f)
+                    reflectiveCurveTo(19.0f, 6.13f, 19.0f, 10.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(16.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(18.0f)
+                    curveTo(19.66f, 20.0f, 21.0f, 18.66f, 21.0f, 17.0f)
+                    verticalLineTo(10.0f)
+                    curveTo(21.0f, 5.03f, 16.97f, 1.0f, 12.0f, 1.0f)
+                    close()
+                }
+            }
+            return _headphones!!
+        }
+
+    val MusicNoteFill: ImageVector
+        get() {
+            if (_musicNoteFill != null) {
+                return _musicNoteFill!!
+            }
+            _musicNoteFill = materialIcon(name = "MusicNoteFill") {
+                materialPath {
+                    moveTo(12.0f, 3.0f)
+                    verticalLineTo(13.55f)
+                    curveTo(11.41f, 13.21f, 10.73f, 13.0f, 10.0f, 13.0f)
+                    curveTo(7.79f, 13.0f, 6.0f, 14.79f, 6.0f, 17.0f)
+                    reflectiveCurveTo(7.79f, 21.0f, 10.0f, 21.0f)
+                    reflectiveCurveTo(14.0f, 19.21f, 14.0f, 17.0f)
+                    verticalLineTo(7.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(3.0f)
+                    horizontalLineTo(12.0f)
+                    close()
+                }
+            }
+            return _musicNoteFill!!
+        }
+
+    val Radio: ImageVector
+        get() {
+            if (_radio != null) {
+                return _radio!!
+            }
+            _radio = materialIcon(name = "Radio") {
+                materialPath {
+                    moveTo(3.24f, 6.15f)
+                    curveTo(2.51f, 6.43f, 2.0f, 7.17f, 2.0f, 8.0f)
+                    verticalLineTo(20.0f)
+                    curveTo(2.0f, 21.1f, 2.89f, 22.0f, 4.0f, 22.0f)
+                    horizontalLineTo(20.0f)
+                    curveTo(21.11f, 22.0f, 22.0f, 21.1f, 22.0f, 20.0f)
+                    verticalLineTo(8.0f)
+                    curveTo(22.0f, 6.89f, 21.11f, 6.0f, 20.0f, 6.0f)
+                    horizontalLineTo(8.3f)
+                    lineTo(14.42f, 3.35f)
+                    lineTo(13.65f, 1.65f)
+                    lineTo(3.24f, 6.15f)
+                    close()
+                    moveTo(20.0f, 8.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(16.0f)
+                    curveTo(14.9f, 12.0f, 14.0f, 12.9f, 14.0f, 14.0f)
+                    verticalLineTo(18.0f)
+                    curveTo(14.0f, 19.1f, 14.9f, 20.0f, 16.0f, 20.0f)
+                    horizontalLineTo(20.0f)
+                    verticalLineTo(8.0f)
+                    close()
+                    moveTo(8.0f, 16.0f)
+                    curveTo(6.34f, 16.0f, 5.0f, 14.66f, 5.0f, 13.0f)
+                    reflectiveCurveTo(6.34f, 10.0f, 8.0f, 10.0f)
+                    reflectiveCurveTo(11.0f, 11.34f, 11.0f, 13.0f)
+                    reflectiveCurveTo(9.66f, 16.0f, 8.0f, 16.0f)
+                    close()
+                }
+            }
+            return _radio!!
+        }
+
+    val Stack: ImageVector
+        get() {
+            if (_stack != null) {
+                return _stack!!
+            }
+            _stack = materialIcon(name = "Stack") {
+                materialPath {
+                    moveTo(20.0f, 2.0f)
+                    horizontalLineTo(4.0f)
+                    curveTo(2.9f, 2.0f, 2.0f, 2.9f, 2.0f, 4.0f)
+                    verticalLineTo(7.0f)
+                    curveTo(2.0f, 8.1f, 2.9f, 9.0f, 4.0f, 9.0f)
+                    verticalLineTo(11.0f)
+                    curveTo(2.9f, 11.0f, 2.0f, 11.9f, 2.0f, 13.0f)
+                    verticalLineTo(16.0f)
+                    curveTo(2.0f, 17.1f, 2.9f, 18.0f, 4.0f, 18.0f)
+                    verticalLineTo(20.0f)
+                    curveTo(4.0f, 21.1f, 4.9f, 22.0f, 6.0f, 22.0f)
+                    horizontalLineTo(18.0f)
+                    curveTo(19.1f, 22.0f, 20.0f, 21.1f, 20.0f, 20.0f)
+                    verticalLineTo(18.0f)
+                    curveTo(21.1f, 18.0f, 22.0f, 17.1f, 22.0f, 16.0f)
+                    verticalLineTo(13.0f)
+                    curveTo(22.0f, 11.9f, 21.1f, 11.0f, 20.0f, 11.0f)
+                    verticalLineTo(9.0f)
+                    curveTo(21.1f, 9.0f, 22.0f, 8.1f, 22.0f, 7.0f)
+                    verticalLineTo(4.0f)
+                    curveTo(22.0f, 2.9f, 21.1f, 2.0f, 20.0f, 2.0f)
+                    close()
+                    moveTo(18.0f, 20.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(4.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                }
+            }
+            return _stack!!
+        }
+
+    val GearFill: ImageVector
+        get() {
+            if (_gearFill != null) {
+                return _gearFill!!
+            }
+            _gearFill = materialIcon(name = "GearFill") {
+                materialPath {
+                    moveTo(19.43f, 12.98f)
+                    curveTo(19.47f, 12.66f, 19.5f, 12.34f, 19.5f, 12.0f)
+                    reflectiveCurveTo(19.47f, 11.34f, 19.43f, 11.02f)
+                    lineTo(21.54f, 9.37f)
+                    curveTo(21.73f, 9.22f, 21.78f, 8.95f, 21.66f, 8.73f)
+                    lineTo(19.66f, 5.27f)
+                    curveTo(19.54f, 5.05f, 19.27f, 4.97f, 19.05f, 5.05f)
+                    lineTo(16.56f, 6.05f)
+                    curveTo(16.04f, 5.65f, 15.48f, 5.32f, 14.87f, 5.07f)
+                    lineTo(14.49f, 2.42f)
+                    curveTo(14.46f, 2.18f, 14.25f, 2.0f, 14.0f, 2.0f)
+                    horizontalLineTo(10.0f)
+                    curveTo(9.75f, 2.0f, 9.54f, 2.18f, 9.51f, 2.42f)
+                    lineTo(9.13f, 5.07f)
+                    curveTo(8.52f, 5.32f, 7.96f, 5.66f, 7.44f, 6.05f)
+                    lineTo(4.95f, 5.05f)
+                    curveTo(4.73f, 4.96f, 4.46f, 5.05f, 4.34f, 5.27f)
+                    lineTo(2.34f, 8.73f)
+                    curveTo(2.21f, 8.95f, 2.27f, 9.22f, 2.46f, 9.37f)
+                    lineTo(4.57f, 11.02f)
+                    curveTo(4.53f, 11.34f, 4.5f, 11.67f, 4.5f, 12.0f)
+                    reflectiveCurveTo(4.53f, 12.66f, 4.57f, 12.98f)
+                    lineTo(2.46f, 14.63f)
+                    curveTo(2.27f, 14.78f, 2.21f, 15.05f, 2.34f, 15.27f)
+                    lineTo(4.34f, 18.73f)
+                    curveTo(4.46f, 18.95f, 4.73f, 19.03f, 4.95f, 18.95f)
+                    lineTo(7.44f, 17.95f)
+                    curveTo(7.96f, 18.35f, 8.52f, 18.68f, 9.13f, 18.93f)
+                    lineTo(9.51f, 21.58f)
+                    curveTo(9.54f, 21.82f, 9.75f, 22.0f, 10.0f, 22.0f)
+                    horizontalLineTo(14.0f)
+                    curveTo(14.25f, 22.0f, 14.46f, 21.82f, 14.49f, 21.58f)
+                    lineTo(14.87f, 18.93f)
+                    curveTo(15.48f, 18.68f, 16.04f, 18.34f, 16.56f, 17.95f)
+                    lineTo(19.05f, 18.95f)
+                    curveTo(19.27f, 19.04f, 19.54f, 18.95f, 19.66f, 18.73f)
+                    lineTo(21.66f, 15.27f)
+                    curveTo(21.78f, 15.05f, 21.73f, 14.78f, 21.54f, 14.63f)
+                    lineTo(19.43f, 12.98f)
+                    close()
+                    moveTo(12.0f, 15.5f)
+                    curveTo(10.07f, 15.5f, 8.5f, 13.93f, 8.5f, 12.0f)
+                    curveTo(8.5f, 10.07f, 10.07f, 8.5f, 12.0f, 8.5f)
+                    curveTo(13.93f, 8.5f, 15.5f, 10.07f, 15.5f, 12.0f)
+                    curveTo(15.5f, 13.93f, 13.93f, 15.5f, 12.0f, 15.5f)
+                    close()
+                }
+            }
+            return _gearFill!!
+        }
+
     private var _lightbulb: ImageVector? = null
     private var _note: ImageVector? = null
     private var _bookmark: ImageVector? = null
@@ -1729,4 +1999,12 @@ object PhosphorIcons {
     private var _podcast: ImageVector? = null
     private var _television: ImageVector? = null
     private var _filmSlate: ImageVector? = null
+    private var _houseFill: ImageVector? = null
+    private var _bookFill: ImageVector? = null
+    private var _books: ImageVector? = null
+    private var _headphones: ImageVector? = null
+    private var _musicNoteFill: ImageVector? = null
+    private var _radio: ImageVector? = null
+    private var _stack: ImageVector? = null
+    private var _gearFill: ImageVector? = null
 }
