@@ -109,6 +109,7 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
+import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
