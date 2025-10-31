@@ -678,6 +678,11 @@ class AdvancedMusicPlayerService @Inject constructor(
     override fun setBassBoost(strength: Int) {
         // TODO: Implement bass boost
     }
+    
+    /**
+     * Get ExoPlayerService instance for visualizer attachment
+     */
+    fun getExoPlayerService(): ExoPlayerService = exoPlayerService
 }
 
 /**
