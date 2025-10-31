@@ -223,12 +223,49 @@ const AppContent: React.FC = () => {
           
           {/* Fallback */}
           <Route path="*" element={<div style={{ padding: 20 }}>Page Not Found</div>} />
-            </Routes>
+        </Routes>
 
-            {/* Global Now Playing Bar */}
-            <NowPlayingBar />
-          </Box>
-        </Box>
+        {/* Global Now Playing Bar */}
+        <NowPlayingBar />
+
+        {/* Floating Action Button (Mobile & Desktop) */}
+        <Zoom in={showFab}>
+          <Fab
+            color="secondary"
+            aria-label="add"
+            onClick={() => navigate('/')}
+            sx={{
+              position: 'fixed',
+              bottom: isMobile ? 72 : 24,
+              right: 24,
+              zIndex: 1000,
+            }}
+          >
+            <AddIcon />
+          </Fab>
+        </Zoom>
+      </Box>
+    </ResponsiveNavigation>
+  );
+};
+
+function App() {
+  const { selectedTheme } = useAppStore();
+
+  React.useEffect(() => {
+    initializeDatabase();
+  }, []);
+
+  const theme = React.useMemo(() => {
+    const themeConfig = getAllUnifiedThemes().find((t) => t.name === selectedTheme);
+    return themeConfig ? themeConfig.theme : getAllUnifiedThemes()[0].theme;
+  }, [selectedTheme]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <AppContent />
       </Router>
     </ThemeProvider>
   );
