@@ -57,5 +57,6 @@
     "debug.overrideEngine": "copilot-codex",
     "debug.testOverrideProxyUrl": "",
     "debug.overrideProxyUrl": ""
-  }
+  },
+  "avdmanager.sdkPath": "/app/android-sdk"
 }
