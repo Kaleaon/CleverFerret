@@ -41,6 +41,7 @@ import {
   Collections as CollectionsIcon,
   Search as SearchIcon,
   GraphicEq as VisualizerIcon,
+  Tv as TvIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
