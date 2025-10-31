@@ -42,6 +42,7 @@ fun EnhancedRadioScreen(
     onNavigateToOTR: () -> Unit,
     onNavigateToInternetRadio: () -> Unit,
     onNavigateToFMRadio: () -> Unit,
+    onNavigateToHDRadio: () -> Unit,
     viewModel: EnhancedRadioViewModel = hiltViewModel()
 ) {
     val nowPlaying by viewModel.nowPlaying.collectAsState()
@@ -94,6 +95,15 @@ fun EnhancedRadioScreen(
             }
 
             // Radio Categories
+            item {
+                RadioCategoryCard(
+                    title = "HD Radio",
+                    subtitle = "Digital radio with CD-quality audio and multiple channels",
+                    icon = Icons.Default.HighQuality,
+                    onClick = onNavigateToHDRadio
+                )
+            }
+
             item {
                 RadioCategoryCard(
                     title = "Internet Radio",
