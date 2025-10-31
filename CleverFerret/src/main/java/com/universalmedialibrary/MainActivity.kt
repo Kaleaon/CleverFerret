@@ -691,6 +691,7 @@ fun AppNavigation() {
                    navController = navController
                )
            }
+        }
     }
 }
 
