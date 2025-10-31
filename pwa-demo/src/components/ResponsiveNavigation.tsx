@@ -55,16 +55,17 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'home', label: 'Home', icon: <HomeIcon />, path: '/', showInBottom: true },
   { id: 'books', label: 'Books', icon: <BooksIcon />, path: '/library/1', showInBottom: true },
-  { id: 'audiobooks', label: 'Audiobooks', icon: <AudioIcon />, path: '/library/2', showInBottom: false },
-  { id: 'comics', label: 'Comics', icon: <ComicsIcon />, path: '/library/3', showInBottom: false },
-  { id: 'movies', label: 'Movies', icon: <MoviesIcon />, path: '/library/4', showInBottom: false },
+  { id: 'comics', label: 'Comics', icon: <ComicsIcon />, path: '/library/3', showInBottom: true },
+  { id: 'audiobooks', label: 'Audiobooks', icon: <AudioIcon />, path: '/library/2', showInBottom: true },
   { id: 'music', label: 'Music', icon: <MusicIcon />, path: '/music', showInBottom: true },
+  { id: 'movies', label: 'Movies', icon: <MoviesIcon />, path: '/library/4', showInBottom: true },
+  { id: 'tv', label: 'TV Shows', icon: <MoviesIcon />, path: '/library/5', showInBottom: true },
+  { id: 'radio', label: 'Radio', icon: <RadioIcon />, path: '/radio', showInBottom: true },
   { id: 'podcasts', label: 'Podcasts', icon: <PodcastsIcon />, path: '/podcasts', showInBottom: false },
   { id: 'documents', label: 'Documents', icon: <DocumentsIcon />, path: '/library/7', showInBottom: false },
-  { id: 'radio', label: 'Radio', icon: <RadioIcon />, path: '/radio', showInBottom: false },
   { id: 'collections', label: 'Collections', icon: <CollectionsIcon />, path: '/collections', showInBottom: false },
-  { id: 'search', label: 'Search', icon: <SearchIcon />, path: '/search', showInBottom: true },
-  { id: 'settings', label: 'Settings', icon: <SettingsIcon />, path: '/settings', showInBottom: true },
+  { id: 'search', label: 'Search', icon: <SearchIcon />, path: '/search', showInBottom: false },
+  { id: 'settings', label: 'Settings', icon: <SettingsIcon />, path: '/settings', showInBottom: false },
 ];
 
 const bottomNavItems = navItems.filter(item => item.showInBottom);
