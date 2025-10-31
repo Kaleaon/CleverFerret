@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Lock
@@ -822,15 +823,24 @@ fun LibraryListScreen(
                     navController.navigate("radio")
                 }
             )
+            NavigationRailItem(
+                icon = { Icon(Icons.Default.Headphones, contentDescription = "Audiobooks") },
+                label = { Text("Audiobooks") },
+                selected = selectedNavItem == 6,
+                onClick = { 
+                    selectedNavItem = 6
+                    navController.navigate("audiobook_library")
+                }
+            )
             
             Spacer(modifier = Modifier.weight(1f))
             
             NavigationRailItem(
                 icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
                 label = { Text("Settings") },
-                selected = selectedNavItem == 6,
+                selected = selectedNavItem == 7,
                 onClick = { 
-                    selectedNavItem = 6
+                    selectedNavItem = 7
                     navController.navigate("settings")
                 }
             )
