@@ -4,9 +4,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import java.io.File
 import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -58,6 +62,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,6 +84,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -104,6 +110,9 @@ import com.universalmedialibrary.services.CalibreImportForegroundService
 import com.universalmedialibrary.ui.library.CreateLibraryDialog
 import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.open.MediaOpenScreen
+import com.universalmedialibrary.ui.reader.EnhancedEReaderScreen
+import com.universalmedialibrary.ui.reader.DocumentReaderScreen
+import com.universalmedialibrary.ui.reader.ComicReaderScreen
 import com.universalmedialibrary.ui.settings.StorageOrganizerScreen
 import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
 import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
@@ -150,8 +159,19 @@ data class SampleLibrary(
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private var externalFileUri by mutableStateOf<Uri?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Restore external file URI from saved state if available
+        savedInstanceState?.getString(KEY_EXTERNAL_FILE_URI)?.let { uriString ->
+            externalFileUri = Uri.parse(uriString)
+        }
+        
+        // Handle intent for opening external files
+        handleIntent(intent)
+        
         setContent {
             // Use settings to determine theme
             val mainViewModel: MainViewModel = hiltViewModel()
@@ -163,10 +183,34 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    AppNavigation(externalFileUri = externalFileUri)
                 }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Save external file URI to survive configuration changes
+        externalFileUri?.toString()?.let { uriString ->
+            outState.putString(KEY_EXTERNAL_FILE_URI, uriString)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_VIEW) {
+            externalFileUri = intent.data
+        }
+    }
+
+    companion object {
+        private const val KEY_EXTERNAL_FILE_URI = "external_file_uri"
     }
 }
 
@@ -176,9 +220,20 @@ class MainActivity : ComponentActivity() {
  * Now with responsive navigation that adapts to screen size.
  */
 @Composable
-fun AppNavigation() {
+fun AppNavigation(externalFileUri: Uri? = null) {
     val navController = rememberNavController()
     val context = LocalContext.current
+    
+    // Handle external file opening
+    LaunchedEffect(externalFileUri) {
+        if (externalFileUri != null) {
+            val encodedUri = Uri.encode(externalFileUri.toString())
+            navController.navigate("open_file/$encodedUri") {
+                // Clear the back stack to make the file viewer the new root
+                popUpTo("home") { inclusive = false }
+            }
+        }
+    }
     
     // Permission handling
     val permissionState = rememberPermissionsHandler(
@@ -245,6 +300,18 @@ fun AppNavigation() {
                 )
             } else {
                 Text("Invalid media item")
+            }
+        }
+        composable("open_file/{encodedUri}") { backStackEntry ->
+            val encodedUri = backStackEntry.arguments?.getString("encodedUri")
+            if (encodedUri != null) {
+                val uri = Uri.decode(encodedUri)
+                DirectFileOpenScreen(
+                    fileUri = uri,
+                    onBack = { navController.navigateUp() }
+                )
+            } else {
+                Text("Invalid file URI")
             }
         }
         composable("editor/new") {
@@ -1428,5 +1495,192 @@ private fun PermissionItem(emoji: String, text: String) {
     ) {
         Text(emoji, style = MaterialTheme.typography.bodyLarge)
         Text(text, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+/**
+ * Screen for opening files directly from external sources (e.g., file manager)
+ * without needing them to be in the library database.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DirectFileOpenScreen(
+    fileUri: String,
+    onBack: () -> Unit
+) {
+    val context = LocalContext.current
+    val uri = remember(fileUri) { Uri.parse(fileUri) }
+    
+    // Get the file name from URI
+    val fileName = remember(uri) {
+        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+            if (cursor.moveToFirst() && nameIndex != -1) {
+                cursor.getString(nameIndex)
+            } else {
+                uri.lastPathSegment ?: "unknown"
+            }
+        } ?: uri.lastPathSegment ?: "unknown"
+    }
+    
+    val extension = remember(fileName) { fileName.substringAfterLast('.', "").lowercase() }
+    
+    // State for error messages and loading - moved outside when block
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    var filePath by remember { mutableStateOf<String?>(null) }
+    
+    // Route to appropriate reader based on file type
+    when {
+        extension == "epub" -> {
+            // For EPUB, we need a file path, so convert URI to path
+            // Clean up old cache files on mount
+            LaunchedEffect(Unit) {
+                try {
+                    val cacheDir = context.cacheDir
+                    val oldCacheFiles = cacheDir.listFiles { file ->
+                        file.name.contains("_") && file.name.endsWith(".epub")
+                    }
+                    val oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000)
+                    oldCacheFiles?.forEach { file ->
+                        if (file.lastModified() < oneDayAgo) {
+                            file.delete()
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Ignore cleanup errors
+                }
+            }
+            
+            // Handle file loading asynchronously
+            LaunchedEffect(uri) {
+                isLoading = true
+                errorMessage = null
+                filePath = null
+                
+                try {
+                    if (uri.scheme == "file") {
+                        filePath = uri.path ?: throw IllegalStateException("File URI has no path")
+                    } else {
+                        // For content:// URIs, copy to cache with unique name
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            val uuid = UUID.randomUUID().toString()
+                            val uniqueFileName = "${uuid}_$fileName"
+                            val cacheFile = File(context.cacheDir, uniqueFileName)
+                            context.contentResolver.openInputStream(uri)?.use { input ->
+                                cacheFile.outputStream().use { output ->
+                                    input.copyTo(output)
+                                }
+                            } ?: throw IllegalStateException("Unable to access the selected file. It may have been moved or deleted.")
+                            filePath = cacheFile.absolutePath
+                        }
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Failed to load EPUB: ${e.message}"
+                } finally {
+                    isLoading = false
+                }
+            }
+            
+            when {
+                isLoading -> {
+                    // Show loading indicator
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = { Text("Loading...") },
+                                navigationIcon = {
+                                    IconButton(onClick = onBack) {
+                                        Icon(Icons.Default.Close, contentDescription = "Back")
+                                    }
+                                }
+                            )
+                        }
+                    ) { paddingValues ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+                errorMessage != null -> {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = { Text("Error") },
+                                navigationIcon = {
+                                    IconButton(onClick = onBack) {
+                                        Icon(Icons.Default.Close, contentDescription = "Back")
+                                    }
+                                }
+                            )
+                        }
+                    ) { paddingValues ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = errorMessage ?: "Unknown error",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+                filePath != null -> {
+                    EnhancedEReaderScreen(bookFilePath = filePath!!, onBack = onBack)
+                }
+            }
+        }
+        extension in setOf("pdf", "txt", "html", "htm", "docx") -> {
+            DocumentReaderScreen(uriString = fileUri, fileName = fileName, onBack = onBack)
+        }
+        extension in setOf("cbz", "cbr") -> {
+            ComicReaderScreen(uriString = fileUri, fileName = fileName, onBack = onBack)
+        }
+        else -> {
+            // Unsupported file type
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text("Unsupported File") },
+                        navigationIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(Icons.Default.Close, contentDescription = "Back")
+                            }
+                        }
+                    )
+                }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Unsupported file type: .$extension",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "CleverFerret supports: EPUB, PDF, TXT, HTML, DOCX, CBZ, CBR",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
     }
 }
