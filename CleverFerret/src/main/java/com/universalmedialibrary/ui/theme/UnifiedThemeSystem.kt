@@ -243,6 +243,8 @@ fun UnifiedCleverFerretTheme(
         val metallicColors = getMetallicColorsForTheme(theme)
         
         // Provide advanced effects context for all themes
+        // Note: LocalEnable* composition locals are defined in AncientArchitectTheme.kt
+        // and shared across all themes (same package, no import needed)
         CompositionLocalProvider(
             LocalMetallicColors provides metallicColors,
             LocalEnableGeometricPatterns provides enableGeometricPatterns,
