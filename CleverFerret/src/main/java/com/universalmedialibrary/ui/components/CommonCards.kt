@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.theme.*
 
 /**
  * Card shown when an error occurs, with a retry button
@@ -24,7 +25,9 @@ fun ErrorStateCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .depthShadow(elevation = 4.dp)
+            .animatedEntrance(durationMillis = 400),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
         )
@@ -79,10 +82,25 @@ fun LoadingStateCard(
     message: String,
     modifier: Modifier = Modifier
 ) {
+    val patternsEnabled = geometricPatternsEnabled()
+    
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .then(
+                if (patternsEnabled) {
+                    Modifier.geometricPattern(
+                        patternColor = MaterialTheme.colorScheme.onSurface,
+                        patternType = PatternType.SUBTLE_GRID,
+                        alpha = 0.03f
+                    )
+                } else {
+                    Modifier
+                }
+            )
+            .depthShadow(elevation = 2.dp)
+            .animatedEntrance(durationMillis = 300),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
