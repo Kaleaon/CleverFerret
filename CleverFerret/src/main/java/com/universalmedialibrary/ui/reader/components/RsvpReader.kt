@@ -1,10 +1,9 @@
 package com.universalmedialibrary.ui.reader.components
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -35,7 +34,6 @@ import kotlinx.coroutines.isActive
  * 
  * The optimal recognition point (ORP) is highlighted to help eyes fixate quickly
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun RsvpReader(
     text: String,
@@ -101,7 +99,7 @@ fun RsvpReader(
                 
                 AnimatedContent(
                     targetState = word,
-                    transitionSpec = { fadeIn() with fadeOut() }
+                    transitionSpec = { fadeIn() togetherWith fadeOut() }
                 ) { targetWord ->
                     Text(
                         text = buildAnnotatedString {
