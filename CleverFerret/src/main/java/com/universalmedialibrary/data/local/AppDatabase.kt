@@ -134,7 +134,7 @@ import com.universalmedialibrary.data.Tag
         SavedSearchEntity::class
 
     ],
-    version = 29, // Incremented for search history support
+    version = 30, // Incremented for enhanced reading features (color schemes, ruler, RSVP, enhanced auto-scroll)
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class)
@@ -233,7 +233,9 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_24_25,
                     AppDatabaseMigrations.MIGRATION_25_26,
                     AppDatabaseMigrations.MIGRATION_26_27,
-                    AppDatabaseMigrations.MIGRATION_27_28
+                    AppDatabaseMigrations.MIGRATION_27_28,
+                    AppDatabaseMigrations.MIGRATION_28_29,
+                    AppDatabaseMigrations.MIGRATION_29_30
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

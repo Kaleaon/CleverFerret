@@ -385,4 +385,76 @@ object AppDatabaseMigrations {
             """.trimIndent())
         }
     }
+
+    val MIGRATION_28_29 = object : Migration(28, 29) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Migration 28 to 29 - Add search history support
+            // This was already applied but migration object was missing
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS search_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    query TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS saved_searches (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    query TEXT NOT NULL,
+                    created_at INTEGER NOT NULL
+                )
+            """.trimIndent())
+        }
+    }
+
+    val MIGRATION_29_30 = object : Migration(29, 30) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Add enhanced reading features columns to reader_settings table
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN colorScheme TEXT NOT NULL DEFAULT 'Classic Day'
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerEnabled INTEGER NOT NULL DEFAULT 0
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerHeight INTEGER NOT NULL DEFAULT 60
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerColor TEXT NOT NULL DEFAULT '#808080'
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerAlpha REAL NOT NULL DEFAULT 0.3
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerPosition REAL NOT NULL DEFAULT 0.5
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rsvpEnabled INTEGER NOT NULL DEFAULT 0
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rsvpWpm INTEGER NOT NULL DEFAULT 250
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rsvpFontSize INTEGER NOT NULL DEFAULT 32
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN autoScrollEnabled INTEGER NOT NULL DEFAULT 0
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN autoScrollSpeedMultiplier REAL NOT NULL DEFAULT 1.0
+            """.trimIndent())
+        }
+    }
 }

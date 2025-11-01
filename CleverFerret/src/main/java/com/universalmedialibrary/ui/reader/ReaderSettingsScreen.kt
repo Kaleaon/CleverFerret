@@ -100,6 +100,12 @@ fun ReaderSettingsScreen(
                 onKeepScreenOnChanged = { keepOn -> viewModel.updateKeepScreenOn(keepOn) }
             )
 
+            // Enhanced Reading Features Section
+            EnhancedReadingFeaturesSection(
+                readerSettings = readerSettings,
+                viewModel = viewModel
+            )
+
             // Reset to Defaults
             if (mediaId != null) {
                 Button(
@@ -393,6 +399,253 @@ private fun AdvancedSection(
                     checked = readerSettings.keepScreenOn,
                     onCheckedChange = onKeepScreenOnChanged
                 )
+            }
+        }
+    }
+}
+
+/**
+ * Enhanced Reading Features Section
+ * LibreraReader-inspired features
+ */
+@Composable
+private fun EnhancedReadingFeaturesSection(
+    readerSettings: ReaderSettings,
+    viewModel: ReaderSettingsViewModel
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Enhanced Reading Features",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            // Color Scheme
+            Text(
+                text = "Color Scheme",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            val colorSchemes = listOf(
+                "Classic Day", "Warm Day", "Paper Day", "High Contrast Day",
+                "Sepia", "Dark Sepia",
+                "Classic Night", "Dark Gray", "OLED Black", "Midnight Blue", 
+                "Dark Green", "Amber Night", "High Contrast Night"
+            )
+            
+            var expandedColorScheme by remember { mutableStateOf(false) }
+            
+            ExposedDropdownMenuBox(
+                expanded = expandedColorScheme,
+                onExpandedChange = { expandedColorScheme = !expandedColorScheme }
+            ) {
+                OutlinedTextField(
+                    value = readerSettings.colorScheme,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Select color scheme") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedColorScheme) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = expandedColorScheme,
+                    onDismissRequest = { expandedColorScheme = false }
+                ) {
+                    colorSchemes.forEach { scheme ->
+                        DropdownMenuItem(
+                            text = { Text(scheme) },
+                            onClick = {
+                                viewModel.updateColorScheme(scheme)
+                                expandedColorScheme = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Reading Ruler
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Reading Ruler",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = readerSettings.rulerEnabled,
+                    onCheckedChange = { viewModel.updateRulerEnabled(it) }
+                )
+            }
+
+            if (readerSettings.rulerEnabled) {
+                Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
+                    Text(
+                        text = "Ruler Height: ${readerSettings.rulerHeight}dp",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Slider(
+                        value = readerSettings.rulerHeight.toFloat(),
+                        onValueChange = { height ->
+                            viewModel.updateRulerSettings(
+                                height = height.toInt(),
+                                color = readerSettings.rulerColor,
+                                alpha = readerSettings.rulerAlpha,
+                                position = readerSettings.rulerPosition
+                            )
+                        },
+                        valueRange = 30f..120f,
+                        steps = 17,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    Text(
+                        text = "Ruler Opacity: ${(readerSettings.rulerAlpha * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Slider(
+                        value = readerSettings.rulerAlpha,
+                        onValueChange = { alpha ->
+                            viewModel.updateRulerSettings(
+                                height = readerSettings.rulerHeight,
+                                color = readerSettings.rulerColor,
+                                alpha = alpha,
+                                position = readerSettings.rulerPosition
+                            )
+                        },
+                        valueRange = 0.1f..0.7f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // RSVP Speed Reading
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "RSVP Speed Reading",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = readerSettings.rsvpEnabled,
+                    onCheckedChange = { viewModel.updateRsvpEnabled(it) }
+                )
+            }
+
+            if (readerSettings.rsvpEnabled) {
+                Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
+                    Text(
+                        text = "Speed: ${readerSettings.rsvpWpm} WPM",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Slider(
+                        value = readerSettings.rsvpWpm.toFloat(),
+                        onValueChange = { wpm ->
+                            viewModel.updateRsvpSettings(
+                                wpm = wpm.toInt(),
+                                fontSize = readerSettings.rsvpFontSize
+                            )
+                        },
+                        valueRange = 100f..600f,
+                        steps = 49,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    Text(
+                        text = "Font Size: ${readerSettings.rsvpFontSize}sp",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Slider(
+                        value = readerSettings.rsvpFontSize.toFloat(),
+                        onValueChange = { size ->
+                            viewModel.updateRsvpSettings(
+                                wpm = readerSettings.rsvpWpm,
+                                fontSize = size.toInt()
+                            )
+                        },
+                        valueRange = 20f..48f,
+                        steps = 27,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Enhanced Auto-Scroll
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Enhanced Auto-Scroll",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = readerSettings.autoScrollEnabled,
+                    onCheckedChange = { viewModel.updateAutoScrollEnabled(it) }
+                )
+            }
+
+            if (readerSettings.autoScrollEnabled) {
+                Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
+                    Text(
+                        text = "Speed: ${String.format("%.1f", readerSettings.autoScrollSpeedMultiplier)}x",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Slider(
+                        value = readerSettings.autoScrollSpeedMultiplier,
+                        onValueChange = { speed ->
+                            viewModel.updateAutoScrollSpeed(speed)
+                        },
+                        valueRange = 0.1f..5.0f,
+                        steps = 48,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        TextButton(onClick = { viewModel.updateAutoScrollSpeed(0.5f) }) {
+                            Text("Slow", style = MaterialTheme.typography.bodySmall)
+                        }
+                        TextButton(onClick = { viewModel.updateAutoScrollSpeed(1.0f) }) {
+                            Text("Normal", style = MaterialTheme.typography.bodySmall)
+                        }
+                        TextButton(onClick = { viewModel.updateAutoScrollSpeed(2.0f) }) {
+                            Text("Fast", style = MaterialTheme.typography.bodySmall)
+                        }
+                        TextButton(onClick = { viewModel.updateAutoScrollSpeed(3.0f) }) {
+                            Text("Ultra", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
             }
         }
     }
