@@ -41,7 +41,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val audioEffectsService: AudioEffectsService,
     private val replayGainService: ReplayGainService,
     private val lastFmScrobbler: LastFmScrobblerService,
-    private val audioProfileService: AudioProfileService
+    private val audioProfileService: AudioProfileService,
+    private val mediaRepository: com.universalmedialibrary.data.repository.MediaRepository
 ) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -263,9 +264,32 @@ class AdvancedMusicPlayerService @Inject constructor(
         // Convert mediaId to Long and add to queue
         val mediaIdLong = mediaId.toLongOrNull() ?: return
         
-        // Add to current queue (simplified - actual implementation would fetch MediaItem)
-        // For now, just trigger a queue update
-        // TODO: Fetch MediaItem from repository and add to queue properly
+        // Fetch MediaItem from repository and add to queue
+        scrobblerScope.launch {
+            try {
+                val mediaItem = mediaRepository.getMediaItemById(mediaIdLong)
+                if (mediaItem != null) {
+                    // Convert to TrackInfo and add to queue
+                    val trackInfo = TrackInfo(
+                        id = mediaItem.id.toString(),
+                        title = mediaItem.title,
+                        artist = null,  // Would need metadata lookup
+                        album = null,
+                        duration = 0,
+                        filePath = mediaItem.filePath,
+                        albumArtUrl = null
+                    )
+                    val currentQueue = _queue.value.toMutableList()
+                    currentQueue.add(trackInfo)
+                    _queue.value = currentQueue
+                    Log.d("AdvancedMusicPlayer", "Added item ${mediaItem.id} to queue. Queue size: ${currentQueue.size}")
+                } else {
+                    Log.w("AdvancedMusicPlayer", "Media item not found: $mediaIdLong")
+                }
+            } catch (e: Exception) {
+                Log.e("AdvancedMusicPlayer", "Failed to add to queue: $mediaIdLong", e)
+            }
+        }
     }
 
     /**
