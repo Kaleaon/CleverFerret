@@ -32,6 +32,7 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
 @Composable
 fun AmbientSoundScreen(
     onBack: () -> Unit,
+    onNavigateToThemeManager: () -> Unit = {},
     viewModel: AmbientSoundViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -60,6 +61,14 @@ fun AmbientSoundScreen(
                     }
                 },
                 actions = {
+                    // Theme Manager
+                    IconButton(onClick = onNavigateToThemeManager) {
+                        Icon(
+                            imageVector = Icons.Default.Category,
+                            contentDescription = "Manage Themes"
+                        )
+                    }
+                    
                     // Favorites filter
                     IconButton(onClick = { 
                         showFavoritesOnly = !showFavoritesOnly

@@ -5,6 +5,7 @@ import android.util.Log
 import com.universalmedialibrary.data.migration.AppUpgradeManager
 import com.universalmedialibrary.data.migration.BackupRestorationManager
 import com.universalmedialibrary.data.migration.UpgradeStatus
+import com.universalmedialibrary.services.ambient.ThemedCollections
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +46,10 @@ class CleverFerretApplication : Application() {
         super.onCreate()
         
         Log.i(TAG, "Clever Ferret initializing...")
+        
+        // Initialize themed sound collections
+        ThemedCollections.initialize()
+        Log.d(TAG, "Ambient themed collections initialized")
 
         // CRITICAL: Check for app upgrades and protect user data
         applicationScope.launch {
