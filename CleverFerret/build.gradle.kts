@@ -170,6 +170,9 @@ dependencies {
     // HTML parsing for web scraping
     implementation("org.jsoup:jsoup:1.21.2")
     
+    // CSV parsing for Goodreads import/export
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
+    
     // Security for encrypted token storage
     implementation("androidx.security:security-crypto:1.1.0")
     
@@ -185,6 +188,13 @@ dependencies {
     // Google Cast SDK for Chromecast
     implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
     implementation("androidx.media3:media3-cast:1.8.0")
+    
+    // ZXing barcode scanner for ISBN scanning
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.3")
+    
+    // MPAndroidChart - Beautiful charts with animations for reading statistics
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
