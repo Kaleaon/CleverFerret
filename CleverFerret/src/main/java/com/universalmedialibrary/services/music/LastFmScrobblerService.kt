@@ -260,6 +260,50 @@ class LastFmScrobblerService @Inject constructor(
     }
     
     /**
+     * Check if scrobbling is enabled
+     */
+    fun isScrobblingEnabled(): Boolean = _state.value.isEnabled
+    
+    /**
+     * Enable/disable scrobbling
+     */
+    fun setScrobblingEnabled(enabled: Boolean) {
+        _state.value = _state.value.copy(isEnabled = enabled)
+    }
+    
+    /**
+     * Check if Now Playing is enabled
+     */
+    fun isNowPlayingEnabled(): Boolean = true // Always enabled when scrobbling is on
+    
+    /**
+     * Enable/disable Now Playing
+     */
+    fun setNowPlayingEnabled(enabled: Boolean) {
+        // No-op for now - Now Playing tied to scrobbling state
+    }
+    
+    /**
+     * Retry failed scrobbles from offline queue
+     */
+    suspend fun retryFailedScrobbles() {
+        if (offlineQueue.isEmpty()) return
+        
+        val toRetry = offlineQueue.toList()
+        offlineQueue.clear()
+        
+        toRetry.forEach { scrobbleData ->
+            scrobble(
+                artist = scrobbleData.artist,
+                track = scrobbleData.track,
+                timestamp = scrobbleData.timestamp,
+                album = scrobbleData.album,
+                duration = scrobbleData.duration
+            )
+        }
+    }
+    
+    /**
      * Get offline queue size
      */
     fun getOfflineQueueSize(): Int = offlineQueue.size
