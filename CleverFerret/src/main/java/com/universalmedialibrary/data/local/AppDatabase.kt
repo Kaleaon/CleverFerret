@@ -136,13 +136,17 @@ import com.universalmedialibrary.data.Tag
         // Ambient sounds for reading
         AmbientSound::class,
         AmbientPlaylist::class,
-        AmbientReadingSession::class
+        AmbientReadingSession::class,
+        
+        // Audio pack imports
+        AudioPack::class,
+        AudioPackSound::class
 
     ],
-    version = 31, // Incremented for ambient sound feature
+    version = 32, // Incremented for audio pack import feature
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class)
+@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -218,6 +222,9 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Ambient Sound DAO
     abstract fun ambientSoundDao(): AmbientSoundDao
+    
+    // Audio Pack DAO
+    abstract fun audioPackDao(): AudioPackDao
 
 
     companion object {
@@ -244,7 +251,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_27_28,
                     AppDatabaseMigrations.MIGRATION_28_29,
                     AppDatabaseMigrations.MIGRATION_29_30,
-                    AppDatabaseMigrations.MIGRATION_30_31
+                    AppDatabaseMigrations.MIGRATION_30_31,
+                    AppDatabaseMigrations.MIGRATION_31_32
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

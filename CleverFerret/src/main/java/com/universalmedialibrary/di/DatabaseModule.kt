@@ -285,5 +285,11 @@ object DatabaseModule {
     fun provideAmbientSoundDao(database: AppDatabase): AmbientSoundDao {
         return database.ambientSoundDao()
     }
+    
+    // Audio Pack DAO
+    @Provides
+    fun provideAudioPackDao(database: AppDatabase): AudioPackDao {
+        return database.audioPackDao()
+    }
 
 }
