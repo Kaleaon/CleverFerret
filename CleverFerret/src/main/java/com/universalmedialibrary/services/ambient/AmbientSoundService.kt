@@ -32,13 +32,34 @@ class AmbientSoundService @Inject constructor(
     private var currentSessionId: Long? = null
 
     /**
-     * Initialize default ambient sounds from Moodist collection
-     * Complete set of 84 professionally curated ambient sounds
-     * Source: https://github.com/remvze/moodist
+     * Initialize default ambient sounds from SoundLibrary
+     * Extensible system - add new themes (sci-fi, medieval, etc.) without modifying this code
+     * 
+     * To add new themed collections:
+     * 1. Create a new object like SciFiSounds with getAllSounds()
+     * 2. Register it: SoundLibrary.registerCollection(...)
+     * 3. Sounds will automatically be included in initialization
      */
     suspend fun initializeDefaultSounds() {
-        val moodistSounds = MoodistSounds.getAllSounds()
-        ambientSoundDao.insertSounds(moodistSounds)
+        val allSounds = SoundLibrary.getAllSounds()
+        ambientSoundDao.insertSounds(allSounds)
+    }
+    
+    /**
+     * Initialize sounds from a specific collection
+     * Useful for adding themed collections on-demand
+     */
+    suspend fun initializeCollection(collectionId: String) {
+        SoundLibrary.getCollection(collectionId)?.let { collection ->
+            ambientSoundDao.insertSounds(collection.sounds)
+        }
+    }
+    
+    /**
+     * Get library statistics
+     */
+    fun getLibraryStats(): SoundLibrary.LibraryStats {
+        return SoundLibrary.getStats()
     }
 
     /**
