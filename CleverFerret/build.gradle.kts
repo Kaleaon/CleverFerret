@@ -222,6 +222,9 @@ dependencies {
     implementation("org.readium.kotlin-toolkit:readium-navigator:$readiumVersion")
     implementation("org.readium.kotlin-toolkit:readium-opds:$readiumVersion") // OPDS catalog support
     
+    // MIDI support - ktmidi for Kotlin MIDI 1.0/2.0 support
+    implementation("dev.atsushieno:ktmidi-android:0.11.1")
+    
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.14.2")
