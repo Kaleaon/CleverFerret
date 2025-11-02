@@ -1,14 +1,17 @@
 package com.universalmedialibrary.services.ocr
 
-import android.graphics.Bitmap
 import android.graphics.Rect
-import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /**
  * Unit tests for OCR service
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28])
 class OcrServiceTest {
 
     @Test

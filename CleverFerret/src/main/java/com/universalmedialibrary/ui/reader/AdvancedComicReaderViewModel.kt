@@ -41,6 +41,13 @@ class AdvancedComicReaderViewModel @Inject constructor(
     private var extractedPages: List<String> = emptyList()
     private var panelDetector: GeometricPanelDetector? = null
 
+    // OCR state
+    private val _ocrResult = MutableStateFlow<String?>(null)
+    val ocrResult: StateFlow<String?> = _ocrResult.asStateFlow()
+
+    private val _isOcrProcessing = MutableStateFlow(false)
+    val isOcrProcessing: StateFlow<Boolean> = _isOcrProcessing.asStateFlow()
+
     fun loadComic(context: Context, comicUri: Uri) {
         viewModelScope.launch {
             try {
@@ -308,6 +315,31 @@ class AdvancedComicReaderViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun performOcr(context: Context, bitmap: Bitmap) {
+        viewModelScope.launch {
+            try {
+                _isOcrProcessing.value = true
+                _ocrResult.value = null
+
+                // Note: Actual OCR integration will be done in a separate service
+                // For now, this is a placeholder that shows the structure
+                withContext(Dispatchers.Default) {
+                    // Simulate OCR processing time
+                    kotlinx.coroutines.delay(1000)
+                    _ocrResult.value = "OCR functionality will be integrated with ML Kit service"
+                }
+            } catch (e: Exception) {
+                _ocrResult.value = "Error: ${e.message}"
+            } finally {
+                _isOcrProcessing.value = false
+            }
+        }
+    }
+
+    fun clearOcrResult() {
+        _ocrResult.value = null
     }
 }
 

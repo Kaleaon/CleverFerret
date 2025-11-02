@@ -280,4 +280,10 @@ object DatabaseModule {
         return database.unifiedTagDao()
     }
 
+    // OCR Cache DAO
+    @Provides
+    fun provideOcrCacheDao(database: AppDatabase): OcrCacheDao {
+        return database.ocrCacheDao()
+    }
+
 }
