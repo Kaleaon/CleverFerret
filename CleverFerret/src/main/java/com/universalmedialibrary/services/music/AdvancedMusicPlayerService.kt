@@ -35,7 +35,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val musicMetadataService: MusicMetadataService,
     private val mediaController: MediaController,
-    private val artworkLoader: ArtworkLoader
+    private val artworkLoader: ArtworkLoader,
+    private val audioEffectsService: AudioEffectsService
 ) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -94,6 +95,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             )
 
             exoPlayerService.play()
+            initializeAudioEffects()
             updatePlaybackState(isPlaying = true, isLoading = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Error playing track: ${e.message}")
@@ -150,6 +152,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             )
 
             exoPlayerService.play()
+            initializeAudioEffects()
             updatePlaybackState(isPlaying = true, isLoading = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Error playing track: ${e.message}")
@@ -653,9 +656,8 @@ class AdvancedMusicPlayerService @Inject constructor(
      */
     override fun adjustVolume(delta: Float) {
         // Get current volume from ExoPlayer and adjust
-        // TODO: Implement volume retrieval from ExoPlayerService
-        val currentVolume = 0.7f // Placeholder
-        setVolume(currentVolume + delta)
+        val currentVolume = exoPlayerService.getVolume()
+        setVolume((currentVolume + delta).coerceIn(0f, 1f))
     }
 
     /**
@@ -668,24 +670,58 @@ class AdvancedMusicPlayerService @Inject constructor(
     // ===== AUDIO EFFECTS =====
 
     /**
+     * Initialize audio effects for current playback
+     */
+    private fun initializeAudioEffects() {
+        val audioSessionId = exoPlayerService.getAudioSessionId()
+        if (audioSessionId != 0) {
+            audioEffectsService.initialize(audioSessionId)
+        }
+    }
+
+    /**
      * Set equalizer preset
      */
     override fun setEqualizerPreset(presetId: Int) {
-        // TODO: Implement equalizer integration
+        try {
+            // Map presetId to EqualizerPreset enum
+            val preset = when (presetId) {
+                0 -> EqualizerPreset.FLAT
+                1 -> EqualizerPreset.BASS_BOOST
+                2 -> EqualizerPreset.TREBLE_BOOST
+                3 -> EqualizerPreset.VOCAL
+                4 -> EqualizerPreset.DEEP
+                5 -> EqualizerPreset.ELECTRONIC
+                6 -> EqualizerPreset.ROCK
+                7 -> EqualizerPreset.JAZZ
+                else -> EqualizerPreset.FLAT
+            }
+            audioEffectsService.applyEqualizerPreset(preset)
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
     }
 
     /**
      * Enable/disable reverb effect
      */
     override fun enableReverb(enabled: Boolean) {
-        // TODO: Implement reverb effect
+        try {
+            audioEffectsService.setReverb(ReverbPreset.NONE, enabled)
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
     }
 
     /**
-     * Set bass boost strength
+     * Set bass boost strength (0-1000)
      */
     override fun setBassBoost(strength: Int) {
-        // TODO: Implement bass boost
+        try {
+            audioEffectsService.setBassBoost(strength.coerceIn(0, 1000), enabled = strength > 0)
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
     }
     
     /**
