@@ -13,6 +13,7 @@ import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.media.MediaServiceType
 import com.universalmedialibrary.services.artwork.ArtworkLoader
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +39,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val mediaController: MediaController,
     private val artworkLoader: ArtworkLoader,
     private val audioEffectsService: AudioEffectsService,
-    private val replayGainService: ReplayGainService
+    private val replayGainService: ReplayGainService,
+    private val lastFmScrobbler: LastFmScrobblerService
 ) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -55,6 +57,19 @@ class AdvancedMusicPlayerService @Inject constructor(
 
     private var currentQueueIndex = 0
     private var originalQueue: List<TrackInfo> = emptyList()
+    
+    // Last.fm scrobbling
+    private val scrobblerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var scrobbleJob: Job? = null
+    private var trackStartTime: Long = 0
+    private var hasScrobbled: Boolean = false
+    
+    init {
+        // Initialize Last.fm scrobbler
+        scrobblerScope.launch {
+            lastFmScrobbler.initialize()
+        }
+    }
 
     /**
      * Load and play a single track
@@ -516,6 +531,7 @@ class AdvancedMusicPlayerService @Inject constructor(
         if (currentTrack != null) {
             _currentTrack.value = currentTrack
             applyReplayGain(currentTrack)
+            startScrobbling(currentTrack)
             exoPlayerService.seekToMediaItem(currentQueueIndex)
             if (!_playbackState.value.isPlaying) {
                 play()
@@ -753,6 +769,52 @@ class AdvancedMusicPlayerService @Inject constructor(
      * Get ExoPlayerService instance for visualizer attachment
      */
     fun getExoPlayerService(): ExoPlayerService = exoPlayerService
+    
+    // ===== LAST.FM SCROBBLING =====
+    
+    /**
+     * Start Last.fm scrobbling for current track
+     */
+    private fun startScrobbling(track: TrackInfo) {
+        // Cancel any existing scrobble job
+        scrobbleJob?.cancel()
+        hasScrobbled = false
+        trackStartTime = System.currentTimeMillis()
+        
+        // Update "Now Playing" on Last.fm
+        scrobblerScope.launch {
+            lastFmScrobbler.updateNowPlaying(
+                artist = track.artist ?: "Unknown Artist",
+                track = track.title,
+                album = track.album,
+                duration = track.duration
+            )
+        }
+        
+        // Schedule scrobble for 50% of track or 4 minutes (whichever comes first)
+        val scrobbleDelay = minOf(
+            track.duration / 2, // 50% of track
+            4 * 60 * 1000 // 4 minutes
+        )
+        
+        scrobbleJob = scrobblerScope.launch {
+            delay(scrobbleDelay)
+            if (!hasScrobbled) {
+                lastFmScrobbler.scrobble(
+                    artist = track.artist ?: "Unknown Artist",
+                    track = track.title,
+                    album = track.album,
+                    duration = track.duration
+                )
+                hasScrobbled = true
+            }
+        }
+    }
+    
+    /**
+     * Get Last.fm scrobbler service
+     */
+    fun getLastFmScrobbler(): LastFmScrobblerService = lastFmScrobbler
 }
 
 /**
