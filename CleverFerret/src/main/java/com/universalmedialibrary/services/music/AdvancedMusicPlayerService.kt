@@ -40,7 +40,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val artworkLoader: ArtworkLoader,
     private val audioEffectsService: AudioEffectsService,
     private val replayGainService: ReplayGainService,
-    private val lastFmScrobbler: LastFmScrobblerService
+    private val lastFmScrobbler: LastFmScrobblerService,
+    private val audioProfileService: AudioProfileService
 ) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -69,6 +70,9 @@ class AdvancedMusicPlayerService @Inject constructor(
         scrobblerScope.launch {
             lastFmScrobbler.initialize()
         }
+        
+        // Initialize audio profile service
+        audioProfileService.initialize()
     }
 
     /**
@@ -815,6 +819,11 @@ class AdvancedMusicPlayerService @Inject constructor(
      * Get Last.fm scrobbler service
      */
     fun getLastFmScrobbler(): LastFmScrobblerService = lastFmScrobbler
+    
+    /**
+     * Get audio profile service
+     */
+    fun getAudioProfileService(): AudioProfileService = audioProfileService
 }
 
 /**
