@@ -12,6 +12,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.mikepenz.aboutlibraries.plugin") version "12.2.4"
 }
 
 configurations.all {
@@ -181,6 +182,19 @@ dependencies {
     
     // WorkManager for background tasks
     implementation("androidx.work:work-runtime-ktx:2.11.0")
+    
+    // Crash handler for better error reporting
+    implementation("cat.ereza:customactivityoncrash:2.4.0")
+    
+    // Swipe actions for library items (Phase 2)
+    implementation("me.saket.swipe:swipe:1.3.0")
+    
+    // TapTarget tutorial overlays (Phase 3)
+    implementation("com.pierfrancescosoffritti.taptargetcompose:core:1.2.1")
+    
+    // OSS License attribution (Phase 2)
+    implementation("com.mikepenz:aboutlibraries-core:12.2.4")
+    implementation("com.mikepenz:aboutlibraries-compose-m3:12.2.4")
     
     // Embedded HTTP server for OPDS
     implementation("org.nanohttpd:nanohttpd:2.3.1")

@@ -134,7 +134,7 @@ import com.universalmedialibrary.data.Tag
         SavedSearchEntity::class
 
     ],
-    version = 30, // Incremented for enhanced reading features (color schemes, ruler, RSVP, enhanced auto-scroll)
+    version = 31, // Added Phase 2 & 3 features: swipe actions, tutorials, enhanced EPUB settings
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class)
