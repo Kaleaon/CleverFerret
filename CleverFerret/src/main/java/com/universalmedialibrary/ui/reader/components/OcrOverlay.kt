@@ -29,6 +29,7 @@ import androidx.compose.ui.window.DialogProperties
  * 
  * Provides controls for OCR text recognition with result display and TTS
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OcrOverlay(
     bitmap: Bitmap?,
@@ -39,9 +40,13 @@ fun OcrOverlay(
     modifier: Modifier = Modifier,
     onSpeakText: ((String) -> Unit)? = null,
     onStopSpeaking: (() -> Unit)? = null,
-    isSpeaking: Boolean = false
+    isSpeaking: Boolean = false,
+    currentLanguage: com.universalmedialibrary.services.ocr.OcrLanguage? = null,
+    availableLanguages: List<com.universalmedialibrary.services.ocr.OcrLanguage>? = null,
+    onLanguageChange: ((com.universalmedialibrary.services.ocr.OcrLanguage) -> Unit)? = null
 ) {
     val clipboardManager = LocalClipboardManager.current
+    var showLanguageMenu by remember { mutableStateOf(false) }
     
     Column(
         modifier = modifier
@@ -73,6 +78,51 @@ fun OcrOverlay(
         }
         
         Spacer(modifier = Modifier.height(8.dp))
+        
+        // Language selector (if multi-language support is enabled)
+        if (currentLanguage != null && availableLanguages != null && onLanguageChange != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Language:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                
+                Box {
+                    OutlinedButton(
+                        onClick = { showLanguageMenu = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(currentLanguage.displayName)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Select language"
+                        )
+                    }
+                    
+                    DropdownMenu(
+                        expanded = showLanguageMenu,
+                        onDismissRequest = { showLanguageMenu = false }
+                    ) {
+                        availableLanguages.forEach { language ->
+                            DropdownMenuItem(
+                                text = { Text(language.displayName) },
+                                onClick = {
+                                    onLanguageChange(language)
+                                    showLanguageMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+        }
         
         // OCR Button
         Button(

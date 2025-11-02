@@ -33,7 +33,7 @@ class MLKitOcrService @Inject constructor(
          * ML Kit Text Recognition API doesn't provide confidence scores,
          * so we use a high default value based on the API's known accuracy.
          */
-        private const val DEFAULT_CONFIDENCE = 0.9f
+        const val DEFAULT_CONFIDENCE = 0.9f
     }
 
     override suspend fun recognizeText(bitmap: Bitmap): Result<OcrResult> {

@@ -18,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OcrViewModel @Inject constructor(
     private val ocrRepository: OcrRepository,
-    private val ocrTtsIntegration: com.universalmedialibrary.services.ocr.OcrTtsIntegration
+    private val ocrTtsIntegration: com.universalmedialibrary.services.ocr.OcrTtsIntegration,
+    private val multiLanguageOcrService: com.universalmedialibrary.services.ocr.MultiLanguageOcrService
 ) : ViewModel() {
 
     private val _ocrState = MutableStateFlow<OcrState>(OcrState.Idle)
@@ -26,6 +27,9 @@ class OcrViewModel @Inject constructor(
 
     private val _isSpeaking = MutableStateFlow(false)
     val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
+
+    private val _currentLanguage = MutableStateFlow(com.universalmedialibrary.services.ocr.OcrLanguage.LATIN)
+    val currentLanguage: StateFlow<com.universalmedialibrary.services.ocr.OcrLanguage> = _currentLanguage.asStateFlow()
 
     /**
      * Perform OCR on a bitmap image
@@ -138,6 +142,21 @@ class OcrViewModel @Inject constructor(
         viewModelScope.launch {
             ocrTtsIntegration.setPitch(pitch)
         }
+    }
+
+    /**
+     * Set OCR language
+     */
+    fun setOcrLanguage(language: com.universalmedialibrary.services.ocr.OcrLanguage) {
+        _currentLanguage.value = language
+        multiLanguageOcrService.setLanguage(language)
+    }
+
+    /**
+     * Get available OCR languages
+     */
+    fun getAvailableLanguages(): List<com.universalmedialibrary.services.ocr.OcrLanguage> {
+        return com.universalmedialibrary.services.ocr.OcrLanguage.entries
     }
 }
 

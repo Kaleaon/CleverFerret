@@ -194,7 +194,11 @@ dependencies {
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
     // ML Kit for on-device text recognition (OCR)
-    implementation("com.google.mlkit:text-recognition:16.0.1")
+    implementation("com.google.mlkit:text-recognition:16.0.1") // Latin script
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.1") // Chinese
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1") // Devanagari
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1") // Japanese
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1") // Korean
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1")
     
     // Media metadata extraction libraries
