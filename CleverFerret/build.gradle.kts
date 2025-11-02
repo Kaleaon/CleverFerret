@@ -179,6 +179,9 @@ dependencies {
     // WorkManager for background tasks
     implementation("androidx.work:work-runtime-ktx:2.11.0")
     
+    // Crash handler for better error reporting
+    implementation("cat.ereza:customactivityoncrash:2.4.0")
+    
     // Embedded HTTP server for OPDS
     implementation("org.nanohttpd:nanohttpd:2.3.1")
     
