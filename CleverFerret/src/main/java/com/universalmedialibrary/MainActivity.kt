@@ -162,9 +162,16 @@ data class SampleLibrary(
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private var externalFileUri by mutableStateOf<Uri?>(null)
+    
+    // ScreenTimeoutManager instance to be accessed by reader screens
+    lateinit var screenTimeoutManager: com.universalmedialibrary.utils.ScreenTimeoutManager
+        private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialize ScreenTimeoutManager
+        screenTimeoutManager = com.universalmedialibrary.utils.ScreenTimeoutManager(this)
         
         // Restore external file URI from saved state if available
         savedInstanceState?.getString(KEY_EXTERNAL_FILE_URI)?.let { uriString ->
@@ -208,6 +215,22 @@ class MainActivity : ComponentActivity() {
     private fun handleIntent(intent: Intent?) {
         if (intent?.action == Intent.ACTION_VIEW) {
             externalFileUri = intent.data
+        }
+    }
+    
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        // Notify ScreenTimeoutManager about user interaction to reset timeout
+        if (::screenTimeoutManager.isInitialized) {
+            screenTimeoutManager.onUserInteraction()
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Clean up ScreenTimeoutManager resources
+        if (::screenTimeoutManager.isInitialized) {
+            screenTimeoutManager.cleanup()
         }
     }
 
