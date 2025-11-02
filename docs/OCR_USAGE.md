@@ -200,9 +200,9 @@ Currently supports Latin-script languages including:
 
 Planned features for future releases:
 - [ ] Speech balloon detection using ML models
-- [x] Multi-language support (Chinese, Japanese, Korean)
+- [x] Multi-language support (Chinese, Japanese, Korean, Devanagari)
 - [ ] Multi-language support (Arabic)
-- [ ] Text-to-Speech integration for extracted text
+- [x] Text-to-Speech integration for extracted text
 - [ ] Custom OCR model training for comic fonts
 - [ ] Batch OCR processing for entire books
 - [ ] OCR result editing and correction

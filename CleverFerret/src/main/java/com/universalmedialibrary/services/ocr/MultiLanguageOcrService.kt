@@ -113,25 +113,25 @@ class MultiLanguageOcrService @Inject constructor(
                     TextWord(
                         text = element.text,
                         boundingBox = wordRect,
-                        confidence = MLKitOcrService.DEFAULT_CONFIDENCE
+                        confidence = OcrService.DEFAULT_CONFIDENCE
                     )
                 }
                 TextLine(
                     text = line.text,
                     boundingBox = lineRect,
-                    confidence = MLKitOcrService.DEFAULT_CONFIDENCE,
+                    confidence = OcrService.DEFAULT_CONFIDENCE,
                     words = words
                 )
             }
             TextBlock(
                 text = block.text,
                 boundingBox = blockRect,
-                confidence = MLKitOcrService.DEFAULT_CONFIDENCE,
+                confidence = OcrService.DEFAULT_CONFIDENCE,
                 lines = lines
             )
         }
 
-        val avgConfidence = if (blocks.isNotEmpty()) MLKitOcrService.DEFAULT_CONFIDENCE else 0f
+        val avgConfidence = if (blocks.isNotEmpty()) OcrService.DEFAULT_CONFIDENCE else 0f
         
         return OcrResult(
             text = visionText.text,
@@ -140,12 +140,7 @@ class MultiLanguageOcrService @Inject constructor(
         )
     }
 
-    companion object {
-        /**
-         * Access to default confidence from MLKitOcrService
-         */
-        private const val DEFAULT_CONFIDENCE = 0.9f
-    }
+
 }
 
 /**

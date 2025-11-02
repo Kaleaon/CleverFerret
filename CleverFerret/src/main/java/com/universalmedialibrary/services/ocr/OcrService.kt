@@ -29,6 +29,15 @@ interface OcrService {
      * Check if OCR service is available
      */
     fun isAvailable(): Boolean
+    
+    companion object {
+        /**
+         * Default confidence value for ML Kit OCR results.
+         * ML Kit Text Recognition API doesn't provide confidence scores,
+         * so we use a high default value based on the API's known accuracy.
+         */
+        const val DEFAULT_CONFIDENCE = 0.9f
+    }
 }
 
 /**

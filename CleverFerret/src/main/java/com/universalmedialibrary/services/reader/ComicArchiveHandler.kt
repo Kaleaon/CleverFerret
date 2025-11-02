@@ -15,6 +15,11 @@ import java.io.FileInputStream
 object ComicArchiveHandler {
 
     /**
+     * Maximum image file size in bytes (100 MB) to prevent memory issues
+     */
+    private const val MAX_IMAGE_SIZE_BYTES = 100 * 1024 * 1024L
+
+    /**
      * Extract image entries from a CB7 (7-Zip) archive
      * 
      * @param file The CB7 file
@@ -85,6 +90,11 @@ object ComicArchiveHandler {
             
             while (entry != null) {
                 if (!entry.isDirectory && entry.name == entryName) {
+                    // Validate entry size to prevent memory issues (100MB limit)
+                    if (entry.size > MAX_IMAGE_SIZE_BYTES) {
+                        throw IllegalStateException("Image file too large: ${entry.size} bytes (max ${MAX_IMAGE_SIZE_BYTES})")
+                    }
+                    
                     val content = ByteArray(entry.size.toInt())
                     sevenZFile.read(content)
                     return BitmapFactory.decodeByteArray(content, 0, content.size)
@@ -105,6 +115,11 @@ object ComicArchiveHandler {
             
             while (entry != null) {
                 if (!entry.isDirectory && entry.name == entryName) {
+                    // Validate entry size to prevent memory issues (100MB limit)
+                    if (entry.size > MAX_IMAGE_SIZE_BYTES) {
+                        throw IllegalStateException("Image file too large: ${entry.size} bytes (max ${MAX_IMAGE_SIZE_BYTES})")
+                    }
+                    
                     val content = ByteArray(entry.size.toInt())
                     tarInput.read(content)
                     return BitmapFactory.decodeByteArray(content, 0, content.size)
