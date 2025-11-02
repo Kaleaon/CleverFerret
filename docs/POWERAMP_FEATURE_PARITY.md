@@ -31,7 +31,7 @@ This document compares CleverFerret's music player capabilities against Poweramp
 | **Direct Volume Control** | ❌ **NOT IMPLEMENTED** | Uses standard Android audio path |
 | **64-bit Audio Processing** | ⚠️ **PARTIAL** | ExoPlayer supports high-quality processing but not explicitly 64-bit |
 | **Gapless Playback** | ✅ **IMPLEMENTED** | ExoPlayer provides gapless by default |
-| **Crossfade** | ✅ **MENTIONED** | `AdvancedMusicPlayerService` mentions crossfade support |
+| **Crossfade** | ⚠️ **PARTIAL** | Basic API exists (`setCrossfadeDuration()` at line 460) but audio processing not fully implemented |
 | **ReplayGain** | ❌ **NOT IMPLEMENTED** | No volume normalization |
 | **Configurable Resampler** | ❌ **NOT IMPLEMENTED** | Uses ExoPlayer defaults |
 | **Dither Options** | ❌ **NOT IMPLEMENTED** | Not available |
@@ -95,7 +95,7 @@ This document compares CleverFerret's music player capabilities against Poweramp
 - `MediaScanningService.kt`: "Music: MP3, FLAC, OGG, M4A, WAV, AAC"
 
 **Missing Formats**:
-- ❌ **DSD** (DFF/DSF) - Claimed in `OnboardingScreen.kt` line 184, but no decoder implementation found in codebase
+- ❌ **DSD** (DFF/DSF) - Claimed in `OnboardingScreen.kt` line 234, but no decoder implementation found in codebase
 - ❌ **APE** (Monkey's Audio)
 - ❌ **WV** (WavPack)
 - ❌ **TTA** (True Audio)
@@ -226,7 +226,7 @@ This document compares CleverFerret's music player capabilities against Poweramp
 
 | Feature | Status | Implementation Details |
 |---------|--------|------------------------|
-| **USB DAC Support** | ⚠️ **NOT VERIFIED** | Claimed in `OnboardingScreen.kt` but implementation not confirmed in audio services |
+| **USB DAC Support** | ⚠️ **NOT VERIFIED** | Claimed in `OnboardingScreen.kt` line 236, but implementation not confirmed in audio services |
 | **Lyrics Display** | ❌ **NOT IMPLEMENTED** | Not available |
 | **Sleep Timer** | ❌ **NOT IMPLEMENTED** | Not mentioned |
 | **Shake Controls** | ❌ **NOT IMPLEMENTED** | Not available |
