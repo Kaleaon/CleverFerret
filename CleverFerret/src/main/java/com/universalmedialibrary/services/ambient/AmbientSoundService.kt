@@ -32,79 +32,13 @@ class AmbientSoundService @Inject constructor(
     private var currentSessionId: Long? = null
 
     /**
-     * Initialize default ambient sounds
+     * Initialize default ambient sounds from Moodist collection
+     * Complete set of 84 professionally curated ambient sounds
+     * Source: https://github.com/remvze/moodist
      */
     suspend fun initializeDefaultSounds() {
-        val defaultSounds = listOf(
-            createDefaultSound(AmbientSoundType.RAIN, "Rain", "Gentle rain sounds"),
-            createDefaultSound(AmbientSoundType.THUNDER, "Thunderstorm", "Distant thunder with rain"),
-            createDefaultSound(AmbientSoundType.OCEAN, "Ocean Waves", "Calming ocean waves"),
-            createDefaultSound(AmbientSoundType.RIVER, "River Stream", "Flowing river water"),
-            createDefaultSound(AmbientSoundType.FOREST, "Forest", "Birds and rustling leaves"),
-            createDefaultSound(AmbientSoundType.BIRDS, "Birds Chirping", "Peaceful bird songs"),
-            createDefaultSound(AmbientSoundType.FIRE, "Fireplace", "Crackling fireplace"),
-            createDefaultSound(AmbientSoundType.WIND, "Wind", "Gentle wind sounds"),
-            createDefaultSound(AmbientSoundType.CAFE, "Coffee Shop", "Cafe ambience with chatter"),
-            createDefaultSound(AmbientSoundType.LIBRARY, "Library", "Quiet library atmosphere"),
-            createDefaultSound(AmbientSoundType.TRAFFIC, "City Traffic", "Light traffic sounds"),
-            createDefaultSound(AmbientSoundType.CROWD, "Crowd", "People talking and walking"),
-            createDefaultSound(AmbientSoundType.TRAIN, "Train Journey", "Train sounds"),
-            createDefaultSound(AmbientSoundType.NIGHT, "Night Crickets", "Evening crickets"),
-            createDefaultSound(AmbientSoundType.CITY, "City Ambience", "Urban atmosphere"),
-            createDefaultSound(AmbientSoundType.WHITE_NOISE, "White Noise", "Pure white noise"),
-            createDefaultSound(AmbientSoundType.PINK_NOISE, "Pink Noise", "Balanced pink noise"),
-            createDefaultSound(AmbientSoundType.BROWN_NOISE, "Brown Noise", "Deep brown noise")
-        )
-        
-        ambientSoundDao.insertSounds(defaultSounds)
-    }
-
-    private fun createDefaultSound(
-        type: AmbientSoundType,
-        name: String,
-        description: String
-    ): AmbientSound {
-        val category = when (type) {
-            AmbientSoundType.RAIN, AmbientSoundType.THUNDER, AmbientSoundType.SNOW -> 
-                com.universalmedialibrary.data.local.entity.AmbientCategory.WEATHER
-            AmbientSoundType.OCEAN, AmbientSoundType.RIVER, AmbientSoundType.UNDERWATER -> 
-                com.universalmedialibrary.data.local.entity.AmbientCategory.WATER
-            AmbientSoundType.FOREST, AmbientSoundType.BIRDS, AmbientSoundType.WIND, AmbientSoundType.NIGHT -> 
-                com.universalmedialibrary.data.local.entity.AmbientCategory.NATURE
-            AmbientSoundType.CAFE, AmbientSoundType.LIBRARY -> 
-                com.universalmedialibrary.data.local.entity.AmbientCategory.INDOOR
-            AmbientSoundType.TRAFFIC, AmbientSoundType.CROWD, AmbientSoundType.TRAIN, AmbientSoundType.CITY -> 
-                com.universalmedialibrary.data.local.entity.AmbientCategory.URBAN
-            else -> com.universalmedialibrary.data.local.entity.AmbientCategory.CUSTOM
-        }
-
-        return AmbientSound(
-            name = name,
-            category = category,
-            soundType = type,
-            description = description,
-            keywords = type.keywords,
-            iconType = getIconForType(type)
-        )
-    }
-
-    private fun getIconForType(type: AmbientSoundType): String {
-        return when (type) {
-            AmbientSoundType.RAIN, AmbientSoundType.THUNDER -> "weather_rainy"
-            AmbientSoundType.OCEAN, AmbientSoundType.RIVER, AmbientSoundType.UNDERWATER -> "water"
-            AmbientSoundType.FOREST, AmbientSoundType.BIRDS -> "nature"
-            AmbientSoundType.FIRE -> "local_fire_department"
-            AmbientSoundType.WIND -> "air"
-            AmbientSoundType.CAFE -> "local_cafe"
-            AmbientSoundType.LIBRARY -> "local_library"
-            AmbientSoundType.TRAFFIC, AmbientSoundType.CITY -> "location_city"
-            AmbientSoundType.CROWD -> "groups"
-            AmbientSoundType.TRAIN -> "train"
-            AmbientSoundType.NIGHT -> "nights_stay"
-            AmbientSoundType.SNOW -> "ac_unit"
-            AmbientSoundType.SPACE -> "auto_awesome"
-            else -> "music_note"
-        }
+        val moodistSounds = MoodistSounds.getAllSounds()
+        ambientSoundDao.insertSounds(moodistSounds)
     }
 
     /**
