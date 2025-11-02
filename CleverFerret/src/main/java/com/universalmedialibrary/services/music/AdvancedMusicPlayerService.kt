@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.music
 
 import android.content.Context
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -36,7 +37,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val musicMetadataService: MusicMetadataService,
     private val mediaController: MediaController,
     private val artworkLoader: ArtworkLoader,
-    private val audioEffectsService: AudioEffectsService
+    private val audioEffectsService: AudioEffectsService,
+    private val replayGainService: ReplayGainService
 ) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -513,10 +515,33 @@ class AdvancedMusicPlayerService @Inject constructor(
 
         if (currentTrack != null) {
             _currentTrack.value = currentTrack
+            applyReplayGain(currentTrack)
             exoPlayerService.seekToMediaItem(currentQueueIndex)
             if (!_playbackState.value.isPlaying) {
                 play()
             }
+        }
+    }
+    
+    /**
+     * Apply ReplayGain volume adjustment for a track
+     */
+    private fun applyReplayGain(track: TrackInfo) {
+        try {
+            val currentVolume = exoPlayerService.getVolume()
+            val adjustedVolume = replayGainService.applyReplayGain(
+                currentVolume = currentVolume,
+                trackGain = track.replayGainTrack,
+                albumGain = track.replayGainAlbum
+            )
+            
+            // Only adjust if different from current volume
+            if (adjustedVolume != currentVolume) {
+                exoPlayerService.setVolume(adjustedVolume)
+            }
+        } catch (e: Exception) {
+            // ReplayGain application is non-critical, continue playback
+            Log.w("AdvancedMusicPlayer", "Failed to apply ReplayGain", e)
         }
     }
 
@@ -753,7 +778,9 @@ data class TrackInfo(
     val duration: Long,
     val filePath: String,
     val albumArtUrl: String?,
-    val queuePosition: Int = 0
+    val queuePosition: Int = 0,
+    val replayGainTrack: Float? = null, // Track gain in dB
+    val replayGainAlbum: Float? = null  // Album gain in dB
 )
 
 /**

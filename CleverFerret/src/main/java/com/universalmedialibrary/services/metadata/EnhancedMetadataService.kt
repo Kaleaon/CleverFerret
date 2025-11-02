@@ -268,7 +268,11 @@ data class EnhancedTrackMetadata(
     
     // Album Art Info
     val hasEmbeddedArt: Boolean = false,
-    val embeddedArtSize: Int = 0
+    val embeddedArtSize: Int = 0,
+    
+    // ReplayGain (volume normalization)
+    val replayGainTrack: Float? = null, // Track gain in dB
+    val replayGainAlbum: Float? = null  // Album gain in dB
 ) {
     /**
      * Human-readable audio quality string
