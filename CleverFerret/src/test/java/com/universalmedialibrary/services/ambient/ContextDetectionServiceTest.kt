@@ -5,13 +5,13 @@ import com.universalmedialibrary.data.local.entity.AmbientSound
 import com.universalmedialibrary.data.local.entity.AmbientCategory
 import com.universalmedialibrary.data.local.entity.AmbientSoundType
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /**
  * Unit tests for ContextDetectionService
@@ -84,7 +84,7 @@ class ContextDetectionServiceTest {
     }
 
     @Test
-    fun `detectAmbientContext should return matching sounds`() = runTest {
+    fun `detectAmbientContext should return matching sounds`() = runBlocking {
         // Create test ambient sounds
         val testSounds = listOf(
             AmbientSound(
@@ -116,7 +116,7 @@ class ContextDetectionServiceTest {
     }
 
     @Test
-    fun `getSuggestionsForChapter should analyze text and return suggestions`() = runTest {
+    fun `getSuggestionsForChapter should analyze text and return suggestions`() = runBlocking {
         val testSounds = listOf(
             AmbientSound(
                 id = 1,
