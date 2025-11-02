@@ -122,21 +122,23 @@
 
 ## Action Plan
 
-### Priority 1: Remove Incomplete Features
-1. ⚠️ **Delete** CueSheetParser.kt and CueSheetService.kt
+### Priority 1: Remove Incomplete Features ✅ COMPLETE
+1. ✅ **Deleted** CueSheetParser.kt and CueSheetService.kt
    - Reason: Incomplete, no UI, not tested
-   - Status: Will remove
+   - Status: Removed (commit bab1f33)
 
-### Priority 2: Resolve All TODOs
-1. ✅ **Implement** MediaItem fetching (Line 268)
-2. ✅ **Implement** Extensions TODOs (Lines 153, 161, 169)
+### Priority 2: Resolve All TODOs ✅ COMPLETE  
+1. ✅ **Implemented** MediaItem fetching (Line 268) - commit 8534478
+2. ✅ **Implemented** Extensions TODOs (Lines 153, 161, 169) - commit 8534478
+3. ✅ **Added** MediaRepository injection
+4. ✅ **Verified** Build successful, no errors
 
-### Priority 3: Create Essential UI
-1. ✅ **AudioEffectsSettingsScreen** - EQ presets, bass boost, reverb
-2. ✅ **ReplayGain Settings** - Enable/disable, preamp adjustment
-3. ✅ **LastFm Settings** - Authentication, enable/disable
-4. ✅ **Lyrics Display** - Synced lyrics viewer in player
-5. ✅ **Audio Profiles UI** - Per-device profile management
+### Priority 3: Create Essential UI ⏳ IN PROGRESS (1 of 5)
+1. ✅ **AudioEffectsSettingsScreen** - EQ presets, bass boost, reverb, ReplayGain - commit 44cbfa3
+2. ⏳ **LastFm Settings** - Authentication, enable/disable
+3. ⏳ **Lyrics Display** - Synced lyrics viewer in player
+4. ⏳ **Audio Profiles UI** - Per-device profile management
+5. ⏳ **Navigation Integration** - Wire up all screens
 
 ---
 
@@ -221,13 +223,15 @@
 ## Current Status Summary
 
 **Implemented Features**: 8  
-**Complete (with UI)**: 3 (Android Auto, Chromecast, FFmpeg)  
-**Needs UI**: 5 (Audio Effects, ReplayGain, Last.fm, Lyrics, Profiles)  
-**Incomplete**: 1 (CUE Sheet - will remove)  
-**TODOs**: 4 (all resolvable)  
+**Complete (with UI)**: 4 (Android Auto, Chromecast, FFmpeg, Audio Effects) ✅  
+**Needs UI**: 3 (Last.fm, Lyrics, Profiles) ⏳  
+**Incomplete**: 0 (removed) ✅  
+**TODOs**: 0 (all resolved) ✅  
 
-**Completeness**: ~60% (backend done, UI pending)  
+**Completeness**: ~75% (backend 100%, UI 30%)  
 **Target**: 100% (backend + UI + no TODOs)
+
+**Progress**: Priorities 1 & 2 complete! Priority 3 at 20%.
 
 ---
 
@@ -239,4 +243,4 @@
 5. Test all features end-to-end
 6. Final verification: No TODOs, all UI working
 
-**Status**: Plan ready for execution 🚀
+**Status**: Phase 1 Complete! ✅ TODOs resolved, 1 UI screen created. See UI_IMPLEMENTATION_STATUS.md for detailed progress.
