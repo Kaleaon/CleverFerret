@@ -62,6 +62,26 @@ data class ReaderSettingsEntity(
     val enableTranslation: Boolean = true,
     val scrollingMode: Boolean = false,  // false = page mode, true = scroll mode
     
+    // Enhanced Reading Features (LibreraReader-inspired)
+    // Color Scheme
+    val colorScheme: String = "Classic Day",  // From ReaderColorScheme options
+    
+    // Reading Ruler
+    val rulerEnabled: Boolean = false,
+    val rulerHeight: Int = 60,  // in dp
+    val rulerColor: String = "#808080",  // Gray
+    val rulerAlpha: Float = 0.3f,  // 0-1
+    val rulerPosition: Float = 0.5f,  // 0-1, vertical position
+    
+    // RSVP Speed Reading
+    val rsvpEnabled: Boolean = false,
+    val rsvpWpm: Int = 250,  // Words per minute (100-600)
+    val rsvpFontSize: Int = 32,  // sp
+    
+    // Enhanced Auto-Scroll
+    val autoScrollEnabled: Boolean = false,
+    val autoScrollSpeedMultiplier: Float = 1.0f,  // 0.1x - 5.0x
+    
     val updatedAt: Long = System.currentTimeMillis()
 )
 
@@ -185,7 +205,20 @@ data class ReaderSettings(
     val pageAnimation: String = "None",
     val autoScrollSpeed: Int = 30,
     val autoScrollMode: String = "OFF",
-    val textAlignment: String = "Left"
+    val textAlignment: String = "Left",
+    
+    // Enhanced Reading Features
+    val colorScheme: String = "Classic Day",
+    val rulerEnabled: Boolean = false,
+    val rulerHeight: Int = 60,
+    val rulerColor: String = "#808080",
+    val rulerAlpha: Float = 0.3f,
+    val rulerPosition: Float = 0.5f,
+    val rsvpEnabled: Boolean = false,
+    val rsvpWpm: Int = 250,
+    val rsvpFontSize: Int = 32,
+    val autoScrollEnabled: Boolean = false,
+    val autoScrollSpeedMultiplier: Float = 1.0f
 ) {
     // Computed properties for backward compatibility with old UI code
     val backgroundColor: String
@@ -242,7 +275,20 @@ data class ReaderSettings(
                 pageAnimation = entity.pageTurnAnimation,
                 autoScrollSpeed = 30, // Default - not in entity
                 autoScrollMode = "OFF", // Default - not in entity
-                textAlignment = entity.textAlignment
+                textAlignment = entity.textAlignment,
+                
+                // Enhanced Reading Features
+                colorScheme = entity.colorScheme,
+                rulerEnabled = entity.rulerEnabled,
+                rulerHeight = entity.rulerHeight,
+                rulerColor = entity.rulerColor,
+                rulerAlpha = entity.rulerAlpha,
+                rulerPosition = entity.rulerPosition,
+                rsvpEnabled = entity.rsvpEnabled,
+                rsvpWpm = entity.rsvpWpm,
+                rsvpFontSize = entity.rsvpFontSize,
+                autoScrollEnabled = entity.autoScrollEnabled,
+                autoScrollSpeedMultiplier = entity.autoScrollSpeedMultiplier
             )
         }
 
@@ -277,7 +323,20 @@ data class ReaderSettings(
                 pageAnimation = global.pageTurnAnimation,
                 autoScrollSpeed = 30, // Default - not in entity
                 autoScrollMode = "OFF", // Default - not in entity
-                textAlignment = global.textAlignment
+                textAlignment = global.textAlignment,
+                
+                // Enhanced Reading Features
+                colorScheme = global.colorScheme,
+                rulerEnabled = global.rulerEnabled,
+                rulerHeight = global.rulerHeight,
+                rulerColor = global.rulerColor,
+                rulerAlpha = global.rulerAlpha,
+                rulerPosition = global.rulerPosition,
+                rsvpEnabled = global.rsvpEnabled,
+                rsvpWpm = global.rsvpWpm,
+                rsvpFontSize = global.rsvpFontSize,
+                autoScrollEnabled = global.autoScrollEnabled,
+                autoScrollSpeedMultiplier = global.autoScrollSpeedMultiplier
             )
         }
     }
@@ -307,7 +366,20 @@ fun ReaderSettings.toEntity(): ReaderSettingsEntity {
         swipeToTurnPages = this.swipeToTurnPages,
         volumeKeysToTurnPages = this.volumeKeysToTurnPages,
         pageTurnAnimation = this.pageAnimation,
-        textAlignment = this.textAlignment
+        textAlignment = this.textAlignment,
+        
+        // Enhanced Reading Features
+        colorScheme = this.colorScheme,
+        rulerEnabled = this.rulerEnabled,
+        rulerHeight = this.rulerHeight,
+        rulerColor = this.rulerColor,
+        rulerAlpha = this.rulerAlpha,
+        rulerPosition = this.rulerPosition,
+        rsvpEnabled = this.rsvpEnabled,
+        rsvpWpm = this.rsvpWpm,
+        rsvpFontSize = this.rsvpFontSize,
+        autoScrollEnabled = this.autoScrollEnabled,
+        autoScrollSpeedMultiplier = this.autoScrollSpeedMultiplier
         // Note: enableGestures, autoScrollSpeed, autoScrollMode are UI-only fields not persisted
     )
 }
