@@ -95,7 +95,7 @@ This document compares CleverFerret's music player capabilities against Poweramp
 - `MediaScanningService.kt`: "Music: MP3, FLAC, OGG, M4A, WAV, AAC"
 
 **Missing Formats**:
-- ❌ **DSD** (DFF/DSF) - Mentioned in onboarding but not actually implemented
+- ❌ **DSD** (DFF/DSF) - Claimed in `OnboardingScreen.kt` line 184, but no decoder implementation found in codebase
 - ❌ **APE** (Monkey's Audio)
 - ❌ **WV** (WavPack)
 - ❌ **TTA** (True Audio)
@@ -226,7 +226,7 @@ This document compares CleverFerret's music player capabilities against Poweramp
 
 | Feature | Status | Implementation Details |
 |---------|--------|------------------------|
-| **USB DAC Support** | ✅ **CLAIMED** | Onboarding says "USB DAC support with bit-perfect mode" |
+| **USB DAC Support** | ⚠️ **NOT VERIFIED** | Claimed in `OnboardingScreen.kt` but implementation not confirmed in audio services |
 | **Lyrics Display** | ❌ **NOT IMPLEMENTED** | Not available |
 | **Sleep Timer** | ❌ **NOT IMPLEMENTED** | Not mentioned |
 | **Shake Controls** | ❌ **NOT IMPLEMENTED** | Not available |
@@ -440,6 +440,8 @@ This document compares CleverFerret's music player capabilities against Poweramp
 
 ### Feature Parity Score
 
+Ratings are based on feature completeness and implementation quality relative to Poweramp's capabilities. Scale: 0-10, where 10 represents full feature parity or superiority.
+
 **Audio Engine**: 6/10 (missing DVC, advanced processing)
 **Equalizer**: 4/10 (basic vs. Poweramp's 32-band parametric)
 **Format Support**: 7/10 (covers common formats, missing niche)
@@ -449,6 +451,8 @@ This document compares CleverFerret's music player capabilities against Poweramp
 **Advanced Features**: 5/10 (missing scrobbling, lyrics, timer)
 
 **Overall Feature Parity**: **60%** (6.0/10)
+
+*Rating Methodology*: Each category is scored based on (1) number of implemented features vs. Poweramp, (2) quality of implementation, and (3) user impact. Overall score is weighted average with Platform Integration and Audio Engine having 2x weight due to their critical importance.
 
 ### The Path Forward
 
@@ -468,8 +472,8 @@ CleverFerret has the **foundation** to be better than Poweramp because it solves
 - Poweramp Official Website: https://powerampapp.com/
 - Poweramp Feature List: https://powerampapp.com/
 - CleverFerret Source Code Analysis (November 2025)
-- MISSING_FEATURES_AUDIT.md (internal doc)
-- MEDIA_PLAYER_RESEARCH.md (internal doc)
+- [MISSING_FEATURES_AUDIT.md](../archive/analysis-docs/MISSING_FEATURES_AUDIT.md)
+- [MEDIA_PLAYER_RESEARCH.md](../archive/research-docs/MEDIA_PLAYER_RESEARCH.md)
 
 ---
 
