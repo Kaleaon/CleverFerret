@@ -193,6 +193,9 @@ dependencies {
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.5.3")
     
+    // MPAndroidChart - Beautiful charts with animations for reading statistics
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
