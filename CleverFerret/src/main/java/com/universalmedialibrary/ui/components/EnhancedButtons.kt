@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.theme.*
 
 /**
  * Enhanced button with loading state
@@ -31,7 +32,9 @@ fun LoadingButton(
     Button(
         onClick = onClick,
         enabled = enabled && !isLoading,
-        modifier = modifier.height(48.dp)
+        modifier = modifier
+            .height(48.dp)
+            .depthShadow(elevation = if (enabled && !isLoading) 4.dp else 0.dp)
     ) {
         AnimatedVisibility(
             visible = isLoading,
