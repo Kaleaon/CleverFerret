@@ -279,5 +279,11 @@ object DatabaseModule {
     fun provideUnifiedTagDao(database: AppDatabase): UnifiedTagDao {
         return database.unifiedTagDao()
     }
+    
+    // Ambient Sound DAO
+    @Provides
+    fun provideAmbientSoundDao(database: AppDatabase): AmbientSoundDao {
+        return database.ambientSoundDao()
+    }
 
 }

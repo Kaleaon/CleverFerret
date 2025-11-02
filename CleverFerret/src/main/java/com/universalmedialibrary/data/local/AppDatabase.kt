@@ -131,13 +131,18 @@ import com.universalmedialibrary.data.Tag
 
         // Search history
         SearchHistory::class,
-        SavedSearchEntity::class
+        SavedSearchEntity::class,
+        
+        // Ambient sounds for reading
+        AmbientSound::class,
+        AmbientPlaylist::class,
+        AmbientReadingSession::class
 
     ],
-    version = 30, // Incremented for enhanced reading features (color schemes, ruler, RSVP, enhanced auto-scroll)
+    version = 31, // Incremented for ambient sound feature
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class)
+@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -210,6 +215,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Search History DAO
     abstract fun searchHistoryDao(): SearchHistoryDao
+    
+    // Ambient Sound DAO
+    abstract fun ambientSoundDao(): AmbientSoundDao
 
 
     companion object {
@@ -235,7 +243,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_26_27,
                     AppDatabaseMigrations.MIGRATION_27_28,
                     AppDatabaseMigrations.MIGRATION_28_29,
-                    AppDatabaseMigrations.MIGRATION_29_30
+                    AppDatabaseMigrations.MIGRATION_29_30,
+                    AppDatabaseMigrations.MIGRATION_30_31
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

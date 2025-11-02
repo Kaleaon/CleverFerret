@@ -2007,4 +2007,55 @@ object PhosphorIcons {
     private var _radio: ImageVector? = null
     private var _stack: ImageVector? = null
     private var _gearFill: ImageVector? = null
+    
+    /**
+     * Nature icon for ambient sounds feature
+     */
+    val Nature: ImageVector
+        get() {
+            if (_nature != null) {
+                return _nature!!
+            }
+            _nature = materialIcon(name = "Nature") {
+                materialPath {
+                    // Tree and nature icon
+                    moveTo(16.5f, 5.0f)
+                    curveTo(17.88f, 5.0f, 19.0f, 3.88f, 19.0f, 2.5f)
+                    curveTo(19.0f, 1.12f, 17.88f, 0.0f, 16.5f, 0.0f)
+                    curveTo(15.12f, 0.0f, 14.0f, 1.12f, 14.0f, 2.5f)
+                    curveTo(14.0f, 3.88f, 15.12f, 5.0f, 16.5f, 5.0f)
+                    close()
+                    moveTo(10.0f, 11.0f)
+                    curveTo(8.34f, 11.0f, 7.0f, 12.34f, 7.0f, 14.0f)
+                    curveTo(7.0f, 15.31f, 7.84f, 16.42f, 9.0f, 16.82f)
+                    verticalLineTo(22.0f)
+                    horizontalLineTo(11.0f)
+                    verticalLineTo(16.82f)
+                    curveTo(12.16f, 16.42f, 13.0f, 15.31f, 13.0f, 14.0f)
+                    curveTo(13.0f, 12.34f, 11.66f, 11.0f, 10.0f, 11.0f)
+                    close()
+                    moveTo(18.0f, 14.0f)
+                    curveTo(16.34f, 14.0f, 15.0f, 15.34f, 15.0f, 17.0f)
+                    curveTo(15.0f, 18.31f, 15.84f, 19.42f, 17.0f, 19.82f)
+                    verticalLineTo(22.0f)
+                    horizontalLineTo(19.0f)
+                    verticalLineTo(19.82f)
+                    curveTo(20.16f, 19.42f, 21.0f, 18.31f, 21.0f, 17.0f)
+                    curveTo(21.0f, 15.34f, 19.66f, 14.0f, 18.0f, 14.0f)
+                    close()
+                    moveTo(5.0f, 14.0f)
+                    curveTo(3.34f, 14.0f, 2.0f, 15.34f, 2.0f, 17.0f)
+                    curveTo(2.0f, 18.31f, 2.84f, 19.42f, 4.0f, 19.82f)
+                    verticalLineTo(22.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(19.82f)
+                    curveTo(7.16f, 19.42f, 8.0f, 18.31f, 8.0f, 17.0f)
+                    curveTo(8.0f, 15.34f, 6.66f, 14.0f, 5.0f, 14.0f)
+                    close()
+                }
+            }
+            return _nature!!
+        }
+    
+    private var _nature: ImageVector? = null
 }
