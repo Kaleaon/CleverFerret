@@ -189,6 +189,10 @@ dependencies {
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
+    // FFmpegMediaMetadataRetriever - Fast, comprehensive metadata extraction for all media types
+    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.19")
+    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-native:1.0.19")
+    
     // Media metadata extraction libraries
     // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library
     // Replaces old epublib with actively-maintained, feature-rich toolkit
