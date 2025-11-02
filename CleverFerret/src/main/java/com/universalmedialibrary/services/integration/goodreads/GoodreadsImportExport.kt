@@ -134,7 +134,7 @@ class GoodreadsImportExport @Inject constructor() {
                 shelf = row.getOrDefault("Exclusive Shelf", "to-read"),
                 description = row["Description"]?.ifBlank { null },
                 notes = row["My Review"]?.ifBlank { null },
-                bookmark = row["Bookmark"]?.toBoolean() ?: false,
+                bookmark = row["Bookmark"]?.let { it == "1" || it.equals("true", ignoreCase = true) } ?: false,
                 dateAdded = added,
                 dateRead = read,
                 dateStarted = started,
@@ -300,7 +300,15 @@ class GoodreadsImportExport @Inject constructor() {
             currentChapter = 0,
             averageRating = book.rating?.toFloat(),
             ratingsCount = null,
-            reviewsCount = null
+            reviewsCount = null,
+            bookmarked = book.bookmark,
+            shelf = book.shelf,
+            notes = book.notes,
+            additionalAuthors = book.additionalAuthors,
+            customCoverUrl = book.customCover,
+            scannedViaBarcode = false, // Imported from CSV, not scanned
+            purchaseLinksShown = false,
+            dateScanned = null
         )
         
         return Triple(mediaItem, metadataCommon, metadataBook)
