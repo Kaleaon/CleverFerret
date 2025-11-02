@@ -280,4 +280,14 @@ object DatabaseModule {
         return database.unifiedTagDao()
     }
 
+    /**
+     * Provides the DAO for accessing the OCR cache table.
+     * The OCR cache stores results of text recognition (OCR) on media items,
+     * allowing the app to avoid redundant OCR processing and improve performance.
+     */
+    @Provides
+    fun provideOcrCacheDao(database: AppDatabase): OcrCacheDao {
+        return database.ocrCacheDao()
+    }
+
 }

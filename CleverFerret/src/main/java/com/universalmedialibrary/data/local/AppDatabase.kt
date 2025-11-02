@@ -131,10 +131,13 @@ import com.universalmedialibrary.data.Tag
 
         // Search history
         SearchHistory::class,
-        SavedSearchEntity::class
+        SavedSearchEntity::class,
+
+        // OCR cache
+        OcrCacheEntity::class
 
     ],
-    version = 31, // Added Phase 2 & 3 features: swipe actions, tutorials, enhanced EPUB settings
+    version = 31, // Added OCR cache support and Phase 2 & 3 features (swipe actions, tutorials, enhanced EPUB settings)
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class)
@@ -211,6 +214,9 @@ abstract class AppDatabase : RoomDatabase() {
     // Search History DAO
     abstract fun searchHistoryDao(): SearchHistoryDao
 
+    // OCR Cache DAO
+    abstract fun ocrCacheDao(): OcrCacheDao
+
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
@@ -235,7 +241,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_26_27,
                     AppDatabaseMigrations.MIGRATION_27_28,
                     AppDatabaseMigrations.MIGRATION_28_29,
-                    AppDatabaseMigrations.MIGRATION_29_30
+                    AppDatabaseMigrations.MIGRATION_29_30,
+                    AppDatabaseMigrations.MIGRATION_30_31
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

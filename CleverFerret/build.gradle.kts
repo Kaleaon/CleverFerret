@@ -168,6 +168,10 @@ dependencies {
     // Archives: RAR (CBR) support for comic reader
     implementation("com.github.junrar:junrar:7.5.7")
     
+    // Archives: CB7 (7-Zip) and CBT (TAR) support using Apache Commons Compress
+    implementation("org.apache.commons:commons-compress:1.27.1")
+    implementation("org.tukaani:xz:1.10") // Required for 7z support
+    
     // HTML parsing for web scraping
     implementation("org.jsoup:jsoup:1.21.2")
     
@@ -212,6 +216,14 @@ dependencies {
     
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    
+    // ML Kit for on-device text recognition (OCR)
+    implementation("com.google.mlkit:text-recognition:16.0.1") // Latin script
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.1") // Chinese
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1") // Devanagari
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1") // Japanese
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1") // Korean
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1")
     
     // Media metadata extraction libraries
     // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library
