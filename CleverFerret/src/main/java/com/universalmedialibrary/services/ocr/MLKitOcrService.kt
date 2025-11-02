@@ -27,6 +27,15 @@ class MLKitOcrService @Inject constructor(
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     }
 
+    companion object {
+        /**
+         * Default confidence value for ML Kit OCR results.
+         * ML Kit Text Recognition API doesn't provide confidence scores,
+         * so we use a high default value based on the API's known accuracy.
+         */
+        private const val DEFAULT_CONFIDENCE = 0.9f
+    }
+
     override suspend fun recognizeText(bitmap: Bitmap): Result<OcrResult> {
         return try {
             val image = InputImage.fromBitmap(bitmap, 0)
@@ -70,25 +79,25 @@ class MLKitOcrService @Inject constructor(
                     TextWord(
                         text = element.text,
                         boundingBox = wordRect,
-                        confidence = 0.9f // ML Kit doesn't provide per-element confidence
+                        confidence = DEFAULT_CONFIDENCE // ML Kit doesn't provide per-element confidence
                     )
                 }
                 TextLine(
                     text = line.text,
                     boundingBox = lineRect,
-                    confidence = 0.9f, // ML Kit doesn't provide per-line confidence
+                    confidence = DEFAULT_CONFIDENCE, // ML Kit doesn't provide per-line confidence
                     words = words
                 )
             }
             TextBlock(
                 text = block.text,
                 boundingBox = blockRect,
-                confidence = 0.9f, // ML Kit doesn't provide per-block confidence
+                confidence = DEFAULT_CONFIDENCE, // ML Kit doesn't provide per-block confidence
                 lines = lines
             )
         }
 
-        val avgConfidence = if (blocks.isNotEmpty()) 0.9f else 0f
+        val avgConfidence = if (blocks.isNotEmpty()) DEFAULT_CONFIDENCE else 0f
         
         return OcrResult(
             text = visionText.text,

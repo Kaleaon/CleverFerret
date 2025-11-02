@@ -158,7 +158,6 @@ class OcrRepository @Inject constructor(
     }
 
     private fun serializeBlocks(blocks: List<TextBlock>): String {
-        // Simple serialization - in production, you might want more sophisticated approach
         return json.encodeToString(blocks.map { block ->
             mapOf(
                 "text" to block.text,
@@ -172,10 +171,29 @@ class OcrRepository @Inject constructor(
     }
 
     private fun deserializeOcrResult(entity: OcrCacheEntity): OcrResult {
-        // Simple deserialization
+        // Deserialize blocks from JSON for complete result
+        val blocks = try {
+            val blockMaps = json.decodeFromString<List<Map<String, Any>>>(entity.blocksJson)
+            blockMaps.map { blockMap ->
+                TextBlock(
+                    text = blockMap["text"] as? String ?: "",
+                    boundingBox = Rect(
+                        (blockMap["left"] as? Number)?.toInt() ?: 0,
+                        (blockMap["top"] as? Number)?.toInt() ?: 0,
+                        (blockMap["right"] as? Number)?.toInt() ?: 0,
+                        (blockMap["bottom"] as? Number)?.toInt() ?: 0
+                    ),
+                    confidence = (blockMap["confidence"] as? Number)?.toFloat() ?: 0f,
+                    lines = emptyList() // Lines not serialized for cache efficiency
+                )
+            }
+        } catch (e: Exception) {
+            emptyList() // Fallback to empty list on deserialization error
+        }
+
         return OcrResult(
             text = entity.text,
-            blocks = emptyList(), // Could deserialize from blocksJson if needed
+            blocks = blocks,
             confidence = entity.confidence
         )
     }

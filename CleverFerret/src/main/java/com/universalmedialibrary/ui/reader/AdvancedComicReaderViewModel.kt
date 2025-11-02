@@ -32,7 +32,8 @@ import kotlin.math.min
 
 @HiltViewModel
 class AdvancedComicReaderViewModel @Inject constructor(
-    private val mediaViewerManager: MediaViewerManager
+    private val mediaViewerManager: MediaViewerManager,
+    private val ocrRepository: com.universalmedialibrary.services.ocr.OcrRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdvancedComicReaderUiState())
@@ -47,6 +48,8 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
     private val _isOcrProcessing = MutableStateFlow(false)
     val isOcrProcessing: StateFlow<Boolean> = _isOcrProcessing.asStateFlow()
+
+    private var currentMediaId: String = ""
 
     fun loadComic(context: Context, comicUri: Uri) {
         viewModelScope.launch {
@@ -76,6 +79,9 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
                 val fileName = comicUri.lastPathSegment ?: "Unknown Comic"
                 panelDetector = GeometricPanelDetector()
+                
+                // Store media ID for OCR caching
+                currentMediaId = comicUri.toString()
 
                 _uiState.value = _uiState.value.copy(
                     isLoaded = true,
@@ -317,18 +323,26 @@ class AdvancedComicReaderViewModel @Inject constructor(
         }
     }
 
-    fun performOcr(context: Context, bitmap: Bitmap) {
+    fun performOcr(bitmap: Bitmap, mediaId: String? = null, pageNumber: Int = 0) {
         viewModelScope.launch {
             try {
                 _isOcrProcessing.value = true
                 _ocrResult.value = null
 
-                // Note: Actual OCR integration will be done in a separate service
-                // For now, this is a placeholder that shows the structure
-                withContext(Dispatchers.Default) {
-                    // Simulate OCR processing time
-                    kotlinx.coroutines.delay(1000)
-                    _ocrResult.value = "OCR functionality will be integrated with ML Kit service"
+                val itemId = mediaId ?: currentMediaId
+                val page = if (pageNumber > 0) pageNumber else _uiState.value.currentPage
+
+                val result = ocrRepository.recognizeText(
+                    bitmap = bitmap,
+                    mediaItemId = itemId,
+                    pageNumber = page,
+                    useCache = true
+                )
+
+                result.onSuccess { ocrResult ->
+                    _ocrResult.value = ocrResult.text
+                }.onFailure { error ->
+                    _ocrResult.value = "Error: ${error.message}"
                 }
             } catch (e: Exception) {
                 _ocrResult.value = "Error: ${e.message}"
