@@ -357,6 +357,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
         
+        // Ambient sound routes
+        composable("ambient/theme_manager") {
+            com.universalmedialibrary.ui.ambient.ThemeManagerScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        composable("ambient/import") {
+            com.universalmedialibrary.ui.ambient.AudioPackImportScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
         composable("collection_detail/{collectionId}") { backStackEntry ->
             val collectionId = backStackEntry.arguments?.getString("collectionId")?.toLongOrNull() ?: -1L
             if (collectionId > 0) {
