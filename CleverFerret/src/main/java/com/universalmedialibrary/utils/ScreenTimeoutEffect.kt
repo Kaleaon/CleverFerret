@@ -25,37 +25,41 @@ import kotlinx.coroutines.flow.Flow
  * 
  * @param enabled Whether to keep the screen on
  * @param timeoutMinutes Duration in minutes before screen turns off (0 = system default)
+ * @param screenTimeoutManager Optional ScreenTimeoutManager instance. If null, will attempt to get from MainActivity.
  */
 @Composable
 fun ReaderScreenTimeoutEffect(
     enabled: Boolean,
-    timeoutMinutes: Int
+    timeoutMinutes: Int,
+    screenTimeoutManager: ScreenTimeoutManager? = null
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
     
     DisposableEffect(enabled, timeoutMinutes) {
-        if (activity != null) {
-            val screenTimeoutManager = try {
-                // Try to get ScreenTimeoutManager from MainActivity
-                (activity as? com.universalmedialibrary.MainActivity)?.screenTimeoutManager
-            } catch (e: Exception) {
+        val manager = screenTimeoutManager ?: run {
+            // Fallback: try to get from MainActivity if not provided
+            if (activity != null) {
+                try {
+                    (activity as? com.universalmedialibrary.MainActivity)?.screenTimeoutManager
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
                 null
             }
-            
-            screenTimeoutManager?.let { manager ->
-                manager.setEnabled(enabled)
-                if (enabled) {
-                    manager.setTimeoutMinutes(timeoutMinutes)
-                    manager.setKeepScreenOn(true)
-                }
+        }
+        
+        manager?.let {
+            it.setEnabled(enabled)
+            if (enabled) {
+                it.setTimeoutMinutes(timeoutMinutes)
+                it.setKeepScreenOn(true)
             }
-            
-            onDispose {
-                screenTimeoutManager?.setKeepScreenOn(false)
-            }
-        } else {
-            onDispose { }
+        }
+        
+        onDispose {
+            manager?.setKeepScreenOn(false)
         }
     }
 }

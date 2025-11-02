@@ -51,16 +51,6 @@ class ScreenTimeoutManager(private val activity: Activity) {
             _isScreenKeptOn.value = true
             
             // Calculate delay: timeout in minutes converted to milliseconds
-            // Subtract system screen timeout to avoid double-counting
-            val systemScreenTimeout = try {
-                Settings.System.getInt(
-                    activity.contentResolver,
-                    Settings.System.SCREEN_OFF_TIMEOUT
-                )
-            } catch (e: Settings.SettingNotFoundException) {
-                0
-            }
-            
             val totalDelayMs = timeoutMinutes * 60 * 1000L
             
             // Schedule automatic disable after the specified timeout
