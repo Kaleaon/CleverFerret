@@ -194,18 +194,18 @@ Currently supports Latin-script languages including:
 1. **Handwritten text**: OCR works best with printed text
 2. **Low quality images**: Blurry or low-resolution images may produce poor results
 3. **Complex layouts**: Comic speech bubbles with unusual shapes may need manual adjustment
-4. **Non-Latin scripts**: Arabic, Chinese, Japanese, etc. require additional language packs
+4. **Non-Latin scripts**: Arabic requires additional language packs. Chinese, Japanese, and Korean are supported.
 
 ## Future Enhancements
 
 Planned features for future releases:
 - [ ] Speech balloon detection using ML models
-- [ ] Multi-language support (Chinese, Japanese, Korean, Arabic)
+- [x] Multi-language support (Chinese, Japanese, Korean)
+- [ ] Multi-language support (Arabic)
 - [ ] Text-to-Speech integration for extracted text
 - [ ] Custom OCR model training for comic fonts
 - [ ] Batch OCR processing for entire books
 - [ ] OCR result editing and correction
-
 ## Troubleshooting
 
 ### OCR Not Working
