@@ -27,7 +27,7 @@ import androidx.compose.ui.window.DialogProperties
 /**
  * OCR Overlay UI Component
  * 
- * Provides controls for OCR text recognition with result display
+ * Provides controls for OCR text recognition with result display and TTS
  */
 @Composable
 fun OcrOverlay(
@@ -36,7 +36,10 @@ fun OcrOverlay(
     ocrResult: String?,
     isProcessing: Boolean,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSpeakText: ((String) -> Unit)? = null,
+    onStopSpeaking: (() -> Unit)? = null,
+    isSpeaking: Boolean = false
 ) {
     val clipboardManager = LocalClipboardManager.current
     
@@ -113,15 +116,35 @@ fun OcrOverlay(
                     )
                     
                     if (ocrResult != null) {
-                        IconButton(
-                            onClick = {
-                                clipboardManager.setText(AnnotatedString(ocrResult))
+                        Row {
+                            // TTS controls (if available)
+                            if (onSpeakText != null && onStopSpeaking != null) {
+                                IconButton(
+                                    onClick = {
+                                        if (isSpeaking) {
+                                            onStopSpeaking()
+                                        } else {
+                                            onSpeakText(ocrResult)
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
+                                        contentDescription = if (isSpeaking) "Stop speaking" else "Read aloud"
+                                    )
+                                }
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ContentCopy,
-                                contentDescription = "Copy text"
-                            )
+                            
+                            IconButton(
+                                onClick = {
+                                    clipboardManager.setText(AnnotatedString(ocrResult))
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ContentCopy,
+                                    contentDescription = "Copy text"
+                                )
+                            }
                         }
                     }
                 }

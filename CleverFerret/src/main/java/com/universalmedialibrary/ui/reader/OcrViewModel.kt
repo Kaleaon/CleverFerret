@@ -17,11 +17,15 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class OcrViewModel @Inject constructor(
-    private val ocrRepository: OcrRepository
+    private val ocrRepository: OcrRepository,
+    private val ocrTtsIntegration: com.universalmedialibrary.services.ocr.OcrTtsIntegration
 ) : ViewModel() {
 
     private val _ocrState = MutableStateFlow<OcrState>(OcrState.Idle)
     val ocrState: StateFlow<OcrState> = _ocrState.asStateFlow()
+
+    private val _isSpeaking = MutableStateFlow(false)
+    val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
 
     /**
      * Perform OCR on a bitmap image
@@ -71,6 +75,68 @@ class OcrViewModel @Inject constructor(
     fun clearCache(mediaItemId: String) {
         viewModelScope.launch {
             ocrRepository.clearCacheForMediaItem(mediaItemId)
+        }
+    }
+
+    /**
+     * Speak the OCR result using TTS
+     */
+    fun speakOcrResult() {
+        viewModelScope.launch {
+            val success = ocrTtsIntegration.speakOcrResult(ocrState)
+            if (success) {
+                _isSpeaking.value = true
+                // Monitor TTS state
+                viewModelScope.launch {
+                    ocrTtsIntegration.getTtsState().collect { state ->
+                        _isSpeaking.value = state.isPlaying
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Speak specific text
+     */
+    fun speakText(text: String) {
+        viewModelScope.launch {
+            val success = ocrTtsIntegration.speakText(text)
+            if (success) {
+                _isSpeaking.value = true
+                // Monitor TTS state
+                viewModelScope.launch {
+                    ocrTtsIntegration.getTtsState().collect { state ->
+                        _isSpeaking.value = state.isPlaying
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Stop TTS playback
+     */
+    fun stopSpeaking() {
+        ocrTtsIntegration.stopSpeaking()
+        _isSpeaking.value = false
+    }
+
+    /**
+     * Set TTS speech rate
+     */
+    fun setSpeechRate(rate: Float) {
+        viewModelScope.launch {
+            ocrTtsIntegration.setSpeechRate(rate)
+        }
+    }
+
+    /**
+     * Set TTS pitch
+     */
+    fun setPitch(pitch: Float) {
+        viewModelScope.launch {
+            ocrTtsIntegration.setPitch(pitch)
         }
     }
 }
