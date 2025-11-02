@@ -69,6 +69,8 @@ class ReadiumPreferencesStore @Inject constructor(
         
         // Global Preferences Keys
         private val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
+        private val SCREEN_TIMEOUT_MINUTES = intPreferencesKey("screen_timeout_minutes")
+        private val SCREEN_BRIGHTNESS = floatPreferencesKey("screen_brightness")
         private val AUTO_BRIGHTNESS = booleanPreferencesKey("auto_brightness")
         private val VOLUME_KEY_NAVIGATION = booleanPreferencesKey("volume_key_nav")
         
@@ -134,6 +136,8 @@ class ReadiumPreferencesStore @Inject constructor(
     val globalPreferences: Flow<GlobalPreferences> = dataStore.data.map { prefs ->
         GlobalPreferences(
             keepScreenOn = prefs[KEEP_SCREEN_ON] ?: false,
+            screenTimeoutMinutes = prefs[SCREEN_TIMEOUT_MINUTES] ?: 5,
+            screenBrightness = prefs[SCREEN_BRIGHTNESS] ?: -1f,
             autoBrightness = prefs[AUTO_BRIGHTNESS] ?: true,
             volumeKeyNavigation = prefs[VOLUME_KEY_NAVIGATION] ?: false
         )
@@ -194,6 +198,8 @@ class ReadiumPreferencesStore @Inject constructor(
     suspend fun saveGlobalPreferences(preferences: GlobalPreferences) {
         dataStore.edit { prefs ->
             prefs[KEEP_SCREEN_ON] = preferences.keepScreenOn
+            prefs[SCREEN_TIMEOUT_MINUTES] = preferences.screenTimeoutMinutes
+            prefs[SCREEN_BRIGHTNESS] = preferences.screenBrightness
             prefs[AUTO_BRIGHTNESS] = preferences.autoBrightness
             prefs[VOLUME_KEY_NAVIGATION] = preferences.volumeKeyNavigation
         }
@@ -349,6 +355,8 @@ enum class ReadingMode {
 @Serializable
 data class GlobalPreferences(
     val keepScreenOn: Boolean = false,
+    val screenTimeoutMinutes: Int = 5,
+    val screenBrightness: Float = -1f, // -1 means use system brightness
     val autoBrightness: Boolean = true,
     val volumeKeyNavigation: Boolean = false
 )

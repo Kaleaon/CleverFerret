@@ -90,6 +90,12 @@
             </intent-filter>
         </service>
 
+        <!-- Crash Handler Activity -->
+        <activity
+            android:name=".utils.CrashActivity"
+            android:exported="false"
+            android:theme="@style/Theme.CleverFerretMediaLibrary" />
+        
         <activity
             android:name=".MainActivity"
             android:exported="true">

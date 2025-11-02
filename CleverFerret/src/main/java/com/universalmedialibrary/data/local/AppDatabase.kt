@@ -137,7 +137,7 @@ import com.universalmedialibrary.data.Tag
         OcrCacheEntity::class
 
     ],
-    version = 31, // Added OCR cache support for text recognition
+    version = 31, // Added OCR cache support and Phase 2 & 3 features (swipe actions, tutorials, enhanced EPUB settings)
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class)
