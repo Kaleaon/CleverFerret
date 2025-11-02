@@ -189,6 +189,10 @@ dependencies {
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
+    // ML Kit for on-device text recognition (OCR)
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1")
+    
     // Media metadata extraction libraries
     // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library
     // Replaces old epublib with actively-maintained, feature-rich toolkit
