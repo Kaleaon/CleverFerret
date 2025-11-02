@@ -12,6 +12,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.mikepenz.aboutlibraries.plugin") version "12.2.4"
 }
 
 configurations.all {
@@ -170,6 +171,9 @@ dependencies {
     // HTML parsing for web scraping
     implementation("org.jsoup:jsoup:1.21.2")
     
+    // CSV parsing for Goodreads import/export
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
+    
     // Security for encrypted token storage
     implementation("androidx.security:security-crypto:1.1.0")
     
@@ -179,12 +183,32 @@ dependencies {
     // WorkManager for background tasks
     implementation("androidx.work:work-runtime-ktx:2.11.0")
     
+    // Crash handler for better error reporting
+    implementation("cat.ereza:customactivityoncrash:2.4.0")
+    
+    // Swipe actions for library items (Phase 2)
+    implementation("me.saket.swipe:swipe:1.3.0")
+    
+    // TapTarget tutorial overlays (Phase 3)
+    implementation("com.pierfrancescosoffritti.taptargetcompose:core:1.2.1")
+    
+    // OSS License attribution (Phase 2)
+    implementation("com.mikepenz:aboutlibraries-core:12.2.4")
+    implementation("com.mikepenz:aboutlibraries-compose-m3:12.2.4")
+    
     // Embedded HTTP server for OPDS
     implementation("org.nanohttpd:nanohttpd:2.3.1")
     
     // Google Cast SDK for Chromecast
     implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
     implementation("androidx.media3:media3-cast:1.8.0")
+    
+    // ZXing barcode scanner for ISBN scanning
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.3")
+    
+    // MPAndroidChart - Beautiful charts with animations for reading statistics
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
