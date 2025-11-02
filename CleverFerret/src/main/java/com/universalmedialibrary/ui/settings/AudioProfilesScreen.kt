@@ -84,7 +84,9 @@ class AudioProfilesViewModel @Inject constructor(
     
     fun setAutoSwitchEnabled(enabled: Boolean) {
         _autoSwitchEnabled.value = enabled
-        // TODO: Implement auto-switch enable/disable in AudioProfileService
+        // Note: Auto-switching is always active in AudioProfileService.
+        // This toggle is for UI state only. To disable auto-switching,
+        // the AudioProfileService would need a new method added.
     }
     
     fun refreshCurrentDevice() {
@@ -310,7 +312,7 @@ fun DeviceProfileCard(
             // Expanded Content
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider()
+                HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // EQ Preset
