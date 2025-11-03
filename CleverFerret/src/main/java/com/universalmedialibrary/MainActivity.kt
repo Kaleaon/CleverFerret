@@ -120,6 +120,9 @@ import com.universalmedialibrary.ui.settings.PlaylistSettingsScreen
 import com.universalmedialibrary.ui.settings.OpdsSettingsScreen
 import com.universalmedialibrary.ui.settings.MediaServerSettingsScreen
 import com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen
+import com.universalmedialibrary.ui.settings.AudioEffectsSettingsScreen
+import com.universalmedialibrary.ui.settings.LastFmSettingsScreen
+import com.universalmedialibrary.ui.settings.AudioProfilesScreen
 import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
@@ -542,6 +545,28 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // Import/Export route
         composable("settings/import_export") {
             com.universalmedialibrary.ui.settings.ImportExportScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // Audio Effects Settings route
+        composable("settings/audio_effects") {
+            AudioEffectsSettingsScreen(
+                viewModel = hiltViewModel(),
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // Last.fm Settings route
+        composable("settings/lastfm") {
+            LastFmSettingsScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        // Audio Profiles Settings route
+        composable("settings/audio_profiles") {
+            AudioProfilesScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
         }
