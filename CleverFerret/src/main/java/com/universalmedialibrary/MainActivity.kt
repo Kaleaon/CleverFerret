@@ -40,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Collections
@@ -125,6 +126,8 @@ import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
+import com.universalmedialibrary.ui.components.MediaControlsBar
+import com.universalmedialibrary.ui.components.rememberMediaControlsState
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
@@ -822,6 +825,21 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                    navController = navController
                )
            }
+           composable("collaborative_sessions") {
+               com.universalmedialibrary.ui.collaborative.CollaborativeSessionScreen(
+                   onNavigateBack = { navController.navigateUp() }
+               )
+           }
+           composable("qr_scanner") {
+               com.universalmedialibrary.ui.collaborative.QRScannerScreen(
+                   onNavigateBack = { navController.navigateUp() },
+                   onSessionJoined = { sessionId ->
+                       navController.navigate("collaborative_sessions") {
+                           popUpTo("qr_scanner") { inclusive = true }
+                       }
+                   }
+               )
+           }
         }
     }
 }
@@ -849,6 +867,7 @@ fun LibraryListScreen(
     val context = LocalContext.current
     var dbFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedLibraryForImport by remember { mutableStateOf<Library?>(null) }
+    val mediaControlsState = rememberMediaControlsState()
 
     // Launcher for picking the root folder of the Calibre library.
     // This is triggered after the user selects the target library.
@@ -994,9 +1013,10 @@ fun LibraryListScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        // Main Content Area
-        Scaffold(
-            topBar = {
+        // Main Content Area with Media Controls
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                topBar = {
                 Column {
                     TopAppBar(
                         title = { 
@@ -1007,6 +1027,9 @@ fun LibraryListScreen(
                             )
                         },
                         actions = {
+                            IconButton(onClick = { navController.navigate("qr_scanner") }) {
+                                Icon(Icons.Default.CameraAlt, contentDescription = "Scan QR Code")
+                            }
                             IconButton(onClick = { navController.navigate("collections") }) {
                                 Icon(Icons.Default.Collections, contentDescription = "Collections")
                             }
@@ -1200,6 +1223,24 @@ fun LibraryListScreen(
                     }
                 }
             }
+        }
+        
+            // Media Controls Bar at Bottom
+            MediaControlsBar(
+                isVisible = mediaControlsState.isVisible,
+                title = mediaControlsState.title,
+                artist = mediaControlsState.artist,
+                isPlaying = mediaControlsState.isPlaying,
+                isCasting = mediaControlsState.isCasting,
+                castDeviceName = mediaControlsState.castDeviceName,
+                onPlayPause = { 
+                    mediaControlsState.updatePlaybackState(!mediaControlsState.isPlaying) 
+                },
+                onSkipNext = { /* Handle skip next */ },
+                onSkipPrevious = { /* Handle skip previous */ },
+                onClick = { navController.navigate("music_player") },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 
