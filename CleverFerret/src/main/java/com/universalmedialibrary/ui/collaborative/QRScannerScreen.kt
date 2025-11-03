@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.serialization.json.Json
+import com.universalmedialibrary.services.collaborative.SessionConnectionData
 
 /**
  * QR Scanner Screen for joining collaborative sessions
@@ -214,13 +215,3 @@ private fun ScannerPromptView(
         }
     }
 }
-
-/**
- * Connection data from QR code
- */
-@kotlinx.serialization.Serializable
-data class SessionConnectionData(
-    val sessionId: String,
-    val hostDevice: String,
-    val port: Int
-)

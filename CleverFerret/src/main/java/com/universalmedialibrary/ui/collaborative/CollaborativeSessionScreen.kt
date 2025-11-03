@@ -419,6 +419,7 @@ private fun CreateSessionDialog(
     onCreate: (String, Long, SessionType) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
+    var playlistId by remember { mutableStateOf("1") }
     var selectedType by remember { mutableStateOf(SessionType.CHROMECAST) }
 
     AlertDialog(
@@ -430,6 +431,13 @@ private fun CreateSessionDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Session Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = playlistId,
+                    onValueChange = { playlistId = it },
+                    label = { Text("Playlist ID") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -451,7 +459,10 @@ private fun CreateSessionDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onCreate(name, 1L, selectedType) },
+                onClick = { 
+                    val pId = playlistId.toLongOrNull() ?: 1L
+                    onCreate(name, pId, selectedType) 
+                },
                 enabled = name.isNotBlank()
             ) {
                 Text("Create")

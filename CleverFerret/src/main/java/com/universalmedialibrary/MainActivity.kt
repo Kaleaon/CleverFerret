@@ -1261,8 +1261,8 @@ fun LibraryListScreen(
                 onPlayPause = { 
                     mediaControlsState.updatePlaybackState(!mediaControlsState.isPlaying) 
                 },
-                onSkipNext = { /* Handle skip next */ },
-                onSkipPrevious = { /* Handle skip previous */ },
+                onSkipNext = { },
+                onSkipPrevious = { },
                 onClick = { navController.navigate("music_player") },
                 modifier = Modifier.align(Alignment.BottomCenter)
             )

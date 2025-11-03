@@ -189,7 +189,7 @@ class CollaborativeSessionService @Inject constructor(
             mediaItemId = mediaItemId,
             addedBy = clientId,
             position = nextPosition,
-            status = if (session.requiresApproval) QueueItemStatus.QUEUED else QueueItemStatus.QUEUED
+            status = QueueItemStatus.QUEUED
         )
 
         val itemId = sessionDao.insertQueueItem(item)

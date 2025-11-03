@@ -10,8 +10,6 @@ import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.cast.framework.SessionManagerListener
-import com.google.android.gms.common.api.PendingResult
-import com.google.android.gms.common.images.WebImage
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.CollaborativeSession
 import com.universalmedialibrary.data.local.entity.SessionQueueItem
@@ -132,16 +130,22 @@ class ChromecastSessionManager @Inject constructor(
             val mediaItem = mediaItemDao.getMediaItemById(item.mediaItemId)
                 ?: return@mapNotNull null
 
-            val metadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK).apply {
-                putString(MediaMetadata.KEY_TITLE, mediaItem.fileName)
-                // For local files, we'd need to serve them via HTTP
-                // For now, skip local files in casting
+            // Skip local files - they need to be served via HTTP first
+            val filePath = mediaItem.filePath
+            if (!filePath.startsWith("http://") && !filePath.startsWith("https://")) {
+                return@mapNotNull null
             }
 
-            val mediaInfo = MediaInfo.Builder(mediaItem.filePath)
+            val metadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK).apply {
+                putString(MediaMetadata.KEY_TITLE, mediaItem.fileName)
+            }
+
+            val contentType = detectMimeType(mediaItem.fileExtension, mediaItem.mimeType)
+
+            val mediaInfo = MediaInfo.Builder(filePath)
                 .setMetadata(metadata)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setContentType("audio/mp3") // Would need to detect actual type
+                .setContentType(contentType)
                 .build()
 
             MediaQueueItem.Builder(mediaInfo).build()
@@ -155,14 +159,22 @@ class ChromecastSessionManager @Inject constructor(
         val castSession = currentCastSession ?: return
         val mediaItem = mediaItemDao.getMediaItemById(queueItem.mediaItemId) ?: return
 
+        // Skip local files - they need to be served via HTTP first
+        val filePath = mediaItem.filePath
+        if (!filePath.startsWith("http://") && !filePath.startsWith("https://")) {
+            return
+        }
+
         val metadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK).apply {
             putString(MediaMetadata.KEY_TITLE, mediaItem.fileName)
         }
 
-        val mediaInfo = MediaInfo.Builder(mediaItem.filePath)
+        val contentType = detectMimeType(mediaItem.fileExtension, mediaItem.mimeType)
+
+        val mediaInfo = MediaInfo.Builder(filePath)
             .setMetadata(metadata)
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-            .setContentType("audio/mp3")
+            .setContentType(contentType)
             .build()
 
         val mediaQueueItem = MediaQueueItem.Builder(mediaInfo).build()
@@ -172,6 +184,29 @@ class ChromecastSessionManager @Inject constructor(
             MediaQueueItem.INVALID_ITEM_ID,
             null
         )
+    }
+
+    /**
+     * Detect MIME type from file extension and metadata
+     */
+    private fun detectMimeType(fileExtension: String, mimeType: String?): String {
+        // Use provided mimeType if available
+        if (!mimeType.isNullOrBlank()) {
+            return mimeType
+        }
+
+        // Fallback to extension-based detection
+        return when (fileExtension.lowercase()) {
+            "mp3" -> "audio/mpeg"
+            "m4a", "mp4" -> "audio/mp4"
+            "ogg" -> "audio/ogg"
+            "opus" -> "audio/opus"
+            "wav" -> "audio/wav"
+            "flac" -> "audio/flac"
+            "aac" -> "audio/aac"
+            "wma" -> "audio/x-ms-wma"
+            else -> "audio/mpeg" // Default fallback
+        }
     }
 
     /**
