@@ -286,9 +286,7 @@ class MusicPlayerViewModel @Inject constructor(
      * Shuffle queue
      */
     fun shuffleQueue() {
-        // TODO: shuffleQueue is private in AdvancedMusicPlayerService
-        // Need to expose this functionality or implement here
-        // musicPlayerService.shuffleQueue()
+        musicPlayerService.shuffleQueue()
     }
     
     /**

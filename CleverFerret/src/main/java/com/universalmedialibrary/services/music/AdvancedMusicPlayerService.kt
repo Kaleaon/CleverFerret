@@ -17,6 +17,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.math.roundToInt
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -59,6 +60,11 @@ class AdvancedMusicPlayerService @Inject constructor(
 
     private var currentQueueIndex = 0
     private var originalQueue: List<TrackInfo> = emptyList()
+
+    private var currentEqPreset: EqualizerPreset = EqualizerPreset.FLAT
+    private var currentBassBoostStrength: Int = 0
+    private var currentReverbEnabled: Boolean = false
+    private var currentReverbPreset: ReverbPreset = ReverbPreset.SMALL_ROOM
     
     // Last.fm scrobbling
     private val scrobblerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -745,6 +751,30 @@ class AdvancedMusicPlayerService @Inject constructor(
         val audioSessionId = exoPlayerService.getAudioSessionId()
         if (audioSessionId != 0) {
             audioEffectsService.initialize(audioSessionId)
+            applyStoredAudioEffects()
+        }
+    }
+
+    private fun applyStoredAudioEffects() {
+        try {
+            audioEffectsService.applyEqualizerPreset(currentEqPreset)
+        } catch (ignored: Exception) {
+            Log.w("AdvancedMusicPlayer", "Equalizer not available on this device")
+        }
+
+        try {
+            audioEffectsService.setBassBoost(
+                currentBassBoostStrength.coerceIn(0, 1000),
+                enabled = currentBassBoostStrength > 0
+            )
+        } catch (ignored: Exception) {
+            Log.w("AdvancedMusicPlayer", "Bass boost not available on this device")
+        }
+
+        try {
+            audioEffectsService.setReverb(currentReverbPreset, currentReverbEnabled)
+        } catch (ignored: Exception) {
+            Log.w("AdvancedMusicPlayer", "Reverb not available on this device")
         }
     }
 
@@ -765,6 +795,7 @@ class AdvancedMusicPlayerService @Inject constructor(
                 7 -> EqualizerPreset.JAZZ
                 else -> EqualizerPreset.FLAT
             }
+            currentEqPreset = preset
             audioEffectsService.applyEqualizerPreset(preset)
         } catch (e: Exception) {
             // Audio effects not available on this device
@@ -776,7 +807,17 @@ class AdvancedMusicPlayerService @Inject constructor(
      */
     override fun enableReverb(enabled: Boolean) {
         try {
-            audioEffectsService.setReverb(ReverbPreset.NONE, enabled)
+            currentReverbEnabled = enabled
+            audioEffectsService.setReverb(currentReverbPreset, enabled)
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
+    }
+
+    fun setReverbPreset(preset: ReverbPreset) {
+        currentReverbPreset = preset
+        try {
+            audioEffectsService.setReverb(currentReverbPreset, currentReverbEnabled)
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
@@ -787,12 +828,35 @@ class AdvancedMusicPlayerService @Inject constructor(
      */
     override fun setBassBoost(strength: Int) {
         try {
-            audioEffectsService.setBassBoost(strength.coerceIn(0, 1000), enabled = strength > 0)
+            currentBassBoostStrength = strength.coerceIn(0, 1000)
+            audioEffectsService.setBassBoost(currentBassBoostStrength, enabled = currentBassBoostStrength > 0)
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
     }
     
+    fun setReplayGainEnabled(enabled: Boolean) {
+        replayGainService.setEnabled(enabled)
+        currentTrack.value?.let { applyReplayGain(it) }
+    }
+
+    fun setReplayGainPreamp(preampDb: Int) {
+        replayGainService.setPreampGain(preampDb.toFloat())
+        currentTrack.value?.let { applyReplayGain(it) }
+    }
+
+    fun getAudioEffectsSnapshot(): AudioEffectsSnapshot {
+        val replayGainSettings = replayGainService.getSettings()
+        return AudioEffectsSnapshot(
+            eqPreset = currentEqPreset,
+            bassBoostStrength = currentBassBoostStrength,
+            reverbEnabled = currentReverbEnabled,
+            reverbPreset = currentReverbPreset,
+            replayGainEnabled = replayGainSettings.enabled,
+            replayGainPreamp = replayGainSettings.preampGain.roundToInt()
+        )
+    }
+
     /**
      * Get ExoPlayerService instance for visualizer attachment
      */
@@ -876,6 +940,15 @@ data class TrackInfo(
     val queuePosition: Int = 0,
     val replayGainTrack: Float? = null, // Track gain in dB
     val replayGainAlbum: Float? = null  // Album gain in dB
+)
+
+data class AudioEffectsSnapshot(
+    val eqPreset: EqualizerPreset,
+    val bassBoostStrength: Int,
+    val reverbEnabled: Boolean,
+    val reverbPreset: ReverbPreset,
+    val replayGainEnabled: Boolean,
+    val replayGainPreamp: Int
 )
 
 /**

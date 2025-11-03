@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.settings
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -371,21 +372,27 @@ class AudioEffectsViewModel @Inject constructor(
     }
     
     private fun loadCurrentSettings() {
-        // TODO: Load from SharedPreferences or service
-        _state.value = AudioEffectsState(
-            selectedEqPreset = EqualizerPreset.FLAT,
-            bassBoostStrength = 0,
-            reverbEnabled = false,
-            reverbPreset = ReverbPreset.SMALL_ROOM,
-            replayGainEnabled = true,
-            replayGainPreamp = 0
-        )
+        viewModelScope.launch {
+            try {
+                val snapshot = musicPlayerService.getAudioEffectsSnapshot()
+                _state.value = AudioEffectsState(
+                    selectedEqPreset = snapshot.eqPreset,
+                    bassBoostStrength = snapshot.bassBoostStrength,
+                    reverbEnabled = snapshot.reverbEnabled,
+                    reverbPreset = snapshot.reverbPreset,
+                    replayGainEnabled = snapshot.replayGainEnabled,
+                    replayGainPreamp = snapshot.replayGainPreamp
+                )
+            } catch (e: Exception) {
+                Log.w("AudioEffectsViewModel", "Unable to load audio effects snapshot", e)
+                _state.value = AudioEffectsState()
+            }
+        }
     }
     
     fun setEqPreset(preset: EqualizerPreset) {
         viewModelScope.launch {
             _state.value = _state.value.copy(selectedEqPreset = preset)
-            // TODO: Apply to service
             musicPlayerService.setEqualizerPreset(preset.ordinal)
         }
     }
@@ -393,7 +400,6 @@ class AudioEffectsViewModel @Inject constructor(
     fun setBassBoost(strength: Int) {
         viewModelScope.launch {
             _state.value = _state.value.copy(bassBoostStrength = strength)
-            // TODO: Apply to service
             musicPlayerService.setBassBoost(strength)
         }
     }
@@ -401,7 +407,6 @@ class AudioEffectsViewModel @Inject constructor(
     fun setReverbEnabled(enabled: Boolean) {
         viewModelScope.launch {
             _state.value = _state.value.copy(reverbEnabled = enabled)
-            // TODO: Apply to service
             musicPlayerService.enableReverb(enabled)
         }
     }
@@ -409,21 +414,21 @@ class AudioEffectsViewModel @Inject constructor(
     fun setReverbPreset(preset: ReverbPreset) {
         viewModelScope.launch {
             _state.value = _state.value.copy(reverbPreset = preset)
-            // TODO: Apply to service (currently handled internally)
+            musicPlayerService.setReverbPreset(preset)
         }
     }
     
     fun setReplayGainEnabled(enabled: Boolean) {
         viewModelScope.launch {
             _state.value = _state.value.copy(replayGainEnabled = enabled)
-            // TODO: Apply to service
+            musicPlayerService.setReplayGainEnabled(enabled)
         }
     }
     
     fun setReplayGainPreamp(preamp: Int) {
         viewModelScope.launch {
             _state.value = _state.value.copy(replayGainPreamp = preamp)
-            // TODO: Apply to service
+            musicPlayerService.setReplayGainPreamp(preamp)
         }
     }
     
@@ -431,11 +436,12 @@ class AudioEffectsViewModel @Inject constructor(
         _state.value = AudioEffectsState()
         // Apply defaults to service
         viewModelScope.launch {
-            setEqPreset(EqualizerPreset.FLAT)
-            setBassBoost(0)
-            setReverbEnabled(false)
-            setReplayGainEnabled(true)
-            setReplayGainPreamp(0)
+            musicPlayerService.setEqualizerPreset(EqualizerPreset.FLAT.ordinal)
+            musicPlayerService.setBassBoost(0)
+            musicPlayerService.setReverbPreset(ReverbPreset.SMALL_ROOM)
+            musicPlayerService.enableReverb(false)
+            musicPlayerService.setReplayGainEnabled(true)
+            musicPlayerService.setReplayGainPreamp(0)
         }
     }
 }

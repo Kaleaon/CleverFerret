@@ -8,18 +8,15 @@
 ## Progress Summary
 
 ### Completed ✅
-1. ✅ **Removed incomplete features** (CUE Sheet)
-2. ✅ **Resolved all 4 TODOs** (commit 8534478)
-   - Queue MediaItem fetching implemented
-   - Audio effects integration completed
-3. ✅ **Created AudioEffectsSettingsScreen** (1 of 5 UI screens)
+1. ✅ **AudioEffectsSettingsScreen** wired to AdvancedMusicPlayerService
+2. ✅ **LastFmSettingsScreen** with credential storage and scrobble toggles
+3. ✅ **AudioProfilesScreen** with per-device profile management
+4. ✅ **SyncedLyricsDisplay** component (UI shell with loading/error states)
 
 ### In Progress ⏳
-4. ⏳ **Remaining UI Screens** (4 of 5 needed):
-   - Last.fm Authentication & Settings
-   - Synced Lyrics Display
-   - Audio Profiles Management
-   - Music Settings enhancements
+5. ⏳ **Navigation & Settings integration** (link screens into menus)
+6. ⏳ **Lyrics service hook-up** (replace placeholder message with live data)
+7. ⏳ **Persistent storage polish** (SharedPreferences + documentation updates)
 
 ---
 
@@ -54,117 +51,83 @@
 
 **Integration Status**:
 - ✅ ViewModel connects to AdvancedMusicPlayerService
-- ✅ All service methods called properly
-- ⚠️ Needs SharedPreferences persistence (marked with TODOs)
+- ✅ All service methods (EQ, bass, reverb, ReplayGain) now apply immediately
+- ⚠️ Needs SharedPreferences persistence (still pending)
 - ⚠️ Needs navigation route configuration
 
 **Next Steps for This Screen**:
 1. Add to navigation graph
 2. Implement SharedPreferences for settings persistence
-3. Load current settings from service on init
-4. Test on device with actual audio playback
+3. Test on device with actual audio playback
 
 ---
 
-### 2. Last.fm Settings UI ⏳ NEEDED
+### 2. Last.fm Settings UI ✅ COMPLETE
 
-**Proposed Location**: `CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/LastFmSettingsScreen.kt`
+**File**: `CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/LastFmSettingsScreen.kt`
 
-**Required Features**:
-- Last.fm API key/secret input
-- Authentication flow (OAuth)
-- Session status display
-- Enable/disable scrobbling toggle
-- Scrobble count/history
-- "Now Playing" status indicator
-- Disconnect/re-authenticate button
+**Features Implemented**:
+- API key/secret dialog with validation and secure entry
+- Authentication status card with session key preview
+- Scrobbling and "Now Playing" toggles tied to `LastFmScrobblerService`
+- Session statistics with queued retry action
+- Material 3 layout with elevated cards and iconography
 
-**UI Components Needed**:
-- Text fields for API credentials
-- Authentication button with loading state
-- Session status card
-- Scrobble statistics display
-- Toggle switches
-- Action buttons
+**Integration Status**:
+- ✅ Persists credentials through `APIKeyRepository`
+- ✅ Toggles call service methods immediately
+- ⚠️ Needs navigation entry point from settings
+- ⚠️ OAuth hand-off flow still planned (currently manual session key input)
 
-**Integration Required**:
-- LastFmScrobblerService connection
-- APIKeyRepository for credential storage
-- OAuth flow handling
-- Session management
-
-**Estimated Effort**: 1-2 hours
+**Next Steps**:
+1. Add navigation route from global settings menu
+2. Wire OAuth intent or document manual session key process
+3. Add instrumentation test for credential persistence
 
 ---
 
-### 3. Synced Lyrics Display ⏳ NEEDED
+### 3. Synced Lyrics Display ⏳ PARTIAL
 
-**Proposed Location**: `CleverFerret/src/main/java/com/universalmedialibrary/ui/music/LyricsDisplayComponent.kt`
+**File**: `CleverFerret/src/main/java/com/universalmedialibrary/ui/player/SyncedLyricsDisplay.kt`
 
-**Required Features**:
-- Lyrics display with time sync
-- Current line highlighting
-- Auto-scroll following playback
-- Manual scroll with auto-resume
-- Lyrics source indicator (.lrc file, cache, or AI)
-- Timestamp display
-- Full-screen mode option
+**Features Implemented**:
+- Material 3 karaoke-style layout with auto-centering scroll
+- Highlighted current line with animation + faded history lines
+- Loading, empty, and error states with contextual guidance
+- Hook for toggling via `EnhancedMusicPlayerScreen`
 
-**UI Components Needed**:
-- LazyColumn for lyrics lines
-- Highlighted current line (different color/size)
-- Smooth scroll animations
-- Timestamp markers
-- Source badge
-- Playback position sync
+**Outstanding Work**:
+- Replace placeholder error flow with real `LyricsService` integration
+- Feed actual `Track` metadata (currently expecting `trackId` only)
+- Add tests for timestamp parsing helper
 
-**Integration Required**:
-- LyricsService connection
-- LrcParser for .lrc files
-- Playback position observer
-- Auto-scroll logic
-- Player screen integration
-
-**Integration Points**:
-- Add tab/button to EnhancedPlayerScreen.kt
-- Add to MusicPlayerScreen.kt
-- Connect to MusicPlayerViewModel
-
-**Estimated Effort**: 1.5-2 hours
+**Next Steps**:
+1. Connect to `LyricsViewModel` backed by real service data
+2. Ensure player ViewModel supplies current playback position
+3. Add navigation entry or button copy updates explaining requirements
 
 ---
 
-### 4. Audio Profiles Management UI ⏳ NEEDED
+### 4. Audio Profiles Management UI ✅ COMPLETE
 
-**Proposed Location**: `CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/AudioProfilesScreen.kt`
+**File**: `CleverFerret/src/main/java/com/universalmedialibrary/ui/settings/AudioProfilesScreen.kt`
 
-**Required Features**:
-- Current device type display
-- List of device profiles
-- Profile editor for each device type
-- EQ preset per device
-- Bass boost per device
-- Reverb per device
-- Auto-switch toggle
-- Default profiles vs custom
-- Profile reset option
+**Features Implemented**:
+- Current device card with refresh + auto-detection summary
+- Expandable cards for each `AudioDeviceType` with EQ, bass, reverb controls
+- Profile persistence via `AudioProfileService`
+- Auto-switch toggle (UI state) with documentation on backend behaviour
+- Material 3 layout with icons and helper copy
 
-**UI Components Needed**:
-- Current device indicator card
-- List of device types (6 types)
-- Expandable profile editors
-- Preset selectors
-- Sliders for levels
-- Save/discard buttons
-- Profile status indicators
+**Outstanding Work**:
+- Persist auto-switch preference if backend adds support
+- Surface feedback/snackbar after saves (currently silent)
+- Integrate into navigation flow
 
-**Integration Required**:
-- AudioProfileService connection
-- Device detection status
-- Profile CRUD operations
-- SharedPreferences for profiles
-
-**Estimated Effort**: 2-2.5 hours
+**Next Steps**:
+1. Add top-level navigation route or settings entry
+2. Consider exposing profile delete/reset confirmation dialogs
+3. QA profile switching on target devices
 
 ---
 
@@ -258,33 +221,32 @@
 | Component | Status | Effort | Priority |
 |-----------|--------|--------|----------|
 | Audio Effects UI | ✅ Done | 0h | Complete |
-| Last.fm Settings | ⏳ Needed | 1-2h | High |
-| Lyrics Display | ⏳ Needed | 1.5-2h | High |
-| Audio Profiles UI | ⏳ Needed | 2-2.5h | Medium |
-| Settings Integration | ⏳ Needed | 0.5h | Medium |
-| Navigation Setup | ⏳ Needed | 0.5h | High |
+| Last.fm Settings | ✅ Done | 0.5h (QA) | High |
+| Lyrics Display Integration | ⏳ Service hook | 1-1.5h | High |
+| Audio Profiles UI | ✅ Done | 0h | Medium |
+| Settings Integration | ⏳ Wiring | 0.5h | Medium |
+| Navigation Setup | ⏳ Wiring | 0.5h | High |
 | SharedPreferences | ⏳ Needed | 1h | High |
-| Testing | ⏳ Needed | 2-3h | High |
-| Documentation | ⏳ Needed | 1-2h | Low |
+| Testing | ⏳ Needed | 2h | High |
+| Documentation | ⏳ Refresh | 1h | Low |
 
-**Total Remaining**: ~10-14 hours of focused development
+**Total Remaining**: ~5-7 hours of focused development
 
 ### By Priority
-- **Critical Path** (must have): 5-6 hours
+- **Critical Path** (must have): 3-4 hours
   - Navigation setup (30 mins)
-  - SharedPreferences (1 hour)
-  - Last.fm Settings (1-2 hours)
-  - Lyrics Display (1.5-2 hours)
-  - Basic testing (1 hour)
+  - SharedPreferences persistence (1 hour)
+  - Lyrics service integration (1.5 hours)
+  - Basic regression testing (1 hour)
 
-- **Important** (should have): 3-4 hours
-  - Audio Profiles UI (2-2.5 hours)
-  - Settings integration (30 mins)
-  - Extended testing (1 hour)
+- **Important** (should have): 1.5-2 hours
+  - Settings integration polish (links, icons)
+  - Extended testing on device (40 mins)
+  - QA auto-profile switching (30 mins)
 
-- **Nice to have**: 2-4 hours
-  - Documentation (1-2 hours)
-  - Polish & refinements (1-2 hours)
+- **Nice to have**: 1-1.5 hours
+  - Documentation refresh (45 mins)
+  - UI polish & copy tweaks (30 mins)
 
 ---
 
