@@ -2,10 +2,12 @@ package com.universalmedialibrary
 
 import android.app.Application
 import android.util.Log
+import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.universalmedialibrary.data.migration.AppUpgradeManager
 import com.universalmedialibrary.data.migration.BackupRestorationManager
 import com.universalmedialibrary.data.migration.UpgradeStatus
 import com.universalmedialibrary.services.ambient.ThemedCollections
+import com.universalmedialibrary.utils.CrashActivity
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,11 +52,28 @@ class CleverFerretApplication : Application() {
         // Initialize themed sound collections
         ThemedCollections.initialize()
         Log.d(TAG, "Ambient themed collections initialized")
+        // Initialize crash handler
+        initializeCrashHandler()
 
         // CRITICAL: Check for app upgrades and protect user data
         applicationScope.launch {
             handleAppUpgrade()
         }
+    }
+    
+    /**
+     * Initialize custom crash handler for better error reporting
+     */
+    private fun initializeCrashHandler() {
+        CaocConfig.Builder.create()
+            .backgroundMode(CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM)
+            .enabled(true)
+            .showErrorDetails(true)
+            .showRestartButton(true)
+            .trackActivities(true)
+            .minTimeBetweenCrashesMs(2000)
+            .errorActivity(CrashActivity::class.java)
+            .apply()
     }
 
     /**

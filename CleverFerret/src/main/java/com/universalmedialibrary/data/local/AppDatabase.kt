@@ -132,18 +132,12 @@ import com.universalmedialibrary.data.Tag
         // Search history
         SearchHistory::class,
         SavedSearchEntity::class,
-        
-        // Ambient sounds for reading
-        AmbientSound::class,
-        AmbientPlaylist::class,
-        AmbientReadingSession::class,
-        
-        // Audio pack imports
-        AudioPack::class,
-        AudioPackSound::class
+
+        // OCR cache
+        OcrCacheEntity::class
 
     ],
-    version = 32, // Added ambient sounds (v31) and audio pack import (v32)
+    version = 31, // Added OCR cache support and Phase 2 & 3 features (swipe actions, tutorials, enhanced EPUB settings)
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)
@@ -225,6 +219,9 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Audio Pack DAO
     abstract fun audioPackDao(): AudioPackDao
+
+    // OCR Cache DAO
+    abstract fun ocrCacheDao(): OcrCacheDao
 
 
     companion object {

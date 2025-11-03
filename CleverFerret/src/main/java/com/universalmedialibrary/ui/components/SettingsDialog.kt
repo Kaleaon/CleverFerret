@@ -269,6 +269,42 @@ private fun ReaderTab(
             onCheckedChange = { onReaderSettingsChange(readerSettings.copy(keepScreenOn = it)) }
         )
         
+        // Screen Timeout Setting (only show when Keep Screen On is enabled)
+        if (readerSettings.keepScreenOn) {
+            DropdownSettingField(
+                label = "Screen Timeout",
+                value = when (readerSettings.screenTimeoutMinutes) {
+                    0 -> "System default"
+                    1 -> "1 minute"
+                    2 -> "2 minutes"
+                    5 -> "5 minutes"
+                    10 -> "10 minutes"
+                    15 -> "15 minutes"
+                    30 -> "30 minutes"
+                    60 -> "60 minutes"
+                    else -> "${readerSettings.screenTimeoutMinutes} minutes"
+                },
+                options = listOf(
+                    "System default", "1 minute", "2 minutes", "5 minutes",
+                    "10 minutes", "15 minutes", "30 minutes", "60 minutes"
+                ),
+                onValueChange = { displayValue ->
+                    val minutes = when (displayValue) {
+                        "System default" -> 0
+                        "1 minute" -> 1
+                        "2 minutes" -> 2
+                        "5 minutes" -> 5
+                        "10 minutes" -> 10
+                        "15 minutes" -> 15
+                        "30 minutes" -> 30
+                        "60 minutes" -> 60
+                        else -> 5
+                    }
+                    onReaderSettingsChange(readerSettings.copy(screenTimeoutMinutes = minutes))
+                }
+            )
+        }
+        
         SettingSwitch(
             label = "Volume Keys Navigation",
             checked = readerSettings.volumeKeysNavigation,

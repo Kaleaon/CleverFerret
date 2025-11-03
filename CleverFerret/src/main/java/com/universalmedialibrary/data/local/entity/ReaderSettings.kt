@@ -82,6 +82,37 @@ data class ReaderSettingsEntity(
     val autoScrollEnabled: Boolean = false,
     val autoScrollSpeedMultiplier: Float = 1.0f,  // 0.1x - 5.0x
     
+    // Enhanced EPUB Reader Features (Phase 3 - Myne-inspired)
+    /**
+     * Font family options: System, Serif, Sans-Serif, Monospace, OpenDyslexic
+     */
+    val epubFontFamily: String = "System",
+    
+    /**
+     * Reading themes: Default, Sepia, Night, Custom
+     */
+    val epubReadingTheme: String = "Default",
+    
+    /**
+     * Text alignment: Left, Center, Justify
+     */
+    val epubTextAlignment: String = "Left",
+    
+    /**
+     * Line height multiplier: 1.0 - 2.0
+     */
+    val epubLineHeight: Float = 1.5f,
+    
+    /**
+     * Custom background color for reading (hex string)
+     */
+    val epubCustomBackgroundColor: String = "#FFFFFF",
+    
+    /**
+     * Custom text color for reading (hex string)
+     */
+    val epubCustomTextColor: String = "#000000",
+    
     val updatedAt: Long = System.currentTimeMillis()
 )
 
