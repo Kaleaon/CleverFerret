@@ -346,6 +346,8 @@ fun MediaType.displayName(): String {
         MediaType.DOCUMENT -> "Documents"
         MediaType.WEB_FICTION -> "Web Fiction"
         MediaType.RADIO -> "Radio"
+        MediaType.MIDI -> "MIDI Files"
+        MediaType.MUSIC_SCORE -> "Music Scores"
         MediaType.UNKNOWN -> "Unknown"
     }
 }
@@ -368,6 +370,8 @@ fun MediaType.getIcon(): ImageVector {
         MediaType.PRESENTATION -> Icons.Default.Slideshow
         MediaType.DOCUMENT -> Icons.Default.Description
         MediaType.WEB_FICTION -> Icons.Default.AutoStories
+        MediaType.MIDI -> Icons.Default.Piano
+        MediaType.MUSIC_SCORE -> Icons.Default.MusicNote
         MediaType.UNKNOWN -> Icons.Default.QuestionMark
     }
 }
