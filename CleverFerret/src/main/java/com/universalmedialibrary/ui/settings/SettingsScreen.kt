@@ -373,6 +373,77 @@ fun SettingsScreen(
                     }
                 }
 
+                // Ambient Sounds Section
+                item {
+                    MetallicText(
+                        text = "Ambient Sounds",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("ambient/theme_manager") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Manage Sound Themes",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Enable/disable themed collections (sci-fi, medieval, fantasy, etc.)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.Category,
+                                contentDescription = "Theme Manager"
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("ambient/import") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Import Custom Sounds",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Add your own ambient sound collections from ZIP files",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.FileUpload,
+                                contentDescription = "Import Sounds"
+                            )
+                        }
+                    }
+                }
+
                 // Safety & Privacy Section
                    item {
                        MetallicText(

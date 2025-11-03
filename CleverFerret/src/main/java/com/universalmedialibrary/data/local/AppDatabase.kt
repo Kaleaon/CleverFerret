@@ -131,13 +131,25 @@ import com.universalmedialibrary.data.Tag
 
         // Search history
         SearchHistory::class,
-        SavedSearchEntity::class
+        SavedSearchEntity::class,
+
+        // OCR cache
+        OcrCacheEntity::class,
+
+        // Ambient Sounds (from main branch)
+        AmbientSound::class,
+        AmbientPlaylist::class,
+        AmbientReadingSession::class,
+        
+        // Audio Packs (from main branch)
+        AudioPack::class,
+        AudioPackSound::class
 
     ],
-    version = 29, // Incremented for search history support
+    version = 33, // Added OCR cache support and ambient sounds features
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class)
+@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -210,6 +222,15 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Search History DAO
     abstract fun searchHistoryDao(): SearchHistoryDao
+    
+    // Ambient Sound DAO
+    abstract fun ambientSoundDao(): AmbientSoundDao
+    
+    // Audio Pack DAO
+    abstract fun audioPackDao(): AudioPackDao
+
+    // OCR Cache DAO
+    abstract fun ocrCacheDao(): OcrCacheDao
 
 
     companion object {
@@ -233,7 +254,12 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_24_25,
                     AppDatabaseMigrations.MIGRATION_25_26,
                     AppDatabaseMigrations.MIGRATION_26_27,
-                    AppDatabaseMigrations.MIGRATION_27_28
+                    AppDatabaseMigrations.MIGRATION_27_28,
+                    AppDatabaseMigrations.MIGRATION_28_29,
+                    AppDatabaseMigrations.MIGRATION_29_30,
+                    AppDatabaseMigrations.MIGRATION_30_31,
+                    AppDatabaseMigrations.MIGRATION_31_32,
+                    AppDatabaseMigrations.MIGRATION_32_33
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

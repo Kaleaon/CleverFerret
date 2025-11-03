@@ -385,4 +385,199 @@ object AppDatabaseMigrations {
             """.trimIndent())
         }
     }
+
+    val MIGRATION_28_29 = object : Migration(28, 29) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Migration 28 to 29 - Add search history support
+            // This was already applied but migration object was missing
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS search_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    query TEXT NOT NULL,
+                    timestamp INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS saved_searches (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    query TEXT NOT NULL,
+                    created_at INTEGER NOT NULL
+                )
+            """.trimIndent())
+        }
+    }
+
+    val MIGRATION_29_30 = object : Migration(29, 30) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Add enhanced reading features columns to reader_settings table
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN colorScheme TEXT NOT NULL DEFAULT 'Classic Day'
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerEnabled INTEGER NOT NULL DEFAULT 0
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerHeight INTEGER NOT NULL DEFAULT 60
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerColor TEXT NOT NULL DEFAULT '#808080'
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerAlpha REAL NOT NULL DEFAULT 0.3
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rulerPosition REAL NOT NULL DEFAULT 0.5
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rsvpEnabled INTEGER NOT NULL DEFAULT 0
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rsvpWpm INTEGER NOT NULL DEFAULT 250
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN rsvpFontSize INTEGER NOT NULL DEFAULT 32
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN autoScrollEnabled INTEGER NOT NULL DEFAULT 0
+            """.trimIndent())
+            
+            database.execSQL("""
+                ALTER TABLE reader_settings ADD COLUMN autoScrollSpeedMultiplier REAL NOT NULL DEFAULT 1.0
+            """.trimIndent())
+        }
+    }
+    
+    /**
+     * Migration from version 30 to 31
+     * Adds ambient sound feature tables
+     */
+    val MIGRATION_30_31 = object : Migration(30, 31) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create ambient_sounds table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS ambient_sounds (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    category TEXT NOT NULL,
+                    soundType TEXT NOT NULL,
+                    audioResourcePath TEXT,
+                    audioUrl TEXT,
+                    iconType TEXT NOT NULL DEFAULT 'nature',
+                    description TEXT NOT NULL DEFAULT '',
+                    keywords TEXT NOT NULL,
+                    volume REAL NOT NULL DEFAULT 0.5,
+                    isEnabled INTEGER NOT NULL DEFAULT 1,
+                    isFavorite INTEGER NOT NULL DEFAULT 0,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            // Create ambient_playlists table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS ambient_playlists (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '',
+                    soundIds TEXT NOT NULL,
+                    autoSwitch INTEGER NOT NULL DEFAULT 0,
+                    isActive INTEGER NOT NULL DEFAULT 0,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            // Create ambient_reading_sessions table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS ambient_reading_sessions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    mediaItemId INTEGER NOT NULL,
+                    playlistId INTEGER,
+                    activeSoundIds TEXT NOT NULL,
+                    startTime INTEGER NOT NULL,
+                    endTime INTEGER,
+                    detectedContext TEXT,
+                    manualOverride INTEGER NOT NULL DEFAULT 0
+                )
+            """.trimIndent())
+        }
+    }
+    
+    /**
+     * Migration from version 31 to 32
+     * Adds audio pack import feature tables
+     */
+    val MIGRATION_31_32 = object : Migration(31, 32) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create audio_packs table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS audio_packs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '',
+                    sourceZipPath TEXT NOT NULL,
+                    extractedPath TEXT NOT NULL,
+                    soundCount INTEGER NOT NULL DEFAULT 0,
+                    totalSizeMB INTEGER NOT NULL DEFAULT 0,
+                    importedAt INTEGER NOT NULL,
+                    isEnabled INTEGER NOT NULL DEFAULT 1,
+                    metadata TEXT NOT NULL
+                )
+            """.trimIndent())
+            
+            // Create audio_pack_sounds linking table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS audio_pack_sounds (
+                    packId INTEGER NOT NULL,
+                    soundId INTEGER NOT NULL,
+                    PRIMARY KEY (packId, soundId)
+                )
+            """.trimIndent())
+        }
+    }
+
+    val MIGRATION_32_33 = object : Migration(32, 33) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Add OCR cache table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS ocr_cache (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    mediaItemId TEXT NOT NULL,
+                    pageNumber INTEGER NOT NULL DEFAULT 0,
+                    text TEXT NOT NULL,
+                    blocksJson TEXT NOT NULL,
+                    confidence REAL NOT NULL DEFAULT 0.0,
+                    timestamp INTEGER NOT NULL,
+                    language TEXT NOT NULL DEFAULT 'en'
+                )
+            """.trimIndent())
+            
+            // Create indices for better query performance
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_ocr_cache_mediaItemId 
+                ON ocr_cache(mediaItemId)
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_ocr_cache_mediaItemId_pageNumber 
+                ON ocr_cache(mediaItemId, pageNumber)
+            """.trimIndent())
+            
+            database.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_ocr_cache_timestamp 
+                ON ocr_cache(timestamp)
+            """.trimIndent())
+        }
+    }
 }

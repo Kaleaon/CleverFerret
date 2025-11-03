@@ -65,6 +65,37 @@ data class GeneralSettingsEntity(
     val skipOutroSeconds: Int = 0,
     
     /**
+     * UI Feature Flags from Myne Analysis (Phase 2 & 3)
+     */
+    
+    /**
+     * Enable swipe actions for library items (Phase 2)
+     * Allows swipe-to-delete, swipe-to-archive, etc.
+     */
+    val enableSwipeActions: Boolean = true,
+    
+    /**
+     * Enable tutorial/onboarding overlays (Phase 3)
+     * Shows TapTarget hints for first-time users
+     */
+    val enableTutorialOverlays: Boolean = true,
+    
+    /**
+     * Show tutorial overlay for library creation
+     */
+    val showLibraryTutorial: Boolean = true,
+    
+    /**
+     * Show tutorial overlay for Calibre import
+     */
+    val showCalibreTutorial: Boolean = true,
+    
+    /**
+     * Show tutorial overlay for media type selection
+     */
+    val showMediaTypeTutorial: Boolean = true,
+    
+    /**
      * Last time settings were updated
      */
     val lastUpdated: Long = System.currentTimeMillis()

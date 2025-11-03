@@ -32,7 +32,8 @@ import kotlin.math.min
 
 @HiltViewModel
 class AdvancedComicReaderViewModel @Inject constructor(
-    private val mediaViewerManager: MediaViewerManager
+    private val mediaViewerManager: MediaViewerManager,
+    private val ocrRepository: com.universalmedialibrary.services.ocr.OcrRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdvancedComicReaderUiState())
@@ -40,6 +41,15 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
     private var extractedPages: List<String> = emptyList()
     private var panelDetector: GeometricPanelDetector? = null
+
+    // OCR state
+    private val _ocrResult = MutableStateFlow<String?>(null)
+    val ocrResult: StateFlow<String?> = _ocrResult.asStateFlow()
+
+    private val _isOcrProcessing = MutableStateFlow(false)
+    val isOcrProcessing: StateFlow<Boolean> = _isOcrProcessing.asStateFlow()
+
+    private var currentMediaId: String = ""
 
     fun loadComic(context: Context, comicUri: Uri) {
         viewModelScope.launch {
@@ -69,6 +79,9 @@ class AdvancedComicReaderViewModel @Inject constructor(
 
                 val fileName = comicUri.lastPathSegment ?: "Unknown Comic"
                 panelDetector = GeometricPanelDetector()
+                
+                // Store media ID for OCR caching
+                currentMediaId = comicUri.toString()
 
                 _uiState.value = _uiState.value.copy(
                     isLoaded = true,
@@ -308,6 +321,39 @@ class AdvancedComicReaderViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun performOcr(bitmap: Bitmap, mediaId: String? = null, pageNumber: Int = 0) {
+        viewModelScope.launch {
+            try {
+                _isOcrProcessing.value = true
+                _ocrResult.value = null
+
+                val itemId = mediaId ?: currentMediaId
+                val page = if (pageNumber > 0) pageNumber else _uiState.value.currentPage
+
+                val result = ocrRepository.recognizeText(
+                    bitmap = bitmap,
+                    mediaItemId = itemId,
+                    pageNumber = page,
+                    useCache = true
+                )
+
+                result.onSuccess { ocrResult ->
+                    _ocrResult.value = ocrResult.text
+                }.onFailure { error ->
+                    _ocrResult.value = "Error: ${error.message}"
+                }
+            } catch (e: Exception) {
+                _ocrResult.value = "Error: ${e.message}"
+            } finally {
+                _isOcrProcessing.value = false
+            }
+        }
+    }
+
+    fun clearOcrResult() {
+        _ocrResult.value = null
     }
 }
 

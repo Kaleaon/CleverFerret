@@ -247,6 +247,118 @@ class ReaderSettingsViewModel @Inject constructor(
             else -> "#FFFFFF" to "#000000" // Default to light
         }
     }
+
+    // Enhanced Reading Features Update Methods
+    
+    /**
+     * Update color scheme
+     */
+    fun updateColorScheme(colorScheme: String) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(colorScheme = colorScheme)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update color scheme: ${e.message}") }
+            }
+        }
+    }
+    
+    /**
+     * Update reading ruler enabled state
+     */
+    fun updateRulerEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(rulerEnabled = enabled)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update ruler: ${e.message}") }
+            }
+        }
+    }
+    
+    /**
+     * Update reading ruler settings
+     */
+    fun updateRulerSettings(height: Int, color: String, alpha: Float, position: Float) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(
+                        rulerHeight = height,
+                        rulerColor = color,
+                        rulerAlpha = alpha,
+                        rulerPosition = position
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update ruler settings: ${e.message}") }
+            }
+        }
+    }
+    
+    /**
+     * Update RSVP enabled state
+     */
+    fun updateRsvpEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(rsvpEnabled = enabled)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update RSVP: ${e.message}") }
+            }
+        }
+    }
+    
+    /**
+     * Update RSVP settings
+     */
+    fun updateRsvpSettings(wpm: Int, fontSize: Int) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(rsvpWpm = wpm, rsvpFontSize = fontSize)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update RSVP settings: ${e.message}") }
+            }
+        }
+    }
+    
+    /**
+     * Update enhanced auto-scroll enabled state
+     */
+    fun updateAutoScrollEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(autoScrollEnabled = enabled)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update auto-scroll: ${e.message}") }
+            }
+        }
+    }
+    
+    /**
+     * Update enhanced auto-scroll speed
+     */
+    fun updateAutoScrollSpeed(speedMultiplier: Float) {
+        viewModelScope.launch {
+            try {
+                readerSettingsRepository.updateGlobalSetting { current ->
+                    current.copy(autoScrollSpeedMultiplier = speedMultiplier)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Failed to update auto-scroll speed: ${e.message}") }
+            }
+        }
+    }
 }
 
 /**

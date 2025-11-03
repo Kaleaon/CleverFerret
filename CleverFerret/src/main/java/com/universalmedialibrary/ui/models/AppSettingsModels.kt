@@ -98,6 +98,8 @@ data class ReaderSettings(
     val brightnessControl: Boolean = false,
     val customBrightness: Float = 0.5f,
     val keepScreenOn: Boolean = false,
+    val screenTimeoutMinutes: Int = 5, // Extended screen timeout in minutes (0 = system default)
+    val screenBrightness: Float = -1f, // Screen brightness override (-1 = system default, 0.0-1.0)
     val volumeKeysNavigation: Boolean = true
 )
 

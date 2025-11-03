@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.ui.theme.*
 
 /**
  * Enhanced media card with hover effect and smooth animations
@@ -37,12 +38,15 @@ fun EnhancedMediaCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val shimmerEnabled = metallicShimmerEnabled()
+    
     Card(
         onClick = onClick,
         modifier = modifier
             .width(160.dp)
-            .shadow(4.dp)
+            .depthShadow(elevation = 4.dp)
             .scaleOnPress()
+            .animatedEntrance(durationMillis = 300)
     ) {
         Column {
             // Image with overlay badge
