@@ -32,6 +32,9 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var exoPlayerService: ExoPlayerService
+    
+    @Inject
+    lateinit var musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 
     private lateinit var mediaSession: MediaSessionCompat
     private val serviceJob = SupervisorJob()
@@ -184,7 +187,8 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
     }
 
     private suspend fun getFavoriteItems(): List<MediaBrowserCompat.MediaItem> {
-        // TODO: Add favorite filtering in DAO
+        // For now, return most recently added items (top 50)
+        // TODO: Add proper favorite/starred functionality in future release
         val items = mediaItemDao.getAllMediaItems().take(50)
         return items.map { createPlayableMediaItem(it) }
     }
@@ -250,12 +254,14 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
         }
 
         override fun onSkipToNext() {
-            // TODO: Implement queue management
+            // Use the music player's queue management
+            musicPlayerService.skipNext()
             updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
         }
 
         override fun onSkipToPrevious() {
-            // TODO: Implement queue management
+            // Use the music player's queue management
+            musicPlayerService.skipPrevious()
             updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
         }
 
@@ -267,10 +273,27 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
                 return
             }
             
-            // TODO: Implement search-based playback
-            // For now, just start playing the first matching item
-            exoPlayerService.play()
-            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+            // Search and play matching media
+            serviceScope.launch {
+                try {
+                    val searchResults = mediaItemDao.searchMediaItems(query, limit = 1)
+                    if (searchResults.isNotEmpty()) {
+                        val item = searchResults.first()
+                        exoPlayerService.loadMediaWithSession(
+                            mediaPath = item.filePath,
+                            title = item.fileName
+                        )
+                        updateMediaMetadata(item)
+                        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+                    } else {
+                        // No results, play something random
+                        onPlay()
+                    }
+                } catch (e: Exception) {
+                    // Fallback to just playing
+                    onPlay()
+                }
+            }
         }
 
         override fun onSeekTo(pos: Long) {

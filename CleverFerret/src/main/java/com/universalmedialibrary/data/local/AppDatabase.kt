@@ -134,10 +134,19 @@ import com.universalmedialibrary.data.Tag
         SavedSearchEntity::class,
 
         // OCR cache
-        OcrCacheEntity::class
+        OcrCacheEntity::class,
+
+        // Ambient Sounds (from main branch)
+        AmbientSound::class,
+        AmbientPlaylist::class,
+        AmbientReadingSession::class,
+        
+        // Audio Packs (from main branch)
+        AudioPack::class,
+        AudioPackSound::class
 
     ],
-    version = 31, // Added OCR cache support and Phase 2 & 3 features (swipe actions, tutorials, enhanced EPUB settings)
+    version = 33, // Added OCR cache support and ambient sounds features
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)
@@ -249,7 +258,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_28_29,
                     AppDatabaseMigrations.MIGRATION_29_30,
                     AppDatabaseMigrations.MIGRATION_30_31,
-                    AppDatabaseMigrations.MIGRATION_31_32
+                    AppDatabaseMigrations.MIGRATION_31_32,
+                    AppDatabaseMigrations.MIGRATION_32_33
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

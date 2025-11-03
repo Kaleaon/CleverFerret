@@ -13,13 +13,17 @@ import javax.inject.Singleton
 
 /**
  * Service for fetching and managing song lyrics
- * Uses Gemini AI to fetch lyrics when not available from other sources
+ * Supports:
+ * - .lrc files (synced lyrics)
+ * - Gemini AI for fetching lyrics
+ * - Caching
  */
 @Singleton
 class LyricsService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository,
-    private val lyricsCache: LyricsCacheRepository
+    private val lyricsCache: LyricsCacheRepository,
+    private val lrcParser: LrcParser
 ) {
 
     private var generativeModel: GenerativeModel? = null
@@ -46,11 +50,60 @@ class LyricsService @Inject constructor(
     }
 
     /**
+     * Get synced lyrics from .lrc file if available
+     */
+    suspend fun getSyncedLyrics(audioFilePath: String, trackName: String? = null): LrcData? = withContext(Dispatchers.IO) {
+        try {
+            val lrcPath = lrcParser.findLrcFile(audioFilePath, trackName)
+            if (lrcPath != null) {
+                return@withContext lrcParser.parseFile(lrcPath)
+            }
+        } catch (e: Exception) {
+            // .lrc file not found or parse error - not critical
+        }
+        null
+    }
+    
+    /**
      * Get lyrics for a track
-     * First checks cache, then fetches from AI
+     * Priority: 1) .lrc file, 2) cache, 3) fetch from AI
      */
     suspend fun getLyrics(track: Track, forceRefresh: Boolean = false): LyricsResult = withContext(Dispatchers.IO) {
-        // Check cache first (unless forcing refresh)
+        // First try .lrc file (synced lyrics take priority)
+        if (!forceRefresh && track.path != null) {
+            val lrcData = getSyncedLyrics(track.path, track.title)
+            if (lrcData != null && lrcData.lines.isNotEmpty()) {
+                // Convert LRC data to Lyrics format
+                val lyricLines = lrcData.lines.map { lrcLine ->
+                    LyricLine(
+                        time = lrcLine.timestamp,
+                        text = lrcLine.text
+                    )
+                }
+                val lyrics = Lyrics(
+                    trackId = track.id,
+                    lines = lyricLines,
+                    hasTimestamps = true,
+                    language = "unknown",
+                    isInstrumental = false,
+                    confidence = 1.0f,
+                    fetchedAt = System.currentTimeMillis()
+                )
+                
+                // Cache the lyrics
+                lyricsCache.cacheLyrics(track.id, lyrics)
+                
+                return@withContext LyricsResult(
+                    success = true,
+                    lyrics = lyrics,
+                    fromCache = true,
+                    isSynced = true,
+                    lrcData = lrcData
+                )
+            }
+        }
+        
+        // Check cache second (unless forcing refresh)
         if (!forceRefresh) {
             val cached = lyricsCache.getLyrics(track.id)
             if (cached != null) {
@@ -266,5 +319,7 @@ data class LyricsResult(
     val success: Boolean,
     val lyrics: Lyrics? = null,
     val fromCache: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val isSynced: Boolean = false, // Whether lyrics are time-synced (.lrc)
+    val lrcData: LrcData? = null // Synced lyrics data if available
 )

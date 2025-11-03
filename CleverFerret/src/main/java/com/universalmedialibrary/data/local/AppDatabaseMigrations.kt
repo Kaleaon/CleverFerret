@@ -543,8 +543,11 @@ object AppDatabaseMigrations {
                     soundId INTEGER NOT NULL,
                     PRIMARY KEY (packId, soundId)
                 )
+            """.trimIndent())
+        }
+    }
 
-    val MIGRATION_30_31 = object : Migration(30, 31) {
+    val MIGRATION_32_33 = object : Migration(32, 33) {
         override fun migrate(database: SupportSQLiteDatabase) {
             // Add OCR cache table
             database.execSQL("""

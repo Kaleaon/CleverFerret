@@ -218,6 +218,10 @@ dependencies {
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
+    // FFmpegMediaMetadataRetriever - Fast, comprehensive metadata extraction for all media types
+    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.19")
+    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-native:1.0.19")
+    
     // ML Kit for on-device text recognition (OCR)
     implementation("com.google.mlkit:text-recognition:16.0.1") // Latin script
     implementation("com.google.mlkit:text-recognition-chinese:16.0.1") // Chinese

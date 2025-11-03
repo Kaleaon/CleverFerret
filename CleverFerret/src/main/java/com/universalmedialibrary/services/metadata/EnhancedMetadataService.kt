@@ -25,7 +25,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class EnhancedMetadataService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val ffmpegExtractor: FFmpegMetadataExtractor
 ) {
     
     companion object {
@@ -33,9 +34,60 @@ class EnhancedMetadataService @Inject constructor(
     }
     
     /**
-     * Extract all available metadata from audio file
+     * Extract all available metadata from audio file using FFmpeg (faster and more comprehensive)
      */
     suspend fun extractMetadata(filePath: String): EnhancedTrackMetadata = withContext(Dispatchers.IO) {
+        try {
+            // Use FFmpeg for faster, more comprehensive extraction
+            val ffmpegMetadata = ffmpegExtractor.extractMetadata(filePath)
+            
+            if (ffmpegMetadata.extractionSuccess) {
+                return@withContext EnhancedTrackMetadata(
+                    // Basic Info
+                    title = ffmpegMetadata.title,
+                    artist = ffmpegMetadata.artist,
+                    album = ffmpegMetadata.album,
+                    albumArtist = ffmpegMetadata.albumArtist,
+                    
+                    // Extended Info
+                    composer = ffmpegMetadata.composer,
+                    writer = null, // Not directly available in FFmpeg metadata
+                    genre = ffmpegMetadata.genre,
+                    year = ffmpegMetadata.year,
+                    date = ffmpegMetadata.date,
+                    
+                    // Track/Disc Numbers
+                    trackNumber = ffmpegMetadata.trackNumber,
+                    trackTotal = null,
+                    discNumber = ffmpegMetadata.discNumber,
+                    discTotal = null,
+                    
+                    // Audio Properties
+                    duration = ffmpegMetadata.duration ?: 0L,
+                    bitrate = ffmpegMetadata.bitrate,
+                    sampleRate = ffmpegMetadata.sampleRate,
+                    channels = ffmpegMetadata.channels,
+                    mimeType = ffmpegMetadata.mimeType,
+                    
+                    // Additional Fields
+                    compilation = null,
+                    author = ffmpegMetadata.publisher,
+                    location = null,
+                    
+                    // Album Art
+                    hasEmbeddedArt = ffmpegExtractor.extractThumbnail(filePath) != null,
+                    embeddedArtSize = 0, // Would need to extract to get size
+                    
+                    // ReplayGain
+                    replayGainTrack = ffmpegMetadata.replayGainTrack,
+                    replayGainAlbum = ffmpegMetadata.replayGainAlbum
+                )
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "FFmpeg extraction failed, falling back to MediaMetadataRetriever", e)
+        }
+        
+        // Fallback to original MediaMetadataRetriever if FFmpeg fails
         MediaMetadataRetriever().use { retriever ->
             try {
                 retriever.setDataSource(filePath)
@@ -268,7 +320,11 @@ data class EnhancedTrackMetadata(
     
     // Album Art Info
     val hasEmbeddedArt: Boolean = false,
-    val embeddedArtSize: Int = 0
+    val embeddedArtSize: Int = 0,
+    
+    // ReplayGain (volume normalization)
+    val replayGainTrack: Float? = null, // Track gain in dB
+    val replayGainAlbum: Float? = null  // Album gain in dB
 ) {
     /**
      * Human-readable audio quality string
