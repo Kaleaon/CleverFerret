@@ -134,10 +134,19 @@ import com.universalmedialibrary.data.Tag
         SavedSearchEntity::class,
 
         // OCR cache
-        OcrCacheEntity::class
+        OcrCacheEntity::class,
+
+        // Ambient sound features
+        AmbientSound::class,
+        AmbientPlaylist::class,
+        AmbientReadingSession::class,
+
+        // Audio pack features
+        AudioPack::class,
+        AudioPackSound::class
 
     ],
-    version = 31, // Added OCR cache support and Phase 2 & 3 features (swipe actions, tutorials, enhanced EPUB settings)
+    version = 32, // Added ambient sound and audio pack features
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)
