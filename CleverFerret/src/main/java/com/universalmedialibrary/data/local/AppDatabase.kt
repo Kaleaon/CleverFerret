@@ -143,13 +143,19 @@ import com.universalmedialibrary.data.Tag
 
         // Audio pack features
         AudioPack::class,
-        AudioPackSound::class
+        AudioPackSound::class,
+
+        // Collaborative playlist sharing
+        CollaborativeSession::class,
+        SessionClient::class,
+        SessionQueueItem::class,
+        SessionVote::class
 
     ],
-    version = 32, // Added ambient sound and audio pack features
+    version = 33, // Added collaborative playlist sharing with Chromecast and Android Auto
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)
+@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -232,6 +238,9 @@ abstract class AppDatabase : RoomDatabase() {
     // OCR Cache DAO
     abstract fun ocrCacheDao(): OcrCacheDao
 
+    // Collaborative Session DAO
+    abstract fun collaborativeSessionDao(): CollaborativeSessionDao
+
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
@@ -258,7 +267,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_28_29,
                     AppDatabaseMigrations.MIGRATION_29_30,
                     AppDatabaseMigrations.MIGRATION_30_31,
-                    AppDatabaseMigrations.MIGRATION_31_32
+                    AppDatabaseMigrations.MIGRATION_31_32,
+                    AppDatabaseMigrations.MIGRATION_32_33
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
