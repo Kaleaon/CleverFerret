@@ -39,6 +39,11 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
     private var pageEntries: List<ComicPage> = emptyList()
     private var currentPageIndex: Int = 0
     private var isRarFormat: Boolean = false
+    private var archiveFormat: ArchiveFormat = ArchiveFormat.CBZ
+
+    private enum class ArchiveFormat {
+        CBZ, CBR, CB7, CBT
+    }
 
     private val _currentLocator = MutableStateFlow(
         Locator(href = "", locations = emptyMap())
@@ -87,21 +92,65 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
                 }
 
                 // Determine format and parse archive
-                isRarFormat = file.extension.lowercase() == "cbr"
+                val extension = file.extension.lowercase()
+                isRarFormat = extension == "cbr"
 
-                if (isRarFormat) {
-                    // CBR format (RAR) - using junrar library
-                    try {
-                        pageEntries = extractRarImageEntries(file)
-                    } catch (e: Exception) {
-                        return@withContext Result.failure(
-                            RuntimeException("Failed to read CBR archive: ${e.message}", e)
-                        )
+                when (extension) {
+                    "cbr" -> {
+                        archiveFormat = ArchiveFormat.CBR
+                        // CBR format (RAR) - using junrar library
+                        try {
+                            pageEntries = extractRarImageEntries(file)
+                        } catch (e: Exception) {
+                            return@withContext Result.failure(
+                                RuntimeException("Failed to read CBR archive: ${e.message}", e)
+                            )
+                        }
                     }
-                } else {
-                    // CBZ format (ZIP)
-                    zipFile = ZipFile(file)
-                    pageEntries = extractImageEntries(zipFile!!)
+                    "cb7" -> {
+                        archiveFormat = ArchiveFormat.CB7
+                        // CB7 format (7-Zip) - using Apache Commons Compress
+                        try {
+                            val extractedPages = ComicArchiveHandler.extractSevenZipImageEntries(file)
+                            pageEntries = extractedPages.map { extracted ->
+                                ComicPage(
+                                    index = extracted.index,
+                                    fileName = extracted.fileName,
+                                    entryName = extracted.entryName,
+                                    size = extracted.size
+                                )
+                            }
+                        } catch (e: Exception) {
+                            return@withContext Result.failure(
+                                RuntimeException("Failed to read CB7 archive: ${e.message}", e)
+                            )
+                        }
+                    }
+                    "cbt" -> {
+                        archiveFormat = ArchiveFormat.CBT
+                        // CBT format (TAR) - using Apache Commons Compress
+                        try {
+                            val extractedPages = ComicArchiveHandler.extractTarImageEntries(file)
+                            pageEntries = extractedPages.map { extracted ->
+                                ComicPage(
+                                    index = extracted.index,
+                                    fileName = extracted.fileName,
+                                    entryName = extracted.entryName,
+                                    size = extracted.size
+                                )
+                            }
+                        } catch (e: Exception) {
+                            return@withContext Result.failure(
+                                RuntimeException("Failed to read CBT archive: ${e.message}", e)
+                            )
+                        }
+                    }
+                    else -> {
+                        archiveFormat = ArchiveFormat.CBZ
+                        // CBZ format (ZIP) - default
+                        zipFile = ZipFile(file)
+                        pageEntries = extractImageEntries(zipFile!!)
+                    }
                 }
 
                 if (pageEntries.isEmpty()) {
@@ -197,34 +246,47 @@ class ComicReaderEngine @Inject constructor() : ReaderEngine {
             val page = pageEntries[pageIndex]
 
             try {
-                if (isRarFormat) {
-                    // Extract from RAR
-                    val rar = rarArchive ?: return@withContext null
-                    var matchingHeader: FileHeader? = null
-                    
-                    // Find the header for this page
-                    val headersList = rar.fileHeaders.toList()
-                    for (header in headersList) {
-                        if (!header.isDirectory && header.fileName == page.entryName) {
-                            matchingHeader = header
-                            break
+                when (archiveFormat) {
+                    ArchiveFormat.CBR -> {
+                        // Extract from RAR
+                        val rar = rarArchive ?: return@withContext null
+                        var matchingHeader: FileHeader? = null
+                        
+                        // Find the header for this page
+                        val headersList = rar.fileHeaders.toList()
+                        for (header in headersList) {
+                            if (!header.isDirectory && header.fileName == page.entryName) {
+                                matchingHeader = header
+                                break
+                            }
+                        }
+                        
+                        if (matchingHeader != null) {
+                            val inputStream = rar.getInputStream(matchingHeader)
+                            val bytes = inputStream.readBytes()
+                            inputStream.close()
+                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        } else {
+                            null
                         }
                     }
-                    
-                    if (matchingHeader != null) {
-                        val inputStream = rar.getInputStream(matchingHeader)
-                        val bytes = inputStream.readBytes()
-                        inputStream.close()
-                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    } else {
-                        null
+                    ArchiveFormat.CB7 -> {
+                        // Extract from 7-Zip
+                        val file = archiveFile ?: return@withContext null
+                        ComicArchiveHandler.getPageBitmapFromSevenZip(file, page.entryName)
                     }
-                } else {
-                    // Extract from ZIP
-                    val zip = zipFile ?: return@withContext null
-                    val entry = zip.getEntry(page.entryName)
-                    zip.getInputStream(entry).use { inputStream ->
-                        BitmapFactory.decodeStream(inputStream)
+                    ArchiveFormat.CBT -> {
+                        // Extract from TAR
+                        val file = archiveFile ?: return@withContext null
+                        ComicArchiveHandler.getPageBitmapFromTar(file, page.entryName)
+                    }
+                    ArchiveFormat.CBZ -> {
+                        // Extract from ZIP
+                        val zip = zipFile ?: return@withContext null
+                        val entry = zip.getEntry(page.entryName)
+                        zip.getInputStream(entry).use { inputStream ->
+                            BitmapFactory.decodeStream(inputStream)
+                        }
                     }
                 }
             } catch (e: Exception) {

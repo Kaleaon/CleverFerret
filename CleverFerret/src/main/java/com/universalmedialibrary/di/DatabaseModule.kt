@@ -279,5 +279,27 @@ object DatabaseModule {
     fun provideUnifiedTagDao(database: AppDatabase): UnifiedTagDao {
         return database.unifiedTagDao()
     }
+    
+    // Ambient Sound DAO
+    @Provides
+    fun provideAmbientSoundDao(database: AppDatabase): AmbientSoundDao {
+        return database.ambientSoundDao()
+    }
+    
+    // Audio Pack DAO
+    @Provides
+    fun provideAudioPackDao(database: AppDatabase): AudioPackDao {
+        return database.audioPackDao()
+    }
+
+    /**
+     * Provides the DAO for accessing the OCR cache table.
+     * The OCR cache stores results of text recognition (OCR) on media items,
+     * allowing the app to avoid redundant OCR processing and improve performance.
+     */
+    @Provides
+    fun provideOcrCacheDao(database: AppDatabase): OcrCacheDao {
+        return database.ocrCacheDao()
+    }
 
 }
