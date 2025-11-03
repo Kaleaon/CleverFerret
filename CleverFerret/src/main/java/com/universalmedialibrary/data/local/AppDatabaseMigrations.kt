@@ -547,9 +547,9 @@ object AppDatabaseMigrations {
         }
     }
 
-    val MIGRATION_32_33 = object : Migration(32, 33) {
+    val MIGRATION_33_34 = object : Migration(33, 34) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            // Create collaborative_sessions table
+            // Create collaborative_sessions table for playlist sharing
             database.execSQL("""
                 CREATE TABLE IF NOT EXISTS collaborative_sessions (
                     sessionId TEXT PRIMARY KEY NOT NULL,

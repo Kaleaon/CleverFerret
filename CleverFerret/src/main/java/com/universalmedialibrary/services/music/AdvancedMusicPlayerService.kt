@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.music
 
 import android.content.Context
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -12,6 +13,7 @@ import com.universalmedialibrary.services.media.MediaController
 import com.universalmedialibrary.services.media.MediaServiceType
 import com.universalmedialibrary.services.artwork.ArtworkLoader
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +37,12 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val exoPlayerService: ExoPlayerService,
     private val musicMetadataService: MusicMetadataService,
     private val mediaController: MediaController,
-    private val artworkLoader: ArtworkLoader
+    private val artworkLoader: ArtworkLoader,
+    private val audioEffectsService: AudioEffectsService,
+    private val replayGainService: ReplayGainService,
+    private val lastFmScrobbler: LastFmScrobblerService,
+    private val audioProfileService: AudioProfileService,
+    private val mediaRepository: com.universalmedialibrary.data.repository.MediaRepository
 ) : MediaCommandAPI {
 
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
@@ -52,6 +59,22 @@ class AdvancedMusicPlayerService @Inject constructor(
 
     private var currentQueueIndex = 0
     private var originalQueue: List<TrackInfo> = emptyList()
+    
+    // Last.fm scrobbling
+    private val scrobblerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var scrobbleJob: Job? = null
+    private var trackStartTime: Long = 0
+    private var hasScrobbled: Boolean = false
+    
+    init {
+        // Initialize Last.fm scrobbler
+        scrobblerScope.launch {
+            lastFmScrobbler.initialize()
+        }
+        
+        // Initialize audio profile service
+        audioProfileService.initialize()
+    }
 
     /**
      * Load and play a single track
@@ -94,6 +117,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             )
 
             exoPlayerService.play()
+            initializeAudioEffects()
             updatePlaybackState(isPlaying = true, isLoading = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Error playing track: ${e.message}")
@@ -150,6 +174,7 @@ class AdvancedMusicPlayerService @Inject constructor(
             )
 
             exoPlayerService.play()
+            initializeAudioEffects()
             updatePlaybackState(isPlaying = true, isLoading = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Error playing track: ${e.message}")
@@ -239,9 +264,32 @@ class AdvancedMusicPlayerService @Inject constructor(
         // Convert mediaId to Long and add to queue
         val mediaIdLong = mediaId.toLongOrNull() ?: return
         
-        // Add to current queue (simplified - actual implementation would fetch MediaItem)
-        // For now, just trigger a queue update
-        // TODO: Fetch MediaItem from repository and add to queue properly
+        // Fetch MediaItem from repository and add to queue
+        scrobblerScope.launch {
+            try {
+                val mediaItem = mediaRepository.getMediaItemById(mediaIdLong)
+                if (mediaItem != null) {
+                    // Convert to TrackInfo and add to queue
+                    val trackInfo = TrackInfo(
+                        id = mediaItem.id.toString(),
+                        title = mediaItem.title,
+                        artist = null,  // Would need metadata lookup
+                        album = null,
+                        duration = 0,
+                        filePath = mediaItem.filePath,
+                        albumArtUrl = null
+                    )
+                    val currentQueue = _queue.value.toMutableList()
+                    currentQueue.add(trackInfo)
+                    _queue.value = currentQueue
+                    Log.d("AdvancedMusicPlayer", "Added item ${mediaItem.id} to queue. Queue size: ${currentQueue.size}")
+                } else {
+                    Log.w("AdvancedMusicPlayer", "Media item not found: $mediaIdLong")
+                }
+            } catch (e: Exception) {
+                Log.e("AdvancedMusicPlayer", "Failed to add to queue: $mediaIdLong", e)
+            }
+        }
     }
 
     /**
@@ -510,10 +558,34 @@ class AdvancedMusicPlayerService @Inject constructor(
 
         if (currentTrack != null) {
             _currentTrack.value = currentTrack
+            applyReplayGain(currentTrack)
+            startScrobbling(currentTrack)
             exoPlayerService.seekToMediaItem(currentQueueIndex)
             if (!_playbackState.value.isPlaying) {
                 play()
             }
+        }
+    }
+    
+    /**
+     * Apply ReplayGain volume adjustment for a track
+     */
+    private fun applyReplayGain(track: TrackInfo) {
+        try {
+            val currentVolume = exoPlayerService.getVolume()
+            val adjustedVolume = replayGainService.applyReplayGain(
+                currentVolume = currentVolume,
+                trackGain = track.replayGainTrack,
+                albumGain = track.replayGainAlbum
+            )
+            
+            // Only adjust if different from current volume
+            if (adjustedVolume != currentVolume) {
+                exoPlayerService.setVolume(adjustedVolume)
+            }
+        } catch (e: Exception) {
+            // ReplayGain application is non-critical, continue playback
+            Log.w("AdvancedMusicPlayer", "Failed to apply ReplayGain", e)
         }
     }
 
@@ -653,9 +725,8 @@ class AdvancedMusicPlayerService @Inject constructor(
      */
     override fun adjustVolume(delta: Float) {
         // Get current volume from ExoPlayer and adjust
-        // TODO: Implement volume retrieval from ExoPlayerService
-        val currentVolume = 0.7f // Placeholder
-        setVolume(currentVolume + delta)
+        val currentVolume = exoPlayerService.getVolume()
+        setVolume((currentVolume + delta).coerceIn(0f, 1f))
     }
 
     /**
@@ -668,30 +739,115 @@ class AdvancedMusicPlayerService @Inject constructor(
     // ===== AUDIO EFFECTS =====
 
     /**
+     * Initialize audio effects for current playback
+     */
+    private fun initializeAudioEffects() {
+        val audioSessionId = exoPlayerService.getAudioSessionId()
+        if (audioSessionId != 0) {
+            audioEffectsService.initialize(audioSessionId)
+        }
+    }
+
+    /**
      * Set equalizer preset
      */
     override fun setEqualizerPreset(presetId: Int) {
-        // TODO: Implement equalizer integration
+        try {
+            // Map presetId to EqualizerPreset enum
+            val preset = when (presetId) {
+                0 -> EqualizerPreset.FLAT
+                1 -> EqualizerPreset.BASS_BOOST
+                2 -> EqualizerPreset.TREBLE_BOOST
+                3 -> EqualizerPreset.VOCAL
+                4 -> EqualizerPreset.DEEP
+                5 -> EqualizerPreset.ELECTRONIC
+                6 -> EqualizerPreset.ROCK
+                7 -> EqualizerPreset.JAZZ
+                else -> EqualizerPreset.FLAT
+            }
+            audioEffectsService.applyEqualizerPreset(preset)
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
     }
 
     /**
      * Enable/disable reverb effect
      */
     override fun enableReverb(enabled: Boolean) {
-        // TODO: Implement reverb effect
+        try {
+            audioEffectsService.setReverb(ReverbPreset.NONE, enabled)
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
     }
 
     /**
-     * Set bass boost strength
+     * Set bass boost strength (0-1000)
      */
     override fun setBassBoost(strength: Int) {
-        // TODO: Implement bass boost
+        try {
+            audioEffectsService.setBassBoost(strength.coerceIn(0, 1000), enabled = strength > 0)
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
     }
     
     /**
      * Get ExoPlayerService instance for visualizer attachment
      */
     fun getExoPlayerService(): ExoPlayerService = exoPlayerService
+    
+    // ===== LAST.FM SCROBBLING =====
+    
+    /**
+     * Start Last.fm scrobbling for current track
+     */
+    private fun startScrobbling(track: TrackInfo) {
+        // Cancel any existing scrobble job
+        scrobbleJob?.cancel()
+        hasScrobbled = false
+        trackStartTime = System.currentTimeMillis()
+        
+        // Update "Now Playing" on Last.fm
+        scrobblerScope.launch {
+            lastFmScrobbler.updateNowPlaying(
+                artist = track.artist ?: "Unknown Artist",
+                track = track.title,
+                album = track.album,
+                duration = track.duration
+            )
+        }
+        
+        // Schedule scrobble for 50% of track or 4 minutes (whichever comes first)
+        val scrobbleDelay = minOf(
+            track.duration / 2, // 50% of track
+            4 * 60 * 1000 // 4 minutes
+        )
+        
+        scrobbleJob = scrobblerScope.launch {
+            delay(scrobbleDelay)
+            if (!hasScrobbled) {
+                lastFmScrobbler.scrobble(
+                    artist = track.artist ?: "Unknown Artist",
+                    track = track.title,
+                    album = track.album,
+                    duration = track.duration
+                )
+                hasScrobbled = true
+            }
+        }
+    }
+    
+    /**
+     * Get Last.fm scrobbler service
+     */
+    fun getLastFmScrobbler(): LastFmScrobblerService = lastFmScrobbler
+    
+    /**
+     * Get audio profile service
+     */
+    fun getAudioProfileService(): AudioProfileService = audioProfileService
 }
 
 /**
@@ -717,7 +873,9 @@ data class TrackInfo(
     val duration: Long,
     val filePath: String,
     val albumArtUrl: String?,
-    val queuePosition: Int = 0
+    val queuePosition: Int = 0,
+    val replayGainTrack: Float? = null, // Track gain in dB
+    val replayGainAlbum: Float? = null  // Album gain in dB
 )
 
 /**

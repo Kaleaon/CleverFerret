@@ -154,6 +154,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0") // Required for MediaSessionService
+    implementation("androidx.media3:media3-exoplayer-midi:1.8.0") // MIDI playback support
     
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")
@@ -217,6 +218,10 @@ dependencies {
     // Gemini AI for content analysis and translation
     implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     
+    // FFmpegMediaMetadataRetriever - Fast, comprehensive metadata extraction for all media types
+    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.19")
+    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-native:1.0.19")
+    
     // ML Kit for on-device text recognition (OCR)
     implementation("com.google.mlkit:text-recognition:16.0.1") // Latin script
     implementation("com.google.mlkit:text-recognition-chinese:16.0.1") // Chinese
@@ -233,6 +238,9 @@ dependencies {
     implementation("org.readium.kotlin-toolkit:readium-streamer:$readiumVersion")
     implementation("org.readium.kotlin-toolkit:readium-navigator:$readiumVersion")
     implementation("org.readium.kotlin-toolkit:readium-opds:$readiumVersion") // OPDS catalog support
+    
+    // MIDI support - ktmidi for Kotlin MIDI 1.0/2.0 support
+    implementation("dev.atsushieno:ktmidi-android:0.11.1")
     
     // Testing
     testImplementation("junit:junit:4.13.2")

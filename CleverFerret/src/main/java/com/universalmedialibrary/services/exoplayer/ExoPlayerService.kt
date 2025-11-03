@@ -261,6 +261,20 @@ class ExoPlayerService @Inject constructor(
     }
 
     /**
+     * Get current volume (0.0 to 1.0)
+     */
+    fun getVolume(): Float {
+        return exoPlayer?.volume ?: 1.0f
+    }
+
+    /**
+     * Get audio session ID for audio effects
+     */
+    fun getAudioSessionId(): Int {
+        return exoPlayer?.audioSessionId ?: 0
+    }
+
+    /**
      * Get the ExoPlayer instance for advanced use cases
      */
     fun getPlayer(): ExoPlayer? = exoPlayer
