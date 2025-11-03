@@ -143,7 +143,7 @@ import com.universalmedialibrary.data.Tag
         AudioPackSound::class
 
     ],
-    version = 32, // Incremented for audio pack import feature
+    version = 32, // Added ambient sounds (v31) and audio pack import (v32)
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)

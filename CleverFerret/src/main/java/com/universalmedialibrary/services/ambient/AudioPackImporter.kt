@@ -84,7 +84,29 @@ class AudioPackImporter @Inject constructor(
             val packDir = File(storageDir, "pack_${System.currentTimeMillis()}")
             packDir.mkdirs()
             
-            onProgress(10, "Extracting zip file...")
+            onProgress(10, "Counting audio files...")
+            
+            // First, count total supported audio files in the zip
+            val totalFilesCount = context.contentResolver.openInputStream(zipUri)?.use { inputStream ->
+                var count = 0
+                ZipInputStream(inputStream).use { zipStream ->
+                    var entry = zipStream.nextEntry
+                    while (entry != null) {
+                        if (!entry.isDirectory) {
+                            val fileName = entry.name.substringAfterLast("/")
+                            val fileExtension = fileName.substringAfterLast(".", "").lowercase()
+                            if (fileExtension in SUPPORTED_FORMATS) {
+                                count++
+                            }
+                        }
+                        zipStream.closeEntry()
+                        entry = zipStream.nextEntry
+                    }
+                }
+                count
+            } ?: 0
+            
+            onProgress(15, "Extracting $totalFilesCount audio files...")
             
             // Extract zip file
             context.contentResolver.openInputStream(zipUri)?.use { inputStream ->
@@ -106,8 +128,8 @@ class AudioPackImporter @Inject constructor(
                                 }
                                 
                                 processedFiles++
-                                onProgress(10 + (processedFiles * 40 / maxOf(1, processedFiles)), 
-                                    "Extracting: $fileName")
+                                val progress = 15 + (processedFiles * 35 / maxOf(1, totalFilesCount))
+                                onProgress(progress, "Extracting: $fileName ($processedFiles/$totalFilesCount)")
                                 
                                 // Extract metadata from audio file
                                 try {
@@ -355,7 +377,11 @@ class AudioPackImporter @Inject constructor(
      */
     fun getStorageInfo(): StorageInfo {
         val storageDir = getBestStorageLocation()
-        val isSDCard = storageDir.absolutePath.contains("emulated/0").not()
+        
+        // Check if this is SD card by comparing against external dirs
+        val externalDirs = context.getExternalFilesDirs(null)
+        val isSDCard = externalDirs.size > 1 && 
+                       externalDirs.getOrNull(1)?.let { storageDir.absolutePath.startsWith(it.absolutePath) } == true
         
         val totalSpace = storageDir.totalSpace / (1024 * 1024 * 1024) // GB
         val freeSpace = storageDir.freeSpace / (1024 * 1024 * 1024) // GB

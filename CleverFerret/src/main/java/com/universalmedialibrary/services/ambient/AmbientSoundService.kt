@@ -230,8 +230,18 @@ class AmbientSoundService @Inject constructor(
      * Clean up resources
      */
     fun cleanup() {
-        serviceScope.launch {
-            stopAllSounds()
+        // Stop all sounds and release MediaPlayer instances
+        mediaPlayers.values.forEach { player ->
+            try {
+                if (player.isPlaying) {
+                    player.stop()
+                }
+                player.release()
+            } catch (e: Exception) {
+                // Ignore errors during cleanup
+            }
         }
+        mediaPlayers.clear()
+        currentSessionId = null
     }
 }

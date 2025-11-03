@@ -544,7 +544,7 @@ private fun ImportDialog(
         confirmButton = {
             Button(
                 onClick = { onConfirm(packName.ifBlank { "Imported Pack" }) },
-                enabled = packName.isNotBlank()
+                enabled = true
             ) {
                 Text("Import")
             }

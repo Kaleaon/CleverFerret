@@ -82,4 +82,9 @@ class ThemeManagerViewModel @Inject constructor() : ViewModel() {
     fun isExpanded(collectionId: String): Boolean {
         return expandedCollections.contains(collectionId)
     }
+    
+    override fun onCleared() {
+        super.onCleared()
+        expandedCollections.clear()
+    }
 }

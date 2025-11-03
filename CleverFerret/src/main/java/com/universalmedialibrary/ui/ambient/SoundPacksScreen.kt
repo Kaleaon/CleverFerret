@@ -97,7 +97,7 @@ fun SoundPacksScreen(
                             }
                             Column {
                                 Text(
-                                    text = "${totalSizeMB / 1024} GB",
+                                    text = String.format("%.2f GB", totalSizeMB / 1024f),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
