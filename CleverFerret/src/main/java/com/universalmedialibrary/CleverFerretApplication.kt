@@ -6,6 +6,7 @@ import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.universalmedialibrary.data.migration.AppUpgradeManager
 import com.universalmedialibrary.data.migration.BackupRestorationManager
 import com.universalmedialibrary.data.migration.UpgradeStatus
+import com.universalmedialibrary.services.ambient.ThemedCollections
 import com.universalmedialibrary.utils.CrashActivity
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +49,9 @@ class CleverFerretApplication : Application() {
         
         Log.i(TAG, "Clever Ferret initializing...")
         
+        // Initialize themed sound collections
+        ThemedCollections.initialize()
+        Log.d(TAG, "Ambient themed collections initialized")
         // Initialize crash handler
         initializeCrashHandler()
 

@@ -457,6 +457,92 @@ object AppDatabaseMigrations {
             """.trimIndent())
         }
     }
+    
+    /**
+     * Migration from version 30 to 31
+     * Adds ambient sound feature tables
+     */
+    val MIGRATION_30_31 = object : Migration(30, 31) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create ambient_sounds table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS ambient_sounds (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    category TEXT NOT NULL,
+                    soundType TEXT NOT NULL,
+                    audioResourcePath TEXT,
+                    audioUrl TEXT,
+                    iconType TEXT NOT NULL DEFAULT 'nature',
+                    description TEXT NOT NULL DEFAULT '',
+                    keywords TEXT NOT NULL,
+                    volume REAL NOT NULL DEFAULT 0.5,
+                    isEnabled INTEGER NOT NULL DEFAULT 1,
+                    isFavorite INTEGER NOT NULL DEFAULT 0,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            // Create ambient_playlists table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS ambient_playlists (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '',
+                    soundIds TEXT NOT NULL,
+                    autoSwitch INTEGER NOT NULL DEFAULT 0,
+                    isActive INTEGER NOT NULL DEFAULT 0,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+            """.trimIndent())
+            
+            // Create ambient_reading_sessions table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS ambient_reading_sessions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    mediaItemId INTEGER NOT NULL,
+                    playlistId INTEGER,
+                    activeSoundIds TEXT NOT NULL,
+                    startTime INTEGER NOT NULL,
+                    endTime INTEGER,
+                    detectedContext TEXT,
+                    manualOverride INTEGER NOT NULL DEFAULT 0
+                )
+            """.trimIndent())
+        }
+    }
+    
+    /**
+     * Migration from version 31 to 32
+     * Adds audio pack import feature tables
+     */
+    val MIGRATION_31_32 = object : Migration(31, 32) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // Create audio_packs table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS audio_packs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    name TEXT NOT NULL,
+                    description TEXT NOT NULL DEFAULT '',
+                    sourceZipPath TEXT NOT NULL,
+                    extractedPath TEXT NOT NULL,
+                    soundCount INTEGER NOT NULL DEFAULT 0,
+                    totalSizeMB INTEGER NOT NULL DEFAULT 0,
+                    importedAt INTEGER NOT NULL,
+                    isEnabled INTEGER NOT NULL DEFAULT 1,
+                    metadata TEXT NOT NULL
+                )
+            """.trimIndent())
+            
+            // Create audio_pack_sounds linking table
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS audio_pack_sounds (
+                    packId INTEGER NOT NULL,
+                    soundId INTEGER NOT NULL,
+                    PRIMARY KEY (packId, soundId)
+                )
 
     val MIGRATION_30_31 = object : Migration(30, 31) {
         override fun migrate(database: SupportSQLiteDatabase) {
