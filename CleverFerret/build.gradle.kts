@@ -154,6 +154,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0") // Required for MediaSessionService
+    implementation("androidx.media3:media3-exoplayer-midi:1.8.0") // MIDI playback support
     
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")
@@ -237,6 +238,9 @@ dependencies {
     implementation("org.readium.kotlin-toolkit:readium-streamer:$readiumVersion")
     implementation("org.readium.kotlin-toolkit:readium-navigator:$readiumVersion")
     implementation("org.readium.kotlin-toolkit:readium-opds:$readiumVersion") // OPDS catalog support
+    
+    // MIDI support - ktmidi for Kotlin MIDI 1.0/2.0 support
+    implementation("dev.atsushieno:ktmidi-android:0.11.1")
     
     // Testing
     testImplementation("junit:junit:4.13.2")

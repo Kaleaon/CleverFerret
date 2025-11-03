@@ -14,6 +14,8 @@ enum class MediaType {
     PODCAST_EPISODE,  // Individual podcast episode
     PODCAST_SERIES,   // Podcast series
     RADIO,  // Radio stream
+    MIDI,  // MIDI music file
+    MUSIC_SCORE,  // Music notation/score file
     COMIC,
     MANGA,  // Japanese comics
     MAGAZINE,
@@ -44,6 +46,8 @@ fun MediaType.getDisplayName(): String {
         MediaType.PODCAST_EPISODE -> "Podcast Episode"
         MediaType.PODCAST_SERIES -> "Podcast Series"
         MediaType.RADIO -> "Radio"
+        MediaType.MIDI -> "MIDI"
+        MediaType.MUSIC_SCORE -> "Music Score"
         MediaType.COMIC -> "Comic"
         MediaType.MANGA -> "Manga"
         MediaType.MAGAZINE -> "Magazine"
@@ -74,6 +78,8 @@ fun MediaType.getIcon(): String {
         MediaType.PODCAST_EPISODE -> "🎧"
         MediaType.PODCAST_SERIES -> "📻"
         MediaType.RADIO -> "📻"
+        MediaType.MIDI -> "🎹"
+        MediaType.MUSIC_SCORE -> "🎼"
         MediaType.COMIC -> "💭"
         MediaType.MANGA -> "📔"
         MediaType.MAGAZINE -> "📰"
