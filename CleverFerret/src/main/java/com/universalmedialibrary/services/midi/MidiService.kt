@@ -16,72 +16,67 @@ import javax.inject.Singleton
 /**
  * Unified MIDI service for parsing, playback, and management
  * 
- * This service provides:
- * - MIDI file parsing and metadata extraction
- * - MIDI playback with track control (mute/solo/volume/pan)
+ * This service provides complete MIDI functionality:
+ * - Full MIDI file parsing with ktmidi
+ * - Playback with Media3 ExoPlayer and software synthesizer (JSyn)
+ * - Track information and metadata extraction
+ * - Playback control (play/pause/stop/seek)
+ * - Track control (mute/solo)
+ * - Tempo adjustment
  * - Soundfont management (SF2/SF3/SFZ formats)
- * - MIDI editing capabilities
  * 
- * Based on MuseScore's MIDI capabilities and designed to work with:
+ * Based on MuseScore's MIDI capabilities with:
  * - Standard MIDI files (SMF format 0, 1, and 2)
- * - General MIDI instrument mapping
- * - Custom soundfonts for realistic playback
- * 
- * Implementation note: This is a foundation for MIDI support.
- * Full playback implementation requires integration with Android's
- * MIDI API or a software synthesizer library.
+ * - General MIDI instrument mapping (128 instruments)
+ * - Real-time playback via Android Jetpack Media3
  */
 @Singleton
 class MidiService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val midiRepository: MidiRepository
+    private val midiRepository: MidiRepository,
+    private val parserService: MidiParserService,
+    private val playbackService: MidiPlaybackService
 ) {
     companion object {
         private const val TAG = "MidiService"
     }
     
-    private val _playbackState = MutableStateFlow(MidiPlaybackState())
-    val playbackState: StateFlow<MidiPlaybackState> = _playbackState.asStateFlow()
+    val playbackState: StateFlow<MidiPlaybackState> = playbackService.playbackState
     
     /**
-     * Parse a MIDI file and extract metadata
-     * Returns a MidiFile object with basic information
+     * Parse a MIDI file and extract complete metadata
      */
-    suspend fun parseMidiFile(filePath: String): MidiFile? = withContext(Dispatchers.IO) {
-        try {
-            val file = File(filePath)
-            if (!file.exists() || !file.canRead()) {
-                Log.e(TAG, "MIDI file not found or not readable: $filePath")
-                return@withContext null
-            }
-            
-            // Basic file information
-            val title = file.nameWithoutExtension
-            
-            // TODO: Implement full MIDI parsing using ktmidi or javax.sound.midi
-            // For now, return basic file info
-            MidiFile(
-                title = title,
-                filePath = filePath,
-                fileSize = file.length(),
-                createdAt = file.lastModified(),
-                modifiedAt = file.lastModified()
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error parsing MIDI file: $filePath", e)
-            null
-        }
-    }
+    suspend fun parseMidiFile(filePath: String): MidiFile? = 
+        parserService.parseMidiFile(filePath)
     
     /**
-     * Import a MIDI file into the library
+     * Extract tracks from MIDI file
+     */
+    suspend fun extractTracks(filePath: String, midiFileId: Long): List<MidiTrackInfo> =
+        parserService.extractTracks(filePath, midiFileId)
+    
+    /**
+     * Extract notes from a track for piano roll/notation display
+     */
+    suspend fun extractNotes(filePath: String, trackNumber: Int, trackId: Long): List<MidiNote> =
+        parserService.extractNotes(filePath, trackNumber, trackId)
+    
+    /**
+     * Import a MIDI file into the library with full parsing
      */
     suspend fun importMidiFile(filePath: String): Long? = withContext(Dispatchers.IO) {
         try {
             val midiFile = parseMidiFile(filePath)
             if (midiFile != null) {
                 val id = midiRepository.insertMidiFile(midiFile)
-                Log.d(TAG, "MIDI file imported: ${midiFile.title} (ID: $id)")
+                
+                // Extract and store tracks
+                val tracks = extractTracks(filePath, id)
+                tracks.forEach { track ->
+                    midiRepository.insertTrack(track)
+                }
+                
+                Log.d(TAG, "MIDI file imported: ${midiFile.title} with ${tracks.size} tracks (ID: $id)")
                 id
             } else {
                 null
@@ -99,45 +94,30 @@ class MidiService @Inject constructor(
         try {
             val midiFile = midiRepository.getMidiFileById(midiFileId)
             if (midiFile == null) {
-                updateState(error = "MIDI file not found")
+                Log.e(TAG, "MIDI file not found: $midiFileId")
                 return
             }
             
-            updateState(
-                currentMidiFile = midiFile,
-                duration = midiFile.durationMs,
-                currentTempo = midiFile.tempo,
-                error = null
-            )
-            
-            Log.d(TAG, "MIDI file loaded: ${midiFile.title}")
+            playbackService.loadMidiFile(midiFile)
+            Log.d(TAG, "MIDI file loaded for playback: ${midiFile.title}")
         } catch (e: Exception) {
             Log.e(TAG, "Error loading MIDI file", e)
-            updateState(error = "Error loading MIDI file: ${e.message}")
         }
     }
     
     /**
-     * Start playback
-     * TODO: Implement actual MIDI playback
+     * Start playback with Media3 ExoPlayer
      */
     fun play() {
-        val midiFile = _playbackState.value.currentMidiFile
-        if (midiFile == null) {
-            updateState(error = "No MIDI file loaded")
-            return
-        }
-        
-        // TODO: Implement playback using Android MIDI API or synthesizer
-        updateState(isPlaying = true, isPaused = false)
-        Log.d(TAG, "Playback started (stub): ${midiFile.title}")
+        playbackService.play()
+        Log.d(TAG, "Playback started")
     }
     
     /**
      * Pause playback
      */
     fun pause() {
-        updateState(isPlaying = false, isPaused = true)
+        playbackService.pause()
         Log.d(TAG, "Playback paused")
     }
     
@@ -145,7 +125,7 @@ class MidiService @Inject constructor(
      * Stop playback
      */
     fun stop() {
-        updateState(isPlaying = false, isPaused = false, currentPosition = 0)
+        playbackService.stopPlayback()
         Log.d(TAG, "Playback stopped")
     }
     
@@ -153,55 +133,35 @@ class MidiService @Inject constructor(
      * Seek to position in milliseconds
      */
     fun seek(positionMs: Long) {
-        val duration = _playbackState.value.duration
-        val newPosition = positionMs.coerceIn(0, duration)
-        updateState(currentPosition = newPosition)
+        playbackService.seek(positionMs)
     }
     
     /**
      * Set track muted state
      */
     suspend fun setTrackMuted(trackId: Long, isMuted: Boolean) {
-        midiRepository.setTrackMuted(trackId, isMuted)
-        
-        val currentMuted = _playbackState.value.mutedTracks.toMutableSet()
-        val trackNumber = midiRepository.getTrackById(trackId)?.trackNumber
-        
-        if (trackNumber != null) {
-            if (isMuted) {
-                currentMuted.add(trackNumber)
-            } else {
-                currentMuted.remove(trackNumber)
-            }
-            updateState(mutedTracks = currentMuted)
-        }
+        playbackService.setTrackMuted(trackId, isMuted)
     }
     
     /**
      * Set track solo state
      */
     suspend fun setTrackSolo(trackId: Long, isSolo: Boolean) {
-        midiRepository.setTrackSolo(trackId, isSolo)
-        
-        val currentSolo = _playbackState.value.soloTracks.toMutableSet()
-        val trackNumber = midiRepository.getTrackById(trackId)?.trackNumber
-        
-        if (trackNumber != null) {
-            if (isSolo) {
-                currentSolo.add(trackNumber)
-            } else {
-                currentSolo.remove(trackNumber)
-            }
-            updateState(soloTracks = currentSolo)
-        }
+        playbackService.setTrackSolo(trackId, isSolo)
     }
     
     /**
      * Set playback tempo
      */
     fun setTempo(tempo: Int) {
-        val newTempo = tempo.coerceIn(40, 240)
-        updateState(currentTempo = newTempo)
+        playbackService.setTempo(tempo)
+    }
+    
+    /**
+     * Set volume (0.0 to 1.0)
+     */
+    fun setVolume(volume: Float) {
+        playbackService.setVolume(volume)
     }
     
     /**
@@ -241,87 +201,4 @@ class MidiService @Inject constructor(
         Log.d(TAG, "Default soundfont set: $soundfontId")
     }
     
-    /**
-     * Get General MIDI instrument name from program number
-     */
-    fun getInstrumentName(programNumber: Int): String {
-        val instruments = arrayOf(
-            // Piano (0-7)
-            "Acoustic Grand Piano", "Bright Acoustic Piano", "Electric Grand Piano",
-            "Honky-tonk Piano", "Electric Piano 1", "Electric Piano 2", "Harpsichord", "Clavinet",
-            // Chromatic Percussion (8-15)
-            "Celesta", "Glockenspiel", "Music Box", "Vibraphone", "Marimba", "Xylophone",
-            "Tubular Bells", "Dulcimer",
-            // Organ (16-23)
-            "Drawbar Organ", "Percussive Organ", "Rock Organ", "Church Organ", "Reed Organ",
-            "Accordion", "Harmonica", "Tango Accordion",
-            // Guitar (24-31)
-            "Acoustic Guitar (nylon)", "Acoustic Guitar (steel)", "Electric Guitar (jazz)",
-            "Electric Guitar (clean)", "Electric Guitar (muted)", "Overdriven Guitar",
-            "Distortion Guitar", "Guitar Harmonics",
-            // Bass (32-39)
-            "Acoustic Bass", "Electric Bass (finger)", "Electric Bass (pick)", "Fretless Bass",
-            "Slap Bass 1", "Slap Bass 2", "Synth Bass 1", "Synth Bass 2",
-            // Strings (40-47)
-            "Violin", "Viola", "Cello", "Contrabass", "Tremolo Strings", "Pizzicato Strings",
-            "Orchestral Harp", "Timpani",
-            // Ensemble (48-55)
-            "String Ensemble 1", "String Ensemble 2", "Synth Strings 1", "Synth Strings 2",
-            "Choir Aahs", "Voice Oohs", "Synth Choir", "Orchestra Hit",
-            // Brass (56-63)
-            "Trumpet", "Trombone", "Tuba", "Muted Trumpet", "French Horn", "Brass Section",
-            "Synth Brass 1", "Synth Brass 2",
-            // Reed (64-71)
-            "Soprano Sax", "Alto Sax", "Tenor Sax", "Baritone Sax", "Oboe", "English Horn",
-            "Bassoon", "Clarinet",
-            // Pipe (72-79)
-            "Piccolo", "Flute", "Recorder", "Pan Flute", "Blown Bottle", "Shakuhachi",
-            "Whistle", "Ocarina",
-            // Synth Lead (80-87)
-            "Lead 1 (square)", "Lead 2 (sawtooth)", "Lead 3 (calliope)", "Lead 4 (chiff)",
-            "Lead 5 (charang)", "Lead 6 (voice)", "Lead 7 (fifths)", "Lead 8 (bass + lead)",
-            // Synth Pad (88-95)
-            "Pad 1 (new age)", "Pad 2 (warm)", "Pad 3 (polysynth)", "Pad 4 (choir)",
-            "Pad 5 (bowed)", "Pad 6 (metallic)", "Pad 7 (halo)", "Pad 8 (sweep)",
-            // Synth Effects (96-103)
-            "FX 1 (rain)", "FX 2 (soundtrack)", "FX 3 (crystal)", "FX 4 (atmosphere)",
-            "FX 5 (brightness)", "FX 6 (goblins)", "FX 7 (echoes)", "FX 8 (sci-fi)",
-            // Ethnic (104-111)
-            "Sitar", "Banjo", "Shamisen", "Koto", "Kalimba", "Bagpipe", "Fiddle", "Shanai",
-            // Percussive (112-119)
-            "Tinkle Bell", "Agogo", "Steel Drums", "Woodblock", "Taiko Drum", "Melodic Tom",
-            "Synth Drum", "Reverse Cymbal",
-            // Sound Effects (120-127)
-            "Guitar Fret Noise", "Breath Noise", "Seashore", "Bird Tweet", "Telephone Ring",
-            "Helicopter", "Applause", "Gunshot"
-        )
-        
-        return instruments.getOrNull(programNumber.coerceIn(0, 127)) ?: "Unknown"
-    }
-    
-    // ===== Private helper methods =====
-    
-    private fun updateState(
-        isPlaying: Boolean = _playbackState.value.isPlaying,
-        isPaused: Boolean = _playbackState.value.isPaused,
-        currentPosition: Long = _playbackState.value.currentPosition,
-        duration: Long = _playbackState.value.duration,
-        currentTempo: Int = _playbackState.value.currentTempo,
-        currentMidiFile: MidiFile? = _playbackState.value.currentMidiFile,
-        soloTracks: Set<Int> = _playbackState.value.soloTracks,
-        mutedTracks: Set<Int> = _playbackState.value.mutedTracks,
-        error: String? = null
-    ) {
-        _playbackState.value = MidiPlaybackState(
-            isPlaying = isPlaying,
-            isPaused = isPaused,
-            currentPosition = currentPosition,
-            duration = duration,
-            currentTempo = currentTempo,
-            currentMidiFile = currentMidiFile,
-            soloTracks = soloTracks,
-            mutedTracks = mutedTracks,
-            error = error
-        )
-    }
 }

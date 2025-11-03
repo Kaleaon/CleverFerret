@@ -154,6 +154,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0") // Required for MediaSessionService
+    implementation("androidx.media3:media3-exoplayer-midi:1.8.0") // MIDI playback support
     
     // File handling
     implementation("androidx.documentfile:documentfile:1.1.0")
