@@ -61,9 +61,10 @@ fun SyncedLyricsDisplay(
     }
     
     LaunchedEffect(currentPositionMs, uiState.lyrics, uiState.isSynced) {
-        if (uiState.isSynced && !uiState.lyrics.isNullOrEmpty()) {
+        val lyrics = uiState.lyrics
+        if (uiState.isSynced && !lyrics.isNullOrEmpty()) {
             // Find current lyric index based on position
-            val currentIndex = uiState.lyrics.indexOfLast {
+            val currentIndex = lyrics.indexOfLast {
                 it.timestampMs <= currentPositionMs
             }.coerceAtLeast(0)
             
@@ -134,7 +135,7 @@ fun SyncedLyricsDisplay(
                 }
             }
             
-              uiState.lyrics != null && uiState.lyrics.isEmpty() -> {
+              uiState.lyrics?.isEmpty() == true -> {
                 // Empty state
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -165,9 +166,9 @@ fun SyncedLyricsDisplay(
                 }
             }
             
-            uiState.lyrics != null -> {
+              uiState.lyrics != null -> {
                 // Lyrics display
-                val lyrics = uiState.lyrics
+                val lyrics = uiState.lyrics ?: emptyList()
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
@@ -190,14 +191,10 @@ fun SyncedLyricsDisplay(
                         }
                     }
 
-                    itemsIndexed(lyrics) { index, lyricLine ->
-                        val isCurrent = if (uiState.isSynced) {
-                            lyricLine.timestampMs <= currentPositionMs &&
-                                (index == lyrics.lastIndex ||
-                                    lyrics[index + 1].timestampMs > currentPositionMs)
-                        } else {
-                            false
-                        }
+                    itemsIndexed(lyrics) { index, lyricLine: LyricLine ->
+                        val nextTimestamp = lyrics.getOrNull(index + 1)?.timestampMs ?: Long.MAX_VALUE
+                        val isCurrent = uiState.isSynced && lyricLine.timestampMs <= currentPositionMs &&
+                            (index == lyrics.lastIndex || nextTimestamp > currentPositionMs)
 
                         LyricLineItem(
                             text = lyricLine.text,
