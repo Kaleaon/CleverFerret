@@ -21,8 +21,9 @@ class FanfictionViewModel @Inject constructor(
     private val fanfictionDao: FanfictionDao
 ) : ViewModel() {
     
+    // PERFORMANCE FIX: Use WhileSubscribed to stop collecting when no UI is observing
     val allStories = fanfictionDao.getAllStories()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     
     private val _downloadState = MutableStateFlow<DownloadState>(DownloadState.Idle)
     val downloadState: StateFlow<DownloadState> = _downloadState.asStateFlow()

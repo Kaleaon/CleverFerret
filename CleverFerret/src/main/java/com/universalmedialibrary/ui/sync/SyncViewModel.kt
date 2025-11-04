@@ -16,8 +16,9 @@ class SyncViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SyncUiState())
     val uiState: StateFlow<SyncUiState> = _uiState.asStateFlow()
 
+    // PERFORMANCE FIX: Use WhileSubscribed to stop collecting when no UI is observing
     val syncState: StateFlow<EnhancedSyncState> = syncService.syncState
-        .stateIn(viewModelScope, SharingStarted.Eagerly, EnhancedSyncState())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), EnhancedSyncState())
 
     private val _syncOptions = MutableStateFlow(SyncOptions())
     val syncOptions: StateFlow<SyncOptions> = _syncOptions.asStateFlow()
