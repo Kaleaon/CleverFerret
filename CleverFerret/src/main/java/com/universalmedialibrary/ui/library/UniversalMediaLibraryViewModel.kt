@@ -58,22 +58,31 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                 // Load media items from repository
                 mediaRepository.getMediaItemsByLibrary(libraryId).collect { mediaItems ->
                     withContext(Dispatchers.IO) {
-                        // Convert MediaItems to MediaItemWithMetadata on background thread
-                        allMediaItems = mediaItems.map { mediaItem ->
-                            // Get metadata for each item
-                            val metadata = mediaRepository.getCommonMetadata(mediaItem.itemId)
+                        // PERFORMANCE OPTIMIZATION: Use batch queries to avoid N+1 problem
+                        if (mediaItems.isEmpty()) {
+                            allMediaItems = emptyList()
+                        } else {
+                            val itemIds = mediaItems.map { it.itemId }
                             
-                            val progressData = historyRepository.getReadingProgress(mediaItem.itemId).firstOrNull()
+                            // Batch fetch all metadata and progress at once
+                            val metadataMap = mediaRepository.getCommonMetadataBatch(itemIds)
+                            val progressMap = historyRepository.getReadingProgressBatch(itemIds)
                             
-                            MediaItemWithMetadata(
-                                itemId = mediaItem.itemId,
-                                title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
-                                mediaType = parseMediaType(mediaItem.mediaType),
-                                author = extractAuthorFromFileName(mediaItem.fileName), // Author from metadata not yet implemented - requires BookMetadata table
-                                dateAdded = mediaItem.dateAdded,
-                                isFavorite = false, // Favorite feature not yet implemented - requires isFavorite field in MediaItem entity
-                                progress = progressData?.percentage ?: 0f
-                            )
+                            // Convert MediaItems to MediaItemWithMetadata using pre-fetched data
+                            allMediaItems = mediaItems.map { mediaItem ->
+                                val metadata = metadataMap[mediaItem.itemId]
+                                val progressData = progressMap[mediaItem.itemId]
+                                
+                                MediaItemWithMetadata(
+                                    itemId = mediaItem.itemId,
+                                    title = metadata?.title ?: mediaItem.fileName.substringBeforeLast('.'),
+                                    mediaType = parseMediaType(mediaItem.mediaType),
+                                    author = extractAuthorFromFileName(mediaItem.fileName), // Author from metadata not yet implemented - requires BookMetadata table
+                                    dateAdded = mediaItem.dateAdded,
+                                    isFavorite = false, // Favorite feature not yet implemented - requires isFavorite field in MediaItem entity
+                                    progress = progressData?.percentage ?: 0f
+                                )
+                            }
                         }
                     }
                     

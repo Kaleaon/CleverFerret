@@ -113,18 +113,39 @@ class BookshelfViewModel @Inject constructor(
     fun loadBooks(libraryId: Long) {
         viewModelScope.launch {
             mediaItemDao.getBookDetailsForLibrary(libraryId).collect { mediaItems ->
-                // Convert MediaItems to BookDetails
+                // PERFORMANCE OPTIMIZATION: Use batch queries to avoid N+1 problem
+                // Instead of querying metadata for each item individually, fetch all at once
+                
+                if (mediaItems.isEmpty()) {
+                    _allBooks.value = emptyList()
+                    return@collect
+                }
+                
+                val itemIds = mediaItems.map { it.itemId }
+                
+                // Batch fetch all metadata at once
+                val metadataMap = metadataDao.getMetadataCommonBatch(itemIds)
+                    .associateBy { it.itemId }
+                val bookMetadataMap = metadataDao.getMetadataBookBatch(itemIds)
+                    .associateBy { it.itemId }
+                
+                // Batch fetch authors and series
+                val authorsMap = metadataDao.getAuthorsBatch(itemIds)
+                    .groupBy({ it.itemId }, { it.name })
+                val seriesMap = metadataDao.getSeriesBatch(itemIds)
+                    .associateBy({ it.itemId }, { it.name })
+                
+                // Convert MediaItems to BookDetails using pre-fetched data
                 val bookDetailsList = mediaItems.map { mediaItem ->
-                    val metadata = metadataDao.getMetadataCommonByItemId(mediaItem.itemId)
+                    val metadata = metadataMap[mediaItem.itemId]
                         ?: com.universalmedialibrary.data.local.entity.MetadataCommon(
                             itemId = mediaItem.itemId,
                             title = mediaItem.fileName,
                             sortTitle = mediaItem.fileName
                         )
-                    val bookMetadata = metadataDao.getMetadataBookByItemId(mediaItem.itemId)
-
-                    val authors = metadataDao.getAuthorsByItemId(mediaItem.itemId)
-                    val seriesName = metadataDao.getSeriesByItemId(mediaItem.itemId)
+                    val bookMetadata = bookMetadataMap[mediaItem.itemId]
+                    val authors = authorsMap[mediaItem.itemId] ?: emptyList()
+                    val seriesName = seriesMap[mediaItem.itemId]
                     
                     BookDetails(
                         mediaItem = mediaItem,

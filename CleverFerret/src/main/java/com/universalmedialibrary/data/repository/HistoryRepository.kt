@@ -251,6 +251,19 @@ class HistoryRepository @Inject constructor(
             totalItemsInProgress = allProgress.count { it.percentage in 1.0f..94.9f }
         )
     }
+    
+    /**
+     * PERFORMANCE OPTIMIZATION: Batch fetch reading progress for multiple items at once
+     * to avoid N+1 query problems.
+     * 
+     * @param itemIds List of item IDs to fetch progress for
+     * @return Map of itemId to ReadingProgress
+     */
+    suspend fun getReadingProgressBatch(itemIds: List<Long>): Map<Long, ReadingProgress> {
+        if (itemIds.isEmpty()) return emptyMap()
+        return progressDao.getProgressForItems(itemIds).firstOrNull()
+            ?.associateBy { it.itemId } ?: emptyMap()
+    }
 }
 
 /**
