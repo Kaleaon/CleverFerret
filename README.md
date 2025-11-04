@@ -18,6 +18,24 @@
 
 ---
 
+## 🎨 CleverFerret Icons
+
+<p align="center">
+  <img src="./docs/images/cleverferret_icon_1.png" alt="CleverFerret Icon 1" width="150" style="margin: 10px;">
+  <img src="./docs/images/cleverferret_icon_2.png" alt="CleverFerret Icon 2" width="150" style="margin: 10px;">
+</p>
+
+<p align="center">
+  <img src="./docs/images/ic_ferret_color.png" alt="CleverFerret Color Icon" width="120" style="margin: 10px;">
+  <img src="./docs/images/ic_ferret_blue_bitmap.png" alt="CleverFerret Blue Icon" width="120" style="margin: 10px;">
+</p>
+
+<p align="center">
+  <em>The CleverFerret mascot comes in multiple styles for different use cases</em>
+</p>
+
+---
+
 ## 📖 About
 
 CleverFerret is a comprehensive, self-contained Android app for managing your complete media library directly on your device. No external servers or desktop applications required — everything works offline with a modern, Material You interface.
