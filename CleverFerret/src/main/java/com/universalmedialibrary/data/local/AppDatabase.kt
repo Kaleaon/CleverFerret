@@ -136,20 +136,26 @@ import com.universalmedialibrary.data.Tag
         // OCR cache
         OcrCacheEntity::class,
 
-        // Ambient Sounds (from main branch)
+        // Ambient sound features
         AmbientSound::class,
         AmbientPlaylist::class,
         AmbientReadingSession::class,
-        
-        // Audio Packs (from main branch)
+
+        // Audio pack features
         AudioPack::class,
-        AudioPackSound::class
+        AudioPackSound::class,
+
+        // Collaborative playlist sharing
+        CollaborativeSession::class,
+        SessionClient::class,
+        SessionQueueItem::class,
+        SessionVote::class
 
     ],
-    version = 33, // Added OCR cache support and ambient sounds features
+    version = 34, // Added collaborative playlist sharing with Chromecast and Android Auto (merged from main v33)
     exportSchema = false
 )
-@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class)
+@TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
 
@@ -232,6 +238,9 @@ abstract class AppDatabase : RoomDatabase() {
     // OCR Cache DAO
     abstract fun ocrCacheDao(): OcrCacheDao
 
+    // Collaborative Session DAO
+    abstract fun collaborativeSessionDao(): CollaborativeSessionDao
+
 
     companion object {
         const val DATABASE_NAME = "universal-media-library.db"
@@ -259,7 +268,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_29_30,
                     AppDatabaseMigrations.MIGRATION_30_31,
                     AppDatabaseMigrations.MIGRATION_31_32,
-                    AppDatabaseMigrations.MIGRATION_32_33
+                    AppDatabaseMigrations.MIGRATION_32_33,
+                    AppDatabaseMigrations.MIGRATION_33_34
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

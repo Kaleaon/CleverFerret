@@ -302,4 +302,13 @@ object DatabaseModule {
         return database.ocrCacheDao()
     }
 
+    /**
+     * Provides the DAO for accessing collaborative session tables.
+     * Supports collaborative playlist sharing over Chromecast and Android Auto.
+     */
+    @Provides
+    fun provideCollaborativeSessionDao(database: AppDatabase): CollaborativeSessionDao {
+        return database.collaborativeSessionDao()
+    }
+
 }
