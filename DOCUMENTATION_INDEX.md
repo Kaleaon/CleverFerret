@@ -66,6 +66,7 @@ Welcome to the CleverFerret documentation. This index provides a complete overvi
 ### Research & Competitive Analysis
 - [docs/research/MYNE_FEATURE_ANALYSIS.md](docs/research/MYNE_FEATURE_ANALYSIS.md) - Competitive Myne reader analysis
 - [docs/research/SEENEVA_FEATURES_ANALYSIS.md](docs/research/SEENEVA_FEATURES_ANALYSIS.md) - OCR and vision feature comparison
+- [docs/research/CROSS_LANGUAGE_REFERENCE.md](docs/research/CROSS_LANGUAGE_REFERENCE.md) - Cross-language integration map
 
 ### Status & Progress
 - [docs/status/CODE_POLISH_SUMMARY.md](docs/status/CODE_POLISH_SUMMARY.md) - Repository cleanup snapshot
