@@ -1052,136 +1052,33 @@ fun LibraryListScreen(
                                         navController.navigate("theme_preview")
                                     }
                                 )
-          }
-      }
+                              }
+                          }
+                      )
 
-      if (isCompactWidth) {
-          mainContent(Modifier.fillMaxSize())
-      } else {
-          Row(modifier = Modifier.fillMaxSize()) {
-              NavigationRail(
-                  modifier = Modifier.fillMaxHeight(),
-                  containerColor = MaterialTheme.colorScheme.surfaceVariant
-              ) {
-                  Spacer(modifier = Modifier.height(16.dp))
-                  
-                  Icon(
-                      imageVector = Icons.Default.Favorite,
-                      contentDescription = "CleverFerret",
-                      modifier = Modifier
-                          .size(48.dp)
-                          .padding(bottom = 24.dp),
-                      tint = MaterialTheme.colorScheme.primary
-                  )
-                  
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                      label = { Text("Home") },
-                      selected = selectedNavItem == 0,
-                      onClick = { selectedNavItem = 0 }
-                  )
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
-                      label = { Text("Libraries") },
-                      selected = selectedNavItem == 1,
-                      onClick = {
-                          selectedNavItem = 1
-                          navController.navigate("media_library")
-                      }
-                  )
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.MusicNote, contentDescription = "Music") },
-                      label = { Text("Music") },
-                      selected = selectedNavItem == 2,
-                      onClick = {
-                          selectedNavItem = 2
-                          navController.navigate("music")
-                      }
-                  )
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.Movie, contentDescription = "Videos") },
-                      label = { Text("Videos") },
-                      selected = selectedNavItem == 3,
-                      onClick = {
-                          selectedNavItem = 3
-                          navController.navigate("videos")
-                      }
-                  )
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
-                      label = { Text("Podcasts") },
-                      selected = selectedNavItem == 4,
-                      onClick = {
-                          selectedNavItem = 4
-                          navController.navigate("podcasts")
-                      }
-                  )
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.Radio, contentDescription = "Radio") },
-                      label = { Text("Radio") },
-                      selected = selectedNavItem == 5,
-                      onClick = {
-                          selectedNavItem = 5
-                          navController.navigate("radio")
-                      }
-                  )
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.Headphones, contentDescription = "Audiobooks") },
-                      label = { Text("Audiobooks") },
-                      selected = selectedNavItem == 6,
-                      onClick = {
-                          selectedNavItem = 6
-                          navController.navigate("audiobook_library")
-                      }
-                  )
-                  
-                  Spacer(modifier = Modifier.weight(1f))
-                  
-                  NavigationRailItem(
-                      icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                      label = { Text("Settings") },
-                      selected = selectedNavItem == 7,
-                      onClick = {
-                          selectedNavItem = 7
-                          navController.navigate("settings")
-                      }
-                  )
-                  
-                  Spacer(modifier = Modifier.height(16.dp))
-              }
-
-              mainContent(
-                  Modifier
-                      .weight(1f)
-                      .fillMaxHeight()
-              )
-          }
-      }
-                    )
-                    
-                    // Search Bar
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        placeholder = { Text("Search books, music, movies...") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                        trailingIcon = {
-                            if (searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { searchQuery = "" }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Clear")
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(24.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-                        )
-                    )
+                      // Search Bar
+                      OutlinedTextField(
+                          value = searchQuery,
+                          onValueChange = { searchQuery = it },
+                          modifier = Modifier
+                              .fillMaxWidth()
+                              .padding(horizontal = 16.dp, vertical = 8.dp),
+                          placeholder = { Text("Search books, music, movies...") },
+                          leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                          trailingIcon = {
+                              if (searchQuery.isNotEmpty()) {
+                                  IconButton(onClick = { searchQuery = "" }) {
+                                      Icon(Icons.Default.Close, contentDescription = "Clear")
+                                  }
+                              }
+                          },
+                          singleLine = true,
+                          shape = RoundedCornerShape(24.dp),
+                          colors = OutlinedTextFieldDefaults.colors(
+                              focusedBorderColor = MaterialTheme.colorScheme.primary,
+                              unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                          )
+                      )
                   }
               }
           ) { paddingValues ->
