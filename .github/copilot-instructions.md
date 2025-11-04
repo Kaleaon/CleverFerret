@@ -31,8 +31,8 @@ Always reference these instructions first and fallback to search or bash command
 - **Package Name:** `com.universalmedialibrary`
 - **Main Module:** `CleverFerret`
 - **Min SDK:** 26 (Android 8.0)
-- **Target SDK:** 34 (Android 14)  
-- **Version:** 1.0 (versionCode 1)
+- **Target SDK:** 36 (Android 15)  
+- **Version:** 1.5.5 (versionCode 7)
 - **Architecture:** Kotlin + Jetpack Compose + Material You + Hilt + Room
 
 ## Validation
@@ -131,10 +131,10 @@ android {
     
     defaultConfig {
         applicationId = "com.universalmedialibrary"
-        minSdk 36
+        minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 7
+        versionName = "1.5.5"
     }
 }
 ```
