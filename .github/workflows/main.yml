@@ -97,7 +97,7 @@ jobs:
         fi
       
     - name: Upload test reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: test-reports
@@ -255,14 +255,14 @@ jobs:
         
     - name: Upload debug APK
       if: steps.build-debug.outcome == 'success'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: debug-apk
         path: CleverFerret/build/outputs/apk/debug/CleverFerret-v${{ steps.version.outputs.version-name }}-debug.apk
         
     - name: Upload release APK
       if: steps.build-debug.outcome == 'success'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: release-apk
         path: CleverFerret/build/outputs/apk/release/CleverFerret-v${{ steps.version.outputs.version-name }}-release*.apk
