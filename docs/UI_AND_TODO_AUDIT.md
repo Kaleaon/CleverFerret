@@ -37,14 +37,14 @@
 - ✅ Bass boost implemented
 - ✅ Reverb implemented
 - ✅ `AudioEffectsSettingsScreen` delivers full controls
-- ⚠️ **Next**: Persist user selections via SharedPreferences
+- ⚠️ **Next**: Add automated/regression tests for preference restore
 
 ### 4. ReplayGain ✅ COMPLETE
 **Status**: Service + settings UI implemented
 - ✅ Service fully implemented
 - ✅ Auto-applies on playback
 - ✅ Toggle and preamp slider included in `AudioEffectsSettingsScreen`
-- ⚠️ **Next**: Persist ReplayGain preferences
+- ⚠️ **Next**: Add regression coverage to verify preamp persistence
 
 ### 5. FFmpeg Metadata ✅ COMPLETE
 **Status**: Fully implemented, no UI needed
@@ -59,16 +59,16 @@
 - ✅ Now Playing implemented
 - ✅ Offline queue implemented
 - ✅ `LastFmSettingsScreen` exposes authentication, toggles, and stats
-- ⚠️ **Next**: Add navigation entry + optional OAuth hand-off
+- ⚠️ **Next**: Implement OAuth hand-off and add instrumentation coverage
 
-### 7. Synced Lyrics (.lrc) ✅ PARTIAL
-**Status**: Backend complete, UI shell implemented
+### 7. Synced Lyrics (.lrc) ✅ COMPLETE
+**Status**: Backend + UI fully integrated
 - ✅ LRC parser implemented
 - ✅ Auto-detection implemented
 - ✅ Time-sync implemented
-- ✅ `SyncedLyricsDisplay` component renders karaoke view
-- ⚠️ **Next**: Bind to real `LyricsService` output and player position
-- ⚠️ **Next**: Add in-player navigation entry + tests
+- ✅ `SyncedLyricsDisplay` wired to `LyricsService` with live refresh
+- ✅ Lyrics toggle available inside enhanced player
+- ⚠️ **Next**: Add automated tests for highlighting + refresh scenarios
 
 ### 8. Per-Device Audio Profiles ✅ COMPLETE
 **Status**: Backend + UI both implemented
@@ -113,9 +113,9 @@
 ### Priority 3: Create Essential UI ⏳ IN PROGRESS (1 of 5)
 1. ✅ **AudioEffectsSettingsScreen** - EQ presets, bass boost, reverb, ReplayGain - commit 44cbfa3
 2. ✅ **LastFm Settings Screen** - Authentication, enable/disable, stats card
-3. ⏳ **Lyrics Display Integration** - Connect UI shell to service + player state
+3. ✅ **Lyrics Display Integration** - Synced component wired to service + player state
 4. ✅ **Audio Profiles UI** - Per-device profile management
-5. ⏳ **Navigation Integration** - Wire up all screens
+5. ✅ **Navigation Integration** - All screens accessible from settings/player
 
 ---
 

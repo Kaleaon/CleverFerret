@@ -1,13 +1,13 @@
 # UI Implementation - Screens Delivered ✅
 
-**Date**: November 2, 2025  
-**Final Status**: 🚧 **Screens implemented, integration polish pending**
+**Date**: November 3, 2025  
+**Final Status**: 🚧 **Feature complete, QA pending**
 
 ---
 
 ## Summary
 
-All targeted UI components for the new music features now exist with Material 3 design, state management, and Hilt integration. Remaining work focuses on wiring these screens into navigation, persisting settings, and final service hookups (lyrics).
+All targeted UI components for the new music features are now implemented with Material 3 design, state management, navigation hooks, and service integrations. Remaining work is limited to regression testing, documentation polish, and optional OAuth enhancements.
 
 ---
 
@@ -28,7 +28,7 @@ All targeted UI components for the new music features now exist with Material 3 
 - Info cards with help text
 - Complete ViewModel with StateFlow
 
-**Integration**: Ready for navigation, needs SharedPreferences persistence
+**Integration**: Accessible via settings; preferences persisted through SharedPreferences snapshot
 
 ---
 
@@ -65,7 +65,7 @@ All targeted UI components for the new music features now exist with Material 3 
 - Ready for .lrc file integration
 - Complete ViewModel with StateFlow
 
-**Integration**: UI shell ready; bind to LyricsService + player state
+**Integration**: Integrated with `LyricsService`; toggled within player with refresh + synced highlighting
 
 ---
 
@@ -94,11 +94,11 @@ Backend features remain complete; matching UI touchpoints now exist:
 
 1. ✅ **Android Auto** - Complete with queue & voice search (system integration)
 2. ✅ **Chromecast** - Complete with Media3 Cast SDK (ExpandedControlsActivity)
-3. ✅ **Audio Effects** - 8 EQ presets, bass boost, reverb (settings screen wired to service)
+3. ✅ **Audio Effects** - 8 EQ presets, bass boost, reverb (settings screen wired to service & persisted)
 4. ✅ **ReplayGain** - Volume normalization, preamp (settings screen wired to service)
 5. ✅ **FFmpeg Metadata** - 3-5x faster extraction (transparent, no UI needed)
 6. ✅ **Last.fm Scrobbling** - Integration + settings management UI
-7. ⏳ **Synced Lyrics** - Parser ready, UI shell requires service wiring
+7. ✅ **Synced Lyrics** - Parser + AI integration with player toggle & refresh
 8. ✅ **Per-Device Profiles** - Auto-switching audio with management UI
 
 ---
@@ -107,63 +107,39 @@ Backend features remain complete; matching UI touchpoints now exist:
 
 **Latest Build**: ✅ BUILD SUCCESSFUL  
 **Compilation**: No errors, all dependencies resolved  
-**Tests**: All passing  
+**Tests**: Pending (regression + instrumentation run scheduled)  
 **APK**: 49MB debug build working  
 
 ---
 
 ## Integration Requirements Remaining
 
-While all UI screens are created, they still need to be integrated into the app navigation:
+With feature work complete, the remaining focus areas are QA and documentation:
 
-### Navigation Setup Needed (~30 minutes)
+### Testing & QA (~2 hours)
 
-1. **Add Route Definitions**
-   - AudioEffectsRoute
-   - LastFmSettingsRoute
-   - AudioProfilesRoute
-
-2. **Update Navigation Graph**
-   - Add composable destinations
-   - Connect to Settings menu
-
-3. **Settings Menu Updates**
-   - Add "Audio Effects" option
-   - Add "Audio Profiles" option
-   - Add "Last.fm Settings" option
-   - Group under "Music Settings" section
-
-4. **Player Screen Integration**
-   - Add lyrics display tab/button
-   - Connect to SyncedLyricsDisplay component
-
-### SharedPreferences Persistence (~1 hour)
-
-Audio Effects settings need to persist across app restarts:
-- Save EQ preset selection
-- Save bass boost level
-- Save reverb settings
-- Save ReplayGain settings
-- Load on app start
-
-### Testing Checklist (~2-3 hours)
-
-**Manual Testing**:
+**Manual / Device Testing**:
 - [ ] Navigate to each settings screen
-- [ ] Change audio effects, verify audio output
-- [ ] Configure Last.fm, verify scrobbling
-- [ ] Switch devices, verify profile switching
-- [ ] View synced lyrics during playback
-- [ ] Settings persist after app restart
-- [ ] All UI responsive on different screen sizes
-- [ ] Dark/light mode works correctly
+- [ ] Change audio effects, verify audio output changes
+- [ ] Configure Last.fm, verify scrobbles (online/offline)
+- [ ] Switch playback devices, verify profile switching
+- [ ] View synced lyrics during playback (seek + refresh)
+- [ ] Confirm settings persist after app restart
+- [ ] Validate responsive layouts (phone/tablet, light/dark)
 
-**Integration Testing**:
-- [ ] Audio effects apply to music playback
-- [ ] ReplayGain normalizes volume correctly
-- [ ] Last.fm scrobbles tracks successfully
-- [ ] Lyrics sync with playback position
-- [ ] Device profiles switch automatically
+**Automation Targets**:
+- [ ] Instrument lyrics highlighting & refresh flow
+- [ ] Add regression around audio effects preference restore
+- [ ] Add smoke test for Last.fm toggle + credential storage
+
+### Documentation Updates (~1 hour)
+- Update user guide with audio effects, profiles, and lyrics workflows
+- Extend developer docs with preference keys + lyrics integration notes
+- Capture screenshots for release notes / marketing
+
+### Optional Enhancements
+- Evaluate Last.fm OAuth hand-off implementation
+- Consider inline messaging for unsynced lyrics / AI disabled states
 
 ---
 
@@ -201,8 +177,8 @@ All features are documented:
 | Backend Services | 100% ✅ | ~3,500 lines |
 | TODOs Resolved | 100% ✅ | 4 TODOs fixed |
 | UI Screens | 100% ✅ | ~4,000 lines |
-| Navigation | 0% ⏳ | ~200 lines needed |
-| Persistence | 0% ⏳ | ~300 lines needed |
+| Navigation | 100% ✅ | ~200 lines |
+| Persistence | 100% ✅ | ~300 lines |
 | Testing | 0% ⏳ | TBD |
 
 **Total New Code**: ~7,500 lines of production-quality Kotlin code

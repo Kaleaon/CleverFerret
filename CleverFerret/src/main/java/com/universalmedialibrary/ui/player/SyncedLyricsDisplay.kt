@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.player
 
+import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,11 +21,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.music.LyricsService
+import com.universalmedialibrary.services.music.TrackInfo
+import com.universalmedialibrary.ui.music.Track
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -40,22 +44,26 @@ import javax.inject.Inject
  */
 @Composable
 fun SyncedLyricsDisplay(
-    trackId: String,
+    track: TrackInfo?,
     currentPositionMs: Long,
     modifier: Modifier = Modifier,
-    viewModel: LyricsViewModel = hiltViewModel()
+    viewModel: SyncedLyricsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     
-    LaunchedEffect(trackId) {
-        viewModel.loadLyrics(trackId)
+    LaunchedEffect(track?.id) {
+        if (track != null) {
+            viewModel.loadLyrics(track)
+        } else {
+            viewModel.clearLyrics()
+        }
     }
     
-    LaunchedEffect(currentPositionMs, uiState.lyrics) {
-        if (uiState.lyrics != null && uiState.lyrics!!.isNotEmpty()) {
+    LaunchedEffect(currentPositionMs, uiState.lyrics, uiState.isSynced) {
+        if (uiState.isSynced && !uiState.lyrics.isNullOrEmpty()) {
             // Find current lyric index based on position
-            val currentIndex = uiState.lyrics!!.indexOfLast {
+            val currentIndex = uiState.lyrics.indexOfLast {
                 it.timestampMs <= currentPositionMs
             }.coerceAtLeast(0)
             
@@ -126,7 +134,7 @@ fun SyncedLyricsDisplay(
                 }
             }
             
-            uiState.lyrics != null && uiState.lyrics!!.isEmpty() -> {
+              uiState.lyrics != null && uiState.lyrics.isEmpty() -> {
                 // Empty state
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -159,6 +167,7 @@ fun SyncedLyricsDisplay(
             
             uiState.lyrics != null -> {
                 // Lyrics display
+                val lyrics = uiState.lyrics
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
@@ -168,11 +177,28 @@ fun SyncedLyricsDisplay(
                     ),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    itemsIndexed(uiState.lyrics!!) { index, lyricLine ->
-                        val isCurrent = lyricLine.timestampMs <= currentPositionMs &&
-                            (index == uiState.lyrics!!.lastIndex ||
-                                uiState.lyrics!![index + 1].timestampMs > currentPositionMs)
-                        
+                    if (!uiState.isSynced) {
+                        item {
+                            Text(
+                                text = "Lyrics may not be time-synced",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
+
+                    itemsIndexed(lyrics) { index, lyricLine ->
+                        val isCurrent = if (uiState.isSynced) {
+                            lyricLine.timestampMs <= currentPositionMs &&
+                                (index == lyrics.lastIndex ||
+                                    lyrics[index + 1].timestampMs > currentPositionMs)
+                        } else {
+                            false
+                        }
+
                         LyricLineItem(
                             text = lyricLine.text,
                             isCurrent = isCurrent,
@@ -226,54 +252,109 @@ data class LyricLine(
 data class LyricsUiState(
     val isLoading: Boolean = false,
     val lyrics: List<LyricLine>? = null,
-    val error: String? = null
+    val error: String? = null,
+    val isSynced: Boolean = false,
+    val fromCache: Boolean = false
 )
 
 @HiltViewModel
-class LyricsViewModel @Inject constructor(
+class SyncedLyricsViewModel @Inject constructor(
     private val lyricsService: LyricsService
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(LyricsUiState())
     val uiState: StateFlow<LyricsUiState> = _uiState.asStateFlow()
-    
-    fun loadLyrics(trackId: String) {
+
+    private var currentTrack: TrackInfo? = null
+
+    init {
         viewModelScope.launch {
-            _uiState.value = LyricsUiState(isLoading = true)
-            
-            try {
-                // For now, show a placeholder since we need Track object
-                // This will be properly integrated when connecting to the music player
-                _uiState.value = LyricsUiState(
-                    error = "Lyrics integration pending. Add a .lrc file next to your audio files for synced lyrics support."
-                )
-            } catch (e: Exception) {
-                _uiState.value = LyricsUiState(
-                    error = "Failed to load lyrics: ${e.message}"
-                )
-            }
+            lyricsService.initialize()
         }
     }
-    
-    private fun parseSyncedLyrics(syncedText: String): List<LyricLine> {
-        val lines = mutableListOf<LyricLine>()
-        val timestampRegex = Regex("""\[(\d{2}):(\d{2})\.(\d{2})\](.*)""")
-        
-        syncedText.lines().forEach { line ->
-            val match = timestampRegex.matchEntire(line.trim())
-            if (match != null) {
-                val minutes = match.groupValues[1].toInt()
-                val seconds = match.groupValues[2].toInt()
-                val centiseconds = match.groupValues[3].toInt()
-                val text = match.groupValues[4].trim()
-                
-                if (text.isNotEmpty()) {
-                    val timestampMs = (minutes * 60 * 1000L) + (seconds * 1000L) + (centiseconds * 10L)
-                    lines.add(LyricLine(timestampMs, text))
-                }
-            }
+
+    fun loadLyrics(trackInfo: TrackInfo) {
+        if (currentTrack?.id == trackInfo.id && _uiState.value.lyrics != null) {
+            return
         }
-        
-        return lines.sortedBy { it.timestampMs }
+
+        currentTrack = trackInfo
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            fetchLyrics(trackInfo, forceRefresh = false)
+        }
+    }
+
+    fun refreshLyrics() {
+        val trackInfo = currentTrack ?: return
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            lyricsService.clearCache(trackInfo.toLyricsTrack().id)
+            fetchLyrics(trackInfo, forceRefresh = true)
+        }
+    }
+
+    fun clearLyrics() {
+        currentTrack = null
+        _uiState.value = LyricsUiState()
+    }
+
+    private suspend fun fetchLyrics(trackInfo: TrackInfo, forceRefresh: Boolean) {
+        try {
+            val lyricsTrack = trackInfo.toLyricsTrack()
+            val result = lyricsService.getLyrics(lyricsTrack, forceRefresh)
+
+            if (result.success && result.lyrics != null) {
+                val lines = result.lyrics.lines.map { lyric ->
+                    LyricLine(timestampMs = lyric.time, text = lyric.text)
+                }
+
+                _uiState.value = LyricsUiState(
+                    isLoading = false,
+                    lyrics = lines,
+                    error = null,
+                    isSynced = result.lyrics.hasTimestamps,
+                    fromCache = result.fromCache
+                )
+            } else {
+                _uiState.value = LyricsUiState(
+                    isLoading = false,
+                    lyrics = emptyList(),
+                    error = result.error ?: "Lyrics not available",
+                    isSynced = false,
+                    fromCache = false
+                )
+            }
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                error = "Failed to load lyrics: ${e.message}"
+            )
+        }
+    }
+
+    private fun TrackInfo.toLyricsTrack(): Track {
+        val numericId = id.toLongOrNull() ?: id.hashCode().toLong()
+        val fileUri = runCatching { Uri.fromFile(File(filePath)) }
+            .getOrElse { Uri.parse(filePath) }
+
+        return Track(
+            id = numericId,
+            title = title,
+            artist = artist,
+            album = album,
+            albumArtist = artist,
+            genre = null,
+            year = null,
+            duration = duration,
+            trackNumber = null,
+            discNumber = null,
+            bitrate = null,
+            dateAdded = 0L,
+            dateModified = 0L,
+            uri = fileUri,
+            path = filePath,
+            mimeType = null
+        )
     }
 }

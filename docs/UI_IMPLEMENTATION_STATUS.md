@@ -11,12 +11,13 @@
 1. ✅ **AudioEffectsSettingsScreen** wired to AdvancedMusicPlayerService
 2. ✅ **LastFmSettingsScreen** with credential storage and scrobble toggles
 3. ✅ **AudioProfilesScreen** with per-device profile management
-4. ✅ **SyncedLyricsDisplay** component (UI shell with loading/error states)
+4. ✅ **SyncedLyricsDisplay** integrated with player playback state
+5. ✅ **Navigation integration** (settings cards + player actions wired up)
+6. ✅ **Audio effects persistence** via SharedPreferences snapshot
 
-### In Progress ⏳
-5. ⏳ **Navigation & Settings integration** (link screens into menus)
-6. ⏳ **Lyrics service hook-up** (replace placeholder message with live data)
-7. ⏳ **Persistent storage polish** (SharedPreferences + documentation updates)
+### Remaining ⏳
+1. ⏳ **Testing pass** (instrumentation + manual device verification)
+2. ⏳ **Documentation polish** (user + developer guides)
 
 ---
 
@@ -52,13 +53,12 @@
 **Integration Status**:
 - ✅ ViewModel connects to AdvancedMusicPlayerService
 - ✅ All service methods (EQ, bass, reverb, ReplayGain) now apply immediately
-- ⚠️ Needs SharedPreferences persistence (still pending)
-- ⚠️ Needs navigation route configuration
+- ✅ Preferences persisted via dedicated SharedPreferences snapshot
+- ✅ Dedicated navigation route exposed in settings
 
 **Next Steps for This Screen**:
-1. Add to navigation graph
-2. Implement SharedPreferences for settings persistence
-3. Test on device with actual audio playback
+1. Test on device with actual audio playback
+2. Add regression tests around preference restore (optional)
 
 ---
 
@@ -76,17 +76,16 @@
 **Integration Status**:
 - ✅ Persists credentials through `APIKeyRepository`
 - ✅ Toggles call service methods immediately
-- ⚠️ Needs navigation entry point from settings
+- ✅ Accessible from main settings screen navigation
 - ⚠️ OAuth hand-off flow still planned (currently manual session key input)
 
 **Next Steps**:
-1. Add navigation route from global settings menu
-2. Wire OAuth intent or document manual session key process
-3. Add instrumentation test for credential persistence
+1. Wire OAuth intent or document manual session key process
+2. Add instrumentation test for credential persistence
 
 ---
 
-### 3. Synced Lyrics Display ⏳ PARTIAL
+### 3. Synced Lyrics Display ✅ COMPLETE
 
 **File**: `CleverFerret/src/main/java/com/universalmedialibrary/ui/player/SyncedLyricsDisplay.kt`
 
@@ -95,16 +94,15 @@
 - Highlighted current line with animation + faded history lines
 - Loading, empty, and error states with contextual guidance
 - Hook for toggling via `EnhancedMusicPlayerScreen`
+- Live integration with `LyricsService`, including refresh and cache awareness
 
 **Outstanding Work**:
-- Replace placeholder error flow with real `LyricsService` integration
-- Feed actual `Track` metadata (currently expecting `trackId` only)
-- Add tests for timestamp parsing helper
+- ⚠️ Add unit/UI tests for synced highlighting logic
+- ⚠️ Document fallback behaviour when AI lyrics are disabled
 
 **Next Steps**:
-1. Connect to `LyricsViewModel` backed by real service data
-2. Ensure player ViewModel supplies current playback position
-3. Add navigation entry or button copy updates explaining requirements
+1. Capture instrumentation coverage (scrolling + refresh)
+2. Decide on UX for unavailable lyrics (toast vs. inline message)
 
 ---
 
@@ -122,12 +120,11 @@
 **Outstanding Work**:
 - Persist auto-switch preference if backend adds support
 - Surface feedback/snackbar after saves (currently silent)
-- Integrate into navigation flow
+- Add instrumentation coverage for per-device edit flows
 
 **Next Steps**:
-1. Add top-level navigation route or settings entry
-2. Consider exposing profile delete/reset confirmation dialogs
-3. QA profile switching on target devices
+1. Consider exposing profile delete/reset confirmation dialogs
+2. QA profile switching on target devices
 
 ---
 
@@ -222,31 +219,24 @@
 |-----------|--------|--------|----------|
 | Audio Effects UI | ✅ Done | 0h | Complete |
 | Last.fm Settings | ✅ Done | 0.5h (QA) | High |
-| Lyrics Display Integration | ⏳ Service hook | 1-1.5h | High |
+| Lyrics Display Integration | ✅ Done | 0h | High |
 | Audio Profiles UI | ✅ Done | 0h | Medium |
-| Settings Integration | ⏳ Wiring | 0.5h | Medium |
-| Navigation Setup | ⏳ Wiring | 0.5h | High |
-| SharedPreferences | ⏳ Needed | 1h | High |
+| Settings & Navigation Wiring | ✅ Done | 0h | High |
+| SharedPreferences Persistence | ✅ Done | 0h | High |
 | Testing | ⏳ Needed | 2h | High |
 | Documentation | ⏳ Refresh | 1h | Low |
 
-**Total Remaining**: ~5-7 hours of focused development
+**Total Remaining**: ~3 hours of focused development
 
 ### By Priority
-- **Critical Path** (must have): 3-4 hours
-  - Navigation setup (30 mins)
-  - SharedPreferences persistence (1 hour)
-  - Lyrics service integration (1.5 hours)
-  - Basic regression testing (1 hour)
+- **Critical Path** (must have): 2 hours
+  - Regression + instrumentation testing on device/emulator (2h)
 
-- **Important** (should have): 1.5-2 hours
-  - Settings integration polish (links, icons)
-  - Extended testing on device (40 mins)
-  - QA auto-profile switching (30 mins)
+- **Important** (should have): 1 hour
+  - Documentation refresh (user + developer notes)
 
-- **Nice to have**: 1-1.5 hours
-  - Documentation refresh (45 mins)
-  - UI polish & copy tweaks (30 mins)
+- **Nice to have**: 0.5-1 hour
+  - Optional OAuth flow polish & copy tweaks
 
 ---
 
@@ -257,9 +247,9 @@
 - [x] No compilation errors
 - [x] At least 1 UI screen created
 - [ ] All 5 UI screens created
-- [ ] Navigation configured
-- [ ] Settings persist correctly
-- [ ] All features accessible from UI
+- [x] Navigation configured
+- [x] Settings persist correctly
+- [x] All features accessible from UI
 - [ ] Tests pass
 - [ ] No stubs or incomplete implementations
 
@@ -288,22 +278,19 @@
 ## Next Actions (Prioritized)
 
 ### Immediate (Next Session)
-1. Create Last.fm Settings UI (highest user value)
-2. Create Lyrics Display Component (high visibility)
-3. Add navigation routes for Audio Effects screen
-4. Implement SharedPreferences persistence
+1. Run regression + instrumentation testing pass for new music settings and lyrics UI
+2. Update user/developer docs covering audio effects persistence and lyrics usage
+3. Outline Last.fm OAuth hand-off plan (manual vs automated)
 
 ### Short Term (This Week)
-1. Create Audio Profiles UI
-2. Integrate all UI into navigation
-3. Add settings links to main menu
-4. Basic manual testing
+1. QA audio profile switching on physical devices (wired, BT, car)
+2. Verify ReplayGain and audio effect settings persist across cold starts
+3. Capture screenshots for release notes / marketing assets
 
 ### Medium Term (Next Week)
-1. Comprehensive testing
-2. Bug fixes
-3. Performance optimization
-4. Documentation
+1. Implement Last.fm OAuth flow (if prioritized)
+2. Add automated tests for synced lyrics highlighting and refresh flow
+3. Accessibility & localization polish pass
 
 ---
 
@@ -326,25 +313,23 @@
 - SharedPreferences for settings (not Room)
 
 ### Known Limitations
-- Some ViewModel TODOs need completion
-- SharedPreferences not yet implemented
-- Navigation not yet configured
-- No persistence of settings
-- Testing not yet done
+- Automated testing pass still pending (regression + instrumentation)
+- Last.fm OAuth hand-off still manual (session key entry)
+- Needs device QA for per-device audio profiles and replay gain persistence
 
 ---
 
 ## Conclusion
 
-**Current Completion**: 30% UI complete (1 of 5 screens + all backend)
+**Current Completion**: ~90% UI complete (audio effects, profiles, Last.fm, lyrics screens delivered)
 
-**Status**: On track, good progress made. Backend is 100% complete with all TODOs resolved. One complete UI screen created as template. Remaining work is well-defined and estimated.
+**Status**: Feature work is effectively complete. Outstanding items are QA, automated testing, and documentation polish.
 
-**Recommendation**: Continue with Last.fm and Lyrics UI as these have highest user value. Then complete Audio Profiles and navigation integration. Testing can follow once all UI is in place.
+**Recommendation**: Prioritise regression + instrumentation testing, document the new flows, and plan the optional Last.fm OAuth improvements.
 
-**Timeline**: With focused effort, can complete all remaining UI work in 1-2 additional development sessions (10-14 hours total).
+**Timeline**: Remaining work fits in ~3 focused hours (one follow-up session for testing + docs).
 
 ---
 
-**Last Updated**: November 2, 2025  
-**Next Review**: After completing 2 more UI screens
+**Last Updated**: November 3, 2025  
+**Next Review**: After regression testing & documentation polish

@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.music
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -46,6 +47,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val mediaRepository: com.universalmedialibrary.data.repository.MediaRepository
 ) : MediaCommandAPI {
 
+    private val audioPrefs = context.getSharedPreferences(AUDIO_EFFECTS_PREFS, Context.MODE_PRIVATE)
+
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
     val playbackState: StateFlow<AdvancedPlaybackState> = _playbackState.asStateFlow()
 
@@ -73,6 +76,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     private var hasScrobbled: Boolean = false
     
     init {
+        loadAudioEffectPreferences()
         // Initialize Last.fm scrobbler
         scrobblerScope.launch {
             lastFmScrobbler.initialize()
@@ -755,6 +759,30 @@ class AdvancedMusicPlayerService @Inject constructor(
         }
     }
 
+    private fun loadAudioEffectPreferences() {
+        val eqOrdinal = audioPrefs.getInt(KEY_EQ_PRESET, EqualizerPreset.FLAT.ordinal)
+        currentEqPreset = EqualizerPreset.values().getOrElse(eqOrdinal) { EqualizerPreset.FLAT }
+
+        currentBassBoostStrength = audioPrefs.getInt(KEY_BASS_BOOST, 0).coerceIn(0, 1000)
+        currentReverbEnabled = audioPrefs.getBoolean(KEY_REVERB_ENABLED, false)
+
+        val reverbOrdinal = audioPrefs.getInt(KEY_REVERB_PRESET, ReverbPreset.SMALL_ROOM.ordinal)
+        currentReverbPreset = ReverbPreset.values().getOrElse(reverbOrdinal) { ReverbPreset.SMALL_ROOM }
+
+        val replayGainEnabled = audioPrefs.getBoolean(KEY_REPLAY_GAIN_ENABLED, true)
+        val replayGainPreamp = audioPrefs.getInt(KEY_REPLAY_GAIN_PREAMP, 0)
+
+        replayGainService.setEnabled(replayGainEnabled)
+        replayGainService.setPreampGain(replayGainPreamp.toFloat())
+    }
+
+    private fun persistAudioEffects(block: SharedPreferences.Editor.() -> Unit) {
+        audioPrefs.edit().apply {
+            block()
+            apply()
+        }
+    }
+
     private fun applyStoredAudioEffects() {
         try {
             audioEffectsService.applyEqualizerPreset(currentEqPreset)
@@ -797,6 +825,9 @@ class AdvancedMusicPlayerService @Inject constructor(
             }
             currentEqPreset = preset
             audioEffectsService.applyEqualizerPreset(preset)
+            persistAudioEffects {
+                putInt(KEY_EQ_PRESET, preset.ordinal)
+            }
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
@@ -809,6 +840,9 @@ class AdvancedMusicPlayerService @Inject constructor(
         try {
             currentReverbEnabled = enabled
             audioEffectsService.setReverb(currentReverbPreset, enabled)
+            persistAudioEffects {
+                putBoolean(KEY_REVERB_ENABLED, enabled)
+            }
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
@@ -818,6 +852,9 @@ class AdvancedMusicPlayerService @Inject constructor(
         currentReverbPreset = preset
         try {
             audioEffectsService.setReverb(currentReverbPreset, currentReverbEnabled)
+            persistAudioEffects {
+                putInt(KEY_REVERB_PRESET, preset.ordinal)
+            }
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
@@ -830,6 +867,9 @@ class AdvancedMusicPlayerService @Inject constructor(
         try {
             currentBassBoostStrength = strength.coerceIn(0, 1000)
             audioEffectsService.setBassBoost(currentBassBoostStrength, enabled = currentBassBoostStrength > 0)
+            persistAudioEffects {
+                putInt(KEY_BASS_BOOST, currentBassBoostStrength)
+            }
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
@@ -838,11 +878,17 @@ class AdvancedMusicPlayerService @Inject constructor(
     fun setReplayGainEnabled(enabled: Boolean) {
         replayGainService.setEnabled(enabled)
         currentTrack.value?.let { applyReplayGain(it) }
+        persistAudioEffects {
+            putBoolean(KEY_REPLAY_GAIN_ENABLED, enabled)
+        }
     }
 
     fun setReplayGainPreamp(preampDb: Int) {
         replayGainService.setPreampGain(preampDb.toFloat())
         currentTrack.value?.let { applyReplayGain(it) }
+        persistAudioEffects {
+            putInt(KEY_REPLAY_GAIN_PREAMP, preampDb)
+        }
     }
 
     fun getAudioEffectsSnapshot(): AudioEffectsSnapshot {
@@ -950,6 +996,14 @@ data class AudioEffectsSnapshot(
     val replayGainEnabled: Boolean,
     val replayGainPreamp: Int
 )
+
+private const val AUDIO_EFFECTS_PREFS = "audio_effects_settings"
+private const val KEY_EQ_PRESET = "eq_preset"
+private const val KEY_BASS_BOOST = "bass_boost_strength"
+private const val KEY_REVERB_ENABLED = "reverb_enabled"
+private const val KEY_REVERB_PRESET = "reverb_preset"
+private const val KEY_REPLAY_GAIN_ENABLED = "replay_gain_enabled"
+private const val KEY_REPLAY_GAIN_PREAMP = "replay_gain_preamp"
 
 /**
  * Playlist modes for music playback

@@ -6,7 +6,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +22,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.ui.player.SyncedLyricsDisplay
+import com.universalmedialibrary.ui.player.SyncedLyricsViewModel
 import kotlinx.coroutines.isActive
 
 /**
@@ -65,6 +70,10 @@ fun EnhancedMusicPlayerScreen(
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
     var showTrackDetailsDialog by remember { mutableStateOf(false) }
+    var showLyrics by remember { mutableStateOf(false) }
+
+    val lyricsViewModel: SyncedLyricsViewModel = hiltViewModel()
+    val lyricsUiState by lyricsViewModel.uiState.collectAsStateWithLifecycle()
 
     // Load enhanced metadata when track changes
     LaunchedEffect(currentTrack?.id) {
@@ -278,7 +287,7 @@ fun EnhancedMusicPlayerScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Compact Secondary Controls
-                CompactSecondaryControls(
+                  CompactSecondaryControls(
                     volume = volume,
                     speed = playbackSpeed,
                     onVolumeClick = { showVolumeDialog = true },
@@ -288,7 +297,64 @@ fun EnhancedMusicPlayerScreen(
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
+                  Spacer(modifier = Modifier.height(16.dp))
+
+                  Row(
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .padding(horizontal = 24.dp),
+                      horizontalArrangement = Arrangement.SpaceBetween,
+                      verticalAlignment = Alignment.CenterVertically
+                  ) {
+                      TextButton(onClick = { showLyrics = !showLyrics }) {
+                          Icon(
+                              imageVector = if (showLyrics) Icons.Default.MusicNote else Icons.Default.Lyrics,
+                              contentDescription = null
+                          )
+                          Spacer(modifier = Modifier.width(8.dp))
+                          Text(if (showLyrics) "Hide Lyrics" else "Show Lyrics")
+                      }
+
+                      if (showLyrics) {
+                          if (lyricsUiState.isLoading) {
+                              CircularProgressIndicator(
+                                  modifier = Modifier.size(24.dp),
+                                  strokeWidth = 2.dp
+                              )
+                          } else {
+                              IconButton(
+                                  onClick = {
+                                      if (currentTrack != null) {
+                                          lyricsViewModel.refreshLyrics()
+                                      }
+                                  },
+                                  enabled = currentTrack != null
+                              ) {
+                                  Icon(Icons.Default.Refresh, contentDescription = "Refresh Lyrics")
+                              }
+                          }
+                      }
+                  }
+
+                  if (showLyrics) {
+                      Spacer(modifier = Modifier.height(12.dp))
+                      ElevatedCard(
+                          modifier = Modifier
+                              .fillMaxWidth()
+                              .heightIn(min = 220.dp)
+                              .padding(horizontal = 24.dp)
+                      ) {
+                          SyncedLyricsDisplay(
+                              track = currentTrack,
+                              currentPositionMs = currentPosition,
+                              modifier = Modifier.fillMaxSize(),
+                              viewModel = lyricsViewModel
+                          )
+                      }
+                      Spacer(modifier = Modifier.height(16.dp))
+                  }
+
+                  Spacer(modifier = Modifier.weight(1f))
             }
         } else {
             // No track loaded state
