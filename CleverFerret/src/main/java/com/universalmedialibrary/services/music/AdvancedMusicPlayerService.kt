@@ -64,9 +64,13 @@ class AdvancedMusicPlayerService @Inject constructor(
     private var currentQueueIndex = 0
     private var originalQueue: List<TrackInfo> = emptyList()
 
+    @Volatile
     private var currentEqPreset: EqualizerPreset = EqualizerPreset.FLAT
+    @Volatile
     private var currentBassBoostStrength: Int = 0
+    @Volatile
     private var currentReverbEnabled: Boolean = false
+    @Volatile
     private var currentReverbPreset: ReverbPreset = ReverbPreset.SMALL_ROOM
     
     // Last.fm scrobbling

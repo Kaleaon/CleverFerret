@@ -134,8 +134,8 @@ fun SyncedLyricsDisplay(
                     }
                 }
             }
-            
-              uiState.lyrics?.isEmpty() == true -> {
+
+            uiState.lyrics.isNullOrEmpty() -> {
                 // Empty state
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -166,7 +166,7 @@ fun SyncedLyricsDisplay(
                 }
             }
             
-              uiState.lyrics != null -> {
+            else -> {
                 // Lyrics display
                 val lyrics = uiState.lyrics ?: emptyList()
                 LazyColumn(
@@ -297,9 +297,14 @@ class SyncedLyricsViewModel @Inject constructor(
     }
 
     private suspend fun fetchLyrics(trackInfo: TrackInfo, forceRefresh: Boolean) {
+        val requestTrackId = trackInfo.id
         try {
             val lyricsTrack = trackInfo.toLyricsTrack()
             val result = lyricsService.getLyrics(lyricsTrack, forceRefresh)
+
+            if (currentTrack?.id != requestTrackId) {
+                return
+            }
 
             if (result.success && result.lyrics != null) {
                 val lines = result.lyrics.lines.map { lyric ->
@@ -323,10 +328,12 @@ class SyncedLyricsViewModel @Inject constructor(
                 )
             }
         } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                error = "Failed to load lyrics: ${e.message}"
-            )
+            if (currentTrack?.id == requestTrackId) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Failed to load lyrics: ${e.message}"
+                )
+            }
         }
     }
 
