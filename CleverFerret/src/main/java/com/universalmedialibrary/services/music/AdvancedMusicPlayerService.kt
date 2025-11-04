@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.music
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -17,6 +18,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.math.roundToInt
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,6 +47,8 @@ class AdvancedMusicPlayerService @Inject constructor(
     private val mediaRepository: com.universalmedialibrary.data.repository.MediaRepository
 ) : MediaCommandAPI {
 
+    private val audioPrefs = context.getSharedPreferences(AUDIO_EFFECTS_PREFS, Context.MODE_PRIVATE)
+
     private val _playbackState = MutableStateFlow(AdvancedPlaybackState())
     val playbackState: StateFlow<AdvancedPlaybackState> = _playbackState.asStateFlow()
 
@@ -59,6 +63,15 @@ class AdvancedMusicPlayerService @Inject constructor(
 
     private var currentQueueIndex = 0
     private var originalQueue: List<TrackInfo> = emptyList()
+
+    @Volatile
+    private var currentEqPreset: EqualizerPreset = EqualizerPreset.FLAT
+    @Volatile
+    private var currentBassBoostStrength: Int = 0
+    @Volatile
+    private var currentReverbEnabled: Boolean = false
+    @Volatile
+    private var currentReverbPreset: ReverbPreset = ReverbPreset.SMALL_ROOM
     
     // Last.fm scrobbling
     private val scrobblerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -67,6 +80,7 @@ class AdvancedMusicPlayerService @Inject constructor(
     private var hasScrobbled: Boolean = false
     
     init {
+        loadAudioEffectPreferences()
         // Initialize Last.fm scrobbler
         scrobblerScope.launch {
             lastFmScrobbler.initialize()
@@ -745,6 +759,54 @@ class AdvancedMusicPlayerService @Inject constructor(
         val audioSessionId = exoPlayerService.getAudioSessionId()
         if (audioSessionId != 0) {
             audioEffectsService.initialize(audioSessionId)
+            applyStoredAudioEffects()
+        }
+    }
+
+    private fun loadAudioEffectPreferences() {
+        val eqOrdinal = audioPrefs.getInt(KEY_EQ_PRESET, EqualizerPreset.FLAT.ordinal)
+        currentEqPreset = EqualizerPreset.values().getOrElse(eqOrdinal) { EqualizerPreset.FLAT }
+
+        currentBassBoostStrength = audioPrefs.getInt(KEY_BASS_BOOST, 0).coerceIn(0, 1000)
+        currentReverbEnabled = audioPrefs.getBoolean(KEY_REVERB_ENABLED, false)
+
+        val reverbOrdinal = audioPrefs.getInt(KEY_REVERB_PRESET, ReverbPreset.SMALL_ROOM.ordinal)
+        currentReverbPreset = ReverbPreset.values().getOrElse(reverbOrdinal) { ReverbPreset.SMALL_ROOM }
+
+        val replayGainEnabled = audioPrefs.getBoolean(KEY_REPLAY_GAIN_ENABLED, true)
+        val replayGainPreamp = audioPrefs.getInt(KEY_REPLAY_GAIN_PREAMP, 0)
+
+        replayGainService.setEnabled(replayGainEnabled)
+        replayGainService.setPreampGain(replayGainPreamp.toFloat())
+    }
+
+    private fun persistAudioEffects(block: SharedPreferences.Editor.() -> Unit) {
+        audioPrefs.edit().apply {
+            block()
+            apply()
+        }
+    }
+
+    private fun applyStoredAudioEffects() {
+        try {
+            audioEffectsService.applyEqualizerPreset(currentEqPreset)
+        } catch (ignored: Exception) {
+            Log.w("AdvancedMusicPlayer", "Equalizer not available on this device")
+        }
+
+        try {
+            audioEffectsService.setBassBoost(
+                currentBassBoostStrength.coerceIn(0, 1000),
+                enabled = currentBassBoostStrength > 0
+            )
+        } catch (ignored: Exception) {
+            Log.w("AdvancedMusicPlayer", "Bass boost not available on this device")
+        }
+
+        try {
+            audioEffectsService.setReverb(currentReverbPreset, currentReverbEnabled)
+        } catch (ignored: Exception) {
+            Log.w("AdvancedMusicPlayer", "Reverb not available on this device")
         }
     }
 
@@ -765,7 +827,11 @@ class AdvancedMusicPlayerService @Inject constructor(
                 7 -> EqualizerPreset.JAZZ
                 else -> EqualizerPreset.FLAT
             }
+            currentEqPreset = preset
             audioEffectsService.applyEqualizerPreset(preset)
+            persistAudioEffects {
+                putInt(KEY_EQ_PRESET, preset.ordinal)
+            }
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
@@ -776,7 +842,23 @@ class AdvancedMusicPlayerService @Inject constructor(
      */
     override fun enableReverb(enabled: Boolean) {
         try {
-            audioEffectsService.setReverb(ReverbPreset.NONE, enabled)
+            currentReverbEnabled = enabled
+            audioEffectsService.setReverb(currentReverbPreset, enabled)
+            persistAudioEffects {
+                putBoolean(KEY_REVERB_ENABLED, enabled)
+            }
+        } catch (e: Exception) {
+            // Audio effects not available on this device
+        }
+    }
+
+    fun setReverbPreset(preset: ReverbPreset) {
+        currentReverbPreset = preset
+        try {
+            audioEffectsService.setReverb(currentReverbPreset, currentReverbEnabled)
+            persistAudioEffects {
+                putInt(KEY_REVERB_PRESET, preset.ordinal)
+            }
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
@@ -787,12 +869,44 @@ class AdvancedMusicPlayerService @Inject constructor(
      */
     override fun setBassBoost(strength: Int) {
         try {
-            audioEffectsService.setBassBoost(strength.coerceIn(0, 1000), enabled = strength > 0)
+            currentBassBoostStrength = strength.coerceIn(0, 1000)
+            audioEffectsService.setBassBoost(currentBassBoostStrength, enabled = currentBassBoostStrength > 0)
+            persistAudioEffects {
+                putInt(KEY_BASS_BOOST, currentBassBoostStrength)
+            }
         } catch (e: Exception) {
             // Audio effects not available on this device
         }
     }
     
+    fun setReplayGainEnabled(enabled: Boolean) {
+        replayGainService.setEnabled(enabled)
+        currentTrack.value?.let { applyReplayGain(it) }
+        persistAudioEffects {
+            putBoolean(KEY_REPLAY_GAIN_ENABLED, enabled)
+        }
+    }
+
+    fun setReplayGainPreamp(preampDb: Int) {
+        replayGainService.setPreampGain(preampDb.toFloat())
+        currentTrack.value?.let { applyReplayGain(it) }
+        persistAudioEffects {
+            putInt(KEY_REPLAY_GAIN_PREAMP, preampDb)
+        }
+    }
+
+    fun getAudioEffectsSnapshot(): AudioEffectsSnapshot {
+        val replayGainSettings = replayGainService.getSettings()
+        return AudioEffectsSnapshot(
+            eqPreset = currentEqPreset,
+            bassBoostStrength = currentBassBoostStrength,
+            reverbEnabled = currentReverbEnabled,
+            reverbPreset = currentReverbPreset,
+            replayGainEnabled = replayGainSettings.enabled,
+            replayGainPreamp = replayGainSettings.preampGain.roundToInt()
+        )
+    }
+
     /**
      * Get ExoPlayerService instance for visualizer attachment
      */
@@ -877,6 +991,23 @@ data class TrackInfo(
     val replayGainTrack: Float? = null, // Track gain in dB
     val replayGainAlbum: Float? = null  // Album gain in dB
 )
+
+data class AudioEffectsSnapshot(
+    val eqPreset: EqualizerPreset,
+    val bassBoostStrength: Int,
+    val reverbEnabled: Boolean,
+    val reverbPreset: ReverbPreset,
+    val replayGainEnabled: Boolean,
+    val replayGainPreamp: Int
+)
+
+private const val AUDIO_EFFECTS_PREFS = "audio_effects_settings"
+private const val KEY_EQ_PRESET = "eq_preset"
+private const val KEY_BASS_BOOST = "bass_boost_strength"
+private const val KEY_REVERB_ENABLED = "reverb_enabled"
+private const val KEY_REVERB_PRESET = "reverb_preset"
+private const val KEY_REPLAY_GAIN_ENABLED = "replay_gain_enabled"
+private const val KEY_REPLAY_GAIN_PREAMP = "replay_gain_preamp"
 
 /**
  * Playlist modes for music playback

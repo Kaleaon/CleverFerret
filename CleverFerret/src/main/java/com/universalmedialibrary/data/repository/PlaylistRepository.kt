@@ -40,6 +40,12 @@ class PlaylistRepository @Inject constructor(
         return playlistId
     }
 
+    suspend fun addToPlaylist(playlistId: Long, mediaItemId: Long) {
+        ensurePlaylistExists(playlistId)
+        ensureMediaExists(mediaItemId)
+        appendToPlaylist(playlistId, mediaItemId)
+    }
+
     suspend fun createPlaylist(name: String, description: String? = null, isPublic: Boolean = false): Long {
         val playlist = Playlist(name = name, description = description, isPublic = isPublic, shareCode = generateShareCode())
         return playlistDao.insertPlaylist(playlist)
@@ -54,6 +60,10 @@ class PlaylistRepository @Inject constructor(
 
     private suspend fun ensureMediaExists(mediaItemId: Long) {
         requireNotNull(mediaItemDao.getMediaItemById(mediaItemId)) { "Media item $mediaItemId not found" }
+    }
+
+    private suspend fun ensurePlaylistExists(playlistId: Long) {
+        requireNotNull(playlistDao.getPlaylistById(playlistId)) { "Playlist $playlistId not found" }
     }
 
     private fun generateShareCode(): String = UUID.randomUUID().toString()

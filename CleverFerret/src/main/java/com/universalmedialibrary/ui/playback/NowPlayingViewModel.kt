@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.playback
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.playback.RepeatMode
@@ -149,13 +150,11 @@ class NowPlayingViewModel @Inject constructor(
     fun addCurrentTrackToPlaylist(playlistId: Long) {
         viewModelScope.launch {
             currentItem.value?.let { item ->
-                // TODO: Implement addToPlaylist in PlaylistRepository
-                // For now, this is a placeholder
                 try {
-                    // Could use playlistRepository.addToPlaylistByName if we have the name
-                    // Or expose appendToPlaylist as public in repository
+                    playlistRepository.addToPlaylist(playlistId, item.mediaItemId)
                 } catch (e: Exception) {
-                    // Handle error
+                    // Log error for debugging; UI can display a toast/snackbar via caller if needed
+                    Log.e("NowPlayingViewModel", "Failed to add track to playlist", e)
                 }
             }
         }

@@ -32,21 +32,19 @@
 - ✅ Fully functional
 
 ### 3. Audio Effects Integration ✅ COMPLETE
-**Status**: Fully implemented, **NEEDS UI**
+**Status**: Backend + UI both implemented
 - ✅ 8 EQ presets implemented
 - ✅ Bass boost implemented
 - ✅ Reverb implemented
-- ⚠️ **MISSING**: Settings UI for audio effects
-- ⚠️ **MISSING**: EQ preset selector UI
-- **ACTION REQUIRED**: Create AudioEffectsSettingsScreen
+- ✅ `AudioEffectsSettingsScreen` delivers full controls
+- ⚠️ **Next**: Add automated/regression tests for preference restore
 
 ### 4. ReplayGain ✅ COMPLETE
-**Status**: Fully implemented, **NEEDS UI**
+**Status**: Service + settings UI implemented
 - ✅ Service fully implemented
 - ✅ Auto-applies on playback
-- ⚠️ **MISSING**: Settings UI for enable/disable
-- ⚠️ **MISSING**: Preamp adjustment UI
-- **ACTION REQUIRED**: Add to AudioSettingsScreen
+- ✅ Toggle and preamp slider included in `AudioEffectsSettingsScreen`
+- ⚠️ **Next**: Add regression coverage to verify preamp persistence
 
 ### 5. FFmpeg Metadata ✅ COMPLETE
 **Status**: Fully implemented, no UI needed
@@ -55,36 +53,30 @@
 - ✅ Works transparently
 - ✅ Fully functional
 
-### 6. Last.fm Scrobbling ✅ PARTIAL
-**Status**: Backend complete, **NEEDS UI**
+### 6. Last.fm Scrobbling ✅ COMPLETE
+**Status**: Backend and settings UI implemented
 - ✅ Scrobbling service implemented
 - ✅ Now Playing implemented
 - ✅ Offline queue implemented
-- ⚠️ **MISSING**: Last.fm authentication UI
-- ⚠️ **MISSING**: Scrobble enable/disable toggle
-- ⚠️ **MISSING**: Session management UI
-- ⚠️ **MISSING**: Scrobble history view
-- **ACTION REQUIRED**: Create LastFmSettingsScreen
+- ✅ `LastFmSettingsScreen` exposes authentication, toggles, and stats
+- ⚠️ **Next**: Implement OAuth hand-off and add instrumentation coverage
 
-### 7. Synced Lyrics (.lrc) ✅ PARTIAL
-**Status**: Backend complete, **NEEDS UI**
+### 7. Synced Lyrics (.lrc) ✅ COMPLETE
+**Status**: Backend + UI fully integrated
 - ✅ LRC parser implemented
 - ✅ Auto-detection implemented
 - ✅ Time-sync implemented
-- ⚠️ **MISSING**: Lyrics display UI (karaoke-style)
-- ⚠️ **MISSING**: Lyrics viewer integration in player
-- ⚠️ **MISSING**: Lyrics sync visualization
-- **ACTION REQUIRED**: Create LyricsDisplayScreen
+- ✅ `SyncedLyricsDisplay` wired to `LyricsService` with live refresh
+- ✅ Lyrics toggle available inside enhanced player
+- ⚠️ **Next**: Add automated tests for highlighting + refresh scenarios
 
-### 8. Per-Device Audio Profiles ✅ PARTIAL
-**Status**: Backend complete, **NEEDS UI**
+### 8. Per-Device Audio Profiles ✅ COMPLETE
+**Status**: Backend + UI both implemented
 - ✅ Device detection implemented
 - ✅ Profile storage implemented
 - ✅ Auto-switching implemented
-- ⚠️ **MISSING**: Profile management UI
-- ⚠️ **MISSING**: Profile editor
-- ⚠️ **MISSING**: Device profile selector
-- **ACTION REQUIRED**: Create AudioProfilesScreen
+- ✅ `AudioProfilesScreen` provides management UI
+- ⚠️ **Next**: Hook auto-switch toggle to backend flag if exposed
 
 ### 9. CUE Sheet Support ⚠️ INCOMPLETE
 **Status**: Started but incomplete
@@ -99,24 +91,9 @@
 
 ## Existing TODOs Found
 
-### In AdvancedMusicPlayerService.kt
-**Line 268**: `// TODO: Fetch MediaItem from repository and add to queue properly`
-- **Status**: ⚠️ UNRESOLVED
-- **Impact**: Queue management may not work correctly
-- **ACTION REQUIRED**: Implement proper MediaItem fetching
-
-### In AdvancedMusicPlayerServiceExtensions.kt
-**Line 153**: `// TODO: Implement when equalizer is added`
-- **Status**: ✅ CAN BE RESOLVED (equalizer now exists)
-- **ACTION REQUIRED**: Remove TODO and implement
-
-**Line 161**: `// TODO: Implement when audio effects are added`
-- **Status**: ✅ CAN BE RESOLVED (audio effects now exist)
-- **ACTION REQUIRED**: Remove TODO and implement
-
-**Line 169**: `// TODO: Implement when audio effects are added`
-- **Status**: ✅ CAN BE RESOLVED (audio effects now exist)
-- **ACTION REQUIRED**: Remove TODO and implement
+- ✅ Playback queue TODOs addressed (media repository wiring & playlist additions now implemented)
+- ✅ Audio effects extension TODOs removed; service integration is live
+- ⚠️ Remaining TODOs focus on future enhancements (shared persistence, external services)
 
 ---
 
@@ -135,10 +112,10 @@
 
 ### Priority 3: Create Essential UI ⏳ IN PROGRESS (1 of 5)
 1. ✅ **AudioEffectsSettingsScreen** - EQ presets, bass boost, reverb, ReplayGain - commit 44cbfa3
-2. ⏳ **LastFm Settings** - Authentication, enable/disable
-3. ⏳ **Lyrics Display** - Synced lyrics viewer in player
-4. ⏳ **Audio Profiles UI** - Per-device profile management
-5. ⏳ **Navigation Integration** - Wire up all screens
+2. ✅ **LastFm Settings Screen** - Authentication, enable/disable, stats card
+3. ✅ **Lyrics Display Integration** - Synced component wired to service + player state
+4. ✅ **Audio Profiles UI** - Per-device profile management
+5. ✅ **Navigation Integration** - All screens accessible from settings/player
 
 ---
 
