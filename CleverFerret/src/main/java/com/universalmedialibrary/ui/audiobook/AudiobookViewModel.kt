@@ -16,14 +16,16 @@ class AudiobookViewModel @Inject constructor(
     private val audiobookDao: AudiobookDao
 ) : ViewModel() {
     
+    // PERFORMANCE FIX: Use WhileSubscribed instead of Eagerly to stop collecting
+    // when no UI is observing, preventing unnecessary database queries
     val allAudiobooks = audiobookDao.getAll()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     
     val inProgress = audiobookDao.getInProgress()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     
     val finished = audiobookDao.getFinished()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     
     private val _importState = MutableStateFlow<ImportState>(ImportState.Idle)
     val importState: StateFlow<ImportState> = _importState.asStateFlow()

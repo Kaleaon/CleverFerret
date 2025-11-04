@@ -195,12 +195,14 @@ class CalibreImportService @Inject constructor(
     }
 
     private fun calculateMD5(file: File): String {
+        // PERFORMANCE & RESOURCE FIX: Use .use {} to ensure stream is properly closed
         val digest = MessageDigest.getInstance("MD5")
-        val inputStream = FileInputStream(file)
-        val buffer = ByteArray(8192)
-        var read: Int
-        while (inputStream.read(buffer).also { read = it } > 0) {
-            digest.update(buffer, 0, read)
+        FileInputStream(file).use { inputStream ->
+            val buffer = ByteArray(8192)
+            var read: Int
+            while (inputStream.read(buffer).also { read = it } > 0) {
+                digest.update(buffer, 0, read)
+            }
         }
         val md5sum = digest.digest()
         return md5sum.joinToString("") { "%02x".format(it) }

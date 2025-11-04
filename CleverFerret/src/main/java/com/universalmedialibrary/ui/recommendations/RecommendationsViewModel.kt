@@ -27,8 +27,9 @@ class RecommendationsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RecommendationsUiState())
     val uiState: StateFlow<RecommendationsUiState> = _uiState.asStateFlow()
 
+    // PERFORMANCE FIX: Use WhileSubscribed to stop collecting when no UI is observing
     val recommendationsState: StateFlow<RecommendationsState> = recommendationService.recommendationsState
-        .stateIn(viewModelScope, SharingStarted.Eagerly, RecommendationsState())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RecommendationsState())
 
     private val _options = MutableStateFlow(RecommendationOptions())
     val options: StateFlow<RecommendationOptions> = _options.asStateFlow()

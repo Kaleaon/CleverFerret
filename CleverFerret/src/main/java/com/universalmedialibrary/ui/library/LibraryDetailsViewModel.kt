@@ -58,10 +58,17 @@ class LibraryDetailsViewModel @Inject constructor(
 
                 // Load media items for this library
                 mediaItemDao.getMediaItemsByLibrary(libraryId).collect { mediaItems ->
-                    // Get metadata for each media item
-                    val mediaItemsWithMetadata = mediaItems.map { mediaItem ->
-                        val metadata = metadataDao.getCommonMetadata(mediaItem.itemId)
-                        MediaItemWithMetadata(mediaItem, metadata)
+                    // PERFORMANCE OPTIMIZATION: Use batch queries to avoid N+1 problem
+                    val mediaItemsWithMetadata = if (mediaItems.isEmpty()) {
+                        emptyList()
+                    } else {
+                        val itemIds = mediaItems.map { it.itemId }
+                        val metadataMap = metadataDao.getMetadataCommonBatch(itemIds)
+                            .associateBy { it.itemId }
+                        
+                        mediaItems.map { mediaItem ->
+                            MediaItemWithMetadata(mediaItem, metadataMap[mediaItem.itemId])
+                        }
                     }
 
                     _uiState.value = _uiState.value.copy(

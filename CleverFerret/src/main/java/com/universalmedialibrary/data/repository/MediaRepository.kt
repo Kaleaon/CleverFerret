@@ -71,4 +71,16 @@ class MediaRepository @Inject constructor(
 
     suspend fun getItemCountByType(mediaType: String): Int =
         mediaItemDao.getItemCountByType(mediaType)
+    
+    /**
+     * PERFORMANCE OPTIMIZATION: Batch fetch metadata for multiple items at once
+     * to avoid N+1 query problems.
+     * 
+     * @param itemIds List of item IDs to fetch metadata for
+     * @return Map of itemId to MetadataCommon
+     */
+    suspend fun getCommonMetadataBatch(itemIds: List<Long>): Map<Long, MetadataCommon> {
+        if (itemIds.isEmpty()) return emptyMap()
+        return metadataDao.getMetadataCommonBatch(itemIds).associateBy { it.itemId }
+    }
 }
