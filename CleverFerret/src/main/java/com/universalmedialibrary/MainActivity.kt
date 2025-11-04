@@ -15,6 +15,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,10 +34,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -70,6 +71,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
@@ -91,6 +93,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -104,6 +108,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
 import com.universalmedialibrary.ui.collections.CollectionsScreen
 import com.universalmedialibrary.ui.home.ContinueReadingSection
@@ -111,7 +116,9 @@ import com.universalmedialibrary.ui.home.MediaRecommendation
 import com.universalmedialibrary.ui.home.MediaPosterCard
 import com.universalmedialibrary.ui.home.QuickAccessCard
 import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.ui.home.SampleClassic
 import com.universalmedialibrary.services.CalibreImportForegroundService
+import com.universalmedialibrary.ui.main.SampleDownloadStatus
 import com.universalmedialibrary.ui.library.CreateLibraryDialog
 import com.universalmedialibrary.ui.library.LibraryDetailsScreen
 import com.universalmedialibrary.ui.open.MediaOpenScreen
@@ -136,6 +143,7 @@ import com.universalmedialibrary.ui.components.rememberMediaControlsState
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.ui.res.painterResource
 
 
 /**
@@ -894,7 +902,7 @@ fun LibraryListScreen(
     val context = LocalContext.current
     var dbFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedLibraryForImport by remember { mutableStateOf<Library?>(null) }
-    val mediaControlsState = rememberMediaControlsState()
+      val mediaControlsState = rememberMediaControlsState()
       val configuration = LocalConfiguration.current
       val isCompactWidth = configuration.screenWidthDp < 600
 
@@ -934,18 +942,52 @@ fun LibraryListScreen(
         )
 
     // Sample media data for recommendations
-    val sampleMedia = listOf(
-        MediaRecommendation("The Great Gatsby", "F. Scott Fitzgerald", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))),
-        MediaRecommendation("Inception", "Christopher Nolan", "MOVIE", listOf(Color(0xFF0D47A1), Color(0xFF2196F3))),
-        MediaRecommendation("Abbey Road", "The Beatles", "MUSIC", listOf(Color(0xFF4A148C), Color(0xFF9C27B0))),
-        MediaRecommendation("1984", "George Orwell", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))),
-        MediaRecommendation("The Godfather", "Francis Ford Coppola", "MOVIE", listOf(Color(0xFF0D47A1), Color(0xFF2196F3))),
-        MediaRecommendation("Dark Side of the Moon", "Pink Floyd", "MUSIC", listOf(Color(0xFF4A148C), Color(0xFF9C27B0))),
-        MediaRecommendation("To Kill a Mockingbird", "Harper Lee", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50))),
-        MediaRecommendation("Interstellar", "Christopher Nolan", "MOVIE", listOf(Color(0xFF0D47A1), Color(0xFF2196F3))),
-        MediaRecommendation("Thriller", "Michael Jackson", "MUSIC", listOf(Color(0xFF4A148C), Color(0xFF9C27B0))),
-        MediaRecommendation("Pride and Prejudice", "Jane Austen", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)))
-    )
+      val sampleMedia = listOf(
+          MediaRecommendation("The Great Gatsby", "F. Scott Fitzgerald", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)), imageRes = R.drawable.sample_cover_gatsby),
+          MediaRecommendation("Pride and Prejudice", "Jane Austen", "BOOK", listOf(Color(0xFF3E1A3D), Color(0xFF8E3A7C)), imageRes = R.drawable.sample_cover_pride),
+          MediaRecommendation("Moby-Dick", "Herman Melville", "BOOK", listOf(Color(0xFF0A2A35), Color(0xFF134B5F)), imageRes = R.drawable.sample_cover_mobydick),
+          MediaRecommendation("The Adventures of Sherlock Holmes", "Arthur Conan Doyle", "BOOK", listOf(Color(0xFF1A1A1A), Color(0xFFC0A062)), imageRes = R.drawable.sample_cover_sherlock),
+          MediaRecommendation("Little Women", "Louisa May Alcott", "BOOK", listOf(Color(0xFF713F2B), Color(0xFFD89C77)), imageRes = R.drawable.sample_cover_pride),
+          MediaRecommendation("Treasure Island", "Robert Louis Stevenson", "BOOK", listOf(Color(0xFF2E4A33), Color(0xFF7AA17A)), imageRes = R.drawable.sample_cover_mobydick)
+      )
+
+      val sampleClassics = remember {
+          listOf(
+              SampleClassic(
+                  id = "gutenberg-1342",
+                  title = "Pride and Prejudice",
+                  author = "Jane Austen",
+                  description = "Elizabeth Bennet navigates manners, morality, and an unforgettable romance in Georgian England.",
+                  downloadUrl = "https://www.gutenberg.org/cache/epub/1342/pg1342.epub",
+                  fileName = "Pride_and_Prejudice.epub",
+                  coverRes = R.drawable.sample_cover_pride
+              ),
+              SampleClassic(
+                  id = "gutenberg-1661",
+                  title = "The Adventures of Sherlock Holmes",
+                  author = "Arthur Conan Doyle",
+                  description = "Twelve iconic mysteries introduce Sherlock Holmes and Dr. Watson's legendary partnership.",
+                  downloadUrl = "https://www.gutenberg.org/cache/epub/1661/pg1661.epub",
+                  fileName = "Adventures_of_Sherlock_Holmes.epub",
+                  coverRes = R.drawable.sample_cover_sherlock
+              ),
+              SampleClassic(
+                  id = "gutenberg-2701",
+                  title = "Moby-Dick; or, The Whale",
+                  author = "Herman Melville",
+                  description = "Captain Ahab's epic pursuit of the white whale explores obsession, fate, and the sea's fury.",
+                  downloadUrl = "https://www.gutenberg.org/cache/epub/2701/pg2701.epub",
+                  fileName = "Moby_Dick.epub",
+                  coverRes = R.drawable.sample_cover_mobydick
+              )
+          )
+      }
+
+      val sampleDownloads by viewModel.sampleDownloads.collectAsState()
+
+      LaunchedEffect(sampleClassics) {
+          viewModel.syncSampleStatuses(sampleClassics)
+      }
 
 
       val mainContent: @Composable (Modifier) -> Unit = { contentModifier ->
@@ -1140,9 +1182,9 @@ fun LibraryListScreen(
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                         )
                     )
-                }
-            }
-        ) { paddingValues ->
+                  }
+              }
+          ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -1151,13 +1193,13 @@ fun LibraryListScreen(
                 contentPadding = PaddingValues(bottom = 24.dp)
             ) {
                 // Continue Reading/Watching section
-                item {
+                  item {
                     ContinueReadingSection(onOpenItem = { id -> navController.navigate("open/$id") })
                 }
 
                 // Recommendations Header
-                item {
-                    Row(
+                  item {
+                      Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
@@ -1181,8 +1223,8 @@ fun LibraryListScreen(
                 }
 
                 // Poster Grid
-                item {
-                    LazyVerticalGrid(
+                  item {
+                      LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 160.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1192,7 +1234,7 @@ fun LibraryListScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
 
-                        gridItems(sampleMedia) { media ->
+                          itemsIndexed(sampleMedia) { index, media ->
                             MediaPosterCard(
                                 media = media,
                                 onClick = {
@@ -1201,14 +1243,15 @@ fun LibraryListScreen(
                                         "MOVIE" -> navController.navigate("videos")
                                         "MUSIC" -> navController.navigate("music")
                                     }
-                                }
+                                  },
+                                  appearanceIndex = index
                             )
                         }
                     }
                 }
                 
                 // Quick Access Features
-                item {
+                  item {
                     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Text(
                             text = "Quick Access",
@@ -1217,7 +1260,7 @@ fun LibraryListScreen(
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
                         
-                        Row(
+                          Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
@@ -1239,7 +1282,7 @@ fun LibraryListScreen(
                         
                         Spacer(modifier = Modifier.height(12.dp))
                         
-                        Row(
+                          Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
@@ -1260,6 +1303,19 @@ fun LibraryListScreen(
                         }
                     }
                 }
+
+                  item {
+                      SampleClassicsSection(
+                          samples = sampleClassics,
+                          downloadStatuses = sampleDownloads,
+                          onDownload = viewModel::downloadSample,
+                          onRemove = viewModel::removeSample,
+                          onOpen = { filePath ->
+                              val encodedPath = Uri.encode(filePath)
+                              navController.navigate("reader_path/$encodedPath")
+                          }
+                      )
+                  }
             }
         }
         
@@ -1303,6 +1359,174 @@ fun LibraryListScreen(
                 rootFolderPicker.launch(null)
             }
         )
+    }
+}
+
+@Composable
+private fun SampleClassicsSection(
+    samples: List<SampleClassic>,
+    downloadStatuses: Map<String, SampleDownloadStatus>,
+    onDownload: (SampleClassic) -> Unit,
+    onRemove: (SampleClassic) -> Unit,
+    onOpen: (String) -> Unit
+) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            text = "Free Classics",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "Enjoy hand-picked Project Gutenberg EPUBs. Downloaded books live inside the app, and you can remove them any time.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+        )
+
+        samples.forEachIndexed { index, sample ->
+            val status = downloadStatuses[sample.id] ?: SampleDownloadStatus.NotDownloaded
+            SampleClassicCard(
+                sample = sample,
+                status = status,
+                onDownload = { onDownload(sample) },
+                onRemove = { onRemove(sample) },
+                onOpen = onOpen,
+                appearanceIndex = index
+            )
+
+            if (index != samples.lastIndex) {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SampleClassicCard(
+    sample: SampleClassic,
+    status: SampleDownloadStatus,
+    onDownload: () -> Unit,
+    onRemove: () -> Unit,
+    onOpen: (String) -> Unit,
+    appearanceIndex: Int
+) {
+    val isDownloading = status is SampleDownloadStatus.Downloading
+    val isDownloaded = status is SampleDownloadStatus.Downloaded
+    val errorMessage = (status as? SampleDownloadStatus.Error)?.message
+
+    var targetVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { targetVisible = true }
+
+    val alpha by animateFloatAsState(
+        targetValue = if (targetVisible) 1f else 0f,
+        animationSpec = tween(durationMillis = 320, delayMillis = appearanceIndex * 60),
+        label = "classicCardAlpha"
+    )
+    val translationX by animateFloatAsState(
+        targetValue = if (targetVisible) 0f else 24f,
+        animationSpec = tween(durationMillis = 320, delayMillis = appearanceIndex * 60),
+        label = "classicCardTranslation"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                this.alpha = alpha
+                this.translationX = translationX
+            },
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(sample.coverRes),
+                contentDescription = sample.title,
+                modifier = Modifier
+                    .size(width = 96.dp, height = 136.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = sample.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = sample.author,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+                Text(
+                    text = sample.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    when {
+                        isDownloading -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .size(24.dp),
+                                strokeWidth = 2.5.dp
+                            )
+                            Text(
+                                text = "Downloading...",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        isDownloaded -> {
+                            Button(
+                                onClick = { onOpen((status as SampleDownloadStatus.Downloaded).path) },
+                                shape = RoundedCornerShape(999.dp)
+                            ) {
+                                Text("Open")
+                            }
+                            TextButton(onClick = onRemove) {
+                                Text("Remove")
+                            }
+                        }
+
+                        else -> {
+                            Button(
+                                onClick = onDownload,
+                                shape = RoundedCornerShape(999.dp)
+                            ) {
+                                Text("Download EPUB")
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
