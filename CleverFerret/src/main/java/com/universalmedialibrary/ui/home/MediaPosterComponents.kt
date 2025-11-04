@@ -34,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -140,10 +141,10 @@ fun MediaPosterCard(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(132.dp)
-                    .graphicsLayer {
-                        alpha = 0.16f
-                        rotationZ = -8f
-                    },
+                      .graphicsLayer {
+                          this.alpha = 0.16f
+                          rotationZ = -8f
+                      },
                 tint = Color.White
             )
 
