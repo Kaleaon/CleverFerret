@@ -32,8 +32,8 @@ android {
         applicationId = "com.universalmedialibrary"
         minSdk = 26  // Android 8.0+ for broad device compatibility
         targetSdk = 36  // Android 15 (latest)
-        versionCode = 7
-        versionName = "1.5.5"
+        versionCode = 8
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
