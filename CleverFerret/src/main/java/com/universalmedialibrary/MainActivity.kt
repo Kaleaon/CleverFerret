@@ -35,6 +35,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -90,6 +91,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -893,6 +895,8 @@ fun LibraryListScreen(
     var dbFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedLibraryForImport by remember { mutableStateOf<Library?>(null) }
     val mediaControlsState = rememberMediaControlsState()
+      val configuration = LocalConfiguration.current
+      val isCompactWidth = configuration.screenWidthDp < 600
 
     // Launcher for picking the root folder of the Calibre library.
     // This is triggered after the user selects the target library.
@@ -944,103 +948,9 @@ fun LibraryListScreen(
     )
 
 
-    Row(modifier = Modifier.fillMaxSize()) {
-        // Navigation Rail
-        NavigationRail(
-            modifier = Modifier.fillMaxHeight(),
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Logo/Icon at top
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = "CleverFerret",
-                modifier = Modifier
-                    .size(48.dp)
-                    .padding(bottom = 24.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                label = { Text("Home") },
-                selected = selectedNavItem == 0,
-                onClick = { selectedNavItem = 0 }
-            )
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
-                label = { Text("Libraries") },
-                selected = selectedNavItem == 1,
-                onClick = { 
-                    selectedNavItem = 1
-                    navController.navigate("media_library")
-                }
-            )
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.MusicNote, contentDescription = "Music") },
-                label = { Text("Music") },
-                selected = selectedNavItem == 2,
-                onClick = { 
-                    selectedNavItem = 2
-                    navController.navigate("music")
-                }
-            )
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.Movie, contentDescription = "Videos") },
-                label = { Text("Videos") },
-                selected = selectedNavItem == 3,
-                onClick = { 
-                    selectedNavItem = 3
-                    navController.navigate("videos")
-                }
-            )
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
-                label = { Text("Podcasts") },
-                selected = selectedNavItem == 4,
-                onClick = { 
-                    selectedNavItem = 4
-                    navController.navigate("podcasts")
-                }
-            )
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.Radio, contentDescription = "Radio") },
-                label = { Text("Radio") },
-                selected = selectedNavItem == 5,
-                onClick = { 
-                    selectedNavItem = 5
-                    navController.navigate("radio")
-                }
-            )
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.Headphones, contentDescription = "Audiobooks") },
-                label = { Text("Audiobooks") },
-                selected = selectedNavItem == 6,
-                onClick = { 
-                    selectedNavItem = 6
-                    navController.navigate("audiobook_library")
-                }
-            )
-            
-            Spacer(modifier = Modifier.weight(1f))
-            
-            NavigationRailItem(
-                icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                label = { Text("Settings") },
-                selected = selectedNavItem == 7,
-                onClick = { 
-                    selectedNavItem = 7
-                    navController.navigate("settings")
-                }
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Main Content Area with Media Controls
-        Box(modifier = Modifier.fillMaxSize()) {
-            Scaffold(
+      val mainContent: @Composable (Modifier) -> Unit = { contentModifier ->
+          Box(modifier = contentModifier.fillMaxSize()) {
+              Scaffold(
                 topBar = {
                 Column {
                     TopAppBar(
@@ -1100,8 +1010,111 @@ fun LibraryListScreen(
                                         navController.navigate("theme_preview")
                                     }
                                 )
-                            }
-                        }
+          }
+      }
+
+      if (isCompactWidth) {
+          mainContent(Modifier.fillMaxSize())
+      } else {
+          Row(modifier = Modifier.fillMaxSize()) {
+              NavigationRail(
+                  modifier = Modifier.fillMaxHeight(),
+                  containerColor = MaterialTheme.colorScheme.surfaceVariant
+              ) {
+                  Spacer(modifier = Modifier.height(16.dp))
+                  
+                  Icon(
+                      imageVector = Icons.Default.Favorite,
+                      contentDescription = "CleverFerret",
+                      modifier = Modifier
+                          .size(48.dp)
+                          .padding(bottom = 24.dp),
+                      tint = MaterialTheme.colorScheme.primary
+                  )
+                  
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                      label = { Text("Home") },
+                      selected = selectedNavItem == 0,
+                      onClick = { selectedNavItem = 0 }
+                  )
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
+                      label = { Text("Libraries") },
+                      selected = selectedNavItem == 1,
+                      onClick = {
+                          selectedNavItem = 1
+                          navController.navigate("media_library")
+                      }
+                  )
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.MusicNote, contentDescription = "Music") },
+                      label = { Text("Music") },
+                      selected = selectedNavItem == 2,
+                      onClick = {
+                          selectedNavItem = 2
+                          navController.navigate("music")
+                      }
+                  )
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.Movie, contentDescription = "Videos") },
+                      label = { Text("Videos") },
+                      selected = selectedNavItem == 3,
+                      onClick = {
+                          selectedNavItem = 3
+                          navController.navigate("videos")
+                      }
+                  )
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                      label = { Text("Podcasts") },
+                      selected = selectedNavItem == 4,
+                      onClick = {
+                          selectedNavItem = 4
+                          navController.navigate("podcasts")
+                      }
+                  )
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.Radio, contentDescription = "Radio") },
+                      label = { Text("Radio") },
+                      selected = selectedNavItem == 5,
+                      onClick = {
+                          selectedNavItem = 5
+                          navController.navigate("radio")
+                      }
+                  )
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.Headphones, contentDescription = "Audiobooks") },
+                      label = { Text("Audiobooks") },
+                      selected = selectedNavItem == 6,
+                      onClick = {
+                          selectedNavItem = 6
+                          navController.navigate("audiobook_library")
+                      }
+                  )
+                  
+                  Spacer(modifier = Modifier.weight(1f))
+                  
+                  NavigationRailItem(
+                      icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                      label = { Text("Settings") },
+                      selected = selectedNavItem == 7,
+                      onClick = {
+                          selectedNavItem = 7
+                          navController.navigate("settings")
+                      }
+                  )
+                  
+                  Spacer(modifier = Modifier.height(16.dp))
+              }
+
+              mainContent(
+                  Modifier
+                      .weight(1f)
+                      .fillMaxHeight()
+              )
+          }
+      }
                     )
                     
                     // Search Bar
