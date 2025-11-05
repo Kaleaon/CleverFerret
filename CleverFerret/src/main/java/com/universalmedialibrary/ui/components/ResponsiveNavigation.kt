@@ -83,6 +83,20 @@ object NavigationItems {
             showInBottomNav = true
         ),
         NavigationItem(
+            route = "visualizer",
+            label = "Visualizer",
+            icon = { Icon(PhosphorIcons.Equalizer, contentDescription = "Visualizer") },
+            selectedIcon = { Icon(PhosphorIcons.Equalizer, contentDescription = "Visualizer") },
+            showInBottomNav = true
+        ),
+        NavigationItem(
+            route = "ambient",
+            label = "Ambient",
+            icon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") },
+            selectedIcon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") },
+            showInBottomNav = true
+        ),
+        NavigationItem(
             route = "podcasts",
             label = "Podcasts",
             icon = { Icon(PhosphorIcons.Microphone, contentDescription = "Podcasts") },
@@ -119,130 +133,86 @@ object NavigationItems {
 }
 
 /**
- * Responsive Navigation Scaffold
- * Automatically switches between BottomNavigation and NavigationRail
+ * Bottom navigation bar for phone screens
  */
 @Composable
-fun ResponsiveNavigationScaffold(
-    navController: NavController,
-    modifier: Modifier = Modifier,
-    topBar: @Composable () -> Unit = {},
-    floatingActionButton: @Composable () -> Unit = {},
-    content: @Composable (PaddingValues) -> Unit
-) {
-    val configuration = LocalConfiguration.current
-    val isCompact = configuration.screenWidthDp < 600
+fun BottomNavigationBar(navController: NavController) {
+    val bottomNavItems = NavigationItems.bottomNavItems
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    if (isCompact) {
-        // Phone: Bottom Navigation
-        Scaffold(
-            modifier = modifier,
-            topBar = topBar,
-            bottomBar = {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 3.dp
-                ) {
-                    NavigationItems.bottomNavItems.forEach { item ->
-                        val selected = currentDestination?.hierarchy?.any {
-                            it.route?.startsWith(item.route) == true
-                        } == true
-
-                        NavigationBarItem(
-                            icon = { if (selected) item.selectedIcon() else item.icon() },
-                            label = { Text(item.label) },
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        )
+    NavigationBar(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        bottomNavItems.forEach { item ->
+            NavigationBarItem(
+                icon = { item.icon() },
+                label = { Text(item.label) },
+                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                onClick = {
+                    navController.navigate(item.route) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                        // Restore state when reselecting a previously selected item
+                        restoreState = true
                     }
                 }
-            },
-            floatingActionButton = floatingActionButton,
-            content = content
-        )
-    } else {
-        // Tablet/Desktop: Navigation Rail
-        Row(modifier = modifier.fillMaxSize()) {
-            NavigationRail(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.fillMaxHeight()
-            ) {
-                Spacer(Modifier.height(16.dp))
-                
-                NavigationItems.items.forEach { item ->
-                    val selected = currentDestination?.hierarchy?.any {
-                        it.route?.startsWith(item.route) == true
-                    } == true
-
-                    NavigationRailItem(
-                        icon = { if (selected) item.selectedIcon() else item.icon() },
-                        label = { Text(item.label) },
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        alwaysShowLabel = false
-                    )
-                }
-            }
-
-            Scaffold(
-                topBar = topBar,
-                floatingActionButton = floatingActionButton,
-                content = content,
-                modifier = Modifier.fillMaxSize()
             )
         }
     }
 }
 
 /**
- * Navigation Drawer for additional items (can be accessed via hamburger menu)
+ * Navigation rail for tablet/desktop screens
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NavigationDrawerContent(
-    navController: NavController,
-    onItemClick: () -> Unit = {}
-) {
-    ModalDrawerSheet {
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "CleverFerret",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-        )
-        Divider()
-        Spacer(Modifier.height(8.dp))
-        
+fun NavigationRailBar(navController: NavController) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    NavigationRail(
+        modifier = Modifier.fillMaxHeight()
+    ) {
         NavigationItems.items.forEach { item ->
-            NavigationDrawerItem(
+            NavigationRailItem(
                 icon = { item.icon() },
                 label = { Text(item.label) },
-                selected = false,
+                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                 onClick = {
-                    navController.navigate(item.route)
-                    onItemClick()
-                },
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
+        }
+    }
+}
+
+/**
+ * Responsive navigation that switches between bottom nav and rail based on screen size
+ */
+@Composable
+fun ResponsiveNavigation(navController: NavController) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    if (screenWidth < 600.dp) {
+        BottomNavigationBar(navController)
+    } else {
+        Row(modifier = Modifier.fillMaxSize()) {
+            NavigationRailBar(navController)
+            Spacer(modifier = Modifier.width(16.dp))
         }
     }
 }

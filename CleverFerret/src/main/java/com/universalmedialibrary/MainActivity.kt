@@ -142,6 +142,8 @@ import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.ui.components.MediaControlsBar
 import com.universalmedialibrary.ui.components.rememberMediaControlsState
+import com.universalmedialibrary.ui.ambient.AmbientSoundScreen
+import com.universalmedialibrary.ui.ambient.AmbientSoundViewModel
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
@@ -785,6 +787,17 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                    onBack = { navController.navigateUp() },
                    onNavigateToPresets = { navController.navigate("visualizer_presets") },
                    viewModel = visualizerViewModel
+               )
+           }
+           
+           // Ambient sound route
+           composable("ambient") { backStackEntry ->
+               val ambientViewModel: com.universalmedialibrary.ui.ambient.AmbientSoundViewModel = 
+                   androidx.hilt.navigation.compose.hiltViewModel(backStackEntry)
+               
+               com.universalmedialibrary.ui.ambient.AmbientSoundScreen(
+                   onBack = { navController.navigateUp() },
+                   viewModel = ambientViewModel
                )
            }
            
