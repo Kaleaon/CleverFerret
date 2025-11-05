@@ -424,5 +424,5 @@ The only missing feature (speech balloon detection) would require months of spec
 - **ML Kit Documentation:** https://developers.google.com/ml-kit/vision/text-recognition
 - **Commons Compress:** https://commons.apache.org/proper/commons-compress/
 - **CleverFerret OCR Usage Guide:** [OCR_USAGE.md](./OCR_USAGE.md)
-- **Seeneva Features Analysis:** [SEENEVA_FEATURES_ANALYSIS.md](./SEENEVA_FEATURES_ANALYSIS.md)
+- **Seeneva Features Analysis:** [research/SEENEVA_FEATURES_ANALYSIS.md](./research/SEENEVA_FEATURES_ANALYSIS.md)
 - **OCR Integration Summary:** [OCR_INTEGRATION_SUMMARY.md](./OCR_INTEGRATION_SUMMARY.md)

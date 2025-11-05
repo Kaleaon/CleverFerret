@@ -52,9 +52,15 @@ Implementation guides for major features and components.
 - [Smart Analysis Implementation](features/SMART_ANALYSIS_IMPLEMENTATION.md) - Content analysis and metadata extraction
 - [Comprehensive Video Support](features/COMPREHENSIVE_VIDEO_SUPPORT.md) - Video playback capabilities
 - [Video Capabilities Summary](features/VIDEO_CAPABILITIES_SUMMARY.md) - Video feature overview
+- [Librera Enhancements Summary](features/ENHANCEMENT_SUMMARY.md) - Reading enhancements from LibreraReader
+- [Badreads Integration](features/BADREADS_INTEGRATION.md) - Goodreads-inspired library features
+- [MIDI Support](features/MIDI_SUPPORT.md) - MuseScore-inspired MIDI experience
+- [Advanced Effects Guide](features/ADVANCED_EFFECTS_GUIDE.md) - Theme-wide visual effects system
+- [Screen Timeout Feature](features/SCREEN_TIMEOUT_FEATURE.md) - Extended reader screen timeout controls
 
 **UI & Design:**
 - [Metadata Editor UI Design](features/UI_DESIGN_METADATA_EDITOR.md) - Metadata editing interface design
+- [Settings Integration](features/SETTINGS_INTEGRATION.md) - Enhanced reader settings controls
 
 **Komga Analysis (NEW):**
 - [📊 Komga Features Analysis](../KOMGA_FEATURES_ANALYSIS.md) - Comprehensive analysis of Komga features and recommendations
@@ -82,6 +88,14 @@ APK analysis, testing procedures, and quality assurance documentation.
 **APK & Installation:**
 - [APK Decompilation Requirements](testing/APK_DECOMPILATION_REQUIREMENTS.md) - APK analysis procedures
 - [APK Installation Fixes](testing/APK_INSTALLATION_FIXES.md) - Installation troubleshooting
+- [Comprehensive Test Results](./test_result.md) - Backend-focused PWA testing summary
+
+### 🔬 Research & Competitive Analysis (`/research/`)
+- [Myne Feature Analysis](research/MYNE_FEATURE_ANALYSIS.md) - Competitive review of Myne reader
+- [Seeneva Features Analysis](research/SEENEVA_FEATURES_ANALYSIS.md) - OCR and reader capability comparison
+
+### 📈 Status & Progress (`/status/`)
+- [Code Polish Summary](status/CODE_POLISH_SUMMARY.md) - Snapshot of repository cleanup efforts
 
 ## 📋 Project Issues & Planning
 
