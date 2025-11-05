@@ -50,11 +50,25 @@ Welcome to the CleverFerret documentation. This index provides a complete overvi
 - [docs/COMPREHENSIVE_FEATURE_DOCUMENTATION.md](docs/COMPREHENSIVE_FEATURE_DOCUMENTATION.md) - All features
 - [docs/PLAYBACK_QUEUE_WIDGET_INTEGRATION.md](docs/PLAYBACK_QUEUE_WIDGET_INTEGRATION.md) - Widget integration
 - [docs/REFERENCE_MAP.md](docs/REFERENCE_MAP.md) - Feature reference map
+- [docs/features/BADREADS_INTEGRATION.md](docs/features/BADREADS_INTEGRATION.md) - Goodreads-inspired features
+- [docs/features/MIDI_SUPPORT.md](docs/features/MIDI_SUPPORT.md) - MuseScore-inspired MIDI system
+- [docs/features/ENHANCEMENT_SUMMARY.md](docs/features/ENHANCEMENT_SUMMARY.md) - LibreraReader enhancements overview
+- [docs/features/ADVANCED_EFFECTS_GUIDE.md](docs/features/ADVANCED_EFFECTS_GUIDE.md) - Advanced theme effects
+- [docs/features/SCREEN_TIMEOUT_FEATURE.md](docs/features/SCREEN_TIMEOUT_FEATURE.md) - Extended reader timeout controls
+- [docs/features/SETTINGS_INTEGRATION.md](docs/features/SETTINGS_INTEGRATION.md) - Enhanced settings integration
 
 ### Testing & Quality
 - [CODE_QUALITY.md](CODE_QUALITY.md) - Quality tools and processes
 - [docs/AUTOMATED_DEBUG_SYSTEM.md](docs/AUTOMATED_DEBUG_SYSTEM.md) - Debugging tools
 - [docs/AI_REVIEW_SYSTEM.md](docs/AI_REVIEW_SYSTEM.md) - Review automation
+- [docs/test_result.md](docs/test_result.md) - Backend-focused PWA testing summary
+
+### Research & Competitive Analysis
+- [docs/research/MYNE_FEATURE_ANALYSIS.md](docs/research/MYNE_FEATURE_ANALYSIS.md) - Competitive Myne reader analysis
+- [docs/research/SEENEVA_FEATURES_ANALYSIS.md](docs/research/SEENEVA_FEATURES_ANALYSIS.md) - OCR and vision feature comparison
+
+### Status & Progress
+- [docs/status/CODE_POLISH_SUMMARY.md](docs/status/CODE_POLISH_SUMMARY.md) - Repository cleanup snapshot
 
 ### Historical Documentation
 - **[archive/README.md](archive/README.md)** - Archive organization guide
@@ -67,6 +81,7 @@ Welcome to the CleverFerret documentation. This index provides a complete overvi
 - **[archive/planning-docs/](archive/planning-docs/)** - Planning and roadmaps
 - **[archive/research-docs/](archive/research-docs/)** - Research findings
 - **[archive/testing-docs/](archive/testing-docs/)** - Test reports
+- **[archive/feature-docs/MIDI_IMPLEMENTATION_COMPLETE.md](archive/feature-docs/MIDI_IMPLEMENTATION_COMPLETE.md)** - Superseded MIDI completion summary
 
 ## 🔗 External Resources
 

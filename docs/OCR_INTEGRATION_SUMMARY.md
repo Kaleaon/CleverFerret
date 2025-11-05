@@ -112,7 +112,7 @@ Created comprehensive documentation:
    - API reference
    - Troubleshooting
 
-2. **SEENEVA_FEATURES_ANALYSIS.md**
+2. **research/SEENEVA_FEATURES_ANALYSIS.md**
    - Feature comparison
    - Implementation status
    - Future roadmap
@@ -373,6 +373,6 @@ Successfully integrated on-device OCR into CleverFerret using Google ML Kit, pro
 ## Related Documentation
 
 - [OCR_USAGE.md](./OCR_USAGE.md) - User and developer guide
-- [SEENEVA_FEATURES_ANALYSIS.md](./SEENEVA_FEATURES_ANALYSIS.md) - Feature comparison
+- [research/SEENEVA_FEATURES_ANALYSIS.md](./research/SEENEVA_FEATURES_ANALYSIS.md) - Feature comparison
 - [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) - Database documentation
 - [DEVELOPER_GUIDE.md](../DEVELOPER_GUIDE.md) - General development guide
