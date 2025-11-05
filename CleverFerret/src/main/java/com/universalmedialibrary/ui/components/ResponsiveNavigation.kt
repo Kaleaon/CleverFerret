@@ -1,225 +1,169 @@
 package com.universalmedialibrary.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.input.pointer.awaitEachGesture
+import androidx.compose.ui.input.pointer.awaitFirstDown
+import androidx.compose.ui.input.pointer.awaitPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.universalmedialibrary.ui.icons.PhosphorIcons
-
-/**
- * Responsive Navigation Component for Android
- * 
- * Adapts navigation based on screen size:
- * - Phone (< 600dp): BottomNavigation for thumb-friendly access
- * - Tablet/Desktop (>= 600dp): NavigationRail for desktop-like experience
- * 
- * Matches PWA implementation for consistent UX across platforms
- */
+import com.universalmedialibrary.data.settings.BottomGearPosition
 
 data class NavigationItem(
     val route: String,
     val label: String,
     val icon: @Composable () -> Unit,
     val selectedIcon: @Composable () -> Unit = icon,
-    val showInBottomNav: Boolean = false
+    val routeMatch: String? = null
 )
 
-object NavigationItems {
-    val items = listOf(
-        NavigationItem(
-            route = "home",
-            label = "Home",
-            icon = { Icon(PhosphorIcons.House, contentDescription = "Home") },
-            selectedIcon = { Icon(PhosphorIcons.HouseFill, contentDescription = "Home") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "library_details/1",
-            label = "Books",
-            icon = { Icon(PhosphorIcons.Book, contentDescription = "Books") },
-            selectedIcon = { Icon(PhosphorIcons.BookFill, contentDescription = "Books") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "library_details/3",
-            label = "Comics",
-            icon = { Icon(PhosphorIcons.Books, contentDescription = "Comics") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "library_details/2",
-            label = "Audiobooks",
-            icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Audiobooks") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "music",
-            label = "Music",
-            icon = { Icon(PhosphorIcons.MusicNote, contentDescription = "Music") },
-            selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "library_details/4",
-            label = "Movies",
-            icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Movies") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "library_details/5",
-            label = "TV Shows",
-            icon = { Icon(PhosphorIcons.Television, contentDescription = "TV Shows") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "radio",
-            label = "Radio",
-            icon = { Icon(PhosphorIcons.Radio, contentDescription = "Radio") },
-            showInBottomNav = true
-        ),
-        NavigationItem(
-            route = "podcasts",
-            label = "Podcasts",
-            icon = { Icon(PhosphorIcons.Microphone, contentDescription = "Podcasts") },
-            showInBottomNav = false
-        ),
-        NavigationItem(
-            route = "library_details/7",
-            label = "Documents",
-            icon = { Icon(PhosphorIcons.FileText, contentDescription = "Documents") },
-            showInBottomNav = false
-        ),
-        NavigationItem(
-            route = "collections",
-            label = "Collections",
-            icon = { Icon(PhosphorIcons.Stack, contentDescription = "Collections") },
-            showInBottomNav = false
-        ),
-        NavigationItem(
-            route = "search",
-            label = "Search",
-            icon = { Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search") },
-            showInBottomNav = false
-        ),
-        NavigationItem(
-            route = "settings",
-            label = "Settings",
-            icon = { Icon(PhosphorIcons.Gear, contentDescription = "Settings") },
-            selectedIcon = { Icon(PhosphorIcons.GearFill, contentDescription = "Settings") },
-            showInBottomNav = false
-        )
-    )
-
-    val bottomNavItems = items.filter { it.showInBottomNav }
-}
-
-/**
- * Responsive Navigation Scaffold
- * Automatically switches between BottomNavigation and NavigationRail
- */
 @Composable
 fun ResponsiveNavigationScaffold(
     navController: NavController,
+    bottomNavItems: List<NavigationItem>,
+    settingsItem: NavigationItem,
+    gearPosition: BottomGearPosition,
+    bottomBarVisible: Boolean,
+    onBottomBarVisibleChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val isCompact = configuration.screenWidthDp < 600
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    if (isCompact) {
-        // Phone: Bottom Navigation
+    val density = LocalDensity.current
+    val gestureThreshold = with(density) { 96.dp.toPx() }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .bottomBarGestureDetector(
+                isVisible = bottomBarVisible,
+                onHide = { onBottomBarVisibleChange(false) },
+                onShow = { onBottomBarVisibleChange(true) },
+                hideThreshold = gestureThreshold,
+                showThreshold = gestureThreshold
+            )
+    ) {
         Scaffold(
-            modifier = modifier,
             topBar = topBar,
-            bottomBar = {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 3.dp
-                ) {
-                    NavigationItems.bottomNavItems.forEach { item ->
-                        val selected = currentDestination?.hierarchy?.any {
-                            it.route?.startsWith(item.route) == true
-                        } == true
-
-                        NavigationBarItem(
-                            icon = { if (selected) item.selectedIcon() else item.icon() },
-                            label = { Text(item.label) },
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        )
-                    }
-                }
-            },
             floatingActionButton = floatingActionButton,
-            content = content
-        )
-    } else {
-        // Tablet/Desktop: Navigation Rail
-        Row(modifier = modifier.fillMaxSize()) {
-            NavigationRail(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.fillMaxHeight()
-            ) {
-                Spacer(Modifier.height(16.dp))
-                
-                NavigationItems.items.forEach { item ->
-                    val selected = currentDestination?.hierarchy?.any {
-                        it.route?.startsWith(item.route) == true
-                    } == true
-
-                    NavigationRailItem(
-                        icon = { if (selected) item.selectedIcon() else item.icon() },
-                        label = { Text(item.label) },
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        alwaysShowLabel = false
+            bottomBar = {
+                AnimatedVisibility(
+                    visible = bottomBarVisible,
+                    enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                    exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
+                ) {
+                    ScrollableBottomBar(
+                        navController = navController,
+                        items = bottomNavItems,
+                        settingsItem = settingsItem,
+                        gearPosition = gearPosition,
+                        currentDestination = currentDestination
                     )
                 }
-            }
+            },
+            content = content
+        )
+    }
+}
 
-            Scaffold(
-                topBar = topBar,
-                floatingActionButton = floatingActionButton,
-                content = content,
-                modifier = Modifier.fillMaxSize()
+@Composable
+private fun ScrollableBottomBar(
+    navController: NavController,
+    items: List<NavigationItem>,
+    settingsItem: NavigationItem,
+    gearPosition: BottomGearPosition,
+    currentDestination: NavDestination?
+) {
+    val scrollState = rememberScrollState()
+
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 3.dp
+    ) {
+        if (gearPosition == BottomGearPosition.LEFT) {
+            NavigationBarEntry(
+                navController = navController,
+                item = settingsItem,
+                currentDestination = currentDestination
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .horizontalScroll(scrollState),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEach { item ->
+                NavigationBarEntry(
+                    navController = navController,
+                    item = item,
+                    currentDestination = currentDestination
+                )
+            }
+        }
+
+        if (gearPosition == BottomGearPosition.RIGHT) {
+            NavigationBarEntry(
+                navController = navController,
+                item = settingsItem,
+                currentDestination = currentDestination
             )
         }
     }
 }
 
-/**
- * Navigation Drawer for additional items (can be accessed via hamburger menu)
- */
+@Composable
+private fun RowScope.NavigationBarEntry(
+    navController: NavController,
+    item: NavigationItem,
+    currentDestination: NavDestination?
+) {
+    val selected = currentDestination.isDestinationSelected(item)
+
+    NavigationBarItem(
+        icon = { if (selected) item.selectedIcon() else item.icon() },
+        label = { Text(item.label) },
+        selected = selected,
+        onClick = {
+            navController.navigate(item.route) {
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationDrawerContent(
     navController: NavController,
+    navigationItems: List<NavigationItem>,
+    settingsItem: NavigationItem,
     onItemClick: () -> Unit = {}
 ) {
     ModalDrawerSheet {
@@ -231,12 +175,12 @@ fun NavigationDrawerContent(
         )
         Divider()
         Spacer(Modifier.height(8.dp))
-        
-        NavigationItems.items.forEach { item ->
+
+        (navigationItems + settingsItem).forEach { item ->
             NavigationDrawerItem(
                 icon = { item.icon() },
                 label = { Text(item.label) },
-                selected = false,
+                selected = currentRouteMatches(navController, item),
                 onClick = {
                     navController.navigate(item.route)
                     onItemClick()
@@ -244,5 +188,67 @@ fun NavigationDrawerContent(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
             )
         }
+    }
+}
+
+private fun NavDestination?.isDestinationSelected(item: NavigationItem): Boolean {
+    val candidates = buildList {
+        add(item.route)
+        item.routeMatch?.let { add(it) }
+    }
+
+    return this?.hierarchy?.any { destination ->
+        val route = destination.route
+        candidates.any { candidate ->
+            when {
+                candidate.contains("{") -> route == candidate
+                route == candidate -> true
+                else -> route?.startsWith(candidate) == true
+            }
+        }
+    } == true
+}
+
+private fun currentRouteMatches(navController: NavController, item: NavigationItem): Boolean {
+    val destination = navController.currentDestination
+    return destination.isDestinationSelected(item)
+}
+
+private fun Modifier.bottomBarGestureDetector(
+    isVisible: Boolean,
+    onHide: () -> Unit,
+    onShow: () -> Unit,
+    hideThreshold: Float,
+    showThreshold: Float
+): Modifier = pointerInput(isVisible, hideThreshold, showThreshold) {
+    awaitEachGesture {
+        awaitFirstDown(requireUnconsumed = false)
+        var pointerCount = 1
+        var cumulativeTwoFingerDelta = 0f
+        var cumulativeSingleFingerDelta = 0f
+        var hideTriggered = false
+        var showTriggered = false
+
+        do {
+            val event = awaitPointerEvent()
+            val changes = event.changes.filter { it.pressed }
+            pointerCount = changes.size
+
+            if (pointerCount >= 2) {
+                val averageDelta = changes.map { it.positionChange().y }.average().toFloat()
+                cumulativeTwoFingerDelta += averageDelta
+                if (!hideTriggered && isVisible && cumulativeTwoFingerDelta > hideThreshold) {
+                    hideTriggered = true
+                    onHide()
+                }
+            } else if (pointerCount == 1) {
+                val delta = changes.firstOrNull()?.positionChange()?.y ?: 0f
+                cumulativeSingleFingerDelta += delta
+                if (!showTriggered && !isVisible && cumulativeSingleFingerDelta < -showThreshold) {
+                    showTriggered = true
+                    onShow()
+                }
+            }
+        } while (changes.any { it.pressed })
     }
 }
