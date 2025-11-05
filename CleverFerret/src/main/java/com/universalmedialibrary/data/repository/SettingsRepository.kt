@@ -34,6 +34,7 @@ class SettingsRepository @Inject constructor(
         val API_SETTINGS = stringPreferencesKey("api_settings")
         val CACHE_LOCATION = stringPreferencesKey("cache_location")
         val MAX_CACHE_SIZE_MB = stringPreferencesKey("max_cache_size_mb")
+        val BOTTOM_GEAR_POSITION = stringPreferencesKey("bottom_gear_position")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -87,6 +88,10 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.MAX_CACHE_SIZE_MB]?.toIntOrNull() ?: 500
     }
 
+    val bottomGearPositionFlow: Flow<BottomGearPosition> = context.dataStore.data.map { preferences ->
+        BottomGearPosition.fromString(preferences[PreferencesKeys.BOTTOM_GEAR_POSITION])
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -132,6 +137,12 @@ class SettingsRepository @Inject constructor(
     suspend fun setMaxCacheSizeMB(sizeMB: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.MAX_CACHE_SIZE_MB] = sizeMB.toString()
+        }
+    }
+
+    suspend fun setBottomGearPosition(position: BottomGearPosition) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BOTTOM_GEAR_POSITION] = position.name
         }
     }
 }

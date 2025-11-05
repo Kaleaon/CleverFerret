@@ -74,8 +74,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -88,6 +86,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -139,6 +138,7 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
+import com.universalmedialibrary.ui.components.NavigationItem
 import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.ui.components.MediaControlsBar
 import com.universalmedialibrary.ui.components.rememberMediaControlsState
@@ -146,6 +146,8 @@ import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.ui.res.painterResource
+import com.universalmedialibrary.ui.icons.PhosphorIcons
+import java.util.Locale
 
 
 /**
@@ -266,6 +268,24 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(externalFileUri: Uri? = null) {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val mainViewModel: MainViewModel = hiltViewModel()
+    val libraries by mainViewModel.libraries.collectAsState()
+    val gearPosition by mainViewModel.bottomGearPosition.collectAsState()
+    var bottomBarVisible by rememberSaveable { mutableStateOf(true) }
+
+    val settingsItem = remember {
+        NavigationItem(
+            route = "settings",
+            label = "Settings",
+            icon = { Icon(PhosphorIcons.Gear, contentDescription = "Settings") },
+            selectedIcon = { Icon(PhosphorIcons.GearFill, contentDescription = "Settings") },
+            routeMatch = "settings"
+        )
+    }
+
+    val bottomNavItems = remember(libraries) {
+        buildBottomNavItems(libraries)
+    }
     
     // Handle external file opening
     LaunchedEffect(externalFileUri) {
@@ -298,6 +318,11 @@ fun AppNavigation(externalFileUri: Uri? = null) {
     // Wrap navigation in responsive scaffold
     ResponsiveNavigationScaffold(
         navController = navController,
+        bottomNavItems = bottomNavItems,
+        settingsItem = settingsItem,
+        gearPosition = gearPosition,
+        bottomBarVisible = bottomBarVisible,
+        onBottomBarVisibleChange = { bottomBarVisible = it },
         topBar = {
             // Top bar can be customized per screen if needed
         },
@@ -879,6 +904,66 @@ fun AppNavigation(externalFileUri: Uri? = null) {
            }
         }
     }
+}
+
+private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> {
+    val sortedLibraries = libraries.sortedBy { it.name.ifBlank { it.type }.lowercase(Locale.getDefault()) }
+
+    return buildList {
+        add(
+            NavigationItem(
+                route = "home",
+                label = "Home",
+                icon = { Icon(PhosphorIcons.House, contentDescription = "Home") },
+                selectedIcon = { Icon(PhosphorIcons.HouseFill, contentDescription = "Home") },
+                routeMatch = "home"
+            )
+        )
+
+        sortedLibraries.forEach { library ->
+            val label = library.name.ifBlank { library.type.replace('_', ' ') }
+            val iconVector = iconForLibraryType(library.type)
+            add(
+                NavigationItem(
+                    route = "library_details/${library.libraryId}",
+                    label = label,
+                    icon = { Icon(iconVector, contentDescription = label) },
+                    routeMatch = "library_details/{libraryId}"
+                )
+            )
+        }
+
+        add(
+            NavigationItem(
+                route = "music",
+                label = "Music",
+                icon = { Icon(PhosphorIcons.MusicNote, contentDescription = "Music") },
+                selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") },
+                routeMatch = "music"
+            )
+        )
+
+        add(
+            NavigationItem(
+                route = "radio",
+                label = "Radio",
+                icon = { Icon(PhosphorIcons.Radio, contentDescription = "Radio") },
+                routeMatch = "radio"
+            )
+        )
+    }
+}
+
+private fun iconForLibraryType(type: String?): ImageVector = when (type?.uppercase(Locale.getDefault())) {
+    "BOOK", "BOOKS", "LITERATURE" -> PhosphorIcons.Book
+    "COMIC", "COMICS", "GRAPHIC_NOVEL" -> PhosphorIcons.Books
+    "AUDIOBOOK", "AUDIOBOOKS" -> PhosphorIcons.Headphones
+    "MOVIE", "MOVIES", "FILM" -> PhosphorIcons.FilmSlate
+    "TV", "TV_SHOW", "TELEVISION", "SERIES" -> PhosphorIcons.Television
+    "MUSIC" -> PhosphorIcons.MusicNote
+    "DOCUMENT", "DOCUMENTS" -> PhosphorIcons.FileText
+    "PODCAST", "PODCASTS" -> PhosphorIcons.Microphone
+    else -> PhosphorIcons.Stack
 }
 
 
