@@ -970,20 +970,20 @@ class HDRadioViewModel @Inject constructor(
                 // In a production app, would show a toast or update error state
             }
         }
-
-  data class HDRadioUiState(
-      val showAddManualDialog: Boolean = false,
-      val showAddByZipDialog: Boolean = false,
-      val zipLookup: HDRadioZipLookupState = HDRadioZipLookupState(),
-      val message: String? = null,
-      val error: String? = null
-  )
-
-  data class HDRadioZipLookupState(
-      val zip: String = "",
-      val isLoading: Boolean = false,
-      val stations: List<HDRadioStation> = emptyList(),
-      val locationLabel: String? = null
-  )
     }
 }
+
+data class HDRadioUiState(
+    val showAddManualDialog: Boolean = false,
+    val showAddByZipDialog: Boolean = false,
+    val zipLookup: HDRadioZipLookupState = HDRadioZipLookupState(),
+    val message: String? = null,
+    val error: String? = null
+)
+
+data class HDRadioZipLookupState(
+    val zip: String = "",
+    val isLoading: Boolean = false,
+    val stations: List<HDRadioStation> = emptyList(),
+    val locationLabel: String? = null
+)
