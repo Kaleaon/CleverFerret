@@ -16,6 +16,7 @@ data class SecuritySettings(
     val encryptDatabase: Boolean = false,
     val requireAuthForExport: Boolean = true,
     val enableAuditLog: Boolean = false,
+    val allowScreenshots: Boolean = true, // Allow screenshots in secure mode
     val lastSecurityCheck: Long = System.currentTimeMillis()
 )
 

@@ -20,7 +20,18 @@ data class GeneralSettings(
     val maxCacheSize: Long = 1024L * 1024L * 1024L, // 1GB
     val enableDebugMode: Boolean = false,
     val lastBackup: Long = 0L,
-    val appVersion: String = "1.0.0"
+    val appVersion: String = "1.0.0",
+    // Theme and appearance settings
+    val themePalette: String = "BURGUNDY_ROSE_GOLD",
+    val defaultFontSize: Int = 16,
+    val useDynamicColors: Boolean = true,
+    val enableAnimations: Boolean = true,
+    // Playback settings
+    val autoPlayNext: Boolean = true,
+    val defaultPlaybackSpeed: Float = 1.0f,
+    val rememberPlaybackPosition: Boolean = true,
+    val skipIntroSeconds: Int = 0,
+    val skipOutroSeconds: Int = 0
 )
 
 enum class AppTheme {
