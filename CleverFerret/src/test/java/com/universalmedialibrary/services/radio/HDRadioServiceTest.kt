@@ -287,6 +287,54 @@ class HDRadioServiceTest {
     }
 
     @Test
+    fun `test add stations appends new entries`() = runTest {
+        val initial = hdRadioService.hdStations.first()
+        val newStation = HDRadioStation(
+            callSign = "TEST-HD1",
+            name = "Test 101.1 HD1",
+            frequency = 101100,
+            channel = "HD1",
+            description = "Test format",
+            streamUrl = "https://example.com/test",
+            genre = "Test",
+            city = "Test City",
+            state = "TS",
+            hasArtistInfo = false,
+            hasAlbumArt = false
+        )
+
+        val added = hdRadioService.addStations(listOf(newStation))
+
+        assertEquals(1, added.size)
+        val updated = hdRadioService.hdStations.first()
+        assertEquals(initial.size + 1, updated.size)
+        assertTrue(updated.any { it.callSign == newStation.callSign })
+    }
+
+    @Test
+    fun `test add stations prevents duplicates`() = runTest {
+        val duplicateStation = HDRadioStation(
+            callSign = "WFMT-HD1",
+            name = "Duplicate",
+            frequency = 98700,
+            channel = "HD1",
+            description = "Should not add",
+            streamUrl = "https://duplicate.example.com",
+            genre = "Classical",
+            city = "Chicago",
+            state = "IL",
+            hasArtistInfo = true,
+            hasAlbumArt = true
+        )
+
+        val added = hdRadioService.addStations(listOf(duplicateStation))
+
+        assertTrue(added.isEmpty())
+        val stations = hdRadioService.hdStations.first()
+        assertEquals(1, stations.count { it.callSign == "WFMT-HD1" })
+    }
+
+    @Test
     fun `test all stations have required fields`() = runTest {
         // Given all HD stations
         val allStations = hdRadioService.hdStations.first()

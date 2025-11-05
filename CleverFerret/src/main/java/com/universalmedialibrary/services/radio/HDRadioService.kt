@@ -36,6 +36,9 @@ class HDRadioService @Inject constructor(
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
 
+    private val stationComparator = compareBy<HDRadioStation> { it.frequency }
+        .thenBy { it.channel }
+
     init {
         loadHDStations()
     }
@@ -45,7 +48,8 @@ class HDRadioService @Inject constructor(
      * In a real implementation, this would fetch from an API or database
      */
     private fun loadHDStations() {
-        _hdStations.value = listOf(
+        setStations(
+            listOf(
             HDRadioStation(
                 callSign = "WFMT-HD1",
                 name = "WFMT 98.7 HD1",
@@ -150,7 +154,12 @@ class HDRadioService @Inject constructor(
                 hasArtistInfo = false,
                 hasAlbumArt = false
             )
+          )
         )
+    }
+
+    private fun setStations(stations: List<HDRadioStation>) {
+        _hdStations.value = stations.sortedWith(stationComparator)
     }
 
     /**
@@ -198,6 +207,38 @@ class HDRadioService @Inject constructor(
             matchesDisplayFrequency ||
             matchesRawFrequency
         }
+    }
+
+    /**
+     * Add one or more HD radio stations to the in-memory catalog.
+     * Stations with duplicate call signs are ignored.
+     *
+     * @return the list of stations that were actually added.
+     */
+    fun addStations(stations: List<HDRadioStation>): List<HDRadioStation> {
+        if (stations.isEmpty()) return emptyList()
+
+        val current = _hdStations.value.toMutableList()
+        val existingCallSigns = current.map { it.callSign.uppercase() }.toMutableSet()
+        val added = mutableListOf<HDRadioStation>()
+
+        stations.forEach { station ->
+            val normalizedCallSign = station.callSign.uppercase()
+            if (existingCallSigns.add(normalizedCallSign)) {
+                current.add(station)
+                added.add(station)
+            }
+        }
+
+        if (added.isNotEmpty()) {
+            setStations(current)
+        }
+
+        return added
+    }
+
+    fun addStation(station: HDRadioStation): Boolean {
+        return addStations(listOf(station)).isNotEmpty()
     }
 
     /**
