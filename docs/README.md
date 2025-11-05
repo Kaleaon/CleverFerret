@@ -93,7 +93,6 @@ APK analysis, testing procedures, and quality assurance documentation.
 ### 🔬 Research & Competitive Analysis (`/research/`)
 - [Myne Feature Analysis](research/MYNE_FEATURE_ANALYSIS.md) - Competitive review of Myne reader
 - [Seeneva Features Analysis](research/SEENEVA_FEATURES_ANALYSIS.md) - OCR and reader capability comparison
-- [Cross-Language Integration Reference](research/CROSS_LANGUAGE_REFERENCE.md) - Mapping between Kotlin, C#, C++ sources
 
 ### 📈 Status & Progress (`/status/`)
 - [Code Polish Summary](status/CODE_POLISH_SUMMARY.md) - Snapshot of repository cleanup efforts
