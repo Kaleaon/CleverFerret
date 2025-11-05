@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.local.entity.RadioStation
 import com.universalmedialibrary.services.radio.HDRadioService
 import com.universalmedialibrary.services.radio.HDRadioStation
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,12 +47,15 @@ fun HDRadioScreen(
     var showGenreMenu by remember { mutableStateOf(false) }
 
     val filteredStations = remember(stations, searchQuery, selectedGenre) {
-        stations.filter { station ->
-            (searchQuery.isEmpty() || 
-             station.name.contains(searchQuery, ignoreCase = true) ||
-             station.callSign.contains(searchQuery, ignoreCase = true) ||
-             station.description?.contains(searchQuery, ignoreCase = true) == true) &&
-            (selectedGenre == "All" || station.genre.equals(selectedGenre, ignoreCase = true))
+        val query = searchQuery.trim()
+        val baseStations = if (query.isEmpty()) {
+            stations
+        } else {
+            viewModel.searchStations(query)
+        }
+
+        baseStations.filter { station ->
+            selectedGenre == "All" || station.genre.equals(selectedGenre, ignoreCase = true)
         }
     }
 
@@ -405,6 +407,10 @@ class HDRadioViewModel @Inject constructor(
     val stations: StateFlow<List<HDRadioStation>> = hdRadioService.hdStations
     val currentStation: StateFlow<HDRadioStation?> = hdRadioService.currentStation
     val genres: StateFlow<List<String>> = MutableStateFlow(hdRadioService.getAvailableGenres())
+
+    fun searchStations(query: String): List<HDRadioStation> {
+        return hdRadioService.searchStations(query)
+    }
 
     fun playStation(station: HDRadioStation) {
         viewModelScope.launch {

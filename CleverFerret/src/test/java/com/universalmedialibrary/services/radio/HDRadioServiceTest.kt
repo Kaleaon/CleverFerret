@@ -93,6 +93,37 @@ class HDRadioServiceTest {
     }
 
     @Test
+    fun `test search stations by state`() {
+        // Given a search query for a state abbreviation
+        val query = "IL"
+
+        // When searching
+        val results = hdRadioService.searchStations(query)
+
+        // Then it should return matching stations
+        assertTrue(results.isNotEmpty())
+        assertTrue(results.all { it.state.contains(query, ignoreCase = true) })
+    }
+
+    @Test
+    fun `test search stations by frequency fragment`() {
+        // Given a frequency fragment
+        val query = "98.7"
+
+        // When searching
+        val results = hdRadioService.searchStations(query)
+
+        // Then it should return matching stations
+        assertTrue(results.isNotEmpty())
+        assertTrue(
+            results.all { station ->
+                station.displayFrequency.contains(query) ||
+                station.frequency.toString().contains(query.filter { it.isDigit() })
+            }
+        )
+    }
+
+    @Test
     fun `test search stations with empty query returns all stations`() = runTest {
         // Given an empty search query
         val query = ""

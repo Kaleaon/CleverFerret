@@ -171,15 +171,32 @@ class HDRadioService @Inject constructor(
      * Search HD stations by query
      */
     fun searchStations(query: String): List<HDRadioStation> {
-        if (query.isBlank()) return _hdStations.value
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) return _hdStations.value
         
-        val lowerQuery = query.lowercase()
+        val lowerQuery = trimmedQuery.lowercase()
+        val digitQuery = trimmedQuery.filter { it.isDigit() }
+
         return _hdStations.value.filter { station ->
-            station.name.lowercase().contains(lowerQuery) ||
-            station.callSign.lowercase().contains(lowerQuery) ||
-            station.description?.lowercase()?.contains(lowerQuery) == true ||
-            station.city.lowercase().contains(lowerQuery) ||
-            station.genre.lowercase().contains(lowerQuery)
+            val matchesName = station.name.lowercase().contains(lowerQuery)
+            val matchesCallSign = station.callSign.lowercase().contains(lowerQuery)
+            val matchesDescription = station.description?.lowercase()?.contains(lowerQuery) == true
+            val matchesCity = station.city.lowercase().contains(lowerQuery)
+            val matchesState = station.state.lowercase().contains(lowerQuery)
+            val matchesGenre = station.genre.lowercase().contains(lowerQuery)
+            val matchesChannel = station.channel.lowercase().contains(lowerQuery)
+            val matchesDisplayFrequency = station.displayFrequency.lowercase().contains(lowerQuery)
+            val matchesRawFrequency = digitQuery.isNotEmpty() && station.frequency.toString().contains(digitQuery)
+
+            matchesName ||
+            matchesCallSign ||
+            matchesDescription ||
+            matchesCity ||
+            matchesState ||
+            matchesGenre ||
+            matchesChannel ||
+            matchesDisplayFrequency ||
+            matchesRawFrequency
         }
     }
 
