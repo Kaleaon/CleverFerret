@@ -9,6 +9,7 @@ import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.ui.home.SampleClassic
 import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.data.settings.BottomGearPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
 import java.io.IOException
@@ -61,6 +62,13 @@ class MainViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = true
+        )
+
+    val bottomGearPosition: StateFlow<BottomGearPosition> = settingsRepository.bottomGearPositionFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = BottomGearPosition.RIGHT
         )
 
     fun addLibrary(name: String, type: String, path: String) {
