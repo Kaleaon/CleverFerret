@@ -66,14 +66,14 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.wifiOnlyDownloadsFlow,
                 settingsRepository.notificationsEnabledFlow,
                 settingsRepository.bottomGearPositionFlow
-            ) { theme, darkMode, autoDownload, wifiOnly, notifications, gearPosition ->
+            ) { flows: Array<Any?> ->
                 SettingsUiState(
-                    selectedTheme = theme,
-                    darkMode = darkMode,
-                    autoDownloadPodcasts = autoDownload,
-                    wifiOnlyDownloads = wifiOnly,
-                    notificationsEnabled = notifications,
-                    bottomGearPosition = gearPosition
+                    selectedTheme = flows[0] as ThemePalette,
+                    darkMode = flows[1] as Boolean,
+                    autoDownloadPodcasts = flows[2] as Boolean,
+                    wifiOnlyDownloads = flows[3] as Boolean,
+                    notificationsEnabled = flows[4] as Boolean,
+                    bottomGearPosition = flows[5] as BottomGearPosition
                 )
             }.collect { newState ->
                 _uiState.value = newState

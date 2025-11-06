@@ -337,6 +337,7 @@ fun SettingsScreen(
                             )
                         }
                     }
+                }
 
                 item {
                     MetallicCard(
@@ -668,9 +669,7 @@ fun SettingsScreen(
                 }
             )
         }
-        }
     }
-}
 }
 
 @Composable
