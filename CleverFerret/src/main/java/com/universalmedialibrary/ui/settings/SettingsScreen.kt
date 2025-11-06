@@ -667,6 +667,7 @@ fun SettingsScreen(
                 }
             )
         }
+        }
     }
 }
 
