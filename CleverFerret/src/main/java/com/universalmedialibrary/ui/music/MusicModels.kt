@@ -137,7 +137,6 @@ enum class MusicTab(val displayName: String, val icon: ImageVector) {
     ALBUMS("Albums", Icons.Default.Album),
     ARTISTS("Artists", Icons.Default.Person),
     GENRES("Genres", Icons.Default.Category),
-    RADIO("Radio", Icons.Default.Radio),
     PLAYLISTS("Playlists", Icons.Default.PlaylistPlay)
 }
 

@@ -1,18 +1,22 @@
 package com.universalmedialibrary.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -45,6 +49,7 @@ fun SettingsScreen(
                     }
                 )
             }
+
         ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
@@ -239,6 +244,60 @@ fun SettingsScreen(
                         }
                     }
                 }
+
+                  // Navigation Section
+                  item {
+                      MetallicText(
+                          text = "Navigation",
+                          style = MaterialTheme.typography.titleMedium,
+                          modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                      )
+                  }
+
+                  item {
+                      MetallicCard {
+                          Column(
+                              modifier = Modifier
+                                  .fillMaxWidth()
+                                  .padding(vertical = 12.dp),
+                              verticalArrangement = Arrangement.spacedBy(12.dp)
+                          ) {
+                              Text(
+                                  text = "Settings Gear Position",
+                                  style = MaterialTheme.typography.titleSmall,
+                                  fontWeight = FontWeight.Medium,
+                                  modifier = Modifier.padding(horizontal = 16.dp)
+                              )
+                              Text(
+                                  text = "Pick the side for the bottom gear so it stays thumb-accessible.",
+                                  style = MaterialTheme.typography.bodySmall,
+                                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                  modifier = Modifier.padding(horizontal = 16.dp)
+                              )
+
+                              Row(
+                                  modifier = Modifier
+                                      .fillMaxWidth()
+                                      .padding(horizontal = 16.dp),
+                                  horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                  verticalAlignment = Alignment.CenterVertically
+                              ) {
+                                  GearPositionOption(
+                                      label = "Left",
+                                      position = BottomGearPosition.LEFT,
+                                      current = uiState.bottomGearPosition,
+                                      onSelect = viewModel::setBottomGearPosition
+                                  )
+                                  GearPositionOption(
+                                      label = "Right",
+                                      position = BottomGearPosition.RIGHT,
+                                      current = uiState.bottomGearPosition,
+                                      onSelect = viewModel::setBottomGearPosition
+                                  )
+                              }
+                          }
+                      }
+                  }
 
                    // Reading & Audio Section
                 item {
@@ -728,4 +787,27 @@ private fun ThemePickerDialog(
             }
         }
     )
+}
+
+@Composable
+private fun GearPositionOption(
+    label: String,
+    position: BottomGearPosition,
+    current: BottomGearPosition,
+    onSelect: (BottomGearPosition) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(24.dp))
+            .clickable { onSelect(position) }
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        RadioButton(
+            selected = current == position,
+            onClick = { onSelect(position) }
+        )
+        Text(label, style = MaterialTheme.typography.bodyMedium)
+    }
 }

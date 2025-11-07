@@ -22,6 +22,7 @@ import com.universalmedialibrary.data.settings.LyricsApiSettings
 import com.universalmedialibrary.data.settings.SecuritySettings
 import com.universalmedialibrary.data.settings.GeneralSettings
 import com.universalmedialibrary.data.settings.AppTheme
+import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.theme.ThemePalette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,14 +64,16 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.darkModeFlow,
                 settingsRepository.autoDownloadPodcastsFlow,
                 settingsRepository.wifiOnlyDownloadsFlow,
-                settingsRepository.notificationsEnabledFlow
-            ) { theme, darkMode, autoDownload, wifiOnly, notifications ->
+                settingsRepository.notificationsEnabledFlow,
+                settingsRepository.bottomGearPositionFlow
+            ) { flows: Array<Any?> ->
                 SettingsUiState(
-                    selectedTheme = theme,
-                    darkMode = darkMode,
-                    autoDownloadPodcasts = autoDownload,
-                    wifiOnlyDownloads = wifiOnly,
-                    notificationsEnabled = notifications
+                    selectedTheme = flows[0] as ThemePalette,
+                    darkMode = flows[1] as Boolean,
+                    autoDownloadPodcasts = flows[2] as Boolean,
+                    wifiOnlyDownloads = flows[3] as Boolean,
+                    notificationsEnabled = flows[4] as Boolean,
+                    bottomGearPosition = flows[5] as BottomGearPosition
                 )
             }.collect { newState ->
                 _uiState.value = newState
@@ -112,6 +115,12 @@ class SettingsViewModel @Inject constructor(
     fun setNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setNotificationsEnabled(enabled)
+        }
+    }
+
+    fun setBottomGearPosition(position: BottomGearPosition) {
+        viewModelScope.launch {
+            settingsRepository.setBottomGearPosition(position)
         }
     }
 
@@ -300,5 +309,6 @@ data class SettingsUiState(
     val darkMode: Boolean = true,
     val autoDownloadPodcasts: Boolean = false,
     val wifiOnlyDownloads: Boolean = true,
-    val notificationsEnabled: Boolean = true
+    val notificationsEnabled: Boolean = true,
+    val bottomGearPosition: BottomGearPosition = BottomGearPosition.RIGHT
 )

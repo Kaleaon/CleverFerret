@@ -239,7 +239,6 @@ fun MusicLibraryScreen(
                         MusicTab.ARTISTS -> ArtistsTab(state, viewModel, navController)
                         MusicTab.GENRES -> GenresTab(state, viewModel, navController)
                         MusicTab.PLAYLISTS -> PlaylistsTab()
-                        MusicTab.RADIO -> RadioTab()
                     }
                 }
                 
@@ -389,39 +388,6 @@ private fun PlaylistsTab() {
                 Spacer(Modifier.width(8.dp))
                 Text("Create Playlist (Coming Soon)")
             }
-        }
-    }
-}
-
-@Composable
-private fun RadioTab() {
-    // Placeholder for radio integration - radio is accessed through main navigation
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(32.dp)
-        ) {
-            Icon(
-                Icons.Default.Radio,
-                contentDescription = null,
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                "Internet Radio",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                "Access internet radio stations and streaming services. Use the Radio section in the main navigation.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
