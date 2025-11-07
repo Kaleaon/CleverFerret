@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.ui.music.components.CreatePlaylistDialog
 import com.universalmedialibrary.ui.player.SyncedLyricsDisplay
 import com.universalmedialibrary.ui.player.SyncedLyricsViewModel
 import kotlinx.coroutines.isActive
@@ -69,6 +70,7 @@ fun EnhancedMusicPlayerScreen(
     var showEqualizerDialog by remember { mutableStateOf(false) }
     var showSleepTimerDialog by remember { mutableStateOf(false) }
     var showAddToPlaylistDialog by remember { mutableStateOf(false) }
+    var showCreatePlaylistDialog by remember { mutableStateOf(false) }
     var showTrackDetailsDialog by remember { mutableStateOf(false) }
     var showLyrics by remember { mutableStateOf(false) }
 
@@ -442,8 +444,8 @@ fun EnhancedMusicPlayerScreen(
                 showAddToPlaylistDialog = false
             },
             onCreateNew = {
-                // TODO: Show dialog to input playlist name, then call viewModel.createPlaylistWithCurrentTrack(name)
                 showAddToPlaylistDialog = false
+                showCreatePlaylistDialog = true
             },
             onDismiss = { showAddToPlaylistDialog = false }
         )
@@ -454,6 +456,16 @@ fun EnhancedMusicPlayerScreen(
             track = currentTrack!!,
             metadata = currentTrackMetadata,
             onDismiss = { showTrackDetailsDialog = false }
+        )
+    }
+
+    if (showCreatePlaylistDialog) {
+        CreatePlaylistDialog(
+            onDismiss = { showCreatePlaylistDialog = false },
+            onConfirm = { playlistName ->
+                viewModel.createPlaylistWithCurrentTrack(playlistName)
+                showCreatePlaylistDialog = false
+            }
         )
     }
 }

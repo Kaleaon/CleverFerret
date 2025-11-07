@@ -152,7 +152,7 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class
 
     ],
-    version = 34, // Added collaborative playlist sharing with Chromecast and Android Auto (merged from main v33)
+    version = 35, // Added playback and user preference fields to MediaItem entity (isFavorite, playCount, lastPlayed)
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -270,6 +270,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_31_32,
                     AppDatabaseMigrations.MIGRATION_32_33,
                     AppDatabaseMigrations.MIGRATION_33_34
+                       , AppDatabaseMigrations.MIGRATION_34_35
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
