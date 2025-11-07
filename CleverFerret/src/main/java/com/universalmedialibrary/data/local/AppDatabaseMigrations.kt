@@ -548,6 +548,11 @@ object AppDatabaseMigrations {
     }
 
     val MIGRATION_32_33 = object : Migration(32, 33) {
+        /**
+         * Creates the OCR cache table and supporting indices used to store OCR results per media item and page.
+         *
+         * The table stores text, block data, confidence, language, and a timestamp for each cached page, and the indices optimize lookups by media item, media item + page number, and timestamp.
+         */
         override fun migrate(database: SupportSQLiteDatabase) {
             // Add OCR cache table (from main branch)
             database.execSQL("""
@@ -581,7 +586,13 @@ object AppDatabaseMigrations {
         }
     }
 
-    val MIGRATION_33_34 = object : Migration(33, 34) {
+val MIGRATION_33_34 = object : Migration(33, 34) {
+        /**
+         * Creates schema for collaborative playlist sessions, their clients, queue items, votes, and supporting indices.
+         *
+         * This migration defines tables to store collaborative_sessions, session_clients, session_queue_items, and session_votes,
+         * and adds indices to optimize lookups by sessionId.
+         */
         override fun migrate(database: SupportSQLiteDatabase) {
             // Create collaborative_sessions table for playlist sharing
             database.execSQL("""
@@ -674,6 +685,14 @@ object AppDatabaseMigrations {
     }
 
     val MIGRATION_34_35 = object : Migration(34, 35) {
+        /**
+         * Adds playback and preference tracking fields to the media_items table.
+         *
+         * Creates three new non-null columns with defaults to store user and playback metadata:
+         * - `isFavorite`: INTEGER, default 0 — whether the item is marked as a favorite.
+         * - `playCount`: INTEGER, default 0 — total number of times the item has been played.
+         * - `lastPlayed`: INTEGER, default 0 — timestamp of the last playback (epoch millis).
+         */
         override fun migrate(database: SupportSQLiteDatabase) {
             // Add playback and user preference columns to media_items
             database.execSQL(

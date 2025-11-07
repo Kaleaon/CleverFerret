@@ -88,41 +88,66 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     }
 
     /**
-     * Get total books read from database
-     */
+         * Calculate the total number of books read across all time.
+         *
+         * @return The total number of books read.
+         */
     private suspend fun getBooksReadAllTime(libraryId: Long): Int =
         sampleMonthlyCounts.sum()
 
     /**
-     * Get total pages read from database
-     */
+         * Estimate the total number of pages read for the specified library.
+         *
+         * The value is computed as the number of books read multiplied by a fixed
+         * average page count of 320 pages per book.
+         *
+         * @param libraryId Identifier of the library for which to compute the estimate.
+         * @return The estimated total pages read for the library.
+         */
     private suspend fun getTotalPagesRead(libraryId: Long): Int =
         getBooksReadAllTime(libraryId) * 320
 
     /**
-     * Get books read this year from database
-     */
+         * Compute the number of books read this year from the sample monthly counts.
+         *
+         * @param libraryId Library identifier (not used by the sample implementation).
+         * @param startOfYear Epoch milliseconds representing the start of the year (not used by the sample implementation).
+         * @return The total number of books read this year as the sum of the sample monthly counts.
+         */
     private suspend fun getBooksReadThisYear(libraryId: Long, startOfYear: Long): Int =
         sampleMonthlyCounts.sum()
 
     /**
-     * Get currently reading count from database
-     */
+ * Provides the number of books currently being read for the specified library.
+ *
+ * @return The number of books currently being read (placeholder value: 3).
+ */
     private suspend fun getCurrentlyReadingCount(libraryId: Long): Int = 3
 
     /**
-     * Get to-read count from database
-     */
+ * Provides the to-read list count for the specified library.
+ *
+ * @param libraryId Identifier of the library; currently ignored because this returns sample data.
+ * @return The number of books in the to-read list (currently always 12).
+ */
     private suspend fun getToReadCount(libraryId: Long): Int = 12
 
     /**
-     * Get monthly reading data from database
-     */
+         * Generate monthly reading statistics for the past 12 months.
+         *
+         * Produces 12 MonthlyReading entries whose counts are derived from the view model's sample data
+         * and arranged so the last entry corresponds to the current calendar month.
+         *
+         * @param libraryId Identifier of the library (currently unused; kept for API compatibility).
+         * @return A list of 12 MonthlyReading objects ordered from oldest to newest month. */
     private suspend fun getMonthlyReadingData(libraryId: Long): List<MonthlyReading> =
         generateMonthlyData()
     
     /**
-     * Get top publishers from database
+     * Retrieve the top publishers for the specified library ordered by number of books.
+     *
+     * @param libraryId The library identifier whose publisher statistics to retrieve.
+     * @return A list of `PublisherCount` items sorted by count in descending order; returns an empty list if no data is available or an error occurs.
      */
     private suspend fun getTopPublishers(libraryId: Long): List<PublisherCount> {
         return try {
@@ -141,7 +166,11 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     }
 
     /**
-     * Generate sample monthly reading data
+     * Builds a 12-entry list of monthly reading summaries covering the last 12 months ending with the current month.
+     *
+     * Each entry contains a three-letter month abbreviation and a count taken cyclically from `sampleMonthlyCounts`.
+     *
+     * @return A list of `MonthlyReading` for the rolling 12-month window, ordered from oldest to newest.
      */
     private fun generateMonthlyData(): List<MonthlyReading> {
         val months = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun",

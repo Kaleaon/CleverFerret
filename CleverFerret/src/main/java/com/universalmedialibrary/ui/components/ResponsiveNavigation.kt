@@ -182,7 +182,12 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 /**
- * Navigation rail shown on medium and expanded width devices.
+ * Displays a navigation rail for medium and expanded width devices.
+ *
+ * Uses the canonical NavigationItems list to show each destination, highlights the item
+ * that matches the current navigation destination, and navigates to an item's route when
+ * tapped. Navigation preserves and restores state by popping up to the graph start
+ * destination, saving/restoring state, and launching the destination as single-top.
  */
 @Composable
 fun NavigationRailBar(navController: NavController) {
@@ -211,7 +216,22 @@ fun NavigationRailBar(navController: NavController) {
 }
 
 /**
- * High-level scaffold that adapts navigation chrome between bottom bar and drawer/rail combos.
+ * Hosts app content inside a responsive scaffold that presents a bottom navigation bar on compact widths
+ * and a wider-screen navigation chrome (rail/drawer) on larger widths.
+ *
+ * The scaffold supplies slots for a top bar and floating action button and conditionally shows the
+ * provided `bottomNavItems` as a scrollable bottom navigation when `bottomBarVisible` is true.
+ *
+ * @param navController Navigation controller used to read the current destination and perform navigation.
+ * @param bottomNavItems Items to render in the bottom navigation bar; defaults to `NavigationItems.bottomNavItems`.
+ * @param settingsItem Navigation item used for the settings entry in the chrome; defaults to `NavigationItems.settingsItem`.
+ * @param gearPosition Position of the settings (gear) item in the bottom bar.
+ * @param bottomBarVisible Whether the bottom navigation bar is currently visible.
+ * @param onBottomBarVisibleChange Callback invoked when the desired bottom bar visibility should change.
+ * @param modifier Modifier applied to the scaffold container.
+ * @param topBar Composable slot for the top app bar.
+ * @param floatingActionButton Composable slot for the FAB.
+ * @param content Composable content slot that receives the scaffold's content padding.
  */
 @Composable
 fun ResponsiveNavigationScaffold(
@@ -328,6 +348,18 @@ private fun RowScope.NavigationBarEntry(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Renders a modal navigation drawer sheet with the provided navigation items and a settings entry.
+ *
+ * Each entry displays its label and the appropriate icon for selected/unselected state. When an
+ * entry is clicked, `onItemClick` is invoked and the drawer navigates to the item's route while
+ * preserving and restoring navigation state.
+ *
+ * @param navController NavController used to perform navigation actions.
+ * @param navigationItems The list of navigation destinations to show in the drawer.
+ * @param settingsItem The settings navigation entry to append to the list (defaults to the app's settings item).
+ * @param onItemClick Callback invoked immediately before navigating to a selected item (e.g., to close the drawer).
+ */
 @Composable
 fun NavigationDrawerContent(
     navController: NavController,
@@ -367,7 +399,9 @@ fun NavigationDrawerContent(
 }
 
 /**
- * Convenience composable that switches between bottom navigation and navigation rail.
+ * Chooses and displays either the bottom navigation bar or a navigation rail based on screen width.
+ *
+ * Uses a 600.dp breakpoint: screens narrower than 600.dp show the bottom navigation bar; wider screens show the navigation rail.
  */
 @Composable
 fun ResponsiveNavigation(navController: NavController) {
@@ -384,6 +418,16 @@ fun ResponsiveNavigation(navController: NavController) {
     }
 }
 
+/**
+ * Determines whether this navigation destination or any ancestor in its hierarchy matches the given NavigationItem.
+ *
+ * Matching considers the item's `route` and optional `routeMatch`. A candidate route matches a destination route when:
+ * - the candidate contains `{` (a route pattern) and is equal to the destination route,
+ * - or the destination route is equal to the candidate,
+ * - or the destination route starts with the candidate.
+ *
+ * @return `true` if any destination in the hierarchy matches the item's route or routeMatch, `false` otherwise.
+ */
 private fun NavDestination?.isDestinationSelected(item: NavigationItem): Boolean {
     val candidates = buildList {
         add(item.route)
@@ -402,8 +446,12 @@ private fun NavDestination?.isDestinationSelected(item: NavigationItem): Boolean
     } == true
 }
 
+/**
+ * Checks whether the NavController's current destination corresponds to the given NavigationItem.
+ *
+ * @return `true` if the current navigation destination matches the provided NavigationItem, `false` otherwise.
+ */
 private fun currentRouteMatches(navController: NavController, item: NavigationItem): Boolean {
     val destination = navController.currentDestination
     return destination.isDestinationSelected(item)
 }
-
