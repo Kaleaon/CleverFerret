@@ -6,102 +6,114 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.universalmedialibrary.data.settings.BottomGearPosition
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
+/**
+ * Represents a navigation item for bottom navigation, navigation rail, and drawer destinations.
+ */
 data class NavigationItem(
     val route: String,
     val label: String,
     val icon: @Composable () -> Unit,
     val selectedIcon: @Composable () -> Unit = icon,
-    val routeMatch: String? = null
+    val routeMatch: String? = null,
+    val showInBottomNav: Boolean = true
 )
 
+/**
+ * Canonical list of app destinations consumed by navigation scaffolds.
+ */
 object NavigationItems {
-    val items = listOf(
+    val items: List<NavigationItem> = listOf(
         NavigationItem(
             route = "home",
             label = "Home",
             icon = { Icon(PhosphorIcons.House, contentDescription = "Home") },
-            selectedIcon = { Icon(PhosphorIcons.HouseFill, contentDescription = "Home") },
-            showInBottomNav = true
+            selectedIcon = { Icon(PhosphorIcons.HouseFill, contentDescription = "Home") }
         ),
         NavigationItem(
             route = "library_details/1",
             label = "Books",
             icon = { Icon(PhosphorIcons.Book, contentDescription = "Books") },
-            selectedIcon = { Icon(PhosphorIcons.BookFill, contentDescription = "Books") },
-            showInBottomNav = true
+            selectedIcon = { Icon(PhosphorIcons.BookFill, contentDescription = "Books") }
         ),
         NavigationItem(
             route = "library_details/3",
             label = "Comics",
-            icon = { Icon(PhosphorIcons.Books, contentDescription = "Comics") },
-            showInBottomNav = true
+            icon = { Icon(PhosphorIcons.Books, contentDescription = "Comics") }
         ),
         NavigationItem(
             route = "library_details/2",
             label = "Audiobooks",
-            icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Audiobooks") },
-            showInBottomNav = true
+            icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Audiobooks") }
         ),
         NavigationItem(
             route = "music",
             label = "Music",
             icon = { Icon(PhosphorIcons.MusicNote, contentDescription = "Music") },
-            selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") },
-            showInBottomNav = true
+            selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") }
         ),
         NavigationItem(
             route = "library_details/4",
             label = "Movies",
-            icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Movies") },
-            showInBottomNav = true
+            icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Movies") }
         ),
         NavigationItem(
             route = "library_details/5",
             label = "TV Shows",
-            icon = { Icon(PhosphorIcons.Television, contentDescription = "TV Shows") },
-            showInBottomNav = true
+            icon = { Icon(PhosphorIcons.Television, contentDescription = "TV Shows") }
         ),
         NavigationItem(
             route = "radio",
             label = "Radio",
-            icon = { Icon(PhosphorIcons.Radio, contentDescription = "Radio") },
-            showInBottomNav = true
+            icon = { Icon(PhosphorIcons.Radio, contentDescription = "Radio") }
         ),
         NavigationItem(
             route = "visualizer",
             label = "Visualizer",
-            icon = { Icon(PhosphorIcons.Equalizer, contentDescription = "Visualizer") },
-            selectedIcon = { Icon(PhosphorIcons.Equalizer, contentDescription = "Visualizer") },
-            showInBottomNav = true
+            icon = { Icon(PhosphorIcons.Equalizer, contentDescription = "Visualizer") }
         ),
         NavigationItem(
             route = "ambient",
             label = "Ambient",
-            icon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") },
-            selectedIcon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") },
-            showInBottomNav = true
+            icon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") }
         ),
         NavigationItem(
             route = "podcasts",
@@ -136,38 +148,31 @@ object NavigationItems {
         )
     )
 
-    val bottomNavItems = items.filter { it.showInBottomNav }
+    val bottomNavItems: List<NavigationItem> = items.filter { it.showInBottomNav }
+    val settingsItem: NavigationItem = items.first { it.route == "settings" }
 }
 
 /**
- * Bottom navigation bar for phone screens
+ * Standard bottom navigation bar used on compact width devices.
  */
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    val bottomNavItems = NavigationItems.bottomNavItems
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    NavigationBar(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        bottomNavItems.forEach { item ->
+    NavigationBar(modifier = Modifier.fillMaxWidth()) {
+        NavigationItems.bottomNavItems.forEach { item ->
+            val selected = currentDestination.isDestinationSelected(item)
             NavigationBarItem(
-                icon = { item.icon() },
+                icon = { if (selected) item.selectedIcon() else item.icon() },
                 label = { Text(item.label) },
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                selected = selected,
                 onClick = {
                     navController.navigate(item.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
                         launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
                         restoreState = true
                     }
                 }
@@ -177,29 +182,45 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 /**
- * Navigation rail for tablet/desktop screens
+ * Navigation rail shown on medium and expanded width devices.
  */
 @Composable
 fun NavigationRailBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    NavigationRail(
-        modifier = Modifier.fillMaxHeight()
-    ) {
+    NavigationRail(modifier = Modifier.fillMaxHeight()) {
         NavigationItems.items.forEach { item ->
+            val selected = currentDestination.isDestinationSelected(item)
             NavigationRailItem(
-                icon = { item.icon() },
+                icon = { if (selected) item.selectedIcon() else item.icon() },
                 label = { Text(item.label) },
-                selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                selected = selected,
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+    }
+}
+
+/**
+ * High-level scaffold that adapts navigation chrome between bottom bar and drawer/rail combos.
+ */
 @Composable
 fun ResponsiveNavigationScaffold(
     navController: NavController,
-    bottomNavItems: List<NavigationItem>,
-    settingsItem: NavigationItem,
-    gearPosition: BottomGearPosition,
-    bottomBarVisible: Boolean,
-    onBottomBarVisibleChange: (Boolean) -> Unit,
+    bottomNavItems: List<NavigationItem> = NavigationItems.bottomNavItems,
+    settingsItem: NavigationItem = NavigationItems.settingsItem,
+    gearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
+    bottomBarVisible: Boolean = true,
+    onBottomBarVisibleChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -208,19 +229,8 @@ fun ResponsiveNavigationScaffold(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val density = LocalDensity.current
-    val gestureThreshold = with(density) { 96.dp.toPx() }
-
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .bottomBarGestureDetector(
-                isVisible = bottomBarVisible,
-                onHide = { onBottomBarVisibleChange(false) },
-                onShow = { onBottomBarVisibleChange(true) },
-                hideThreshold = gestureThreshold,
-                showThreshold = gestureThreshold
-            )
+        modifier = modifier.fillMaxSize()
     ) {
         Scaffold(
             topBar = topBar,
@@ -322,7 +332,7 @@ private fun RowScope.NavigationBarEntry(
 fun NavigationDrawerContent(
     navController: NavController,
     navigationItems: List<NavigationItem>,
-    settingsItem: NavigationItem,
+    settingsItem: NavigationItem = NavigationItems.settingsItem,
     onItemClick: () -> Unit = {}
 ) {
     ModalDrawerSheet {
@@ -336,11 +346,13 @@ fun NavigationDrawerContent(
         Spacer(Modifier.height(8.dp))
 
         (navigationItems + settingsItem).forEach { item ->
+            val selected = currentRouteMatches(navController, item)
             NavigationDrawerItem(
-                icon = { item.icon() },
+                icon = { if (selected) item.selectedIcon() else item.icon() },
                 label = { Text(item.label) },
-                selected = currentRouteMatches(navController, item),
+                selected = selected,
                 onClick = {
+                    onItemClick()
                     navController.navigate(item.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
@@ -355,7 +367,7 @@ fun NavigationDrawerContent(
 }
 
 /**
- * Responsive navigation that switches between bottom nav and rail based on screen size
+ * Convenience composable that switches between bottom navigation and navigation rail.
  */
 @Composable
 fun ResponsiveNavigation(navController: NavController) {
@@ -371,6 +383,7 @@ fun ResponsiveNavigation(navController: NavController) {
         }
     }
 }
+
 private fun NavDestination?.isDestinationSelected(item: NavigationItem): Boolean {
     val candidates = buildList {
         add(item.route)
@@ -394,41 +407,3 @@ private fun currentRouteMatches(navController: NavController, item: NavigationIt
     return destination.isDestinationSelected(item)
 }
 
-private fun Modifier.bottomBarGestureDetector(
-    isVisible: Boolean,
-    onHide: () -> Unit,
-    onShow: () -> Unit,
-    hideThreshold: Float,
-    showThreshold: Float
-): Modifier = pointerInput(isVisible, hideThreshold, showThreshold) {
-    awaitEachGesture {
-        awaitFirstDown(requireUnconsumed = false)
-        var pointerCount = 1
-        var cumulativeTwoFingerDelta = 0f
-        var cumulativeSingleFingerDelta = 0f
-        var hideTriggered = false
-        var showTriggered = false
-
-        do {
-            val event = awaitPointerEvent()
-            val changes = event.changes.filter { it.pressed }
-            pointerCount = changes.size
-
-            if (pointerCount >= 2) {
-                val averageDelta = changes.map { it.positionChange().y }.average().toFloat()
-                cumulativeTwoFingerDelta += averageDelta
-                if (!hideTriggered && isVisible && cumulativeTwoFingerDelta > hideThreshold) {
-                    hideTriggered = true
-                    onHide()
-                }
-            } else if (pointerCount == 1) {
-                val delta = changes.firstOrNull()?.positionChange()?.y ?: 0f
-                cumulativeSingleFingerDelta += delta
-                if (!showTriggered && !isVisible && cumulativeSingleFingerDelta < -showThreshold) {
-                    showTriggered = true
-                    onShow()
-                }
-            }
-        } while (changes.any { it.pressed })
-    }
-}
