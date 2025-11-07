@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 /**
@@ -22,7 +26,7 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     
     private val _uiState = MutableStateFlow(ReadingStatisticsUiState())
     val uiState: StateFlow<ReadingStatisticsUiState> = _uiState.asStateFlow()
-    
+
     /**
      * Load reading statistics for a library
      */
@@ -88,148 +92,87 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     /**
      * Get total books read from database
      */
-    private suspend fun getBooksReadAllTime(libraryId: Long): Int {
-        return try {
-            // Query reading_progress table for completed books
-            // This is a simplified implementation - adjust based on your schema
-            metadataDao.getCompletedBooksCount(libraryId)
-        } catch (e: Exception) {
-            // Fallback to sample data if query fails
-            0
-        }
-    }
+    private suspend fun getBooksReadAllTime(libraryId: Long): Int =
+        metadataDao.getCompletedBooksCount(libraryId)
 
     /**
      * Get total pages read from database
      */
-    private suspend fun getTotalPagesRead(libraryId: Long): Int {
-        return try {
-            // Query reading_progress table for total pages
-            metadataDao.getTotalPagesRead(libraryId) ?: 0
-        } catch (e: Exception) {
-            0
-        }
-    }
+    private suspend fun getTotalPagesRead(libraryId: Long): Int =
+        metadataDao.getTotalPagesRead(libraryId)
 
     /**
      * Get books read this year from database
      */
-    private suspend fun getBooksReadThisYear(libraryId: Long, startOfYear: Long): Int {
-        return try {
-            // Query reading_progress table for books completed since start of year
-            metadataDao.getBooksReadSince(startOfYear)
-        } catch (e: Exception) {
-            0
-        }
-    }
+    private suspend fun getBooksReadThisYear(libraryId: Long, startOfYear: Long): Int =
+        metadataDao.getBooksReadSince(libraryId, startOfYear)
 
     /**
      * Get currently reading count from database
      */
-    private suspend fun getCurrentlyReadingCount(libraryId: Long): Int {
-        return try {
-            // Query reading_progress table for books in progress
-            metadataDao.getCurrentReadingCount(libraryId)
-        } catch (e: Exception) {
-            0
-        }
-    }
+    private suspend fun getCurrentlyReadingCount(libraryId: Long): Int =
+        metadataDao.getCurrentReadingCount(libraryId)
 
     /**
      * Get to-read count from database
      */
-    private suspend fun getToReadCount(libraryId: Long): Int {
-        return try {
-            // Query media_items table for books that haven't been started
-            // This is a simplified implementation
-            metadataDao.getToReadBooksCount(libraryId)
-        } catch (e: Exception) {
-            0
-        }
-    }
+    private suspend fun getToReadCount(libraryId: Long): Int =
+        metadataDao.getToReadBooksCount(libraryId)
 
     /**
      * Get monthly reading data from database
      */
     private suspend fun getMonthlyReadingData(libraryId: Long): List<MonthlyReading> {
-        return try {
-            // Generate monthly data based on actual reading progress
-            val months = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-            val currentMonth = LocalDate.now().monthValue
-            
-            // For now, use sample data - replace with actual database queries
-            (0 until 12).map { index ->
-                val monthIndex = (currentMonth - 12 + index + 12) % 12
-                MonthlyReading(
-                    month = months[monthIndex],
-                    count = (1..6).random() // Replace with actual monthly counts
-                )
+        val zoneId = ZoneId.systemDefault()
+        val currentMonth = YearMonth.now()
+        val months = (0 until 12).map { index -> currentMonth.minusMonths((11 - index).toLong()) }
+        val windowStart = months.first()
+            .atDay(1)
+            .atStartOfDay(zoneId)
+            .toInstant()
+            .toEpochMilli()
+
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
+        val monthlyCounts = metadataDao
+            .getMonthlyCompletionCounts(libraryId, windowStart)
+            .associate { entry ->
+                YearMonth.parse(entry.yearMonth, formatter) to entry.count
             }
-        } catch (e: Exception) {
-            generateMonthlyData() // Fallback to sample data
-        }
-    }
 
-    /**
-     * Get top publishers from database
-     */
-    private suspend fun getTopPublishers(libraryId: Long): List<PublisherCount> {
-        return try {
-            // Query metadata tables for publisher statistics
-            // For now, use sample data - replace with actual database queries
-            listOf(
-                PublisherCount("Penguin Random House", 15),
-                PublisherCount("HarperCollins", 12),
-                PublisherCount("Simon & Schuster", 10),
-                PublisherCount("Macmillan", 8),
-                PublisherCount("Hachette", 7)
+        return months.map { month ->
+            MonthlyReading(
+                month = month.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                count = monthlyCounts[month] ?: 0
             )
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }<MonthlyReading> {
-        return try {
-            // Query reading_progress table for monthly completion counts
-            // This is a simplified implementation - adjust based on your needs
-            generateMonthlyData() // Fallback to generated data for now
-        } catch (e: Exception) {
-            generateMonthlyData()
-        }
-    }
-
-    /**
-     * Get top publishers from database
-     */
-    private suspend fun getTopPublishers(libraryId: Long): List<PublisherCount> {
-        return try {
-            // Query metadata tables for publisher statistics
-            // This is a simplified implementation
-            listOf(
-                PublisherCount("Penguin Random House", 15),
-                PublisherCount("HarperCollins", 12),
-                PublisherCount("Simon & Schuster", 10),
-                PublisherCount("Macmillan", 8),
-                PublisherCount("Hachette", 7)
-            )
-        } catch (e: Exception) {
-            emptyList()
         }
     }
     
     /**
+     * Get top publishers from database
+     */
+    private suspend fun getTopPublishers(libraryId: Long): List<PublisherCount> {
+        return try {
+            // Query metadata tables for publisher statistics
+            // For now, use sample data - replace with actual database queries
+            metadataDao.getTopPublishers(libraryId).map {
+                PublisherCount(it.publisher, it.count)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /**
      * Generate sample monthly reading data
      */
     private fun generateMonthlyData(): List<MonthlyReading> {
-        val months = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-        val currentMonth = LocalDate.now().monthValue
-        
+        val formatter = DateTimeFormatter.ofPattern("MMM", Locale.getDefault())
+        val currentMonth = YearMonth.now()
         return (0 until 12).map { index ->
-            val monthIndex = (currentMonth - 12 + index + 12) % 12
+            val month = currentMonth.minusMonths((11 - index).toLong())
             MonthlyReading(
-                month = months[monthIndex],
-                count = (2..8).random() // Sample data
+                month = formatter.format(month.atDay(1)),
+                count = 0
             )
         }
     }
