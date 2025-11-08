@@ -158,6 +158,7 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
                 PublisherCount(it.publisher, it.count)
             }
         } catch (e: Exception) {
+            android.util.Log.e("EnhancedReadingStatisticsViewModel", "Failed to fetch top publishers", e)
             emptyList()
         }
     }
