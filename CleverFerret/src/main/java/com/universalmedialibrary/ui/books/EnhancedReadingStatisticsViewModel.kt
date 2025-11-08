@@ -153,7 +153,6 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     private suspend fun getTopPublishers(libraryId: Long): List<PublisherCount> {
         return try {
             // Query metadata tables for publisher statistics
-             metadataDao.getTopPublishers(libraryId).map {
             metadataDao.getTopPublishers(libraryId).map {
                 PublisherCount(it.publisher, it.count)
             }
