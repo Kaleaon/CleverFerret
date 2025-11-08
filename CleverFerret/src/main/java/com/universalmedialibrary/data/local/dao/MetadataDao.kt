@@ -140,6 +140,125 @@ interface MetadataDao {
     )
 
     /**
+     * Reading statistics
+     */
+    @Query(
+        """
+        SELECT COUNT(*) FROM metadata_book AS mb
+        INNER JOIN media_items AS mi ON mi.itemId = mb.itemId
+        WHERE mi.libraryId = :libraryId
+          AND mi.mediaType = 'BOOK'
+          AND mb.isRead = 1
+        """
+    )
+    suspend fun getCompletedBooksCount(libraryId: Long): Int
+
+    @Query(
+        """
+        SELECT COALESCE(SUM(
+            CASE
+                WHEN mb.pageCount IS NOT NULL THEN mb.pageCount
+                WHEN mb.printLength IS NOT NULL THEN mb.printLength
+                ELSE 0
+            END
+        ), 0)
+        FROM metadata_book AS mb
+        INNER JOIN media_items AS mi ON mi.itemId = mb.itemId
+        WHERE mi.libraryId = :libraryId
+          AND mi.mediaType = 'BOOK'
+          AND mb.isRead = 1
+        """
+    )
+    suspend fun getTotalPagesRead(libraryId: Long): Int
+
+    @Query(
+        """
+        SELECT COUNT(*) FROM metadata_book AS mb
+        INNER JOIN media_items AS mi ON mi.itemId = mb.itemId
+        WHERE mi.libraryId = :libraryId
+          AND mi.mediaType = 'BOOK'
+          AND mb.isRead = 1
+          AND mb.lastReadDate IS NOT NULL
+          AND mb.lastReadDate >= :since
+        """
+    )
+    suspend fun getBooksReadSince(libraryId: Long, since: Long): Int
+
+    @Query(
+        """
+        SELECT COUNT(*) FROM metadata_book AS mb
+        INNER JOIN media_items AS mi ON mi.itemId = mb.itemId
+        WHERE mi.libraryId = :libraryId
+          AND mi.mediaType = 'BOOK'
+          AND mb.isRead = 0
+          AND (
+                (mb.readingProgress > 0 AND mb.readingProgress < 1)
+             OR LOWER(COALESCE(mb.shelf, '')) = 'currently-reading'
+          )
+        """
+    )
+    suspend fun getCurrentReadingCount(libraryId: Long): Int
+
+    @Query(
+        """
+        SELECT COUNT(*) FROM metadata_book AS mb
+        INNER JOIN media_items AS mi ON mi.itemId = mb.itemId
+        WHERE mi.libraryId = :libraryId
+          AND mi.mediaType = 'BOOK'
+          AND (
+                (mb.isRead = 0 AND (mb.readingProgress = 0 OR mb.readingProgress IS NULL)
+                 AND (mb.lastReadDate IS NULL OR mb.lastReadDate = 0))
+             OR LOWER(COALESCE(mb.shelf, '')) = 'to-read'
+          )
+        """
+    )
+    suspend fun getToReadBooksCount(libraryId: Long): Int
+
+    @Query(
+        """
+        SELECT
+            strftime('%Y-%m', datetime(mb.lastReadDate / 1000, 'unixepoch')) AS yearMonth,
+            COUNT(*) AS count
+        FROM metadata_book AS mb
+        INNER JOIN media_items AS mi ON mi.itemId = mb.itemId
+        WHERE mi.libraryId = :libraryId
+          AND mi.mediaType = 'BOOK'
+          AND mb.isRead = 1
+          AND mb.lastReadDate IS NOT NULL
+          AND mb.lastReadDate >= :since
+        GROUP BY yearMonth
+        ORDER BY yearMonth DESC
+        """
+    )
+    suspend fun getMonthlyCompletionCounts(
+        libraryId: Long,
+        since: Long
+    ): List<MonthlyCompletionCount>
+
+    @Query(
+        """
+        SELECT
+            CASE
+                WHEN mb.publisher IS NULL OR LENGTH(TRIM(mb.publisher)) = 0
+                    THEN 'Unknown Publisher'
+                ELSE TRIM(mb.publisher)
+            END AS publisher,
+            COUNT(*) AS count
+        FROM metadata_book AS mb
+        INNER JOIN media_items AS mi ON mi.itemId = mb.itemId
+        WHERE mi.libraryId = :libraryId
+          AND mi.mediaType = 'BOOK'
+        GROUP BY publisher
+        ORDER BY count DESC, publisher ASC
+        LIMIT :limit
+        """
+    )
+    suspend fun getTopPublishers(
+        libraryId: Long,
+        limit: Int = 5
+    ): List<PublisherUsage>
+
+    /**
      * Get all metadata for backup
      */
     @Query("SELECT * FROM metadata_common ORDER BY itemId")
@@ -235,3 +354,13 @@ interface MetadataDao {
         val name: String
     )
 }
+
+data class MonthlyCompletionCount(
+    val yearMonth: String,
+    val count: Int
+)
+
+data class PublisherUsage(
+    val publisher: String,
+    val count: Int
+)
