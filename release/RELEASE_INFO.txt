@@ -1,29 +1,31 @@
-CleverFerret v1.5.2 Release
+CleverFerret v1.6.5 Release
 ================================
 
-Release Date: 2025-10-31
-Version: 1.5.2
-Build: 6
-Git Tag: v1.5.2
+Release Date: 2025-11-07
+Version: 1.6.5
+Build: 9
+Git Tag: v1.6.5
 
 Files in this release:
-- CHANGELOG_v1.5.2.md - Full changelog
-- CleverFerret-v1.5.2-debug.apk - Android APK (if built)
+- CleverFerret-v1.6.5-debug.apk
+- CleverFerret-v1.6.5-debug.apk.sha256
+- CleverFerret-v1.6.5-release-unsigned.apk
+- CleverFerret-v1.6.5-release-unsigned.apk.sha256
 
 GitHub:
-- Branch: main
-- Tag: v1.5.2
-- Commit: a7bf086edf8149ec36cc3744610b14cc7576c4ad
+- Branch: cursor/fix-app-issues-and-publish-version-1-6-5-4eae
+- Tag: v1.6.5 (to be pushed)
+- Commit: 0fdb63a9e7ef0fd721aa0f0384265289503e53a8
 
-Features:
-- Responsive navigation (PWA & APK)
-- 500+ radio stations integrated
-- Material 3 design
-- 94.4% test coverage
+Highlights:
+- Restored successful Gradle builds by cleaning duplicate source files and adding missing migrations.
+- Reworked responsive navigation scaffolding and sample statistics view model for compile stability.
+- Produced fresh debug and release APK artifacts with updated version code/name.
 
 To install:
-- Android: Download and install APK
-- PWA: Visit app URL and click install
+- Android Debug: Download and install `CleverFerret-v1.6.5-debug.apk`.
+- Android Release: Use `CleverFerret-v1.6.5-release-unsigned.apk` with your signing key before distribution.
 
-Documentation:
-See CHANGELOG_v1.5.2.md for complete details
+Notes:
+- Checksum files are provided for integrity verification.
+- After creating tag `v1.6.5`, run `git rev-parse v1.6.5` to confirm it matches commit `0fdb63a9e7ef0fd721aa0f0384265289503e53a8`, then push the tag.
