@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 /**
@@ -23,10 +27,14 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ReadingStatisticsUiState())
     val uiState: StateFlow<ReadingStatisticsUiState> = _uiState.asStateFlow()
 
-    private val sampleMonthlyCounts = listOf(4, 5, 6, 4, 7, 5, 6, 5, 7, 6, 5, 4)
-    
     /**
      * Load reading statistics for a library
+     * 
+     * Fetches comprehensive reading statistics including total books read, pages read,
+     * books read this year, currently reading count, to-read count, monthly reading data,
+     * and top publishers for the specified library.
+     * 
+     * @param libraryId The ID of the library to load statistics for
      */
     fun loadStatistics(libraryId: Long) {
         viewModelScope.launch {
@@ -73,6 +81,11 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     
     /**
      * Set yearly reading goal
+     * 
+     * Updates the user's yearly reading goal in the UI state and persists it
+     * to storage (SharedPreferences or settings repository).
+     * 
+     * @param goal The target number of books to read in a year
      */
     fun setYearlyGoal(goal: Int) {
         _uiState.value = _uiState.value.copy(yearlyGoal = goal)
@@ -88,101 +101,132 @@ class EnhancedReadingStatisticsViewModel @Inject constructor(
     }
 
     /**
-         * Calculate the total number of books read across all time.
-         *
-         * @return The total number of books read.
-         */
+     * Get total books read from database
+     * 
+     * Queries the database for the total count of completed books in the specified library.
+     * 
+     * @param libraryId The ID of the library to query
+     * @return The total number of books that have been marked as completed
+     */
     private suspend fun getBooksReadAllTime(libraryId: Long): Int =
-        sampleMonthlyCounts.sum()
+        metadataDao.getCompletedBooksCount(libraryId)
 
     /**
-         * Estimate the total number of pages read for the specified library.
-         *
-         * The value is computed as the number of books read multiplied by a fixed
-         * average page count of 320 pages per book.
-         *
-         * @param libraryId Identifier of the library for which to compute the estimate.
-         * @return The estimated total pages read for the library.
-         */
+     * Get total pages read from database
+     * 
+     * Calculates the sum of all pages read across all completed books in the library.
+     * 
+     * @param libraryId The ID of the library to query
+     * @return The total number of pages read
+     */
     private suspend fun getTotalPagesRead(libraryId: Long): Int =
-        getBooksReadAllTime(libraryId) * 320
+        metadataDao.getTotalPagesRead(libraryId)
 
     /**
-         * Compute the number of books read this year from the sample monthly counts.
-         *
-         * @param libraryId Library identifier (not used by the sample implementation).
-         * @param startOfYear Epoch milliseconds representing the start of the year (not used by the sample implementation).
-         * @return The total number of books read this year as the sum of the sample monthly counts.
-         */
+     * Get books read this year from database
+     * 
+     * Queries for the count of books completed since the start of the current year.
+     * 
+     * @param libraryId The ID of the library to query
+     * @param startOfYear Timestamp in milliseconds representing the start of the year
+     * @return The number of books completed since the start of the year
+     */
     private suspend fun getBooksReadThisYear(libraryId: Long, startOfYear: Long): Int =
-        sampleMonthlyCounts.sum()
+        metadataDao.getBooksReadSince(libraryId, startOfYear)
 
     /**
- * Provides the number of books currently being read for the specified library.
- *
- * @return The number of books currently being read (placeholder value: 3).
- */
-    private suspend fun getCurrentlyReadingCount(libraryId: Long): Int = 3
+     * Get currently reading count from database
+     * 
+     * Retrieves the count of books that are currently being read (in progress).
+     * 
+     * @param libraryId The ID of the library to query
+     * @return The number of books currently being read
+     */
+    private suspend fun getCurrentlyReadingCount(libraryId: Long): Int =
+        metadataDao.getCurrentReadingCount(libraryId)
 
     /**
- * Provides the to-read list count for the specified library.
- *
- * @param libraryId Identifier of the library; currently ignored because this returns sample data.
- * @return The number of books in the to-read list (currently always 12).
- */
-    private suspend fun getToReadCount(libraryId: Long): Int = 12
+     * Get to-read count from database
+     * 
+     * Retrieves the count of books marked as "to read" in the library.
+     * 
+     * @param libraryId The ID of the library to query
+     * @return The number of books in the to-read list
+     */
+    private suspend fun getToReadCount(libraryId: Long): Int =
+        metadataDao.getToReadBooksCount(libraryId)
 
     /**
-         * Generate monthly reading statistics for the past 12 months.
-         *
-         * Produces 12 MonthlyReading entries whose counts are derived from the view model's sample data
-         * and arranged so the last entry corresponds to the current calendar month.
-         *
-         * @param libraryId Identifier of the library (currently unused; kept for API compatibility).
-         * @return A list of 12 MonthlyReading objects ordered from oldest to newest month. */
-    private suspend fun getMonthlyReadingData(libraryId: Long): List<MonthlyReading> =
-        generateMonthlyData()
+     * Get monthly reading data from database
+     * 
+     * Retrieves reading completion statistics for the last 12 months, providing
+     * a month-by-month breakdown of books completed.
+     * 
+     * @param libraryId The ID of the library to query
+     * @return List of MonthlyReading objects containing month labels and book counts
+     */
+    private suspend fun getMonthlyReadingData(libraryId: Long): List<MonthlyReading> {
+        val zoneId = ZoneId.systemDefault()
+        val currentMonth = YearMonth.now()
+        val months = (0 until 12).map { index -> currentMonth.minusMonths((11 - index).toLong()) }
+        val windowStart = months.first()
+            .atDay(1)
+            .atStartOfDay(zoneId)
+            .toInstant()
+            .toEpochMilli()
+
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
+        val monthlyCounts = metadataDao
+            .getMonthlyCompletionCounts(libraryId, windowStart)
+            .associate { entry ->
+                YearMonth.parse(entry.yearMonth, formatter) to entry.count
+            }
+
+        return months.map { month ->
+            MonthlyReading(
+                month = month.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                count = monthlyCounts[month] ?: 0
+            )
+        }
+    }
     
     /**
-     * Retrieve the top publishers for the specified library ordered by number of books.
-     *
-     * @param libraryId The library identifier whose publisher statistics to retrieve.
-     * @return A list of `PublisherCount` items sorted by count in descending order; returns an empty list if no data is available or an error occurs.
+     * Get top publishers from database
+     * 
+     * Queries the database to retrieve publisher statistics for the specified library,
+     * returning a list of publishers ranked by the number of books in the collection.
+     * 
+     * @param libraryId The ID of the library to query
+     * @return List of publisher counts, or empty list if query fails
      */
     private suspend fun getTopPublishers(libraryId: Long): List<PublisherCount> {
         return try {
             // Query metadata tables for publisher statistics
-            // For now, use sample data - replace with actual database queries
-            listOf(
-                PublisherCount("Penguin Random House", 15),
-                PublisherCount("HarperCollins", 12),
-                PublisherCount("Simon & Schuster", 10),
-                PublisherCount("Macmillan", 8),
-                PublisherCount("Hachette", 7)
-            )
+            metadataDao.getTopPublishers(libraryId).map {
+                PublisherCount(it.publisher, it.count)
+            }
         } catch (e: Exception) {
+            android.util.Log.e("EnhancedReadingStatisticsViewModel", "Failed to fetch top publishers", e)
             emptyList()
         }
     }
 
     /**
-     * Builds a 12-entry list of monthly reading summaries covering the last 12 months ending with the current month.
-     *
-     * Each entry contains a three-letter month abbreviation and a count taken cyclically from `sampleMonthlyCounts`.
-     *
-     * @return A list of `MonthlyReading` for the rolling 12-month window, ordered from oldest to newest.
+     * Generate sample monthly reading data
+     * 
+     * Creates a list of MonthlyReading objects for the last 12 months with zero counts.
+     * This is used as a fallback or placeholder when actual data is not available.
+     * 
+     * @return List of MonthlyReading objects with month labels and zero counts
      */
     private fun generateMonthlyData(): List<MonthlyReading> {
-        val months = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-        val currentMonthIndex = LocalDate.now().monthValue - 1
-
-        return (0 until 12).map { offset ->
-            val monthIndex = (currentMonthIndex - 11 + offset + 12) % 12
-            val countIndex = monthIndex % sampleMonthlyCounts.size
+        val formatter = DateTimeFormatter.ofPattern("MMM", Locale.getDefault())
+        val currentMonth = YearMonth.now()
+        return (0 until 12).map { index ->
+            val month = currentMonth.minusMonths((11 - index).toLong())
             MonthlyReading(
-                month = months[monthIndex],
-                count = sampleMonthlyCounts[countIndex]
+                month = formatter.format(month.atDay(1)),
+                count = 0
             )
         }
     }
