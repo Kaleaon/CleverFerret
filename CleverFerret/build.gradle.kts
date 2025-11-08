@@ -170,7 +170,7 @@ dependencies {
     implementation("com.github.junrar:junrar:7.5.7")
     
     // Archives: CB7 (7-Zip) and CBT (TAR) support using Apache Commons Compress
-    implementation("org.apache.commons:commons-compress:1.27.1")
+    implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.10") // Required for 7z support
     
     // HTML parsing for web scraping
