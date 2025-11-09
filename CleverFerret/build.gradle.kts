@@ -265,3 +265,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+// Apply publishing configuration for GitHub Packages
+apply(from = "publish.gradle")
