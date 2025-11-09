@@ -1,41 +1,60 @@
 package com.universalmedialibrary.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -265,66 +284,126 @@ private fun ScrollableBottomBar(
 ) {
     val scrollState = rememberScrollState()
 
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp
+    Surface(
+        color = NavigationBarDefaults.containerColor,
+        contentColor = NavigationBarDefaults.contentColor,
+        tonalElevation = 3.dp,
+        shadowElevation = 0.dp
     ) {
-        if (gearPosition == BottomGearPosition.LEFT) {
-            NavigationBarEntry(
-                navController = navController,
-                item = settingsItem,
-                currentDestination = currentDestination
-            )
-        }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .horizontalScroll(scrollState)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (gearPosition == BottomGearPosition.LEFT) {
+                    ScrollableNavigationBarEntry(
+                        navController = navController,
+                        item = settingsItem,
+                        currentDestination = currentDestination
+                    )
+                }
 
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .horizontalScroll(scrollState),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items.forEach { item ->
-                NavigationBarEntry(
-                    navController = navController,
-                    item = item,
-                    currentDestination = currentDestination
-                )
+                items.forEach { item ->
+                    ScrollableNavigationBarEntry(
+                        navController = navController,
+                        item = item,
+                        currentDestination = currentDestination
+                    )
+                }
+
+                if (gearPosition == BottomGearPosition.RIGHT) {
+                    ScrollableNavigationBarEntry(
+                        navController = navController,
+                        item = settingsItem,
+                        currentDestination = currentDestination
+                    )
+                }
             }
-        }
-
-        if (gearPosition == BottomGearPosition.RIGHT) {
-            NavigationBarEntry(
-                navController = navController,
-                item = settingsItem,
-                currentDestination = currentDestination
-            )
         }
     }
 }
 
 @Composable
-private fun RowScope.NavigationBarEntry(
+private fun ScrollableNavigationBarEntry(
     navController: NavController,
     item: NavigationItem,
     currentDestination: NavDestination?
 ) {
     val selected = currentDestination.isDestinationSelected(item)
+    val containerColor by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.secondaryContainer
+        } else {
+            Color.Transparent
+        },
+        label = "bottom_bar_container_color"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.onSecondaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        label = "bottom_bar_content_color"
+    )
+    val interactionSource = remember { MutableInteractionSource() }
 
-    NavigationBarItem(
-        icon = { if (selected) item.selectedIcon() else item.icon() },
-        label = { Text(item.label) },
-        selected = selected,
-        onClick = {
-            navController.navigate(item.route) {
-                popUpTo(navController.graph.startDestinationId) {
-                    saveState = true
+    Box(
+        modifier = Modifier
+            .defaultMinSize(minWidth = 72.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(containerColor)
+            .semantics { role = Role.Tab }
+            .padding(vertical = 4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(18.dp))
+                .background(Color.Transparent)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = rememberRipple(
+                        bounded = true,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
-                launchSingleTop = true
-                restoreState = true
+        ) {
+            CompositionLocalProvider(LocalContentColor provides contentColor) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (selected) item.selectedIcon() else item.icon()
+                    }
+                    Text(
+                        text = item.label,
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
-    )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

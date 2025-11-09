@@ -964,6 +964,24 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 routeMatch = "radio"
             )
         )
+
+        add(
+            NavigationItem(
+                route = "visualizer",
+                label = "Visualizer",
+                icon = { Icon(PhosphorIcons.Equalizer, contentDescription = "Visualizer") },
+                routeMatch = "visualizer"
+            )
+        )
+
+        add(
+            NavigationItem(
+                route = "ambient",
+                label = "Ambient",
+                icon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") },
+                routeMatch = "ambient"
+            )
+        )
     }
 }
 
