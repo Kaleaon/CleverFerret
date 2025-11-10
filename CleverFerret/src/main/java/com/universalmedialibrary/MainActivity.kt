@@ -921,8 +921,15 @@ fun AppNavigation(externalFileUri: Uri? = null) {
 
 private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> {
     val sortedLibraries = libraries.sortedBy { it.name.ifBlank { it.type }.lowercase(Locale.getDefault()) }
+    val normalizedTypes = sortedLibraries.mapNotNull { normalizeLibraryType(it.type) }.toSet()
 
     return buildList {
+        fun MutableList<NavigationItem>.addIfMissing(route: String, builder: () -> NavigationItem) {
+            if (none { it.route == route }) {
+                add(builder())
+            }
+        }
+
         add(
             NavigationItem(
                 route = "home",
@@ -953,6 +960,10 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         }
 
+        val hasAudiobookLibrary = normalizedTypes.any { it in AUDIOBOOK_TYPE_TOKENS }
+        val hasPodcastLibrary = normalizedTypes.any { it in PODCAST_TYPE_TOKENS }
+        val hasVideoLibrary = normalizedTypes.any { it in MOVIE_TYPE_TOKENS || it in TV_TYPE_TOKENS }
+
         add(
             NavigationItem(
                 route = "music",
@@ -963,6 +974,37 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         )
 
+        if (!hasAudiobookLibrary) {
+            addIfMissing("audiobook_library") {
+                NavigationItem(
+                    route = "audiobook_library",
+                    label = "Audiobooks",
+                    icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Audiobooks") },
+                    routeMatch = "audiobook"
+                )
+            }
+        }
+
+        addIfMissing("fanfiction_library") {
+            NavigationItem(
+                route = "fanfiction_library",
+                label = "Fanfiction",
+                icon = { Icon(PhosphorIcons.Bookmark, contentDescription = "Fanfiction") },
+                routeMatch = "fanfiction"
+            )
+        }
+
+        if (!hasPodcastLibrary) {
+            addIfMissing("podcasts") {
+                NavigationItem(
+                    route = "podcasts",
+                    label = "Podcasts",
+                    icon = { Icon(PhosphorIcons.Microphone, contentDescription = "Podcasts") },
+                    routeMatch = "podcast"
+                )
+            }
+        }
+
         add(
             NavigationItem(
                 route = "radio",
@@ -971,6 +1013,58 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 routeMatch = "radio"
             )
         )
+
+        if (hasVideoLibrary) {
+            addIfMissing("videos") {
+                NavigationItem(
+                    route = "videos",
+                    label = "Videos",
+                    icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Videos") },
+                    routeMatch = "video"
+                )
+            }
+        }
+
+        addIfMissing("collections") {
+            NavigationItem(
+                route = "collections",
+                label = "Collections",
+                icon = { Icon(PhosphorIcons.Stack, contentDescription = "Collections") },
+                routeMatch = "collection"
+            )
+        }
+
+        addIfMissing("media_library") {
+            NavigationItem(
+                route = "media_library",
+                label = "Media Hub",
+                icon = { Icon(PhosphorIcons.Books, contentDescription = "Media Hub") },
+                routeMatch = "media_library"
+            )
+        }
+
+        addIfMissing("recommendations") {
+            NavigationItem(
+                route = "recommendations",
+                label = "Discover",
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = "Discover"
+                    )
+                },
+                routeMatch = "recommendations"
+            )
+        }
+
+        addIfMissing("enhanced_search") {
+            NavigationItem(
+                route = "enhanced_search",
+                label = "Search",
+                icon = { Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search") },
+                routeMatch = "enhanced_search"
+            )
+        }
 
         add(
             NavigationItem(
