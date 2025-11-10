@@ -934,13 +934,20 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
         )
 
         sortedLibraries.forEach { library ->
-            val label = library.name.ifBlank { library.type.replace('_', ' ') }
-            val iconVector = iconForLibraryType(library.type)
+            val navConfig = libraryNavConfig(library.type)
+            val label = formatLibraryLabel(
+                name = library.name,
+                type = library.type,
+                canonicalLabel = navConfig?.canonicalLabel
+            )
+            val iconVector = navConfig?.icon ?: iconForLibraryType(library.type)
+            val selectedIconVector = navConfig?.selectedIcon ?: iconVector
             add(
                 NavigationItem(
                     route = "library_details/${library.libraryId}",
                     label = label,
                     icon = { Icon(iconVector, contentDescription = label) },
+                    selectedIcon = { Icon(selectedIconVector, contentDescription = label) },
                     routeMatch = "library_details/{libraryId}"
                 )
             )
@@ -985,17 +992,189 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
     }
 }
 
-private fun iconForLibraryType(type: String?): ImageVector = when (type?.uppercase(Locale.getDefault())) {
-    "BOOK", "BOOKS", "LITERATURE" -> PhosphorIcons.Book
-    "COMIC", "COMICS", "GRAPHIC_NOVEL" -> PhosphorIcons.Books
-    "AUDIOBOOK", "AUDIOBOOKS" -> PhosphorIcons.Headphones
-    "MOVIE", "MOVIES", "FILM" -> PhosphorIcons.FilmSlate
-    "TV", "TV_SHOW", "TELEVISION", "SERIES" -> PhosphorIcons.Television
-    "MUSIC" -> PhosphorIcons.MusicNote
-    "DOCUMENT", "DOCUMENTS" -> PhosphorIcons.FileText
-    "PODCAST", "PODCASTS" -> PhosphorIcons.Microphone
-    else -> PhosphorIcons.Stack
+private fun iconForLibraryType(type: String?): ImageVector {
+    val normalized = normalizeLibraryType(type) ?: return PhosphorIcons.Stack
+    return when {
+        normalized in BOOK_TYPE_TOKENS -> PhosphorIcons.Book
+        normalized in AUDIOBOOK_TYPE_TOKENS -> PhosphorIcons.Headphones
+        normalized in COMIC_TYPE_TOKENS -> PhosphorIcons.Books
+        normalized in MOVIE_TYPE_TOKENS -> PhosphorIcons.FilmSlate
+        normalized in TV_TYPE_TOKENS -> PhosphorIcons.Television
+        normalized in MUSIC_TYPE_TOKENS -> PhosphorIcons.MusicNote
+        normalized in MAGAZINE_TYPE_TOKENS -> PhosphorIcons.Newspaper
+        normalized in DOCUMENT_TYPE_TOKENS -> PhosphorIcons.FileText
+        normalized in PODCAST_TYPE_TOKENS -> PhosphorIcons.Microphone
+        else -> PhosphorIcons.Stack
+    }
 }
+
+private data class LibraryNavConfig(
+    val canonicalLabel: String,
+    val icon: ImageVector,
+    val selectedIcon: ImageVector? = null
+)
+
+private fun libraryNavConfig(type: String?): LibraryNavConfig? {
+    val normalized = normalizeLibraryType(type) ?: return null
+    return when {
+        normalized in BOOK_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Books",
+            icon = PhosphorIcons.Book,
+            selectedIcon = PhosphorIcons.BookFill
+        )
+        normalized in AUDIOBOOK_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Audiobooks",
+            icon = PhosphorIcons.Headphones
+        )
+        normalized in COMIC_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Comics",
+            icon = PhosphorIcons.Books
+        )
+        normalized in MOVIE_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Movies",
+            icon = PhosphorIcons.FilmSlate
+        )
+        normalized in TV_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "TV Shows",
+            icon = PhosphorIcons.Television
+        )
+        normalized in MUSIC_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Music",
+            icon = PhosphorIcons.MusicNote,
+            selectedIcon = PhosphorIcons.MusicNoteFill
+        )
+        normalized in MAGAZINE_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Magazines",
+            icon = PhosphorIcons.Newspaper
+        )
+        normalized in DOCUMENT_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Documents",
+            icon = PhosphorIcons.FileText
+        )
+        normalized in PODCAST_TYPE_TOKENS -> LibraryNavConfig(
+            canonicalLabel = "Podcasts",
+            icon = PhosphorIcons.Microphone
+        )
+        else -> null
+    }
+}
+
+private fun formatLibraryLabel(name: String, type: String?, canonicalLabel: String?): String {
+    val fallback = canonicalLabel
+        ?: normalizeLibraryType(type)?.let(::humanizeNormalizedType)
+        ?: "Library"
+
+    val trimmedName = name.trim()
+    if (trimmedName.isEmpty()) return fallback
+
+    val normalizedName = trimmedName.normalizeLabelToken()
+    val normalizedType = normalizeLibraryType(type)?.normalizeLabelToken()
+    val normalizedFallback = fallback.normalizeLabelToken()
+
+    return when {
+        normalizedName.isEmpty() -> fallback
+        normalizedType != null && normalizedName == normalizedType -> fallback
+        normalizedFallback.isNotEmpty() && normalizedName == normalizedFallback -> fallback
+        else -> trimmedName
+    }
+}
+
+private fun normalizeLibraryType(type: String?): String? =
+    type
+        ?.trim()
+        ?.uppercase(Locale.getDefault())
+        ?.replace('-', '_')
+        ?.replace(' ', '_')
+
+private fun humanizeNormalizedType(normalized: String): String =
+    normalized
+        .lowercase(Locale.getDefault())
+        .split('_')
+        .joinToString(" ") { part ->
+            part.replaceFirstChar { char ->
+                if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+            }
+        }
+
+private fun String.normalizeLabelToken(): String =
+    lowercase(Locale.getDefault()).replace(NON_ALPHANUMERIC_REGEX, "")
+
+private val NON_ALPHANUMERIC_REGEX = Regex("[^a-z0-9]")
+
+private val BOOK_TYPE_TOKENS = setOf(
+    "BOOK",
+    "BOOKS",
+    "EBOOK",
+    "EBOOKS",
+    "E_BOOK",
+    "E_BOOKS",
+    "E-BOOK",
+    "E-BOOKS",
+    "LITERATURE",
+    "NOVEL",
+    "FICTION"
+)
+
+private val AUDIOBOOK_TYPE_TOKENS = setOf(
+    "AUDIOBOOK",
+    "AUDIOBOOKS",
+    "AUDIO_BOOK",
+    "AUDIO_BOOKS",
+    "AUDIBLE",
+    "LISTEN"
+)
+
+private val COMIC_TYPE_TOKENS = setOf(
+    "COMIC",
+    "COMICS",
+    "GRAPHIC_NOVEL",
+    "GRAPHIC-NOVEL",
+    "MANGA"
+)
+
+private val MOVIE_TYPE_TOKENS = setOf(
+    "MOVIE",
+    "MOVIES",
+    "FILM",
+    "CINEMA"
+)
+
+private val TV_TYPE_TOKENS = setOf(
+    "TV",
+    "TV_SHOW",
+    "TV_SHOWS",
+    "TELEVISION",
+    "SERIES"
+)
+
+private val MUSIC_TYPE_TOKENS = setOf(
+    "MUSIC",
+    "ALBUM",
+    "AUDIO",
+    "TRACKS"
+)
+
+private val MAGAZINE_TYPE_TOKENS = setOf(
+    "MAGAZINE",
+    "MAGAZINES",
+    "PERIODICAL",
+    "NEWSPAPER",
+    "JOURNAL"
+)
+
+private val DOCUMENT_TYPE_TOKENS = setOf(
+    "DOCUMENT",
+    "DOCUMENTS",
+    "DOCS",
+    "REFERENCE",
+    "PDF",
+    "TEXT"
+)
+
+private val PODCAST_TYPE_TOKENS = setOf(
+    "PODCAST",
+    "PODCASTS"
+)
 
 
 /**

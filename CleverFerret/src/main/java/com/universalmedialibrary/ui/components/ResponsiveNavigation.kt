@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,9 +22,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,11 +47,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -285,6 +284,7 @@ private fun ScrollableBottomBar(
     val scrollState = rememberScrollState()
 
     Surface(
+        modifier = Modifier.windowInsetsPadding(NavigationBarDefaults.windowInsets),
         color = NavigationBarDefaults.containerColor,
         contentColor = NavigationBarDefaults.contentColor,
         tonalElevation = 3.dp,
@@ -326,6 +326,7 @@ private fun ScrollableBottomBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScrollableNavigationBarEntry(
     navController: NavController,
@@ -351,56 +352,49 @@ private fun ScrollableNavigationBarEntry(
     )
     val interactionSource = remember { MutableInteractionSource() }
 
-    Box(
+    Surface(
         modifier = Modifier
-            .defaultMinSize(minWidth = 72.dp)
-            .clip(RoundedCornerShape(18.dp))
-            .background(containerColor)
-            .semantics { role = Role.Tab }
-            .padding(vertical = 4.dp)
+            .widthIn(min = 72.dp)
+            .semantics {
+                role = Role.Tab
+                this.selected = selected
+            },
+        shape = RoundedCornerShape(18.dp),
+        color = containerColor,
+        contentColor = contentColor,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
+        interactionSource = interactionSource,
+        onClick = {
+            navController.navigate(item.route) {
+                popUpTo(navController.graph.startDestinationId) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
     ) {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(18.dp))
-                .background(Color.Transparent)
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = rememberRipple(
-                        bounded = true,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    if (selected) item.selectedIcon() else item.icon()
                 }
-        ) {
-            CompositionLocalProvider(LocalContentColor provides contentColor) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (selected) item.selectedIcon() else item.icon()
-                    }
-                    Text(
-                        text = item.label,
-                        style = MaterialTheme.typography.labelSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                Text(
+                    text = item.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
