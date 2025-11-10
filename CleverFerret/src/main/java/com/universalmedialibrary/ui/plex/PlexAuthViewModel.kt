@@ -149,15 +149,41 @@ class PlexAuthViewModel @Inject constructor(
      * Get stored username
      */
     fun getUsername(): String? {
-        return authService.getStoredToken()?.let {
-            // In a real implementation, we'd decode the token or fetch from storage
-            "Plex User"
-        }
+        return authService.getStoredUsername() ?: authService.getStoredToken()?.let { "Plex User" }
     }
 
     override fun onCleared() {
         super.onCleared()
         pollingJob?.cancel()
+    }
+
+    /**
+     * Clear current error state if present
+     */
+    fun clearError() {
+        authService.clearError()
+        if (_authState.value is PlexAuthUiState.Error) {
+            _authState.value = PlexAuthUiState.Idle
+        }
+    }
+
+    /**
+     * Sign in using credentials (username/password) instead of PIN.
+     */
+    fun signInWithCredentials(username: String, password: String) {
+        val trimmedUsername = username.trim()
+        if (trimmedUsername.isEmpty() || password.isEmpty()) {
+            _authState.value = PlexAuthUiState.Error("Please enter both username and password")
+            return
+        }
+
+        viewModelScope.launch {
+            val result = authService.authenticateWithCredentials(trimmedUsername, password)
+            result.onSuccess {
+                // Automatically fetch available servers after successful sign-in
+                discoverServers()
+            }
+        }
     }
 }
 
