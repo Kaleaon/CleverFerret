@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.podcast
 
 import android.content.Context
+import com.universalmedialibrary.services.integration.api.ApplePodcastsApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.firstOrNull
@@ -11,10 +12,9 @@ import org.jsoup.parser.Parser
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Query
-import retrofit2.http.Url
-import retrofit2.http.Path
 import retrofit2.http.Header
+import retrofit2.http.Path
+import retrofit2.http.Query
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -83,18 +83,6 @@ interface ListenNotesApi {
 
     @GET("podcasts/{id}")
     suspend fun getPodcastById(@Path("id") id: String): ListenNotesPodcast
-}
-
-interface iTunesSearchApi {
-    @GET("search")
-    suspend fun searchPodcasts(
-        @Query("term") term: String,
-        @Query("media") media: String = "podcast",
-        @Query("limit") limit: Int = 20
-    ): iTunesSearchResponse
-
-    @GET("lookup")
-    suspend fun lookupPodcast(@Query("id") id: String): iTunesSearchResponse
 }
 
 interface SpotifyPodcastApi {
@@ -195,25 +183,6 @@ data class ListenNotesGenre(
     val name: String
 )
 
-// iTunes Search API responses
-data class iTunesSearchResponse(
-    val resultCount: Int,
-    val results: List<iTunesPodcast>
-)
-
-data class iTunesPodcast(
-    val trackId: Long,
-    val trackName: String,
-    val artistName: String,
-    val feedUrl: String,
-    val artworkUrl600: String?,
-    val artworkUrl100: String?,
-    val trackCount: Int?,
-    val primaryGenreName: String?,
-    val contentAdvisoryRating: String?,
-    val country: String
-)
-
 // Spotify API responses
 data class SpotifySearchResponse(
     val shows: SpotifyShowsPage
@@ -272,7 +241,8 @@ data class TaddyPodcast(
 @Singleton
 class PodcastService @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
-    private val podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository
+    private val podcastRepository: com.universalmedialibrary.data.repository.podcast.PodcastRepository,
+    private val applePodcastsApi: ApplePodcastsApi
 ) {
 
     private val httpClient = OkHttpClient.Builder().build()
@@ -293,15 +263,6 @@ class PodcastService @Inject constructor(
             .client(httpClient)
             .build()
             .create(ListenNotesApi::class.java)
-    }
-
-    private val iTunesSearchApi: iTunesSearchApi by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://itunes.apple.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(httpClient)
-            .build()
-            .create(iTunesSearchApi::class.java)
     }
 
     private val spotifyApi: SpotifyPodcastApi by lazy {
@@ -403,16 +364,19 @@ class PodcastService @Inject constructor(
     }
 
     private suspend fun searchiTunesPodcasts(query: String): List<PodcastSearchResult> {
-        val response = iTunesSearchApi.searchPodcasts(query)
+        val response = applePodcastsApi.searchPodcasts(query)
         return response.results.map { podcast ->
             PodcastSearchResult(
                 id = "itunes_${podcast.trackId}",
                 title = podcast.trackName,
                 author = podcast.artistName,
-                description = "", // iTunes doesn't provide description in search
+                description = podcast.collectionName ?: "",
                 feedUrl = podcast.feedUrl,
-                imageUrl = podcast.artworkUrl600 ?: podcast.artworkUrl100,
-                episodeCount = podcast.trackCount ?: 0,
+                imageUrl = podcast.artworkUrl600
+                    ?: podcast.artworkUrl100
+                    ?: podcast.artworkUrl60
+                    ?: podcast.artworkUrl30,
+                episodeCount = podcast.trackCount,
                 category = podcast.primaryGenreName,
                 lastEpisodeDate = null, // Not available in search results
                 source = "itunes"
