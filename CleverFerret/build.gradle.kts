@@ -12,7 +12,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.compose")
-    id("com.mikepenz.aboutlibraries.plugin") version "12.2.4"
+    id("com.mikepenz.aboutlibraries.plugin") version "13.1.0"
 }
 
 configurations.all {
