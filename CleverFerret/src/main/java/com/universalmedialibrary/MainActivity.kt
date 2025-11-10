@@ -138,12 +138,14 @@ import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
+import com.universalmedialibrary.ui.components.MediaControlActions
 import com.universalmedialibrary.ui.components.NavigationItem
 import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
-import com.universalmedialibrary.ui.components.MediaControlsBar
 import com.universalmedialibrary.ui.components.rememberMediaControlsState
 import com.universalmedialibrary.ui.ambient.AmbientSoundScreen
 import com.universalmedialibrary.ui.ambient.AmbientSoundViewModel
+import com.universalmedialibrary.ui.models.MediaCategory
+import com.universalmedialibrary.ui.viewmodels.MediaLibraryViewModel
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
@@ -330,7 +332,16 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         },
         floatingActionButton = {
             // FAB can be shown on specific screens
-        }
+        },
+        mediaControlsState = mediaControlsState,
+        mediaControlActions = MediaControlActions(
+            onPlayPause = {
+                mediaControlsState.updatePlaybackState(!mediaControlsState.isPlaying)
+            },
+            onSkipNext = { /* TODO: integrate with playback queue */ },
+            onSkipPrevious = { /* TODO: integrate with playback queue */ },
+            onOpenPlayer = { navController.navigate("music_player") }
+        )
     ) { paddingValues ->
         NavHost(
             navController = navController,
@@ -795,6 +806,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                 }
             )
         }
+        composable("media_library/tv") {
+            val mediaLibraryViewModel: MediaLibraryViewModel = hiltViewModel()
+            LaunchedEffect(Unit) {
+                mediaLibraryViewModel.selectCategory(MediaCategory.TV_SHOWS)
+            }
+            com.universalmedialibrary.ui.screens.MediaLibraryScreen(
+                viewModel = mediaLibraryViewModel,
+                onNavigateToItem = { itemId ->
+                    navController.navigate("open/$itemId")
+                }
+            )
+        }
 
         // Server integration route
         composable("servers") {
@@ -962,7 +985,8 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
 
         val hasAudiobookLibrary = normalizedTypes.any { it in AUDIOBOOK_TYPE_TOKENS }
         val hasPodcastLibrary = normalizedTypes.any { it in PODCAST_TYPE_TOKENS }
-        val hasVideoLibrary = normalizedTypes.any { it in MOVIE_TYPE_TOKENS || it in TV_TYPE_TOKENS }
+        val hasVideoLibrary = normalizedTypes.any { it in MOVIE_TYPE_TOKENS }
+        val hasTvLibrary = normalizedTypes.any { it in TV_TYPE_TOKENS }
 
         add(
             NavigationItem(
@@ -1021,6 +1045,17 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                     label = "Videos",
                     icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Videos") },
                     routeMatch = "video"
+                )
+            }
+        }
+
+        if (hasTvLibrary || hasVideoLibrary) {
+            addIfMissing("media_library/tv") {
+                NavigationItem(
+                    route = "media_library/tv",
+                    label = "TV",
+                    icon = { Icon(PhosphorIcons.Television, contentDescription = "TV") },
+                    routeMatch = "media_library/tv"
                 )
             }
         }
@@ -1293,7 +1328,6 @@ fun LibraryListScreen(
     val context = LocalContext.current
     var dbFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedLibraryForImport by remember { mutableStateOf<Library?>(null) }
-      val mediaControlsState = rememberMediaControlsState()
       val configuration = LocalConfiguration.current
       val isCompactWidth = configuration.screenWidthDp < 600
 
@@ -1605,24 +1639,6 @@ fun LibraryListScreen(
                       )
                   }
             }
-        }
-        
-            // Media Controls Bar at Bottom
-            MediaControlsBar(
-                isVisible = mediaControlsState.isVisible,
-                title = mediaControlsState.title,
-                artist = mediaControlsState.artist,
-                isPlaying = mediaControlsState.isPlaying,
-                isCasting = mediaControlsState.isCasting,
-                castDeviceName = mediaControlsState.castDeviceName,
-                onPlayPause = { 
-                    mediaControlsState.updatePlaybackState(!mediaControlsState.isPlaying) 
-                },
-                onSkipNext = { },
-                onSkipPrevious = { },
-                onClick = { navController.navigate("music_player") },
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
         }
     }
 

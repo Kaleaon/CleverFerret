@@ -185,6 +185,13 @@ class MediaControlsState {
     }
 }
 
+data class MediaControlActions(
+    val onPlayPause: () -> Unit = {},
+    val onSkipNext: () -> Unit = {},
+    val onSkipPrevious: () -> Unit = {},
+    val onOpenPlayer: () -> Unit = {}
+)
+
 @Composable
 fun rememberMediaControlsState(): MediaControlsState {
     return remember { MediaControlsState() }
