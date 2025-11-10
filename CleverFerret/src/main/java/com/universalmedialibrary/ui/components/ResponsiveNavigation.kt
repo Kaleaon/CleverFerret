@@ -1,41 +1,66 @@
 package com.universalmedialibrary.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -224,6 +249,8 @@ fun ResponsiveNavigationScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
+    mediaControlsState: MediaControlsState? = null,
+    mediaControlActions: MediaControlActions = MediaControlActions(),
     content: @Composable (PaddingValues) -> Unit
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -241,16 +268,127 @@ fun ResponsiveNavigationScaffold(
                     enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
                     exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
                 ) {
-                    ScrollableBottomBar(
+                    BottomBarWithMediaControls(
                         navController = navController,
                         items = bottomNavItems,
                         settingsItem = settingsItem,
                         gearPosition = gearPosition,
-                        currentDestination = currentDestination
+                        currentDestination = currentDestination,
+                        mediaControlsState = mediaControlsState,
+                        mediaControlActions = mediaControlActions
                     )
                 }
             },
             content = content
+        )
+    }
+}
+
+@Composable
+private fun BottomBarWithMediaControls(
+    navController: NavController,
+    items: List<NavigationItem>,
+    settingsItem: NavigationItem,
+    gearPosition: BottomGearPosition,
+    currentDestination: NavDestination?,
+    mediaControlsState: MediaControlsState?,
+    mediaControlActions: MediaControlActions
+) {
+    var controlsExpanded by rememberSaveable { mutableStateOf(false) }
+    val controlsAvailable = mediaControlsState?.isVisible == true
+
+    LaunchedEffect(controlsAvailable) {
+        if (!controlsAvailable) {
+            controlsExpanded = false
+        }
+    }
+
+    val bottomBarModifier = if (controlsAvailable) {
+        Modifier.pointerInput(controlsExpanded) {
+            detectVerticalDragGestures(
+                onVerticalDrag = { change, dragAmount ->
+                    when {
+                        dragAmount < -16 -> {
+                            controlsExpanded = true
+                            change.consume()
+                        }
+                        dragAmount > 16 && controlsExpanded -> {
+                            controlsExpanded = false
+                            change.consume()
+                        }
+                    }
+                }
+            )
+        }
+    } else {
+        Modifier
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        if (controlsAvailable) {
+            val handleModifier = Modifier
+                .padding(top = 4.dp, bottom = if (controlsExpanded) 8.dp else 4.dp)
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { change, dragAmount ->
+                            when {
+                                dragAmount < -14 -> {
+                                    controlsExpanded = true
+                                    change.consume()
+                                }
+                                dragAmount > 14 -> {
+                                    controlsExpanded = false
+                                    change.consume()
+                                }
+                            }
+                        }
+                    )
+                }
+                .clickable { controlsExpanded = !controlsExpanded }
+
+            Box(
+                modifier = handleModifier,
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 48.dp, height = 5.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                            shape = RoundedCornerShape(2.5.dp)
+                        )
+                )
+            }
+
+            MediaControlsBar(
+                isVisible = controlsExpanded,
+                title = mediaControlsState.title,
+                artist = mediaControlsState.artist,
+                isPlaying = mediaControlsState.isPlaying,
+                isCasting = mediaControlsState.isCasting,
+                castDeviceName = mediaControlsState.castDeviceName,
+                onPlayPause = mediaControlActions.onPlayPause,
+                onSkipNext = mediaControlActions.onSkipNext,
+                onSkipPrevious = mediaControlActions.onSkipPrevious,
+                onClick = mediaControlActions.onOpenPlayer,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        ScrollableBottomBar(
+            navController = navController,
+            items = items,
+            settingsItem = settingsItem,
+            gearPosition = gearPosition,
+            currentDestination = currentDestination,
+            modifier = bottomBarModifier
         )
     }
 }
@@ -261,60 +399,102 @@ private fun ScrollableBottomBar(
     items: List<NavigationItem>,
     settingsItem: NavigationItem,
     gearPosition: BottomGearPosition,
-    currentDestination: NavDestination?
+    currentDestination: NavDestination?,
+    modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
 
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp
+    Surface(
+        modifier = modifier.windowInsetsPadding(NavigationBarDefaults.windowInsets),
+        color = NavigationBarDefaults.containerColor,
+        contentColor = NavigationBarDefaults.contentColor,
+        tonalElevation = 3.dp,
+        shadowElevation = 0.dp
     ) {
-        if (gearPosition == BottomGearPosition.LEFT) {
-            NavigationBarEntry(
-                navController = navController,
-                item = settingsItem,
-                currentDestination = currentDestination
-            )
-        }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .horizontalScroll(scrollState)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (gearPosition == BottomGearPosition.LEFT) {
+                    ScrollableNavigationBarEntry(
+                        navController = navController,
+                        item = settingsItem,
+                        currentDestination = currentDestination
+                    )
+                }
 
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .horizontalScroll(scrollState),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items.forEach { item ->
-                NavigationBarEntry(
-                    navController = navController,
-                    item = item,
-                    currentDestination = currentDestination
-                )
+                items.forEach { item ->
+                    ScrollableNavigationBarEntry(
+                        navController = navController,
+                        item = item,
+                        currentDestination = currentDestination
+                    )
+                }
+
+                if (gearPosition == BottomGearPosition.RIGHT) {
+                    ScrollableNavigationBarEntry(
+                        navController = navController,
+                        item = settingsItem,
+                        currentDestination = currentDestination
+                    )
+                }
             }
-        }
-
-        if (gearPosition == BottomGearPosition.RIGHT) {
-            NavigationBarEntry(
-                navController = navController,
-                item = settingsItem,
-                currentDestination = currentDestination
-            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RowScope.NavigationBarEntry(
+private fun ScrollableNavigationBarEntry(
     navController: NavController,
     item: NavigationItem,
     currentDestination: NavDestination?
 ) {
+    val isSettingsItem = item.route == "settings"
     val selected = currentDestination.isDestinationSelected(item)
+    val containerColor by animateColorAsState(
+        targetValue = when {
+            isSettingsItem && selected -> MaterialTheme.colorScheme.primary
+            isSettingsItem -> MaterialTheme.colorScheme.surfaceVariant
+            selected -> MaterialTheme.colorScheme.secondaryContainer
+            else -> Color.Transparent
+        },
+        label = "bottom_bar_container_color"
+    )
+    val contentColor by animateColorAsState(
+        targetValue = when {
+            isSettingsItem && selected -> MaterialTheme.colorScheme.onPrimary
+            isSettingsItem -> MaterialTheme.colorScheme.onSurfaceVariant
+            selected -> MaterialTheme.colorScheme.onSecondaryContainer
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        label = "bottom_bar_content_color"
+    )
+    val interactionSource = remember { MutableInteractionSource() }
 
-    NavigationBarItem(
-        icon = { if (selected) item.selectedIcon() else item.icon() },
-        label = { Text(item.label) },
-        selected = selected,
+    val surfaceModifier = if (isSettingsItem) {
+        Modifier.size(56.dp)
+    } else {
+        Modifier.widthIn(min = 72.dp)
+    }
+
+    Surface(
+        modifier = surfaceModifier
+            .semantics {
+                role = Role.Tab
+                this.selected = selected
+                contentDescription = item.label
+            },
+        shape = if (isSettingsItem) RoundedCornerShape(12.dp) else RoundedCornerShape(18.dp),
+        color = containerColor,
+        contentColor = contentColor,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
+        interactionSource = interactionSource,
         onClick = {
             navController.navigate(item.route) {
                 popUpTo(navController.graph.startDestinationId) {
@@ -324,7 +504,39 @@ private fun RowScope.NavigationBarEntry(
                 restoreState = true
             }
         }
-    )
+    ) {
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            if (isSettingsItem) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selected) item.selectedIcon() else item.icon()
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (selected) item.selectedIcon() else item.icon()
+                    }
+                    Text(
+                        text = item.label,
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

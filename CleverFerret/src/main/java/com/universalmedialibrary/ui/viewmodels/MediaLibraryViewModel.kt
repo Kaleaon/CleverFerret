@@ -54,6 +54,7 @@ class MediaLibraryViewModel @Inject constructor(
      * Select a media category
      */
     fun selectCategory(category: MediaCategory) {
+        if (_selectedCategory.value == category) return
         _selectedCategory.value = category
         loadMediaItems()
     }
