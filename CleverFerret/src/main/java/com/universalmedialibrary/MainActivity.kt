@@ -1666,6 +1666,7 @@ fun LibraryListScreen(
         )
     }
 }
+}
 
 @Composable
 private fun SampleClassicsSection(
