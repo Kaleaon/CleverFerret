@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
@@ -50,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -407,7 +409,7 @@ private fun ScrollableBottomBar(
     Surface(
         modifier = modifier.windowInsetsPadding(NavigationBarDefaults.windowInsets),
         color = NavigationBarDefaults.containerColor,
-        contentColor = NavigationBarDefaults.contentColor,
+        contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor),
         tonalElevation = 3.dp,
         shadowElevation = 0.dp
     ) {
