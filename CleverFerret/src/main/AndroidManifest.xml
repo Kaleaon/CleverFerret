@@ -185,6 +185,12 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
         <service
+            android:name=".services.media.MediaNotificationService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"
+            tools:ignore="ExportedService" />
+        <service
             android:name=".services.MediaScannerService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
