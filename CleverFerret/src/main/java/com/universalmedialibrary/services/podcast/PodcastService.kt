@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.podcast
 
 import android.content.Context
+import com.google.gson.annotations.SerializedName
 import com.universalmedialibrary.services.integration.api.ApplePodcastsApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -108,6 +109,14 @@ interface TaddyPodcastApi {
         @Query("limit") limit: Int = 20,
         @Header("X-API-KEY") apiKey: String
     ): TaddySearchResponse
+}
+
+interface GPodderApi {
+    @GET("search.json")
+    suspend fun searchPodcasts(
+        @Query("q") query: String,
+        @Query("max") max: Int = 20
+    ): List<GPodderSearchResult>
 }
 
 // PodcastIndex.org API responses
@@ -234,6 +243,16 @@ data class TaddyPodcast(
     val categories: List<String>
 )
 
+data class GPodderSearchResult(
+    val title: String?,
+    val url: String?,
+    val description: String?,
+    val website: String?,
+    val subscribers: Int?,
+    @SerializedName("subscribers_last_week")
+    val subscribersLastWeek: Int?
+)
+
 /**
  * Podcast service for RSS feed operations and API searches
  * Now works with PodcastRepository for persistence
@@ -281,6 +300,15 @@ class PodcastService @Inject constructor(
             .client(httpClient)
             .build()
             .create(TaddyPodcastApi::class.java)
+    }
+
+    private val gPodderApi: GPodderApi by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://gpodder.net/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(httpClient)
+            .build()
+            .create(GPodderApi::class.java)
     }
 
     /**
@@ -336,6 +364,14 @@ class PodcastService @Inject constructor(
                     val taddyResults = searchTaddyPodcasts(query, key)
                     allResults.addAll(taddyResults)
                 }
+            } catch (e: Exception) {
+                // Continue with other sources
+            }
+
+            // 6. gpodder.net (open directory with community stats)
+            try {
+                val gpodderResults = searchGPodderPodcasts(query)
+                allResults.addAll(gpodderResults)
             } catch (e: Exception) {
                 // Continue with other sources
             }
@@ -450,6 +486,36 @@ class PodcastService @Inject constructor(
                 category = podcast.categories.firstOrNull(),
                 lastEpisodeDate = null,
                 source = "taddy"
+            )
+        }
+    }
+
+    private suspend fun searchGPodderPodcasts(query: String): List<PodcastSearchResult> {
+        val response = gPodderApi.searchPodcasts(query)
+        return response.mapNotNull { podcast ->
+            val feedUrl = podcast.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val descriptionBuilder = StringBuilder()
+            if (!podcast.description.isNullOrBlank()) {
+                descriptionBuilder.append(podcast.description.trim())
+            }
+            if (!podcast.website.isNullOrBlank()) {
+                if (descriptionBuilder.isNotEmpty()) {
+                    descriptionBuilder.append("\n")
+                }
+                descriptionBuilder.append("Website: ").append(podcast.website)
+            }
+
+            PodcastSearchResult(
+                id = "gpodder_${feedUrl.hashCode()}",
+                title = podcast.title?.takeIf { it.isNotBlank() } ?: feedUrl,
+                author = null,
+                description = descriptionBuilder.toString().ifBlank { null },
+                feedUrl = feedUrl,
+                imageUrl = null,
+                episodeCount = podcast.subscribers,
+                category = null,
+                lastEpisodeDate = null,
+                source = "gpodder"
             )
         }
     }
