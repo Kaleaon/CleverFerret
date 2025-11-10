@@ -276,6 +276,7 @@ fun AppNavigation(externalFileUri: Uri? = null) {
     val libraries by mainViewModel.libraries.collectAsState()
     val gearPosition by mainViewModel.bottomGearPosition.collectAsState()
     var bottomBarVisible by rememberSaveable { mutableStateOf(true) }
+    val mediaControlsState = rememberMediaControlsState()
 
     val settingsItem = remember {
         NavigationItem(
