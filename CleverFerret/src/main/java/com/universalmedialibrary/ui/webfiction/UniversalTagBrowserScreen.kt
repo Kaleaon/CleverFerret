@@ -3,6 +3,8 @@ package com.universalmedialibrary.ui.webfiction
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -96,11 +99,10 @@ fun UniversalTagBrowserScreen(
                     )
                 } else {
                     // Tag browsing screen
-                    TagBrowsingContent(
-                        uiState = uiState,
-                        viewModel = viewModel,
-                        navController = navController
-                    )
+                      TagBrowsingContent(
+                          uiState = uiState,
+                          viewModel = viewModel
+                      )
                 }
             }
         }
@@ -243,9 +245,9 @@ private fun SiteCard(
 @Composable
 private fun TagBrowsingContent(
     uiState: UniversalTagBrowserUiState,
-    viewModel: UniversalTagBrowserViewModel,
-    navController: NavController
+    viewModel: UniversalTagBrowserViewModel
 ) {
+    val uriHandler = LocalUriHandler.current
     Column(modifier = Modifier.fillMaxSize()) {
         // Site header
         Card(
@@ -351,11 +353,15 @@ private fun TagBrowsingContent(
                     )
                 }
 
-                items(uiState.searchResult.stories) { story ->
+                items(
+                    items = uiState.searchResult.stories,
+                    key = { "${it.site}-${it.id}-${it.url}" }
+                ) { story ->
                     StoryResultCard(
                         story = story,
-                        onStoryClick = { viewModel.downloadStory(story) },
-                        onOpenUrl = { /* TODO: Open in browser */ }
+                        isDownloading = uiState.downloadingStoryId == story.id,
+                        onDownload = { viewModel.downloadStory(story) },
+                        onOpenUrl = { uriHandler.openUri(story.url) }
                     )
                 }
 
@@ -377,6 +383,14 @@ private fun TagBrowsingContent(
                     ErrorCard(
                         error = uiState.error,
                         onDismiss = { viewModel.clearError() }
+                    )
+                }
+            }
+            if (uiState.successMessage != null) {
+                item {
+                    SuccessCard(
+                        message = uiState.successMessage,
+                        onDismiss = { viewModel.clearSuccess() }
                     )
                 }
             }
@@ -536,37 +550,98 @@ private fun AdvancedFiltersCard(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StoryResultCard(
     story: WebFictionStory,
-    onStoryClick: () -> Unit,
+    isDownloading: Boolean,
+    onDownload: () -> Unit,
     onOpenUrl: () -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
-            modifier = Modifier
-                .clickable { onStoryClick() }
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = story.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            if (story.author != null) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "by ${story.author}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = story.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    story.author?.let {
+                        Text(
+                            text = "by $it",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    story.site?.let {
+                        AssistChip(
+                            onClick = { },
+                            enabled = false,
+                            label = { Text(it) }
+                        )
+                    }
+                }
             }
+
             if (story.description?.isNotEmpty() == true) {
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = story.description,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 3
+                    maxLines = 5
                 )
+            }
+
+            if (story.tags.isNotEmpty()) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    story.tags.take(8).forEach { tag ->
+                        AssistChip(
+                            onClick = { },
+                            enabled = false,
+                            label = { Text(tag) }
+                        )
+                    }
+                }
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = onDownload,
+                    enabled = !isDownloading
+                ) {
+                    if (isDownloading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Downloading…")
+                    } else {
+                        Icon(Icons.Default.Download, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Download")
+                    }
+                }
+                OutlinedButton(onClick = onOpenUrl) {
+                    Icon(Icons.Default.OpenInNew, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Open Web")
+                }
             }
         }
     }
@@ -587,6 +662,36 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
             Icon(Icons.Default.Error, contentDescription = null, tint = MaterialTheme.colorScheme.error)
             Spacer(modifier = Modifier.width(12.dp))
             Text(error, modifier = Modifier.weight(1f))
+            IconButton(onClick = onDismiss) {
+                Icon(Icons.Default.Close, contentDescription = "Dismiss")
+            }
+        }
+    }
+}
+
+@Composable
+private fun SuccessCard(message: String, onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = message,
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
             IconButton(onClick = onDismiss) {
                 Icon(Icons.Default.Close, contentDescription = "Dismiss")
             }

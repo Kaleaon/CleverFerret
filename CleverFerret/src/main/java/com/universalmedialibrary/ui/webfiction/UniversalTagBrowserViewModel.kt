@@ -6,6 +6,7 @@ import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.*
+import com.universalmedialibrary.services.webfiction.WebFictionLibraryManager
 import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,8 @@ import javax.inject.Inject
 class UniversalTagBrowserViewModel @Inject constructor(
     private val universalTagService: UniversalTagService,
     private val webFictionService: WebFictionService,
-    private val parentalControlsSettings: ParentalControlsSettings
+    private val parentalControlsSettings: ParentalControlsSettings,
+    private val libraryManager: WebFictionLibraryManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UniversalTagBrowserUiState())
@@ -236,6 +238,10 @@ class UniversalTagBrowserViewModel @Inject constructor(
      * Download a story
      */
     fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
+        if (_uiState.value.downloadingStoryId != null && _uiState.value.downloadingStoryId != story.id) {
+            // Ignore additional download requests while another story is downloading.
+            return
+        }
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 downloadingStoryId = story.id,
@@ -245,13 +251,28 @@ class UniversalTagBrowserViewModel @Inject constructor(
 
             try {
                 val chapters = webFictionService.downloadAllChapters(story, bypassPin)
+                if (chapters.isEmpty()) {
+                    _uiState.value = _uiState.value.copy(
+                        downloadingStoryId = null,
+                        error = "No chapters were returned for ${story.title}."
+                    )
+                    return@launch
+                }
+
                 val completeStory = story.copy(chapters = chapters)
-                
-                // TODO: Create EPUB, add to library
-                _uiState.value = _uiState.value.copy(
-                    downloadingStoryId = null,
-                    successMessage = "Downloaded: ${completeStory.title}"
-                )
+                val importResult = libraryManager.importStory(completeStory)
+
+                if (importResult.success) {
+                    _uiState.value = _uiState.value.copy(
+                        downloadingStoryId = null,
+                        successMessage = importResult.message
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        downloadingStoryId = null,
+                        error = importResult.message
+                    )
+                }
             } catch (e: Exception) {
                 val handled = handlePinException(
                     throwable = e,
