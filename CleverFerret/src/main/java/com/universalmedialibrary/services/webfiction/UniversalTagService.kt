@@ -3,6 +3,8 @@ package com.universalmedialibrary.services.webfiction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import java.net.URLEncoder
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,6 +22,8 @@ class UniversalTagService @Inject constructor(
         private const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
         private const val REQUEST_TIMEOUT = 30000
     }
+
+    private val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
 
     /**
      * Fetch tags for a specific site
@@ -244,44 +248,69 @@ class UniversalTagService @Inject constructor(
     // ===========================================================================================
 
     private suspend fun fetchRoyalRoadTags(): Result<List<WebFictionTag>> {
-        return Result.success(
-            listOf(
-                // Genres
-                WebFictionTag("litrpg", "litrpg", "LitRPG", TagCategory.GENRE, 0),
-                WebFictionTag("progression-fantasy", "progression-fantasy", "Progression Fantasy", TagCategory.GENRE, 0),
-                WebFictionTag("isekai", "isekai", "Isekai", TagCategory.GENRE, 0),
-                WebFictionTag("dungeon-core", "dungeon-core", "Dungeon Core", TagCategory.GENRE, 0),
-                WebFictionTag("cultivation", "cultivation", "Cultivation", TagCategory.GENRE, 0),
-                WebFictionTag("cyberpunk", "cyberpunk", "Cyberpunk", TagCategory.GENRE, 0),
-                WebFictionTag("post-apocalyptic", "post-apocalyptic", "Post-Apocalyptic", TagCategory.GENRE, 0),
-                
-                // Themes
-                WebFictionTag("op-mc", "op-mc", "OP MC", TagCategory.THEME, 0),
-                WebFictionTag("weak-to-strong", "weak-to-strong", "Weak to Strong", TagCategory.THEME, 0),
-                WebFictionTag("magic", "magic", "Magic", TagCategory.THEME, 0),
-                WebFictionTag("martial-arts", "martial-arts", "Martial Arts", TagCategory.THEME, 0),
-                WebFictionTag("kingdom-building", "kingdom-building", "Kingdom Building", TagCategory.THEME, 0)
-            )
-        )
+        return withContext(Dispatchers.IO) {
+            try {
+                val doc = Jsoup.connect("https://www.royalroad.com/fictions/genres")
+                    .timeout(REQUEST_TIMEOUT)
+                    .userAgent(USER_AGENT)
+                    .get()
+
+                val tagElements = doc.select(
+                    "a.genre-label, a.genre-tag, div.genre-card a, a.badge, a.tag, li a[data-tag]"
+                )
+
+                val deduped = linkedMapOf<String, WebFictionTag>()
+                for (element in tagElements) {
+                    val rawName = element.text().trim()
+                    if (rawName.isEmpty()) continue
+
+                    val (displayName, count) = extractRoyalRoadDisplayNameAndCount(rawName)
+                    val tagId = extractRoyalRoadTagId(element, displayName)
+                    val category = categorizeRoyalRoadTag(displayName)
+
+                    val cleanId = tagId.ifBlank { sanitizeTagId(displayName) }
+                    if (cleanId.isBlank()) continue
+
+                    deduped.putIfAbsent(
+                        cleanId,
+                        WebFictionTag(
+                            id = cleanId,
+                            name = cleanId,
+                            displayName = displayName,
+                            category = category,
+                            count = count
+                        )
+                    )
+                }
+
+                val tags = deduped.values.toList()
+                Result.success(
+                    if (tags.isEmpty()) getRoyalRoadFallbackTags()
+                    else tags.sortedBy { it.displayName.lowercase(Locale.US) }
+                )
+            } catch (e: Exception) {
+                Result.success(getRoyalRoadFallbackTags())
+            }
+        }
     }
 
     private suspend fun browseRoyalRoadByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
         return withContext(Dispatchers.IO) {
             try {
-                val url = "https://www.royalroad.com/fictions/search?tagsAdd=${criteria.tags.joinToString(",")}"
+                val url = buildRoyalRoadSearchUrl(criteria)
                 val doc = Jsoup.connect(url)
                     .timeout(REQUEST_TIMEOUT)
                     .userAgent(USER_AGENT)
                     .get()
 
                 val stories = parseRoyalRoadSearchResults(doc)
-                
+
                 Result.success(
                     StorySearchResult(
                         stories = stories,
                         totalCount = stories.size,
-                        hasMore = false,
-                        nextOffset = null
+                        hasMore = stories.size >= criteria.limit,
+                        nextOffset = if (stories.size >= criteria.limit) criteria.offset + criteria.limit else null
                     )
                 )
             } catch (e: Exception) {
@@ -330,6 +359,120 @@ class UniversalTagService @Inject constructor(
         }
         
         return stories
+    }
+
+    private fun extractRoyalRoadDisplayNameAndCount(raw: String): Pair<String, Int> {
+        val countMatch = royalRoadCountRegex.find(raw)
+        val count = countMatch?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() ?: 0
+        val displayName = raw.replace(royalRoadCountRegex, "").trim()
+        return displayName to count
+    }
+
+    private fun extractRoyalRoadTagId(element: org.jsoup.nodes.Element, displayName: String): String {
+        val attributeId = sequenceOf(
+            element.attr("data-tag"),
+            element.attr("data-value"),
+            element.attr("data-slug"),
+            element.attr("data-name")
+        ).firstOrNull { it.isNotBlank() }?.let { sanitizeTagId(it) }
+
+        if (!attributeId.isNullOrBlank()) return attributeId
+
+        val href = element.attr("href")
+        if (href.isNotBlank()) {
+            when {
+                href.contains("tagsAdd=", ignoreCase = true) ->
+                    return sanitizeTagId(href.substringAfter("tagsAdd=").substringBefore("&"))
+                href.contains("/tag/", ignoreCase = true) ->
+                    return sanitizeTagId(href.substringAfter("/tag/").substringBefore("/"))
+                href.contains("/genres/", ignoreCase = true) ->
+                    return sanitizeTagId(href.substringAfterLast("/"))
+            }
+        }
+
+        return sanitizeTagId(displayName)
+    }
+
+    private fun sanitizeTagId(value: String): String {
+        val normalized = value.lowercase(Locale.US)
+            .replace(Regex("[^a-z0-9]+"), "-")
+            .trim('-')
+        return normalized.ifBlank { "tag-${value.hashCode() and 0xffff}" }
+    }
+
+    private fun categorizeRoyalRoadTag(tagName: String): TagCategory {
+        val normalized = tagName.lowercase(Locale.US)
+        return when {
+            normalized.contains("fantasy") ||
+            normalized.contains("litrpg") ||
+            normalized.contains("isekai") ||
+            normalized.contains("dungeon") ||
+            normalized.contains("cultivation") ||
+            normalized.contains("cyber") ||
+            normalized.contains("post-apocalyptic") ||
+            normalized.contains("sci") -> TagCategory.GENRE
+
+            normalized.contains("magic") ||
+            normalized.contains("martial") ||
+            normalized.contains("kingdom") ||
+            normalized.contains("weak") ||
+            normalized.matches(Regex("op.*")) ||
+            normalized.contains("progression") -> TagCategory.THEME
+
+            normalized.contains("complete") ||
+            normalized.contains("ongoing") ||
+            normalized.contains("hiatus") -> TagCategory.STATUS
+
+            else -> TagCategory.GENERAL
+        }
+    }
+
+    private fun getRoyalRoadFallbackTags(): List<WebFictionTag> = listOf(
+        WebFictionTag("litrpg", "litrpg", "LitRPG", TagCategory.GENRE, 0),
+        WebFictionTag("progression-fantasy", "progression-fantasy", "Progression Fantasy", TagCategory.GENRE, 0),
+        WebFictionTag("isekai", "isekai", "Isekai", TagCategory.GENRE, 0),
+        WebFictionTag("dungeon-core", "dungeon-core", "Dungeon Core", TagCategory.GENRE, 0),
+        WebFictionTag("cultivation", "cultivation", "Cultivation", TagCategory.GENRE, 0),
+        WebFictionTag("cyberpunk", "cyberpunk", "Cyberpunk", TagCategory.GENRE, 0),
+        WebFictionTag("post-apocalyptic", "post-apocalyptic", "Post-Apocalyptic", TagCategory.GENRE, 0),
+        WebFictionTag("op-mc", "op-mc", "OP MC", TagCategory.THEME, 0),
+        WebFictionTag("weak-to-strong", "weak-to-strong", "Weak to Strong", TagCategory.THEME, 0),
+        WebFictionTag("magic", "magic", "Magic", TagCategory.THEME, 0),
+        WebFictionTag("martial-arts", "martial-arts", "Martial Arts", TagCategory.THEME, 0),
+        WebFictionTag("kingdom-building", "kingdom-building", "Kingdom Building", TagCategory.THEME, 0)
+    )
+
+    private fun buildRoyalRoadSearchUrl(criteria: StorySearchCriteria): String {
+        val builder = StringBuilder("https://www.royalroad.com/fictions/search")
+        var hasQuery = false
+
+        fun appendParam(name: String, value: String) {
+            if (!hasQuery) {
+                builder.append('?')
+                hasQuery = true
+            } else {
+                builder.append('&')
+            }
+            builder.append(name).append('=').append(value)
+        }
+
+        if (criteria.tags.isNotEmpty()) {
+            val encoded = criteria.tags.joinToString(",") { tag ->
+                URLEncoder.encode(tag, "UTF-8")
+            }
+            appendParam("tagsAdd", encoded)
+        }
+
+        if (criteria.tagMatchMode == TagMatchMode.ALL) {
+            appendParam("tagMatch", "all")
+        }
+
+        if (criteria.offset > 0) {
+            val page = (criteria.offset / criteria.limit) + 1
+            appendParam("page", page.toString())
+        }
+
+        return builder.toString()
     }
 
     // ===========================================================================================
