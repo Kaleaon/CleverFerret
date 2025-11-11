@@ -42,6 +42,7 @@ class ParentalControlsSettings @Inject constructor(
         private val KEY_HIDE_ADULT_CONTENT = booleanPreferencesKey("hide_adult_content")
         private val KEY_LOCK_SETTINGS = booleanPreferencesKey("lock_settings")
         private val KEY_REQUIRE_PIN_FOR_ADULT = booleanPreferencesKey("require_pin_for_adult")
+        private val KEY_ALLOW_ADULT_SOURCES = booleanPreferencesKey("allow_adult_sources")
         
         // Rating categories
         const val RATING_GENERAL = "General"
@@ -116,7 +117,8 @@ class ParentalControlsSettings @Inject constructor(
             blockMature = preferences[KEY_BLOCK_MATURE] ?: false,
             hideAdultContent = preferences[KEY_HIDE_ADULT_CONTENT] ?: false,
             lockSettings = preferences[KEY_LOCK_SETTINGS] ?: false,
-            requirePinForAdult = preferences[KEY_REQUIRE_PIN_FOR_ADULT] ?: false
+            requirePinForAdult = preferences[KEY_REQUIRE_PIN_FOR_ADULT] ?: false,
+            allowAdultSources = preferences[KEY_ALLOW_ADULT_SOURCES] ?: false
         )
     }
 
@@ -135,6 +137,7 @@ class ParentalControlsSettings @Inject constructor(
     suspend fun disable() {
         dataStore.edit { preferences ->
             preferences[KEY_ENABLED] = false
+            preferences[KEY_ALLOW_ADULT_SOURCES] = false
         }
     }
 
@@ -182,6 +185,9 @@ class ParentalControlsSettings @Inject constructor(
     suspend fun setBlockExplicit(block: Boolean) {
         dataStore.edit { preferences ->
             preferences[KEY_BLOCK_EXPLICIT] = block
+            if (block) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
         }
     }
 
@@ -200,6 +206,9 @@ class ParentalControlsSettings @Inject constructor(
     suspend fun setHideAdultContent(hide: Boolean) {
         dataStore.edit { preferences ->
             preferences[KEY_HIDE_ADULT_CONTENT] = hide
+            if (hide) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
         }
     }
 
@@ -219,6 +228,40 @@ class ParentalControlsSettings @Inject constructor(
         dataStore.edit { preferences ->
             preferences[KEY_REQUIRE_PIN_FOR_ADULT] = require
         }
+    }
+
+    /**
+     * Allow or disallow adult content sources
+     */
+    suspend fun setAllowAdultSources(allow: Boolean) {
+        dataStore.edit { preferences ->
+            if (allow) {
+                val blockExplicit = preferences[KEY_BLOCK_EXPLICIT] ?: false
+                val hideAdult = preferences[KEY_HIDE_ADULT_CONTENT] ?: false
+                if (!blockExplicit && !hideAdult) {
+                    preferences[KEY_ALLOW_ADULT_SOURCES] = true
+                } else {
+                    preferences[KEY_ALLOW_ADULT_SOURCES] = false
+                }
+            } else {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
+        }
+    }
+
+    /**
+     * Check if adult sources can be used
+     */
+    suspend fun isAdultSourcesAllowed(): Boolean {
+        val state = parentalControlsState.first()
+        return state.allowAdultSources && (!state.enabled || (!state.blockExplicit && !state.hideAdultContent))
+    }
+
+    /**
+     * Get current parental controls state
+     */
+    suspend fun currentState(): ParentalControlsState {
+        return parentalControlsState.first()
     }
 
     /**
@@ -351,7 +394,8 @@ data class ParentalControlsState(
     val blockMature: Boolean = false,
     val hideAdultContent: Boolean = false,
     val lockSettings: Boolean = false,
-    val requirePinForAdult: Boolean = false
+    val requirePinForAdult: Boolean = false,
+    val allowAdultSources: Boolean = false
 ) {
     /**
      * Check if any restrictions are active

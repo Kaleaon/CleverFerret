@@ -147,10 +147,13 @@ fun ParentalControlsScreen(
                         blockExplicit = uiState.state.blockExplicit,
                         hideAdultContent = uiState.state.hideAdultContent,
                         requirePinForAdult = uiState.state.requirePinForAdult && uiState.state.hasPinSet,
+                        allowAdultSources = uiState.state.allowAdultSources,
+                        canToggleAdultSources = !uiState.state.blockExplicit && !uiState.state.hideAdultContent,
                         hasPinSet = uiState.state.hasPinSet,
                         onBlockMatureChange = { viewModel.setBlockMature(it) },
                         onBlockExplicitChange = { viewModel.setBlockExplicit(it) },
                         onHideAdultContentChange = { viewModel.setHideAdultContent(it) },
+                        onAllowAdultSourcesChange = { viewModel.setAllowAdultSources(it) },
                         onRequirePinChange = { viewModel.setRequirePinForAdult(it) }
                     )
                 }
@@ -269,10 +272,13 @@ private fun ContentRestrictionsCard(
     blockExplicit: Boolean,
     hideAdultContent: Boolean,
     requirePinForAdult: Boolean,
+    allowAdultSources: Boolean,
+    canToggleAdultSources: Boolean,
     hasPinSet: Boolean,
     onBlockMatureChange: (Boolean) -> Unit,
     onBlockExplicitChange: (Boolean) -> Unit,
     onHideAdultContentChange: (Boolean) -> Unit,
+    onAllowAdultSourcesChange: (Boolean) -> Unit,
     onRequirePinChange: (Boolean) -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -326,6 +332,31 @@ private fun ContentRestrictionsCard(
                 onCheckedChange = onHideAdultContentChange,
                 icon = Icons.Default.VisibilityOff
             )
+
+            Divider()
+
+            // Adult Content Sources toggle
+            val adultDescription = if (canToggleAdultSources) {
+                "Allow searching and downloading from adult-oriented fiction sites"
+            } else {
+                "Disabled while explicit content is blocked or hidden"
+            }
+            SwitchSettingItem(
+                title = "Enable Adult Story Sources",
+                description = adultDescription,
+                checked = allowAdultSources && canToggleAdultSources,
+                onCheckedChange = onAllowAdultSourcesChange,
+                icon = Icons.Default.Explicit,
+                enabled = canToggleAdultSources
+            )
+
+            if (!canToggleAdultSources) {
+                Text(
+                    text = "Unblock explicit content and show adult stories to enable adult site retrieval.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             Divider()
 

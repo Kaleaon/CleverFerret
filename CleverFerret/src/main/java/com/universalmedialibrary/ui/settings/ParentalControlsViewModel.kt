@@ -169,6 +169,15 @@ class ParentalControlsViewModel @Inject constructor(
     }
 
     /**
+     * Allow or disallow adult content sources
+     */
+    fun setAllowAdultSources(allow: Boolean) {
+        viewModelScope.launch {
+            parentalControlsSettings.setAllowAdultSources(allow)
+        }
+    }
+
+    /**
      * Set require PIN for adult content
      */
     fun setRequirePinForAdult(require: Boolean) {
