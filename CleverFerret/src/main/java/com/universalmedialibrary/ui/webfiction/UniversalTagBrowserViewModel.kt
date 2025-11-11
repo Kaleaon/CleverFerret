@@ -2,11 +2,16 @@ package com.universalmedialibrary.ui.webfiction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.services.webfiction.*
+import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,16 +22,31 @@ import javax.inject.Inject
 @HiltViewModel
 class UniversalTagBrowserViewModel @Inject constructor(
     private val universalTagService: UniversalTagService,
-    private val webFictionService: WebFictionService
+    private val webFictionService: WebFictionService,
+    private val parentalControlsSettings: ParentalControlsSettings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UniversalTagBrowserUiState())
     val uiState: StateFlow<UniversalTagBrowserUiState> = _uiState.asStateFlow()
+    val adultSitesEnabled: StateFlow<Boolean> =
+        parentalControlsSettings.parentalControlsState
+            .map { it.allowAdultSources }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = false
+            )
 
     /**
      * Select a site to browse
      */
     fun selectSite(siteType: WebFictionSiteType) {
+        if (siteType.isAdultSite() && !adultSitesEnabled.value) {
+            _uiState.value = _uiState.value.copy(
+                error = "Adult story sources are disabled in parental controls. Enable them to browse ${siteType.displayName}."
+            )
+            return
+        }
         _uiState.value = _uiState.value.copy(
             selectedSite = siteType,
             tags = emptyList(),
@@ -58,6 +78,14 @@ class UniversalTagBrowserViewModel @Inject constructor(
                     isLoadingTags = false
                 )
             }.onFailure { error ->
+                if (error is AdultSitesDisabledException) {
+                    _uiState.value = _uiState.value.copy(
+                        selectedSite = null,
+                        isLoadingTags = false,
+                        error = "Adult story sources are disabled in parental controls. Enable them to browse ${siteType.displayName}."
+                    )
+                    return@onFailure
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoadingTags = false,
                     error = "Failed to load tags: ${error.message}"
@@ -241,6 +269,14 @@ class UniversalTagBrowserViewModel @Inject constructor(
      */
     fun clearSuccess() {
         _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
+    private fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {
+        WebFictionSiteType.NIFTY,
+        WebFictionSiteType.ADULT_FANFICTION,
+        WebFictionSiteType.BDSM_LIBRARY,
+        WebFictionSiteType.MCSTORIES -> true
+        else -> false
     }
 }
 

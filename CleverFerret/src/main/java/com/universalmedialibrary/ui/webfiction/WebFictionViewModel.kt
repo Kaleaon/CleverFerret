@@ -2,13 +2,18 @@ package com.universalmedialibrary.ui.webfiction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
+import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import dagger.hilt.android.lifecycle.HiltViewModel
-import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,11 +21,20 @@ import javax.inject.Inject
 class WebFictionViewModel @Inject constructor(
     private val webFictionService: WebFictionService,
     private val basicConverter: FanfictionToEpubConverterBasic,
-    private val redditStoryManager: com.universalmedialibrary.services.webfiction.RedditStoryManager
+    private val redditStoryManager: com.universalmedialibrary.services.webfiction.RedditStoryManager,
+    parentalControlsSettings: ParentalControlsSettings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WebFictionUiState())
     val uiState: StateFlow<WebFictionUiState> = _uiState.asStateFlow()
+    val adultSitesEnabled: StateFlow<Boolean> =
+        parentalControlsSettings.parentalControlsState
+            .map { it.allowAdultSources }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = false
+            )
 
     init {
         loadStories()
@@ -157,6 +171,13 @@ class WebFictionViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                if (e is AdultSitesDisabledException) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Adult story sources are disabled in Parental Controls."
+                    )
+                    return@launch
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Error adding story: ${e.message}"
@@ -187,6 +208,13 @@ class WebFictionViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 }
             } catch (e: Exception) {
+                if (e is AdultSitesDisabledException) {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingUpdates = false,
+                        error = "Adult story sources are disabled in Parental Controls."
+                    )
+                    return@launch
+                }
                 _uiState.value = _uiState.value.copy(
                     isCheckingUpdates = false,
                     error = "Error checking for updates: ${e.message}"
