@@ -6,11 +6,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.security.MessageDigest
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,6 +45,12 @@ class ParentalControlsSettings @Inject constructor(
         private val KEY_LOCK_SETTINGS = booleanPreferencesKey("lock_settings")
         private val KEY_REQUIRE_PIN_FOR_ADULT = booleanPreferencesKey("require_pin_for_adult")
         private val KEY_ALLOW_ADULT_SOURCES = booleanPreferencesKey("allow_adult_sources")
+        private val KEY_MOVIE_RATING_LIMIT = stringPreferencesKey("rating_limit_movie")
+        private val KEY_TV_RATING_LIMIT = stringPreferencesKey("rating_limit_tv")
+        private val KEY_GAME_RATING_LIMIT = stringPreferencesKey("rating_limit_game")
+        private val KEY_BOOK_RATING_LIMIT = stringPreferencesKey("rating_limit_book")
+        private val KEY_BLOCKED_TAGS = stringSetPreferencesKey("blocked_tags")
+        private val KEY_BLOCKED_TAG_CATEGORIES = stringSetPreferencesKey("blocked_tag_categories")
         
         // Rating categories
         const val RATING_GENERAL = "General"
@@ -118,7 +126,16 @@ class ParentalControlsSettings @Inject constructor(
             hideAdultContent = preferences[KEY_HIDE_ADULT_CONTENT] ?: false,
             lockSettings = preferences[KEY_LOCK_SETTINGS] ?: false,
             requirePinForAdult = preferences[KEY_REQUIRE_PIN_FOR_ADULT] ?: false,
-            allowAdultSources = preferences[KEY_ALLOW_ADULT_SOURCES] ?: false
+            allowAdultSources = preferences[KEY_ALLOW_ADULT_SOURCES] ?: false,
+            movieRatingLimit = parseMovieLimit(preferences[KEY_MOVIE_RATING_LIMIT]),
+            tvRatingLimit = parseTvLimit(preferences[KEY_TV_RATING_LIMIT]),
+            gameRatingLimit = parseGameLimit(preferences[KEY_GAME_RATING_LIMIT]),
+            bookRatingLimit = parseBookLimit(preferences[KEY_BOOK_RATING_LIMIT]),
+            blockedTagCategories = preferences[KEY_BLOCKED_TAG_CATEGORIES]
+                ?.mapNotNull { runCatching { TagBlockCategory.valueOf(it) }.getOrNull() }
+                ?.toSet()
+                ?: emptySet(),
+            blockedTags = preferences[KEY_BLOCKED_TAGS]?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
         )
     }
 
