@@ -104,15 +104,14 @@ fun UniversalTagBrowserScreen(
                 }
             }
         }
-    }
-
-    uiState.pendingPinChallenge?.let { challenge ->
-        PinAccessDialog(
-            challenge = challenge,
-            onDismiss = { viewModel.dismissPinChallenge() },
-            onAccessGranted = { viewModel.onPinUnlockGranted() },
-            verifyPin = { pin -> viewModel.verifyPin(pin) }
-        )
+        uiState.pendingPinChallenge?.let { challenge ->
+            PinAccessDialog(
+                challenge = challenge,
+                onDismiss = { viewModel.dismissPinChallenge() },
+                onAccessGranted = { viewModel.onPinUnlockGranted() },
+                verifyPin = viewModel::verifyPin
+            )
+        }
     }
 }
 

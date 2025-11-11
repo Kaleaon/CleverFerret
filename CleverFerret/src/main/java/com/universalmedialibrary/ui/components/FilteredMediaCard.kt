@@ -152,7 +152,7 @@ fun FilteredMediaCard(
                 showPinDialog = false
                 onClick()
             },
-            verifyPin = { pin -> parentalControlsSettings.verifyPin(pin) }
+            verifyPin = parentalControlsSettings::verifyPin
         )
     }
 }
@@ -307,7 +307,7 @@ fun FilteredMediaGridItem(
                 showPinDialog = false
                 onClick()
             },
-            verifyPin = { pin -> parentalControlsSettings.verifyPin(pin) }
+            verifyPin = parentalControlsSettings::verifyPin
         )
     }
 }

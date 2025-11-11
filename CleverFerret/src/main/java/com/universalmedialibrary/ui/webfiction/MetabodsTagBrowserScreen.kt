@@ -198,7 +198,7 @@ fun MetabodsTagBrowserScreen(
                 challenge = challenge,
                 onDismiss = { viewModel.dismissPinChallenge() },
                 onAccessGranted = { viewModel.onPinUnlockGranted() },
-                verifyPin = { pin -> viewModel.verifyPin(pin) }
+                verifyPin = viewModel::verifyPin
             )
         }
     }
