@@ -1,21 +1,32 @@
 package com.universalmedialibrary.ui.radio
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.entity.RadioStation
+import com.universalmedialibrary.services.radio.NowPlayingInfo
 import com.universalmedialibrary.ui.theme.*
 
 /**
@@ -33,6 +44,8 @@ fun RadioScreen(
     val currentStation by viewModel.currentStation.collectAsState()
     val playbackState by viewModel.playbackState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+    val nowPlayingInfo by viewModel.nowPlayingInfo.collectAsState()
+    val isIdentifying by viewModel.isIdentifying.collectAsState()
 
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -67,6 +80,19 @@ fun RadioScreen(
                         }
                     )
                 }
+            },
+            bottomBar = {
+                RadioMediaPlayerBar(
+                    isVisible = currentStation != null,
+                    station = currentStation,
+                    nowPlayingInfo = nowPlayingInfo,
+                    isPlaying = playbackState.isPlaying,
+                    isIdentifying = isIdentifying,
+                    onPlayPause = { viewModel.togglePlayback() },
+                    onSkipNext = { viewModel.playNextStation() },
+                    onSkipPrevious = { viewModel.playPreviousStation() },
+                    onIdentifySong = { viewModel.identifyCurrentSong() }
+                )
             }
         ) { paddingValues ->
             Column(
@@ -112,7 +138,6 @@ fun RadioScreen(
                             }
                             
                             // Song identification display
-                            val nowPlayingInfo by viewModel.nowPlayingInfo.collectAsState()
                             nowPlayingInfo?.let { info ->
                                 Divider(
                                     modifier = Modifier.padding(vertical = 4.dp),
@@ -231,6 +256,146 @@ fun RadioScreen(
                     }
                 ) {
                     Text(error)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RadioMediaPlayerBar(
+    isVisible: Boolean,
+    station: RadioStation?,
+    nowPlayingInfo: NowPlayingInfo?,
+    isPlaying: Boolean,
+    isIdentifying: Boolean,
+    onPlayPause: () -> Unit,
+    onSkipNext: () -> Unit,
+    onSkipPrevious: () -> Unit,
+    onIdentifySong: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+    ) {
+        Surface(
+            tonalElevation = 8.dp,
+            shadowElevation = 8.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                val coverUrl = nowPlayingInfo?.albumArt ?: station?.logoUrl
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    if (coverUrl != null) {
+                        AsyncImage(
+                            model = coverUrl,
+                            contentDescription = station?.name ?: "Station artwork",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        val colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondaryContainer
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Brush.linearGradient(colors)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Radio,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.8f),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    Text(
+                        text = station?.name ?: "Radio",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = nowPlayingInfo?.displayText
+                            ?: station?.genre
+                            ?: "Tap identify to detect song info",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    nowPlayingInfo?.source?.takeIf { it.isNotBlank() }?.let { source ->
+                        Text(
+                            text = source,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = onSkipPrevious,
+                        enabled = station != null
+                    ) {
+                        Icon(Icons.Default.SkipPrevious, "Previous station")
+                    }
+
+                    FilledTonalIconButton(
+                        onClick = onPlayPause,
+                        enabled = station != null
+                    ) {
+                        Icon(
+                            if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            if (isPlaying) "Pause" else "Play"
+                        )
+                    }
+
+                    if (isIdentifying) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(28.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        IconButton(
+                            onClick = onIdentifySong,
+                            enabled = station != null
+                        ) {
+                            Icon(Icons.Default.Search, "Identify song")
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onSkipNext,
+                        enabled = station != null
+                    ) {
+                        Icon(Icons.Default.SkipNext, "Next station")
+                    }
                 }
             }
         }
