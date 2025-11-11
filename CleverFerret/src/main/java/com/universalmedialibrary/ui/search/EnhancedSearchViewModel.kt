@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.search
 
+import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.search.EnhancedSearchService
@@ -15,10 +17,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val TAG_PARAM_DELIMITER = "|"
+
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class EnhancedSearchViewModel @Inject constructor(
-    private val searchService: EnhancedSearchService
+    private val searchService: EnhancedSearchService,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EnhancedSearchUiState())
@@ -34,6 +39,24 @@ class EnhancedSearchViewModel @Inject constructor(
     val sortBy: StateFlow<SortBy> = _sortBy.asStateFlow()
 
     init {
+        val initialQuery = savedStateHandle.get<String>("query")
+            ?.let { Uri.decode(it) }
+            ?.takeIf { it.isNotBlank() }
+
+        val initialMediaTypes = decodeListParam(savedStateHandle.get<String>("mediaTypes"))
+        val initialTags = decodeListParam(savedStateHandle.get<String>("tags"))
+
+        if (initialQuery != null) {
+            _searchQuery.value = initialQuery
+        }
+
+        if (initialMediaTypes.isNotEmpty() || initialTags.isNotEmpty()) {
+            _filters.value = _filters.value.copy(
+                mediaTypes = initialMediaTypes,
+                tags = initialTags
+            )
+        }
+
         // Load search history
         loadSearchHistory()
         
@@ -221,6 +244,15 @@ class EnhancedSearchViewModel @Inject constructor(
                 // Continue without search history
             }
         }
+    }
+
+    private fun decodeListParam(raw: String?): List<String> {
+        if (raw.isNullOrBlank()) return emptyList()
+        val decoded = Uri.decode(raw)
+        return decoded
+            .split(TAG_PARAM_DELIMITER)
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
     }
 }
 

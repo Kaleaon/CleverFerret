@@ -180,4 +180,31 @@ interface UnifiedTagDao {
         LIMIT :limit
     """)
     suspend fun getPopularTagsForMediaType(mediaType: String, limit: Int = 10): List<UnifiedTag>
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("""
+        SELECT 
+            t.tagId, 
+            t.name, 
+            t.type, 
+            t.color, 
+            t.description, 
+            t.createdAt, 
+            t.lastUsed, 
+            t.usageCount, 
+            t.externalId,
+            COUNT(mi.itemId) AS filteredUsage
+        FROM unified_tags t
+        LEFT JOIN item_tags it ON t.tagId = it.tagId
+        LEFT JOIN media_items mi ON it.itemId = mi.itemId
+        WHERE (:mediaType IS NULL) OR mi.mediaType = :mediaType
+        GROUP BY t.tagId
+        ORDER BY filteredUsage DESC, t.name COLLATE NOCASE ASC
+    """)
+    fun observeTagUsage(mediaType: String?): Flow<List<UnifiedTagWithUsage>>
 }
+
+data class UnifiedTagWithUsage(
+    @Embedded val tag: UnifiedTag,
+    @ColumnInfo(name = "filteredUsage") val filteredUsage: Int
+)

@@ -960,8 +960,34 @@ fun AppNavigation(externalFileUri: Uri? = null) {
            }
            
            // Enhanced Search route
-           composable("enhanced_search") {
+           composable(
+               route = "enhanced_search?tags={tags}&mediaTypes={mediaTypes}&query={query}",
+               arguments = listOf(
+                   navArgument("tags") {
+                       type = NavType.StringType
+                       nullable = true
+                       defaultValue = null
+                   },
+                   navArgument("mediaTypes") {
+                       type = NavType.StringType
+                       nullable = true
+                       defaultValue = null
+                   },
+                   navArgument("query") {
+                       type = NavType.StringType
+                       nullable = true
+                       defaultValue = null
+                   }
+               )
+           ) {
                com.universalmedialibrary.ui.search.EnhancedSearchScreen(
+                   navController = navController
+               )
+           }
+
+           // Tag Explorer route
+           composable("tag_explorer") {
+               com.universalmedialibrary.ui.tags.UniversalTagExplorerScreen(
                    navController = navController
                )
            }

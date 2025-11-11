@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -176,9 +177,15 @@ object NavigationItems {
             showInBottomNav = false
         ),
         NavigationItem(
-            route = "search",
+            route = "enhanced_search",
             label = "Search",
             icon = { Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "tag_explorer",
+            label = "Tag Explorer",
+            icon = { Icon(Icons.Filled.Sell, contentDescription = "Tag Explorer") },
             showInBottomNav = false
         ),
         NavigationItem(

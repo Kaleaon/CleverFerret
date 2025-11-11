@@ -126,16 +126,7 @@ class ParentalControlsSettings @Inject constructor(
             hideAdultContent = preferences[KEY_HIDE_ADULT_CONTENT] ?: false,
             lockSettings = preferences[KEY_LOCK_SETTINGS] ?: false,
             requirePinForAdult = preferences[KEY_REQUIRE_PIN_FOR_ADULT] ?: false,
-            allowAdultSources = preferences[KEY_ALLOW_ADULT_SOURCES] ?: false,
-            movieRatingLimit = parseMovieLimit(preferences[KEY_MOVIE_RATING_LIMIT]),
-            tvRatingLimit = parseTvLimit(preferences[KEY_TV_RATING_LIMIT]),
-            gameRatingLimit = parseGameLimit(preferences[KEY_GAME_RATING_LIMIT]),
-            bookRatingLimit = parseBookLimit(preferences[KEY_BOOK_RATING_LIMIT]),
-            blockedTagCategories = preferences[KEY_BLOCKED_TAG_CATEGORIES]
-                ?.mapNotNull { runCatching { TagBlockCategory.valueOf(it) }.getOrNull() }
-                ?.toSet()
-                ?: emptySet(),
-            blockedTags = preferences[KEY_BLOCKED_TAGS]?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
+            allowAdultSources = preferences[KEY_ALLOW_ADULT_SOURCES] ?: false
         )
     }
 
