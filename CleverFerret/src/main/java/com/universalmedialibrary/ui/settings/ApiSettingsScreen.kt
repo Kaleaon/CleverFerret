@@ -222,7 +222,9 @@ fun ApiSettingsScreen(
                 onApiKeyChange = { viewModel.setPodcastIndexApiKey(it) },
                 isConfigured = uiState.isPodcastIndexConfigured,
                 getKeyUrl = "https://api.podcastindex.org/signup",
-                docsUrl = "https://podcastindex-org.github.io/docs-api/"
+                docsUrl = "https://podcastindex-org.github.io/docs-api/",
+                note = "Enter your API key and secret separated by ':' (example: key:secret) to enable Podcast 2.0 signed requests.",
+                placeholder = "apiKey:apiSecret"
             )
 
             Divider()
@@ -348,7 +350,8 @@ private fun ApiKeySection(
     isConfigured: Boolean,
     getKeyUrl: String,
     docsUrl: String,
-    note: String? = null
+    note: String? = null,
+    placeholder: String = "sk-..."
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -412,7 +415,7 @@ private fun ApiKeySection(
             value = apiKey,
             onValueChange = onApiKeyChange,
             label = { Text("API Key") },
-            placeholder = { Text("sk-...") },
+            placeholder = { Text(placeholder) },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = if (isPasswordVisible) 
                 VisualTransformation.None 

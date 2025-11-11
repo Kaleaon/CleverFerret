@@ -1,6 +1,5 @@
 package com.universalmedialibrary.ui.radio
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.RadioStationDao
@@ -21,6 +20,7 @@ class RadioViewModel @Inject constructor(
     
     // Expose now playing info from identification service
     val nowPlayingInfo: StateFlow<NowPlayingInfo?> = radioIdentificationService.nowPlaying
+    val isIdentifying: StateFlow<Boolean> = radioIdentificationService.isIdentifying
 
     val allStations = radioStationDao.getAllStations()
         .stateIn(
@@ -57,31 +57,52 @@ class RadioViewModel @Inject constructor(
 
     fun playStation(station: RadioStation) {
         viewModelScope.launch {
-            try {
-                // Stop current playback
-                musicPlayerService.stop()
+            startStationPlayback(station)
+        }
+    }
 
-                // Play new station via music player service
-                musicPlayerService.playTrackFromUri(
-                    uri = station.streamUrl,
-                    title = station.name,
-                    artist = "Internet Radio${station.genre?.let { " - $it" } ?: ""}",
-                    album = station.description ?: station.country ?: "Radio Station",
-                    duration = 0L, // Streams have no duration
-                    albumArtUrl = null
-                )
+    fun togglePlayback() {
+        if (_currentStation.value == null) {
+            return
+        }
+        musicPlayerService.togglePlayPause()
+    }
 
-                // Update current station
-                _currentStation.value = station
+    fun playNextStation() {
+        viewModelScope.launch {
+            val stations = allStations.value
+            if (stations.isEmpty()) return@launch
 
-                // Record play in database
-                radioStationDao.recordPlay(station.id, System.currentTimeMillis())
-
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = "Failed to play station: ${e.message}"
-                )
+            val current = _currentStation.value
+            val nextStation = if (current != null) {
+                val currentIndex = stations.indexOfFirst { it.id == current.id }
+                val nextIndex = if (currentIndex == -1) 0 else (currentIndex + 1) % stations.size
+                stations[nextIndex]
+            } else {
+                stations.first()
             }
+            startStationPlayback(nextStation)
+        }
+    }
+
+    fun playPreviousStation() {
+        viewModelScope.launch {
+            val stations = allStations.value
+            if (stations.isEmpty()) return@launch
+
+            val current = _currentStation.value
+            val previousStation = if (current != null) {
+                val currentIndex = stations.indexOfFirst { it.id == current.id }
+                val previousIndex = when {
+                    currentIndex == -1 -> stations.lastIndex
+                    currentIndex == 0 -> stations.lastIndex
+                    else -> currentIndex - 1
+                }
+                stations[previousIndex]
+            } else {
+                stations.last()
+            }
+            startStationPlayback(previousStation)
         }
     }
 
@@ -103,6 +124,30 @@ class RadioViewModel @Inject constructor(
      */
     fun identifyCurrentSong() {
         viewModelScope.launch {
+            val station = _currentStation.value
+            if (station == null) {
+                _uiState.value = _uiState.value.copy(
+                    error = "No station is currently playing"
+                )
+                return@launch
+            }
+            if (isIdentifying.value) {
+                return@launch
+            }
+
+            // Provide immediate feedback while identification runs (placeholder)
+            radioIdentificationService.updateNowPlaying(
+                NowPlayingInfo(
+                    artist = station.name,
+                    title = "Identifying current song…",
+                    album = station.description ?: station.genre,
+                    albumArt = station.logoUrl,
+                    source = "Song Identification",
+                    confidence = 0.0f,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
+
             // Audio fingerprinting requires:
             // 1. Extracting audio samples from ExoPlayer audio output
             // 2. Sending to identification service (ACRCloud, Shazam, etc.)
@@ -113,6 +158,7 @@ class RadioViewModel @Inject constructor(
                 NowPlayingInfo(
                     artist = "Song Recognition",
                     title = "Feature requires API key configuration",
+                    albumArt = station.logoUrl,
                     source = "Audio Fingerprinting Service",
                     confidence = 0.0f,
                     timestamp = System.currentTimeMillis()
@@ -166,6 +212,49 @@ class RadioViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    private suspend fun startStationPlayback(station: RadioStation) {
+        try {
+            // Stop current playback
+            musicPlayerService.stop()
+
+            // Play new station via music player service
+            musicPlayerService.playTrackFromUri(
+                uri = station.streamUrl,
+                title = station.name,
+                artist = "Internet Radio${station.genre?.let { " - $it" } ?: ""}",
+                album = station.description ?: station.country ?: "Radio Station",
+                duration = 0L, // Streams have no duration
+                albumArtUrl = station.logoUrl
+            )
+
+            // Update current station
+            _currentStation.value = station
+
+            // Record play in database
+            radioStationDao.recordPlay(station.id, System.currentTimeMillis())
+
+            updateStationNowPlayingMetadata(station)
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(
+                error = "Failed to play station: ${e.message}"
+            )
+        }
+    }
+
+    private fun updateStationNowPlayingMetadata(station: RadioStation) {
+        radioIdentificationService.updateNowPlaying(
+            NowPlayingInfo(
+                artist = station.name,
+                title = station.description ?: station.genre ?: "Live broadcast",
+                album = station.genre ?: station.country,
+                albumArt = station.logoUrl,
+                source = "Station Metadata",
+                confidence = 0.2f,
+                timestamp = System.currentTimeMillis()
+            )
+        )
     }
 
     private fun loadDefaultStations() {

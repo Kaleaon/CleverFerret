@@ -56,6 +56,20 @@ interface PlexAuthApi {
         @Query("includeRelay") includeRelay: Int = 0,
         @Query("includeIPv6") includeIPv6: Int = 0
     ): Response<List<PlexResourceResponse>>
+
+    /**
+     * Sign in using Plex username/password credentials
+     * POST https://plex.tv/users/sign_in.json
+     *
+     * Returns user object containing authentication token
+     */
+    @FormUrlEncoded
+    @POST("/users/sign_in.json")
+    suspend fun signInWithCredentials(
+        @Field("user[login]") username: String,
+        @Field("user[password]") password: String,
+        @Field("user[remember_me]") rememberMe: Int = 1
+    ): Response<PlexUserResponse>
 }
 
 /**
