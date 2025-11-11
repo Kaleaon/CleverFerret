@@ -384,14 +384,6 @@ private fun TagBrowsingContent(
     }
 }
 
-private fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {
-    WebFictionSiteType.NIFTY,
-    WebFictionSiteType.ADULT_FANFICTION,
-    WebFictionSiteType.BDSM_LIBRARY,
-    WebFictionSiteType.MCSTORIES -> true
-    else -> false
-}
-
 // Reuse components from MetabodsTagBrowserScreen
 @Composable
 private fun SelectedTagsRow(

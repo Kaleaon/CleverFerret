@@ -340,13 +340,6 @@ class UniversalTagBrowserViewModel @Inject constructor(
         else -> fallback
     }
 
-    private fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {
-        WebFictionSiteType.NIFTY,
-        WebFictionSiteType.ADULT_FANFICTION,
-        WebFictionSiteType.BDSM_LIBRARY,
-        WebFictionSiteType.MCSTORIES -> true
-        else -> false
-    }
 }
 
 /**

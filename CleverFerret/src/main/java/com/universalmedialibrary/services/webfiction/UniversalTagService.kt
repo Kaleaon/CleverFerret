@@ -29,16 +29,6 @@ class UniversalTagService @Inject constructor(
 
     private val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
 
-    private fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {
-        WebFictionSiteType.METABODS,
-        WebFictionSiteType.LITEROTICA,
-        WebFictionSiteType.NIFTY,
-        WebFictionSiteType.ADULT_FANFICTION,
-        WebFictionSiteType.BDSM_LIBRARY,
-        WebFictionSiteType.MCSTORIES -> true
-        else -> false
-    }
-
     private suspend fun ensureAdultAccess(siteType: WebFictionSiteType): Result<Unit> {
         if (!siteType.isAdultSite()) return Result.success(Unit)
         return if (parentalControlsSettings.isAdultSourcesAllowed()) {

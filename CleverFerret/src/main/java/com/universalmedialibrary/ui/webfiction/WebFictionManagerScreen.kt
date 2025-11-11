@@ -28,6 +28,7 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionSite
 import com.universalmedialibrary.services.webfiction.WebFictionSiteType
+import com.universalmedialibrary.services.webfiction.isAdultSite
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.StoryStatus
 import com.universalmedialibrary.ui.components.PinAccessDialog
@@ -682,13 +683,4 @@ private fun createWebFictionSiteFromType(siteType: WebFictionSiteType): WebFicti
         baseUrl = getSiteBaseUrl(siteType),
         supportedTypes = listOf("fanfiction", "original")
     )
-}
-
-private fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {
-    WebFictionSiteType.LITEROTICA,
-    WebFictionSiteType.NIFTY,
-    WebFictionSiteType.ADULT_FANFICTION,
-    WebFictionSiteType.BDSM_LIBRARY,
-    WebFictionSiteType.MCSTORIES -> true
-    else -> false
 }

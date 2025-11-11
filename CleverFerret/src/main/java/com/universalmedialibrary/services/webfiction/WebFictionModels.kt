@@ -146,6 +146,16 @@ enum class SortOrder {
     DESCENDING
 }
 
+fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {
+    WebFictionSiteType.METABODS,
+    WebFictionSiteType.LITEROTICA,
+    WebFictionSiteType.NIFTY,
+    WebFictionSiteType.ADULT_FANFICTION,
+    WebFictionSiteType.BDSM_LIBRARY,
+    WebFictionSiteType.MCSTORIES -> true
+    else -> false
+}
+
 /**
  * Result of a story search/browse operation
  */

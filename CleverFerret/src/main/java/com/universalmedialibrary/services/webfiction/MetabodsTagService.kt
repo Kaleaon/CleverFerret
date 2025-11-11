@@ -181,16 +181,16 @@ class MetabodsTagService @Inject constructor(
                     .get()
 
                 val stories = extractStoriesFromBrowse(doc)
+                val totalCount = extractTotalCount(doc, stories.size)
                 val filtered = contentFilterHelper.filterStories(stories)
-                val paged = filtered.drop(criteria.offset).take(criteria.limit)
-                val consumed = criteria.offset + paged.size
-                val hasMore = filtered.size > consumed
-                val nextOffset = if (hasMore) consumed else null
+                val paged = filtered.take(criteria.limit)
+                val hasMore = stories.size >= criteria.limit
+                val nextOffset = if (hasMore) criteria.offset + criteria.limit else null
 
                 Result.success(
                     StorySearchResult(
                         stories = paged,
-                        totalCount = filtered.size,
+                        totalCount = totalCount,
                         hasMore = hasMore,
                         nextOffset = nextOffset
                     )

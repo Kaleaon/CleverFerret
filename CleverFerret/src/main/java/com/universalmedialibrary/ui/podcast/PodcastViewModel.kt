@@ -151,6 +151,13 @@ class PodcastViewModel @Inject constructor(
     fun downloadEpisode(episode: PodcastEpisode, bypassPin: Boolean = false) {
         viewModelScope.launch {
             try {
+                if (!bypassPin && _pendingPinChallenge.value != null) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Complete the current PIN unlock before starting another download."
+                    )
+                    return@launch
+                }
+
                 // Find podcast for title
                 val podcast = _uiState.value.podcasts.find { it.id == episode.podcastId }
                 val podcastTitle = podcast?.title ?: "Unknown Podcast"

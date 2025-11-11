@@ -16,16 +16,6 @@ import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {
-    WebFictionSiteType.METABODS,
-    WebFictionSiteType.LITEROTICA,
-    WebFictionSiteType.NIFTY,
-    WebFictionSiteType.ADULT_FANFICTION,
-    WebFictionSiteType.BDSM_LIBRARY,
-    WebFictionSiteType.MCSTORIES -> true
-    else -> false
-}
-
 // WebFictionStory, WebFictionChapter models are defined in WebFictionModels.kt
 
 // WebFictionSite enum - site definitions

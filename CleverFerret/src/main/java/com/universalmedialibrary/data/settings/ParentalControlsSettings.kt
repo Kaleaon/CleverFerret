@@ -89,9 +89,11 @@ class ParentalControlsSettings @Inject constructor(
         companion object {
             fun fromRating(rating: String?): MovieRatingLevel? {
                 if (rating.isNullOrBlank()) return null
-                val normalized = rating.uppercase(Locale.US)
+                val normalized = rating.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
                 return values().firstOrNull { entry ->
-                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                    entry != UNRESTRICTED && entry.tokens.any { token ->
+                        normalized == token.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
+                    }
                 }
             }
 
@@ -117,9 +119,11 @@ class ParentalControlsSettings @Inject constructor(
         companion object {
             fun fromRating(rating: String?): TvRatingLevel? {
                 if (rating.isNullOrBlank()) return null
-                val normalized = rating.uppercase(Locale.US)
+                val normalized = rating.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
                 return values().firstOrNull { entry ->
-                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                    entry != UNRESTRICTED && entry.tokens.any { token ->
+                        normalized == token.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
+                    }
                 }
             }
 
@@ -145,9 +149,11 @@ class ParentalControlsSettings @Inject constructor(
         companion object {
             fun fromRating(rating: String?): GameRatingLevel? {
                 if (rating.isNullOrBlank()) return null
-                val normalized = rating.uppercase(Locale.US)
+                val normalized = rating.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
                 return values().firstOrNull { entry ->
-                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                    entry != UNRESTRICTED && entry.tokens.any { token ->
+                        normalized == token.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
+                    }
                 }
             }
 
@@ -176,9 +182,11 @@ class ParentalControlsSettings @Inject constructor(
         companion object {
             fun fromRating(rating: String?): BookRatingLevel? {
                 if (rating.isNullOrBlank()) return null
-                val normalized = rating.uppercase(Locale.US)
+                val normalized = rating.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
                 return values().firstOrNull { entry ->
-                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                    entry != UNRESTRICTED && entry.tokens.any { token ->
+                        normalized == token.uppercase(Locale.US).replace(Regex("[^A-Z0-9+]"), "")
+                    }
                 }
             }
 
@@ -197,7 +205,10 @@ class ParentalControlsSettings @Inject constructor(
 
         fun matches(tag: String): Boolean {
             val normalized = tag.lowercase(Locale.US)
-            return keywords.any { normalized.contains(it) }
+            return keywords.any { keyword ->
+                val escaped = Regex.escape(keyword.lowercase(Locale.US))
+                Regex("\\b$escaped\\b").containsMatchIn(normalized)
+            }
         }
     }
 
@@ -379,43 +390,31 @@ class ParentalControlsSettings @Inject constructor(
     suspend fun setMovieRatingLimit(limit: MovieRatingLevel) {
         dataStore.edit { preferences ->
             preferences[KEY_MOVIE_RATING_LIMIT] = limit.name
-            if (limit != MovieRatingLevel.UNRESTRICTED) {
-                preferences[KEY_ALLOW_ADULT_SOURCES] = false
-            }
         }
     }
 
     suspend fun setTvRatingLimit(limit: TvRatingLevel) {
         dataStore.edit { preferences ->
             preferences[KEY_TV_RATING_LIMIT] = limit.name
-            if (limit != TvRatingLevel.UNRESTRICTED) {
-                preferences[KEY_ALLOW_ADULT_SOURCES] = false
-            }
         }
     }
 
     suspend fun setGameRatingLimit(limit: GameRatingLevel) {
         dataStore.edit { preferences ->
             preferences[KEY_GAME_RATING_LIMIT] = limit.name
-            if (limit != GameRatingLevel.UNRESTRICTED) {
-                preferences[KEY_ALLOW_ADULT_SOURCES] = false
-            }
         }
     }
 
     suspend fun setBookRatingLimit(limit: BookRatingLevel) {
         dataStore.edit { preferences ->
             preferences[KEY_BOOK_RATING_LIMIT] = limit.name
-            if (limit != BookRatingLevel.UNRESTRICTED) {
-                preferences[KEY_ALLOW_ADULT_SOURCES] = false
-            }
         }
     }
 
     suspend fun setBlockedTagCategories(categories: Set<TagBlockCategory>) {
         dataStore.edit { preferences ->
             preferences[KEY_BLOCKED_TAG_CATEGORIES] = categories.map { it.name }.toSet()
-            if (categories.isNotEmpty()) {
+            if (categories.any { it == TagBlockCategory.SEXUAL_CONTENT }) {
                 preferences[KEY_ALLOW_ADULT_SOURCES] = false
             }
         }
@@ -428,7 +427,9 @@ class ParentalControlsSettings @Inject constructor(
             val updated = (preferences[KEY_BLOCKED_TAGS] ?: emptySet()).toMutableSet()
             updated.add(sanitized)
             preferences[KEY_BLOCKED_TAGS] = updated
-            preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            if (TagBlockCategory.SEXUAL_CONTENT.matches(sanitized)) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
         }
     }
 
