@@ -28,6 +28,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -143,6 +147,18 @@ object NavigationItems {
             icon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") }
         ),
         NavigationItem(
+            route = "webfiction_manager",
+            label = "Web Fiction",
+            icon = { Icon(Icons.Filled.Language, contentDescription = "Web Fiction") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "story_manager",
+            label = "Story Manager",
+            icon = { Icon(Icons.Filled.List, contentDescription = "Story Manager") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
             route = "podcasts",
             label = "Podcasts",
             icon = { Icon(PhosphorIcons.Microphone, contentDescription = "Podcasts") },
@@ -161,9 +177,15 @@ object NavigationItems {
             showInBottomNav = false
         ),
         NavigationItem(
-            route = "search",
+            route = "enhanced_search",
             label = "Search",
             icon = { Icon(PhosphorIcons.MagnifyingGlass, contentDescription = "Search") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "tag_explorer",
+            label = "Tag Explorer",
+            icon = { Icon(Icons.Filled.Sell, contentDescription = "Tag Explorer") },
             showInBottomNav = false
         ),
         NavigationItem(

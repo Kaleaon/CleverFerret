@@ -3,6 +3,11 @@ package com.universalmedialibrary.services.fanfiction
 import android.content.Context
 import com.universalmedialibrary.data.local.dao.FanfictionDao
 import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
+import com.universalmedialibrary.services.DownloadContentMetadata
+import com.universalmedialibrary.services.DownloadSafetyChecker
+import com.universalmedialibrary.services.DownloadSafetyResult
+import com.universalmedialibrary.services.DownloadBlockedException
+import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.epub.EpubCreatorService
 import com.universalmedialibrary.services.fanfiction.adapters.AO3Adapter
 import com.universalmedialibrary.services.fanfiction.adapters.FFNAdapter
@@ -26,7 +31,8 @@ class FanfictionDownloadService @Inject constructor(
     private val ffnAdapter: FFNAdapter,
     private val royalRoadAdapter: RoyalRoadAdapter,
     private val epubCreator: EpubCreatorService,
-    private val fanfictionDao: FanfictionDao
+    private val fanfictionDao: FanfictionDao,
+    private val downloadSafetyChecker: DownloadSafetyChecker
 ) {
     
     private val adapters = listOf(ao3Adapter, ffnAdapter, royalRoadAdapter)
@@ -37,6 +43,7 @@ class FanfictionDownloadService @Inject constructor(
      */
     suspend fun downloadStory(
         url: String,
+        bypassPin: Boolean = false,
         progressCallback: (Int, Int, String) -> Unit = { _, _, _ -> }
     ): Result<StoryMetadata> = withContext(Dispatchers.IO) {
         try {
@@ -56,7 +63,36 @@ class FanfictionDownloadService @Inject constructor(
                 )
             }
             val metadata = metadataResult.getOrThrow()
-            
+
+            val safetyResult = downloadSafetyChecker.checkDownload(
+                DownloadContentMetadata(
+                    rating = metadata.rating,
+                    title = metadata.title,
+                    mediaType = "STORY",
+                    tags = (metadata.tags + metadata.warnings).distinct(),
+                    bypassPinCheck = bypassPin
+                )
+            )
+            when (safetyResult) {
+                is DownloadSafetyResult.Blocked -> {
+                    return@withContext Result.failure(
+                        DownloadBlockedException(
+                            safetyResult.reason,
+                            metadata.rating
+                        )
+                    )
+                }
+                is DownloadSafetyResult.RequiresPin -> {
+                    return@withContext Result.failure(
+                        ContentPinRequiredException(
+                            contentTitle = metadata.title,
+                            contentRating = metadata.rating
+                        )
+                    )
+                }
+                DownloadSafetyResult.Allowed -> Unit
+            }
+
             // Download chapters
             progressCallback(0, metadata.chapterCount, "Starting download...")
             val chaptersResult = adapter.downloadChapters(url) { current, total, message ->
@@ -119,12 +155,17 @@ class FanfictionDownloadService @Inject constructor(
      */
     suspend fun updateStory(
         storyId: String,
+        bypassPin: Boolean = false,
         progressCallback: (Int, Int, String) -> Unit = { _, _, _ -> }
     ): Result<StoryMetadata> = withContext(Dispatchers.IO) {
         val story = fanfictionDao.getStoryById(storyId)
             ?: return@withContext Result.failure(Exception("Story not found"))
         
-        downloadStory(story.sourceUrl, progressCallback)
+        downloadStory(
+            url = story.sourceUrl,
+            bypassPin = bypassPin,
+            progressCallback = progressCallback
+        )
     }
     
     private fun findAdapter(url: String): FanfictionSiteAdapter? {

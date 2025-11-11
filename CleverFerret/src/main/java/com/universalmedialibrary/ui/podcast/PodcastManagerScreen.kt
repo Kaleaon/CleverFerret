@@ -24,6 +24,7 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
+import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.MetallicFAB
@@ -40,6 +41,7 @@ fun PodcastManagerScreen(
 ) {
     CleverFerretTheme(palette = ThemePalette.FOREST_COPPER) {
         val uiState by viewModel.uiState.collectAsState()
+        val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
         var showSearchDialog by remember { mutableStateOf(false) }
         var showAddFeedDialog by remember { mutableStateOf(false) }
         var selectedTab by remember { mutableIntStateOf(0) }
@@ -204,6 +206,15 @@ fun PodcastManagerScreen(
                     viewModel.addPodcastByFeedUrl(feedUrl)
                     showAddFeedDialog = false
                 }
+            )
+        }
+
+        pendingPinChallenge?.let { challenge ->
+            PinAccessDialog(
+                challenge = challenge,
+                onDismiss = { viewModel.dismissPinChallenge() },
+                onAccessGranted = { viewModel.onPinUnlockGranted() },
+                verifyPin = viewModel::verifyPin
             )
         }
     }

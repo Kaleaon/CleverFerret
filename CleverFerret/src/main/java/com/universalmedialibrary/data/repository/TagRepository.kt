@@ -4,6 +4,7 @@ import com.universalmedialibrary.data.local.dao.UnifiedTagDao
 import com.universalmedialibrary.data.local.entity.ItemTag
 import com.universalmedialibrary.data.local.entity.TagType
 import com.universalmedialibrary.data.local.entity.UnifiedTag
+import com.universalmedialibrary.data.local.dao.UnifiedTagWithUsage
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,6 +33,12 @@ class TagRepository @Inject constructor(
      * Get tags by type
      */
     fun getTagsByType(type: TagType): Flow<List<UnifiedTag>> = tagDao.getTagsByType(type)
+
+    /**
+     * Observe tag usage counts for an optional media type filter
+     */
+    fun observeTagUsage(mediaType: String?): Flow<List<UnifiedTagWithUsage>> =
+        tagDao.observeTagUsage(mediaType)
 
     /**
      * Get recently used tags

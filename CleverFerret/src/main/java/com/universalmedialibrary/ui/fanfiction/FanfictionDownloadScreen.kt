@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.services.fanfiction.models.StoryMetadata
+import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +28,7 @@ fun FanfictionDownloadScreen(
 ) {
     var url by remember { mutableStateOf("") }
     val downloadState by viewModel.downloadState.collectAsState()
+    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
     
     LaunchedEffect(downloadState) {
         if (downloadState is DownloadState.Success) {
@@ -171,6 +173,15 @@ fun FanfictionDownloadScreen(
                 else -> {}
             }
         }
+    }
+
+    pendingPinChallenge?.let { challenge ->
+        PinAccessDialog(
+            challenge = challenge,
+            onDismiss = { viewModel.dismissPinChallenge() },
+            onAccessGranted = { viewModel.onPinUnlockGranted() },
+            verifyPin = viewModel::verifyPin
+        )
     }
 }
 

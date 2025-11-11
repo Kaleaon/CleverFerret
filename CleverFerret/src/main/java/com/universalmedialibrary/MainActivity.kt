@@ -53,11 +53,13 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Podcasts
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -146,6 +148,7 @@ import com.universalmedialibrary.ui.ambient.AmbientSoundScreen
 import com.universalmedialibrary.ui.ambient.AmbientSoundViewModel
 import com.universalmedialibrary.ui.models.MediaCategory
 import com.universalmedialibrary.ui.viewmodels.MediaLibraryViewModel
+import com.universalmedialibrary.ui.webfiction.WebFictionViewModel
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.utils.PermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
@@ -718,9 +721,8 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         
         // Fanfiction routes
         composable("fanfiction_download") {
-            com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
-                onNavigateBack = { navController.navigateUp() },
-                onDownloadComplete = { navController.navigate("fanfiction_library") }
+            com.universalmedialibrary.ui.webfiction.FanfictionDownloaderScreen(
+                navController = navController
             )
         }
         
@@ -735,6 +737,59 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                         navController.navigate("reader?path=$encoded")
                     }
                 }
+            )
+        }
+        
+        composable("webfiction_manager") {
+            com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
+                navController = navController
+            )
+        }
+        
+        composable("metabods_tag_browser") {
+            com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserScreen(
+                navController = navController
+            )
+        }
+
+        composable(
+            route = "webfiction_story/{storyId}",
+            arguments = listOf(navArgument("storyId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val storyId = backStackEntry.arguments?.getString("storyId")
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("webfiction_manager")
+            }
+            val viewModel: WebFictionViewModel = hiltViewModel(parentEntry)
+            val uiState by viewModel.uiState.collectAsState()
+            val story = uiState.stories.find { it.id == storyId }
+            val context = LocalContext.current
+
+            if (story != null) {
+                com.universalmedialibrary.ui.webfiction.WebFictionStoryDetailScreen(
+                    story = story,
+                    onBack = { navController.navigateUp() },
+                    onDownload = { viewModel.downloadStory(story) },
+                    onRefresh = { viewModel.checkForUpdates(story) },
+                    onRemove = {
+                        viewModel.removeStory(story)
+                        navController.navigateUp()
+                    },
+                    onOpenInBrowser = { url ->
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
+                )
+            } else {
+                com.universalmedialibrary.ui.webfiction.WebFictionStoryNotFound(
+                    onBack = { navController.navigateUp() }
+                )
+            }
+        }
+
+        composable("story_manager") {
+            com.universalmedialibrary.ui.webfiction.StoryManagerRoute(
+                onBack = { navController.navigateUp() }
             )
         }
         
@@ -905,8 +960,34 @@ fun AppNavigation(externalFileUri: Uri? = null) {
            }
            
            // Enhanced Search route
-           composable("enhanced_search") {
+           composable(
+               route = "enhanced_search?tags={tags}&mediaTypes={mediaTypes}&query={query}",
+               arguments = listOf(
+                   navArgument("tags") {
+                       type = NavType.StringType
+                       nullable = true
+                       defaultValue = null
+                   },
+                   navArgument("mediaTypes") {
+                       type = NavType.StringType
+                       nullable = true
+                       defaultValue = null
+                   },
+                   navArgument("query") {
+                       type = NavType.StringType
+                       nullable = true
+                       defaultValue = null
+                   }
+               )
+           ) {
                com.universalmedialibrary.ui.search.EnhancedSearchScreen(
+                   navController = navController
+               )
+           }
+
+           // Tag Explorer route
+           composable("tag_explorer") {
+               com.universalmedialibrary.ui.tags.UniversalTagExplorerScreen(
                    navController = navController
                )
            }
@@ -1016,6 +1097,24 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 label = "Fanfiction",
                 icon = { Icon(PhosphorIcons.Bookmark, contentDescription = "Fanfiction") },
                 routeMatch = "fanfiction"
+            )
+        }
+
+        addIfMissing("webfiction_manager") {
+            NavigationItem(
+                route = "webfiction_manager",
+                label = "Web Fiction",
+                icon = { Icon(Icons.Filled.Language, contentDescription = "Web Fiction") },
+                routeMatch = "webfiction"
+            )
+        }
+
+        addIfMissing("story_manager") {
+            NavigationItem(
+                route = "story_manager",
+                label = "Story Manager",
+                icon = { Icon(Icons.Filled.List, contentDescription = "Story Manager") },
+                routeMatch = "story_manager"
             )
         }
 

@@ -2,6 +2,8 @@ package com.universalmedialibrary.services.visualizer
 
 import android.content.Context
 import android.media.audiofx.Visualizer
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +27,8 @@ class AudioVisualizerService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private var visualizer: Visualizer? = null
-    private var captureSize = 0
     private var currentPlayer: ExoPlayer? = null
+    private var playerListener: Player.Listener? = null
 
     private val _visualizerState = MutableStateFlow(VisualizerState())
     val visualizerState: StateFlow<VisualizerState> = _visualizerState.asStateFlow()
@@ -43,35 +45,71 @@ class AudioVisualizerService @Inject constructor(
      * Attach visualizer to an ExoPlayer instance
      */
     fun attachToPlayer(player: ExoPlayer) {
-        try {
-            // Only re-attach if player changed
-            if (currentPlayer == player && visualizer != null && visualizer?.enabled == true) {
-                return
-            }
-            
-            release()
+        // Skip if we're already attached and active
+        if (currentPlayer == player && visualizer?.enabled == true) {
+            return
+        }
 
-            // Get audio session ID from ExoPlayer
-            val audioSessionId = player.audioSessionId
-            
-            // Validate audio session ID
-            if (audioSessionId == androidx.media3.common.C.AUDIO_SESSION_ID_UNSET) {
+        if (currentPlayer != player) {
+            removePlayerListener()
+        }
+
+        releaseVisualizer()
+        currentPlayer = player
+
+        val audioSessionId = player.audioSessionId
+        if (audioSessionId == androidx.media3.common.C.AUDIO_SESSION_ID_UNSET) {
+            waitForValidAudioSession(player)
+        } else {
+            initializeVisualizer(player, audioSessionId)
+        }
+    }
+
+    private fun waitForValidAudioSession(player: ExoPlayer) {
+        val listener = object : Player.Listener {
+            private fun handleSessionId(audioSessionId: Int) {
+                if (audioSessionId == androidx.media3.common.C.AUDIO_SESSION_ID_UNSET) {
+                    return
+                }
+
+                player.removeListener(this)
+                if (player == currentPlayer) {
+                    initializeVisualizer(player, audioSessionId)
+                }
+                this@AudioVisualizerService.playerListener = null
+            }
+
+            override fun onAudioSessionIdChanged(audioSessionId: Int) {
+                handleSessionId(audioSessionId)
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_READY) {
+                    handleSessionId(player.audioSessionId)
+                }
+            }
+
+            override fun onPlayerError(error: PlaybackException) {
                 _visualizerState.value = _visualizerState.value.copy(
-                    error = "Invalid audio session ID. Player may not be ready."
+                    error = error.message ?: "Unknown player error"
                 )
-                return
             }
+        }
 
+        playerListener = listener
+        player.addListener(listener)
+    }
+
+    private fun initializeVisualizer(player: ExoPlayer, audioSessionId: Int) {
+        try {
             visualizer = Visualizer(audioSessionId).apply {
                 val maxCaptureSize = Visualizer.getCaptureSizeRange()[1]
                 setCaptureSize(maxCaptureSize)
                 scalingMode = Visualizer.SCALING_MODE_NORMALIZED
 
-                // Set up data capture callback
-                // Use maximum capture rate for 60 FPS rendering
                 val maxCaptureRate = Visualizer.getMaxCaptureRate()
                 android.util.Log.d("AudioVisualizerService", "Max capture rate: $maxCaptureRate Hz")
-                
+
                 setDataCaptureListener(
                     object : Visualizer.OnDataCaptureListener {
                         override fun onWaveFormDataCapture(
@@ -90,22 +128,42 @@ class AudioVisualizerService @Inject constructor(
                             fft?.let { processFft(it) }
                         }
                     },
-                    maxCaptureRate, // Maximum rate for 60 FPS (typically 60-120 Hz)
+                    maxCaptureRate,
                     true,
                     true
                 )
 
                 enabled = true
-                _isEnabled.value = true
             }
-            
-            // Only set currentPlayer after successful attachment
+
+            _isEnabled.value = true
+            _visualizerState.value = _visualizerState.value.copy(error = null)
             currentPlayer = player
         } catch (e: Exception) {
             _visualizerState.value = _visualizerState.value.copy(
                 error = "Failed to attach visualizer: ${e.message}"
             )
         }
+    }
+
+    private fun releaseVisualizer() {
+        try {
+            visualizer?.enabled = false
+            visualizer?.release()
+        } catch (e: Exception) {
+            android.util.Log.w("AudioVisualizerService", "Error releasing visualizer", e)
+        } finally {
+            visualizer = null
+            _isEnabled.value = false
+            _visualizerState.value = VisualizerState()
+        }
+    }
+
+    private fun removePlayerListener() {
+        playerListener?.let { listener ->
+            currentPlayer?.removeListener(listener)
+        }
+        playerListener = null
     }
 
     /**
@@ -205,16 +263,9 @@ class AudioVisualizerService @Inject constructor(
      * Release visualizer resources
      */
     fun release() {
-        try {
-            visualizer?.enabled = false
-            visualizer?.release()
-            visualizer = null
-            currentPlayer = null
-            _isEnabled.value = false
-            _visualizerState.value = VisualizerState()
-        } catch (e: Exception) {
-            android.util.Log.w("AudioVisualizerService", "Error releasing visualizer", e)
-        }
+        removePlayerListener()
+        releaseVisualizer()
+        currentPlayer = null
     }
     
     /**

@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -27,8 +28,10 @@ import coil.compose.AsyncImage
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionSite
 import com.universalmedialibrary.services.webfiction.WebFictionSiteType
+import com.universalmedialibrary.services.webfiction.isAdultSite
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.StoryStatus
+import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
@@ -41,6 +44,7 @@ fun WebFictionManagerScreen(
 ) {
     CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
+        val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
         var showAddDialog by remember { mutableStateOf(false) }
         var showSiteInfoDialog by remember { mutableStateOf(false) }
         var selectedSite by remember { mutableStateOf<WebFictionSite?>(null) }
@@ -60,6 +64,9 @@ fun WebFictionManagerScreen(
                         }
                     },
                     actions = {
+                        IconButton(onClick = { navController.navigate("story_manager") }) {
+                            Icon(Icons.Default.List, contentDescription = "Story Manager")
+                        }
                         IconButton(onClick = { showSiteInfoDialog = true }) {
                             Icon(Icons.Default.Info, contentDescription = "Supported Sites")
                         }
@@ -92,6 +99,43 @@ fun WebFictionManagerScreen(
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
+
+                if (!adultSitesEnabled) {
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        colors = CardDefaults.outlinedCardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Adult story sources are disabled.",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "Enable adult story sources in Parental Controls to browse or download mature catalogs.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // Error message
@@ -244,10 +288,20 @@ fun WebFictionManagerScreen(
         // Supported sites dialog
         if (showSiteInfoDialog) {
             SupportedSitesDialog(
+                adultSitesEnabled = adultSitesEnabled,
                 onDismiss = { showSiteInfoDialog = false },
                 onSiteClick = { site ->
                     selectedSite = site
                 }
+            )
+        }
+
+        uiState.pendingPinChallenge?.let { challenge ->
+            PinAccessDialog(
+                challenge = challenge,
+                onDismiss = { viewModel.dismissPinChallenge() },
+                onAccessGranted = { viewModel.onPinUnlockGranted() },
+                verifyPin = viewModel::verifyPin
             )
         }
     }
@@ -487,6 +541,7 @@ fun AddWebFictionDialog(
 
 @Composable
 fun SupportedSitesDialog(
+    adultSitesEnabled: Boolean,
     onDismiss: () -> Unit,
     onSiteClick: (WebFictionSite) -> Unit
 ) {
@@ -504,10 +559,12 @@ fun SupportedSitesDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC }) { siteType ->
+                    val enabled = adultSitesEnabled || !siteType.isAdultSite()
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onSiteClick(createWebFictionSiteFromType(siteType)) },
+                            .alpha(if (enabled) 1f else 0.6f)
+                            .clickable(enabled = enabled) { onSiteClick(createWebFictionSiteFromType(siteType)) },
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant
                         )
@@ -533,6 +590,33 @@ fun SupportedSitesDialog(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                if (siteType.isAdultSite()) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    AssistChip(
+                                        onClick = {},
+                                        enabled = false,
+                                        label = { Text("Adult Source") },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.Default.Warning,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.tertiary
+                                            )
+                                        },
+                                        colors = AssistChipDefaults.assistChipColors(
+                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                            labelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    )
+                                }
+                                if (!enabled && siteType.isAdultSite()) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = "Enable in Parental Controls to view.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                     }
@@ -562,6 +646,10 @@ private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
         WebFictionSiteType.FIMFICTION -> "FimFiction"
         WebFictionSiteType.LITEROTICA -> "Literotica"
         WebFictionSiteType.METABODS -> "Metabods"
+        WebFictionSiteType.NIFTY -> "Nifty Archive"
+        WebFictionSiteType.ADULT_FANFICTION -> "Adult-FanFiction"
+        WebFictionSiteType.BDSM_LIBRARY -> "BDSM Library"
+        WebFictionSiteType.MCSTORIES -> "MCStories"
         WebFictionSiteType.GENERIC -> "Generic Site"
     }
 }
@@ -580,6 +668,10 @@ private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
         WebFictionSiteType.FIMFICTION -> "fimfiction.net"
         WebFictionSiteType.LITEROTICA -> "literotica.com"
         WebFictionSiteType.METABODS -> "metabods.com"
+        WebFictionSiteType.NIFTY -> "nifty.org"
+        WebFictionSiteType.ADULT_FANFICTION -> "adult-fanfiction.org"
+        WebFictionSiteType.BDSM_LIBRARY -> "bdsmlibrary.com"
+        WebFictionSiteType.MCSTORIES -> "mcstories.com"
         WebFictionSiteType.GENERIC -> ""
     }
 }

@@ -10,11 +10,38 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.local.entity.DownloadedStory
 import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.launch
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface StoryManagerEntryPoint {
+    fun storyUpdateManager(): StoryUpdateManager
+}
+
+@Composable
+fun StoryManagerRoute(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val storyManager = remember(context) {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            StoryManagerEntryPoint::class.java
+        ).storyUpdateManager()
+    }
+
+    StoryManagerScreen(
+        storyManager = storyManager,
+        onBack = onBack
+    )
+}
 
 /**
  * Story Manager Screen

@@ -1,5 +1,8 @@
 package com.universalmedialibrary.services.webfiction
 
+import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.ContentPinRequiredException
+import com.universalmedialibrary.services.DownloadBlockedException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -32,6 +35,10 @@ enum class WebFictionSiteType(
     FIMFICTION("Fimfiction", "https://www.fimfiction.net"),
     LITEROTICA("Literotica", "https://www.literotica.com"),
     METABODS("Metabods", "https://www.metabods.com"),
+    NIFTY("Nifty Archive", "https://www.nifty.org"),
+    ADULT_FANFICTION("Adult-FanFiction", "https://www.adult-fanfiction.org"),
+    BDSM_LIBRARY("BDSM Library", "https://www.bdsmlibrary.com"),
+    MCSTORIES("MCStories", "https://mcstories.com"),
     GENERIC("Generic Web Fiction", "")
 }
 
@@ -73,7 +80,9 @@ data class RoyalRoadChapter(
 )
 
 @Singleton
-class WebFictionService @Inject constructor() {
+class WebFictionService @Inject constructor(
+    private val parentalControlsSettings: ParentalControlsSettings
+) {
 
     private val royalRoadApi: RoyalRoadApi by lazy {
         Retrofit.Builder()
@@ -83,14 +92,72 @@ class WebFictionService @Inject constructor() {
             .create(RoyalRoadApi::class.java)
     }
 
+    private suspend fun ensureAdultAccess(siteType: WebFictionSiteType) {
+        if (!siteType.isAdultSite()) return
+        if (!parentalControlsSettings.isAdultSourcesAllowed()) {
+            throw AdultSitesDisabledException()
+        }
+    }
+
+    private suspend fun enforceStoryAccess(
+        story: WebFictionStory,
+        bypassPin: Boolean = false
+    ) {
+        val state = parentalControlsSettings.currentState()
+        if (!state.enabled) return
+
+        if (parentalControlsSettings.shouldHideContent(
+                state = state,
+                rating = story.rating,
+                mediaType = "STORY",
+                tags = story.tags
+            )
+        ) {
+            throw DownloadBlockedException(
+                message = "Parental controls hide this story. Adjust your parental control settings to view or download it.",
+                contentRating = story.rating
+            )
+        }
+
+        if (!parentalControlsSettings.isContentAllowed(
+                state = state,
+                rating = story.rating,
+                mediaType = "STORY",
+                tags = story.tags
+            )
+        ) {
+            throw DownloadBlockedException(
+                message = "Parental controls currently block downloading this story. Update your parental control settings to continue.",
+                contentRating = story.rating
+            )
+        }
+
+        if (!bypassPin && parentalControlsSettings.requiresPinForAccess(
+                state = state,
+                rating = story.rating,
+                mediaType = "STORY",
+                tags = story.tags
+            )
+        ) {
+            throw ContentPinRequiredException(
+                contentTitle = story.title,
+                contentRating = story.rating
+            )
+        }
+    }
+
     /**
      * Extract story information from a URL
      */
-    suspend fun extractStoryFromUrl(url: String): WebFictionStory? {
+    suspend fun extractStoryFromUrl(
+        url: String,
+        bypassPin: Boolean = false
+    ): WebFictionStory? {
         return withContext(Dispatchers.IO) {
             try {
                 val site = detectSite(url)
-                when (site) {
+                ensureAdultAccess(site)
+                val story = when (site) {
                     WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
                     WebFictionSiteType.FANFICTION_NET -> extractFromFFN(url)
                     WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(url)
@@ -100,8 +167,20 @@ class WebFictionService @Inject constructor() {
                     WebFictionSiteType.FIMFICTION -> extractFromFimFiction(url)
                     WebFictionSiteType.METABODS -> extractFromMetabods(url)
                     WebFictionSiteType.LITEROTICA -> extractFromLiterotica(url)
+                    WebFictionSiteType.NIFTY -> extractFromNifty(url)
+                    WebFictionSiteType.ADULT_FANFICTION -> extractFromAdultFanFiction(url)
+                    WebFictionSiteType.BDSM_LIBRARY -> extractFromBdsmlibrary(url)
+                    WebFictionSiteType.MCSTORIES -> extractFromMcstories(url)
                     else -> extractGeneric(url)
                 }
+                story?.let { enforceStoryAccess(it, bypassPin) }
+                story
+            } catch (e: AdultSitesDisabledException) {
+                throw e
+            } catch (e: ContentPinRequiredException) {
+                throw e
+            } catch (e: DownloadBlockedException) {
+                throw e
             } catch (e: Exception) {
                 null
             }
@@ -111,14 +190,22 @@ class WebFictionService @Inject constructor() {
     /**
      * Check for new chapters in an existing story
      */
-    suspend fun checkForUpdates(story: WebFictionStory): List<WebFictionChapter> {
+    suspend fun checkForUpdates(
+        story: WebFictionStory,
+        bypassPin: Boolean = false
+    ): List<WebFictionChapter> {
+        enforceStoryAccess(story, bypassPin)
         return withContext(Dispatchers.IO) {
             try {
-                val currentStory = extractStoryFromUrl(story.url) ?: return@withContext emptyList()
+                val currentStory = extractStoryFromUrl(story.url, bypassPin) ?: return@withContext emptyList()
 
                 // Find chapters that weren't in the original story
                 val existingChapterIds = story.chapters.map { it.id }.toSet()
                 currentStory.chapters.filter { it.id !in existingChapterIds }
+            } catch (e: ContentPinRequiredException) {
+                throw e
+            } catch (e: DownloadBlockedException) {
+                throw e
             } catch (e: Exception) {
                 emptyList()
             }
@@ -128,11 +215,16 @@ class WebFictionService @Inject constructor() {
     /**
      * Download all chapters of a story
      */
-    suspend fun downloadAllChapters(story: WebFictionStory): List<WebFictionChapter> {
+    suspend fun downloadAllChapters(
+        story: WebFictionStory,
+        bypassPin: Boolean = false
+    ): List<WebFictionChapter> {
         return withContext(Dispatchers.IO) {
             try {
                 // Parse site from URL if site string is not available
                 val siteType = detectSite(story.url)
+                ensureAdultAccess(siteType)
+                enforceStoryAccess(story, bypassPin)
                 when (siteType) {
                     WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
                     WebFictionSiteType.FANFICTION_NET -> downloadFFNChapters(story)
@@ -141,8 +233,16 @@ class WebFictionService @Inject constructor() {
                     WebFictionSiteType.WATTPAD -> downloadWattpadChapters(story)
                     WebFictionSiteType.METABODS -> downloadMetabodsChapters(story)
                     WebFictionSiteType.LITEROTICA -> downloadLiteroticaChapters(story)
+                    WebFictionSiteType.NIFTY -> downloadNiftyChapters(story)
+                    WebFictionSiteType.ADULT_FANFICTION -> downloadAdultFanFictionChapters(story)
+                    WebFictionSiteType.BDSM_LIBRARY -> downloadBdsmlibraryChapters(story)
+                    WebFictionSiteType.MCSTORIES -> downloadMcstoriesChapters(story)
                     else -> emptyList()
                 }
+            } catch (e: ContentPinRequiredException) {
+                throw e
+            } catch (e: DownloadBlockedException) {
+                throw e
             } catch (e: Exception) {
                 emptyList()
             }
@@ -164,6 +264,10 @@ class WebFictionService @Inject constructor() {
             "fimfiction.net" in domain -> WebFictionSiteType.FIMFICTION
             "metabods.com" in domain -> WebFictionSiteType.METABODS
             "literotica.com" in domain -> WebFictionSiteType.LITEROTICA
+            "nifty.org" in domain -> WebFictionSiteType.NIFTY
+            "adult-fanfiction.org" in domain -> WebFictionSiteType.ADULT_FANFICTION
+            "bdsmlibrary.com" in domain -> WebFictionSiteType.BDSM_LIBRARY
+            "mcstories.com" in domain -> WebFictionSiteType.MCSTORIES
             else -> WebFictionSiteType.GENERIC
         }
     }
@@ -194,6 +298,10 @@ class WebFictionService @Inject constructor() {
             WebFictionSiteType.FIMFICTION -> "FimFiction"
             WebFictionSiteType.LITEROTICA -> "Literotica"
             WebFictionSiteType.METABODS -> "Metabods"
+            WebFictionSiteType.NIFTY -> "Nifty Archive"
+            WebFictionSiteType.ADULT_FANFICTION -> "Adult-FanFiction"
+            WebFictionSiteType.BDSM_LIBRARY -> "BDSM Library"
+            WebFictionSiteType.MCSTORIES -> "MCStories"
             WebFictionSiteType.GENERIC -> "Generic"
         }
     }
@@ -713,6 +821,136 @@ class WebFictionService @Inject constructor() {
         )
     }
 
+    private suspend fun extractFromNifty(url: String): WebFictionStory? {
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val heading = doc.selectFirst("h2")?.text() ?: doc.title()
+        val (title, author) = heading.split(" by ").let {
+            it.firstOrNull() to it.getOrNull(1)
+        }
+        val description = doc.selectFirst("p")?.text()
+        val tags = doc.select("a[href*=keywords]").map { it.text() }
+
+        val storyId = url.substringAfterLast('/').substringBefore(".").ifEmpty { url.hashCode().toString() }
+
+        return WebFictionStory(
+            id = storyId,
+            url = url,
+            title = title ?: doc.title(),
+            author = author ?: "Unknown",
+            description = description,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = "English",
+            wordCount = null,
+            chapterCount = 1,
+            lastUpdated = null,
+            rating = "Explicit",
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.NIFTY)
+        )
+    }
+
+    private suspend fun extractFromAdultFanFiction(url: String): WebFictionStory? {
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val title = doc.selectFirst(".storyinfo h2, .story-title, h1")?.text() ?: doc.title()
+        val author = doc.selectFirst(".authorinfo a, .storyinfo a[href*=profile]")?.text()
+        val description = doc.selectFirst(".summary, .storysummary, .storyinfo p")?.text()
+        val tags = doc.select(".storyinfo a[href*=/category/], .storyinfo a[href*=/tags/]").map { it.text() }
+
+        val storyId = url.substringAfter("story.php?no=").ifEmpty { url.hashCode().toString() }
+
+        return WebFictionStory(
+            id = storyId,
+            url = url,
+            title = title,
+            author = author ?: "Unknown",
+            description = description,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = "English",
+            wordCount = null,
+            chapterCount = 1,
+            lastUpdated = null,
+            rating = tags.firstOrNull { it.contains("Rated", ignoreCase = true) },
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.ADULT_FANFICTION)
+        )
+    }
+
+    private suspend fun extractFromBdsmlibrary(url: String): WebFictionStory? {
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val title = doc.selectFirst("h1, h2.title")?.text() ?: doc.title()
+        val author = doc.selectFirst("a[href*=/authors/]")?.text()
+        val description = doc.selectFirst(".storyHeader p, .summary, .description")?.text()
+        val tags = doc.select("a[href*=/categories/], a[href*=/tags/]").map { it.text() }
+
+        val storyId = url.substringAfter("story.php?storyid=").ifEmpty { url.hashCode().toString() }
+
+        return WebFictionStory(
+            id = storyId,
+            url = url,
+            title = title,
+            author = author ?: "Unknown",
+            description = description,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = "English",
+            wordCount = null,
+            chapterCount = 1,
+            lastUpdated = null,
+            rating = "Explicit",
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.BDSM_LIBRARY)
+        )
+    }
+
+    private suspend fun extractFromMcstories(url: String): WebFictionStory? {
+        val doc = Jsoup.connect(url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val title = doc.selectFirst("h1, title")?.text() ?: doc.title()
+        val author = doc.selectFirst("a[href*=Authors], .byline a")?.text()
+        val description = doc.selectFirst("blockquote, .synopsis, p")?.text()
+        val tags = doc.select("a[href*=tags], a[href*=search]").map { it.text() }
+
+        val storyId = url.substringAfterLast('/').substringBefore(".").ifEmpty { url.hashCode().toString() }
+
+        return WebFictionStory(
+            id = storyId,
+            url = url,
+            title = title,
+            author = author ?: "Unknown",
+            description = description,
+            status = StoryStatus.UNKNOWN,
+            genre = tags.firstOrNull(),
+            fandom = null,
+            language = "English",
+            wordCount = null,
+            chapterCount = 1,
+            lastUpdated = null,
+            rating = "Explicit",
+            tags = tags,
+            site = siteTypeToString(WebFictionSiteType.MCSTORIES)
+        )
+    }
+
     private suspend fun downloadMetabodsChapters(story: WebFictionStory): List<WebFictionChapter> {
         val chapters = mutableListOf<WebFictionChapter>()
 
@@ -796,6 +1034,122 @@ class WebFictionService @Inject constructor() {
         return chapters
     }
 
+    private suspend fun downloadNiftyChapters(story: WebFictionStory): List<WebFictionChapter> {
+        val doc = Jsoup.connect(story.url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val content = doc.select("pre, article, div.story").first()?.html()
+            ?: doc.body().html()
+
+        return listOf(
+            WebFictionChapter(
+                id = "${story.id}_1",
+                storyId = story.id,
+                number = 1,
+                title = story.title,
+                content = content,
+                publishDate = null,
+                wordCount = null,
+                notes = null
+            )
+        )
+    }
+
+    private suspend fun downloadAdultFanFictionChapters(story: WebFictionStory): List<WebFictionChapter> {
+        val doc = Jsoup.connect(story.url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val content = doc.select(".storytext, #storytext, article").first()?.html()
+            ?: doc.body().html()
+
+        return listOf(
+            WebFictionChapter(
+                id = "${story.id}_1",
+                storyId = story.id,
+                number = 1,
+                title = story.title,
+                content = content,
+                publishDate = null,
+                wordCount = null,
+                notes = null
+            )
+        )
+    }
+
+    private suspend fun downloadBdsmlibraryChapters(story: WebFictionStory): List<WebFictionChapter> {
+        val doc = Jsoup.connect(story.url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val content = doc.select("#story, .storycontent, article").first()?.html()
+            ?: doc.body().html()
+
+        return listOf(
+            WebFictionChapter(
+                id = "${story.id}_1",
+                storyId = story.id,
+                number = 1,
+                title = story.title,
+                content = content,
+                publishDate = null,
+                wordCount = null,
+                notes = null
+            )
+        )
+    }
+
+    private suspend fun downloadMcstoriesChapters(story: WebFictionStory): List<WebFictionChapter> {
+        val doc = Jsoup.connect(story.url)
+            .timeout(30000)
+            .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+            .get()
+
+        val chapterLinks = doc.select("a[href*=\\.html]").filter {
+            val href = it.attr("href")
+            href.endsWith(".html", ignoreCase = true) && !href.contains("index", ignoreCase = true)
+        }
+
+        if (chapterLinks.isNotEmpty()) {
+            return chapterLinks.mapIndexed { index, link ->
+                val chapterUrl = link.absUrl("href")
+                val chapterDoc = Jsoup.connect(chapterUrl)
+                    .timeout(30000)
+                    .userAgent("Mozilla/5.0 (compatible; CleverFerret/1.0)")
+                    .get()
+                val content = chapterDoc.select("body").html()
+                WebFictionChapter(
+                    id = "${story.id}_${index + 1}",
+                    storyId = story.id,
+                    number = index + 1,
+                    title = link.text().ifEmpty { "Chapter ${index + 1}" },
+                    content = content,
+                    publishDate = null,
+                    wordCount = null,
+                    notes = null
+                )
+            }
+        }
+
+        val content = doc.select("body").html()
+        return listOf(
+            WebFictionChapter(
+                id = "${story.id}_1",
+                storyId = story.id,
+                number = 1,
+                title = story.title,
+                content = content,
+                publishDate = null,
+                wordCount = null,
+                notes = null
+            )
+        )
+    }
+
     private fun extractMetabodsId(url: String): String {
         return Regex("story/(\\d+)|s/(\\d+)").find(url)?.groupValues?.getOrNull(1)
             ?: url.substringAfterLast("/").substringBefore("?").ifEmpty { url.hashCode().toString() }
@@ -805,3 +1159,6 @@ class WebFictionService @Inject constructor() {
         return Regex("s/(\\w+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
     }
 }
+
+class AdultSitesDisabledException :
+    IllegalStateException("Adult site access is disabled by parental control settings.")

@@ -15,8 +15,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
-import com.universalmedialibrary.services.ContentFilterHelper
 import com.universalmedialibrary.services.ContentStatus
+import com.universalmedialibrary.services.ContentFilterHelper
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import kotlinx.coroutines.launch
 
 /**
@@ -41,8 +42,11 @@ fun FilteredMediaCard(
     val scope = rememberCoroutineScope()
 
     // Check content status
-    LaunchedEffect(mediaItem.id, mediaItem.contentRating) {
-        contentStatus = contentFilterHelper.getContentStatus(mediaItem.contentRating)
+    LaunchedEffect(mediaItem.id, mediaItem.contentRating, mediaItem.mediaType) {
+        contentStatus = contentFilterHelper.getContentStatus(
+            rating = mediaItem.contentRating,
+            mediaType = mediaItem.mediaType
+        )
     }
 
     // Don't show if hidden
@@ -126,7 +130,7 @@ fun FilteredMediaCard(
             if (contentStatus == ContentStatus.Blocked) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "This content is blocked by parental controls",
+                    text = "Parental controls are blocking this item. Update your parental control settings to allow access.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -137,14 +141,18 @@ fun FilteredMediaCard(
     // PIN dialog
     if (showPinDialog) {
         PinAccessDialog(
-            contentTitle = mediaItem.title ?: "content",
-            contentRating = mediaItem.contentRating,
+            challenge = PinChallenge(
+                title = mediaItem.title ?: "Content",
+                rating = mediaItem.contentRating,
+                mediaType = mediaItem.mediaType,
+                description = "Enter your PIN to unlock this item."
+            ),
             onDismiss = { showPinDialog = false },
             onAccessGranted = {
                 showPinDialog = false
                 onClick()
             },
-            parentalControlsSettings = parentalControlsSettings
+            verifyPin = parentalControlsSettings::verifyPin
         )
     }
 }
@@ -213,8 +221,11 @@ fun FilteredMediaGridItem(
     var showPinDialog by remember { mutableStateOf(false) }
 
     // Check content status
-    LaunchedEffect(mediaItem.id, mediaItem.contentRating) {
-        contentStatus = contentFilterHelper.getContentStatus(mediaItem.contentRating)
+    LaunchedEffect(mediaItem.id, mediaItem.contentRating, mediaItem.mediaType) {
+        contentStatus = contentFilterHelper.getContentStatus(
+            rating = mediaItem.contentRating,
+            mediaType = mediaItem.mediaType
+        )
     }
 
     // Don't show if hidden
@@ -285,14 +296,18 @@ fun FilteredMediaGridItem(
     // PIN dialog
     if (showPinDialog) {
         PinAccessDialog(
-            contentTitle = mediaItem.title ?: "content",
-            contentRating = mediaItem.contentRating,
+            challenge = PinChallenge(
+                title = mediaItem.title ?: "Content",
+                rating = mediaItem.contentRating,
+                mediaType = mediaItem.mediaType,
+                description = "Enter your PIN to unlock this item."
+            ),
             onDismiss = { showPinDialog = false },
             onAccessGranted = {
                 showPinDialog = false
                 onClick()
             },
-            parentalControlsSettings = parentalControlsSettings
+            verifyPin = parentalControlsSettings::verifyPin
         )
     }
 }

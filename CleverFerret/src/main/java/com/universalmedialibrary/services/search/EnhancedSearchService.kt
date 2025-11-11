@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,6 +33,7 @@ class EnhancedSearchService @Inject constructor(
     private val mediaItemDao = database.mediaItemDao()
     private val metadataDao = database.metadataDao()
     private val searchHistoryDao = database.searchHistoryDao()
+    private val tagDao = database.unifiedTagDao()
 
     /**
      * Advanced search with multiple filters
@@ -46,9 +48,24 @@ class EnhancedSearchService @Inject constructor(
             mediaItemDao.getAllMediaItems().take(query.limit)
         }
 
+        val requiredTags = query.filters.tags
+            .map { it.trim().lowercase(Locale.getDefault()) }
+            .filter { it.isNotEmpty() }
+            .toSet()
+
+        val tagsByItem: Map<Long, List<String>> = if (requiredTags.isNotEmpty()) {
+            mediaItems.associate { item ->
+                val tags = tagDao.getTagsForItemSync(item.itemId)
+                    .map { it.name.lowercase(Locale.getDefault()) }
+                item.itemId to tags
+            }
+        } else {
+            emptyMap()
+        }
+
         // Apply filters
         val filtered = mediaItems.filter { item ->
-            matchesFilters(item, query.filters)
+            matchesFilters(item, query.filters, requiredTags, tagsByItem)
         }
 
         // Sort by relevance or specified sort
@@ -168,7 +185,12 @@ class EnhancedSearchService @Inject constructor(
 
     // Helper methods
 
-    private fun matchesFilters(item: MediaItem, filters: SearchFilters): Boolean {
+    private fun matchesFilters(
+        item: MediaItem,
+        filters: SearchFilters,
+        requiredTags: Set<String>,
+        tagsByItem: Map<Long, List<String>>
+    ): Boolean {
         // Media type filter
         if (filters.mediaTypes.isNotEmpty() && item.mediaType !in filters.mediaTypes) {
             return false
@@ -193,6 +215,13 @@ class EnhancedSearchService @Inject constructor(
         // Library filter
         if (filters.libraryIds.isNotEmpty() && item.libraryId !in filters.libraryIds) {
             return false
+        }
+
+        if (requiredTags.isNotEmpty()) {
+            val itemTags = tagsByItem[item.itemId] ?: emptyList()
+            if (!itemTags.containsAll(requiredTags)) {
+                return false
+            }
         }
 
         return true

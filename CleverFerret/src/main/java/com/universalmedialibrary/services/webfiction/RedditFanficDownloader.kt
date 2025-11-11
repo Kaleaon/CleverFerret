@@ -21,6 +21,7 @@ class RedditFanficDownloader {
     companion object {
         const val REDDIT_CLIENT_ID = "EvU-yXXa66v0qe94RLorQw"
         const val USER_AGENT = "CleverFerret:OutOfCruelSpaceDownloader:v1.0 (Android)"
+        private const val REQUEST_TIMEOUT = 15000
     }
 
     data class ChapterPost(
@@ -57,14 +58,15 @@ class RedditFanficDownloader {
         val json = Jsoup.connect(searchUrl)
             .ignoreContentType(true)
             .userAgent(USER_AGENT)
-            .timeout(15000)
+            .header("Accept", "application/json")
+            .timeout(REQUEST_TIMEOUT)
             .get()
             .text()
 
         val data = kotlinx.serialization.json.Json.parseToJsonElement(json).jsonObject
         val posts = data["data"]?.jsonObject?.get("children")?.jsonArray ?: kotlinx.serialization.json.JsonArray(emptyList())
 
-        val chapters = posts.mapNotNull { child ->
+        val rawChapters = posts.mapNotNull { child ->
             val post = child.jsonObject["data"]?.jsonObject ?: return@mapNotNull null
             val title = post["title"]?.toString()?.trim('"') ?: return@mapNotNull null
             val postAuthor = post["author"]?.toString()?.trim('"') ?: ""
@@ -93,13 +95,30 @@ class RedditFanficDownloader {
                 createdUtc = createdUtc
             )
         }
-            .sortedWith(compareBy<ChapterPost> { it.number }.thenBy { it.createdUtc })
             .toList()
+
+        val normalizedChapters = rawChapters
+            .sortedWith(
+                compareBy<ChapterPost> {
+                    when {
+                        it.number > 0 -> it.number
+                        else -> Int.MAX_VALUE
+                    }
+                }.thenBy { it.createdUtc }
+            )
+            .mapIndexed { index, chapter ->
+                val normalizedNumber = if (chapter.number > 0) chapter.number else index + 1
+                chapter.copy(number = normalizedNumber)
+            }
+            .distinctBy { it.url }
+
+        val canonicalAuthor = author
+            ?: normalizedChapters.firstOrNull { it.author.isNotBlank() }?.author
 
         SeriesResult(
             seriesTitle = seriesQuery,
-            author = null,
-            chapters = chapters
+            author = canonicalAuthor,
+            chapters = normalizedChapters
         )
     }
 
@@ -113,7 +132,9 @@ class RedditFanficDownloader {
             // Prefer old.reddit if possible for consistent markup
             if (url.contains("reddit.com") && !url.contains("old.reddit.com")) {
                 val oldUrl = url.replace("www.reddit.com", "old.reddit.com")
-                return fetchPostHtml(oldUrl)
+                if (oldUrl != url) {
+                    return fetchPostHtml(oldUrl)
+                }
             }
 
             // Extract self-text content if available

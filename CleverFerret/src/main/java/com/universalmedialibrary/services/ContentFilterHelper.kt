@@ -26,9 +26,7 @@ class ContentFilterHelper @Inject constructor(
      * Filter a list of media items based on parental controls
      */
     suspend fun filterMediaItems(items: List<MediaItem>): List<MediaItem> {
-        val state = parentalControlsSettings.parentalControlsState
-            .map { it }
-            .first()
+        val state = parentalControlsSettings.currentState()
         
         if (!state.enabled) {
             return items // No filtering
@@ -36,7 +34,11 @@ class ContentFilterHelper @Inject constructor(
 
         return items.filter { item ->
             val rating = item.contentRating
-            !parentalControlsSettings.shouldHideContent(rating)
+            !parentalControlsSettings.shouldHideContent(
+                state = state,
+                rating = rating,
+                mediaType = item.mediaType
+            )
         }
     }
 
@@ -45,15 +47,17 @@ class ContentFilterHelper @Inject constructor(
      */
     fun filterMediaItemsFlow(itemsFlow: Flow<List<MediaItem>>): Flow<List<MediaItem>> {
         return itemsFlow.map { items ->
-            val state = parentalControlsSettings.parentalControlsState
-                .map { it }
-                .first()
+            val state = parentalControlsSettings.currentState()
             
             if (!state.enabled) {
                 items
             } else {
                 items.filter { item ->
-                    !parentalControlsSettings.shouldHideContent(item.contentRating)
+                    !parentalControlsSettings.shouldHideContent(
+                        state = state,
+                        rating = item.contentRating,
+                        mediaType = item.mediaType
+                    )
                 }
             }
         }
@@ -63,77 +67,95 @@ class ContentFilterHelper @Inject constructor(
      * Filter web fiction stories
      */
     suspend fun filterStories(stories: List<WebFictionStory>): List<WebFictionStory> {
-        val state = parentalControlsSettings.parentalControlsState
-            .map { it }
-            .first()
+        val state = parentalControlsSettings.currentState()
         
         if (!state.enabled) {
             return stories
         }
 
         return stories.filter { story ->
-            !parentalControlsSettings.shouldHideContent(story.rating)
+            !parentalControlsSettings.shouldHideContent(
+                state = state,
+                rating = story.rating,
+                mediaType = "STORY",
+                tags = story.tags
+            )
         }
     }
 
     /**
      * Check if content should be shown (not hidden)
      */
-    suspend fun shouldShowContent(rating: String?): Boolean {
-        return !parentalControlsSettings.shouldHideContent(rating)
+    suspend fun shouldShowContent(
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
+        val state = parentalControlsSettings.currentState()
+        if (!state.enabled) {
+            return true
+        }
+        return !parentalControlsSettings.shouldHideContent(state, rating, mediaType, tags)
     }
 
     /**
      * Check if content requires PIN to access
      */
-    suspend fun requiresPin(rating: String?): Boolean {
-        return parentalControlsSettings.requiresPinForAccess(rating)
+    suspend fun requiresPin(
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
+        val state = parentalControlsSettings.currentState()
+        if (!state.enabled) {
+            return false
+        }
+        return parentalControlsSettings.requiresPinForAccess(state, rating, mediaType, tags)
     }
 
     /**
      * Check if content is allowed (not blocked)
      */
-    suspend fun isContentAllowed(rating: String?): Boolean {
-        return parentalControlsSettings.isContentAllowed(rating)
+    suspend fun isContentAllowed(
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
+        val state = parentalControlsSettings.currentState()
+        if (!state.enabled) {
+            return true
+        }
+        return parentalControlsSettings.isContentAllowed(state, rating, mediaType, tags)
     }
 
     /**
      * Get content status for UI display
      */
-    suspend fun getContentStatus(rating: String?): ContentStatus {
-        val state = parentalControlsSettings.parentalControlsState
-            .map { it }
-            .first()
+    suspend fun getContentStatus(
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): ContentStatus {
+        val state = parentalControlsSettings.currentState()
         
         if (!state.enabled) {
             return ContentStatus.Allowed
         }
 
-        val shouldHide = parentalControlsSettings.shouldHideContent(rating)
+        val shouldHide = parentalControlsSettings.shouldHideContent(state, rating, mediaType, tags)
         if (shouldHide) {
             return ContentStatus.Hidden
         }
 
-        val requiresPin = parentalControlsSettings.requiresPinForAccess(rating)
+        val requiresPin = parentalControlsSettings.requiresPinForAccess(state, rating, mediaType, tags)
         if (requiresPin) {
             return ContentStatus.Locked
         }
 
-        val allowed = parentalControlsSettings.isContentAllowed(rating)
+        val allowed = parentalControlsSettings.isContentAllowed(state, rating, mediaType, tags)
         return if (allowed) ContentStatus.Allowed else ContentStatus.Blocked
     }
 
-    /**
-     * Extension function to get first value from Flow
-     */
-    private suspend fun <T> Flow<T>.first(): T {
-        var result: T? = null
-        this.collect { value ->
-            result = value
-            return@collect
-        }
-        return result!!
-    }
 }
 
 /**

@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.settings
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,16 +10,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.ui.components.PinEntryDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
+import java.util.Locale
 
 /**
  * Parental Controls Settings Screen
@@ -142,16 +149,58 @@ fun ParentalControlsScreen(
 
                 // Content Restrictions
                 if (uiState.state.enabled) {
+                    val ratingLimitsAreUnrestricted =
+                        uiState.state.movieRatingLimit == ParentalControlsSettings.MovieRatingLevel.UNRESTRICTED &&
+                        uiState.state.tvRatingLimit == ParentalControlsSettings.TvRatingLevel.UNRESTRICTED &&
+                        uiState.state.gameRatingLimit == ParentalControlsSettings.GameRatingLevel.UNRESTRICTED &&
+                        uiState.state.bookRatingLimit == ParentalControlsSettings.BookRatingLevel.UNRESTRICTED
+
+                    val canToggleAdultSources =
+                        !uiState.state.blockExplicit &&
+                        !uiState.state.hideAdultContent &&
+                        ratingLimitsAreUnrestricted
+
+                    val adultSourceDisabledReason = when {
+                        uiState.state.blockExplicit || uiState.state.hideAdultContent ->
+                            "Disabled while explicit content is blocked or hidden."
+                        !ratingLimitsAreUnrestricted ->
+                            "Increase each rating limit to \"Allow All\" before enabling adult sources."
+                        else -> null
+                    }
+
                     ContentRestrictionsCard(
                         blockMature = uiState.state.blockMature,
                         blockExplicit = uiState.state.blockExplicit,
                         hideAdultContent = uiState.state.hideAdultContent,
                         requirePinForAdult = uiState.state.requirePinForAdult && uiState.state.hasPinSet,
+                        allowAdultSources = uiState.state.allowAdultSources,
+                        canToggleAdultSources = canToggleAdultSources,
+                        adultSourcesDisabledReason = adultSourceDisabledReason,
                         hasPinSet = uiState.state.hasPinSet,
                         onBlockMatureChange = { viewModel.setBlockMature(it) },
                         onBlockExplicitChange = { viewModel.setBlockExplicit(it) },
                         onHideAdultContentChange = { viewModel.setHideAdultContent(it) },
+                        onAllowAdultSourcesChange = { viewModel.setAllowAdultSources(it) },
                         onRequirePinChange = { viewModel.setRequirePinForAdult(it) }
+                    )
+
+                    MediaRatingsCard(
+                        movieLimit = uiState.state.movieRatingLimit,
+                        tvLimit = uiState.state.tvRatingLimit,
+                        gameLimit = uiState.state.gameRatingLimit,
+                        bookLimit = uiState.state.bookRatingLimit,
+                        onMovieLimitChange = viewModel::setMovieRatingLimit,
+                        onTvLimitChange = viewModel::setTvRatingLimit,
+                        onGameLimitChange = viewModel::setGameRatingLimit,
+                        onBookLimitChange = viewModel::setBookRatingLimit
+                    )
+
+                    TagBlockingCard(
+                        selectedCategories = uiState.state.blockedTagCategories,
+                        blockedTags = uiState.state.blockedTags,
+                        onToggleCategory = viewModel::toggleTagCategory,
+                        onAddTag = viewModel::addBlockedTag,
+                        onRemoveTag = viewModel::removeBlockedTag
                     )
                 }
 
@@ -170,11 +219,43 @@ fun ParentalControlsScreen(
 
         // PIN Dialog
         if (uiState.showPinDialog) {
-            PinDialog(
-                type = uiState.pinDialogType,
+            val dialogType = uiState.pinDialogType
+            var dialogTitle = "Enter PIN"
+            var initialPrompt = "Enter your PIN to continue."
+            var confirmPrompt: String? = null
+            var supportingText: String? = null
+
+            when (dialogType) {
+                PinDialogType.SET -> {
+                    dialogTitle = "Set PIN"
+                    initialPrompt = "Choose a new 4-digit PIN."
+                    confirmPrompt = "Confirm your new PIN."
+                    supportingText = "PIN must be exactly four digits."
+                }
+                PinDialogType.CHANGE -> {
+                    dialogTitle = "Change PIN"
+                    initialPrompt = "Enter your new 4-digit PIN."
+                    confirmPrompt = "Confirm your new PIN."
+                    supportingText = "PIN must be exactly four digits."
+                }
+                PinDialogType.CLEAR -> {
+                    dialogTitle = "Clear PIN"
+                    initialPrompt = "Enter your current PIN to clear it."
+                }
+                PinDialogType.VERIFY -> {
+                    dialogTitle = "Enter PIN"
+                    initialPrompt = "Enter your PIN to continue."
+                }
+            }
+
+            PinEntryDialog(
+                title = dialogTitle,
+                initialPrompt = initialPrompt,
+                confirmPrompt = confirmPrompt,
+                supportingText = supportingText,
+                error = uiState.pinError,
                 onDismiss = { viewModel.dismissPinDialog() },
-                onConfirm = { pin -> viewModel.handlePinDialog(pin) },
-                error = uiState.pinError
+                onPinComplete = { pin -> viewModel.handlePinDialog(pin) }
             )
         }
 
@@ -269,10 +350,14 @@ private fun ContentRestrictionsCard(
     blockExplicit: Boolean,
     hideAdultContent: Boolean,
     requirePinForAdult: Boolean,
+    allowAdultSources: Boolean,
+    canToggleAdultSources: Boolean,
+    adultSourcesDisabledReason: String?,
     hasPinSet: Boolean,
     onBlockMatureChange: (Boolean) -> Unit,
     onBlockExplicitChange: (Boolean) -> Unit,
     onHideAdultContentChange: (Boolean) -> Unit,
+    onAllowAdultSourcesChange: (Boolean) -> Unit,
     onRequirePinChange: (Boolean) -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -329,6 +414,31 @@ private fun ContentRestrictionsCard(
 
             Divider()
 
+            // Adult Content Sources toggle
+            val adultDescription = if (canToggleAdultSources) {
+                "Allow searching and downloading from adult-oriented fiction sites"
+            } else {
+                adultSourcesDisabledReason ?: "Currently disabled by parental control settings"
+            }
+            SwitchSettingItem(
+                title = "Enable Adult Story Sources",
+                description = adultDescription,
+                checked = allowAdultSources && canToggleAdultSources,
+                onCheckedChange = onAllowAdultSourcesChange,
+                icon = Icons.Default.Explicit,
+                enabled = canToggleAdultSources
+            )
+
+            if (!canToggleAdultSources) {
+                Text(
+                    text = adultSourcesDisabledReason ?: "Adult site access is disabled by current settings.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Divider()
+
             // Require PIN for Adult
             SwitchSettingItem(
                 title = "Require PIN for Adult Content",
@@ -374,6 +484,259 @@ private fun AdditionalSettingsCard(
                 onCheckedChange = onLockSettingsChange,
                 icon = Icons.Default.Lock
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MediaRatingsCard(
+    movieLimit: ParentalControlsSettings.MovieRatingLevel,
+    tvLimit: ParentalControlsSettings.TvRatingLevel,
+    gameLimit: ParentalControlsSettings.GameRatingLevel,
+    bookLimit: ParentalControlsSettings.BookRatingLevel,
+    onMovieLimitChange: (ParentalControlsSettings.MovieRatingLevel) -> Unit,
+    onTvLimitChange: (ParentalControlsSettings.TvRatingLevel) -> Unit,
+    onGameLimitChange: (ParentalControlsSettings.GameRatingLevel) -> Unit,
+    onBookLimitChange: (ParentalControlsSettings.BookRatingLevel) -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            RatingLimitSelector<ParentalControlsSettings.MovieRatingLevel>(
+                icon = Icons.Default.Movie,
+                title = "Films & Movies",
+                subtitle = "Set the highest MPAA rating that can be accessed.",
+                options = ParentalControlsSettings.MovieRatingLevel.values(),
+                selected = movieLimit,
+                labelProvider = { it.displayName },
+                onSelected = onMovieLimitChange
+            )
+
+            RatingLimitSelector<ParentalControlsSettings.TvRatingLevel>(
+                icon = Icons.Default.Tv,
+                title = "TV & Streaming",
+                subtitle = "Choose the maximum TV rating (TV-Y through TV-MA).",
+                options = ParentalControlsSettings.TvRatingLevel.values(),
+                selected = tvLimit,
+                labelProvider = { it.displayName },
+                onSelected = onTvLimitChange
+            )
+
+            RatingLimitSelector<ParentalControlsSettings.GameRatingLevel>(
+                icon = Icons.Default.SportsEsports,
+                title = "Games & Interactive Media",
+                subtitle = "Limit ESRB ratings for games and interactive content.",
+                options = ParentalControlsSettings.GameRatingLevel.values(),
+                selected = gameLimit,
+                labelProvider = { it.displayName },
+                onSelected = onGameLimitChange
+            )
+
+            RatingLimitSelector<ParentalControlsSettings.BookRatingLevel>(
+                icon = Icons.Default.MenuBook,
+                title = "Books & Stories",
+                subtitle = "Control access to Mature or Explicit fiction.",
+                options = ParentalControlsSettings.BookRatingLevel.values(),
+                selected = bookLimit,
+                labelProvider = { it.displayName },
+                onSelected = onBookLimitChange
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun <T : Enum<T>> RatingLimitSelector(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    options: Array<T>,
+    selected: T,
+    labelProvider: (T) -> String,
+    onSelected: (T) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
+            )
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            options.forEach { option ->
+                FilterChip(
+                    selected = option == selected,
+                    onClick = { onSelected(option) },
+                    label = { Text(labelProvider(option)) }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TagBlockingCard(
+    selectedCategories: Set<ParentalControlsSettings.TagBlockCategory>,
+    blockedTags: Set<String>,
+    onToggleCategory: (ParentalControlsSettings.TagBlockCategory) -> Unit,
+    onAddTag: (String) -> Unit,
+    onRemoveTag: (String) -> Unit
+) {
+    var newTag by rememberSaveable { mutableStateOf("") }
+    val sortedBlockedTags = remember(blockedTags) { blockedTags.toList().sorted() }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    Icons.Default.Sell,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Column {
+                    Text(
+                        text = "Tag Restrictions",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Block content by sensitive tag categories or specific keywords.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ParentalControlsSettings.TagBlockCategory.values().forEach { category ->
+                    val isSelected = selectedCategories.contains(category)
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { onToggleCategory(category) },
+                        label = { Text(category.displayName) },
+                        leadingIcon = {
+                            if (isSelected) {
+                                Icon(
+                                    Icons.Default.VisibilityOff,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            Divider()
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Custom blocked tags",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = newTag,
+                        onValueChange = { newTag = it },
+                        label = { Text("Add keyword") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(onDone = {
+                            val trimmed = newTag.trim()
+                            if (trimmed.isNotEmpty()) {
+                                onAddTag(trimmed)
+                                newTag = ""
+                            }
+                        })
+                    )
+                    Button(
+                        onClick = {
+                            val trimmed = newTag.trim()
+                            if (trimmed.isNotEmpty()) {
+                                onAddTag(trimmed)
+                                newTag = ""
+                            }
+                        },
+                        enabled = newTag.trim().isNotEmpty()
+                    ) {
+                        Text("Add")
+                    }
+                }
+
+                if (sortedBlockedTags.isEmpty()) {
+                    Text(
+                        text = "No custom tags blocked yet.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        sortedBlockedTags.forEach { tag ->
+                            val display = tag.split(" ").joinToString(" ") {
+                                it.replaceFirstChar { ch ->
+                                    if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
+                                }
+                            }
+                            AssistChip(
+                                onClick = { onRemoveTag(tag) },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Clear,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                },
+                                label = { Text(display) }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -462,105 +825,6 @@ private fun InfoCard() {
             )
         }
     }
-}
-
-@Composable
-private fun PinDialog(
-    type: PinDialogType,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit,
-    error: String?
-) {
-    var pin by remember { mutableStateOf("") }
-    var confirmPin by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(Icons.Default.Lock, contentDescription = null)
-        },
-        title = {
-            Text(
-                when (type) {
-                    PinDialogType.SET -> "Set PIN"
-                    PinDialogType.CHANGE -> "Change PIN"
-                    PinDialogType.CLEAR -> "Clear PIN"
-                    PinDialogType.VERIFY -> "Enter PIN"
-                }
-            )
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    when (type) {
-                        PinDialogType.SET -> "Enter a 4-digit PIN to protect parental controls"
-                        PinDialogType.CHANGE -> "Enter your new 4-digit PIN"
-                        PinDialogType.CLEAR -> "Enter your PIN to clear it"
-                        PinDialogType.VERIFY -> "Enter your PIN to continue"
-                    }
-                )
-
-                OutlinedTextField(
-                    value = pin,
-                    onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) pin = it },
-                    label = { Text("PIN") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                    singleLine = true,
-                    isError = error != null
-                )
-
-                if (type == PinDialogType.SET || type == PinDialogType.CHANGE) {
-                    OutlinedTextField(
-                        value = confirmPin,
-                        onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) confirmPin = it },
-                        label = { Text("Confirm PIN") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        singleLine = true,
-                        isError = error != null
-                    )
-                }
-
-                if (error != null) {
-                    Text(
-                        error,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    when (type) {
-                        PinDialogType.SET, PinDialogType.CHANGE -> {
-                            if (pin == confirmPin && pin.length == 4) {
-                                onConfirm(pin)
-                            }
-                        }
-                        PinDialogType.CLEAR, PinDialogType.VERIFY -> {
-                            if (pin.length == 4) {
-                                onConfirm(pin)
-                            }
-                        }
-                    }
-                },
-                enabled = when (type) {
-                    PinDialogType.SET, PinDialogType.CHANGE -> pin.length == 4 && pin == confirmPin
-                    PinDialogType.CLEAR, PinDialogType.VERIFY -> pin.length == 4
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 enum class PinDialogType {

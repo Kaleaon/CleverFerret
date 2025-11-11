@@ -3,19 +3,19 @@ package com.universalmedialibrary.ui.webfiction
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.services.webfiction.*
@@ -39,6 +39,7 @@ fun UniversalTagBrowserScreen(
 ) {
     CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
+        val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
 
         // Set initial site if provided
         LaunchedEffect(initialSiteType) {
@@ -90,6 +91,7 @@ fun UniversalTagBrowserScreen(
                 if (uiState.selectedSite == null) {
                     // Site selection screen
                     SiteSelectionScreen(
+                        adultSitesEnabled = adultSitesEnabled,
                         onSiteSelected = { viewModel.selectSite(it) }
                     )
                 } else {
@@ -102,11 +104,20 @@ fun UniversalTagBrowserScreen(
                 }
             }
         }
+        uiState.pendingPinChallenge?.let { challenge ->
+            PinAccessDialog(
+                challenge = challenge,
+                onDismiss = { viewModel.dismissPinChallenge() },
+                onAccessGranted = { viewModel.onPinUnlockGranted() },
+                verifyPin = viewModel::verifyPin
+            )
+        }
     }
 }
 
 @Composable
 private fun SiteSelectionScreen(
+    adultSitesEnabled: Boolean,
     onSiteSelected: (WebFictionSiteType) -> Unit
 ) {
     LazyColumn(
@@ -126,11 +137,37 @@ private fun SiteSelectionScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            if (!adultSitesEnabled) {
+                Spacer(modifier = Modifier.height(12.dp))
+                ElevatedCard(
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Adult sources are currently disabled.",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Enable adult story sources in Parental Controls to access mature fanfiction catalogs.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
 
         items(WebFictionSiteType.values().filter { it != WebFictionSiteType.GENERIC }) { siteType ->
+            val enabled = adultSitesEnabled || !siteType.isAdultSite()
             SiteCard(
                 siteType = siteType,
+                enabled = enabled,
+                showAdultDisabledMessage = !adultSitesEnabled && siteType.isAdultSite(),
                 onClick = { onSiteSelected(siteType) }
             )
         }
@@ -140,12 +177,15 @@ private fun SiteSelectionScreen(
 @Composable
 private fun SiteCard(
     siteType: WebFictionSiteType,
+    enabled: Boolean,
+    showAdultDisabledMessage: Boolean,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .alpha(if (enabled) 1f else 0.6f)
+            .clickable(enabled = enabled) { onClick() }
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -163,6 +203,33 @@ private fun SiteCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (siteType.isAdultSite()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    AssistChip(
+                        onClick = {},
+                        enabled = false,
+                        label = { Text("Adult Source") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            labelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    )
+                }
+                if (showAdultDisabledMessage) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Enable in Parental Controls to browse this catalog.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
             Icon(
                 Icons.Default.ChevronRight,

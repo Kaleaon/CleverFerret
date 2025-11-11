@@ -2,11 +2,18 @@ package com.universalmedialibrary.ui.webfiction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.ContentPinRequiredException
+import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.*
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,16 +24,32 @@ import javax.inject.Inject
 @HiltViewModel
 class UniversalTagBrowserViewModel @Inject constructor(
     private val universalTagService: UniversalTagService,
-    private val webFictionService: WebFictionService
+    private val webFictionService: WebFictionService,
+    private val parentalControlsSettings: ParentalControlsSettings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UniversalTagBrowserUiState())
     val uiState: StateFlow<UniversalTagBrowserUiState> = _uiState.asStateFlow()
+    val adultSitesEnabled: StateFlow<Boolean> =
+        parentalControlsSettings.parentalControlsState
+            .map { it.allowAdultSources }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = false
+            )
+    private var pendingPinAction: (() -> Unit)? = null
 
     /**
      * Select a site to browse
      */
     fun selectSite(siteType: WebFictionSiteType) {
+        if (siteType.isAdultSite() && !adultSitesEnabled.value) {
+            _uiState.value = _uiState.value.copy(
+                error = "Adult story sources are disabled in parental controls. Enable them to browse ${siteType.displayName}."
+            )
+            return
+        }
         _uiState.value = _uiState.value.copy(
             selectedSite = siteType,
             tags = emptyList(),
@@ -58,6 +81,14 @@ class UniversalTagBrowserViewModel @Inject constructor(
                     isLoadingTags = false
                 )
             }.onFailure { error ->
+                if (error is AdultSitesDisabledException) {
+                    _uiState.value = _uiState.value.copy(
+                        selectedSite = null,
+                        isLoadingTags = false,
+                        error = "Adult story sources are disabled in parental controls. Enable them to browse ${siteType.displayName}."
+                    )
+                    return@onFailure
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoadingTags = false,
                     error = "Failed to load tags: ${error.message}"
@@ -204,15 +235,16 @@ class UniversalTagBrowserViewModel @Inject constructor(
     /**
      * Download a story
      */
-    fun downloadStory(story: WebFictionStory) {
+    fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 downloadingStoryId = story.id,
-                error = null
+                error = null,
+                successMessage = null
             )
 
             try {
-                val chapters = webFictionService.downloadAllChapters(story)
+                val chapters = webFictionService.downloadAllChapters(story, bypassPin)
                 val completeStory = story.copy(chapters = chapters)
                 
                 // TODO: Create EPUB, add to library
@@ -221,10 +253,27 @@ class UniversalTagBrowserViewModel @Inject constructor(
                     successMessage = "Downloaded: ${completeStory.title}"
                 )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    downloadingStoryId = null,
-                    error = "Download failed: ${e.message}"
-                )
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = story.title,
+                    fallbackRating = story.rating,
+                    mediaType = story.site,
+                    tags = story.tags
+                ) {
+                    downloadStory(story, bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(downloadingStoryId = null)
+                } else {
+                    val message = mapParentalControlsError(
+                        e,
+                        "Download failed: ${e.message}"
+                    )
+                    _uiState.value = _uiState.value.copy(
+                        downloadingStoryId = null,
+                        error = message
+                    )
+                }
             }
         }
     }
@@ -242,6 +291,55 @@ class UniversalTagBrowserViewModel @Inject constructor(
     fun clearSuccess() {
         _uiState.value = _uiState.value.copy(successMessage = null)
     }
+
+    fun dismissPinChallenge() {
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+    }
+
+    suspend fun verifyPin(pin: String): Boolean = parentalControlsSettings.verifyPin(pin)
+
+    fun onPinUnlockGranted() {
+        val action = pendingPinAction
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+        action?.invoke()
+    }
+
+    private fun handlePinException(
+        throwable: Throwable,
+        fallbackTitle: String,
+        fallbackRating: String?,
+        mediaType: String?,
+        tags: List<String>,
+        retry: () -> Unit
+    ): Boolean {
+        val pinException = throwable as? ContentPinRequiredException ?: return false
+        val title = pinException.contentTitle ?: fallbackTitle
+        val rating = pinException.contentRating ?: fallbackRating
+        val description = pinException.localizedMessage ?: "Enter your PIN to unlock \"$title\"."
+        pendingPinAction = retry
+        _uiState.value = _uiState.value.copy(
+            pendingPinChallenge = PinChallenge(
+                title = title,
+                rating = rating,
+                mediaType = mediaType,
+                tags = tags,
+                description = description
+            ),
+            error = null
+        )
+        return true
+    }
+
+    private fun mapParentalControlsError(error: Throwable, fallback: String): String = when (error) {
+        is AdultSitesDisabledException -> "Adult story sources are disabled in Parental Controls."
+        is DownloadBlockedException -> error.message
+            ?: "Parental controls are blocking this story. Update your parental control settings to continue."
+        is ContentPinRequiredException -> "Parental controls require a PIN to access this story."
+        else -> fallback
+    }
+
 }
 
 /**
@@ -259,5 +357,6 @@ data class UniversalTagBrowserUiState(
     val isLoadingStories: Boolean = false,
     val downloadingStoryId: String? = null,
     val error: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    val pendingPinChallenge: PinChallenge? = null
 )

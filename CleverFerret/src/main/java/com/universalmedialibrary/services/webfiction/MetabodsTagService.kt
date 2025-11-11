@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.webfiction
 
+import com.universalmedialibrary.services.ContentFilterHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -18,7 +19,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class MetabodsTagService @Inject constructor(
-    private val webFictionService: WebFictionService
+    private val webFictionService: WebFictionService,
+    private val contentFilterHelper: ContentFilterHelper
 ) {
 
     companion object {
@@ -180,14 +182,17 @@ class MetabodsTagService @Inject constructor(
 
                 val stories = extractStoriesFromBrowse(doc)
                 val totalCount = extractTotalCount(doc, stories.size)
+                val filtered = contentFilterHelper.filterStories(stories)
+                val paged = filtered.take(criteria.limit)
                 val hasMore = stories.size >= criteria.limit
+                val nextOffset = if (hasMore) criteria.offset + criteria.limit else null
 
                 Result.success(
                     StorySearchResult(
-                        stories = stories,
+                        stories = paged,
                         totalCount = totalCount,
                         hasMore = hasMore,
-                        nextOffset = if (hasMore) criteria.offset + criteria.limit else null
+                        nextOffset = nextOffset
                     )
                 )
             } catch (e: Exception) {
@@ -374,7 +379,10 @@ class MetabodsTagService @Inject constructor(
     /**
      * Download story respecting Metabods download button if available
      */
-    suspend fun downloadStoryWithRespect(storyUrl: String): Result<WebFictionStory> {
+    suspend fun downloadStoryWithRespect(
+        storyUrl: String,
+        bypassPin: Boolean = false
+    ): Result<WebFictionStory> {
         return withContext(Dispatchers.IO) {
             try {
                 // First check if there's a direct download available
@@ -387,7 +395,7 @@ class MetabodsTagService @Inject constructor(
                 }
                 
                 // Fall back to our standard extraction
-                val story = webFictionService.extractStoryFromUrl(storyUrl)
+                val story = webFictionService.extractStoryFromUrl(storyUrl, bypassPin)
                 if (story != null) {
                     Result.success(story)
                 } else {

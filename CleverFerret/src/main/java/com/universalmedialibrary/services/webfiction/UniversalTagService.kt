@@ -1,8 +1,12 @@
 package com.universalmedialibrary.services.webfiction
 
+import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.ContentFilterHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
+import java.net.URLEncoder
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,7 +17,9 @@ import javax.inject.Singleton
 @Singleton
 class UniversalTagService @Inject constructor(
     private val metabodsTagService: MetabodsTagService,
-    private val webFictionService: WebFictionService
+    private val webFictionService: WebFictionService,
+    private val parentalControlsSettings: ParentalControlsSettings,
+    private val contentFilterHelper: ContentFilterHelper
 ) {
 
     companion object {
@@ -21,10 +27,22 @@ class UniversalTagService @Inject constructor(
         private const val REQUEST_TIMEOUT = 30000
     }
 
+    private val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
+
+    private suspend fun ensureAdultAccess(siteType: WebFictionSiteType): Result<Unit> {
+        if (!siteType.isAdultSite()) return Result.success(Unit)
+        return if (parentalControlsSettings.isAdultSourcesAllowed()) {
+            Result.success(Unit)
+        } else {
+            Result.failure(AdultSitesDisabledException())
+        }
+    }
+
     /**
      * Fetch tags for a specific site
      */
     suspend fun fetchTagsForSite(siteType: WebFictionSiteType): Result<List<WebFictionTag>> {
+        ensureAdultAccess(siteType).onFailure { return Result.failure(it) }
         return when (siteType) {
             WebFictionSiteType.METABODS -> metabodsTagService.fetchAllTags()
             WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> fetchAO3Tags()
@@ -33,6 +51,10 @@ class UniversalTagService @Inject constructor(
             WebFictionSiteType.ROYAL_ROAD -> fetchRoyalRoadTags()
             WebFictionSiteType.SCRIBBLE_HUB -> fetchScribbleHubTags()
             WebFictionSiteType.LITEROTICA -> fetchLiteroticaTags()
+            WebFictionSiteType.NIFTY -> fetchNiftyTags()
+            WebFictionSiteType.ADULT_FANFICTION -> fetchAdultFanFictionTags()
+            WebFictionSiteType.BDSM_LIBRARY -> fetchBdsmlibraryTags()
+            WebFictionSiteType.MCSTORIES -> fetchMcstoriesTags()
             WebFictionSiteType.QUESTIONABLE_QUESTING -> fetchQQTags()
             else -> Result.success(emptyList())
         }
@@ -45,6 +67,7 @@ class UniversalTagService @Inject constructor(
         siteType: WebFictionSiteType,
         criteria: StorySearchCriteria
     ): Result<StorySearchResult> {
+        ensureAdultAccess(siteType).onFailure { return Result.failure(it) }
         return when (siteType) {
             WebFictionSiteType.METABODS -> metabodsTagService.browseByTags(criteria)
             WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> browseAO3ByTags(criteria)
@@ -52,6 +75,10 @@ class UniversalTagService @Inject constructor(
             WebFictionSiteType.WATTPAD -> browseWattpadByTags(criteria)
             WebFictionSiteType.ROYAL_ROAD -> browseRoyalRoadByTags(criteria)
             WebFictionSiteType.SCRIBBLE_HUB -> browseScribbleHubByTags(criteria)
+            WebFictionSiteType.NIFTY -> browseNiftyByTags(criteria)
+            WebFictionSiteType.ADULT_FANFICTION -> browseAdultFanFictionByTags(criteria)
+            WebFictionSiteType.BDSM_LIBRARY -> browseBdsmlibraryByTags(criteria)
+            WebFictionSiteType.MCSTORIES -> browseMcstoriesByTags(criteria)
             else -> Result.failure(Exception("Tag browsing not yet implemented for ${siteType.displayName}"))
         }
     }
@@ -244,44 +271,69 @@ class UniversalTagService @Inject constructor(
     // ===========================================================================================
 
     private suspend fun fetchRoyalRoadTags(): Result<List<WebFictionTag>> {
-        return Result.success(
-            listOf(
-                // Genres
-                WebFictionTag("litrpg", "litrpg", "LitRPG", TagCategory.GENRE, 0),
-                WebFictionTag("progression-fantasy", "progression-fantasy", "Progression Fantasy", TagCategory.GENRE, 0),
-                WebFictionTag("isekai", "isekai", "Isekai", TagCategory.GENRE, 0),
-                WebFictionTag("dungeon-core", "dungeon-core", "Dungeon Core", TagCategory.GENRE, 0),
-                WebFictionTag("cultivation", "cultivation", "Cultivation", TagCategory.GENRE, 0),
-                WebFictionTag("cyberpunk", "cyberpunk", "Cyberpunk", TagCategory.GENRE, 0),
-                WebFictionTag("post-apocalyptic", "post-apocalyptic", "Post-Apocalyptic", TagCategory.GENRE, 0),
-                
-                // Themes
-                WebFictionTag("op-mc", "op-mc", "OP MC", TagCategory.THEME, 0),
-                WebFictionTag("weak-to-strong", "weak-to-strong", "Weak to Strong", TagCategory.THEME, 0),
-                WebFictionTag("magic", "magic", "Magic", TagCategory.THEME, 0),
-                WebFictionTag("martial-arts", "martial-arts", "Martial Arts", TagCategory.THEME, 0),
-                WebFictionTag("kingdom-building", "kingdom-building", "Kingdom Building", TagCategory.THEME, 0)
-            )
-        )
+        return withContext(Dispatchers.IO) {
+            try {
+                val doc = Jsoup.connect("https://www.royalroad.com/fictions/genres")
+                    .timeout(REQUEST_TIMEOUT)
+                    .userAgent(USER_AGENT)
+                    .get()
+
+                val tagElements = doc.select(
+                    "a.genre-label, a.genre-tag, div.genre-card a, a.badge, a.tag, li a[data-tag]"
+                )
+
+                val deduped = linkedMapOf<String, WebFictionTag>()
+                for (element in tagElements) {
+                    val rawName = element.text().trim()
+                    if (rawName.isEmpty()) continue
+
+                    val (displayName, count) = extractRoyalRoadDisplayNameAndCount(rawName)
+                    val tagId = extractRoyalRoadTagId(element, displayName)
+                    val category = categorizeRoyalRoadTag(displayName)
+
+                    val cleanId = tagId.ifBlank { sanitizeTagId(displayName) }
+                    if (cleanId.isBlank()) continue
+
+                    deduped.putIfAbsent(
+                        cleanId,
+                        WebFictionTag(
+                            id = cleanId,
+                            name = cleanId,
+                            displayName = displayName,
+                            category = category,
+                            count = count
+                        )
+                    )
+                }
+
+                val tags = deduped.values.toList()
+                Result.success(
+                    if (tags.isEmpty()) getRoyalRoadFallbackTags()
+                    else tags.sortedBy { it.displayName.lowercase(Locale.US) }
+                )
+            } catch (e: Exception) {
+                Result.success(getRoyalRoadFallbackTags())
+            }
+        }
     }
 
     private suspend fun browseRoyalRoadByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
         return withContext(Dispatchers.IO) {
             try {
-                val url = "https://www.royalroad.com/fictions/search?tagsAdd=${criteria.tags.joinToString(",")}"
+                val url = buildRoyalRoadSearchUrl(criteria)
                 val doc = Jsoup.connect(url)
                     .timeout(REQUEST_TIMEOUT)
                     .userAgent(USER_AGENT)
                     .get()
 
                 val stories = parseRoyalRoadSearchResults(doc)
-                
+
                 Result.success(
                     StorySearchResult(
                         stories = stories,
                         totalCount = stories.size,
-                        hasMore = false,
-                        nextOffset = null
+                        hasMore = stories.size >= criteria.limit,
+                        nextOffset = if (stories.size >= criteria.limit) criteria.offset + criteria.limit else null
                     )
                 )
             } catch (e: Exception) {
@@ -332,6 +384,120 @@ class UniversalTagService @Inject constructor(
         return stories
     }
 
+    private fun extractRoyalRoadDisplayNameAndCount(raw: String): Pair<String, Int> {
+        val countMatch = royalRoadCountRegex.find(raw)
+        val count = countMatch?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() ?: 0
+        val displayName = raw.replace(royalRoadCountRegex, "").trim()
+        return displayName to count
+    }
+
+    private fun extractRoyalRoadTagId(element: org.jsoup.nodes.Element, displayName: String): String {
+        val attributeId = sequenceOf(
+            element.attr("data-tag"),
+            element.attr("data-value"),
+            element.attr("data-slug"),
+            element.attr("data-name")
+        ).firstOrNull { it.isNotBlank() }?.let { sanitizeTagId(it) }
+
+        if (!attributeId.isNullOrBlank()) return attributeId
+
+        val href = element.attr("href")
+        if (href.isNotBlank()) {
+            when {
+                href.contains("tagsAdd=", ignoreCase = true) ->
+                    return sanitizeTagId(href.substringAfter("tagsAdd=").substringBefore("&"))
+                href.contains("/tag/", ignoreCase = true) ->
+                    return sanitizeTagId(href.substringAfter("/tag/").substringBefore("/"))
+                href.contains("/genres/", ignoreCase = true) ->
+                    return sanitizeTagId(href.substringAfterLast("/"))
+            }
+        }
+
+        return sanitizeTagId(displayName)
+    }
+
+    private fun sanitizeTagId(value: String): String {
+        val normalized = value.lowercase(Locale.US)
+            .replace(Regex("[^a-z0-9]+"), "-")
+            .trim('-')
+        return normalized.ifBlank { "tag-${value.hashCode() and 0xffff}" }
+    }
+
+    private fun categorizeRoyalRoadTag(tagName: String): TagCategory {
+        val normalized = tagName.lowercase(Locale.US)
+        return when {
+            normalized.contains("fantasy") ||
+            normalized.contains("litrpg") ||
+            normalized.contains("isekai") ||
+            normalized.contains("dungeon") ||
+            normalized.contains("cultivation") ||
+            normalized.contains("cyber") ||
+            normalized.contains("post-apocalyptic") ||
+            normalized.contains("sci") -> TagCategory.GENRE
+
+            normalized.contains("magic") ||
+            normalized.contains("martial") ||
+            normalized.contains("kingdom") ||
+            normalized.contains("weak") ||
+            normalized.matches(Regex("op.*")) ||
+            normalized.contains("progression") -> TagCategory.THEME
+
+            normalized.contains("complete") ||
+            normalized.contains("ongoing") ||
+            normalized.contains("hiatus") -> TagCategory.STATUS
+
+            else -> TagCategory.GENERAL
+        }
+    }
+
+    private fun getRoyalRoadFallbackTags(): List<WebFictionTag> = listOf(
+        WebFictionTag("litrpg", "litrpg", "LitRPG", TagCategory.GENRE, 0),
+        WebFictionTag("progression-fantasy", "progression-fantasy", "Progression Fantasy", TagCategory.GENRE, 0),
+        WebFictionTag("isekai", "isekai", "Isekai", TagCategory.GENRE, 0),
+        WebFictionTag("dungeon-core", "dungeon-core", "Dungeon Core", TagCategory.GENRE, 0),
+        WebFictionTag("cultivation", "cultivation", "Cultivation", TagCategory.GENRE, 0),
+        WebFictionTag("cyberpunk", "cyberpunk", "Cyberpunk", TagCategory.GENRE, 0),
+        WebFictionTag("post-apocalyptic", "post-apocalyptic", "Post-Apocalyptic", TagCategory.GENRE, 0),
+        WebFictionTag("op-mc", "op-mc", "OP MC", TagCategory.THEME, 0),
+        WebFictionTag("weak-to-strong", "weak-to-strong", "Weak to Strong", TagCategory.THEME, 0),
+        WebFictionTag("magic", "magic", "Magic", TagCategory.THEME, 0),
+        WebFictionTag("martial-arts", "martial-arts", "Martial Arts", TagCategory.THEME, 0),
+        WebFictionTag("kingdom-building", "kingdom-building", "Kingdom Building", TagCategory.THEME, 0)
+    )
+
+    private fun buildRoyalRoadSearchUrl(criteria: StorySearchCriteria): String {
+        val builder = StringBuilder("https://www.royalroad.com/fictions/search")
+        var hasQuery = false
+
+        fun appendParam(name: String, value: String) {
+            if (!hasQuery) {
+                builder.append('?')
+                hasQuery = true
+            } else {
+                builder.append('&')
+            }
+            builder.append(name).append('=').append(value)
+        }
+
+        if (criteria.tags.isNotEmpty()) {
+            val encoded = criteria.tags.joinToString(",") { tag ->
+                URLEncoder.encode(tag, "UTF-8")
+            }
+            appendParam("tagsAdd", encoded)
+        }
+
+        if (criteria.tagMatchMode == TagMatchMode.ALL) {
+            appendParam("tagMatch", "all")
+        }
+
+        if (criteria.offset > 0) {
+            val page = (criteria.offset / criteria.limit) + 1
+            appendParam("page", page.toString())
+        }
+
+        return builder.toString()
+    }
+
     // ===========================================================================================
     // OTHER SITES (Wattpad, ScribbleHub, etc.)
     // ===========================================================================================
@@ -375,6 +541,69 @@ class UniversalTagService @Inject constructor(
         )
     }
 
+    private suspend fun fetchNiftyTags(): Result<List<WebFictionTag>> {
+        return Result.success(
+            listOf(
+                WebFictionTag("gay-male", "gay-male", "Gay Male", TagCategory.GENRE, 0),
+                WebFictionTag("lesbian", "lesbian", "Lesbian", TagCategory.GENRE, 0),
+                WebFictionTag("bisexual", "bisexual", "Bisexual", TagCategory.GENRE, 0),
+                WebFictionTag("transgender", "transgender", "Transgender", TagCategory.GENRE, 0),
+                WebFictionTag("encounters", "encounters", "Encounters", TagCategory.THEME, 0),
+                WebFictionTag("fetish", "fetish", "Fetish", TagCategory.THEME, 0),
+                WebFictionTag("romance", "romance", "Romance", TagCategory.THEME, 0),
+                WebFictionTag("fantasy", "fantasy", "Fantasy", TagCategory.GENRE, 0)
+            )
+        )
+    }
+
+    private suspend fun fetchAdultFanFictionTags(): Result<List<WebFictionTag>> {
+        return Result.success(
+            listOf(
+                WebFictionTag("anime", "anime", "Anime", TagCategory.GENRE, 0),
+                WebFictionTag("books", "books", "Books", TagCategory.GENRE, 0),
+                WebFictionTag("cartoons", "cartoons", "Cartoons", TagCategory.GENRE, 0),
+                WebFictionTag("comics", "comics", "Comics", TagCategory.GENRE, 0),
+                WebFictionTag("games", "games", "Games", TagCategory.GENRE, 0),
+                WebFictionTag("movies", "movies", "Movies", TagCategory.GENRE, 0),
+                WebFictionTag("tv", "tv", "Television", TagCategory.GENRE, 0),
+                WebFictionTag("original", "original", "Original Works", TagCategory.GENRE, 0),
+                WebFictionTag("yaoi", "yaoi", "Yaoi", TagCategory.THEME, 0),
+                WebFictionTag("yuri", "yuri", "Yuri", TagCategory.THEME, 0)
+            )
+        )
+    }
+
+    private suspend fun fetchBdsmlibraryTags(): Result<List<WebFictionTag>> {
+        return Result.success(
+            listOf(
+                WebFictionTag("bondage", "bondage", "Bondage", TagCategory.THEME, 0),
+                WebFictionTag("domination", "domination", "Domination", TagCategory.THEME, 0),
+                WebFictionTag("submission", "submission", "Submission", TagCategory.THEME, 0),
+                WebFictionTag("consensual", "consensual", "Consensual", TagCategory.THEME, 0),
+                WebFictionTag("nonconsensual", "nonconsensual", "Non-Consensual", TagCategory.THEME, 0),
+                WebFictionTag("romance", "romance", "Romance", TagCategory.THEME, 0),
+                WebFictionTag("fetish", "fetish", "Fetish", TagCategory.THEME, 0),
+                WebFictionTag("fantasy", "fantasy", "Fantasy", TagCategory.GENRE, 0)
+            )
+        )
+    }
+
+    private suspend fun fetchMcstoriesTags(): Result<List<WebFictionTag>> {
+        return Result.success(
+            listOf(
+                WebFictionTag("mind-control", "mind-control", "Mind Control", TagCategory.THEME, 0),
+                WebFictionTag("transformation", "transformation", "Transformation", TagCategory.THEME, 0),
+                WebFictionTag("lesbian", "lesbian", "Lesbian", TagCategory.GENRE, 0),
+                WebFictionTag("heterosexual", "heterosexual", "Heterosexual", TagCategory.GENRE, 0),
+                WebFictionTag("bisexual", "bisexual", "Bisexual", TagCategory.GENRE, 0),
+                WebFictionTag("science-fiction", "science-fiction", "Science Fiction", TagCategory.GENRE, 0),
+                WebFictionTag("fantasy", "fantasy", "Fantasy", TagCategory.GENRE, 0),
+                WebFictionTag("parody", "parody", "Parody", TagCategory.GENRE, 0)
+            )
+        )
+    }
+
+
     private suspend fun fetchQQTags(): Result<List<WebFictionTag>> {
         return Result.success(
             listOf(
@@ -391,6 +620,203 @@ class UniversalTagService @Inject constructor(
     private suspend fun browseScribbleHubByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
         // TODO: Implement ScribbleHub tag browsing
         return Result.failure(Exception("ScribbleHub tag browsing not yet implemented"))
+    }
+
+    private suspend fun browseNiftyByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (criteria.tags.isEmpty()) {
+                    return@withContext Result.failure(Exception("Select at least one tag"))
+                }
+                val keywordQuery = criteria.tags.joinToString(" ") { it }
+                val url =
+                    "https://www.nifty.org/nifty/?keywords=${URLEncoder.encode(keywordQuery, "UTF-8")}"
+                val doc = Jsoup.connect(url)
+                    .timeout(REQUEST_TIMEOUT)
+                    .userAgent(USER_AGENT)
+                    .get()
+
+                val stories = doc.select("pre a[href*=/nifty/]")
+                    .distinctBy { it.absUrl("href") }
+                    .map { link ->
+                        val storyUrl = link.absUrl("href")
+                        WebFictionStory(
+                            id = storyUrl,
+                            url = storyUrl,
+                            title = link.text().ifBlank { storyUrl.substringAfterLast('/') },
+                            author = null,
+                            description = null,
+                            status = StoryStatus.UNKNOWN,
+                            genre = criteria.tags.firstOrNull(),
+                            fandom = null,
+                            language = "English",
+                            wordCount = null,
+                            chapterCount = null,
+                            lastUpdated = null,
+                            rating = "Explicit",
+                            tags = criteria.tags,
+                            site = WebFictionSiteType.NIFTY.displayName
+                        )
+                    }
+
+                Result.success(buildSearchResult(criteria, stories))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    private suspend fun browseAdultFanFictionByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (criteria.tags.isEmpty()) {
+                    return@withContext Result.failure(Exception("Select at least one tag"))
+                }
+                val query = criteria.tags.joinToString(" ") { it }
+                val url =
+                    "https://www.adult-fanfiction.org/search.php?type=story&storykeywords=${URLEncoder.encode(query, "UTF-8")}"
+                val doc = Jsoup.connect(url)
+                    .timeout(REQUEST_TIMEOUT)
+                    .userAgent(USER_AGENT)
+                    .get()
+
+                val stories = doc.select("a[href*=story.php?no=]")
+                    .distinctBy { it.absUrl("href") }
+                    .map { link ->
+                        val storyUrl = link.absUrl("href")
+                        val parent = link.parents().firstOrNull { it.hasClass("storyinfo") }
+                        val summary = parent?.selectFirst(".summary, p")?.text()
+                        WebFictionStory(
+                            id = storyUrl,
+                            url = storyUrl,
+                            title = link.text().ifBlank { storyUrl.substringAfterLast('/') },
+                            author = parent?.selectFirst("a[href*=profile]")?.text(),
+                            description = summary,
+                            status = StoryStatus.UNKNOWN,
+                            genre = criteria.tags.firstOrNull(),
+                            fandom = null,
+                            language = "English",
+                            wordCount = null,
+                            chapterCount = null,
+                            lastUpdated = null,
+                            rating = "Explicit",
+                            tags = criteria.tags,
+                            site = WebFictionSiteType.ADULT_FANFICTION.displayName
+                        )
+                    }
+
+                Result.success(buildSearchResult(criteria, stories))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    private suspend fun browseBdsmlibraryByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (criteria.tags.isEmpty()) {
+                    return@withContext Result.failure(Exception("Select at least one tag"))
+                }
+                val keywordQuery = criteria.tags.joinToString(" ") { it }
+                val url =
+                    "https://www.bdsmlibrary.com/stories/keyword.php?keyword=${URLEncoder.encode(keywordQuery, "UTF-8")}"
+                val doc = Jsoup.connect(url)
+                    .timeout(REQUEST_TIMEOUT)
+                    .userAgent(USER_AGENT)
+                    .get()
+
+                val stories = doc.select("a[href*=/story.php?storyid=]")
+                    .distinctBy { it.absUrl("href") }
+                    .map { link ->
+                        val storyUrl = link.absUrl("href")
+                        WebFictionStory(
+                            id = storyUrl,
+                            url = storyUrl,
+                            title = link.text().ifBlank { storyUrl.substringAfter("storyid=") },
+                            author = null,
+                            description = null,
+                            status = StoryStatus.UNKNOWN,
+                            genre = criteria.tags.firstOrNull(),
+                            fandom = null,
+                            language = "English",
+                            wordCount = null,
+                            chapterCount = null,
+                            lastUpdated = null,
+                            rating = "Explicit",
+                            tags = criteria.tags,
+                            site = WebFictionSiteType.BDSM_LIBRARY.displayName
+                        )
+                    }
+
+                Result.success(buildSearchResult(criteria, stories))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    private suspend fun browseMcstoriesByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (criteria.tags.isEmpty()) {
+                    return@withContext Result.failure(Exception("Select at least one tag"))
+                }
+                val keywordQuery = criteria.tags.joinToString(" ") { it }
+                val url =
+                    "https://mcstories.com/Search.html?Search=${URLEncoder.encode(keywordQuery, "UTF-8")}"
+                val doc = Jsoup.connect(url)
+                    .timeout(REQUEST_TIMEOUT)
+                    .userAgent(USER_AGENT)
+                    .get()
+
+                val stories = doc.select("a[href*=mcstories.com]")
+                    .filter { it.absUrl("href").contains('/') }
+                    .distinctBy { it.absUrl("href") }
+                    .map { link ->
+                        val storyUrl = link.absUrl("href")
+                        WebFictionStory(
+                            id = storyUrl,
+                            url = storyUrl,
+                            title = link.text().ifBlank { storyUrl.substringAfterLast('/') },
+                            author = null,
+                            description = null,
+                            status = StoryStatus.UNKNOWN,
+                            genre = criteria.tags.firstOrNull(),
+                            fandom = null,
+                            language = "English",
+                            wordCount = null,
+                            chapterCount = null,
+                            lastUpdated = null,
+                            rating = "Explicit",
+                            tags = criteria.tags,
+                            site = WebFictionSiteType.MCSTORIES.displayName
+                        )
+                    }
+
+                Result.success(buildSearchResult(criteria, stories))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    private suspend fun buildSearchResult(
+        criteria: StorySearchCriteria,
+        stories: List<WebFictionStory>
+    ): StorySearchResult {
+        val filtered = contentFilterHelper.filterStories(stories)
+        val sliced = filtered.drop(criteria.offset)
+        val limited = sliced.take(criteria.limit)
+        val consumed = criteria.offset + limited.size
+        val hasMore = filtered.size > consumed
+        val nextOffset = if (hasMore) consumed else null
+        return StorySearchResult(
+            stories = limited,
+            totalCount = filtered.size,
+            hasMore = hasMore,
+            nextOffset = nextOffset
+        )
     }
 
     /**
@@ -415,6 +841,30 @@ class UniversalTagService @Inject constructor(
                 hasAdvancedSearch = true,
                 hasDownloadButton = false,
                 supportedRatings = listOf("General", "Teen", "Mature")
+            )
+            WebFictionSiteType.NIFTY -> SiteCapabilities(
+                hasTagBrowsing = true,
+                hasAdvancedSearch = false,
+                hasDownloadButton = false,
+                supportedRatings = listOf("Explicit")
+            )
+            WebFictionSiteType.ADULT_FANFICTION -> SiteCapabilities(
+                hasTagBrowsing = true,
+                hasAdvancedSearch = true,
+                hasDownloadButton = false,
+                supportedRatings = listOf("Mature", "Explicit")
+            )
+            WebFictionSiteType.BDSM_LIBRARY -> SiteCapabilities(
+                hasTagBrowsing = true,
+                hasAdvancedSearch = false,
+                hasDownloadButton = false,
+                supportedRatings = listOf("Explicit")
+            )
+            WebFictionSiteType.MCSTORIES -> SiteCapabilities(
+                hasTagBrowsing = true,
+                hasAdvancedSearch = false,
+                hasDownloadButton = false,
+                supportedRatings = listOf("Explicit")
             )
             else -> SiteCapabilities(
                 hasTagBrowsing = false,
