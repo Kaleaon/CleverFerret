@@ -67,7 +67,29 @@ data class PodcastSearchResult(
     val category: String?,
     val episodeCount: Int?,
     val lastEpisodeDate: Long?,
-    val source: String // "podcast_index", "itunes", etc.
+    val source: String, // "podcast_index", "itunes", etc.
+    val guid: String? = null,
+    val funding: List<PodcastFundingInfo> = emptyList(),
+    val value: PodcastValueInfo? = null,
+    val medium: String? = null
+)
+
+data class PodcastFundingInfo(
+    val url: String,
+    val message: String? = null
+)
+
+data class PodcastValueInfo(
+    val model: String? = null,
+    val destinations: List<PodcastValueDestinationInfo> = emptyList()
+)
+
+data class PodcastValueDestinationInfo(
+    val name: String? = null,
+    val type: String? = null,
+    val address: String? = null,
+    val split: Int? = null,
+    val fee: Boolean? = null
 )
 
 // Domain model for subscription settings
