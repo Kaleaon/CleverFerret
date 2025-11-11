@@ -30,6 +30,7 @@ import com.universalmedialibrary.services.webfiction.WebFictionSite
 import com.universalmedialibrary.services.webfiction.WebFictionSiteType
 import com.universalmedialibrary.services.webfiction.WebFictionStory
 import com.universalmedialibrary.services.webfiction.StoryStatus
+import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
@@ -296,8 +297,7 @@ fun WebFictionManagerScreen(
 
         uiState.pendingPinChallenge?.let { challenge ->
             PinAccessDialog(
-                contentTitle = challenge.title,
-                contentRating = challenge.rating,
+                challenge = challenge,
                 onDismiss = { viewModel.dismissPinChallenge() },
                 onAccessGranted = { viewModel.onPinUnlockGranted() },
                 verifyPin = { pin -> viewModel.verifyPin(pin) }

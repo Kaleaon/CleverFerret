@@ -379,7 +379,10 @@ class MetabodsTagService @Inject constructor(
     /**
      * Download story respecting Metabods download button if available
      */
-    suspend fun downloadStoryWithRespect(storyUrl: String): Result<WebFictionStory> {
+    suspend fun downloadStoryWithRespect(
+        storyUrl: String,
+        bypassPin: Boolean = false
+    ): Result<WebFictionStory> {
         return withContext(Dispatchers.IO) {
             try {
                 // First check if there's a direct download available
@@ -392,7 +395,7 @@ class MetabodsTagService @Inject constructor(
                 }
                 
                 // Fall back to our standard extraction
-                val story = webFictionService.extractStoryFromUrl(storyUrl)
+                val story = webFictionService.extractStoryFromUrl(storyUrl, bypassPin)
                 if (story != null) {
                     Result.success(story)
                 } else {

@@ -6,7 +6,7 @@ import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.*
-import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -38,6 +38,7 @@ class UniversalTagBrowserViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = false
             )
+    private var pendingPinAction: (() -> Unit)? = null
 
     /**
      * Select a site to browse
@@ -234,15 +235,16 @@ class UniversalTagBrowserViewModel @Inject constructor(
     /**
      * Download a story
      */
-    fun downloadStory(story: WebFictionStory) {
+    fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 downloadingStoryId = story.id,
-                error = null
+                error = null,
+                successMessage = null
             )
 
             try {
-                val chapters = webFictionService.downloadAllChapters(story)
+                val chapters = webFictionService.downloadAllChapters(story, bypassPin)
                 val completeStory = story.copy(chapters = chapters)
                 
                 // TODO: Create EPUB, add to library
@@ -251,14 +253,27 @@ class UniversalTagBrowserViewModel @Inject constructor(
                     successMessage = "Downloaded: ${completeStory.title}"
                 )
             } catch (e: Exception) {
-                val message = mapParentalControlsError(
-                    e,
-                    "Download failed: ${e.message}"
-                )
-                _uiState.value = _uiState.value.copy(
-                    downloadingStoryId = null,
-                    error = message
-                )
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = story.title,
+                    fallbackRating = story.rating,
+                    mediaType = story.site,
+                    tags = story.tags
+                ) {
+                    downloadStory(story, bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(downloadingStoryId = null)
+                } else {
+                    val message = mapParentalControlsError(
+                        e,
+                        "Download failed: ${e.message}"
+                    )
+                    _uiState.value = _uiState.value.copy(
+                        downloadingStoryId = null,
+                        error = message
+                    )
+                }
             }
         }
     }
@@ -275,6 +290,46 @@ class UniversalTagBrowserViewModel @Inject constructor(
      */
     fun clearSuccess() {
         _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
+    fun dismissPinChallenge() {
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+    }
+
+    suspend fun verifyPin(pin: String): Boolean = parentalControlsSettings.verifyPin(pin)
+
+    fun onPinUnlockGranted() {
+        val action = pendingPinAction
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+        action?.invoke()
+    }
+
+    private fun handlePinException(
+        throwable: Throwable,
+        fallbackTitle: String,
+        fallbackRating: String?,
+        mediaType: String?,
+        tags: List<String>,
+        retry: () -> Unit
+    ): Boolean {
+        val pinException = throwable as? ContentPinRequiredException ?: return false
+        val title = pinException.contentTitle ?: fallbackTitle
+        val rating = pinException.contentRating ?: fallbackRating
+        val description = pinException.localizedMessage ?: "Enter your PIN to unlock \"$title\"."
+        pendingPinAction = retry
+        _uiState.value = _uiState.value.copy(
+            pendingPinChallenge = PinChallenge(
+                title = title,
+                rating = rating,
+                mediaType = mediaType,
+                tags = tags,
+                description = description
+            ),
+            error = null
+        )
+        return true
     }
 
     private fun mapParentalControlsError(error: Throwable, fallback: String): String = when (error) {
@@ -308,5 +363,6 @@ data class UniversalTagBrowserUiState(
     val isLoadingStories: Boolean = false,
     val downloadingStoryId: String? = null,
     val error: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    val pendingPinChallenge: PinChallenge? = null
 )

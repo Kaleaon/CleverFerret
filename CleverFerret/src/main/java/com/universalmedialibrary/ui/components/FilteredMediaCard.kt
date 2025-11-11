@@ -15,8 +15,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
-import com.universalmedialibrary.services.ContentFilterHelper
 import com.universalmedialibrary.services.ContentStatus
+import com.universalmedialibrary.services.ContentFilterHelper
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import kotlinx.coroutines.launch
 
 /**
@@ -140,8 +141,12 @@ fun FilteredMediaCard(
     // PIN dialog
     if (showPinDialog) {
         PinAccessDialog(
-            contentTitle = mediaItem.title ?: "content",
-            contentRating = mediaItem.contentRating,
+            challenge = PinChallenge(
+                title = mediaItem.title ?: "Content",
+                rating = mediaItem.contentRating,
+                mediaType = mediaItem.mediaType,
+                description = "Enter your PIN to open this item."
+            ),
             onDismiss = { showPinDialog = false },
             onAccessGranted = {
                 showPinDialog = false
@@ -291,8 +296,12 @@ fun FilteredMediaGridItem(
     // PIN dialog
     if (showPinDialog) {
         PinAccessDialog(
-            contentTitle = mediaItem.title ?: "content",
-            contentRating = mediaItem.contentRating,
+            challenge = PinChallenge(
+                title = mediaItem.title ?: "Content",
+                rating = mediaItem.contentRating,
+                mediaType = mediaItem.mediaType,
+                description = "Enter your PIN to open this item."
+            ),
             onDismiss = { showPinDialog = false },
             onAccessGranted = {
                 showPinDialog = false

@@ -2,12 +2,11 @@ package com.universalmedialibrary.ui.webfiction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.services.ContentPinRequiredException
-import com.universalmedialibrary.services.DownloadBlockedException
-import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
+import com.universalmedialibrary.data.settings.ParentalControlsSettings
 import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.*
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -187,20 +186,20 @@ class MetabodsTagBrowserViewModel @Inject constructor(
     /**
      * Download a story
      */
-    fun downloadStory(story: WebFictionStory) {
+    fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 downloadingStoryId = story.id,
-                error = null
+                error = null,
+                successMessage = null
             )
 
             try {
-                // First check if Metabods has a direct download button
-                val downloadResult = metabodsTagService.downloadStoryWithRespect(story.url)
+                val downloadResult = metabodsTagService.downloadStoryWithRespect(story.url, bypassPin)
 
                 downloadResult.fold(
                     onSuccess = { downloadedStory ->
-                        val chapters = webFictionService.downloadAllChapters(downloadedStory)
+                        val chapters = webFictionService.downloadAllChapters(downloadedStory, bypassPin)
                         val completeStory = downloadedStory.copy(chapters = chapters)
 
                         _uiState.value = _uiState.value.copy(
@@ -209,25 +208,47 @@ class MetabodsTagBrowserViewModel @Inject constructor(
                         )
                     },
                     onFailure = { error ->
-                        val message = mapParentalControlsError(
-                            error,
-                            "Download failed: ${error.message}"
-                        )
-                        _uiState.value = _uiState.value.copy(
-                            downloadingStoryId = null,
-                            error = message
-                        )
+                        val handled = handlePinException(
+                            throwable = error,
+                            fallbackTitle = story.title,
+                            fallbackRating = story.rating,
+                            tags = story.tags
+                        ) {
+                            downloadStory(story, bypassPin = true)
+                        }
+                        if (handled) {
+                            _uiState.value = _uiState.value.copy(downloadingStoryId = null)
+                        } else {
+                            _uiState.value = _uiState.value.copy(
+                                downloadingStoryId = null,
+                                error = mapParentalControlsError(
+                                    error,
+                                    "Download failed: ${error.message}"
+                                )
+                            )
+                        }
                     }
                 )
             } catch (e: Exception) {
-                val message = mapParentalControlsError(
-                    e,
-                    "Download failed: ${e.message}"
-                )
-                _uiState.value = _uiState.value.copy(
-                    downloadingStoryId = null,
-                    error = message
-                )
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = story.title,
+                    fallbackRating = story.rating,
+                    tags = story.tags
+                ) {
+                    downloadStory(story, bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(downloadingStoryId = null)
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        downloadingStoryId = null,
+                        error = mapParentalControlsError(
+                            e,
+                            "Download failed: ${e.message}"
+                        )
+                    )
+                }
             }
         }
     }
@@ -244,6 +265,45 @@ class MetabodsTagBrowserViewModel @Inject constructor(
      */
     fun clearSuccess() {
         _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
+    fun dismissPinChallenge() {
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+    }
+
+    suspend fun verifyPin(pin: String): Boolean = parentalControlsSettings.verifyPin(pin)
+
+    fun onPinUnlockGranted() {
+        val action = pendingPinAction
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+        action?.invoke()
+    }
+
+    private fun handlePinException(
+        throwable: Throwable,
+        fallbackTitle: String,
+        fallbackRating: String?,
+        tags: List<String>,
+        retry: () -> Unit
+    ): Boolean {
+        val pinException = throwable as? ContentPinRequiredException ?: return false
+        val title = pinException.contentTitle ?: fallbackTitle
+        val rating = pinException.contentRating ?: fallbackRating
+        val description = pinException.localizedMessage ?: "Enter your PIN to unlock \"$title\"."
+        pendingPinAction = retry
+        _uiState.value = _uiState.value.copy(
+            pendingPinChallenge = PinChallenge(
+                title = title,
+                rating = rating,
+                mediaType = "STORY",
+                tags = tags,
+                description = description
+            ),
+            error = null
+        )
+        return true
     }
 
     private fun mapParentalControlsError(error: Throwable, fallback: String): String = when (error) {
@@ -268,5 +328,6 @@ data class MetabodsTagBrowserUiState(
     val isLoadingStories: Boolean = false,
     val downloadingStoryId: String? = null,
     val error: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    val pendingPinChallenge: PinChallenge? = null
 )

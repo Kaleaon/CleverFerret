@@ -9,6 +9,7 @@ import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConver
 import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import com.universalmedialibrary.services.webfiction.WebFictionService
 import com.universalmedialibrary.services.webfiction.WebFictionStory
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -431,13 +432,15 @@ class WebFictionViewModel @Inject constructor(
         val pinException = throwable as? ContentPinRequiredException ?: return false
         val title = pinException.contentTitle ?: fallbackTitle
         val rating = pinException.contentRating ?: fallbackRating
+        val description = pinException.localizedMessage ?: "Enter your PIN to unlock \"$title\"."
         pendingPinAction = retry
         _uiState.value = _uiState.value.copy(
             pendingPinChallenge = PinChallenge(
                 title = title,
                 rating = rating,
                 mediaType = mediaType,
-                tags = tags
+                tags = tags,
+                description = description
             ),
             error = null
         )
@@ -537,11 +540,4 @@ data class WebFictionUiState(
     val error: String? = null,
     val successMessage: String? = null,
     val pendingPinChallenge: PinChallenge? = null
-)
-
-data class PinChallenge(
-    val title: String,
-    val rating: String?,
-    val mediaType: String?,
-    val tags: List<String> = emptyList()
 )

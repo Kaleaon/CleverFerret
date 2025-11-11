@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.services.webfiction.*
@@ -103,6 +104,15 @@ fun UniversalTagBrowserScreen(
                 }
             }
         }
+    }
+
+    uiState.pendingPinChallenge?.let { challenge ->
+        PinAccessDialog(
+            challenge = challenge,
+            onDismiss = { viewModel.dismissPinChallenge() },
+            onAccessGranted = { viewModel.onPinUnlockGranted() },
+            verifyPin = { pin -> viewModel.verifyPin(pin) }
+        )
     }
 }
 

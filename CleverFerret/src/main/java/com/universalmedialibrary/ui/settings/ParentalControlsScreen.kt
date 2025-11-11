@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.ui.components.PinEntryDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import java.util.Locale
@@ -218,11 +219,43 @@ fun ParentalControlsScreen(
 
         // PIN Dialog
         if (uiState.showPinDialog) {
-            PinDialog(
-                type = uiState.pinDialogType,
+            val dialogType = uiState.pinDialogType
+            var dialogTitle = "Enter PIN"
+            var initialPrompt = "Enter your PIN to continue."
+            var confirmPrompt: String? = null
+            var supportingText: String? = null
+
+            when (dialogType) {
+                PinDialogType.SET -> {
+                    dialogTitle = "Set PIN"
+                    initialPrompt = "Choose a new 4-digit PIN."
+                    confirmPrompt = "Confirm your new PIN."
+                    supportingText = "PIN must be exactly four digits."
+                }
+                PinDialogType.CHANGE -> {
+                    dialogTitle = "Change PIN"
+                    initialPrompt = "Enter your new 4-digit PIN."
+                    confirmPrompt = "Confirm your new PIN."
+                    supportingText = "PIN must be exactly four digits."
+                }
+                PinDialogType.CLEAR -> {
+                    dialogTitle = "Clear PIN"
+                    initialPrompt = "Enter your current PIN to clear it."
+                }
+                PinDialogType.VERIFY -> {
+                    dialogTitle = "Enter PIN"
+                    initialPrompt = "Enter your PIN to continue."
+                }
+            }
+
+            PinEntryDialog(
+                title = dialogTitle,
+                initialPrompt = initialPrompt,
+                confirmPrompt = confirmPrompt,
+                supportingText = supportingText,
+                error = uiState.pinError,
                 onDismiss = { viewModel.dismissPinDialog() },
-                onConfirm = { pin -> viewModel.handlePinDialog(pin) },
-                error = uiState.pinError
+                onPinComplete = { pin -> viewModel.handlePinDialog(pin) }
             )
         }
 
@@ -792,105 +825,6 @@ private fun InfoCard() {
             )
         }
     }
-}
-
-@Composable
-private fun PinDialog(
-    type: PinDialogType,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit,
-    error: String?
-) {
-    var pin by remember { mutableStateOf("") }
-    var confirmPin by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(Icons.Default.Lock, contentDescription = null)
-        },
-        title = {
-            Text(
-                when (type) {
-                    PinDialogType.SET -> "Set PIN"
-                    PinDialogType.CHANGE -> "Change PIN"
-                    PinDialogType.CLEAR -> "Clear PIN"
-                    PinDialogType.VERIFY -> "Enter PIN"
-                }
-            )
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    when (type) {
-                        PinDialogType.SET -> "Enter a 4-digit PIN to protect parental controls"
-                        PinDialogType.CHANGE -> "Enter your new 4-digit PIN"
-                        PinDialogType.CLEAR -> "Enter your PIN to clear it"
-                        PinDialogType.VERIFY -> "Enter your PIN to continue"
-                    }
-                )
-
-                OutlinedTextField(
-                    value = pin,
-                    onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) pin = it },
-                    label = { Text("PIN") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                    singleLine = true,
-                    isError = error != null
-                )
-
-                if (type == PinDialogType.SET || type == PinDialogType.CHANGE) {
-                    OutlinedTextField(
-                        value = confirmPin,
-                        onValueChange = { if (it.length <= 4 && it.all { char -> char.isDigit() }) confirmPin = it },
-                        label = { Text("Confirm PIN") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        singleLine = true,
-                        isError = error != null
-                    )
-                }
-
-                if (error != null) {
-                    Text(
-                        error,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    when (type) {
-                        PinDialogType.SET, PinDialogType.CHANGE -> {
-                            if (pin == confirmPin && pin.length == 4) {
-                                onConfirm(pin)
-                            }
-                        }
-                        PinDialogType.CLEAR, PinDialogType.VERIFY -> {
-                            if (pin.length == 4) {
-                                onConfirm(pin)
-                            }
-                        }
-                    }
-                },
-                enabled = when (type) {
-                    PinDialogType.SET, PinDialogType.CHANGE -> pin.length == 4 && pin == confirmPin
-                    PinDialogType.CLEAR, PinDialogType.VERIFY -> pin.length == 4
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 enum class PinDialogType {
