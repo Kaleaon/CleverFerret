@@ -47,6 +47,7 @@ class ApiSettingsViewModel @Inject constructor(
 
     private fun loadApiKeys() {
         viewModelScope.launch {
+            val podcastIndexRaw = getApiKey("podcast_index")
             _uiState.value = _uiState.value.copy(
                 // TTS
                 isGeminiConfigured = ttsProviderManager.isProviderConfigured(TtsProvider.GEMINI),
@@ -59,7 +60,7 @@ class ApiSettingsViewModel @Inject constructor(
                 isGoogleBooksConfigured = !getApiKey("google_books").isNullOrBlank(),
                 isOpenLibraryConfigured = !getApiKey("open_library").isNullOrBlank(),
                 // Podcasts
-                isPodcastIndexConfigured = !getApiKey("podcast_index").isNullOrBlank(),
+                isPodcastIndexConfigured = podcastIndexRaw?.let { parsePodcastIndexCredentials(it) } != null,
                 isItunesConfigured = !getApiKey("itunes").isNullOrBlank(),
                 isListenNotesConfigured = !getApiKey("listen_notes").isNullOrBlank()
             )
@@ -191,10 +192,28 @@ class ApiSettingsViewModel @Inject constructor(
             
             if (trimmed.isNotBlank()) {
                 saveApiKey("podcast_index", trimmed)
-                _uiState.value = _uiState.value.copy(isPodcastIndexConfigured = true, saveSuccess = true)
+                val credentials = parsePodcastIndexCredentials(trimmed)
+                encryptedPrefs.edit().apply {
+                    if (credentials != null) {
+                        putString("podcast_index_key", credentials.first)
+                        putString("podcast_index_secret", credentials.second)
+                    } else {
+                        remove("podcast_index_key")
+                        remove("podcast_index_secret")
+                    }
+                }.apply()
+
+                _uiState.value = _uiState.value.copy(
+                    isPodcastIndexConfigured = credentials != null,
+                    saveSuccess = credentials != null
+                )
             } else {
                 // Clear key from storage
-                encryptedPrefs.edit().remove("podcast_index").apply()
+                encryptedPrefs.edit()
+                    .remove("podcast_index")
+                    .remove("podcast_index_key")
+                    .remove("podcast_index_secret")
+                    .apply()
                 _uiState.value = _uiState.value.copy(isPodcastIndexConfigured = false, saveSuccess = true)
             }
         }
@@ -275,6 +294,17 @@ class ApiSettingsViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(
             backupMessage = "Use file picker to select backup file"
         )
+    }
+
+    private fun parsePodcastIndexCredentials(input: String): Pair<String, String>? {
+        val tokens = input.split(':', '|', ';', ',', '\n', '\r', '\t', ' ')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+        return if (tokens.size >= 2) {
+            tokens[0] to tokens[1]
+        } else {
+            null
+        }
     }
 }
 
