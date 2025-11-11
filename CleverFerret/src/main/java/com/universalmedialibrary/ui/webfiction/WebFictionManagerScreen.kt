@@ -565,6 +565,10 @@ private fun getSiteDisplayName(siteType: WebFictionSiteType): String {
         WebFictionSiteType.FIMFICTION -> "FimFiction"
         WebFictionSiteType.LITEROTICA -> "Literotica"
         WebFictionSiteType.METABODS -> "Metabods"
+        WebFictionSiteType.NIFTY -> "Nifty Archive"
+        WebFictionSiteType.ADULT_FANFICTION -> "Adult-FanFiction"
+        WebFictionSiteType.BDSM_LIBRARY -> "BDSM Library"
+        WebFictionSiteType.MCSTORIES -> "MCStories"
         WebFictionSiteType.GENERIC -> "Generic Site"
     }
 }
@@ -583,6 +587,10 @@ private fun getSiteBaseUrl(siteType: WebFictionSiteType): String {
         WebFictionSiteType.FIMFICTION -> "fimfiction.net"
         WebFictionSiteType.LITEROTICA -> "literotica.com"
         WebFictionSiteType.METABODS -> "metabods.com"
+        WebFictionSiteType.NIFTY -> "nifty.org"
+        WebFictionSiteType.ADULT_FANFICTION -> "adult-fanfiction.org"
+        WebFictionSiteType.BDSM_LIBRARY -> "bdsmlibrary.com"
+        WebFictionSiteType.MCSTORIES -> "mcstories.com"
         WebFictionSiteType.GENERIC -> ""
     }
 }
