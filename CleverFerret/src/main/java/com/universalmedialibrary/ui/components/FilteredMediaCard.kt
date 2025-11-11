@@ -41,8 +41,11 @@ fun FilteredMediaCard(
     val scope = rememberCoroutineScope()
 
     // Check content status
-    LaunchedEffect(mediaItem.id, mediaItem.contentRating) {
-        contentStatus = contentFilterHelper.getContentStatus(mediaItem.contentRating)
+    LaunchedEffect(mediaItem.id, mediaItem.contentRating, mediaItem.mediaType) {
+        contentStatus = contentFilterHelper.getContentStatus(
+            rating = mediaItem.contentRating,
+            mediaType = mediaItem.mediaType
+        )
     }
 
     // Don't show if hidden
@@ -213,8 +216,11 @@ fun FilteredMediaGridItem(
     var showPinDialog by remember { mutableStateOf(false) }
 
     // Check content status
-    LaunchedEffect(mediaItem.id, mediaItem.contentRating) {
-        contentStatus = contentFilterHelper.getContentStatus(mediaItem.contentRating)
+    LaunchedEffect(mediaItem.id, mediaItem.contentRating, mediaItem.mediaType) {
+        contentStatus = contentFilterHelper.getContentStatus(
+            rating = mediaItem.contentRating,
+            mediaType = mediaItem.mediaType
+        )
     }
 
     // Don't show if hidden

@@ -72,6 +72,135 @@ class ParentalControlsSettings @Inject constructor(
         const val RATING_FFN_M = "M"
     }
 
+    enum class MovieRatingLevel(val order: Int, private val tokens: Set<String>, val displayName: String) {
+        G(0, setOf("G"), "G"),
+        PG(1, setOf("PG"), "PG"),
+        PG_13(2, setOf("PG-13", "PG13"), "PG-13"),
+        R(3, setOf("R"), "R"),
+        NC_17(4, setOf("NC-17", "NC17", "X"), "NC-17"),
+        UNRESTRICTED(5, emptySet(), "Allow All");
+
+        fun allows(rating: String?): Boolean {
+            if (this == UNRESTRICTED) return true
+            val level = fromRating(rating) ?: return true
+            return level.order <= this.order
+        }
+
+        companion object {
+            fun fromRating(rating: String?): MovieRatingLevel? {
+                if (rating.isNullOrBlank()) return null
+                val normalized = rating.uppercase(Locale.US)
+                return values().firstOrNull { entry ->
+                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                }
+            }
+
+            fun parse(value: String?): MovieRatingLevel =
+                value?.let { runCatching { valueOf(it) }.getOrNull() } ?: UNRESTRICTED
+        }
+    }
+
+    enum class TvRatingLevel(val order: Int, private val tokens: Set<String>, val displayName: String) {
+        TV_Y(0, setOf("TV-Y", "TVY"), "TV-Y"),
+        TV_G(1, setOf("TV-G", "TVG"), "TV-G"),
+        TV_PG(2, setOf("TV-PG", "TVPG"), "TV-PG"),
+        TV_14(3, setOf("TV-14", "TV14"), "TV-14"),
+        TV_MA(4, setOf("TV-MA", "TVMA"), "TV-MA"),
+        UNRESTRICTED(5, emptySet(), "Allow All");
+
+        fun allows(rating: String?): Boolean {
+            if (this == UNRESTRICTED) return true
+            val level = fromRating(rating) ?: return true
+            return level.order <= this.order
+        }
+
+        companion object {
+            fun fromRating(rating: String?): TvRatingLevel? {
+                if (rating.isNullOrBlank()) return null
+                val normalized = rating.uppercase(Locale.US)
+                return values().firstOrNull { entry ->
+                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                }
+            }
+
+            fun parse(value: String?): TvRatingLevel =
+                value?.let { runCatching { valueOf(it) }.getOrNull() } ?: UNRESTRICTED
+        }
+    }
+
+    enum class GameRatingLevel(val order: Int, private val tokens: Set<String>, val displayName: String) {
+        EVERYONE(0, setOf("E", "EVERYONE"), "E"),
+        EVERYONE_TEN_PLUS(1, setOf("E10+", "EVERYONE 10+", "E 10+"), "E10+"),
+        TEEN(2, setOf("T", "TEEN"), "T"),
+        MATURE(3, setOf("M", "MATURE", "17+"), "M"),
+        ADULTS_ONLY(4, setOf("AO", "ADULTS ONLY", "18+"), "AO"),
+        UNRESTRICTED(5, emptySet(), "Allow All");
+
+        fun allows(rating: String?): Boolean {
+            if (this == UNRESTRICTED) return true
+            val level = fromRating(rating) ?: return true
+            return level.order <= this.order
+        }
+
+        companion object {
+            fun fromRating(rating: String?): GameRatingLevel? {
+                if (rating.isNullOrBlank()) return null
+                val normalized = rating.uppercase(Locale.US)
+                return values().firstOrNull { entry ->
+                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                }
+            }
+
+            fun parse(value: String?): GameRatingLevel =
+                value?.let { runCatching { valueOf(it) }.getOrNull() } ?: UNRESTRICTED
+        }
+    }
+
+    enum class BookRatingLevel(val order: Int, private val tokens: Set<String>, val displayName: String) {
+        GENERAL(0, setOf("GENERAL", "K", "G"),
+            "General"),
+        TEEN(1, setOf("TEEN", "T", "YOUNG ADULT"),
+            "Teen"),
+        MATURE(2, setOf("MATURE", "M", "R"),
+            "Mature"),
+        EXPLICIT(3, setOf("EXPLICIT", "E", "ADULT", "NC-17", "XXX"),
+            "Explicit"),
+        UNRESTRICTED(4, emptySet(), "Allow All");
+
+        fun allows(rating: String?): Boolean {
+            if (this == UNRESTRICTED) return true
+            val level = fromRating(rating) ?: return true
+            return level.order <= this.order
+        }
+
+        companion object {
+            fun fromRating(rating: String?): BookRatingLevel? {
+                if (rating.isNullOrBlank()) return null
+                val normalized = rating.uppercase(Locale.US)
+                return values().firstOrNull { entry ->
+                    entry != UNRESTRICTED && entry.tokens.any { normalized.contains(it) }
+                }
+            }
+
+            fun parse(value: String?): BookRatingLevel =
+                value?.let { runCatching { valueOf(it) }.getOrNull() } ?: UNRESTRICTED
+        }
+    }
+
+    enum class TagBlockCategory(val displayName: String, private val keywords: Set<String>) {
+        SEXUAL_CONTENT("Sexual Content", setOf("sex", "sexual", "erotic", "adult", "nsfw", "porn")),
+        VIOLENCE("Violence", setOf("violence", "violent", "bloodshed")),
+        GORE("Gore", setOf("gore", "gory", "splatter", "guts")),
+        DRUGS("Drugs & Alcohol", setOf("drug", "alcohol", "substance", "narcotic")),
+        PROFANITY("Profanity", setOf("profanity", "swear", "explicit language", "curse")),
+        HATE_SPEECH("Hate Speech", setOf("hate", "racist", "homophobic", "xenophobic"));
+
+        fun matches(tag: String): Boolean {
+            val normalized = tag.lowercase(Locale.US)
+            return keywords.any { normalized.contains(it) }
+        }
+    }
+
     /**
      * Check if parental controls are enabled
      */
@@ -126,7 +255,16 @@ class ParentalControlsSettings @Inject constructor(
             hideAdultContent = preferences[KEY_HIDE_ADULT_CONTENT] ?: false,
             lockSettings = preferences[KEY_LOCK_SETTINGS] ?: false,
             requirePinForAdult = preferences[KEY_REQUIRE_PIN_FOR_ADULT] ?: false,
-            allowAdultSources = preferences[KEY_ALLOW_ADULT_SOURCES] ?: false
+            allowAdultSources = preferences[KEY_ALLOW_ADULT_SOURCES] ?: false,
+            movieRatingLimit = MovieRatingLevel.parse(preferences[KEY_MOVIE_RATING_LIMIT]),
+            tvRatingLimit = TvRatingLevel.parse(preferences[KEY_TV_RATING_LIMIT]),
+            gameRatingLimit = GameRatingLevel.parse(preferences[KEY_GAME_RATING_LIMIT]),
+            bookRatingLimit = BookRatingLevel.parse(preferences[KEY_BOOK_RATING_LIMIT]),
+            blockedTagCategories = preferences[KEY_BLOCKED_TAG_CATEGORIES]
+                ?.mapNotNull { runCatching { TagBlockCategory.valueOf(it) }.getOrNull() }
+                ?.toSet()
+                ?: emptySet(),
+            blockedTags = loadBlockedTags(preferences)
         )
     }
 
@@ -238,6 +376,72 @@ class ParentalControlsSettings @Inject constructor(
         }
     }
 
+    suspend fun setMovieRatingLimit(limit: MovieRatingLevel) {
+        dataStore.edit { preferences ->
+            preferences[KEY_MOVIE_RATING_LIMIT] = limit.name
+            if (limit != MovieRatingLevel.UNRESTRICTED) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
+        }
+    }
+
+    suspend fun setTvRatingLimit(limit: TvRatingLevel) {
+        dataStore.edit { preferences ->
+            preferences[KEY_TV_RATING_LIMIT] = limit.name
+            if (limit != TvRatingLevel.UNRESTRICTED) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
+        }
+    }
+
+    suspend fun setGameRatingLimit(limit: GameRatingLevel) {
+        dataStore.edit { preferences ->
+            preferences[KEY_GAME_RATING_LIMIT] = limit.name
+            if (limit != GameRatingLevel.UNRESTRICTED) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
+        }
+    }
+
+    suspend fun setBookRatingLimit(limit: BookRatingLevel) {
+        dataStore.edit { preferences ->
+            preferences[KEY_BOOK_RATING_LIMIT] = limit.name
+            if (limit != BookRatingLevel.UNRESTRICTED) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
+        }
+    }
+
+    suspend fun setBlockedTagCategories(categories: Set<TagBlockCategory>) {
+        dataStore.edit { preferences ->
+            preferences[KEY_BLOCKED_TAG_CATEGORIES] = categories.map { it.name }.toSet()
+            if (categories.isNotEmpty()) {
+                preferences[KEY_ALLOW_ADULT_SOURCES] = false
+            }
+        }
+    }
+
+    suspend fun addBlockedTag(tag: String) {
+        val sanitized = sanitizeTag(tag)
+        if (sanitized.isEmpty()) return
+        dataStore.edit { preferences ->
+            val updated = (preferences[KEY_BLOCKED_TAGS] ?: emptySet()).toMutableSet()
+            updated.add(sanitized)
+            preferences[KEY_BLOCKED_TAGS] = updated
+            preferences[KEY_ALLOW_ADULT_SOURCES] = false
+        }
+    }
+
+    suspend fun removeBlockedTag(tag: String) {
+        val sanitized = sanitizeTag(tag)
+        if (sanitized.isEmpty()) return
+        dataStore.edit { preferences ->
+            val updated = (preferences[KEY_BLOCKED_TAGS] ?: emptySet()).toMutableSet()
+            updated.remove(sanitized)
+            preferences[KEY_BLOCKED_TAGS] = updated
+        }
+    }
+
     /**
      * Allow or disallow adult content sources
      */
@@ -275,11 +479,19 @@ class ParentalControlsSettings @Inject constructor(
     /**
      * Check if content is allowed based on rating
      */
-    suspend fun isContentAllowed(rating: String?): Boolean {
+    suspend fun isContentAllowed(
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
         val state = parentalControlsState.first()
         
         if (!state.enabled) {
             return true // Parental controls disabled, allow all
+        }
+
+        if (tags.any { isTagBlocked(it, state) }) {
+            return false
         }
 
         if (rating == null) {
@@ -287,20 +499,29 @@ class ParentalControlsSettings @Inject constructor(
         }
 
         return when {
-            isExplicitRating(rating) -> !state.blockExplicit
-            isMatureRating(rating) -> !state.blockMature
-            else -> true // General/Teen content always allowed
+            isExplicitRating(rating) && state.blockExplicit -> false
+            isMatureRating(rating) && state.blockMature -> false
+            !isRatingAllowedByMediaType(mediaType, rating, state) -> false
+            else -> true // General/Teen content allowed
         }
     }
 
     /**
      * Check if content should be hidden
      */
-    suspend fun shouldHideContent(rating: String?): Boolean {
+    suspend fun shouldHideContent(
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
         val state = parentalControlsState.first()
         
         if (!state.enabled || !state.hideAdultContent) {
             return false
+        }
+
+        if (tags.any { isTagBlocked(it, state) }) {
+            return true
         }
 
         if (rating == null) {
@@ -310,6 +531,7 @@ class ParentalControlsSettings @Inject constructor(
         return when {
             isExplicitRating(rating) && state.blockExplicit -> true
             isMatureRating(rating) && state.blockMature -> true
+            !isRatingAllowedByMediaType(mediaType, rating, state) -> true
             else -> false
         }
     }
@@ -317,18 +539,67 @@ class ParentalControlsSettings @Inject constructor(
     /**
      * Check if content requires PIN to access
      */
-    suspend fun requiresPinForAccess(rating: String?): Boolean {
+    suspend fun requiresPinForAccess(
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
         val state = parentalControlsState.first()
         
         if (!state.enabled || !state.requirePinForAdult || !state.hasPinSet) {
             return false
         }
 
+        if (tags.any { isTagBlocked(it, state) }) {
+            return true
+        }
+
         if (rating == null) {
             return false
         }
 
-        return isExplicitRating(rating) || isMatureRating(rating)
+        return isExplicitRating(rating) || isMatureRating(rating) || !isRatingAllowedByMediaType(mediaType, rating, state)
+    }
+
+    private fun loadBlockedTags(preferences: Preferences): Set<String> {
+        return preferences[KEY_BLOCKED_TAGS]
+            ?.map { sanitizeTag(it) }
+            ?.filter { it.isNotEmpty() }
+            ?.toSet()
+            ?: emptySet()
+    }
+
+    private fun sanitizeTag(tag: String): String = tag.trim().lowercase(Locale.US)
+
+    private fun isTagBlocked(tag: String, state: ParentalControlsState): Boolean {
+        val normalized = sanitizeTag(tag)
+        if (normalized.isEmpty()) return false
+        if (normalized in state.blockedTags) return true
+        return state.blockedTagCategories.any { it.matches(normalized) }
+    }
+
+    private fun isRatingAllowedByMediaType(
+        mediaType: String?,
+        rating: String,
+        state: ParentalControlsState
+    ): Boolean {
+        if (mediaType.isNullOrBlank()) return true
+        val normalizedType = mediaType.uppercase(Locale.US)
+        return when {
+            normalizedType.contains("MOVIE") || normalizedType.contains("VIDEO") ->
+                state.movieRatingLimit.allows(rating)
+            normalizedType.contains("TV") || normalizedType.contains("SERIES") ->
+                state.tvRatingLimit.allows(rating)
+            normalizedType.contains("GAME") ->
+                state.gameRatingLimit.allows(rating)
+            normalizedType.contains("BOOK") ||
+                normalizedType.contains("AUDIOBOOK") ||
+                normalizedType.contains("COMIC") ||
+                normalizedType.contains("STORY") ||
+                normalizedType.contains("FICTION") ->
+                state.bookRatingLimit.allows(rating)
+            else -> true
+        }
     }
 
     /**
@@ -403,7 +674,13 @@ data class ParentalControlsState(
     val hideAdultContent: Boolean = false,
     val lockSettings: Boolean = false,
     val requirePinForAdult: Boolean = false,
-    val allowAdultSources: Boolean = false
+    val allowAdultSources: Boolean = false,
+    val movieRatingLimit: ParentalControlsSettings.MovieRatingLevel = ParentalControlsSettings.MovieRatingLevel.UNRESTRICTED,
+    val tvRatingLimit: ParentalControlsSettings.TvRatingLevel = ParentalControlsSettings.TvRatingLevel.UNRESTRICTED,
+    val gameRatingLimit: ParentalControlsSettings.GameRatingLevel = ParentalControlsSettings.GameRatingLevel.UNRESTRICTED,
+    val bookRatingLimit: ParentalControlsSettings.BookRatingLevel = ParentalControlsSettings.BookRatingLevel.UNRESTRICTED,
+    val blockedTagCategories: Set<ParentalControlsSettings.TagBlockCategory> = emptySet(),
+    val blockedTags: Set<String> = emptySet()
 ) {
     /**
      * Check if any restrictions are active
@@ -421,18 +698,18 @@ data class ParentalControlsState(
             add("K")
             add("K+")
             
-            if (!blockMature || !enabled) {
+            if ((!blockMature || !enabled) && bookRatingLimit.order >= ParentalControlsSettings.BookRatingLevel.TEEN.order) {
                 add("Teen")
                 add("Teen And Up")
                 add("T")
             }
             
-            if (!blockMature || !enabled) {
+            if ((!blockMature || !enabled) && bookRatingLimit.order >= ParentalControlsSettings.BookRatingLevel.MATURE.order) {
                 add("Mature")
                 add("M")
             }
             
-            if (!blockExplicit || !enabled) {
+            if ((!blockExplicit || !enabled) && bookRatingLimit.order >= ParentalControlsSettings.BookRatingLevel.EXPLICIT.order) {
                 add("Explicit")
                 add("Adult")
             }

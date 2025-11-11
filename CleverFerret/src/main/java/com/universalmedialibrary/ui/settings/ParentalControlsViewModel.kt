@@ -3,6 +3,11 @@ package com.universalmedialibrary.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.data.settings.ParentalControlsSettings.BookRatingLevel
+import com.universalmedialibrary.data.settings.ParentalControlsSettings.GameRatingLevel
+import com.universalmedialibrary.data.settings.ParentalControlsSettings.MovieRatingLevel
+import com.universalmedialibrary.data.settings.ParentalControlsSettings.TagBlockCategory
+import com.universalmedialibrary.data.settings.ParentalControlsSettings.TvRatingLevel
 import com.universalmedialibrary.data.settings.ParentalControlsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -192,6 +197,52 @@ class ParentalControlsViewModel @Inject constructor(
     fun setLockSettings(lock: Boolean) {
         viewModelScope.launch {
             parentalControlsSettings.setLockSettings(lock)
+        }
+    }
+
+    fun setMovieRatingLimit(limit: MovieRatingLevel) {
+        viewModelScope.launch {
+            parentalControlsSettings.setMovieRatingLimit(limit)
+        }
+    }
+
+    fun setTvRatingLimit(limit: TvRatingLevel) {
+        viewModelScope.launch {
+            parentalControlsSettings.setTvRatingLimit(limit)
+        }
+    }
+
+    fun setGameRatingLimit(limit: GameRatingLevel) {
+        viewModelScope.launch {
+            parentalControlsSettings.setGameRatingLimit(limit)
+        }
+    }
+
+    fun setBookRatingLimit(limit: BookRatingLevel) {
+        viewModelScope.launch {
+            parentalControlsSettings.setBookRatingLimit(limit)
+        }
+    }
+
+    fun toggleTagCategory(category: TagBlockCategory) {
+        viewModelScope.launch {
+            val current = _uiState.value.state.blockedTagCategories.toMutableSet()
+            if (!current.add(category)) {
+                current.remove(category)
+            }
+            parentalControlsSettings.setBlockedTagCategories(current)
+        }
+    }
+
+    fun addBlockedTag(tag: String) {
+        viewModelScope.launch {
+            parentalControlsSettings.addBlockedTag(tag)
+        }
+    }
+
+    fun removeBlockedTag(tag: String) {
+        viewModelScope.launch {
+            parentalControlsSettings.removeBlockedTag(tag)
         }
     }
 
