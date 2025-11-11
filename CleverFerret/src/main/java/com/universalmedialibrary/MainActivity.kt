@@ -718,9 +718,8 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         
         // Fanfiction routes
         composable("fanfiction_download") {
-            com.universalmedialibrary.ui.fanfiction.FanfictionDownloadScreen(
-                onNavigateBack = { navController.navigateUp() },
-                onDownloadComplete = { navController.navigate("fanfiction_library") }
+            com.universalmedialibrary.ui.webfiction.FanfictionDownloaderScreen(
+                navController = navController
             )
         }
         
@@ -735,6 +734,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                         navController.navigate("reader?path=$encoded")
                     }
                 }
+            )
+        }
+        
+        composable("webfiction_manager") {
+            com.universalmedialibrary.ui.webfiction.WebFictionManagerScreen(
+                navController = navController
+            )
+        }
+        
+        composable("metabods_tag_browser") {
+            com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserScreen(
+                navController = navController
             )
         }
         

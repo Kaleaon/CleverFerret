@@ -326,12 +326,65 @@ fun FanfictionDownloaderScreen(
                         )
 
                         Button(
-                            onClick = { /* TODO: Navigate to tag browser */ },
+                            onClick = { navController.navigate("metabods_tag_browser") },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.Explore, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Open Tag Browser")
+                            Text("Open Metabods Tag Browser")
+                        }
+
+                        OutlinedButton(
+                            onClick = { navController.navigate("universal_tag_browser") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Language, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Browse Tags Across Sites")
+                        }
+                    }
+                }
+
+                // Web Fiction Manager Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.LibraryBooks,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Manage Web Fiction Library",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Track downloads, check for updates, and organize stories from every site.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            }
+                        }
+
+                        Button(
+                            onClick = { navController.navigate("webfiction_manager") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.LibraryBooks, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Open Web Fiction Manager")
                         }
                     }
                 }

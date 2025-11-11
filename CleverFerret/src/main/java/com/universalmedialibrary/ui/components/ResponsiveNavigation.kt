@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -141,6 +143,12 @@ object NavigationItems {
             route = "ambient",
             label = "Ambient",
             icon = { Icon(PhosphorIcons.Nature, contentDescription = "Ambient") }
+        ),
+        NavigationItem(
+            route = "webfiction_manager",
+            label = "Web Fiction",
+            icon = { Icon(Icons.Filled.Language, contentDescription = "Web Fiction") },
+            showInBottomNav = false
         ),
         NavigationItem(
             route = "podcasts",
