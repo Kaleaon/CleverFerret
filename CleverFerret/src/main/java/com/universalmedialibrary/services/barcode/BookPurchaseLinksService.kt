@@ -2,6 +2,7 @@ package com.universalmedialibrary.services.barcode
 
 import android.content.Context
 import android.content.Intent
+import androidx.core.net.toUri
 import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -167,7 +168,7 @@ class BookPurchaseLinksService @Inject constructor(
      * @param link The purchase link to open
      */
     fun openPurchaseLink(link: PurchaseLink) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link.url)).apply {
+        val intent = Intent(Intent.ACTION_VIEW, link.url.toUri()).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)

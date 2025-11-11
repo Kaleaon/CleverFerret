@@ -199,7 +199,7 @@ fun PinEntryDialog(
                         },
                         onBackspace = {
                             if (digits.isNotEmpty()) {
-                                digits.removeLast()
+                                digits.removeAt(digits.lastIndex)
                                 localError = null
                             }
                         }

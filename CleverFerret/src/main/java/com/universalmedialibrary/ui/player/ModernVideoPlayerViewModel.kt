@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@androidx.media3.common.util.UnstableApi
+@OptIn(UnstableApi::class)
 class ModernVideoPlayerViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val chromecastManager: com.universalmedialibrary.services.cast.ChromecastManager

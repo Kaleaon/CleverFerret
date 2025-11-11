@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.music
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -88,13 +89,12 @@ class MusicLibraryViewModel @Inject constructor(
     private fun scanMusicFromMediaStore(): List<Track> {
         val songs = mutableListOf<Track>()
         
-        val projection = arrayOf(
+        val projection = mutableListOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.ALBUM_ARTIST,
-            MediaStore.Audio.Media.GENRE,
             MediaStore.Audio.Media.YEAR,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.TRACK,
@@ -105,13 +105,17 @@ class MusicLibraryViewModel @Inject constructor(
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.MIME_TYPE
         )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            projection.add(MediaStore.Audio.Media.GENRE)
+        }
         
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
         val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
         
         context.contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection,
+            projection.toTypedArray(),
             selection,
             null,
             sortOrder
@@ -121,7 +125,11 @@ class MusicLibraryViewModel @Inject constructor(
             val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
             val albumCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
             val albumArtistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
-            val genreCol = cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
+            val genreCol = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                cursor.getColumnIndex(MediaStore.Audio.Media.GENRE)
+            } else {
+                -1
+            }
             val yearCol = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR)
             val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val trackCol = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK)

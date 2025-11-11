@@ -8,6 +8,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.core.net.toUri
 import androidx.media.MediaBrowserServiceCompat
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.MediaItem
@@ -222,7 +223,7 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
             .setMediaId("item_${mediaItem.itemId}")
             .setTitle(mediaItem.fileName)
             .setSubtitle(mediaItem.filePath)
-            .setMediaUri(Uri.parse(mediaItem.filePath))
+            .setMediaUri(mediaItem.filePath.toUri())
             .setExtras(Bundle().apply {
                 putLong("itemId", mediaItem.itemId)
                 putString("mediaType", mediaItem.mediaType)

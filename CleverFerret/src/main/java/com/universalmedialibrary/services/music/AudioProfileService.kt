@@ -1,12 +1,11 @@
 package com.universalmedialibrary.services.music
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,54 +53,65 @@ class AudioProfileService @Inject constructor(
      * Detect current audio output device
      */
     fun detectCurrentDevice(): AudioDeviceType {
-        val deviceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            detectDeviceModern()
-        } else {
-            detectDeviceLegacy()
-        }
-        
+        val deviceType = detectDevice()
         _currentDeviceType.value = deviceType
         return deviceType
     }
     
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun detectDeviceModern(): AudioDeviceType {
+    private fun detectDevice(): AudioDeviceType {
         val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
-        
-        // Priority order for device detection
         for (device in devices) {
-            when (device.type) {
-                AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
-                AudioDeviceInfo.TYPE_WIRED_HEADSET -> return AudioDeviceType.WIRED_HEADPHONE
-                
-                AudioDeviceInfo.TYPE_BLUETOOTH_A2DP -> {
-                    // Check if it's a car stereo
-                    val productName = device.productName?.toString()?.lowercase() ?: ""
-                    return if (productName.contains("car") || productName.contains("auto")) {
-                        AudioDeviceType.CAR_BLUETOOTH
-                    } else {
-                        AudioDeviceType.BLUETOOTH_HEADPHONE
-                    }
-                }
-                
-                AudioDeviceInfo.TYPE_USB_HEADSET,
-                AudioDeviceInfo.TYPE_USB_DEVICE -> return AudioDeviceType.USB_AUDIO
-                
-                AudioDeviceInfo.TYPE_BUILTIN_SPEAKER -> return AudioDeviceType.PHONE_SPEAKER
-                
-                AudioDeviceInfo.TYPE_DOCK -> return AudioDeviceType.DOCK
-            }
+            mapDeviceType(device)?.let { return it }
         }
-        
         return AudioDeviceType.UNKNOWN
     }
-    
-    private fun detectDeviceLegacy(): AudioDeviceType {
-        return when {
-            audioManager.isWiredHeadsetOn -> AudioDeviceType.WIRED_HEADPHONE
-            audioManager.isBluetoothA2dpOn -> AudioDeviceType.BLUETOOTH_HEADPHONE
-            audioManager.isSpeakerphoneOn -> AudioDeviceType.PHONE_SPEAKER
-            else -> AudioDeviceType.UNKNOWN
+
+    @SuppressLint("SwitchIntDef")
+    private fun mapDeviceType(device: AudioDeviceInfo): AudioDeviceType? {
+        return when (device.type) {
+            AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
+            AudioDeviceInfo.TYPE_WIRED_HEADSET,
+            AudioDeviceInfo.TYPE_USB_HEADSET,
+            AudioDeviceInfo.TYPE_USB_DEVICE,
+            AudioDeviceInfo.TYPE_USB_ACCESSORY,
+            AudioDeviceInfo.TYPE_LINE_ANALOG,
+            AudioDeviceInfo.TYPE_LINE_DIGITAL,
+            AudioDeviceInfo.TYPE_AUX_LINE -> AudioDeviceType.WIRED_HEADPHONE
+
+            AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+            AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
+            AudioDeviceInfo.TYPE_BLE_HEADSET,
+            AudioDeviceInfo.TYPE_BLE_SPEAKER,
+            AudioDeviceInfo.TYPE_BLE_BROADCAST -> {
+                val productName = device.productName?.toString()?.lowercase() ?: ""
+                if (productName.contains("car") || productName.contains("auto")) {
+                    AudioDeviceType.CAR_BLUETOOTH
+                } else {
+                    AudioDeviceType.BLUETOOTH_HEADPHONE
+                }
+            }
+
+            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
+            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER_SAFE,
+            AudioDeviceInfo.TYPE_BUILTIN_EARPIECE,
+            AudioDeviceInfo.TYPE_TELEPHONY -> AudioDeviceType.PHONE_SPEAKER
+
+            AudioDeviceInfo.TYPE_HDMI,
+            AudioDeviceInfo.TYPE_HDMI_ARC,
+            AudioDeviceInfo.TYPE_HDMI_EARC,
+            AudioDeviceInfo.TYPE_DOCK,
+            AudioDeviceInfo.TYPE_DOCK_ANALOG,
+            AudioDeviceInfo.TYPE_BUS -> AudioDeviceType.DOCK
+
+            AudioDeviceInfo.TYPE_IP,
+            AudioDeviceInfo.TYPE_MULTICHANNEL_GROUP,
+            AudioDeviceInfo.TYPE_FM,
+            AudioDeviceInfo.TYPE_FM_TUNER,
+            AudioDeviceInfo.TYPE_REMOTE_SUBMIX,
+            AudioDeviceInfo.TYPE_TV_TUNER,
+            AudioDeviceInfo.TYPE_UNKNOWN -> AudioDeviceType.UNKNOWN
+
+            else -> null
         }
     }
     

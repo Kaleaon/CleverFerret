@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.data.midi.MidiFile
 import com.universalmedialibrary.data.midi.MidiPlaybackState
 import com.universalmedialibrary.data.midi.MidiTrackInfo
+import java.util.Locale
 
 /**
  * MIDI Player Screen
@@ -305,10 +306,11 @@ private fun formatDuration(ms: Long): String {
     val seconds = (ms / 1000) % 60
     val minutes = (ms / (1000 * 60)) % 60
     val hours = (ms / (1000 * 60 * 60))
-    
+    val locale = Locale.getDefault()
+
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
+        String.format(locale, "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format("%d:%02d", minutes, seconds)
+        String.format(locale, "%d:%02d", minutes, seconds)
     }
 }

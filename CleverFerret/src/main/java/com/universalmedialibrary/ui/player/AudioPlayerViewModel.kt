@@ -9,6 +9,7 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +25,7 @@ import java.io.FileOutputStream
  * ViewModel for the audio player with metadata extraction and playlist support
  */
 @HiltViewModel
-@androidx.media3.common.util.UnstableApi
+@OptIn(UnstableApi::class)
 class AudioPlayerViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(AudioPlayerUiState())

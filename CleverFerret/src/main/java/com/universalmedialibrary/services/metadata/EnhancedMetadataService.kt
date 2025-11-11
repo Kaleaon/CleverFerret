@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.*
+import android.os.Build
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -231,6 +232,7 @@ class EnhancedMetadataService @Inject constructor(
     }
     
     private fun getSampleRate(retriever: MediaMetadataRetriever): Int? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return null
         return try {
             // Try different metadata keys for sample rate
             retriever.extractMetadata(METADATA_KEY_SAMPLERATE)?.toIntOrNull()

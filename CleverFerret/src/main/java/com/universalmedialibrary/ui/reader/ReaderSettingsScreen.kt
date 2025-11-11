@@ -615,7 +615,7 @@ private fun EnhancedReadingFeaturesSection(
             if (readerSettings.autoScrollEnabled) {
                 Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp)) {
                     Text(
-                        text = "Speed: ${String.format("%.1f", readerSettings.autoScrollSpeedMultiplier)}x",
+                        text = "Speed: ${String.format(Locale.getDefault(), "%.1f", readerSettings.autoScrollSpeedMultiplier)}x",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Slider(

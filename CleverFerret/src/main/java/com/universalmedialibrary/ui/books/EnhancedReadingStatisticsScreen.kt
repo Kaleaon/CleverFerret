@@ -10,11 +10,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.graphics.Color
+import java.util.Locale
 
 /**
  * Enhanced Reading Statistics Screen with Charts
@@ -507,9 +508,10 @@ private fun EmptyChartPlaceholder(
 }
 
 private fun formatNumber(number: Int): String {
+    val locale = Locale.getDefault()
     return when {
-        number >= 1_000_000 -> String.format("%.1fM", number / 1_000_000.0)
-        number >= 1_000 -> String.format("%.1fK", number / 1_000.0)
+        number >= 1_000_000 -> String.format(locale, "%.1fM", number / 1_000_000.0)
+        number >= 1_000 -> String.format(locale, "%.1fK", number / 1_000.0)
         else -> number.toString()
     }
 }

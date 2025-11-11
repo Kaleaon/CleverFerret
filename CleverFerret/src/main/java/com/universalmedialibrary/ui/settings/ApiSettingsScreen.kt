@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.core.net.toUri
 
 /**
  * API Settings Screen
@@ -452,7 +453,7 @@ private fun ApiKeySection(
                     // Open URL in browser
                     val intent = android.content.Intent(
                         android.content.Intent.ACTION_VIEW,
-                        android.net.Uri.parse(getKeyUrl)
+                        getKeyUrl.toUri()
                     )
                     intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(intent)
@@ -466,7 +467,7 @@ private fun ApiKeySection(
                     // Open documentation in browser
                     val intent = android.content.Intent(
                         android.content.Intent.ACTION_VIEW,
-                        android.net.Uri.parse(docsUrl)
+                        docsUrl.toUri()
                     )
                     intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(intent)

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.universalmedialibrary.services.video.ComprehensiveVideoService
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@androidx.media3.common.util.UnstableApi
+@OptIn(UnstableApi::class)
 class UniversalVideoPlayerViewModel @Inject constructor(
     private val videoService: ComprehensiveVideoService
 ) : ViewModel() {

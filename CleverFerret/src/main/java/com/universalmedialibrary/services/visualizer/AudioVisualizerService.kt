@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.audiofx.Visualizer
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,7 @@ import java.util.ArrayDeque
  * for projectM-style visual effects that can be displayed and cast via Chromecast
  */
 @Singleton
-@androidx.media3.common.util.UnstableApi
+@OptIn(UnstableApi::class)
 class AudioVisualizerService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

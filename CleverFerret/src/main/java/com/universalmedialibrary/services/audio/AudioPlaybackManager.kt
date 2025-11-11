@@ -12,6 +12,7 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
@@ -24,7 +25,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-@androidx.media3.common.util.UnstableApi
+@OptIn(UnstableApi::class)
 class AudioPlaybackManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

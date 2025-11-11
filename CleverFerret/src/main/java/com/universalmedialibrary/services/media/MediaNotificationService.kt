@@ -110,8 +110,8 @@ class MediaNotificationService : MediaSessionService() {
 
         // Start as foreground service with initial notification
         val notification = createMediaNotification(
-            title = getString(resources.getIdentifier("media_notification_title", "string", packageName)),
-            artist = getString(resources.getIdentifier("media_notification_unknown_artist", "string", packageName)),
+            title = getString(R.string.media_notification_title),
+            artist = getString(R.string.media_notification_unknown_artist),
             isPlaying = false
         )
         startForeground(NOTIFICATION_ID, notification)
@@ -159,7 +159,7 @@ class MediaNotificationService : MediaSessionService() {
     ) {
         val notification = createMediaNotification(
             title = title,
-            artist = artist ?: getString(resources.getIdentifier("media_notification_unknown_artist", "string", packageName)),
+            artist = artist ?: getString(R.string.media_notification_unknown_artist),
             album = album,
             artwork = artwork,
             isPlaying = isPlaying
@@ -212,10 +212,10 @@ class MediaNotificationService : MediaSessionService() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            getString(resources.getIdentifier("notification_channel_media_playback", "string", packageName)),
+            getString(R.string.notification_channel_media_playback),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = getString(resources.getIdentifier("notification_channel_media_playback_description", "string", packageName))
+            description = getString(R.string.notification_channel_media_playback_description)
             setShowBadge(false)
             enableLights(false)
             enableVibration(false)
@@ -245,33 +245,33 @@ class MediaNotificationService : MediaSessionService() {
         // Create media control actions
         val playPauseAction = if (isPlaying) {
             NotificationCompat.Action.Builder(
-                resources.getIdentifier("ic_pause", "drawable", packageName),
-                getString(resources.getIdentifier("media_pause", "string", packageName)),
+                R.drawable.ic_pause,
+                getString(R.string.media_pause),
                 createActionPendingIntent(ACTION_PAUSE)
             ).build()
         } else {
             NotificationCompat.Action.Builder(
-                resources.getIdentifier("ic_play", "drawable", packageName),
-                getString(resources.getIdentifier("media_play", "string", packageName)),
+                R.drawable.ic_play,
+                getString(R.string.media_play),
                 createActionPendingIntent(ACTION_PLAY)
             ).build()
         }
 
         val previousAction = NotificationCompat.Action.Builder(
-            resources.getIdentifier("ic_skip_previous", "drawable", packageName),
-            getString(resources.getIdentifier("media_skip_previous", "string", packageName)),
+            R.drawable.ic_skip_previous,
+            getString(R.string.media_skip_previous),
             createActionPendingIntent(ACTION_PREVIOUS)
         ).build()
 
         val nextAction = NotificationCompat.Action.Builder(
-            resources.getIdentifier("ic_skip_next", "drawable", packageName),
-            getString(resources.getIdentifier("media_skip_next", "string", packageName)),
+            R.drawable.ic_skip_next,
+            getString(R.string.media_skip_next),
             createActionPendingIntent(ACTION_NEXT)
         ).build()
 
         val stopAction = NotificationCompat.Action.Builder(
-            resources.getIdentifier("ic_pause", "drawable", packageName), // Using pause icon for stop
-            getString(resources.getIdentifier("media_stop", "string", packageName)),
+            R.drawable.ic_pause, // Using pause icon for stop
+            getString(R.string.media_stop),
             createActionPendingIntent(ACTION_STOP)
         ).build()
 
@@ -281,7 +281,7 @@ class MediaNotificationService : MediaSessionService() {
             .setContentText(artist)
             .setSubText(album)
             .setLargeIcon(artwork)
-            .setSmallIcon(resources.getIdentifier("ic_media_notification", "drawable", packageName))
+            .setSmallIcon(R.drawable.ic_media_notification)
             .setContentIntent(contentIntent)
             .setDeleteIntent(createActionPendingIntent(ACTION_STOP))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

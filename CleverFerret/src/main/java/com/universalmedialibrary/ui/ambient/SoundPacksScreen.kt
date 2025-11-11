@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.services.ambient.SoundPackManager
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import java.util.Locale
 
 /**
  * Sound Packs Screen
@@ -97,7 +98,7 @@ fun SoundPacksScreen(
                             }
                             Column {
                                 Text(
-                                    text = String.format("%.2f GB", totalSizeMB / 1024f),
+                                    text = String.format(Locale.getDefault(), "%.2f GB", totalSizeMB / 1024f),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary

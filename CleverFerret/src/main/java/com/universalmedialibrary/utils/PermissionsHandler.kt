@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
@@ -19,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 
 /**
  * Permissions handler for CleverFerret
@@ -125,7 +125,7 @@ object PermissionsHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             try {
                 val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.data = Uri.parse("package:${context.packageName}")
+                intent.data = "package:${context.packageName}".toUri()
                 context.startActivity(intent)
             } catch (e: Exception) {
                 // Fallback to general settings
@@ -198,7 +198,7 @@ fun rememberPermissionsHandler(
                 // Request MANAGE_EXTERNAL_STORAGE first on Android 11+
                 try {
                     val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    intent.data = Uri.parse("package:${context.packageName}")
+                    intent.data = "package:${context.packageName}".toUri()
                     storageManagementLauncher.launch(intent)
                 } catch (e: Exception) {
                     val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)

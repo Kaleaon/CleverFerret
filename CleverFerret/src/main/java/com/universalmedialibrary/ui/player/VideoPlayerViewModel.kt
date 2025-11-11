@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +20,7 @@ import java.io.File
  * ViewModel for the video player
  */
 @HiltViewModel
-@androidx.media3.common.util.UnstableApi
+@OptIn(UnstableApi::class)
 class VideoPlayerViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(VideoPlayerUiState())

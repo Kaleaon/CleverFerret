@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import java.util.Locale
 
 /**
  * Enhanced EPUB Reader Settings (Phase 3)
@@ -69,7 +70,7 @@ fun EnhancedEpubReaderSettingsScreen(
                 
                 // Line Height Slider
                 Text(
-                    text = "Line Height: ${String.format("%.1f", readerSettings.lineHeight)}",
+                    text = "Line Height: ${String.format(Locale.getDefault(), "%.1f", readerSettings.lineHeight)}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Slider(

@@ -70,7 +70,7 @@
     <string name="plex_server_name">Server Name</string>
     <string name="plex_server_url">Server URL</string>
     <string name="plex_server_token">Plex Token</string>
-    <string name="plex_connecting">Connecting...</string>
+    <string name="plex_connecting">Connecting…</string>
     <string name="plex_connected">Connected</string>
     <string name="plex_disconnected">Disconnected</string>
     <string name="plex_sync_all">Sync All</string>
@@ -140,11 +140,11 @@
     <string name="error_loading">Error loading content</string>
 
     <!-- Loading states -->
-    <string name="loading">Loading...</string>
-    <string name="loading_library">Loading library...</string>
-    <string name="loading_metadata">Loading metadata...</string>
-    <string name="loading_content">Loading content...</string>
-    <string name="processing">Processing...</string>
+    <string name="loading">Loading…</string>
+    <string name="loading_library">Loading library…</string>
+    <string name="loading_metadata">Loading metadata…</string>
+    <string name="loading_content">Loading content…</string>
+    <string name="processing">Processing…</string>
 
     <!-- Content descriptions for accessibility -->
     <string name="cd_book_cover">Book cover</string>
@@ -177,9 +177,9 @@
     <string name="export_description">Export your library data</string>
 
     <!-- Notifications -->
-    <string name="notification_import_progress">Importing library...</string>
+    <string name="notification_import_progress">Importing library…</string>
     <string name="notification_import_complete">Import completed</string>
-    <string name="notification_sync_progress">Syncing with Plex...</string>
+    <string name="notification_sync_progress">Syncing with Plex…</string>
     <string name="notification_sync_complete">Sync completed</string>
 
     <!-- About -->
