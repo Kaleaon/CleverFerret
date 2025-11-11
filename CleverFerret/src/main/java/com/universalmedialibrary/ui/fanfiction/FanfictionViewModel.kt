@@ -4,8 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.FanfictionDao
 import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
+import com.universalmedialibrary.services.DownloadBlockedException
+import com.universalmedialibrary.services.DownloadSafetyChecker
+import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.fanfiction.FanfictionDownloadService
 import com.universalmedialibrary.services.fanfiction.models.StoryMetadata
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class FanfictionViewModel @Inject constructor(
     private val fanfictionService: FanfictionDownloadService,
-    private val fanfictionDao: FanfictionDao
+    private val fanfictionDao: FanfictionDao,
+    private val downloadSafetyChecker: DownloadSafetyChecker
 ) : ViewModel() {
     
     // PERFORMANCE FIX: Use WhileSubscribed to stop collecting when no UI is observing
@@ -36,8 +41,11 @@ class FanfictionViewModel @Inject constructor(
     
     private val _updateStatus = MutableStateFlow<String?>(null)
     val updateStatus: StateFlow<String?> = _updateStatus.asStateFlow()
+    private val _pendingPinChallenge = MutableStateFlow<PinChallenge?>(null)
+    val pendingPinChallenge: StateFlow<PinChallenge?> = _pendingPinChallenge.asStateFlow()
+    private var pendingPinAction: (() -> Unit)? = null
     
-    fun downloadStory(url: String) {
+    fun downloadStory(url: String, bypassPin: Boolean = false) {
         if (url.isBlank()) {
             _downloadState.value = DownloadState.Error("Please enter a URL")
             return
@@ -47,16 +55,34 @@ class FanfictionViewModel @Inject constructor(
             try {
                 _downloadState.value = DownloadState.Downloading(0, 0, "Starting download...")
                 
-                val result = fanfictionService.downloadStory(url) { current, total, message ->
+                val result = fanfictionService.downloadStory(
+                    url = url,
+                    bypassPin = bypassPin
+                ) { current, total, message ->
                     _downloadState.value = DownloadState.Downloading(current, total, message)
                 }
                 
                 result.onSuccess { metadata ->
                     _downloadState.value = DownloadState.Success(metadata)
                 }.onFailure { error ->
-                    _downloadState.value = DownloadState.Error(
-                        error.message ?: "Download failed"
-                    )
+                    val handled = handlePinException(
+                        throwable = error,
+                        fallbackTitle = url,
+                        rating = null,
+                        tags = emptyList()
+                    ) {
+                        downloadStory(url, bypassPin = true)
+                    }
+                    if (!handled) {
+                        val message = when (error) {
+                            is DownloadBlockedException -> error.message
+                                ?: "Download blocked by parental controls."
+                            else -> error.message ?: "Download failed"
+                        }
+                        _downloadState.value = DownloadState.Error(message)
+                    } else {
+                        _downloadState.value = DownloadState.Idle
+                    }
                 }
             } catch (e: Exception) {
                 _downloadState.value = DownloadState.Error(
@@ -83,7 +109,7 @@ class FanfictionViewModel @Inject constructor(
         }
     }
     
-    fun updateStory(storyId: String) {
+    fun updateStory(storyId: String, bypassPin: Boolean = false) {
         if (storyId.isBlank()) {
             _downloadState.value = DownloadState.Error("Invalid story ID")
             return
@@ -92,17 +118,36 @@ class FanfictionViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _downloadState.value = DownloadState.Downloading(0, 0, "Updating story...")
-                
-                val result = fanfictionService.updateStory(storyId) { current, total, message ->
+                val story = fanfictionDao.getStoryById(storyId)
+
+                val result = fanfictionService.updateStory(
+                    storyId = storyId,
+                    bypassPin = bypassPin
+                ) { current, total, message ->
                     _downloadState.value = DownloadState.Downloading(current, total, message)
                 }
                 
                 result.onSuccess { metadata ->
                     _downloadState.value = DownloadState.Success(metadata)
                 }.onFailure { error ->
-                    _downloadState.value = DownloadState.Error(
-                        error.message ?: "Update failed"
-                    )
+                    val handled = handlePinException(
+                        throwable = error,
+                        fallbackTitle = story?.title ?: storyId,
+                        rating = story?.rating,
+                        tags = story?.tags ?: emptyList()
+                    ) {
+                        updateStory(storyId, bypassPin = true)
+                    }
+                    if (!handled) {
+                        val message = when (error) {
+                            is DownloadBlockedException -> error.message
+                                ?: "Download blocked by parental controls."
+                            else -> error.message ?: "Update failed"
+                        }
+                        _downloadState.value = DownloadState.Error(message)
+                    } else {
+                        _downloadState.value = DownloadState.Idle
+                    }
                 }
             } catch (e: Exception) {
                 _downloadState.value = DownloadState.Error(
@@ -132,6 +177,40 @@ class FanfictionViewModel @Inject constructor(
     
     fun clearUpdateStatus() {
         _updateStatus.value = null
+    }
+
+    fun dismissPinChallenge() {
+        pendingPinAction = null
+        _pendingPinChallenge.value = null
+    }
+
+    suspend fun verifyPin(pin: String): Boolean = downloadSafetyChecker.verifyPinForDownload(pin)
+
+    fun onPinUnlockGranted() {
+        val action = pendingPinAction
+        pendingPinAction = null
+        _pendingPinChallenge.value = null
+        action?.invoke()
+    }
+
+    private fun handlePinException(
+        throwable: Throwable,
+        fallbackTitle: String,
+        rating: String?,
+        tags: List<String>,
+        retry: () -> Unit
+    ): Boolean {
+        val pinException = throwable as? ContentPinRequiredException ?: return false
+        val title = pinException.contentTitle ?: fallbackTitle
+        pendingPinAction = retry
+        _pendingPinChallenge.value = PinChallenge(
+            title = title,
+            rating = pinException.contentRating ?: rating,
+            mediaType = "STORY",
+            tags = tags,
+            description = pinException.localizedMessage
+        )
+        return true
     }
 }
 

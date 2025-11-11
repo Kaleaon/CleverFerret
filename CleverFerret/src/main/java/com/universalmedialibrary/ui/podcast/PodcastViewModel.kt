@@ -3,10 +3,14 @@ package com.universalmedialibrary.ui.podcast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
+import com.universalmedialibrary.services.DownloadContentMetadata
+import com.universalmedialibrary.services.DownloadSafetyChecker
+import com.universalmedialibrary.services.DownloadSafetyResult
 import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastOperationResult
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
+import com.universalmedialibrary.ui.components.pin.PinChallenge
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -15,11 +19,15 @@ import javax.inject.Inject
 @HiltViewModel
 class PodcastViewModel @Inject constructor(
     private val repository: PodcastRepository,
-    private val downloadManager: com.universalmedialibrary.services.podcast.PodcastDownloadManager
+    private val downloadManager: com.universalmedialibrary.services.podcast.PodcastDownloadManager,
+    private val downloadSafetyChecker: DownloadSafetyChecker
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PodcastUiState())
     val uiState: StateFlow<PodcastUiState> = _uiState.asStateFlow()
+    private val _pendingPinChallenge = MutableStateFlow<PinChallenge?>(null)
+    val pendingPinChallenge: StateFlow<PinChallenge?> = _pendingPinChallenge.asStateFlow()
+    private var pendingPinAction: (() -> Unit)? = null
 
     init {
         loadPodcasts()
@@ -140,12 +148,52 @@ class PodcastViewModel @Inject constructor(
         }
     }
 
-    fun downloadEpisode(episode: PodcastEpisode) {
+    fun downloadEpisode(episode: PodcastEpisode, bypassPin: Boolean = false) {
         viewModelScope.launch {
             try {
                 // Find podcast for title
                 val podcast = _uiState.value.podcasts.find { it.id == episode.podcastId }
                 val podcastTitle = podcast?.title ?: "Unknown Podcast"
+                val rating = if (podcast?.explicit == true) "EXPLICIT" else null
+                val tags = buildList {
+                    podcast?.category?.takeIf { it.isNotBlank() }?.let { add(it) }
+                }
+
+                when (val safetyResult = downloadSafetyChecker.checkDownload(
+                    DownloadContentMetadata(
+                        rating = rating,
+                        title = episode.title,
+                        mediaType = "PODCAST",
+                        tags = tags,
+                        bypassPinCheck = bypassPin
+                    )
+                )) {
+                    is DownloadSafetyResult.Blocked -> {
+                        _uiState.value = _uiState.value.copy(
+                            error = safetyResult.reason
+                        )
+                        return@launch
+                    }
+                    is DownloadSafetyResult.RequiresPin -> {
+                        pendingPinAction = { downloadEpisode(episode, bypassPin = true) }
+                        _pendingPinChallenge.value = PinChallenge(
+                            title = episode.title,
+                            rating = rating,
+                            mediaType = "PODCAST",
+                            tags = tags,
+                            description = safetyResult.contentRating?.let {
+                                "Enter your PIN to download this episode."
+                            } ?: "Enter your PIN to download this episode."
+                        )
+                        _uiState.value = _uiState.value.copy(error = null)
+                        return@launch
+                    }
+                    DownloadSafetyResult.Allowed -> {
+                        // proceed
+                    }
+                }
+
+                _uiState.value = _uiState.value.copy(error = null)
 
                 // Start download using Android DownloadManager
                 downloadManager.downloadEpisode(
@@ -201,6 +249,21 @@ class PodcastViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    fun dismissPinChallenge() {
+        pendingPinAction = null
+        _pendingPinChallenge.value = null
+    }
+
+    suspend fun verifyPin(pin: String): Boolean =
+        downloadSafetyChecker.verifyPinForDownload(pin)
+
+    fun onPinUnlockGranted() {
+        val action = pendingPinAction
+        pendingPinAction = null
+        _pendingPinChallenge.value = null
+        action?.invoke()
     }
 
     private fun loadPodcasts() {
