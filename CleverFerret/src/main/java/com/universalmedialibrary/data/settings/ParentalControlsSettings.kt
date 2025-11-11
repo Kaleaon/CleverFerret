@@ -485,7 +485,15 @@ class ParentalControlsSettings @Inject constructor(
         tags: Collection<String> = emptyList()
     ): Boolean {
         val state = parentalControlsState.first()
-        
+        return isContentAllowed(state, rating, mediaType, tags)
+    }
+
+    fun isContentAllowed(
+        state: ParentalControlsState,
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
         if (!state.enabled) {
             return true // Parental controls disabled, allow all
         }
@@ -515,7 +523,15 @@ class ParentalControlsSettings @Inject constructor(
         tags: Collection<String> = emptyList()
     ): Boolean {
         val state = parentalControlsState.first()
-        
+        return shouldHideContent(state, rating, mediaType, tags)
+    }
+
+    fun shouldHideContent(
+        state: ParentalControlsState,
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
         if (!state.enabled || !state.hideAdultContent) {
             return false
         }
@@ -545,7 +561,15 @@ class ParentalControlsSettings @Inject constructor(
         tags: Collection<String> = emptyList()
     ): Boolean {
         val state = parentalControlsState.first()
-        
+        return requiresPinForAccess(state, rating, mediaType, tags)
+    }
+
+    fun requiresPinForAccess(
+        state: ParentalControlsState,
+        rating: String?,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): Boolean {
         if (!state.enabled || !state.requirePinForAdult || !state.hasPinSet) {
             return false
         }

@@ -2,6 +2,9 @@ package com.universalmedialibrary.ui.webfiction
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.services.ContentPinRequiredException
+import com.universalmedialibrary.services.DownloadBlockedException
+import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import com.universalmedialibrary.services.webfiction.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -190,27 +193,36 @@ class MetabodsTagBrowserViewModel @Inject constructor(
             try {
                 // First check if Metabods has a direct download button
                 val downloadResult = metabodsTagService.downloadStoryWithRespect(story.url)
-                
-                downloadResult.onSuccess { downloadedStory ->
-                    // Download chapters
-                    val chapters = webFictionService.downloadAllChapters(downloadedStory)
-                    val completeStory = downloadedStory.copy(chapters = chapters)
-                    
-                    // TODO: Add to library, create EPUB, etc.
-                    _uiState.value = _uiState.value.copy(
-                        downloadingStoryId = null,
-                        successMessage = "Downloaded: ${completeStory.title}"
-                    )
-                }.onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        downloadingStoryId = null,
-                        error = "Download failed: ${error.message}"
-                    )
-                }
+
+                downloadResult.fold(
+                    onSuccess = { downloadedStory ->
+                        val chapters = webFictionService.downloadAllChapters(downloadedStory)
+                        val completeStory = downloadedStory.copy(chapters = chapters)
+
+                        _uiState.value = _uiState.value.copy(
+                            downloadingStoryId = null,
+                            successMessage = "Downloaded: ${completeStory.title}"
+                        )
+                    },
+                    onFailure = { error ->
+                        val message = mapParentalControlsError(
+                            error,
+                            "Download failed: ${error.message}"
+                        )
+                        _uiState.value = _uiState.value.copy(
+                            downloadingStoryId = null,
+                            error = message
+                        )
+                    }
+                )
             } catch (e: Exception) {
+                val message = mapParentalControlsError(
+                    e,
+                    "Download failed: ${e.message}"
+                )
                 _uiState.value = _uiState.value.copy(
                     downloadingStoryId = null,
-                    error = "Download failed: ${e.message}"
+                    error = message
                 )
             }
         }
@@ -228,6 +240,13 @@ class MetabodsTagBrowserViewModel @Inject constructor(
      */
     fun clearSuccess() {
         _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
+    private fun mapParentalControlsError(error: Throwable, fallback: String): String = when (error) {
+        is AdultSitesDisabledException -> "Adult story sources are disabled in Parental Controls."
+        is DownloadBlockedException -> error.message ?: "This story is blocked by parental controls."
+        is ContentPinRequiredException -> "Parental controls require a PIN to access this story."
+        else -> fallback
     }
 }
 

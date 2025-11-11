@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.webfiction
 
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.ContentFilterHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 class UniversalTagService @Inject constructor(
     private val metabodsTagService: MetabodsTagService,
     private val webFictionService: WebFictionService,
-    private val parentalControlsSettings: ParentalControlsSettings
+    private val parentalControlsSettings: ParentalControlsSettings,
+    private val contentFilterHelper: ContentFilterHelper
 ) {
 
     companion object {
@@ -809,17 +811,19 @@ class UniversalTagService @Inject constructor(
         }
     }
 
-    private fun buildSearchResult(
+    private suspend fun buildSearchResult(
         criteria: StorySearchCriteria,
         stories: List<WebFictionStory>
     ): StorySearchResult {
-        val sliced = stories.drop(criteria.offset)
+        val filtered = contentFilterHelper.filterStories(stories)
+        val sliced = filtered.drop(criteria.offset)
         val limited = sliced.take(criteria.limit)
-        val hasMore = sliced.size > criteria.limit
-        val nextOffset = if (hasMore) criteria.offset + criteria.limit else null
+        val consumed = criteria.offset + limited.size
+        val hasMore = filtered.size > consumed
+        val nextOffset = if (hasMore) consumed else null
         return StorySearchResult(
             stories = limited,
-            totalCount = stories.size,
+            totalCount = filtered.size,
             hasMore = hasMore,
             nextOffset = nextOffset
         )

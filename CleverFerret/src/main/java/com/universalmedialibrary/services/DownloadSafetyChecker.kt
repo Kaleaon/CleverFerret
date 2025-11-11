@@ -24,35 +24,60 @@ class DownloadSafetyChecker @Inject constructor(
      */
     suspend fun checkDownload(
         contentRating: String?,
-        contentTitle: String? = null
-    ): DownloadSafetyResult {
-        val state = parentalControlsSettings.parentalControlsState
-            .getFirst()
-        
-        // If parental controls disabled, allow everything
+        contentTitle: String? = null,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList()
+    ): DownloadSafetyResult =
+        checkDownload(
+            DownloadContentMetadata(
+                rating = contentRating,
+                title = contentTitle,
+                mediaType = mediaType,
+                tags = tags
+            )
+        )
+
+    suspend fun checkDownload(metadata: DownloadContentMetadata): DownloadSafetyResult {
+        val state = parentalControlsSettings.currentState()
+
         if (!state.enabled) {
             return DownloadSafetyResult.Allowed
         }
 
-        // Check if content should be hidden
-        if (parentalControlsSettings.shouldHideContent(contentRating)) {
+        if (parentalControlsSettings.shouldHideContent(
+                state = state,
+                rating = metadata.rating,
+                mediaType = metadata.mediaType,
+                tags = metadata.tags
+            )
+        ) {
             return DownloadSafetyResult.Blocked(
                 reason = "This content is hidden by parental controls and cannot be downloaded."
             )
         }
 
-        // Check if content is allowed
-        if (!parentalControlsSettings.isContentAllowed(contentRating)) {
+        if (!parentalControlsSettings.isContentAllowed(
+                state = state,
+                rating = metadata.rating,
+                mediaType = metadata.mediaType,
+                tags = metadata.tags
+            )
+        ) {
             return DownloadSafetyResult.Blocked(
-                reason = "This content rating ($contentRating) is blocked by parental controls."
+                reason = "This content rating (${metadata.rating}) is blocked by parental controls."
             )
         }
 
-        // Check if PIN is required
-        if (parentalControlsSettings.requiresPinForAccess(contentRating)) {
+        if (parentalControlsSettings.requiresPinForAccess(
+                state = state,
+                rating = metadata.rating,
+                mediaType = metadata.mediaType,
+                tags = metadata.tags
+            )
+        ) {
             return DownloadSafetyResult.RequiresPin(
-                contentTitle = contentTitle ?: "content",
-                contentRating = contentRating
+                contentTitle = metadata.title ?: "content",
+                contentRating = metadata.rating
             )
         }
 
@@ -63,10 +88,10 @@ class DownloadSafetyChecker @Inject constructor(
      * Bulk check multiple items (for batch downloads)
      */
     suspend fun checkBulkDownload(
-        items: List<Pair<String?, String?>> // (rating, title) pairs
+        items: List<DownloadContentMetadata>
     ): BulkDownloadSafetyResult {
-        val results = items.map { (rating, title) ->
-            checkDownload(rating, title)
+        val results = items.map { metadata ->
+            checkDownload(metadata)
         }
 
         val blocked = results.filterIsInstance<DownloadSafetyResult.Blocked>()
@@ -93,7 +118,14 @@ class DownloadSafetyChecker @Inject constructor(
      * Check web fiction story
      */
     suspend fun checkStoryDownload(story: WebFictionStory): DownloadSafetyResult {
-        return checkDownload(story.rating, story.title)
+        return checkDownload(
+            DownloadContentMetadata(
+                rating = story.rating,
+                title = story.title,
+                mediaType = "STORY",
+                tags = story.tags
+            )
+        )
     }
 
     /**
@@ -103,18 +135,14 @@ class DownloadSafetyChecker @Inject constructor(
         return parentalControlsSettings.verifyPin(pin)
     }
 
-    /**
-     * Get first element from Flow
-     */
-    private suspend fun <T> kotlinx.coroutines.flow.Flow<T>.getFirst(): T {
-        var result: T? = null
-        this.collect { value ->
-            result = value
-            return@collect
-        }
-        return result!!
-    }
 }
+
+data class DownloadContentMetadata(
+    val rating: String?,
+    val title: String? = null,
+    val mediaType: String? = null,
+    val tags: Collection<String> = emptyList()
+)
 
 /**
  * Result of download safety check
@@ -159,3 +187,8 @@ class DownloadBlockedException(
     message: String,
     val contentRating: String?
 ) : Exception(message)
+
+class ContentPinRequiredException(
+    val contentTitle: String?,
+    val contentRating: String?
+) : IllegalStateException("Parental controls require a PIN to access this content.")

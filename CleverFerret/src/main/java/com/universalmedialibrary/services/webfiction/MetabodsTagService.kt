@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.webfiction
 
+import com.universalmedialibrary.services.ContentFilterHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -18,7 +19,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class MetabodsTagService @Inject constructor(
-    private val webFictionService: WebFictionService
+    private val webFictionService: WebFictionService,
+    private val contentFilterHelper: ContentFilterHelper
 ) {
 
     companion object {
@@ -179,15 +181,18 @@ class MetabodsTagService @Inject constructor(
                     .get()
 
                 val stories = extractStoriesFromBrowse(doc)
-                val totalCount = extractTotalCount(doc, stories.size)
-                val hasMore = stories.size >= criteria.limit
+                val filtered = contentFilterHelper.filterStories(stories)
+                val paged = filtered.drop(criteria.offset).take(criteria.limit)
+                val consumed = criteria.offset + paged.size
+                val hasMore = filtered.size > consumed
+                val nextOffset = if (hasMore) consumed else null
 
                 Result.success(
                     StorySearchResult(
-                        stories = stories,
-                        totalCount = totalCount,
+                        stories = paged,
+                        totalCount = filtered.size,
                         hasMore = hasMore,
-                        nextOffset = if (hasMore) criteria.offset + criteria.limit else null
+                        nextOffset = nextOffset
                     )
                 )
             } catch (e: Exception) {

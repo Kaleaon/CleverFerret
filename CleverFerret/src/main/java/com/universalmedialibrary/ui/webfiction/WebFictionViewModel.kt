@@ -3,6 +3,8 @@ package com.universalmedialibrary.ui.webfiction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.ContentPinRequiredException
+import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverterBasic
 import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import com.universalmedialibrary.services.webfiction.WebFictionService
@@ -171,16 +173,13 @@ class WebFictionViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                if (e is AdultSitesDisabledException) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = "Adult story sources are disabled in Parental Controls."
-                    )
-                    return@launch
-                }
+                val message = mapParentalControlsError(
+                    e,
+                    "Error adding story: ${e.message}"
+                )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Error adding story: ${e.message}"
+                    error = message
                 )
             }
         }
@@ -208,16 +207,13 @@ class WebFictionViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 }
             } catch (e: Exception) {
-                if (e is AdultSitesDisabledException) {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdates = false,
-                        error = "Adult story sources are disabled in Parental Controls."
-                    )
-                    return@launch
-                }
+                val message = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
                 _uiState.value = _uiState.value.copy(
                     isCheckingUpdates = false,
-                    error = "Error checking for updates: ${e.message}"
+                    error = message
                 )
             }
         }
@@ -248,9 +244,13 @@ class WebFictionViewModel @Inject constructor(
                     isCheckingUpdates = false
                 )
             } catch (e: Exception) {
+                val message = mapParentalControlsError(
+                    e,
+                    "Error checking for updates: ${e.message}"
+                )
                 _uiState.value = _uiState.value.copy(
                     isCheckingUpdates = false,
-                    error = "Error checking for updates: ${e.message}"
+                    error = message
                 )
             }
         }
@@ -272,9 +272,13 @@ class WebFictionViewModel @Inject constructor(
                     isLoading = false
                 )
             } catch (e: Exception) {
+                val message = mapParentalControlsError(
+                    e,
+                    "Error downloading story: ${e.message}"
+                )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Error downloading story: ${e.message}"
+                    error = message
                 )
             }
         }
@@ -301,9 +305,13 @@ class WebFictionViewModel @Inject constructor(
                     isLoading = false
                 )
             } catch (e: Exception) {
+                val message = mapParentalControlsError(
+                    e,
+                    "Error downloading updates: ${e.message}"
+                )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Error downloading updates: ${e.message}"
+                    error = message
                 )
             }
         }
@@ -321,6 +329,13 @@ class WebFictionViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    private fun mapParentalControlsError(e: Exception, fallback: String): String = when (e) {
+        is AdultSitesDisabledException -> "Adult story sources are disabled in Parental Controls."
+        is DownloadBlockedException -> e.message ?: "This story is blocked by parental controls."
+        is ContentPinRequiredException -> "Parental controls require a PIN to access this story."
+        else -> fallback
     }
 
     private fun loadStories() {

@@ -1,6 +1,8 @@
 package com.universalmedialibrary.services.webfiction
 
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.ContentPinRequiredException
+import com.universalmedialibrary.services.DownloadBlockedException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -107,6 +109,50 @@ class WebFictionService @Inject constructor(
         }
     }
 
+    private suspend fun enforceStoryAccess(story: WebFictionStory) {
+        val state = parentalControlsSettings.currentState()
+        if (!state.enabled) return
+
+        if (parentalControlsSettings.shouldHideContent(
+                state = state,
+                rating = story.rating,
+                mediaType = "STORY",
+                tags = story.tags
+            )
+        ) {
+            throw DownloadBlockedException(
+                message = "This story is hidden by parental controls.",
+                contentRating = story.rating
+            )
+        }
+
+        if (!parentalControlsSettings.isContentAllowed(
+                state = state,
+                rating = story.rating,
+                mediaType = "STORY",
+                tags = story.tags
+            )
+        ) {
+            throw DownloadBlockedException(
+                message = "This story is blocked by parental controls.",
+                contentRating = story.rating
+            )
+        }
+
+        if (parentalControlsSettings.requiresPinForAccess(
+                state = state,
+                rating = story.rating,
+                mediaType = "STORY",
+                tags = story.tags
+            )
+        ) {
+            throw ContentPinRequiredException(
+                contentTitle = story.title,
+                contentRating = story.rating
+            )
+        }
+    }
+
     /**
      * Extract story information from a URL
      */
@@ -115,7 +161,7 @@ class WebFictionService @Inject constructor(
             try {
                 val site = detectSite(url)
                 ensureAdultAccess(site)
-                when (site) {
+                val story = when (site) {
                     WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> extractFromAO3(url)
                     WebFictionSiteType.FANFICTION_NET -> extractFromFFN(url)
                     WebFictionSiteType.ROYAL_ROAD -> extractFromRoyalRoad(url)
@@ -131,6 +177,14 @@ class WebFictionService @Inject constructor(
                     WebFictionSiteType.MCSTORIES -> extractFromMcstories(url)
                     else -> extractGeneric(url)
                 }
+                story?.let { enforceStoryAccess(it) }
+                story
+            } catch (e: AdultSitesDisabledException) {
+                throw e
+            } catch (e: ContentPinRequiredException) {
+                throw e
+            } catch (e: DownloadBlockedException) {
+                throw e
             } catch (e: Exception) {
                 null
             }
@@ -141,6 +195,7 @@ class WebFictionService @Inject constructor(
      * Check for new chapters in an existing story
      */
     suspend fun checkForUpdates(story: WebFictionStory): List<WebFictionChapter> {
+        enforceStoryAccess(story)
         return withContext(Dispatchers.IO) {
             try {
                 val currentStory = extractStoryFromUrl(story.url) ?: return@withContext emptyList()
@@ -148,6 +203,10 @@ class WebFictionService @Inject constructor(
                 // Find chapters that weren't in the original story
                 val existingChapterIds = story.chapters.map { it.id }.toSet()
                 currentStory.chapters.filter { it.id !in existingChapterIds }
+            } catch (e: ContentPinRequiredException) {
+                throw e
+            } catch (e: DownloadBlockedException) {
+                throw e
             } catch (e: Exception) {
                 emptyList()
             }
@@ -163,6 +222,7 @@ class WebFictionService @Inject constructor(
                 // Parse site from URL if site string is not available
                 val siteType = detectSite(story.url)
                 ensureAdultAccess(siteType)
+                enforceStoryAccess(story)
                 when (siteType) {
                     WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
                     WebFictionSiteType.FANFICTION_NET -> downloadFFNChapters(story)
@@ -177,6 +237,10 @@ class WebFictionService @Inject constructor(
                     WebFictionSiteType.MCSTORIES -> downloadMcstoriesChapters(story)
                     else -> emptyList()
                 }
+            } catch (e: ContentPinRequiredException) {
+                throw e
+            } catch (e: DownloadBlockedException) {
+                throw e
             } catch (e: Exception) {
                 emptyList()
             }

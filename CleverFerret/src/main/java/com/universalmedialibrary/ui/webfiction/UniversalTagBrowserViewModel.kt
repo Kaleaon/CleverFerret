@@ -3,6 +3,8 @@ package com.universalmedialibrary.ui.webfiction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.settings.ParentalControlsSettings
+import com.universalmedialibrary.services.ContentPinRequiredException
+import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.*
 import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -249,9 +251,13 @@ class UniversalTagBrowserViewModel @Inject constructor(
                     successMessage = "Downloaded: ${completeStory.title}"
                 )
             } catch (e: Exception) {
+                val message = mapParentalControlsError(
+                    e,
+                    "Download failed: ${e.message}"
+                )
                 _uiState.value = _uiState.value.copy(
                     downloadingStoryId = null,
-                    error = "Download failed: ${e.message}"
+                    error = message
                 )
             }
         }
@@ -269,6 +275,13 @@ class UniversalTagBrowserViewModel @Inject constructor(
      */
     fun clearSuccess() {
         _uiState.value = _uiState.value.copy(successMessage = null)
+    }
+
+    private fun mapParentalControlsError(error: Throwable, fallback: String): String = when (error) {
+        is AdultSitesDisabledException -> "Adult story sources are disabled in Parental Controls."
+        is DownloadBlockedException -> error.message ?: "This story is blocked by parental controls."
+        is ContentPinRequiredException -> "Parental controls require a PIN to access this story."
+        else -> fallback
     }
 
     private fun WebFictionSiteType.isAdultSite(): Boolean = when (this) {

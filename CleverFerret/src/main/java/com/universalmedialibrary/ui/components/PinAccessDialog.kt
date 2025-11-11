@@ -278,9 +278,11 @@ class PinDialogState(
     suspend fun checkAccess(
         rating: String?,
         title: String,
+        mediaType: String? = null,
+        tags: Collection<String> = emptyList(),
         onAccessGranted: () -> Unit
     ): Boolean {
-        val requiresPin = parentalControlsSettings.requiresPinForAccess(rating)
+        val requiresPin = parentalControlsSettings.requiresPinForAccess(rating, mediaType, tags)
         
         if (requiresPin) {
             contentTitle = title
