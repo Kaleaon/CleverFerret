@@ -171,6 +171,66 @@ class PlexAuthService @Inject constructor(
     }
 
     /**
+     * Authenticate directly with Plex username/password credentials.
+     * Stores the returned token on success.
+     */
+    suspend fun authenticateWithCredentials(
+        username: String,
+        password: String
+    ): Result<PlexAuthResult> {
+        return try {
+            if (username.isBlank() || password.isBlank()) {
+                val message = "Username and password are required"
+                _authState.value = PlexAuthState.Error(message)
+                return Result.failure(IllegalArgumentException(message))
+            }
+
+            _authState.value = PlexAuthState.FetchingUserInfo
+
+            val response = authApi.signInWithCredentials(username, password)
+            if (!response.isSuccessful || response.body() == null) {
+                val error = when (response.code()) {
+                    401 -> "Invalid Plex credentials"
+                    else -> "Failed to sign in: ${response.code()} ${response.message()}"
+                }
+                Log.e(TAG, error)
+                _authState.value = PlexAuthState.Error(error)
+                return Result.failure(Exception(error))
+            }
+
+            val user = response.body()!!
+            val token = user.authToken
+            if (token.isNullOrEmpty()) {
+                val error = "Plex authentication succeeded but no token was returned"
+                Log.e(TAG, error)
+                _authState.value = PlexAuthState.Error(error)
+                return Result.failure(IllegalStateException(error))
+            }
+
+            tokenStorage.saveAuthToken(
+                token = token,
+                userId = user.id.toString(),
+                username = user.username
+            )
+
+            val authResult = PlexAuthResult(
+                token = token,
+                userId = user.id.toString(),
+                username = user.username,
+                email = user.email,
+                thumb = user.thumb
+            )
+
+            _authState.value = PlexAuthState.Authenticated(authResult)
+            Result.success(authResult)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error signing in with credentials", e)
+            _authState.value = PlexAuthState.Error(e.message ?: "Unknown error")
+            Result.failure(e)
+        }
+    }
+
+    /**
      * Discover available Plex servers for the authenticated user
      *
      * Uses GET /api/v2/resources to find all owned and shared servers
@@ -236,6 +296,15 @@ class PlexAuthService @Inject constructor(
     }
 
     /**
+     * Clear any error state and revert to idle
+     */
+    fun clearError() {
+        if (_authState.value is PlexAuthState.Error) {
+            _authState.value = PlexAuthState.Idle
+        }
+    }
+
+    /**
      * Check if user is currently authenticated
      */
     fun isAuthenticated(): Boolean {
@@ -247,6 +316,13 @@ class PlexAuthService @Inject constructor(
      */
     fun getStoredToken(): String? {
         return tokenStorage.getAuthToken()
+    }
+
+    /**
+     * Get stored username if available
+     */
+    fun getStoredUsername(): String? {
+        return tokenStorage.getUsername()
     }
 }
 
