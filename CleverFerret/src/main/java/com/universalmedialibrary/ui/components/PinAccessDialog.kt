@@ -27,7 +27,7 @@ fun PinAccessDialog(
     contentRating: String? = null,
     onDismiss: () -> Unit,
     onAccessGranted: () -> Unit,
-    parentalControlsSettings: ParentalControlsSettings
+    verifyPin: suspend (String) -> Boolean
 ) {
     var pin by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
@@ -138,9 +138,12 @@ fun PinAccessDialog(
                     if (pin.length == 4) {
                         isVerifying = true
                         scope.launch {
-                            val valid = parentalControlsSettings.verifyPin(pin)
+                            val valid = verifyPin(pin)
                             if (valid) {
                                 onAccessGranted()
+                                pin = ""
+                                error = null
+                                isVerifying = false
                             } else {
                                 error = "Incorrect PIN. Please try again."
                                 pin = ""
@@ -182,7 +185,7 @@ fun QuickPinDialog(
     message: String = "Enter your PIN to continue",
     onDismiss: () -> Unit,
     onPinVerified: () -> Unit,
-    parentalControlsSettings: ParentalControlsSettings
+    verifyPin: suspend (String) -> Boolean
 ) {
     var pin by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
@@ -221,7 +224,7 @@ fun QuickPinDialog(
                 onClick = {
                     if (pin.length == 4) {
                         scope.launch {
-                            val valid = parentalControlsSettings.verifyPin(pin)
+                            val valid = verifyPin(pin)
                             if (valid) {
                                 onPinVerified()
                             } else {

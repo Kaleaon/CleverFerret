@@ -24,7 +24,7 @@ class WebFictionViewModel @Inject constructor(
     private val webFictionService: WebFictionService,
     private val basicConverter: FanfictionToEpubConverterBasic,
     private val redditStoryManager: com.universalmedialibrary.services.webfiction.RedditStoryManager,
-    parentalControlsSettings: ParentalControlsSettings
+    private val parentalControlsSettings: ParentalControlsSettings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WebFictionUiState())
@@ -37,6 +37,7 @@ class WebFictionViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = false
             )
+    private var pendingPinAction: (() -> Unit)? = null
 
     init {
         loadStories()
@@ -149,15 +150,17 @@ class WebFictionViewModel @Inject constructor(
         }
     }
 
-    fun addStoryFromUrl(url: String) {
+    fun addStoryFromUrl(url: String, bypassPin: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            var resolvedStory: WebFictionStory? = null
 
             try {
-                val story = webFictionService.extractStoryFromUrl(url)
+                val story = webFictionService.extractStoryFromUrl(url, bypassPin)
                 if (story != null) {
+                    resolvedStory = story
                     // Download all chapters
-                    val chapters = webFictionService.downloadAllChapters(story)
+                    val chapters = webFictionService.downloadAllChapters(story, bypassPin)
                     val completeStory = story.copy(chapters = chapters)
 
                     // Add to local storage (in real app, save to database)
@@ -173,6 +176,20 @@ class WebFictionViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = resolvedStory?.title ?: url,
+                    fallbackRating = resolvedStory?.rating,
+                    mediaType = "STORY",
+                    tags = resolvedStory?.tags ?: emptyList()
+                ) {
+                    addStoryFromUrl(url, bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    return@launch
+                }
+
                 val message = mapParentalControlsError(
                     e,
                     "Error adding story: ${e.message}"
@@ -185,12 +202,12 @@ class WebFictionViewModel @Inject constructor(
         }
     }
 
-    fun checkForUpdates(story: WebFictionStory) {
+    fun checkForUpdates(story: WebFictionStory, bypassPin: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isCheckingUpdates = true)
 
             try {
-                val newChapters = webFictionService.checkForUpdates(story)
+                val newChapters = webFictionService.checkForUpdates(story, bypassPin)
                 if (newChapters.isNotEmpty()) {
                     val updatedStory = story.copy(chapters = story.chapters + newChapters)
                     val updatedStories = _uiState.value.stories.map {
@@ -207,6 +224,20 @@ class WebFictionViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
                 }
             } catch (e: Exception) {
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = story.title,
+                    fallbackRating = story.rating,
+                    mediaType = "STORY",
+                    tags = story.tags
+                ) {
+                    checkForUpdates(story, bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
+                    return@launch
+                }
+
                 val message = mapParentalControlsError(
                     e,
                     "Error checking for updates: ${e.message}"
@@ -219,16 +250,18 @@ class WebFictionViewModel @Inject constructor(
         }
     }
 
-    fun checkAllForUpdates() {
+    fun checkAllForUpdates(bypassPin: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isCheckingUpdates = true)
 
             val updatesFound = mutableListOf<WebFictionStory>()
             val updatedStories = mutableListOf<WebFictionStory>()
+            var currentStory: WebFictionStory? = null
 
             try {
                 _uiState.value.stories.forEach { story ->
-                    val newChapters = webFictionService.checkForUpdates(story)
+                    currentStory = story
+                    val newChapters = webFictionService.checkForUpdates(story, bypassPin)
                     if (newChapters.isNotEmpty()) {
                         val updatedStory = story.copy(chapters = story.chapters + newChapters)
                         updatedStories.add(updatedStory)
@@ -244,6 +277,20 @@ class WebFictionViewModel @Inject constructor(
                     isCheckingUpdates = false
                 )
             } catch (e: Exception) {
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = currentStory?.title ?: "Stories",
+                    fallbackRating = currentStory?.rating,
+                    mediaType = "STORY",
+                    tags = currentStory?.tags ?: emptyList()
+                ) {
+                    checkAllForUpdates(bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(isCheckingUpdates = false)
+                    return@launch
+                }
+
                 val message = mapParentalControlsError(
                     e,
                     "Error checking for updates: ${e.message}"
@@ -256,12 +303,12 @@ class WebFictionViewModel @Inject constructor(
         }
     }
 
-    fun downloadStory(story: WebFictionStory) {
+    fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             try {
-                val chapters = webFictionService.downloadAllChapters(story)
+                val chapters = webFictionService.downloadAllChapters(story, bypassPin)
                 val updatedStory = story.copy(chapters = chapters)
                 val updatedStories = _uiState.value.stories.map {
                     if (it.id == story.id) updatedStory else it
@@ -272,6 +319,20 @@ class WebFictionViewModel @Inject constructor(
                     isLoading = false
                 )
             } catch (e: Exception) {
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = story.title,
+                    fallbackRating = story.rating,
+                    mediaType = "STORY",
+                    tags = story.tags
+                ) {
+                    downloadStory(story, bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    return@launch
+                }
+
                 val message = mapParentalControlsError(
                     e,
                     "Error downloading story: ${e.message}"
@@ -284,7 +345,7 @@ class WebFictionViewModel @Inject constructor(
         }
     }
 
-    fun downloadAllUpdates() {
+    fun downloadAllUpdates(bypassPin: Boolean = false) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
 
@@ -294,7 +355,7 @@ class WebFictionViewModel @Inject constructor(
                 _uiState.value.storiesWithUpdates.forEach { storyWithUpdate ->
                     val index = updatedStories.indexOfFirst { it.id == storyWithUpdate.id }
                     if (index != -1) {
-                        val chapters = webFictionService.downloadAllChapters(storyWithUpdate)
+                        val chapters = webFictionService.downloadAllChapters(storyWithUpdate, bypassPin)
                         updatedStories[index] = storyWithUpdate.copy(chapters = chapters)
                     }
                 }
@@ -305,6 +366,20 @@ class WebFictionViewModel @Inject constructor(
                     isLoading = false
                 )
             } catch (e: Exception) {
+                val handled = handlePinException(
+                    throwable = e,
+                    fallbackTitle = "Story updates",
+                    fallbackRating = null,
+                    mediaType = "STORY",
+                    tags = emptyList()
+                ) {
+                    downloadAllUpdates(bypassPin = true)
+                }
+                if (handled) {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    return@launch
+                }
+
                 val message = mapParentalControlsError(
                     e,
                     "Error downloading updates: ${e.message}"
@@ -331,10 +406,47 @@ class WebFictionViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(error = null)
     }
 
+    fun dismissPinChallenge() {
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+    }
+
+    suspend fun verifyPin(pin: String): Boolean = parentalControlsSettings.verifyPin(pin)
+
+    fun onPinUnlockGranted() {
+        val action = pendingPinAction
+        pendingPinAction = null
+        _uiState.value = _uiState.value.copy(pendingPinChallenge = null)
+        action?.invoke()
+    }
+
+    private fun handlePinException(
+        throwable: Throwable,
+        fallbackTitle: String,
+        fallbackRating: String?,
+        mediaType: String?,
+        tags: List<String>,
+        retry: () -> Unit
+    ): Boolean {
+        val pinException = throwable as? ContentPinRequiredException ?: return false
+        val title = pinException.contentTitle ?: fallbackTitle
+        val rating = pinException.contentRating ?: fallbackRating
+        pendingPinAction = retry
+        _uiState.value = _uiState.value.copy(
+            pendingPinChallenge = PinChallenge(
+                title = title,
+                rating = rating,
+                mediaType = mediaType,
+                tags = tags
+            ),
+            error = null
+        )
+        return true
+    }
+
     private fun mapParentalControlsError(e: Exception, fallback: String): String = when (e) {
         is AdultSitesDisabledException -> "Adult story sources are disabled in Parental Controls."
         is DownloadBlockedException -> e.message ?: "This story is blocked by parental controls."
-        is ContentPinRequiredException -> "Parental controls require a PIN to access this story."
         else -> fallback
     }
 
@@ -423,5 +535,13 @@ data class WebFictionUiState(
     val isLoading: Boolean = false,
     val isCheckingUpdates: Boolean = false,
     val error: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    val pendingPinChallenge: PinChallenge? = null
+)
+
+data class PinChallenge(
+    val title: String,
+    val rating: String?,
+    val mediaType: String?,
+    val tags: List<String> = emptyList()
 )

@@ -293,6 +293,16 @@ fun WebFictionManagerScreen(
                 }
             )
         }
+
+        uiState.pendingPinChallenge?.let { challenge ->
+            PinAccessDialog(
+                contentTitle = challenge.title,
+                contentRating = challenge.rating,
+                onDismiss = { viewModel.dismissPinChallenge() },
+                onAccessGranted = { viewModel.onPinUnlockGranted() },
+                verifyPin = { pin -> viewModel.verifyPin(pin) }
+            )
+        }
     }
 }
 

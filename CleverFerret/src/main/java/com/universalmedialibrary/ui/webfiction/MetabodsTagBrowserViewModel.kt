@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.services.ContentPinRequiredException
 import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.AdultSitesDisabledException
+import com.universalmedialibrary.services.ContentPinRequiredException
+import com.universalmedialibrary.services.DownloadBlockedException
 import com.universalmedialibrary.services.webfiction.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +18,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MetabodsTagBrowserViewModel @Inject constructor(
     private val metabodsTagService: MetabodsTagService,
-    private val webFictionService: WebFictionService
+    private val webFictionService: WebFictionService,
+    private val parentalControlsSettings: ParentalControlsSettings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MetabodsTagBrowserUiState())
     val uiState: StateFlow<MetabodsTagBrowserUiState> = _uiState.asStateFlow()
+    private var pendingPinAction: (() -> Unit)? = null
 
     init {
         loadTags()

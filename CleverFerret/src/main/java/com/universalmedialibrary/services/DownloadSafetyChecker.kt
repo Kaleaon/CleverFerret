@@ -68,7 +68,7 @@ class DownloadSafetyChecker @Inject constructor(
             )
         }
 
-        if (parentalControlsSettings.requiresPinForAccess(
+        if (!metadata.bypassPinCheck && parentalControlsSettings.requiresPinForAccess(
                 state = state,
                 rating = metadata.rating,
                 mediaType = metadata.mediaType,
@@ -141,7 +141,8 @@ data class DownloadContentMetadata(
     val rating: String?,
     val title: String? = null,
     val mediaType: String? = null,
-    val tags: Collection<String> = emptyList()
+    val tags: Collection<String> = emptyList(),
+    val bypassPinCheck: Boolean = false
 )
 
 /**

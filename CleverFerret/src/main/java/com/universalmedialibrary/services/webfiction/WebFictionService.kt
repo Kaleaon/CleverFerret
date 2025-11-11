@@ -109,7 +109,10 @@ class WebFictionService @Inject constructor(
         }
     }
 
-    private suspend fun enforceStoryAccess(story: WebFictionStory) {
+    private suspend fun enforceStoryAccess(
+        story: WebFictionStory,
+        bypassPin: Boolean = false
+    ) {
         val state = parentalControlsSettings.currentState()
         if (!state.enabled) return
 
@@ -139,7 +142,7 @@ class WebFictionService @Inject constructor(
             )
         }
 
-        if (parentalControlsSettings.requiresPinForAccess(
+        if (!bypassPin && parentalControlsSettings.requiresPinForAccess(
                 state = state,
                 rating = story.rating,
                 mediaType = "STORY",
@@ -156,7 +159,10 @@ class WebFictionService @Inject constructor(
     /**
      * Extract story information from a URL
      */
-    suspend fun extractStoryFromUrl(url: String): WebFictionStory? {
+    suspend fun extractStoryFromUrl(
+        url: String,
+        bypassPin: Boolean = false
+    ): WebFictionStory? {
         return withContext(Dispatchers.IO) {
             try {
                 val site = detectSite(url)
@@ -177,7 +183,7 @@ class WebFictionService @Inject constructor(
                     WebFictionSiteType.MCSTORIES -> extractFromMcstories(url)
                     else -> extractGeneric(url)
                 }
-                story?.let { enforceStoryAccess(it) }
+                story?.let { enforceStoryAccess(it, bypassPin) }
                 story
             } catch (e: AdultSitesDisabledException) {
                 throw e
@@ -194,11 +200,14 @@ class WebFictionService @Inject constructor(
     /**
      * Check for new chapters in an existing story
      */
-    suspend fun checkForUpdates(story: WebFictionStory): List<WebFictionChapter> {
-        enforceStoryAccess(story)
+    suspend fun checkForUpdates(
+        story: WebFictionStory,
+        bypassPin: Boolean = false
+    ): List<WebFictionChapter> {
+        enforceStoryAccess(story, bypassPin)
         return withContext(Dispatchers.IO) {
             try {
-                val currentStory = extractStoryFromUrl(story.url) ?: return@withContext emptyList()
+                val currentStory = extractStoryFromUrl(story.url, bypassPin) ?: return@withContext emptyList()
 
                 // Find chapters that weren't in the original story
                 val existingChapterIds = story.chapters.map { it.id }.toSet()
@@ -216,13 +225,16 @@ class WebFictionService @Inject constructor(
     /**
      * Download all chapters of a story
      */
-    suspend fun downloadAllChapters(story: WebFictionStory): List<WebFictionChapter> {
+    suspend fun downloadAllChapters(
+        story: WebFictionStory,
+        bypassPin: Boolean = false
+    ): List<WebFictionChapter> {
         return withContext(Dispatchers.IO) {
             try {
                 // Parse site from URL if site string is not available
                 val siteType = detectSite(story.url)
                 ensureAdultAccess(siteType)
-                enforceStoryAccess(story)
+                enforceStoryAccess(story, bypassPin)
                 when (siteType) {
                     WebFictionSiteType.ARCHIVE_OF_OUR_OWN -> downloadAO3Chapters(story)
                     WebFictionSiteType.FANFICTION_NET -> downloadFFNChapters(story)
