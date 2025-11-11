@@ -60,6 +60,9 @@ fun WebFictionManagerScreen(
                         }
                     },
                     actions = {
+                        IconButton(onClick = { navController.navigate("story_manager") }) {
+                            Icon(Icons.Default.List, contentDescription = "Story Manager")
+                        }
                         IconButton(onClick = { showSiteInfoDialog = true }) {
                             Icon(Icons.Default.Info, contentDescription = "Supported Sites")
                         }

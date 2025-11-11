@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -148,6 +149,12 @@ object NavigationItems {
             route = "webfiction_manager",
             label = "Web Fiction",
             icon = { Icon(Icons.Filled.Language, contentDescription = "Web Fiction") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "story_manager",
+            label = "Story Manager",
+            icon = { Icon(Icons.Filled.List, contentDescription = "Story Manager") },
             showInBottomNav = false
         ),
         NavigationItem(
