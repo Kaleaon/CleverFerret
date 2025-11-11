@@ -130,7 +130,7 @@ fun FilteredMediaCard(
             if (contentStatus == ContentStatus.Blocked) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "This content is blocked by parental controls",
+                    text = "Parental controls are blocking this item. Update your parental control settings to allow access.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -145,7 +145,7 @@ fun FilteredMediaCard(
                 title = mediaItem.title ?: "Content",
                 rating = mediaItem.contentRating,
                 mediaType = mediaItem.mediaType,
-                description = "Enter your PIN to open this item."
+                description = "Enter your PIN to unlock this item."
             ),
             onDismiss = { showPinDialog = false },
             onAccessGranted = {
@@ -300,7 +300,7 @@ fun FilteredMediaGridItem(
                 title = mediaItem.title ?: "Content",
                 rating = mediaItem.contentRating,
                 mediaType = mediaItem.mediaType,
-                description = "Enter your PIN to open this item."
+                description = "Enter your PIN to unlock this item."
             ),
             onDismiss = { showPinDialog = false },
             onAccessGranted = {

@@ -124,7 +124,7 @@ class WebFictionService @Inject constructor(
             )
         ) {
             throw DownloadBlockedException(
-                message = "This story is hidden by parental controls.",
+                message = "Parental controls hide this story. Adjust your parental control settings to view or download it.",
                 contentRating = story.rating
             )
         }
@@ -137,7 +137,7 @@ class WebFictionService @Inject constructor(
             )
         ) {
             throw DownloadBlockedException(
-                message = "This story is blocked by parental controls.",
+                message = "Parental controls currently block downloading this story. Update your parental control settings to continue.",
                 contentRating = story.rating
             )
         }

@@ -449,7 +449,8 @@ class WebFictionViewModel @Inject constructor(
 
     private fun mapParentalControlsError(e: Exception, fallback: String): String = when (e) {
         is AdultSitesDisabledException -> "Adult story sources are disabled in Parental Controls."
-        is DownloadBlockedException -> e.message ?: "This story is blocked by parental controls."
+        is DownloadBlockedException -> e.message
+            ?: "Parental controls are blocking this story. Update your parental control settings to continue."
         else -> fallback
     }
 

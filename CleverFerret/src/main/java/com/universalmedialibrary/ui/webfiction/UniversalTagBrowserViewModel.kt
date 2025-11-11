@@ -334,7 +334,8 @@ class UniversalTagBrowserViewModel @Inject constructor(
 
     private fun mapParentalControlsError(error: Throwable, fallback: String): String = when (error) {
         is AdultSitesDisabledException -> "Adult story sources are disabled in Parental Controls."
-        is DownloadBlockedException -> error.message ?: "This story is blocked by parental controls."
+        is DownloadBlockedException -> error.message
+            ?: "Parental controls are blocking this story. Update your parental control settings to continue."
         is ContentPinRequiredException -> "Parental controls require a PIN to access this story."
         else -> fallback
     }

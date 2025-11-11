@@ -75,8 +75,9 @@ class FanfictionViewModelTest {
 
     @Test
     fun `downloadStory emits error when download is blocked`() = runTest {
+        val blockedMessage = "Parental controls are blocking this download. Update your parental control settings to continue."
         val exception = DownloadBlockedException(
-            message = "Blocked by parental controls",
+            message = blockedMessage,
             contentRating = "Explicit"
         )
         coEvery { fanfictionService.downloadStory(any(), any(), any()) } returns Result.failure(exception)
@@ -86,7 +87,7 @@ class FanfictionViewModelTest {
 
         val state = viewModel.downloadState.value
         assertThat(state).isInstanceOf(DownloadState.Error::class.java)
-        assertThat((state as DownloadState.Error).message).isEqualTo("Blocked by parental controls")
+        assertThat((state as DownloadState.Error).message).isEqualTo(blockedMessage)
         assertThat(viewModel.pendingPinChallenge.value).isNull()
     }
 

@@ -52,7 +52,7 @@ class DownloadSafetyChecker @Inject constructor(
             )
         ) {
             return DownloadSafetyResult.Blocked(
-                reason = "This content is hidden by parental controls and cannot be downloaded."
+                reason = "Parental controls hide this content. Review your parental control settings to make it visible or downloadable."
             )
         }
 
@@ -63,8 +63,9 @@ class DownloadSafetyChecker @Inject constructor(
                 tags = metadata.tags
             )
         ) {
+            val ratingDescription = metadata.rating?.let { "content rated $it" } ?: "this content"
             return DownloadSafetyResult.Blocked(
-                reason = "This content rating (${metadata.rating}) is blocked by parental controls."
+                reason = "Parental controls currently block $ratingDescription. Update your parental control settings to continue."
             )
         }
 

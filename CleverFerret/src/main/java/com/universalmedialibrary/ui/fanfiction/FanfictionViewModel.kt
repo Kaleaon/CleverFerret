@@ -76,7 +76,7 @@ class FanfictionViewModel @Inject constructor(
                     if (!handled) {
                         val message = when (error) {
                             is DownloadBlockedException -> error.message
-                                ?: "Download blocked by parental controls."
+                                ?: "Parental controls are blocking this download. Update your parental control settings to continue."
                             else -> error.message ?: "Download failed"
                         }
                         _downloadState.value = DownloadState.Error(message)
@@ -141,7 +141,7 @@ class FanfictionViewModel @Inject constructor(
                     if (!handled) {
                         val message = when (error) {
                             is DownloadBlockedException -> error.message
-                                ?: "Download blocked by parental controls."
+                                ?: "Parental controls are blocking this download. Update your parental control settings to continue."
                             else -> error.message ?: "Update failed"
                         }
                         _downloadState.value = DownloadState.Error(message)
