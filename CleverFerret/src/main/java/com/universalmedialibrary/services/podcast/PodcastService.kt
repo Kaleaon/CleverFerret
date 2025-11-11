@@ -1,11 +1,15 @@
 package com.universalmedialibrary.services.podcast
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.google.gson.annotations.SerializedName
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.services.integration.api.ApplePodcastsApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
@@ -16,9 +20,11 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
 import retrofit2.http.Query
+import kotlin.text.Charsets
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -126,20 +132,48 @@ data class PodcastSearchResponse(
     val count: Int
 )
 
-data class PodcastSearchFeed(
-    val id: Long,
-    val title: String,
-    val url: String,
-    val originalUrl: String,
-    val link: String,
-    val description: String,
-    val author: String,
-    val ownerName: String,
-    val image: String,
-    val artwork: String,
-    val episodeCount: Int,
-    val categories: Map<String, String>
-)
+    data class PodcastSearchFeed(
+        val id: Long,
+        val title: String,
+        val url: String,
+        val originalUrl: String,
+        val link: String,
+        val description: String,
+        val author: String,
+        val ownerName: String,
+        val image: String,
+        val artwork: String,
+        val episodeCount: Int,
+        val categories: Map<String, String>,
+        @SerializedName("podcastGuid")
+        val podcastGuid: String? = null,
+        val medium: String? = null,
+        @SerializedName("newestItemPubdate")
+        val newestItemPubdate: Long? = null,
+        val funding: List<PodcastFunding>? = null,
+        val value: PodcastValue? = null
+    )
+
+    data class PodcastFunding(
+        val url: String?,
+        val value: String?
+    )
+
+    data class PodcastValue(
+        val model: String?,
+        @SerializedName("destinations")
+        val destinations: List<PodcastValueDestination>? = null,
+        @SerializedName("destination")
+        val destinationLegacy: List<PodcastValueDestination>? = null
+    )
+
+    data class PodcastValueDestination(
+        val name: String?,
+        val type: String?,
+        val address: String?,
+        val split: Int?,
+        val fee: Boolean? = null
+    )
 
 data class EpisodeSearchResponse(
     val status: String,
@@ -253,6 +287,11 @@ data class GPodderSearchResult(
     val subscribersLastWeek: Int?
 )
 
+private data class PodcastIndexCredentials(
+    val apiKey: String,
+    val apiSecret: String
+)
+
 /**
  * Podcast service for RSS feed operations and API searches
  * Now works with PodcastRepository for persistence
@@ -266,13 +305,26 @@ class PodcastService @Inject constructor(
 
     private val httpClient = OkHttpClient.Builder().build()
 
-    private val podcastIndexApi: PodcastIndexApi by lazy {
-        Retrofit.Builder()
-            .baseUrl("https://api.podcastindex.org/api/1.0/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(httpClient)
+    private val apiKeyPreferences: SharedPreferences by lazy {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
-            .create(PodcastIndexApi::class.java)
+
+        EncryptedSharedPreferences.create(
+            context,
+            "api_keys_encrypted",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+    private val userAgent: String by lazy {
+        "CleverFerret/${BuildConfig.VERSION_NAME} (PodcastService)"
+    }
+
+    private val podcastIndexApi: PodcastIndexApi by lazy {
+        buildPodcastIndexApi(null)
     }
 
     private val listenNotesApi: ListenNotesApi by lazy {
@@ -320,11 +372,17 @@ class PodcastService @Inject constructor(
         apiKeys: Map<String, String> = emptyMap()
     ): List<PodcastSearchResult> {
         return withContext(Dispatchers.IO) {
+            val resolvedApiKeys = if (apiKeys.isEmpty()) {
+                loadStoredPodcastApiKeys()
+            } else {
+                apiKeys
+            }
+            val podcastIndexCredentials = parsePodcastIndexCredentials(resolvedApiKeys)
             val allResults = mutableListOf<PodcastSearchResult>()
 
             // 1. PodcastIndex.org (free, no key required)
             try {
-                val podcastIndexResults = searchPodcastIndex(query)
+                val podcastIndexResults = searchPodcastIndex(query, podcastIndexCredentials)
                 allResults.addAll(podcastIndexResults)
             } catch (e: Exception) {
                 // Continue with other sources
@@ -340,7 +398,7 @@ class PodcastService @Inject constructor(
 
             // 3. Listen Notes (requires API key, most comprehensive)
             try {
-                apiKeys["listen_notes"]?.let { key ->
+                resolvedApiKeys["listen_notes"]?.let { key ->
                     val listenNotesResults = searchListenNotes(query, key)
                     allResults.addAll(listenNotesResults)
                 }
@@ -350,7 +408,7 @@ class PodcastService @Inject constructor(
 
             // 4. Spotify (requires OAuth token)
             try {
-                apiKeys["spotify_token"]?.let { token ->
+                resolvedApiKeys["spotify_token"]?.let { token ->
                     val spotifyResults = searchSpotifyPodcasts(query, token)
                     allResults.addAll(spotifyResults)
                 }
@@ -360,7 +418,7 @@ class PodcastService @Inject constructor(
 
             // 5. Taddy (requires API key, has webhooks)
             try {
-                apiKeys["taddy"]?.let { key ->
+                resolvedApiKeys["taddy"]?.let { key ->
                     val taddyResults = searchTaddyPodcasts(query, key)
                     allResults.addAll(taddyResults)
                 }
@@ -381,9 +439,123 @@ class PodcastService @Inject constructor(
         }
     }
 
-    private suspend fun searchPodcastIndex(query: String): List<PodcastSearchResult> {
-        val response = podcastIndexApi.searchPodcasts(query)
+    private fun loadStoredPodcastApiKeys(): Map<String, String> {
+        val keys = mutableMapOf<String, String>()
+        listOf(
+            "podcast_index",
+            "podcast_index_key",
+            "podcast_index_secret",
+            "listen_notes",
+            "spotify_token",
+            "taddy"
+        ).forEach { key ->
+            getStoredApiKey(key)?.let { keys[key] = it }
+        }
+        return keys
+    }
+
+    private fun getStoredApiKey(key: String): String? =
+        apiKeyPreferences.getString(key, null)?.takeIf { it.isNotBlank() }
+
+    private fun parsePodcastIndexCredentials(apiKeys: Map<String, String>): PodcastIndexCredentials? {
+        val combined = parsePodcastIndexCredentialsString(apiKeys["podcast_index"])
+        val key = apiKeys["podcast_index_key"] ?: combined?.apiKey
+        val secret = apiKeys["podcast_index_secret"] ?: combined?.apiSecret
+
+        return if (!key.isNullOrBlank() && !secret.isNullOrBlank()) {
+            PodcastIndexCredentials(key.trim(), secret.trim())
+        } else {
+            null
+        }
+    }
+
+    private fun parsePodcastIndexCredentialsString(raw: String?): PodcastIndexCredentials? {
+        if (raw.isNullOrBlank()) return null
+        val tokens = raw.split(':', '|', ';', ',', '\n', '\r', '\t', ' ')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+        return if (tokens.size >= 2) {
+            PodcastIndexCredentials(tokens[0], tokens[1])
+        } else {
+            null
+        }
+    }
+
+    private fun buildPodcastIndexApi(credentials: PodcastIndexCredentials?): PodcastIndexApi {
+        val client = httpClient.newBuilder()
+            .addInterceptor { chain ->
+                val requestBuilder = chain.request().newBuilder()
+                    .addHeader("User-Agent", userAgent)
+                    .addHeader("Accept", "application/json")
+
+                credentials?.let {
+                    val epochSeconds = (System.currentTimeMillis() / 1000L).toString()
+                    val signature = createPodcastIndexAuthorizationSignature(it, epochSeconds)
+                    requestBuilder
+                        .addHeader("X-Auth-Key", it.apiKey)
+                        .addHeader("X-Auth-Date", epochSeconds)
+                        .addHeader("Authorization", signature)
+                }
+
+                chain.proceed(requestBuilder.build())
+            }
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl("https://api.podcastindex.org/api/1.0/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+            .create(PodcastIndexApi::class.java)
+    }
+
+    private fun createPodcastIndexAuthorizationSignature(
+        credentials: PodcastIndexCredentials,
+        epochSeconds: String
+    ): String {
+        return sha1(credentials.apiKey + credentials.apiSecret + epochSeconds)
+    }
+
+    private fun sha1(input: String): String {
+        val digest = MessageDigest.getInstance("SHA-1")
+        val hash = digest.digest(input.toByteArray(Charsets.UTF_8))
+        return hash.joinToString("") { "%02x".format(it) }
+    }
+
+    private suspend fun searchPodcastIndex(
+        query: String,
+        credentials: PodcastIndexCredentials?
+    ): List<PodcastSearchResult> {
+        val api = credentials?.let { buildPodcastIndexApi(it) } ?: podcastIndexApi
+        val response = api.searchPodcasts(query)
         return response.feeds.map { feed ->
+            val newestEpisodeDate = feed.newestItemPubdate?.let { it * 1000 }
+            val funding = feed.funding.orEmpty().mapNotNull { fundingItem ->
+                val url = fundingItem.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                PodcastFundingInfo(
+                    url = url,
+                    message = fundingItem.value
+                )
+            }
+            val destinations = feed.value?.destinations ?: feed.value?.destinationLegacy ?: emptyList()
+            val valueInfo = feed.value?.let { value ->
+                if (destinations.isEmpty()) {
+                    null
+                } else {
+                    PodcastValueInfo(
+                        model = value.model,
+                        destinations = destinations.map { destination ->
+                            PodcastValueDestinationInfo(
+                                name = destination.name,
+                                type = destination.type,
+                                address = destination.address,
+                                split = destination.split,
+                                fee = destination.fee
+                            )
+                        }
+                    )
+                }
+            }
             PodcastSearchResult(
                 id = "pi_${feed.id}",
                 title = feed.title,
@@ -393,8 +565,12 @@ class PodcastService @Inject constructor(
                 imageUrl = feed.image.ifEmpty { feed.artwork },
                 episodeCount = feed.episodeCount,
                 category = feed.categories.values.firstOrNull(),
-                lastEpisodeDate = null, // Not available in API response
-                source = "podcast_index"
+                lastEpisodeDate = newestEpisodeDate,
+                source = "podcast_index",
+                guid = feed.podcastGuid,
+                funding = funding,
+                value = valueInfo,
+                medium = feed.medium
             )
         }
     }
