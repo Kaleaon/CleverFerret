@@ -3,12 +3,17 @@ package com.universalmedialibrary.services.search
 import android.content.Context
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.MetadataCommon
 import com.universalmedialibrary.data.local.entity.SearchHistory
 import com.universalmedialibrary.data.local.entity.SavedSearchEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,6 +39,11 @@ class EnhancedSearchService @Inject constructor(
     private val metadataDao = database.metadataDao()
     private val searchHistoryDao = database.searchHistoryDao()
     private val tagDao = database.unifiedTagDao()
+
+    private val json = Json {
+        encodeDefaults = false
+        ignoreUnknownKeys = true
+    }
 
     /**
      * Advanced search with multiple filters
@@ -63,9 +73,17 @@ class EnhancedSearchService @Inject constructor(
             emptyMap()
         }
 
+        val metadataByItem: Map<Long, MetadataCommon> = if (mediaItems.isNotEmpty()) {
+            metadataDao.getMetadataCommonBatch(mediaItems.map { it.itemId })
+                .associateBy { it.itemId }
+        } else {
+            emptyMap()
+        }
+
         // Apply filters
         val filtered = mediaItems.filter { item ->
-            matchesFilters(item, query.filters, requiredTags, tagsByItem)
+            val metadata = metadataByItem[item.itemId]
+            matchesFilters(item, metadata, query.filters, requiredTags, tagsByItem)
         }
 
         // Sort by relevance or specified sort
@@ -75,17 +93,22 @@ class EnhancedSearchService @Inject constructor(
             SortBy.DATE_ADDED -> filtered.sortedByDescending { it.dateAdded }
             SortBy.DATE_MODIFIED -> filtered.sortedByDescending { it.dateAdded } // Using dateAdded as fallback
             SortBy.FILE_SIZE -> filtered.sortedByDescending { it.fileSize }
-            SortBy.RATING -> filtered // TODO: Add rating field
+            SortBy.RATING -> filtered.sortedByDescending {
+                metadataByItem[it.itemId]?.let { metadata ->
+                    metadata.rating ?: metadata.communityRating ?: metadata.userRating ?: 0f
+                } ?: 0f
+            }
         }
 
         // Convert to search results with highlights
         results.addAll(sorted.map { item ->
+            val metadata = metadataByItem[item.itemId]
             SearchResult(
                 itemId = item.itemId,
                 title = item.fileName,
                 subtitle = extractSubtitle(item),
                 mediaType = item.mediaType,
-                thumbnailUrl = null,
+                thumbnailUrl = metadata?.coverImagePath,
                 relevanceScore = calculateRelevance(item, query.textQuery),
                 highlights = findHighlights(item, query.textQuery)
             )
@@ -93,7 +116,7 @@ class EnhancedSearchService @Inject constructor(
 
         // Save search to history
         if (query.textQuery.isNotEmpty()) {
-            saveSearchHistory(query.textQuery, results.size)
+            saveSearchHistory(query, results.size)
         }
 
         return results
@@ -183,10 +206,53 @@ class EnhancedSearchService @Inject constructor(
         searchHistoryDao.clearHistory()
     }
 
+    /**
+     * Retrieve recent search history items.
+     */
+    suspend fun getSearchHistory(limit: Int = 20): List<SearchHistory> {
+        return searchHistoryDao.getAllSearchHistory(limit)
+    }
+
+    /**
+     * Delete a specific history entry.
+     */
+    suspend fun deleteHistoryEntry(historyId: Long) {
+        searchHistoryDao.deleteSearch(historyId)
+    }
+
+    /**
+     * Restore search filters from a history entry.
+     */
+    fun restoreFilters(history: SearchHistory): SearchFilters? {
+        val decoded = decodeFilters(history.filterCriteria)
+        val mediaTypes = history.mediaTypes
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?: emptyList()
+
+        return when {
+            decoded != null && mediaTypes.isNotEmpty() -> decoded.copy(mediaTypes = mediaTypes)
+            decoded != null -> decoded
+            mediaTypes.isNotEmpty() -> SearchFilters(mediaTypes = mediaTypes)
+            else -> null
+        }
+    }
+
+    /**
+     * Restore sort option from a history entry.
+     */
+    fun restoreSort(history: SearchHistory): SortBy? {
+        return history.sortBy?.let { sort ->
+            runCatching { SortBy.valueOf(sort) }.getOrNull()
+        }
+    }
+
     // Helper methods
 
     private fun matchesFilters(
         item: MediaItem,
+        metadata: MetadataCommon?,
         filters: SearchFilters,
         requiredTags: Set<String>,
         tagsByItem: Map<Long, List<String>>
@@ -220,6 +286,14 @@ class EnhancedSearchService @Inject constructor(
         if (requiredTags.isNotEmpty()) {
             val itemTags = tagsByItem[item.itemId] ?: emptyList()
             if (!itemTags.containsAll(requiredTags)) {
+                return false
+            }
+        }
+
+        // Rating filter requires metadata
+        if (filters.minRating != null) {
+            val rating = metadata?.rating ?: metadata?.communityRating ?: metadata?.userRating
+            if (rating == null || rating < filters.minRating) {
                 return false
             }
         }
@@ -280,12 +354,29 @@ class EnhancedSearchService @Inject constructor(
         return highlights
     }
 
-    private suspend fun saveSearchHistory(query: String, resultCount: Int) {
+    private suspend fun saveSearchHistory(query: SearchQuery, resultCount: Int) {
         val searchHistory = SearchHistory(
-            query = query,
-            resultCount = resultCount
+            query = query.textQuery,
+            resultCount = resultCount,
+            mediaTypes = if (query.filters.mediaTypes.isNotEmpty()) {
+                query.filters.mediaTypes.joinToString(",")
+            } else {
+                null
+            },
+            sortBy = query.sortBy.name,
+            filterCriteria = encodeFilters(query.filters)
         )
         searchHistoryDao.insertSearch(searchHistory)
+    }
+
+    private fun encodeFilters(filters: SearchFilters): String? {
+        if (!filters.hasActiveFilters()) return null
+        return runCatching { json.encodeToString(filters) }.getOrNull()
+    }
+
+    private fun decodeFilters(data: String?): SearchFilters? {
+        if (data.isNullOrBlank()) return null
+        return runCatching { json.decodeFromString<SearchFilters>(data) }.getOrNull()
     }
 
     private fun calculateDateRanges(items: List<MediaItem>): Map<String, Int> {
@@ -326,6 +417,7 @@ data class SearchQuery(
 /**
  * Search filters
  */
+@Serializable
 data class SearchFilters(
     val mediaTypes: List<String> = emptyList(),
     val genres: List<String> = emptyList(),
