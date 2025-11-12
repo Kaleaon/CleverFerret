@@ -91,179 +91,158 @@ android {
 
 dependencies {
     // Core library desugaring (required for Readium and other libraries using Java 8+ APIs)
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-    
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     // Core Android
-    implementation("androidx.core:core-ktx:1.17.0")
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
-    implementation("androidx.activity:activity-compose:1.11.0")
-    
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
     // Compose BOM and core components
-    implementation(platform("androidx.compose:compose-bom:2025.10.01"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-    
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.9.5")
-    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
-    
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+
     // Hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.53")
-    ksp("com.google.dagger:hilt-compiler:2.53")
-    
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
     // ViewModel and LiveData
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
-    
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     // Room database
-    implementation("androidx.room:room-runtime:2.8.3")
-    implementation("androidx.room:room-ktx:2.8.3")
-    ksp("androidx.room:room-compiler:2.8.3")
-    
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     // DataStore for settings persistence
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
-    
-    // Basic networking
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:5.2.1")
-    
-    // Kotlinx Serialization for Retrofit
-    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-    implementation("com.squareup.okhttp3:okhttp:5.2.1")
-    
-    // Jellyfin SDK
-    implementation("org.jellyfin.sdk:jellyfin-core:1.8.1")
-    
-    // SMB/CIFS support for network drives
-    implementation("eu.agno3.jcifs:jcifs-ng:2.1.10")
-    
-    // Image loading
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    
-    // Drag and drop reorderable lists
-    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
-    
-    // Basic media
-    implementation("androidx.media:media:1.7.1")
-    implementation("androidx.media3:media3-exoplayer:1.8.0")
-    implementation("androidx.media3:media3-ui:1.8.0")
-    implementation("androidx.media3:media3-session:1.8.0") // Required for MediaSessionService
-    implementation("androidx.media3:media3-exoplayer-midi:1.8.0") // MIDI playback support
-    
-    // File handling
-    implementation("androidx.documentfile:documentfile:1.1.0")
-    
-    // Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    
-    // Glance for widgets
-    implementation("androidx.glance:glance-appwidget:1.1.1")
-    implementation("androidx.glance:glance-material3:1.1.1")
-    
-    // Archives: RAR (CBR) support for comic reader
-    implementation("com.github.junrar:junrar:7.5.7")
-    
-    // Archives: CB7 (7-Zip) and CBT (TAR) support using Apache Commons Compress
-    implementation("org.apache.commons:commons-compress:1.27.1")
-    implementation("org.tukaani:xz:1.10") // Required for 7z support
-    
-    // HTML parsing for web scraping
-    implementation("org.jsoup:jsoup:1.21.2")
-    
-    // CSV parsing for Goodreads import/export
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.10.0")
-    
-    // Security for encrypted token storage
-    implementation("androidx.security:security-crypto:1.1.0")
-    
-    // Biometric authentication
-    implementation("androidx.biometric:biometric:1.4.0-alpha04")
-    
-    // WorkManager for background tasks
-    implementation("androidx.work:work-runtime-ktx:2.11.0")
-    
-    // Crash handler for better error reporting
-    implementation("cat.ereza:customactivityoncrash:2.4.0")
-    
-    // Swipe actions for library items (Phase 2)
-    implementation("me.saket.swipe:swipe:1.3.0")
-    
-    // TapTarget tutorial overlays (Phase 3)
-    implementation("com.pierfrancescosoffritti.taptargetcompose:core:1.2.1")
-    
-    // OSS License attribution (Phase 2)
-    implementation("com.mikepenz:aboutlibraries-core:12.2.4")
-    implementation("com.mikepenz:aboutlibraries-compose-m3:12.2.4")
-    
-    // Embedded HTTP server for OPDS
-    implementation("org.nanohttpd:nanohttpd:2.3.1")
-    
-    // Google Cast SDK for Chromecast
-    implementation("com.google.android.gms:play-services-cast-framework:22.2.0")
-    implementation("androidx.media3:media3-cast:1.8.0")
-    
-    // ZXing barcode scanner for ISBN scanning
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-    implementation("com.google.zxing:core:3.5.3")
-    
-    // MPAndroidChart - Beautiful charts with animations for reading statistics
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    
-    // Gemini AI for content analysis and translation
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-    
-    // FFmpegMediaMetadataRetriever - Fast, comprehensive metadata extraction for all media types
-    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.19")
-    implementation("com.github.wseemann:FFmpegMediaMetadataRetriever-native:1.0.19")
-    
-    // ML Kit for on-device text recognition (OCR)
-    implementation("com.google.mlkit:text-recognition:16.0.1") // Latin script
-    implementation("com.google.mlkit:text-recognition-chinese:16.0.1") // Chinese
-    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1") // Devanagari
-    implementation("com.google.mlkit:text-recognition-japanese:16.0.1") // Japanese
-    implementation("com.google.mlkit:text-recognition-korean:16.0.1") // Korean
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1")
-    
-    // Media metadata extraction libraries
+    implementation(libs.androidx.datastore.preferences)
+
+    // Networking & serialization
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.retrofit.serialization.converter)
+    implementation(libs.okhttp)
+
+    // Media server integrations & network storage
+    implementation(libs.jellyfin.core)
+    implementation(libs.jcifs.ng)
+
+    // Image loading & UI utilities
+    implementation(libs.coil.compose)
+    implementation(libs.compose.reorderable)
+
+    // Media playback
+    implementation(libs.androidx.media)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.exoplayer.midi)
+
+    // File handling & serialization
+    implementation(libs.androidx.documentfile)
+    implementation(libs.kotlinx.serialization.json)
+
+    // Widgets
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.glance.material3)
+
+    // Archive formats
+    implementation(libs.junrar)
+    implementation(libs.commons.compress)
+    implementation(libs.xz)
+
+    // Parsing & data utilities
+    implementation(libs.jsoup)
+    implementation(libs.kotlin.csv)
+
+    // Security & authentication
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.biometric)
+
+    // Background work
+    implementation(libs.androidx.work.runtime.ktx)
+
+    // User experience helpers
+    implementation(libs.customactivityoncrash)
+    implementation(libs.swipe)
+    implementation(libs.taptargetcompose)
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.m3)
+
+    // Embedded HTTP server
+    implementation(libs.nanohttpd)
+
+    // Google Cast SDK
+    implementation(libs.google.cast.framework)
+    implementation(libs.androidx.media3.cast)
+
+    // Barcode scanning
+    implementation(libs.journeyapps.zxing.android.embedded)
+    implementation(libs.google.zxing.core)
+
+    // Charts
+    implementation(libs.mpandroidchart)
+
+    // Generative AI
+    implementation(libs.gemini.ai)
+
+    // Media metadata extraction
+    implementation(libs.ffmpegmediametadataretriever.core)
+    implementation(libs.ffmpegmediametadataretriever.native)
+
+    // On-device OCR
+    implementation(libs.mlkit.text.recognition) // Latin script
+    implementation(libs.mlkit.text.recognition.chinese) // Chinese
+    implementation(libs.mlkit.text.recognition.devanagari) // Devanagari
+    implementation(libs.mlkit.text.recognition.japanese) // Japanese
+    implementation(libs.mlkit.text.recognition.korean) // Korean
+    implementation(libs.kotlinx.coroutines.play.services)
+
     // Readium Kotlin Toolkit - Modern EPUB, PDF, Audiobook library
-    // Replaces old epublib with actively-maintained, feature-rich toolkit
-    val readiumVersion = "3.1.2"
-    implementation("org.readium.kotlin-toolkit:readium-shared:$readiumVersion")
-    implementation("org.readium.kotlin-toolkit:readium-streamer:$readiumVersion")
-    implementation("org.readium.kotlin-toolkit:readium-navigator:$readiumVersion")
-    implementation("org.readium.kotlin-toolkit:readium-opds:$readiumVersion") // OPDS catalog support
-    
+    implementation(libs.readium.shared)
+    implementation(libs.readium.streamer)
+    implementation(libs.readium.navigator)
+    implementation(libs.readium.opds)
+
     // MIDI support - ktmidi for Kotlin MIDI 1.0/2.0 support
-    implementation("dev.atsushieno:ktmidi-android:0.11.1")
-    
+    implementation(libs.ktmidi.android)
+
     // Testing
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.mockito:mockito-core:5.14.2")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
-    testImplementation("androidx.test:core:1.7.0")
-    testImplementation("androidx.test:core-ktx:1.7.0")
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation("androidx.test.ext:junit:1.3.0")
-    testImplementation("androidx.test.ext:junit-ktx:1.3.0")
-    testImplementation("com.google.truth:truth:1.4.4")
-    testImplementation("io.mockk:mockk:1.13.13")
-    testImplementation("io.mockk:mockk-android:1.13.13")
-    testImplementation("org.robolectric:robolectric:4.14.1")
-    androidTestImplementation("androidx.test.ext:junit:1.3.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.10.01"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    androidTestImplementation("org.mockito:mockito-android:5.14.2")
-    androidTestImplementation("io.mockk:mockk-android:1.13.13")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.core.ktx)
+    testImplementation(libs.arch.core.testing)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(libs.androidx.test.ext.junit.ktx)
+    testImplementation(libs.google.truth)
+    testImplementation(libs.mockk)
+    testImplementation(libs.mockk.android)
+    testImplementation(libs.robolectric)
+
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.mockk.android)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
 // Apply publishing configuration for GitHub Packages

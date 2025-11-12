@@ -64,8 +64,7 @@ import kotlin.math.abs
  * - Playback speed control
  * - Chapter navigation
  */
-@OptIn(ExperimentalMaterial3Api::class)
-@androidx.media3.common.util.UnstableApi
+@OptIn(ExperimentalMaterial3Api::class, UnstableApi::class)
 @Composable
 fun AdvancedVideoPlayerScreen(
     videoUri: Uri,

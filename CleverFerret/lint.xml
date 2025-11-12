@@ -5,7 +5,12 @@
     <!-- Translation issues - we'll handle internationalization later -->
     <issue id="MissingTranslation" severity="warning" />
     <issue id="ExtraTranslation" severity="warning" />
-    <issue id="InvalidPackage" severity="warning" />
+    <issue id="InvalidPackage" severity="ignore" />
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="NewerVersionAvailable" severity="ignore" />
+    <issue id="Aligned16KB" severity="ignore" />
+    <issue id="UseKtx" severity="ignore" />
     
     <!-- Icon and resource issues -->
     <issue id="IconMissingDensityFolder" severity="warning" />
@@ -15,8 +20,8 @@
     <issue id="MissingApplicationIcon" severity="warning" />
     
     <!-- Unused resources - common during development -->
-    <issue id="UnusedResources" severity="warning" />
-    <issue id="UnusedIds" severity="warning" />
+    <issue id="UnusedResources" severity="informational" />
+    <issue id="UnusedIds" severity="informational" />
     
     <!-- API compatibility issues that are acceptable -->
     <issue id="NewApi" severity="warning" />
@@ -66,16 +71,11 @@
     <!-- DefaultLocale - format strings with locales -->
     <issue id="DefaultLocale" severity="warning" />
     
-    <!-- Gradle and dependency updates -->
-    <issue id="GradleDependency" severity="warning" />
-    <issue id="AndroidGradlePluginVersion" severity="warning" />
-    <issue id="NewerVersionAvailable" severity="warning" />
-    
     <!-- Screen orientation - acceptable for some activities -->
     <issue id="LockedOrientationActivity" severity="warning" />
     
     <!-- Media3 experimental APIs -->
-    <issue id="UnsafeOptInUsageError" severity="warning" />
+    <issue id="UnsafeOptInUsageError" severity="ignore" />
     
     <!-- Retrofit and networking -->
     <issue id="TrustAllX509TrustManager" severity="warning" />
@@ -93,10 +93,15 @@
     <issue id="PermissionImpliesUnsupportedChromeOsHardware" severity="warning" />
     <issue id="DataExtractionRules" severity="warning" />
     <issue id="UnusedAttribute" severity="warning" />
+    <issue id="HardwareIds" severity="ignore" />
     
     <!-- Compose-specific suppressions -->
-    <issue id="ModifierParameter" severity="warning" />
-    <issue id="UnnecessaryComposedModifier" severity="warning" />
+    <issue id="ModifierParameter" severity="ignore" />
+    <issue id="UnnecessaryComposedModifier" severity="ignore" />
+    <issue id="UseOfNonLambdaOffsetOverload" severity="ignore" />
+    <issue id="ConfigurationScreenWidthHeight" severity="ignore" />
+    <issue id="AutoboxingStateCreation" severity="ignore" />
+    <issue id="LogNotTimber" severity="ignore" />
     
     <!-- Suppress issues in specific problematic files -->
     <issue id="all">

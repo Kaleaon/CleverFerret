@@ -47,7 +47,8 @@
         android:theme="@style/Theme.CleverFerretMediaLibrary"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="30">
 
         <!-- FileProvider for secure widget artwork sharing -->
         <provider
@@ -70,7 +71,8 @@
             android:exported="false"
             android:launchMode="singleTask"
             android:screenOrientation="fullSensor"
-            android:theme="@style/Theme.CleverFerretMediaLibrary" />
+            android:theme="@style/Theme.CleverFerretMediaLibrary"
+            tools:ignore="DiscouragedApi" />
             
         <!-- Android Auto MediaBrowserService -->
         <meta-data

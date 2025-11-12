@@ -25,6 +25,7 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.PercentFormatter
+import java.util.Locale
 
 /**
  * Reading Statistics Screen with MPAndroidChart
@@ -628,9 +629,10 @@ private fun ShelfStat(
 }
 
 private fun formatNumber(number: Int): String {
+    val locale = Locale.getDefault()
     return when {
-        number >= 1_000_000 -> String.format("%.1fM", number / 1_000_000.0)
-        number >= 1_000 -> String.format("%.1fK", number / 1_000.0)
+        number >= 1_000_000 -> String.format(locale, "%.1fM", number / 1_000_000.0)
+        number >= 1_000 -> String.format(locale, "%.1fK", number / 1_000.0)
         else -> number.toString()
     }
 }

@@ -3,6 +3,8 @@ package com.universalmedialibrary.services.barcode
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -167,10 +169,16 @@ class BookPurchaseLinksService @Inject constructor(
      * @param link The purchase link to open
      */
     fun openPurchaseLink(link: PurchaseLink) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link.url)).apply {
+        val uri = link.url.toUri()
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        context.startActivity(intent)
+        val packageManager = context.packageManager
+        if (intent.resolveActivity(packageManager) != null) {
+            context.startActivity(intent)
+        } else {
+            Log.w("BookPurchaseLinks", "No activity found to handle $uri")
+        }
     }
     
     /**

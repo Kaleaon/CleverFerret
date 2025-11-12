@@ -7,7 +7,6 @@
     android:padding="8dp">
 
     <ImageView
-        android:id="@+id/book_cover"
         android:layout_width="40dp"
         android:layout_height="60dp"
         android:scaleType="centerCrop"

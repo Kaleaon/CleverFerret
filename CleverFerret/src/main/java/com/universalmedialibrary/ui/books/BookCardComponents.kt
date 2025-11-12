@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import java.util.Locale
 
 /**
  * Book Card Components with Visual Distinction
@@ -200,7 +201,7 @@ fun EnhancedBookCard(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = String.format("%.1f", book.rating),
+                                    text = String.format(Locale.getDefault(), "%.1f", book.rating),
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }

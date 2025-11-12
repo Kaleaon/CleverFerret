@@ -74,6 +74,13 @@ class MidiPlaybackService @Inject constructor(
                                     updateState(duration = duration)
                                 }
                             }
+                            Player.STATE_BUFFERING -> {
+                                // No-op: retain previous state while buffering
+                            }
+                            Player.STATE_IDLE -> {
+                                updateState(isPlaying = false, isPaused = false)
+                                stopPositionUpdates()
+                            }
                         }
                     }
                     
