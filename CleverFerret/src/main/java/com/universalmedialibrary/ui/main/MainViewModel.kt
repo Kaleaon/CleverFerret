@@ -9,6 +9,7 @@ import com.universalmedialibrary.data.local.entity.Library
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.ui.home.SampleClassic
 import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
@@ -70,6 +71,14 @@ class MainViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = BottomGearPosition.RIGHT
         )
+
+    val miniPlayerBackgroundMode: StateFlow<MiniPlayerBackgroundMode> =
+        settingsRepository.miniPlayerBackgroundModeFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = MiniPlayerBackgroundMode.THEME
+            )
 
     fun addLibrary(name: String, type: String, path: String) {
         viewModelScope.launch {

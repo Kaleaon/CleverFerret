@@ -8,6 +8,8 @@ import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MusicRepository
+import com.universalmedialibrary.services.playlist.MusicPlaylistManager
+import com.universalmedialibrary.services.playlist.PlaylistOverview
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +23,8 @@ import javax.inject.Inject
 class MusicLibraryViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val musicRepository: MusicRepository,
-    private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService
+    private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
+    private val playlistManager: MusicPlaylistManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MusicLibraryUiState())
@@ -44,6 +47,14 @@ class MusicLibraryViewModel @Inject constructor(
                     )
                     applyFiltersAndSort()
                 }
+            }
+        }
+
+        viewModelScope.launch {
+            playlistManager.getPlaylistOverviews().collect { overviews ->
+                _uiState.value = _uiState.value.copy(
+                    playlists = overviews.map { it.toSummary() }
+                )
             }
         }
     }
@@ -408,6 +419,42 @@ class MusicLibraryViewModel @Inject constructor(
             }
         }
     }
+
+    fun createPlaylist(name: String, description: String? = null, isPublic: Boolean = false) {
+        viewModelScope.launch(Dispatchers.IO) {
+            playlistManager.createPlaylist(name = name, description = description, isPublic = isPublic)
+        }
+    }
+
+    fun renamePlaylist(playlistId: Long, newName: String, description: String? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            playlistManager.renamePlaylist(playlistId, newName, description)
+        }
+    }
+
+    fun deletePlaylist(playlistId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            playlistManager.deletePlaylist(playlistId)
+        }
+    }
+
+    fun playPlaylist(playlistId: Long, shuffle: Boolean = false) {
+        viewModelScope.launch(Dispatchers.IO) {
+            playlistManager.playPlaylist(playlistId, shuffle)
+        }
+    }
+
+    fun queuePlaylist(playlistId: Long, playNext: Boolean = false) {
+        viewModelScope.launch(Dispatchers.IO) {
+            playlistManager.addPlaylistToQueue(playlistId, playNext)
+        }
+    }
+
+    private fun PlaylistOverview.toSummary(): PlaylistSummary =
+        PlaylistSummary(
+            playlist = playlist,
+            trackCount = trackCount
+        )
 
     fun playAlbum(album: Album, startIndex: Int = 0) {
         viewModelScope.launch(Dispatchers.IO) {

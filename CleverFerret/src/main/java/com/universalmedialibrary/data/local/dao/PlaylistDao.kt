@@ -40,4 +40,12 @@ interface PlaylistDao {
 
     @Query("SELECT * FROM playlist_items WHERE playlistId = :playlistId ORDER BY position ASC")
     fun getPlaylistItemsFlow(playlistId: Long): Flow<List<PlaylistItem>>
+
+    @Query("SELECT playlistId, COUNT(*) AS itemCount FROM playlist_items GROUP BY playlistId")
+    fun getPlaylistItemCounts(): Flow<List<PlaylistItemCount>>
 }
+
+data class PlaylistItemCount(
+    val playlistId: Long,
+    val itemCount: Int
+)

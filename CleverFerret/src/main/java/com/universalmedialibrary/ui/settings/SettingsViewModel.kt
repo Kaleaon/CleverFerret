@@ -24,6 +24,7 @@ import com.universalmedialibrary.data.settings.GeneralSettings
 import com.universalmedialibrary.data.settings.AppTheme
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,15 +66,17 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.autoDownloadPodcastsFlow,
                 settingsRepository.wifiOnlyDownloadsFlow,
                 settingsRepository.notificationsEnabledFlow,
-                settingsRepository.bottomGearPositionFlow
-            ) { flows: Array<Any?> ->
+                settingsRepository.bottomGearPositionFlow,
+                settingsRepository.miniPlayerBackgroundModeFlow
+            ) { theme, darkMode, autoDownload, wifiOnly, notificationsEnabled, bottomGear, backgroundMode ->
                 SettingsUiState(
-                    selectedTheme = flows[0] as ThemePalette,
-                    darkMode = flows[1] as Boolean,
-                    autoDownloadPodcasts = flows[2] as Boolean,
-                    wifiOnlyDownloads = flows[3] as Boolean,
-                    notificationsEnabled = flows[4] as Boolean,
-                    bottomGearPosition = flows[5] as BottomGearPosition
+                    selectedTheme = theme,
+                    darkMode = darkMode,
+                    autoDownloadPodcasts = autoDownload,
+                    wifiOnlyDownloads = wifiOnly,
+                    notificationsEnabled = notificationsEnabled,
+                    bottomGearPosition = bottomGear,
+                    miniPlayerBackgroundMode = backgroundMode
                 )
             }.collect { newState ->
                 _uiState.value = newState
@@ -121,6 +124,12 @@ class SettingsViewModel @Inject constructor(
     fun setBottomGearPosition(position: BottomGearPosition) {
         viewModelScope.launch {
             settingsRepository.setBottomGearPosition(position)
+        }
+    }
+
+    fun setMiniPlayerBackgroundMode(mode: MiniPlayerBackgroundMode) {
+        viewModelScope.launch {
+            settingsRepository.setMiniPlayerBackgroundMode(mode)
         }
     }
 
@@ -310,5 +319,6 @@ data class SettingsUiState(
     val autoDownloadPodcasts: Boolean = false,
     val wifiOnlyDownloads: Boolean = true,
     val notificationsEnabled: Boolean = true,
-    val bottomGearPosition: BottomGearPosition = BottomGearPosition.RIGHT
+    val bottomGearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
+    val miniPlayerBackgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME
 )

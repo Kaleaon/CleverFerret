@@ -31,6 +31,7 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showThemePicker by remember { mutableStateOf(false) }
+    var showMiniPlayerBackgroundDialog by remember { mutableStateOf(false) }
 
     CleverFerretTheme(palette = uiState.selectedTheme, darkTheme = uiState.darkMode) {
         Scaffold(
@@ -401,6 +402,42 @@ fun SettingsScreen(
                     }
                 }
 
+                  item {
+                      MetallicCard(
+                          onClick = { showMiniPlayerBackgroundDialog = true }
+                      ) {
+                          Row(
+                              modifier = Modifier
+                                  .fillMaxWidth()
+                                  .padding(16.dp),
+                              horizontalArrangement = Arrangement.SpaceBetween,
+                              verticalAlignment = Alignment.CenterVertically
+                          ) {
+                              Column(modifier = Modifier.weight(1f)) {
+                                  Text(
+                                      text = "Mini Player Background",
+                                      style = MaterialTheme.typography.titleSmall,
+                                      fontWeight = FontWeight.Medium
+                                  )
+                                  Text(
+                                      text = uiState.miniPlayerBackgroundMode.displayName,
+                                      style = MaterialTheme.typography.bodySmall,
+                                      color = MaterialTheme.colorScheme.onSurfaceVariant
+                                  )
+                                  Text(
+                                      text = uiState.miniPlayerBackgroundMode.description,
+                                      style = MaterialTheme.typography.bodySmall,
+                                      color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                  )
+                              }
+                              Icon(
+                                  imageVector = Icons.Default.Palette,
+                                  contentDescription = "Mini Player Background"
+                              )
+                          }
+                      }
+                  }
+
                 item {
                     MetallicCard(
                         onClick = { navController.navigate("settings/lastfm") }
@@ -669,6 +706,17 @@ fun SettingsScreen(
                 }
             )
         }
+
+          if (showMiniPlayerBackgroundDialog) {
+              MiniPlayerBackgroundDialog(
+                  currentMode = uiState.miniPlayerBackgroundMode,
+                  onSelect = { mode ->
+                      viewModel.setMiniPlayerBackgroundMode(mode)
+                      showMiniPlayerBackgroundDialog = false
+                  },
+                  onDismiss = { showMiniPlayerBackgroundDialog = false }
+              )
+          }
     }
 }
 
@@ -695,6 +743,7 @@ private fun ThemePickerDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
+
         },
         text = {
             LazyColumn(
@@ -776,6 +825,75 @@ private fun ThemePickerDialog(
                                     )
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
+}
+
+@Composable
+private fun MiniPlayerBackgroundDialog(
+    currentMode: com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode,
+    onSelect: (com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Mini Player Background") },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode.values().forEach { mode ->
+                    val isSelected = mode == currentMode
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(MaterialTheme.shapes.medium)
+                            .clickable { onSelect(mode) },
+                        tonalElevation = if (isSelected) 2.dp else 0.dp,
+                        color = if (isSelected)
+                            MaterialTheme.colorScheme.primaryContainer
+                        else
+                            MaterialTheme.colorScheme.surfaceVariant
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = when (mode) {
+                                        com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode.THEME -> Icons.Default.ColorLens
+                                        com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode.ALBUM_ART_SLIVER -> Icons.Default.Image
+                                        com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode.VISUALIZER -> Icons.Default.GraphicEq
+                                    },
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = mode.displayName,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                )
+                            }
+                            Text(
+                                text = mode.description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }

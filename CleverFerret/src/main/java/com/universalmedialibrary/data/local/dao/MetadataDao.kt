@@ -28,6 +28,9 @@ interface MetadataDao {
     @Query("SELECT * FROM metadata_common WHERE itemId = :itemId")
     suspend fun getMetadataCommonByItemId(itemId: Long): MetadataCommon?
 
+    @Query("UPDATE metadata_common SET isFavorite = :isFavorite WHERE itemId = :itemId")
+    suspend fun setFavorite(itemId: Long, isFavorite: Boolean)
+
     @Query("SELECT * FROM metadata_book WHERE itemId = :itemId")
     suspend fun getMetadataBookByItemId(itemId: Long): MetadataBook?
 

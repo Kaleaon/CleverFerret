@@ -196,16 +196,19 @@ class BookshelfViewModel @Inject constructor(
     fun toggleFavorite(book: BookDetails) {
         viewModelScope.launch {
             try {
-                // Update the metadata with toggled favorite status
-                val updatedMetadata = book.metadata.copy(
-                    isFavorite = !book.metadata.isFavorite
-                )
-                metadataDao.updateMetadata(metadataCommon = updatedMetadata)
+                val newFavorite = !book.metadata.isFavorite
+
+                val updatedMetadata = book.metadata.copy(isFavorite = newFavorite)
+                metadataDao.setFavorite(book.mediaItem.itemId, newFavorite)
+                mediaItemDao.setFavorite(book.mediaItem.itemId, newFavorite)
 
                 // Update local state immediately for better UX
                 val updatedBooks = _allBooks.value.map { existingBook ->
                     if (existingBook.metadata.itemId == book.metadata.itemId) {
-                        existingBook.copy(metadata = updatedMetadata)
+                        existingBook.copy(
+                            metadata = updatedMetadata,
+                            mediaItem = existingBook.mediaItem.copy(isFavorite = newFavorite)
+                        )
                     } else {
                         existingBook
                     }

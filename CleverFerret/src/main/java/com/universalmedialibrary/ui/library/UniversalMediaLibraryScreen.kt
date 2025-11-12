@@ -12,10 +12,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -219,6 +221,9 @@ fun UniversalMediaLibraryScreen(
                         else ->
                             navController.navigate("documentviewer/${item.itemId}")
                     }
+                },
+                onToggleFavorite = { item ->
+                    viewModel.toggleFavorite(item.itemId, item.isFavorite)
                 }
             )
         }
@@ -268,7 +273,8 @@ fun MediaTypeContent(
     mediaType: MediaType,
     items: List<MediaItemWithMetadata>,
     viewMode: ViewMode,
-    onItemClick: (MediaItemWithMetadata) -> Unit
+    onItemClick: (MediaItemWithMetadata) -> Unit,
+    onToggleFavorite: (MediaItemWithMetadata) -> Unit
 ) {
     when (viewMode) {
         ViewMode.GRID -> {
@@ -281,7 +287,8 @@ fun MediaTypeContent(
                 items(items) { item ->
                     MediaItemCard(
                         item = item,
-                        onClick = { onItemClick(item) }
+                        onClick = { onItemClick(item) },
+                        onToggleFavorite = { onToggleFavorite(item) }
                     )
                 }
             }
@@ -295,7 +302,8 @@ fun MediaTypeContent(
                 items(items) { item ->
                     MediaItemListItem(
                         item = item,
-                        onClick = { onItemClick(item) }
+                        onClick = { onItemClick(item) },
+                        onToggleFavorite = { onToggleFavorite(item) }
                     )
                 }
             }
@@ -311,6 +319,7 @@ fun MediaTypeContent(
                     MediaItemCard(
                         item = item,
                         onClick = { onItemClick(item) },
+                        onToggleFavorite = { onToggleFavorite(item) },
                         modifier = Modifier.width(150.dp)
                     )
                 }
@@ -407,6 +416,7 @@ data class MediaItemWithMetadata(
 fun MediaItemCard(
     item: MediaItemWithMetadata,
     onClick: () -> Unit,
+    onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -435,6 +445,24 @@ fun MediaItemCard(
                     modifier = Modifier.size(48.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                IconButton(
+                    onClick = onToggleFavorite,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .size(32.dp)
+                        .background(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                            CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = if (item.isFavorite) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = if (item.isFavorite) "Unfavorite" else "Favorite",
+                        tint = if (item.isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -464,6 +492,7 @@ fun MediaItemCard(
 fun MediaItemListItem(
     item: MediaItemWithMetadata,
     onClick: () -> Unit,
+    onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -518,12 +547,11 @@ fun MediaItemListItem(
             }
 
             // Favorite and Actions
-            if (item.isFavorite) {
+            IconButton(onClick = onToggleFavorite) {
                 Icon(
-                    Icons.Default.Favorite,
-                    contentDescription = "Favorite",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(20.dp)
+                    imageVector = if (item.isFavorite) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = if (item.isFavorite) "Unfavorite" else "Favorite",
+                    tint = if (item.isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
