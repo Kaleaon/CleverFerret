@@ -15,7 +15,8 @@ import javax.inject.Inject
 class RadioViewModel @Inject constructor(
     private val radioStationDao: RadioStationDao,
     private val musicPlayerService: com.universalmedialibrary.services.music.AdvancedMusicPlayerService,
-    private val radioIdentificationService: RadioIdentificationService
+    private val radioIdentificationService: RadioIdentificationService,
+    private val radioBrowserService: com.universalmedialibrary.services.radio.RadioBrowserService
 ) : ViewModel() {
     
     // Expose now playing info from identification service
@@ -259,12 +260,19 @@ class RadioViewModel @Inject constructor(
 
     private fun loadDefaultStations() {
         viewModelScope.launch {
-            // Check if we have any stations
-            val count = allStations.firstOrNull()?.size ?: 0
+            val existingStations = radioStationDao.getAllStations().first()
+            if (existingStations.isNotEmpty()) {
+                return@launch
+            }
 
-            if (count == 0) {
-                // Add some default popular stations
-                val defaultStations = listOf(
+            val seeded = runCatching {
+                radioBrowserService.fetchTopStations(limit = 60)
+            }.getOrElse { emptyList() }
+
+            val stationsToInsert = if (seeded.isNotEmpty()) {
+                seeded
+            } else {
+                listOf(
                     RadioStation(
                         name = "BBC Radio 1",
                         description = "The UK's biggest radio station",
@@ -321,9 +329,9 @@ class RadioViewModel @Inject constructor(
                         codec = "mp3"
                     )
                 )
-
-                radioStationDao.insertStations(defaultStations)
             }
+
+            radioStationDao.insertStations(stationsToInsert)
         }
     }
 }
