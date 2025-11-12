@@ -1,7 +1,6 @@
 package com.universalmedialibrary.services.media
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
 import com.universalmedialibrary.data.local.entity.MediaItem
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -11,25 +10,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem as Media3MediaItem
+import androidx.media3.common.MediaMetadata as Media3MediaMetadata
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.common.AudioAttributes
 
 /**
- * Universal media player service supporting multiple media types
+ * Universal media player service supporting multiple media types using Media3 ExoPlayer.
  *
  * Provides unified playback interface for:
  * - Audio files (MP3, FLAC, OGG, M4A, WAV)
  * - Video files (MP4, MKV, AVI, MOV, WMV)
- *
- * Currently uses MediaPlayer as primary engine
- * TODO: Add ExoPlayer support for better format compatibility and features:
- * Add: implementation "androidx.media3:media3-exoplayer:1.1.1"
- * Benefits: HLS/DASH streaming, subtitles, DRM, better codec support
  */
 @Singleton
 class UniversalMediaPlayerService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    private var mediaPlayer: MediaPlayer? = null
+    private var exoPlayer: ExoPlayer? = null
 
     private val _playbackState = MutableStateFlow(PlaybackState())
     val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
@@ -37,11 +38,8 @@ class UniversalMediaPlayerService @Inject constructor(
     private val _currentMedia = MutableStateFlow<MediaItem?>(null)
     val currentMedia: StateFlow<MediaItem?> = _currentMedia.asStateFlow()
 
-    /**
-     * Initialize player with media item
-     */
     fun prepareMedia(mediaItem: MediaItem): Boolean {
-        try {
+        return try {
             releaseCurrentPlayer()
 
             val file = File(mediaItem.filePath)
@@ -50,151 +48,166 @@ class UniversalMediaPlayerService @Inject constructor(
                 return false
             }
 
-            // Initialize MediaPlayer
-            if (initializeMediaPlayer(mediaItem)) {
-                _currentMedia.value = mediaItem
-                return true
-            }
+            val player = ensurePlayer()
 
-            updatePlaybackState(error = "Unable to play media: ${mediaItem.fileName}")
-            return false
+            val metadataBuilder = Media3MediaMetadata.Builder()
+                .setTitle(mediaItem.title)
+            mediaItem.author?.let { metadataBuilder.setArtist(it) }
 
-        } catch (e: Exception) {
-            updatePlaybackState(error = "Failed to prepare media: ${e.message}")
-            return false
-        }
-    }
+            val exoMediaItem = Media3MediaItem.Builder()
+                .setUri(Uri.fromFile(file))
+                .setMediaMetadata(metadataBuilder.build())
+                .build()
 
-    private fun initializeMediaPlayer(mediaItem: MediaItem): Boolean {
-        return try {
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(mediaItem.filePath)
-                prepare()
+            _currentMedia.value = mediaItem
+            updatePlaybackState(isLoading = true, error = null)
 
-                setOnPreparedListener {
-                    updatePlaybackState(isPlaying = false, isLoading = false)
-                }
-
-                setOnCompletionListener {
-                    updatePlaybackState(isPlaying = false)
-                }
-
-                setOnErrorListener { _, what, extra ->
-                    updatePlaybackState(error = "MediaPlayer error: $what, $extra")
-                    true
-                }
-            }
+            player.setMediaItem(exoMediaItem)
+            player.prepare()
             true
         } catch (e: Exception) {
-            mediaPlayer?.release()
-            mediaPlayer = null
+            updatePlaybackState(
+                isPlaying = false,
+                isLoading = false,
+                error = "Failed to prepare media: ${e.message}"
+            )
             false
         }
     }
 
-    /**
-     * Start playback
-     */
     fun play() {
+        val player = exoPlayer ?: ensurePlayer()
         try {
-            mediaPlayer?.start()
-            updatePlaybackState(isPlaying = true)
+            player.playWhenReady = true
+            player.play()
+            updatePlaybackState(isPlaying = true, error = null)
         } catch (e: Exception) {
-            updatePlaybackState(error = "Failed to start playback: ${e.message}")
+            updatePlaybackState(isPlaying = false, error = "Failed to start playback: ${e.message}")
         }
     }
 
-    /**
-     * Pause playback
-     */
     fun pause() {
+        val player = exoPlayer ?: return
         try {
-            mediaPlayer?.pause()
+            player.pause()
             updatePlaybackState(isPlaying = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Failed to pause playback: ${e.message}")
         }
     }
 
-    /**
-     * Stop playback
-     */
     fun stop() {
+        val player = exoPlayer ?: return
         try {
-            mediaPlayer?.stop()
-            updatePlaybackState(isPlaying = false)
+            player.stop()
+            updatePlaybackState(isPlaying = false, isLoading = false)
         } catch (e: Exception) {
             updatePlaybackState(error = "Failed to stop playback: ${e.message}")
         }
     }
 
-    /**
-     * Seek to position (in milliseconds)
-     */
     fun seekTo(positionMs: Long) {
+        val player = exoPlayer ?: return
         try {
-            mediaPlayer?.seekTo(positionMs.toInt())
+            player.seekTo(positionMs.coerceAtLeast(0L))
         } catch (e: Exception) {
             updatePlaybackState(error = "Failed to seek: ${e.message}")
         }
     }
 
-    /**
-     * Get current playback position
-     */
     fun getCurrentPosition(): Long {
+        val player = exoPlayer ?: return 0L
         return try {
-            mediaPlayer?.currentPosition?.toLong() ?: 0L
+            player.currentPosition.takeIf { it != C.TIME_UNSET } ?: 0L
         } catch (e: Exception) {
             0L
         }
     }
 
-    /**
-     * Get media duration
-     */
     fun getDuration(): Long {
+        val player = exoPlayer ?: return 0L
         return try {
-            mediaPlayer?.duration?.toLong() ?: 0L
+            player.duration.takeIf { it != C.TIME_UNSET } ?: 0L
         } catch (e: Exception) {
             0L
         }
     }
 
-    /**
-     * Release all resources
-     */
     fun release() {
         releaseCurrentPlayer()
         _currentMedia.value = null
-        updatePlaybackState()
+        updatePlaybackState(isPlaying = false, isLoading = false, error = null)
+    }
+
+    private fun ensurePlayer(): ExoPlayer {
+        val existing = exoPlayer
+        if (existing != null) {
+            return existing
+        }
+
+        val player = ExoPlayer.Builder(context)
+            .build()
+            .apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                        .setUsage(C.USAGE_MEDIA)
+                        .build(),
+                    true
+                )
+                setHandleAudioBecomingNoisy(true)
+                addListener(object : Player.Listener {
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        when (playbackState) {
+                            Player.STATE_BUFFERING -> updatePlaybackState(isLoading = true)
+                            Player.STATE_READY -> updatePlaybackState(isLoading = false, isPlaying = isPlaying)
+                            Player.STATE_ENDED -> updatePlaybackState(isPlaying = false, isLoading = false)
+                            Player.STATE_IDLE -> updatePlaybackState(isPlaying = false, isLoading = false)
+                        }
+                    }
+
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        updatePlaybackState(isPlaying = isPlaying)
+                    }
+
+                    override fun onPlayerError(error: PlaybackException) {
+                        updatePlaybackState(
+                            isPlaying = false,
+                            isLoading = false,
+                            error = error.localizedMessage
+                        )
+                    }
+                })
+            }
+
+        exoPlayer = player
+        return player
     }
 
     private fun releaseCurrentPlayer() {
         try {
-            mediaPlayer?.release()
-            mediaPlayer = null
-        } catch (e: Exception) {
+            exoPlayer?.release()
+        } catch (_: Exception) {
             // Ignore release errors
+        } finally {
+            exoPlayer = null
         }
     }
 
     private fun updatePlaybackState(
-        isPlaying: Boolean = false,
-        isLoading: Boolean = false,
-        error: String? = null
+        isPlaying: Boolean? = null,
+        isLoading: Boolean? = null,
+        error: String? = _playbackState.value.error
     ) {
-        _playbackState.value = PlaybackState(
-            isPlaying = isPlaying,
-            isLoading = isLoading,
+        val current = _playbackState.value
+        _playbackState.value = current.copy(
+            isPlaying = isPlaying ?: current.isPlaying,
+            isLoading = isLoading ?: current.isLoading,
             error = error
         )
     }
 }
 
-/**
- * Represents the current playback state
- */
 data class PlaybackState(
     val isPlaying: Boolean = false,
     val isLoading: Boolean = false,

@@ -1,32 +1,29 @@
 package com.universalmedialibrary.services.audio
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import androidx.core.app.NotificationCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.MediaSession
-import androidx.media3.ui.PlayerNotificationManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.universalmedialibrary.services.media.MediaNotificationService
+import com.universalmedialibrary.services.media.MediaSessionManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 @androidx.media3.common.util.UnstableApi
 class AudioPlaybackManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val mediaSessionManager: MediaSessionManager
 ) {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "cf_music_playback"
@@ -51,11 +48,15 @@ class AudioPlaybackManager @Inject constructor(
                         .build(),
                     true
                 )
+                mediaSessionManager.setPlayer(this, MediaNotificationService::class.java)
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         when (playbackState) {
                             Player.STATE_IDLE -> { /* No action needed */ }
-                            Player.STATE_READY -> updateState(isLoading = false, duration = duration)
+                            Player.STATE_READY -> {
+                                updateState(isLoading = false, duration = duration)
+                                MediaNotificationService.start(context)
+                            }
                             Player.STATE_BUFFERING -> updateState(isLoading = true)
                             Player.STATE_ENDED -> updateState(isPlaying = false)
                         }
@@ -86,48 +87,8 @@ class AudioPlaybackManager @Inject constructor(
             }
     }
 
-    val mediaSession: MediaSession by lazy {
-        MediaSession.Builder(context, exoPlayer)
-            .build()
-    }
-
-    private var playerNotificationManager: PlayerNotificationManager? = null
-
     init {
         ensureChannel()
-        setupNotification()
-    }
-
-    private fun setupNotification() {
-        playerNotificationManager = PlayerNotificationManager.Builder(
-            context,
-            NOTIFICATION_ID,
-            NOTIFICATION_CHANNEL_ID
-        ).setMediaDescriptionAdapter(object : PlayerNotificationManager.MediaDescriptionAdapter {
-            override fun getCurrentContentTitle(player: Player): CharSequence {
-                return state.value.title ?: "Unknown Track"
-            }
-            override fun createCurrentContentIntent(player: Player) = null
-            override fun getCurrentContentText(player: Player): CharSequence? {
-                return state.value.artist
-            }
-            override fun getCurrentLargeIcon(player: Player, callback: PlayerNotificationManager.BitmapCallback): android.graphics.Bitmap? {
-                return null
-            }
-        }).setChannelImportance(NotificationManager.IMPORTANCE_LOW)
-            .build().apply {
-                setUseNextAction(true)
-                setUsePreviousAction(true)
-                setUseFastForwardAction(false)
-                setUseRewindAction(false)
-                setSmallIcon(android.R.drawable.ic_media_play)
-                // Note: Media3 session token is not compatible with old PlayerNotificationManager
-                // TODO: Migrate to Media3's MediaSessionService:
-                // 1. Replace PlayerNotificationManager with MediaNotification.Provider
-                // 2. Extend MediaSessionService and implement onGetSession()
-                // 3. Use MediaSession.Builder(context, player) for better system integration
-                setPlayer(exoPlayer)
-            }
     }
 
     private fun ensureChannel() {
@@ -148,6 +109,7 @@ class AudioPlaybackManager @Inject constructor(
         exoPlayer.setMediaItem(item)
         exoPlayer.prepare()
         exoPlayer.playWhenReady = playWhenReady
+        MediaNotificationService.start(context)
         publishQueue()
     }
 
@@ -156,6 +118,7 @@ class AudioPlaybackManager @Inject constructor(
         queue.clear(); queue.addAll(items)
         exoPlayer.setMediaItems(items, startIndex, C.TIME_UNSET)
         exoPlayer.prepare(); exoPlayer.playWhenReady = playWhenReady
+        MediaNotificationService.start(context)
         publishQueue()
     }
 
@@ -204,7 +167,7 @@ class AudioPlaybackManager @Inject constructor(
         volume: Float? = null
     ) {
         val s = _state.value
-        _state.value = s.copy(
+        val newState = s.copy(
             isLoading = isLoading ?: s.isLoading,
             isPlaying = isPlaying ?: s.isPlaying,
             duration = duration ?: s.duration,
@@ -215,6 +178,16 @@ class AudioPlaybackManager @Inject constructor(
             repeatMode = repeatMode ?: s.repeatMode,
             volume = volume ?: s.volume
         )
+        _state.value = newState
+
+        if (title != null || artist != null || album != null || duration != null) {
+            mediaSessionManager.updateMetadata(
+                title = newState.title ?: "Unknown Track",
+                artist = newState.artist,
+                album = newState.album,
+                duration = newState.duration
+            )
+        }
     }
 
     /** Export current queue to an M3U playlist at the given destination Uri */

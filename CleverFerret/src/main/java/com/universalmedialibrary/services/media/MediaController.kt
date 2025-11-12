@@ -34,7 +34,6 @@ class MediaController @Inject constructor(
     val controllerState: StateFlow<MediaControllerState> = _controllerState.asStateFlow()
 
     private var activeServiceType: MediaServiceType = MediaServiceType.NONE
-    private var mediaNotificationService: MediaNotificationService? = null
 
     /**
      * Register a media service with simplified parameters (for AudiobookService compatibility)
@@ -92,7 +91,7 @@ class MediaController @Inject constructor(
         )
 
         // Start notification service
-        MediaNotificationService.start(context, player)
+        MediaNotificationService.start(context)
 
         // Update controller state
         activeServiceType = serviceType
@@ -124,15 +123,6 @@ class MediaController @Inject constructor(
             duration = duration
         )
 
-        // Update notification if service is running
-        mediaNotificationService?.updateNotification(
-            title = title,
-            artist = artist,
-            album = album,
-            artwork = artwork,
-            isPlaying = _controllerState.value.isPlaying
-        )
-
         updateControllerState(
             currentTrack = title,
             currentArtist = artist,
@@ -154,14 +144,6 @@ class MediaController @Inject constructor(
             duration = duration
         )
 
-        // Update notification with current playing state
-        val state = _controllerState.value
-        mediaNotificationService?.updateNotification(
-            title = state.currentTrack,
-            artist = state.currentArtist,
-            album = state.currentAlbum,
-            isPlaying = isPlaying
-        )
     }
 
     /**
