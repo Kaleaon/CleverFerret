@@ -69,6 +69,10 @@ class EnhancedSearchViewModel @Inject constructor(
             ) { query, filters, sort ->
                 Triple(query, filters, sort)
             }.collect { (query, filters, sort) ->
+                if (query != _searchQuery.value) {
+                    // Skip stale emissions (e.g., when restoring history before debounce completes).
+                    return@collect
+                }
                 if (query.isNotBlank() || filters.hasActiveFilters()) {
                     performSearch(query, filters, sort)
                 } else {
@@ -159,14 +163,14 @@ class EnhancedSearchViewModel @Inject constructor(
     }
 
     fun selectHistoryItem(historyItem: SearchHistory) {
-        val restoredFilters = searchService.restoreFilters(historyItem)
-        _filters.value = restoredFilters ?: SearchFilters()
+        _searchQuery.value = historyItem.query
 
         searchService.restoreSort(historyItem)?.let { restoredSort ->
             _sortBy.value = restoredSort
         }
 
-        _searchQuery.value = historyItem.query
+        val restoredFilters = searchService.restoreFilters(historyItem)
+        _filters.value = restoredFilters ?: SearchFilters()
     }
 
     fun deleteHistoryItem(historyItem: SearchHistory) {

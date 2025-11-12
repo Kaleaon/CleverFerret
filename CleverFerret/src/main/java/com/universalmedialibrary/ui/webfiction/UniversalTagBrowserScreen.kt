@@ -357,9 +357,12 @@ private fun TagBrowsingContent(
                     items = uiState.searchResult.stories,
                     key = { "${it.site}-${it.id}-${it.url}" }
                 ) { story ->
+                    val isDownloading = uiState.downloadingStoryId == story.id
+                    val isDownloadEnabled = uiState.downloadingStoryId == null || isDownloading
                     StoryResultCard(
                         story = story,
-                        isDownloading = uiState.downloadingStoryId == story.id,
+                        isDownloading = isDownloading,
+                        isDownloadEnabled = isDownloadEnabled,
                         onDownload = { viewModel.downloadStory(story) },
                         onOpenUrl = { uriHandler.openUri(story.url) }
                     )
@@ -555,6 +558,7 @@ private fun AdvancedFiltersCard(
 private fun StoryResultCard(
     story: WebFictionStory,
     isDownloading: Boolean,
+    isDownloadEnabled: Boolean,
     onDownload: () -> Unit,
     onOpenUrl: () -> Unit
 ) {
@@ -618,23 +622,32 @@ private fun StoryResultCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val downloadButtonEnabled = isDownloadEnabled && !isDownloading
                 Button(
                     onClick = onDownload,
-                    enabled = !isDownloading
+                    enabled = downloadButtonEnabled
                 ) {
-                    if (isDownloading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(18.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Downloading…")
-                    } else {
-                        Icon(Icons.Default.Download, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Download")
+                    when {
+                        isDownloading -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Downloading…")
+                        }
+                        !isDownloadEnabled -> {
+                            Icon(Icons.Default.Download, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Download (busy)")
+                        }
+                        else -> {
+                            Icon(Icons.Default.Download, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Download")
+                        }
                     }
                 }
                 OutlinedButton(onClick = onOpenUrl) {

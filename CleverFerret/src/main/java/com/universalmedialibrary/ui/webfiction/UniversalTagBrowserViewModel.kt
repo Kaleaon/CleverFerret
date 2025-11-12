@@ -238,8 +238,15 @@ class UniversalTagBrowserViewModel @Inject constructor(
      * Download a story
      */
     fun downloadStory(story: WebFictionStory, bypassPin: Boolean = false) {
-        if (_uiState.value.downloadingStoryId != null && _uiState.value.downloadingStoryId != story.id) {
-            // Ignore additional download requests while another story is downloading.
+        val activeDownloadId = _uiState.value.downloadingStoryId
+        if (activeDownloadId != null) {
+            if (activeDownloadId == story.id) {
+                // Already downloading this story; ignore duplicate tap.
+                return
+            }
+            _uiState.value = _uiState.value.copy(
+                error = "Another story is currently downloading. Please wait for it to finish."
+            )
             return
         }
         viewModelScope.launch {

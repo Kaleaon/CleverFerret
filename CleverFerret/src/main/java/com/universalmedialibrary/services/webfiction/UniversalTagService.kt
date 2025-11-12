@@ -25,6 +25,7 @@ class UniversalTagService @Inject constructor(
     companion object {
         private const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
         private const val REQUEST_TIMEOUT = 30000
+        private const val SCRIBBLE_HUB_PAGE_SIZE = 25
     }
 
     private val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
@@ -626,7 +627,8 @@ class UniversalTagService @Inject constructor(
             val query = criteria.tags.joinToString(" ")
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             val effectiveLimit = if (criteria.limit <= 0) 50 else criteria.limit
-            val page = ((criteria.offset / effectiveLimit) + 1).coerceAtLeast(1)
+            val pageSize = SCRIBBLE_HUB_PAGE_SIZE
+            val page = ((criteria.offset / pageSize) + 1).coerceAtLeast(1)
             val url = "https://www.scribblehub.com/?s=$encodedQuery&post_type=fictionposts&pg=$page"
 
             try {
@@ -695,9 +697,11 @@ class UniversalTagService @Inject constructor(
                     )
                 }
 
-                val limitedStories = mappedStories.take(effectiveLimit)
+                val offsetWithinPage = criteria.offset % pageSize
+                val pagedStories = mappedStories.drop(offsetWithinPage)
+                val limitedStories = pagedStories.take(effectiveLimit)
 
-                val hasMore = mappedStories.size > limitedStories.size
+                val hasMore = pagedStories.size > limitedStories.size || mappedStories.size == pageSize
                 val nextOffset = if (hasMore) criteria.offset + limitedStories.size else null
                 val totalCount = criteria.offset + limitedStories.size
 

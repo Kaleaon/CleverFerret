@@ -20,8 +20,8 @@
     <issue id="MissingApplicationIcon" severity="warning" />
     
     <!-- Unused resources - common during development -->
-    <issue id="UnusedResources" severity="ignore" />
-    <issue id="UnusedIds" severity="ignore" />
+    <issue id="UnusedResources" severity="informational" />
+    <issue id="UnusedIds" severity="informational" />
     
     <!-- API compatibility issues that are acceptable -->
     <issue id="NewApi" severity="warning" />

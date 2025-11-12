@@ -5,12 +5,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
-import android.os.Build
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -60,23 +60,11 @@ class AudioProfileService @Inject constructor(
     }
     
     private fun detectDevice(): AudioDeviceType {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return detectLegacyDevice()
-        }
-
         val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
         for (device in devices) {
             mapDeviceType(device)?.let { return it }
         }
-        return detectLegacyDevice()
-    }
-
-    private fun detectLegacyDevice(): AudioDeviceType {
-        return when {
-            audioManager.isBluetoothA2dpOn || audioManager.isBluetoothScoOn -> AudioDeviceType.BLUETOOTH_HEADPHONE
-            audioManager.isWiredHeadsetOn -> AudioDeviceType.WIRED_HEADPHONE
-            else -> AudioDeviceType.PHONE_SPEAKER
-        }
+        return AudioDeviceType.UNKNOWN
     }
 
     @SuppressLint("SwitchIntDef")
@@ -97,7 +85,7 @@ class AudioProfileService @Inject constructor(
             AudioDeviceInfo.TYPE_BLE_HEADSET,
             AudioDeviceInfo.TYPE_BLE_SPEAKER,
             AudioDeviceInfo.TYPE_BLE_BROADCAST -> {
-                val productName = device.productName?.toString()?.lowercase() ?: ""
+                val productName = device.productName?.toString()?.lowercase(Locale.ROOT) ?: ""
                 if (productName.contains("car") || productName.contains("auto")) {
                     AudioDeviceType.CAR_BLUETOOTH
                 } else {
