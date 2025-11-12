@@ -64,7 +64,8 @@ class MediaItemDetailViewModel @Inject constructor(
                     mediaItem = mediaItem,
                     metadata = metadata,
                     progress = progress,
-                    error = null
+                    error = null,
+                    isFavorite = mediaItem.isFavorite || metadata?.isFavorite == true
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -81,12 +82,14 @@ class MediaItemDetailViewModel @Inject constructor(
                 val currentItem = _uiState.value.mediaItem ?: return@launch
                 val newFavoriteState = !_uiState.value.isFavorite
                 
-                // Update in database
-                // TODO: Add isFavorite boolean field to MediaItem entity schema
-                // Then update: mediaItemDao.updateFavorite(currentItem.itemId, newFavoriteState)
-                // Or add: @Query("UPDATE media_items SET is_favorite = :isFavorite WHERE item_id = :itemId")
-                
-                _uiState.value = _uiState.value.copy(isFavorite = newFavoriteState)
+                mediaItemDao.setFavorite(currentItem.itemId, newFavoriteState)
+                metadataDao.setFavorite(currentItem.itemId, newFavoriteState)
+
+                _uiState.value = _uiState.value.copy(
+                    isFavorite = newFavoriteState,
+                    mediaItem = currentItem.copy(isFavorite = newFavoriteState),
+                    metadata = _uiState.value.metadata?.copy(isFavorite = newFavoriteState)
+                )
             } catch (e: Exception) {
                 // Handle error
             }

@@ -46,6 +46,9 @@ interface MediaItemDao {
     @Update
     suspend fun updateMediaItem(mediaItem: MediaItem)
 
+    @Query("UPDATE media_items SET isFavorite = :isFavorite WHERE itemId = :itemId")
+    suspend fun setFavorite(itemId: Long, isFavorite: Boolean)
+
     @Delete
     suspend fun deleteMediaItem(mediaItem: MediaItem)
 
@@ -57,6 +60,9 @@ interface MediaItemDao {
 
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountByLibrary(libraryId: Long): Int
+
+    @Query("SELECT * FROM media_items WHERE isFavorite = 1 ORDER BY dateAdded DESC")
+    fun getFavoriteMediaItems(): Flow<List<MediaItem>>
 
     @Query("SELECT COUNT(*) FROM media_items WHERE mediaType = :mediaType")
     suspend fun getItemCountByType(mediaType: String): Int

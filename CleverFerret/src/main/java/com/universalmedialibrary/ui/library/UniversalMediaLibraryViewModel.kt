@@ -79,7 +79,7 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                                     mediaType = parseMediaType(mediaItem.mediaType),
                                     author = extractAuthorFromFileName(mediaItem.fileName), // Author from metadata not yet implemented - requires BookMetadata table
                                     dateAdded = mediaItem.dateAdded,
-                                    isFavorite = false, // Favorite feature not yet implemented - requires isFavorite field in MediaItem entity
+                                    isFavorite = mediaItem.isFavorite || metadata?.isFavorite == true,
                                     progress = progressData?.percentage ?: 0f
                                 )
                             }
@@ -122,6 +122,24 @@ class UniversalMediaLibraryViewModel @Inject constructor(
 
     fun toggleFilters() {
         _showFilters.value = !_showFilters.value
+    }
+
+    fun toggleFavorite(itemId: Long, currentState: Boolean) {
+        viewModelScope.launch {
+            try {
+                mediaRepository.setFavorite(itemId, !currentState)
+                allMediaItems = allMediaItems.map { item ->
+                    if (item.itemId == itemId) {
+                        item.copy(isFavorite = !currentState)
+                    } else {
+                        item
+                    }
+                }
+                applyFiltersAndSort()
+            } catch (_: Exception) {
+                // TODO: surface error to UI (snackbar/toast)
+            }
+        }
     }
 
     /**

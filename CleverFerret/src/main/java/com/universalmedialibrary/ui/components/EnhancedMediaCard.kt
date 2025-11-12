@@ -35,7 +35,8 @@ fun EnhancedMediaCard(
     onLongClick: (() -> Unit)? = null,
     showProgress: Boolean = true,
     showQuickActions: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -121,6 +122,27 @@ fun EnhancedMediaCard(
                                 fontWeight = FontWeight.Bold
                             )
                         }
+                    }
+                }
+
+                if (onToggleFavorite != null) {
+                    val isFavorite = item.mediaItem.isFavorite || item.metadata?.isFavorite == true
+                    IconButton(
+                        onClick = onToggleFavorite,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(12.dp)
+                            .size(40.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                                CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
+                            tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }

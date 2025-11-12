@@ -30,6 +30,9 @@ class MediaRepository @Inject constructor(
     fun getMediaItemsByType(mediaType: String): Flow<List<MediaItem>> =
         mediaItemDao.getMediaItemsByType(mediaType)
 
+    fun getFavoriteMediaItems(): Flow<List<MediaItem>> =
+        mediaItemDao.getFavoriteMediaItems()
+
     suspend fun createMediaItem(mediaItem: MediaItem): Long =
         mediaItemDao.insertMediaItem(mediaItem)
 
@@ -54,6 +57,18 @@ class MediaRepository @Inject constructor(
 
     suspend fun searchByTitle(query: String, limit: Int = 50): List<MetadataCommon> =
         metadataDao.searchByTitle(query)
+
+    suspend fun setFavorite(itemId: Long, isFavorite: Boolean) {
+        mediaItemDao.setFavorite(itemId, isFavorite)
+        metadataDao.setFavorite(itemId, isFavorite)
+    }
+
+    suspend fun toggleFavorite(itemId: Long): Boolean {
+        val current = mediaItemDao.getMediaItemById(itemId)?.isFavorite ?: false
+        val newState = !current
+        setFavorite(itemId, newState)
+        return newState
+    }
 
     suspend fun createMediaItems(mediaItems: List<MediaItem>): List<Long> {
         mediaItemDao.insertMediaItems(mediaItems)
