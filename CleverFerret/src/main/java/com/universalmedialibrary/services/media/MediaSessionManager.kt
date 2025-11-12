@@ -1,10 +1,15 @@
 package com.universalmedialibrary.services.media
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.C
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.MainActivity
 
 /**
  * Centralized MediaSession manager for CleverFerret
@@ -31,6 +37,7 @@ import javax.inject.Singleton
  * - Lockscreen and notification controls
  */
 @Singleton
+@UnstableApi
 class MediaSessionManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
@@ -45,16 +52,19 @@ class MediaSessionManager @Inject constructor(
      * Initialize or update the MediaSession with a new player
      */
     fun setPlayer(player: Player, serviceClass: Class<out MediaSessionService>) {
-        // Release existing session if player changes
-        if (currentPlayer != player) {
+        if (currentPlayer !== player) {
             releaseSession()
-        }
-
-        currentPlayer = player
-
-        if (mediaSession == null) {
+            currentPlayer = player
             mediaSession = MediaSession.Builder(context, player)
+                .setSessionActivity(createSessionActivityIntent())
                 .build()
+        } else if (mediaSession == null) {
+            currentPlayer = player
+            mediaSession = MediaSession.Builder(context, player)
+                .setSessionActivity(createSessionActivityIntent())
+                .build()
+        } else {
+            mediaSession?.setSessionActivity(createSessionActivityIntent())
         }
 
         updateSessionState(isActive = true, serviceClass = serviceClass.simpleName)
@@ -93,11 +103,23 @@ class MediaSessionManager @Inject constructor(
         // When creating MediaItem: MediaItem.Builder().setMediaMetadata(metadata).build()
         // Duration is automatically extracted from the media source by ExoPlayer
 
-        val mediaItem = MediaItem.Builder()
-            .setMediaMetadata(metadataBuilder.build())
-            .build()
-
-        currentPlayer?.setMediaItem(mediaItem)
+        currentPlayer?.let { player ->
+            val metadata = metadataBuilder.build()
+            if (player.mediaItemCount == 0) {
+                val item = MediaItem.Builder()
+                    .setMediaMetadata(metadata)
+                    .build()
+                player.setMediaItem(item)
+            } else {
+                val index = player.currentMediaItemIndex.takeIf { it != C.INDEX_UNSET }?.coerceIn(0, player.mediaItemCount - 1)
+                    ?: 0
+                val existingItem = player.getMediaItemAt(index)
+                val updatedItem = existingItem.buildUpon()
+                    .setMediaMetadata(metadata)
+                    .build()
+                player.replaceMediaItem(index, updatedItem)
+            }
+        }
 
         updateSessionState(
             currentTitle = title,
@@ -125,6 +147,24 @@ class MediaSessionManager @Inject constructor(
         mediaSession = null
         currentPlayer = null
         updateSessionState(isActive = false)
+    }
+
+    private fun createSessionActivityIntent(): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            action = Intent.ACTION_VIEW
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+        return PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            flags
+        )
     }
 
     private fun updateSessionState(

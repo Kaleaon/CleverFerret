@@ -1,6 +1,5 @@
 package com.universalmedialibrary.services.auto
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -10,6 +9,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.net.toUri
 import androidx.media.MediaBrowserServiceCompat
+import com.universalmedialibrary.R
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.services.exoplayer.ExoPlayerService
@@ -18,6 +18,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 /**
@@ -165,37 +167,50 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
     }
 
     private suspend fun getMusicItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.searchMediaItems("AUDIO", limit = 100)
+        val items = withContext(Dispatchers.IO) {
+            mediaItemDao.searchMediaItems("AUDIO", limit = 100)
+        }
         return items.filter { it.mediaType == "AUDIO" || it.mediaType == "MUSIC_TRACK" }
             .map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getAudiobookItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.searchMediaItems("AUDIOBOOK", limit = 100)
+        val items = withContext(Dispatchers.IO) {
+            mediaItemDao.searchMediaItems("AUDIOBOOK", limit = 100)
+        }
         return items.filter { it.mediaType == "AUDIOBOOK" }
             .map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getPodcastItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.searchMediaItems("PODCAST", limit = 100)
+        val items = withContext(Dispatchers.IO) {
+            mediaItemDao.searchMediaItems("PODCAST", limit = 100)
+        }
         return items.filter { it.mediaType == "PODCAST" }
             .map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getRecentItems(): List<MediaBrowserCompat.MediaItem> {
-        val items = mediaItemDao.getAllMediaItems().take(50)
+        val items = withContext(Dispatchers.IO) {
+            mediaItemDao.getAllMediaItems().take(50)
+        }
         return items.map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getFavoriteItems(): List<MediaBrowserCompat.MediaItem> {
-        // For now, return most recently added items (top 50)
-        // TODO: Add proper favorite/starred functionality in future release
-        val items = mediaItemDao.getAllMediaItems().take(50)
-        return items.map { createPlayableMediaItem(it) }
+        val favorites = withContext(Dispatchers.IO) {
+            mediaItemDao.getFavoriteMediaItems().first()
+        }
+        if (favorites.isEmpty()) {
+            return emptyList()
+        }
+        return favorites.map { createPlayableMediaItem(it) }
     }
 
     private suspend fun getMediaItemById(itemId: Long): List<MediaBrowserCompat.MediaItem> {
-        val item = mediaItemDao.getMediaItemById(itemId)
+        val item = withContext(Dispatchers.IO) {
+            mediaItemDao.getMediaItemById(itemId)
+        }
         return item?.let { listOf(createPlayableMediaItem(it)) } ?: emptyList()
     }
 
@@ -221,9 +236,12 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
     private fun createPlayableMediaItem(mediaItem: MediaItem): MediaBrowserCompat.MediaItem {
         val description = MediaDescriptionCompat.Builder()
             .setMediaId("item_${mediaItem.itemId}")
-            .setTitle(mediaItem.fileName)
-            .setSubtitle(mediaItem.filePath)
+            .setTitle(mediaItem.title.ifBlank { mediaItem.fileName })
+            .setSubtitle(mediaItem.creator ?: mediaItem.mediaType)
             .setMediaUri(mediaItem.filePath.toUri())
+            .setIconUri(
+                Uri.parse("android.resource://${packageName}/${R.drawable.ic_ferret_blue_bitmap}")
+            )
             .setExtras(Bundle().apply {
                 putLong("itemId", mediaItem.itemId)
                 putString("mediaType", mediaItem.mediaType)
