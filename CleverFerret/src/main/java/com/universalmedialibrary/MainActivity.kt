@@ -105,6 +105,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -137,6 +138,7 @@ import com.universalmedialibrary.ui.settings.AudioEffectsSettingsScreen
 import com.universalmedialibrary.ui.settings.LastFmSettingsScreen
 import com.universalmedialibrary.ui.settings.AudioProfilesScreen
 import com.universalmedialibrary.ui.main.MainViewModel
+import com.universalmedialibrary.ui.music.MusicPlayerViewModel
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
@@ -280,6 +282,29 @@ fun AppNavigation(externalFileUri: Uri? = null) {
     val gearPosition by mainViewModel.bottomGearPosition.collectAsState()
     var bottomBarVisible by rememberSaveable { mutableStateOf(true) }
     val mediaControlsState = rememberMediaControlsState()
+    val musicPlayerViewModel: MusicPlayerViewModel = hiltViewModel()
+    val currentTrack by musicPlayerViewModel.currentTrack.collectAsStateWithLifecycle()
+    val playbackState by musicPlayerViewModel.playbackState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(
+        currentTrack?.id,
+        currentTrack?.title,
+        currentTrack?.artist,
+        playbackState.isPlaying
+    ) {
+        val track = currentTrack
+        val isActive = track != null && playbackState.isPlaying
+        if (track != null) {
+            mediaControlsState.show(
+                title = track.title.ifBlank { "Unknown Track" },
+                artist = track.artist?.takeIf { it.isNotBlank() } ?: "Unknown Artist",
+                isPlaying = isActive
+            )
+        } else {
+            mediaControlsState.hide()
+        }
+        mediaControlsState.updatePlaybackState(isActive)
+    }
 
     val settingsItem = remember {
         NavigationItem(
@@ -339,12 +364,14 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         },
         mediaControlsState = mediaControlsState,
         mediaControlActions = MediaControlActions(
-            onPlayPause = {
-                mediaControlsState.updatePlaybackState(!mediaControlsState.isPlaying)
-            },
-            onSkipNext = { /* TODO: integrate with playback queue */ },
-            onSkipPrevious = { /* TODO: integrate with playback queue */ },
-            onOpenPlayer = { navController.navigate("music_player") }
+            onPlayPause = musicPlayerViewModel::togglePlayPause,
+            onSkipNext = musicPlayerViewModel::skipToNext,
+            onSkipPrevious = musicPlayerViewModel::skipToPrevious,
+            onOpenPlayer = {
+                navController.navigate("music_player") {
+                    launchSingleTop = true
+                }
+            }
         )
     ) { paddingValues ->
         NavHost(
