@@ -157,6 +157,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.ui.res.painterResource
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 import java.util.Locale
+import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 
 
 /**
@@ -285,6 +286,7 @@ fun AppNavigation(externalFileUri: Uri? = null) {
     val musicPlayerViewModel: MusicPlayerViewModel = hiltViewModel()
     val currentTrack by musicPlayerViewModel.currentTrack.collectAsStateWithLifecycle()
     val playbackState by musicPlayerViewModel.playbackState.collectAsStateWithLifecycle()
+    val miniPlayerBackgroundMode by mainViewModel.miniPlayerBackgroundMode.collectAsState(MiniPlayerBackgroundMode.THEME)
 
     LaunchedEffect(
         currentTrack?.id,
@@ -298,7 +300,8 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             mediaControlsState.show(
                 title = track.title.ifBlank { "Unknown Track" },
                 artist = track.artist?.takeIf { it.isNotBlank() } ?: "Unknown Artist",
-                isPlaying = isActive
+                isPlaying = isActive,
+                albumArtUrl = track.albumArtUrl
             )
         } else {
             mediaControlsState.hide()
@@ -363,6 +366,7 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             // FAB can be shown on specific screens
         },
         mediaControlsState = mediaControlsState,
+        miniPlayerBackgroundMode = miniPlayerBackgroundMode,
         mediaControlActions = MediaControlActions(
             onPlayPause = musicPlayerViewModel::togglePlayPause,
             onSkipNext = musicPlayerViewModel::skipToNext,

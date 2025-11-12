@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.universalmedialibrary.data.settings.*
 import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -35,6 +36,7 @@ class SettingsRepository @Inject constructor(
         val CACHE_LOCATION = stringPreferencesKey("cache_location")
         val MAX_CACHE_SIZE_MB = stringPreferencesKey("max_cache_size_mb")
         val BOTTOM_GEAR_POSITION = stringPreferencesKey("bottom_gear_position")
+        val MINI_PLAYER_BACKGROUND = stringPreferencesKey("mini_player_background")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -92,6 +94,10 @@ class SettingsRepository @Inject constructor(
         BottomGearPosition.fromString(preferences[PreferencesKeys.BOTTOM_GEAR_POSITION])
     }
 
+    val miniPlayerBackgroundModeFlow: Flow<MiniPlayerBackgroundMode> = context.dataStore.data.map { preferences ->
+        MiniPlayerBackgroundMode.fromName(preferences[PreferencesKeys.MINI_PLAYER_BACKGROUND])
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -143,6 +149,12 @@ class SettingsRepository @Inject constructor(
     suspend fun setBottomGearPosition(position: BottomGearPosition) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.BOTTOM_GEAR_POSITION] = position.name
+        }
+    }
+
+    suspend fun setMiniPlayerBackgroundMode(mode: MiniPlayerBackgroundMode) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.MINI_PLAYER_BACKGROUND] = mode.name
         }
     }
 }

@@ -74,6 +74,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.universalmedialibrary.data.settings.BottomGearPosition
+import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -274,6 +275,7 @@ fun ResponsiveNavigationScaffold(
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     mediaControlsState: MediaControlsState? = null,
+    miniPlayerBackgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME,
     mediaControlActions: MediaControlActions = MediaControlActions(),
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -299,6 +301,7 @@ fun ResponsiveNavigationScaffold(
                         gearPosition = gearPosition,
                         currentDestination = currentDestination,
                         mediaControlsState = mediaControlsState,
+                        miniPlayerBackgroundMode = miniPlayerBackgroundMode,
                         mediaControlActions = mediaControlActions
                     )
                 }
@@ -316,6 +319,7 @@ private fun BottomBarWithMediaControls(
     gearPosition: BottomGearPosition,
     currentDestination: NavDestination?,
     mediaControlsState: MediaControlsState?,
+    miniPlayerBackgroundMode: MiniPlayerBackgroundMode,
     mediaControlActions: MediaControlActions
 ) {
     var controlsExpanded by rememberSaveable { mutableStateOf(false) }
@@ -396,6 +400,8 @@ private fun BottomBarWithMediaControls(
                 isPlaying = mediaControlsState.isPlaying,
                 isCasting = mediaControlsState.isCasting,
                 castDeviceName = mediaControlsState.castDeviceName,
+                albumArtUrl = mediaControlsState.albumArtUrl,
+                backgroundMode = miniPlayerBackgroundMode,
                 onPlayPause = mediaControlActions.onPlayPause,
                 onSkipNext = mediaControlActions.onSkipNext,
                 onSkipPrevious = mediaControlActions.onSkipPrevious,
