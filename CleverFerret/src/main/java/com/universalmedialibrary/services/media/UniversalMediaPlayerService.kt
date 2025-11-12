@@ -26,8 +26,10 @@ import androidx.media3.common.AudioAttributes
  * - Video files (MP4, MKV, AVI, MOV, WMV)
  */
 @Singleton
+@androidx.media3.common.util.UnstableApi
 class UniversalMediaPlayerService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val mediaSessionManager: MediaSessionManager
 ) {
 
     private var exoPlayer: ExoPlayer? = null
@@ -63,6 +65,11 @@ class UniversalMediaPlayerService @Inject constructor(
             updatePlaybackState(isLoading = true, error = null)
 
             player.setMediaItem(exoMediaItem)
+            mediaSessionManager.updateMetadata(
+                title = mediaItem.title,
+                artist = mediaItem.author,
+                duration = 0
+            )
             player.prepare()
             true
         } catch (e: Exception) {
@@ -134,9 +141,15 @@ class UniversalMediaPlayerService @Inject constructor(
     }
 
     fun release() {
+        val currentPlayer = exoPlayer
         releaseCurrentPlayer()
         _currentMedia.value = null
         updatePlaybackState(isPlaying = false, isLoading = false, error = null)
+        val sessionPlayer = mediaSessionManager.getMediaSession()?.player
+        if (currentPlayer != null && sessionPlayer === currentPlayer) {
+            mediaSessionManager.releaseSession()
+            MediaNotificationService.stop(context)
+        }
     }
 
     private fun ensurePlayer(): ExoPlayer {
@@ -160,7 +173,10 @@ class UniversalMediaPlayerService @Inject constructor(
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         when (playbackState) {
                             Player.STATE_BUFFERING -> updatePlaybackState(isLoading = true)
-                            Player.STATE_READY -> updatePlaybackState(isLoading = false, isPlaying = isPlaying)
+                            Player.STATE_READY -> {
+                                updatePlaybackState(isLoading = false, isPlaying = isPlaying)
+                                MediaNotificationService.start(context)
+                            }
                             Player.STATE_ENDED -> updatePlaybackState(isPlaying = false, isLoading = false)
                             Player.STATE_IDLE -> updatePlaybackState(isPlaying = false, isLoading = false)
                         }
@@ -181,6 +197,7 @@ class UniversalMediaPlayerService @Inject constructor(
             }
 
         exoPlayer = player
+        mediaSessionManager.setPlayer(player, MediaNotificationService::class.java)
         return player
     }
 
