@@ -201,6 +201,7 @@ data class MediaItemWithMetadata(
     val rating: Float? get() = metadata?.rating ?: metadata?.userRating
     val year: Int? get() = metadata?.year
     val summary: String? get() = metadata?.summary
+    val isFavorite: Boolean get() = mediaItem.isFavorite || metadata?.isFavorite == true
 }
 
 /**

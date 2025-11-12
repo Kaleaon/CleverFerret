@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.local.dao.PlaylistDao
 import com.universalmedialibrary.data.local.entity.Playlist
+import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
 import com.universalmedialibrary.services.music.PlaylistMode
 import com.universalmedialibrary.services.music.MusicMetadataService
@@ -36,7 +37,8 @@ class MusicPlayerViewModel @Inject constructor(
     private val enhancedMetadataService: EnhancedMetadataService,
     private val exoPlayerService: ExoPlayerService,
     private val sleepTimerManager: SleepTimerManager,
-    private val playlistDao: PlaylistDao
+    private val playlistDao: PlaylistDao,
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
 
     val playbackState: StateFlow<com.universalmedialibrary.services.music.AdvancedPlaybackState> =
@@ -221,10 +223,27 @@ class MusicPlayerViewModel @Inject constructor(
     /**
      * Toggle favorite status
      */
+    init {
+        viewModelScope.launch {
+            currentTrack.collect { track ->
+                val trackId = track?.id?.toLongOrNull()
+                if (trackId != null) {
+                    val mediaItem = mediaRepository.getMediaItemById(trackId)
+                    _isFavorite.value = mediaItem?.isFavorite ?: false
+                } else {
+                    _isFavorite.value = false
+                }
+            }
+        }
+    }
+
     fun toggleFavorite() {
-        _isFavorite.value = !_isFavorite.value
-        // Favorites would be persisted to database in production
-        // Example: favoritesDao.toggleFavorite(currentTrack.value?.id)
+        viewModelScope.launch {
+            val trackId = currentTrack.value?.id?.toLongOrNull() ?: return@launch
+            val newState = !_isFavorite.value
+            mediaRepository.setFavorite(trackId, newState)
+            _isFavorite.value = newState
+        }
     }
     
     /**

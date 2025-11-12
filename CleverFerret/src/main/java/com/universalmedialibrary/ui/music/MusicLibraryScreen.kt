@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.music
 
+import android.text.format.DateUtils
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -238,7 +239,15 @@ fun MusicLibraryScreen(
                         MusicTab.ALBUMS -> AlbumsTab(state, viewModel, navController)
                         MusicTab.ARTISTS -> ArtistsTab(state, viewModel, navController)
                         MusicTab.GENRES -> GenresTab(state, viewModel, navController)
-                        MusicTab.PLAYLISTS -> PlaylistsTab()
+                        MusicTab.PLAYLISTS -> PlaylistsTab(
+                            playlists = state.playlists,
+                            onCreatePlaylist = viewModel::createPlaylist,
+                            onPlayPlaylist = { playlistId -> viewModel.playPlaylist(playlistId) },
+                            onShufflePlaylist = { playlistId -> viewModel.playPlaylist(playlistId, shuffle = true) },
+                            onQueuePlaylist = viewModel::queuePlaylist,
+                            onRenamePlaylist = viewModel::renamePlaylist,
+                            onDeletePlaylist = viewModel::deletePlaylist
+                        )
                     }
                 }
                 
@@ -348,45 +357,340 @@ private fun GenresTab(state: MusicLibraryUiState, viewModel: MusicLibraryViewMod
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PlaylistsTab() {
-    // TODO: Implement full playlist viewing and management
-    // This is a placeholder that will be implemented with proper playlist UI
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+private fun PlaylistsTab(
+    playlists: List<PlaylistSummary>,
+    onCreatePlaylist: (String) -> Unit,
+    onPlayPlaylist: (Long) -> Unit,
+    onShufflePlaylist: (Long) -> Unit,
+    onQueuePlaylist: (Long, Boolean) -> Unit,
+    onRenamePlaylist: (Long, String) -> Unit,
+    onDeletePlaylist: (Long) -> Unit
+) {
+    var showCreateDialog by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf<PlaylistSummary?>(null) }
+    var showDeleteDialog by remember { mutableStateOf<PlaylistSummary?>(null) }
+    var playlistNameInput by remember { mutableStateOf("") }
+    var expandedMenuId by remember { mutableStateOf<Long?>(null) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(32.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Icon(
-                Icons.Default.PlaylistPlay,
-                contentDescription = null,
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                "Music Playlists",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                "Create and manage your music playlists here. This feature is under development.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Button(
-                onClick = { 
-                    // Placeholder for playlist creation feature
-                    // In production, this would navigate to a playlist creation screen
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Add, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Create Playlist (Coming Soon)")
+                Text(
+                    text = "Playlists",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        playlistNameInput = ""
+                        showCreateDialog = true
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Create playlist")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("New Playlist")
+                }
+            }
+
+            if (playlists.isEmpty()) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+                    tonalElevation = 2.dp,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.PlaylistPlay,
+                            contentDescription = null,
+                            modifier = Modifier.size(72.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            "No playlists yet",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            "Create your first playlist to start organising favorite tracks and moods.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        OutlinedButton(onClick = { showCreateDialog = true }) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Create Playlist")
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 96.dp)
+                ) {
+                    items(playlists) { summary ->
+                        PlaylistCard(
+                            summary = summary,
+                            expandedMenuId = expandedMenuId,
+                            onExpandMenu = { expandedMenuId = it },
+                            onDismissMenu = { expandedMenuId = null },
+                            onPlay = { onPlayPlaylist(summary.id) },
+                            onShuffle = { onShufflePlaylist(summary.id) },
+                            onQueue = { playNext -> onQueuePlaylist(summary.id, playNext) },
+                            onRename = {
+                                playlistNameInput = summary.name
+                                showRenameDialog = summary
+                                expandedMenuId = null
+                            },
+                            onDelete = {
+                                showDeleteDialog = summary
+                                expandedMenuId = null
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        if (showCreateDialog) {
+            PlaylistNameDialog(
+                title = "Create Playlist",
+                initialValue = playlistNameInput,
+                onConfirm = { name ->
+                    onCreatePlaylist(name.trim())
+                    playlistNameInput = ""
+                    showCreateDialog = false
+                },
+                onDismiss = { showCreateDialog = false }
+            )
+        }
+
+        showRenameDialog?.let { summary ->
+            PlaylistNameDialog(
+                title = "Rename Playlist",
+                initialValue = summary.name,
+                onConfirm = { newName ->
+                    onRenamePlaylist(summary.id, newName.trim())
+                    playlistNameInput = ""
+                    showRenameDialog = null
+                },
+                onDismiss = { showRenameDialog = null }
+            )
+        }
+
+        showDeleteDialog?.let { summary ->
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = null },
+                title = { Text("Delete Playlist") },
+                text = {
+                    Text("Are you sure you want to delete \"${summary.name}\"? This cannot be undone.")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onDeletePlaylist(summary.id)
+                        showDeleteDialog = null
+                    }) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = null }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PlaylistNameDialog(
+    title: String,
+    initialValue: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var text by remember { mutableStateOf(initialValue) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Playlist Name") },
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            val enabled = text.isNotBlank()
+            TextButton(
+                onClick = {
+                    if (enabled) {
+                        onConfirm(text)
+                        onDismiss()
+                    }
+                },
+                enabled = enabled
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PlaylistCard(
+    summary: PlaylistSummary,
+    expandedMenuId: Long?,
+    onExpandMenu: (Long?) -> Unit,
+    onDismissMenu: () -> Unit,
+    onPlay: () -> Unit,
+    onShuffle: () -> Unit,
+    onQueue: (Boolean) -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val updatedText = remember(summary.updatedAt) {
+        DateUtils.getRelativeTimeSpanString(
+            summary.updatedAt,
+            System.currentTimeMillis(),
+            DateUtils.MINUTE_IN_MILLIS
+        ).toString()
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = summary.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    val description = summary.description?.takeIf { it.isNotBlank() }
+                    if (description != null) {
+                        Text(
+                            text = description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onPlay) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = "Play playlist")
+                    }
+                    IconButton(onClick = onShuffle) {
+                        Icon(Icons.Default.Shuffle, contentDescription = "Shuffle playlist")
+                    }
+                    Box {
+                        IconButton(onClick = { onExpandMenu(summary.id) }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Playlist actions")
+                        }
+                        DropdownMenu(
+                            expanded = expandedMenuId == summary.id,
+                            onDismissRequest = onDismissMenu
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Add to Queue") },
+                                onClick = {
+                                    onQueue(false)
+                                    onDismissMenu()
+                                },
+                                leadingIcon = { Icon(Icons.Default.QueueMusic, contentDescription = null) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Play Next") },
+                                onClick = {
+                                    onQueue(true)
+                                    onDismissMenu()
+                                },
+                                leadingIcon = { Icon(Icons.Default.SkipNext, contentDescription = null) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Rename") },
+                                onClick = onRename,
+                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete") },
+                                onClick = onDelete,
+                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AssistChip(
+                    onClick = {},
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.MusicNote,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
+                    label = { Text("${summary.trackCount} tracks") }
+                )
+                AssistChip(
+                    onClick = {},
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.AccessTime,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
+                    label = { Text("Updated $updatedText") }
+                )
             }
         }
     }

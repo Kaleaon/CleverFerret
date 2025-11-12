@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.universalmedialibrary.data.local.entity.Playlist
 
 /**
  * Enhanced track data model with all MediaStore metadata
@@ -140,6 +141,16 @@ enum class MusicTab(val displayName: String, val icon: ImageVector) {
     PLAYLISTS("Playlists", Icons.Default.PlaylistPlay)
 }
 
+data class PlaylistSummary(
+    val playlist: Playlist,
+    val trackCount: Int
+) {
+    val id: Long get() = playlist.playlistId
+    val name: String get() = playlist.name
+    val description: String? get() = playlist.description
+    val updatedAt: Long get() = playlist.updatedAt
+}
+
 /**
  * Music library UI state
  */
@@ -158,7 +169,8 @@ data class MusicLibraryUiState(
     val selectedAlbum: String? = null,
     val selectedTag: String? = null,
     val showSortMenu: Boolean = false,
-    val showFilterMenu: Boolean = false
+    val showFilterMenu: Boolean = false,
+    val playlists: List<PlaylistSummary> = emptyList()
 )
 
 /**

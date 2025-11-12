@@ -11,6 +11,7 @@ import com.universalmedialibrary.data.repository.HistoryRepository
 import com.universalmedialibrary.services.playback.UnifiedPlaybackQueueManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -241,6 +242,24 @@ class MusicPlaylistManager @Inject constructor(
     fun getAllPlaylists(): Flow<List<Playlist>> = playlistDao.getAllPlaylistsFlow()
 
     /**
+     * Observe playlists with basic statistics
+     */
+    fun getPlaylistOverviews(): Flow<List<PlaylistOverview>> {
+        return combine(
+            playlistDao.getAllPlaylistsFlow(),
+            playlistDao.getPlaylistItemCounts()
+        ) { playlists, counts ->
+            val countMap = counts.associateBy { it.playlistId }
+            playlists.map { playlist ->
+                PlaylistOverview(
+                    playlist = playlist,
+                    trackCount = countMap[playlist.playlistId]?.itemCount ?: 0
+                )
+            }
+        }
+    }
+
+    /**
      * Get playlist with full track information
      */
     fun getPlaylistWithTracks(playlistId: Long): Flow<PlaylistWithTracks> {
@@ -337,6 +356,23 @@ class MusicPlaylistManager @Inject constructor(
     }
 
     private fun generateShareCode(): String = UUID.randomUUID().toString().substring(0, 8)
+
+    suspend fun renamePlaylist(playlistId: Long, name: String, description: String? = null) {
+        val playlist = playlistDao.getPlaylistById(playlistId) ?: return
+        playlistDao.updatePlaylist(
+            playlist.copy(
+                name = name,
+                description = description ?: playlist.description,
+                updatedAt = System.currentTimeMillis()
+            )
+        )
+    }
+
+    suspend fun deletePlaylist(playlistId: Long) {
+        playlistDao.getPlaylistById(playlistId)?.let { playlist ->
+            playlistDao.deletePlaylist(playlist)
+        }
+    }
 }
 
 /**
@@ -354,4 +390,9 @@ data class PlaylistWithTracks(
 data class PlaylistTrack(
     val playlistItem: PlaylistItem,
     val mediaItem: MediaItem
+)
+
+data class PlaylistOverview(
+    val playlist: Playlist,
+    val trackCount: Int
 )
