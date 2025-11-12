@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.os.Build
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,11 +60,23 @@ class AudioProfileService @Inject constructor(
     }
     
     private fun detectDevice(): AudioDeviceType {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return detectLegacyDevice()
+        }
+
         val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
         for (device in devices) {
             mapDeviceType(device)?.let { return it }
         }
-        return AudioDeviceType.UNKNOWN
+        return detectLegacyDevice()
+    }
+
+    private fun detectLegacyDevice(): AudioDeviceType {
+        return when {
+            audioManager.isBluetoothA2dpOn || audioManager.isBluetoothScoOn -> AudioDeviceType.BLUETOOTH_HEADPHONE
+            audioManager.isWiredHeadsetOn -> AudioDeviceType.WIRED_HEADPHONE
+            else -> AudioDeviceType.PHONE_SPEAKER
+        }
     }
 
     @SuppressLint("SwitchIntDef")
@@ -71,12 +84,13 @@ class AudioProfileService @Inject constructor(
         return when (device.type) {
             AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
             AudioDeviceInfo.TYPE_WIRED_HEADSET,
-            AudioDeviceInfo.TYPE_USB_HEADSET,
-            AudioDeviceInfo.TYPE_USB_DEVICE,
-            AudioDeviceInfo.TYPE_USB_ACCESSORY,
             AudioDeviceInfo.TYPE_LINE_ANALOG,
             AudioDeviceInfo.TYPE_LINE_DIGITAL,
             AudioDeviceInfo.TYPE_AUX_LINE -> AudioDeviceType.WIRED_HEADPHONE
+
+            AudioDeviceInfo.TYPE_USB_HEADSET,
+            AudioDeviceInfo.TYPE_USB_DEVICE,
+            AudioDeviceInfo.TYPE_USB_ACCESSORY -> AudioDeviceType.USB_AUDIO
 
             AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
             AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
