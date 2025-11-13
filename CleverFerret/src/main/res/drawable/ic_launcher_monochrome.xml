@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Stylized monogram for CleverFerret (monochrome friendly) -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M36,24h12v60h-12z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M48,24h30v12h-30z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M48,48h24v12h-24z" />
+</vector>

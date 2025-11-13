@@ -35,6 +35,8 @@ fun NowPlayingScreen(
     val currentItem by viewModel.currentItem.collectAsState()
     val queueItems by viewModel.queueItems.collectAsState()
     val currentQueue by viewModel.currentQueue.collectAsState()
+    
+    var showPlaylistDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -74,7 +76,7 @@ fun NowPlayingScreen(
                     onSeek = viewModel::seekTo,
                     onSpeedChange = viewModel::setPlaybackSpeed,
                     onThumbsUp = { viewModel.likeCurrentTrack() },
-                    onAddToPlaylist = { /* TODO: Show playlist selection dialog */ }
+                    onAddToPlaylist = { showPlaylistDialog = true }
                 )
             }
 
@@ -88,6 +90,20 @@ fun NowPlayingScreen(
                 onItemRemove = viewModel::removeFromQueue
             )
         }
+    }
+    
+    // Playlist selection dialog
+    if (showPlaylistDialog) {
+        PlaylistSelectionDialog(
+            currentItem = currentItem,
+            onDismiss = { showPlaylistDialog = false },
+            onPlaylistSelected = { playlistId ->
+                currentItem?.let { item ->
+                    viewModel.addToPlaylist(item.itemId, playlistId)
+                }
+                showPlaylistDialog = false
+            }
+        )
     }
 }
 
@@ -377,4 +393,53 @@ private fun formatTime(timeMs: Long): String {
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
     return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
+}
+
+/**
+ * Playlist selection dialog
+ */
+@Composable
+private fun PlaylistSelectionDialog(
+    currentItem: QueueItem?,
+    onDismiss: () -> Unit,
+    onPlaylistSelected: (Long) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add to Playlist") },
+        text = {
+            Column {
+                Text(
+                    text = "Select a playlist to add &quot;${currentItem?.title ?: "this item"}&quot; to:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Placeholder playlist items - in a real implementation, 
+                // these would be fetched from a playlist repository
+                val samplePlaylists = listOf(
+                    "Favorites" to 1L,
+                    "Recently Played" to 2L,
+                    "My Playlist" to 3L
+                )
+                
+                samplePlaylists.forEach { (name, id) ->
+                    TextButton(
+                        onClick = { onPlaylistSelected(id) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = name,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

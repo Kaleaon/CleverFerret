@@ -18,8 +18,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.universalmedialibrary.data.settings.ImageGeneratorType
 import com.universalmedialibrary.data.settings.ArtworkApiSettings
 import com.universalmedialibrary.data.settings.LyricsApiSettings
-import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
@@ -229,7 +229,7 @@ private fun GeminiAPISection(
                         Spacer(Modifier.height(8.dp))
                         TextButton(onClick = {
                             val url = "https://ai.google.dev/"
-                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url))
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, url.toUri())
                             context.startActivity(intent)
                         }) { Text("Open Google AI Studio") }
                     }
@@ -545,7 +545,7 @@ private fun ArtworkAPISection(
                         Spacer(Modifier.height(6.dp))
                         TextButton(onClick = {
                             val url = "https://fanart.tv/get-an-api-key/"
-                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                        context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, url.toUri()))
                         }) { Text("Open Fanart.tv") }
                     } }
                 }
@@ -568,7 +568,7 @@ private fun ArtworkAPISection(
                         Spacer(Modifier.height(6.dp))
                         TextButton(onClick = {
                             val url = "https://www.last.fm/api/account/create"
-                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                        context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, url.toUri()))
                         }) { Text("Open Last.fm") }
                     } }
                 }
@@ -621,7 +621,7 @@ private fun LyricsAPISection(
                         Spacer(Modifier.height(6.dp))
                         TextButton(onClick = {
                             val url = "https://developer.musixmatch.com/"
-                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, url.toUri()))
                         }) { Text("Open Musixmatch Developer") }
                     } }
                 }
@@ -644,7 +644,7 @@ private fun LyricsAPISection(
                         Spacer(Modifier.height(6.dp))
                         TextButton(onClick = {
                             val url = "https://genius.com/api-clients"
-                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)))
+                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, url.toUri()))
                         }) { Text("Open Genius API") }
                     } }
                 }

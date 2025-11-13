@@ -124,7 +124,7 @@ fun VisualControlsSection(
                 value = settings.lineHeight,
                 range = 1.0f..3.0f,
                 onValueChange = { onSettingsChange(settings.copy(lineHeight = it)) },
-                valueDisplay = "${'$'}{String.format(Locale.getDefault(), \"%.1f\", settings.lineHeight)}x"
+                valueDisplay = String.format(Locale.getDefault(), "%.1fx", settings.lineHeight)
             )
         }
 

@@ -7,6 +7,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.core.net.toUri
 import androidx.media.MediaBrowserServiceCompat
 import com.universalmedialibrary.R
 import com.universalmedialibrary.data.local.dao.MediaItemDao
@@ -237,7 +238,7 @@ class AutoMediaBrowserService : MediaBrowserServiceCompat() {
             .setMediaId("item_${mediaItem.itemId}")
             .setTitle(mediaItem.title.ifBlank { mediaItem.fileName })
             .setSubtitle(mediaItem.creator ?: mediaItem.mediaType)
-            .setMediaUri(Uri.parse(mediaItem.filePath))
+            .setMediaUri(mediaItem.filePath.toUri())
             .setIconUri(
                 Uri.parse("android.resource://${packageName}/${R.drawable.ic_ferret_blue_bitmap}")
             )

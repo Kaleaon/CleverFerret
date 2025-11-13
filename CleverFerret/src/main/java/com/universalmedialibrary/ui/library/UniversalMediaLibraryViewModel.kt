@@ -47,6 +47,9 @@ class UniversalMediaLibraryViewModel @Inject constructor(
     private val _libraryItemCounts = MutableStateFlow<Map<Long, Int>>(emptyMap())
     val libraryItemCounts: StateFlow<Map<Long, Int>> = _libraryItemCounts.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
     private var currentLibraryId: Long = -1
     private var allMediaItems: List<MediaItemWithMetadata> = emptyList()
 
@@ -84,6 +87,10 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                                 )
                             }
                         }
+                        
+                        // Update library item counts by media type
+                        val countsByMediaType = mediaItems.groupingBy { it.mediaType }.eachCount()
+                        _libraryItemCounts.value = countsByMediaType
                     }
                     
                     // Apply filters and sorting
@@ -124,6 +131,10 @@ class UniversalMediaLibraryViewModel @Inject constructor(
         _showFilters.value = !_showFilters.value
     }
 
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
     fun toggleFavorite(itemId: Long, currentState: Boolean) {
         viewModelScope.launch {
             try {
@@ -136,8 +147,8 @@ class UniversalMediaLibraryViewModel @Inject constructor(
                     }
                 }
                 applyFiltersAndSort()
-            } catch (_: Exception) {
-                // TODO: surface error to UI (snackbar/toast)
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to update favorite status: ${e.message}"
             }
         }
     }

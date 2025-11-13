@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import java.util.Locale
 
 /**
  * Enhanced Auto-Scroll Controls
@@ -89,7 +90,7 @@ fun EnhancedAutoScrollControls(
                         .padding(top = 8.dp)
                 ) {
                     Text(
-                        text = "Scroll Speed: ${String.format("%.1f", scrollSpeed)}x",
+                        text = "Scroll Speed: ${String.format(Locale.getDefault(), "%.1f", scrollSpeed)}x",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )

@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-@androidx.media3.common.util.UnstableApi
+@OptIn(UnstableApi::class)
 class AdvancedVideoPlayerViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdvancedVideoPlayerUiState())

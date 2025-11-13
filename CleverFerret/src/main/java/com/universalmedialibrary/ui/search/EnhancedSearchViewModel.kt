@@ -69,6 +69,10 @@ class EnhancedSearchViewModel @Inject constructor(
             ) { query, filters, sort ->
                 Triple(query, filters, sort)
             }.collect { (query, filters, sort) ->
+                if (query != _searchQuery.value) {
+                    // Skip stale emissions (e.g., when restoring history before debounce completes).
+                    return@collect
+                }
                 if (query.isNotBlank() || filters.hasActiveFilters()) {
                     performSearch(query, filters, sort)
                 } else {
@@ -160,15 +164,20 @@ class EnhancedSearchViewModel @Inject constructor(
 
     fun selectHistoryItem(historyItem: SearchHistory) {
         _searchQuery.value = historyItem.query
-        // Note: SearchHistory doesn't store filters and sortBy.
-        // When a history item is selected, only the query is restored;
-        // current filters and sortBy remain unchanged.
+
+        searchService.restoreSort(historyItem)?.let { restoredSort ->
+            _sortBy.value = restoredSort
+        }
+
+        val restoredFilters = searchService.restoreFilters(historyItem)
+        _filters.value = restoredFilters ?: SearchFilters()
     }
 
     fun deleteHistoryItem(historyItem: SearchHistory) {
         viewModelScope.launch {
-            // TODO: Implement when search history DAO is available
-            // searchService.deleteSearchHistory(historyItem.historyId)
+            if (historyItem.historyId != 0L) {
+                searchService.deleteHistoryEntry(historyItem.historyId)
+            }
             loadSearchHistory()
         }
     }
@@ -177,6 +186,7 @@ class EnhancedSearchViewModel @Inject constructor(
         viewModelScope.launch {
             searchService.clearHistory()
             _uiState.value = _uiState.value.copy(searchHistory = emptyList())
+            loadSearchHistory()
         }
     }
 
@@ -185,6 +195,7 @@ class EnhancedSearchViewModel @Inject constructor(
         _filters.value = SearchFilters()
         _sortBy.value = SortBy.RELEVANCE
         _uiState.value = EnhancedSearchUiState()
+        loadSearchHistory()
     }
 
     private fun performSearch(query: String, filters: SearchFilters, sortBy: SortBy) {
@@ -208,12 +219,7 @@ class EnhancedSearchViewModel @Inject constructor(
                     hasSearched = true,
                     error = null
                 )
-
-                // TODO: Save to search history when implemented
-                // if (query.isNotBlank()) {
-                //     searchService.saveSearchHistory(query, results.size)
-                //     loadSearchHistory()
-                // }
+                loadSearchHistory()
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isSearching = false,
@@ -237,9 +243,8 @@ class EnhancedSearchViewModel @Inject constructor(
     private fun loadSearchHistory() {
         viewModelScope.launch {
             try {
-                // TODO: Implement when search history DAO is available
-                // val history = searchService.getSearchHistory()
-                // _uiState.value = _uiState.value.copy(searchHistory = history)
+                val history = searchService.getSearchHistory()
+                _uiState.value = _uiState.value.copy(searchHistory = history)
             } catch (e: Exception) {
                 // Continue without search history
             }

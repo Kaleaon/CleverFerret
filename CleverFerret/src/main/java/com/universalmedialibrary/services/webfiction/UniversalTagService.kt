@@ -25,6 +25,7 @@ class UniversalTagService @Inject constructor(
     companion object {
         private const val USER_AGENT = "Mozilla/5.0 (compatible; CleverFerret/1.0)"
         private const val REQUEST_TIMEOUT = 30000
+        private const val SCRIBBLE_HUB_PAGE_SIZE = 25
     }
 
     private val royalRoadCountRegex = Regex("\\((\\d[\\d,]*)\\)")
@@ -618,8 +619,115 @@ class UniversalTagService @Inject constructor(
      * Browse ScribbleHub stories by tags
      */
     private suspend fun browseScribbleHubByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {
-        // TODO: Implement ScribbleHub tag browsing
-        return Result.failure(Exception("ScribbleHub tag browsing not yet implemented"))
+        return withContext(Dispatchers.IO) {
+            if (criteria.tags.isEmpty()) {
+                return@withContext Result.failure(Exception("Select at least one tag"))
+            }
+
+            val query = criteria.tags.joinToString(" ")
+            val encodedQuery = URLEncoder.encode(query, "UTF-8")
+            val effectiveLimit = if (criteria.limit <= 0) 50 else criteria.limit
+            val pageSize = SCRIBBLE_HUB_PAGE_SIZE
+            val page = ((criteria.offset / pageSize) + 1).coerceAtLeast(1)
+            val url = "https://www.scribblehub.com/?s=$encodedQuery&post_type=fictionposts&pg=$page"
+
+            try {
+                val document = Jsoup.connect(url)
+                    .timeout(REQUEST_TIMEOUT)
+                    .userAgent(USER_AGENT)
+                    .get()
+
+                val title = document.title().orEmpty()
+                if (title.contains("Just a moment", ignoreCase = true)) {
+                    return@withContext Result.failure(
+                        Exception(
+                            "ScribbleHub requires completing a Cloudflare challenge in a browser. " +
+                                "Open the search manually: $url"
+                        )
+                    )
+                }
+
+                val resultElements = document.select("div.search_main_box div.search_body")
+                if (resultElements.isEmpty()) {
+                    return@withContext Result.success(
+                        StorySearchResult(
+                            stories = emptyList(),
+                            totalCount = criteria.offset,
+                            hasMore = false,
+                            nextOffset = null
+                        )
+                    )
+                }
+
+                val mappedStories = resultElements.mapNotNull { element ->
+                    val titleElement = element.selectFirst("a.fic_title") ?: return@mapNotNull null
+                    val storyUrl = titleElement.absUrl("href").ifBlank { titleElement.attr("href") }
+                    if (storyUrl.isBlank()) return@mapNotNull null
+
+                    val storyId = parseScribbleHubId(storyUrl)
+                    val storyTitle = titleElement.text().ifBlank { storyUrl }
+                    val author = element.selectFirst("span.fic_author a, a.fic_author")?.text()
+                    val synopsis = element.selectFirst("div.fic_synopsis, div.fic_justified")?.text()
+                    val cover = element.selectFirst("div.search_img img")?.absUrl("src")
+                    val tagElements = element.select("a.fic_genre, a.genre")
+                    val storyTags = if (tagElements.isNotEmpty()) {
+                        tagElements.map { it.text() }.filter { it.isNotBlank() }
+                    } else {
+                        criteria.tags
+                    }
+                    val ratingText = element.selectFirst("span.fic_rating")?.text()
+
+                    WebFictionStory(
+                        id = storyId,
+                        url = storyUrl,
+                        title = storyTitle,
+                        author = author,
+                        description = synopsis,
+                        status = StoryStatus.UNKNOWN,
+                        genre = storyTags.firstOrNull(),
+                        fandom = null,
+                        language = "English",
+                        wordCount = null,
+                        chapterCount = null,
+                        lastUpdated = null,
+                        rating = ratingText,
+                        tags = storyTags,
+                        site = WebFictionSiteType.SCRIBBLE_HUB.displayName,
+                        coverUrl = cover
+                    )
+                }
+
+                val offsetWithinPage = criteria.offset % pageSize
+                val pagedStories = mappedStories.drop(offsetWithinPage)
+                val limitedStories = pagedStories.take(effectiveLimit)
+
+                val hasMore = pagedStories.size > limitedStories.size || mappedStories.size == pageSize
+                val nextOffset = if (hasMore) criteria.offset + limitedStories.size else null
+                val totalCount = criteria.offset + limitedStories.size
+
+                Result.success(
+                    StorySearchResult(
+                        stories = limitedStories,
+                        totalCount = totalCount,
+                        hasMore = hasMore,
+                        nextOffset = nextOffset
+                    )
+                )
+            } catch (e: Exception) {
+                Result.failure(
+                    Exception(
+                        "Unable to browse ScribbleHub automatically (${e.message ?: "unknown error"}). " +
+                            "Try opening the search manually: $url",
+                        e
+                    )
+                )
+            }
+        }
+    }
+
+    private fun parseScribbleHubId(url: String): String {
+        return Regex("series/(\\d+)").find(url)?.groupValues?.getOrNull(1)
+            ?: url.hashCode().toString()
     }
 
     private suspend fun browseNiftyByTags(criteria: StorySearchCriteria): Result<StorySearchResult> {

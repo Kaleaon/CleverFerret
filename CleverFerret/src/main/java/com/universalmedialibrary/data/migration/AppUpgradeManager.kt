@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.universalmedialibrary.data.local.AppDatabase
-// import com.universalmedialibrary.data.preferences.UserLibraryBackupService // Disabled - not currently operational
+import com.universalmedialibrary.data.services.SettingsBackupService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,8 +37,8 @@ import javax.inject.Singleton
 @Singleton
 class AppUpgradeManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val database: AppDatabase
-    // private val backupService: UserLibraryBackupService // Disabled - not currently operational
+    private val database: AppDatabase,
+    private val settingsBackupService: SettingsBackupService
 ) {
     private val TAG = "AppUpgradeManager"
     
@@ -112,9 +112,14 @@ class AppUpgradeManager @Inject constructor(
 
             // STEP 1: Create backup BEFORE any changes
             Log.i(TAG, "Creating pre-upgrade backup...")
-            // TODO: Integrate SettingsBackupService.exportToStorage() to create automatic backup before upgrades
-            // Backup service is now operational but needs integration with upgrade flow
-            val backupPath: String? = null // backupService.exportToStorage().getOrNull()?.absolutePath
+            // Integrated SettingsBackupService.exportToStorage() to create automatic backup before upgrades
+            val backupResult = settingsBackupService.exportToStorage()
+            val backupPath: String? = if (backupResult.isSuccess) {
+                backupResult.getOrNull()?.absolutePath
+            } else {
+                Log.e(TAG, "Backup creation failed: ${backupResult.exceptionOrNull()?.message}")
+                null
+            }
             
             if (backupPath != null) {
                 prefs.edit().putString(KEY_LAST_BACKUP_PATH, backupPath).apply()
