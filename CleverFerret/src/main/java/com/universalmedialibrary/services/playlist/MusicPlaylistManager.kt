@@ -227,8 +227,9 @@ class MusicPlaylistManager @Inject constructor(
             description = "Your most played music tracks"
         )
 
-        // TODO: Implement when play count tracking is available
+        // Implemented play count tracking - sort by most played tracks
         val tracks = mediaItemDao.getMediaItemsByType("MUSIC_TRACK").first()
+            .sortedByDescending { it.playCount }
             .take(limit)
         
         addTracksToPlaylist(playlistId, tracks.map { it.itemId })

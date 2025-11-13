@@ -33,22 +33,31 @@ class OrganizationViewModel @Inject constructor(
     
     private val _duplicateThreshold = MutableStateFlow(0.85f)
     val duplicateThreshold: StateFlow<Float> = _duplicateThreshold.asStateFlow()
+
+    private val _selectedLibraryId = MutableStateFlow<Long?>(null)
+    val selectedLibraryId: StateFlow<Long?> = _selectedLibraryId.asStateFlow()
+
+    private val _availableLibraries = MutableStateFlow<List<com.universalmedialibrary.data.local.entity.Library>>(emptyList())
+    val availableLibraries: StateFlow<List<com.universalmedialibrary.data.local.entity.Library>> = _availableLibraries.asStateFlow()
     
     fun scanForDuplicates() {
         viewModelScope.launch {
             try {
                 _isScanning.value = true
                 
-                // Use the first library for now (should be parameterized)
-                // TODO: Allow user to select library
+                // Implemented: Allow user to select library or use first available
                 val libraries = libraryDao.getAllLibraries().first()
+                _availableLibraries.value = libraries
+                
                 if (libraries.isEmpty()) {
                     _duplicateGroups.value = emptyList()
                     return@launch
                 }
                 
+                val selectedLibrary = _selectedLibraryId.value ?: libraries.first().libraryId
+                
                 // Collect duplicate scan results
-                duplicateDetectionService.scanLibraryForDuplicates(libraries.first().libraryId)
+                duplicateDetectionService.scanLibraryForDuplicates(selectedLibrary)
                     .collect { result ->
                         when (result) {
                             is DuplicateScanResult.Complete -> {
@@ -130,7 +139,11 @@ class OrganizationViewModel @Inject constructor(
     fun setThreshold(threshold: Float) {
         _duplicateThreshold.value = threshold
     }
-    
+
+    fun setSelectedLibrary(libraryId: Long) {
+        _selectedLibraryId.value = libraryId
+    }
+
     fun createSeries(suggestionIndex: Int) {
         viewModelScope.launch {
             try {

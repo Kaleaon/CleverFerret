@@ -87,8 +87,16 @@ class RecommendationsViewModel @Inject constructor(
     }
 
     fun toggleGenre(genre: String) {
-        // Genres not yet implemented in RecommendationOptions
-        // TODO: Add genre support
+        // Implemented genre support in RecommendationOptions
+        val current = _options.value.selectedGenres.toMutableSet()
+        if (current.contains(genre)) {
+            current.remove(genre)
+        } else {
+            current.add(genre)
+        }
+        _options.value = _options.value.copy(
+            selectedGenres = current.toList()
+        )
         loadRecommendations(forceRefresh = true)
     }
 

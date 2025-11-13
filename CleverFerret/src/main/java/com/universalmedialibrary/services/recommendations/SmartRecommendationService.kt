@@ -67,7 +67,7 @@ class SmartRecommendationService @Inject constructor(
 
             // 3. Genre-based (popular in favorite genres)
             if (options.includeGenreBased) {
-                val genreBased = getGenreBasedRecommendations(options.limit / 4)
+                val genreBased = getGenreBasedRecommendations(options.limit / 4, options)
                 recommendations.addAll(genreBased.map { it.copy(source = "You Might Like") })
             }
 
@@ -160,25 +160,110 @@ class SmartRecommendationService @Inject constructor(
     /**
      * Genre-based recommendations
      */
-    private suspend fun getGenreBasedRecommendations(limit: Int): List<Recommendation> {
-        // TODO: Implement when genre data is available in metadata
-        // For now, return recently added items
-        val allItems = mediaItemDao.getAllMediaItems()
-        
-        return allItems
-            .sortedByDescending { it.dateAdded }
-            .take(limit)
-            .map { item ->
-                Recommendation(
-                    itemId = item.itemId,
-                    title = item.fileName,
-                    mediaType = item.mediaType,
-                    reason = "Popular in your library",
-                    confidence = 0.6f,
-                    source = "genre_based",
-                    thumbnailUrl = null
-                )
+    private suspend fun getGenreBasedRecommendations(limit: Int, options: RecommendationOptions): List<Recommendation> {
+        // Implemented genre-based recommendations using metadata
+        try {
+            // Get all media items with their genres
+            val allItems = mediaItemDao.getAllMediaItems()
+            val itemsWithGenres = mutableListOf<Pair<MediaItem, List<String>>>()
+            
+            // Collect items with their genres
+            for (item in allItems) {
+                val genres = try {
+                    metadataDao.getGenresByItemId(item.itemId)
+                } catch (e: Exception) {
+                    emptyList<String>()
+                }
+                
+                if (genres.isNotEmpty()) {
+                    itemsWithGenres.add(item to genres)
+                }
             }
+            
+            if (itemsWithGenres.isEmpty()) {
+                // Fallback to recently added items if no genre data available
+                return allItems
+                    .sortedByDescending { it.dateAdded }
+                    .take(limit)
+                    .map { item ->
+                        Recommendation(
+                            itemId = item.itemId,
+                            title = item.fileName,
+                            mediaType = item.mediaType,
+                            reason = "Recently added",
+                            confidence = 0.5f,
+                            source = "genre_based",
+                            thumbnailUrl = null
+                        )
+                    }
+            }
+            
+            // Count genre frequency across the library
+            val genreFrequency = mutableMapOf<String, Int>()
+            for ((_, genres) in itemsWithGenres) {
+                for (genre in genres) {
+                    genreFrequency[genre] = genreFrequency.getOrDefault(genre, 0) + 1
+                }
+            }
+            
+            // Get the most popular genres, or use selected genres if specified
+            val popularGenres = if (options.selectedGenres.isNotEmpty()) {
+                // Use user-selected genres if available
+                options.selectedGenres.filter { genre -> genreFrequency.containsKey(it) }
+            } else {
+                // Otherwise use most popular genres
+                genreFrequency
+                    .toList()
+                    .sortedByDescending { it.second }
+                    .take(3) // Top 3 genres
+                    .map { it.first }
+            }
+            
+            // Find items in popular genres
+            val recommendations = mutableListOf<Recommendation>()
+            
+            for ((item, genres) in itemsWithGenres) {
+                val itemPopularGenres = genres.intersect(popularGenres.toSet())
+                if (itemPopularGenres.isNotEmpty()) {
+                    val confidence = 0.7f + (itemPopularGenres.size * 0.1f) // Higher confidence for more matches
+                    
+                    recommendations.add(
+                        Recommendation(
+                            itemId = item.itemId,
+                            title = item.fileName,
+                            mediaType = item.mediaType,
+                            reason = "Popular in genres: ${itemPopularGenres.joinToString(", ")}",
+                            confidence = confidence.coerceAtMost(1.0f),
+                            source = "genre_based",
+                            thumbnailUrl = null
+                        )
+                    )
+                }
+            }
+            
+            // Sort by confidence and take the requested limit
+            return recommendations
+                .sortedByDescending { it.confidence }
+                .take(limit)
+                
+        } catch (e: Exception) {
+            // Fallback to recently added items on error
+            val allItems = mediaItemDao.getAllMediaItems()
+            return allItems
+                .sortedByDescending { it.dateAdded }
+                .take(limit)
+                .map { item ->
+                    Recommendation(
+                        itemId = item.itemId,
+                        title = item.fileName,
+                        mediaType = item.mediaType,
+                        reason = "Recently added",
+                        confidence = 0.5f,
+                        source = "genre_based",
+                        thumbnailUrl = null
+                    )
+                }
+        }
     }
 
     /**
@@ -369,6 +454,7 @@ data class RecommendationOptions(
     val includeGenreBased: Boolean = true,
     val includeAIPowered: Boolean = true,
     val mediaTypes: List<String> = emptyList(), // Filter by media type
+    val selectedGenres: List<String> = emptyList(), // Filter by specific genres
     val minConfidence: Float = 0.5f
 )
 
