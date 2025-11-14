@@ -30,6 +30,24 @@ class FreeAudiobookViewModel @Inject constructor(
 
     init {
         refresh()
+
+        viewModelScope.launch {
+            downloadService.events.collect { event ->
+                val updated = _uiState.value.downloadStatus.toMutableMap()
+                when (event) {
+                    is FreeAudiobookDownloadService.DownloadEvent.Imported -> {
+                        updated[event.audiobookId] = DownloadUiStatus.Imported(event.title)
+                    }
+                    is FreeAudiobookDownloadService.DownloadEvent.Saved -> {
+                        updated[event.audiobookId] = DownloadUiStatus.Saved(event.title, event.message)
+                    }
+                    is FreeAudiobookDownloadService.DownloadEvent.Failed -> {
+                        updated[event.audiobookId] = DownloadUiStatus.Error(event.message)
+                    }
+                }
+                _uiState.value = _uiState.value.copy(downloadStatus = updated)
+            }
+        }
     }
 
     fun refresh() {
@@ -103,5 +121,7 @@ data class FreeAudiobookUiState(
 
 sealed class DownloadUiStatus {
     data class Queued(val downloadId: Long) : DownloadUiStatus()
+    data class Imported(val title: String) : DownloadUiStatus()
+    data class Saved(val title: String, val message: String) : DownloadUiStatus()
     data class Error(val message: String) : DownloadUiStatus()
 }

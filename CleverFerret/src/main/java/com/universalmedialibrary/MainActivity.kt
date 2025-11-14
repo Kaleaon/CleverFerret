@@ -60,7 +60,6 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Radio

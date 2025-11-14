@@ -67,10 +67,16 @@ fun FreeAudiobookScreen(
 
     LaunchedEffect(state.downloadStatus) {
         state.downloadStatus.forEach { (id, status) ->
-            if (processedStatuses.add("$id-${status::class.simpleName}")) {
+            if (processedStatuses.add("$id-${status::class.simpleName}-${status.hashCode()}")) {
                 when (status) {
                     is DownloadUiStatus.Queued -> {
                         snackbarHostState.showSnackbar("Download queued")
+                    }
+                    is DownloadUiStatus.Imported -> {
+                        snackbarHostState.showSnackbar("Imported \"${status.title}\" into your library")
+                    }
+                    is DownloadUiStatus.Saved -> {
+                        snackbarHostState.showSnackbar(status.message)
                     }
                     is DownloadUiStatus.Error -> {
                         snackbarHostState.showSnackbar("Download failed: ${status.message}")
