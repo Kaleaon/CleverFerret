@@ -61,6 +61,8 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -846,6 +848,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                 onBack = { navController.navigateUp() }
             )
         }
+
+        composable("free_media") {
+            com.universalmedialibrary.ui.media.FreeMediaScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("free_music") {
+            com.universalmedialibrary.ui.music.FreeMusicScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
         
         composable(
             route = "audiobook_player/{audiobookId}",
@@ -1138,6 +1152,26 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 label = "Fanfiction",
                 icon = { Icon(PhosphorIcons.Bookmark, contentDescription = "Fanfiction") },
                 routeMatch = "fanfiction"
+            )
+        }
+
+        addIfMissing("free_media") {
+            NavigationItem(
+                route = "free_media",
+                label = "Free Media",
+                icon = { Icon(Icons.Default.Collections, contentDescription = "Free Media") },
+                selectedIcon = { Icon(Icons.Default.Collections, contentDescription = "Free Media") },
+                routeMatch = "free_media"
+            )
+        }
+
+        addIfMissing("free_music") {
+            NavigationItem(
+                route = "free_music",
+                label = "Free Music",
+                icon = { Icon(Icons.Default.LibraryMusic, contentDescription = "Free Music") },
+                selectedIcon = { Icon(Icons.Default.LibraryMusic, contentDescription = "Free Music") },
+                routeMatch = "free_music"
             )
         }
 
