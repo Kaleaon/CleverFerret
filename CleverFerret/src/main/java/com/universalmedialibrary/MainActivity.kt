@@ -60,6 +60,7 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -831,9 +832,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                 onImportClick = { 
                     navController.navigate("storage_browser")
                 },
+                onExploreFreeAudiobooks = {
+                    navController.navigate("free_audiobooks")
+                },
                 onAudiobookClick = { audiobook ->
                     navController.navigate("audiobook_player/${audiobook.id}")
                 }
+            )
+        }
+        
+        composable("free_audiobooks") {
+            com.universalmedialibrary.ui.audiobook.FreeAudiobookScreen(
+                onBack = { navController.navigateUp() }
             )
         }
         
