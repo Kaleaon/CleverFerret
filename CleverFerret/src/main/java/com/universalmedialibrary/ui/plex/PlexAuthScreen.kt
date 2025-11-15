@@ -59,7 +59,10 @@ fun PlexAuthScreen(
                         )
                     } else {
                         IdleContent(
-                            onStartAuth = { viewModel.startPinAuth() }
+                            onStartAuth = { viewModel.startPinAuth() },
+                            onSignInWithCredentials = { username, password ->
+                                viewModel.signInWithCredentials(username, password)
+                            }
                         )
                     }
                 }
@@ -109,7 +112,15 @@ fun PlexAuthScreen(
 }
 
 @Composable
-private fun IdleContent(onStartAuth: () -> Unit) {
+private fun IdleContent(
+    onStartAuth: () -> Unit,
+    onSignInWithCredentials: (String, String) -> Unit = { _, _ -> }
+) {
+    var showCredentialsForm by remember { mutableStateOf(false) }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -140,13 +151,97 @@ private fun IdleContent(onStartAuth: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Button(
-                onClick = onStartAuth,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Login, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign in with PIN")
+            if (!showCredentialsForm) {
+                // PIN Authentication Button
+                Button(
+                    onClick = onStartAuth,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Login, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sign in with PIN")
+                }
+
+                // Divider with "OR"
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    HorizontalDivider(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "OR",
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    HorizontalDivider(modifier = Modifier.weight(1f))
+                }
+
+                // Username/Password Button
+                OutlinedButton(
+                    onClick = { showCredentialsForm = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.AccountCircle, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sign in with Username")
+                }
+            } else {
+                // Username/Password Form
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username or Email") },
+                    leadingIcon = {
+                        Icon(Icons.Default.AccountCircle, contentDescription = null)
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    leadingIcon = {
+                        Icon(Icons.Default.Lock, contentDescription = null)
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                            )
+                        }
+                    },
+                    visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Button(
+                    onClick = { onSignInWithCredentials(username, password) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = username.isNotBlank() && password.isNotBlank()
+                ) {
+                    Icon(Icons.Default.Login, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sign In")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        showCredentialsForm = false
+                        username = ""
+                        password = ""
+                        passwordVisible = false
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Back to PIN Login")
+                }
             }
         }
     }
