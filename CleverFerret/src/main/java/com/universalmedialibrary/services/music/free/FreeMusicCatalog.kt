@@ -64,12 +64,12 @@ object FreeMusicCatalog {
             id = "bbc_tropical_forest_birds",
             title = "Tropical Forest Ambience with Birds",
             artist = "BBC Sound Effects",
-            streamUrl = "https://sound-effects-media.bbcrewind.co.uk/mp3/07031428.mp3",
-            downloadUrl = "https://sound-effects-media.bbcrewind.co.uk/mp3/07031428.mp3",
+            streamUrl = "https://bbcsfx.acropolis.org.uk/assets/07031428.wav",
+            downloadUrl = "https://sound-effects.bbcrewind.co.uk/search?q=07031428",
             source = FreeMusicSource.BBC_SOUND_EFFECTS,
             license = creativeCommonsAttribution,
             durationSeconds = 120,
-            tags = listOf("nature", "ambient", "forest", "remarc"),
+            tags = listOf("nature", "ambient", "forest"),
             coverUrl = "https://sound-effects.bbcrewind.co.uk/static/img/favicons/android-chrome-512x512.png"
         ),
         FreeMusicTrack(

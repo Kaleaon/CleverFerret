@@ -5,24 +5,26 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.ui.PlayerNotificationManager
+import androidx.media3.common.util.UnstableApi
 import com.universalmedialibrary.R
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import android.graphics.Bitmap
 
 /**
  * Media Notification Service
  *
  * Provides a foreground notification that mirrors the currently active MediaSession.
  */
+@UnstableApi
 class MediaNotificationService : MediaSessionService() {
 
     private lateinit var mediaSessionManager: MediaSessionManager
@@ -32,10 +34,15 @@ class MediaNotificationService : MediaSessionService() {
     companion object {
         const val NOTIFICATION_ID = 1001
         const val CHANNEL_ID = "media_playback_channel"
+        private const val MAX_ARTWORK_BYTES = 1_048_576 // 1 MB
 
         fun start(context: Context) {
             val intent = Intent(context, MediaNotificationService::class.java)
-            context.startForegroundService(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
         }
 
         fun stop(context: Context) {
@@ -59,14 +66,12 @@ class MediaNotificationService : MediaSessionService() {
             if (ongoing) {
                 startForeground(notificationId, notification)
             } else {
-                stopForeground(STOP_FOREGROUND_DETACH)
-                (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                    .notify(notificationId, notification)
+                stopForegroundCompat(removeNotification = false)
             }
         }
 
         override fun onNotificationCancelled(notificationId: Int, dismissedByUser: Boolean) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopForegroundCompat(removeNotification = true)
             stopSelf()
         }
     }
@@ -99,7 +104,7 @@ class MediaNotificationService : MediaSessionService() {
     private fun refreshMediaSession() {
         val session = mediaSessionManager.getMediaSession()
         if (session == null) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopForegroundCompat(removeNotification = true)
             stopSelf()
             return
         }
@@ -156,6 +161,15 @@ class MediaNotificationService : MediaSessionService() {
         }
     }
 
+    private fun stopForegroundCompat(removeNotification: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val flag = if (removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH
+            stopForeground(flag)
+        } else {
+            stopForeground(removeNotification)
+        }
+    }
+
     private inner class MediaDescriptionAdapter : PlayerNotificationManager.MediaDescriptionAdapter {
         override fun getCurrentContentTitle(player: Player): CharSequence {
             return player.mediaMetadata.title ?: getString(R.string.media_notification_title)
@@ -174,6 +188,9 @@ class MediaNotificationService : MediaSessionService() {
             callback: PlayerNotificationManager.BitmapCallback
         ): Bitmap? {
             val artworkData = player.mediaMetadata.artworkData ?: return null
+            if (artworkData.size > MAX_ARTWORK_BYTES) {
+                return null
+            }
             return try {
                 BitmapFactory.decodeByteArray(artworkData, 0, artworkData.size)
             } catch (_: Exception) {

@@ -9,6 +9,7 @@ import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.activity.ComponentActivity
@@ -1524,8 +1525,9 @@ fun LibraryListScreen(
         )
 
     // Sample media data for recommendations
-      val sampleMedia = remember {
-        listOf(
+      val sampleMediaSeed = rememberSaveable { Random.nextInt() }
+      val sampleMedia = remember(sampleMediaSeed) {
+        val baseMedia = listOf(
             MediaRecommendation(
                 title = "The Great Gatsby",
                 subtitle = "F. Scott Fitzgerald",
@@ -1559,44 +1561,51 @@ fun LibraryListScreen(
                 subtitle = "Luminous City · Concept album",
                 type = "MUSIC",
                 colors = listOf(Color(0xFF5F0A87), Color(0xFFA4508B)),
-                imageUrl = "https://images.unsplash.com/photo-1508704019882-f9cf40e475b4?auto=format&fit=crop&w=800&q=80"
+                imageUrl = "https://images.unsplash.com/photo-1508704019882-f9cf40e475b4?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
             ),
             MediaRecommendation(
                 title = "Analog Echoes",
                 subtitle = "The Midnight Ensemble · Live in Berlin",
                 type = "MUSIC",
                 colors = listOf(Color(0xFF0F2027), Color(0xFF203A43)),
-                imageUrl = "https://images.unsplash.com/photo-1511376777868-611b54f68947?auto=format&fit=crop&w=800&q=80"
+                imageUrl = "https://images.unsplash.com/photo-1511376777868-611b54f68947?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
             ),
             MediaRecommendation(
                 title = "Starlight Odyssey",
                 subtitle = "Award-winning sci-fi epic",
                 type = "MOVIE",
                 colors = listOf(Color(0xFF03001E), Color(0xFF7303C0)),
-                imageUrl = "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80"
+                imageUrl = "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
             ),
             MediaRecommendation(
                 title = "Midnight Cinema",
                 subtitle = "Neo-noir thriller · Dolby Vision",
                 type = "MOVIE",
                 colors = listOf(Color(0xFF1A2A6C), Color(0xFFB21F1F)),
-                imageUrl = "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=800&q=80"
+                imageUrl = "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
             ),
             MediaRecommendation(
                 title = "Vinyl Dreams",
                 subtitle = "Analog soul remasters · 1970-1986",
                 type = "MUSIC",
                 colors = listOf(Color(0xFF380036), Color(0xFF0CBABA)),
-                imageUrl = "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=800&q=80"
+                imageUrl = "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
             ),
             MediaRecommendation(
                 title = "Signal from Europa",
                 subtitle = "Award-winning sci-fi audio drama",
                 type = "PODCAST",
                 colors = listOf(Color(0xFF001510), Color(0xFF00BF8F)),
-                imageUrl = "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?auto=format&fit=crop&w=800&q=80"
+                imageUrl = "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
             )
-        ).shuffled()
+        )
+        baseMedia.shuffled(Random(sampleMediaSeed))
     }
 
       val sampleClassics = remember {
