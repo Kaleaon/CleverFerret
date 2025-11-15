@@ -9,6 +9,7 @@ import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.activity.ComponentActivity
@@ -908,14 +909,6 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
 
-        // Enhanced Media Library Screen route
-        composable("media_library") {
-            com.universalmedialibrary.ui.screens.MediaLibraryScreen(
-                onNavigateToItem = { itemId ->
-                    navController.navigate("open/$itemId")
-                }
-            )
-        }
         composable("media_library/tv") {
             val mediaLibraryViewModel: MediaLibraryViewModel = hiltViewModel()
             LaunchedEffect(Unit) {
@@ -1243,15 +1236,6 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         }
 
-        addIfMissing("media_library") {
-            NavigationItem(
-                route = "media_library",
-                label = "Media Hub",
-                icon = { Icon(PhosphorIcons.Books, contentDescription = "Media Hub") },
-                routeMatch = "media_library"
-            )
-        }
-
         addIfMissing("recommendations") {
             NavigationItem(
                 route = "recommendations",
@@ -1541,14 +1525,88 @@ fun LibraryListScreen(
         )
 
     // Sample media data for recommendations
-      val sampleMedia = listOf(
-          MediaRecommendation("The Great Gatsby", "F. Scott Fitzgerald", "BOOK", listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)), imageRes = R.drawable.sample_cover_gatsby),
-          MediaRecommendation("Pride and Prejudice", "Jane Austen", "BOOK", listOf(Color(0xFF3E1A3D), Color(0xFF8E3A7C)), imageRes = R.drawable.sample_cover_pride),
-          MediaRecommendation("Moby-Dick", "Herman Melville", "BOOK", listOf(Color(0xFF0A2A35), Color(0xFF134B5F)), imageRes = R.drawable.sample_cover_mobydick),
-          MediaRecommendation("The Adventures of Sherlock Holmes", "Arthur Conan Doyle", "BOOK", listOf(Color(0xFF1A1A1A), Color(0xFFC0A062)), imageRes = R.drawable.sample_cover_sherlock),
-          MediaRecommendation("Little Women", "Louisa May Alcott", "BOOK", listOf(Color(0xFF713F2B), Color(0xFFD89C77)), imageRes = R.drawable.sample_cover_pride),
-          MediaRecommendation("Treasure Island", "Robert Louis Stevenson", "BOOK", listOf(Color(0xFF2E4A33), Color(0xFF7AA17A)), imageRes = R.drawable.sample_cover_mobydick)
-      )
+      val sampleMediaSeed = rememberSaveable { Random.nextInt() }
+      val sampleMedia = remember(sampleMediaSeed) {
+        val baseMedia = listOf(
+            MediaRecommendation(
+                title = "The Great Gatsby",
+                subtitle = "F. Scott Fitzgerald",
+                type = "BOOK",
+                colors = listOf(Color(0xFF1B5E20), Color(0xFF4CAF50)),
+                imageRes = R.drawable.sample_cover_gatsby
+            ),
+            MediaRecommendation(
+                title = "Pride and Prejudice",
+                subtitle = "Jane Austen",
+                type = "BOOK",
+                colors = listOf(Color(0xFF3E1A3D), Color(0xFF8E3A7C)),
+                imageRes = R.drawable.sample_cover_pride
+            ),
+            MediaRecommendation(
+                title = "Moby-Dick",
+                subtitle = "Herman Melville",
+                type = "BOOK",
+                colors = listOf(Color(0xFF0A2A35), Color(0xFF134B5F)),
+                imageRes = R.drawable.sample_cover_mobydick
+            ),
+            MediaRecommendation(
+                title = "The Adventures of Sherlock Holmes",
+                subtitle = "Arthur Conan Doyle",
+                type = "BOOK",
+                colors = listOf(Color(0xFF1A1A1A), Color(0xFFC0A062)),
+                imageRes = R.drawable.sample_cover_sherlock
+            ),
+            MediaRecommendation(
+                title = "Neon Daydreams",
+                subtitle = "Luminous City · Concept album",
+                type = "MUSIC",
+                colors = listOf(Color(0xFF5F0A87), Color(0xFFA4508B)),
+                imageUrl = "https://images.unsplash.com/photo-1508704019882-f9cf40e475b4?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Analog Echoes",
+                subtitle = "The Midnight Ensemble · Live in Berlin",
+                type = "MUSIC",
+                colors = listOf(Color(0xFF0F2027), Color(0xFF203A43)),
+                imageUrl = "https://images.unsplash.com/photo-1511376777868-611b54f68947?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Starlight Odyssey",
+                subtitle = "Award-winning sci-fi epic",
+                type = "MOVIE",
+                colors = listOf(Color(0xFF03001E), Color(0xFF7303C0)),
+                imageUrl = "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Midnight Cinema",
+                subtitle = "Neo-noir thriller · Dolby Vision",
+                type = "MOVIE",
+                colors = listOf(Color(0xFF1A2A6C), Color(0xFFB21F1F)),
+                imageUrl = "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Vinyl Dreams",
+                subtitle = "Analog soul remasters · 1970-1986",
+                type = "MUSIC",
+                colors = listOf(Color(0xFF380036), Color(0xFF0CBABA)),
+                imageUrl = "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            ),
+            MediaRecommendation(
+                title = "Signal from Europa",
+                subtitle = "Award-winning sci-fi audio drama",
+                type = "PODCAST",
+                colors = listOf(Color(0xFF001510), Color(0xFF00BF8F)),
+                imageUrl = "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?auto=format&fit=crop&w=800&q=80",
+                imageRes = R.drawable.placeholder_book_cover
+            )
+        )
+        baseMedia.shuffled(Random(sampleMediaSeed))
+    }
 
       val sampleClassics = remember {
           listOf(

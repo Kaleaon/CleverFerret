@@ -1,5 +1,13 @@
 package com.universalmedialibrary.ui.visualizer
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -7,10 +15,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,9 +58,29 @@ fun VisualizerScreen(
     val beatDetected by viewModel.beatDetected.collectAsState()
     var currentStyle by remember { mutableStateOf(VisualizerStyle.SPECTRUM_BARS) }
     var showPresetBrowser by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val activity = context as? Activity
+    var hasAudioPermission by rememberSaveable {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasAudioPermission = granted
+        if (!granted) {
+            viewModel.cleanup()
+        }
+    }
 
-    LaunchedEffect(Unit) {
-        viewModel.initialize()
+    LaunchedEffect(hasAudioPermission) {
+        if (hasAudioPermission) {
+            viewModel.initialize()
+        }
     }
 
     DisposableEffect(Unit) {
@@ -55,6 +88,13 @@ fun VisualizerScreen(
             viewModel.cleanup()
         }
     }
+
+    val showRationale = activity?.let {
+        ActivityCompat.shouldShowRequestPermissionRationale(
+            it,
+            Manifest.permission.RECORD_AUDIO
+        )
+    } ?: false
 
     Scaffold(
         topBar = {
@@ -125,6 +165,30 @@ fun VisualizerScreen(
             )
         }
     ) { padding ->
+        if (!hasAudioPermission) {
+            RecordAudioPermissionCard(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                showRationale = showRationale,
+                onRequestPermission = {
+                    if (!showRationale) {
+                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    }
+                },
+                onOpenSettings = {
+                    val intent = Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", context.packageName, null)
+                    ).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(intent)
+                }
+            )
+            return@Scaffold
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -333,6 +397,59 @@ fun VisualizerScreen(
 }
 
 @Composable
+private fun RecordAudioPermissionCard(
+    modifier: Modifier = Modifier,
+    showRationale: Boolean,
+    onRequestPermission: () -> Unit,
+    onOpenSettings: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.GraphicEq,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(72.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Enable Audio Visualizer",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "CleverFerret needs microphone permission to analyze your current audio playback and render live visualizations. We never record or store your audio.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = onRequestPermission, enabled = !showRationale) {
+            Text(if (showRationale) "Permission Required" else "Grant Permission")
+        }
+        if (showRationale) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Permission was denied earlier. Please enable microphone access from system settings to continue.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(onClick = onOpenSettings) {
+                Text("Open Settings")
+            }
+        }
+    }
+}
+
+@Composable
 private fun FrequencyMeter(
     label: String,
     level: Float,
@@ -457,10 +574,13 @@ class VisualizerViewModel @Inject constructor(
 
     fun cleanup() {
         audioVisualizerService.setEnabled(false)
+        chromecastManager.stopCasting()
+        chromecastManager.release()
     }
 
     override fun onCleared() {
         super.onCleared()
+        chromecastManager.release()
         audioVisualizerService.release()
     }
 }
