@@ -1017,4 +1017,9 @@ enum class PlaylistMode {
     REPEAT_ALL,  // Repeat entire queue
     REPEAT_ONE,  // Repeat current track
     SHUFFLE      // Random playback order
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancel coroutine scope to prevent memory leaks
+        scrobblerScope.cancel()
+    }
 }

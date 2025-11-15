@@ -29,8 +29,11 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -117,15 +120,33 @@ object NavigationItems {
             icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Audiobooks") }
         ),
         NavigationItem(
+            route = "free_audiobooks",
+            label = "Free Audiobooks",
+            icon = { Icon(PhosphorIcons.Headphones, contentDescription = "Free Audiobooks") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
             route = "music",
             label = "Music",
             icon = { Icon(PhosphorIcons.MusicNote, contentDescription = "Music") },
             selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") }
         ),
         NavigationItem(
+            route = "free_music",
+            label = "Free Music",
+            icon = { Icon(Icons.Filled.LibraryMusic, contentDescription = "Free Music") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
             route = "library_details/4",
             label = "Movies",
             icon = { Icon(PhosphorIcons.FilmSlate, contentDescription = "Movies") }
+        ),
+        NavigationItem(
+            route = "free_media",
+            label = "Free Media",
+            icon = { Icon(Icons.Filled.Collections, contentDescription = "Free Media") },
+            showInBottomNav = false
         ),
         NavigationItem(
             route = "library_details/5",

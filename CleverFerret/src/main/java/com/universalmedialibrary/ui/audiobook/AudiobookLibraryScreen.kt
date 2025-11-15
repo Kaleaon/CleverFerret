@@ -24,6 +24,7 @@ fun AudiobookLibraryScreen(
     viewModel: AudiobookViewModel = hiltViewModel(),
     onAudiobookClick: (AudiobookEntity) -> Unit,
     onImportClick: () -> Unit,
+    onExploreFreeAudiobooks: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val audiobooks by viewModel.allAudiobooks.collectAsState()
@@ -63,6 +64,9 @@ fun AudiobookLibraryScreen(
                     }
                 },
                 actions = {
+                      IconButton(onClick = onExploreFreeAudiobooks) {
+                          Icon(Icons.Default.Public, "Explore free audiobooks")
+                      }
                     IconButton(onClick = { showFilterMenu = true }) {
                         Icon(Icons.Default.FilterList, "Filter")
                     }
@@ -101,10 +105,11 @@ fun AudiobookLibraryScreen(
             )
         }
     ) { padding ->
-        if (displayedAudiobooks.isEmpty()) {
+          if (displayedAudiobooks.isEmpty()) {
             EmptyState(
                 hasAudiobooks = audiobooks.isNotEmpty(),
-                onImportClick = onImportClick
+                  onImportClick = onImportClick,
+                  onExploreFreeAudiobooks = onExploreFreeAudiobooks
             )
         } else {
             LazyColumn(
@@ -132,7 +137,8 @@ fun AudiobookLibraryScreen(
 @Composable
 private fun EmptyState(
     hasAudiobooks: Boolean,
-    onImportClick: () -> Unit
+    onImportClick: () -> Unit,
+    onExploreFreeAudiobooks: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -170,10 +176,21 @@ private fun EmptyState(
         if (!hasAudiobooks) {
             Spacer(Modifier.height(24.dp))
             
-            Button(onClick = onImportClick) {
-                Icon(Icons.Default.Add, "Import")
-                Spacer(Modifier.width(8.dp))
-                Text("Import Audiobook")
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = onImportClick) {
+                    Icon(Icons.Default.Add, "Import")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Import Audiobook")
+                }
+
+                OutlinedButton(onClick = onExploreFreeAudiobooks) {
+                    Icon(Icons.Default.Public, "Discover")
+                    Spacer(Modifier.width(8.dp))
+                    Text("Explore Free Audiobooks")
+                }
             }
         }
     }

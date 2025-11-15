@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancel
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
@@ -521,5 +522,10 @@ class AudiobookService @Inject constructor(
     fun jumpToBookmark(bookmark: AudiobookBookmark) {
         goToChapter(bookmark.chapterIndex)
         exoPlayerService.seekTo(bookmark.position)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancel coroutine scope to prevent memory leaks
+        serviceScope.cancel()
     }
 }

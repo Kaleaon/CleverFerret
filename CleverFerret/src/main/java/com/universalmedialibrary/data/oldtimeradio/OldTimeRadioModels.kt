@@ -194,6 +194,9 @@ interface OldTimeRadioDao {
     @Query("SELECT * FROM old_time_radio_episodes WHERE is_favorite = 1 ORDER BY last_played DESC")
     fun getFavoriteEpisodes(): Flow<List<OldTimeRadioEpisode>>
     
+    @Query("SELECT * FROM old_time_radio_episodes WHERE uri = :uri LIMIT 1")
+    suspend fun getEpisodeByUri(uri: String): OldTimeRadioEpisode?
+    
     @Query("""
         SELECT DISTINCT series_title, 
                COUNT(*) as episodeCount,
@@ -214,6 +217,9 @@ interface OldTimeRadioDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEpisode(episode: OldTimeRadioEpisode): Long
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertEpisodes(episodes: List<OldTimeRadioEpisode>)
+    
     @Update
     suspend fun updateEpisode(episode: OldTimeRadioEpisode)
     
@@ -231,6 +237,9 @@ interface OldTimeRadioDao {
     
     @Query("UPDATE old_time_radio_episodes SET play_count = play_count + 1, last_played = :timestamp WHERE id = :id")
     suspend fun incrementPlayCount(id: Long, timestamp: Long)
+    
+    @Query("SELECT COUNT(*) FROM old_time_radio_episodes")
+    suspend fun getEpisodeCount(): Int
 }
 
 /**

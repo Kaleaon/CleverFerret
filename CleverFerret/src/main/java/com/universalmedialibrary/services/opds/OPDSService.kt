@@ -1,37 +1,121 @@
 package com.universalmedialibrary.services.opds
 
-import android.content.Context
-import android.util.Log
 import com.universalmedialibrary.data.local.dao.OPDSCatalogDao
 import com.universalmedialibrary.data.local.entity.OPDSCatalog
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * OPDS Catalog Service
- * 
- * Basic OPDS support for catalog management
- * Full browse/download features will be enabled in v1.1.0
+ *
+ * Provides both catalog management (Room database) and remote feed access via [OPDSClient].
+ * Default catalogs are seeded on first use to give new installations immediate access to free books.
  */
 @Singleton
 class OPDSService @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val catalogDao: OPDSCatalogDao
+    private val catalogDao: OPDSCatalogDao,
+    private val opdsClient: OPDSClient
 ) {
-    private val TAG = "OPDSService"
 
-    suspend fun browseCatalog(catalogUrl: String): Result<OPDSFeed> = withContext(Dispatchers.IO) {
-        Log.w(TAG, "OPDS browsing will be fully enabled in v1.1.0")
-        Result.failure(Exception("OPDS browsing currently limited"))
+    private val defaultCatalogs: List<OPDSCatalog> by lazy {
+        val now = System.currentTimeMillis()
+        listOf(
+            OPDSCatalog(
+                name = "Project Gutenberg",
+                url = "https://www.gutenberg.org/ebooks.opds/",
+                description = "70,000+ public domain ebooks curated by Project Gutenberg.",
+                iconUrl = "https://www.gutenberg.org/gutenberg-512.png",
+                isDefault = true,
+                isEnabled = true,
+                opdsVersion = "1.2",
+                searchUrl = "https://www.gutenberg.org/ebooks/search.opds/?query={query}",
+                createdAt = now,
+                updatedAt = now
+            ),
+            OPDSCatalog(
+                name = "Standard Ebooks",
+                url = "https://standardebooks.org/opds/all",
+                description = "Hand-crafted public domain editions with modern typography.",
+                iconUrl = "https://standardebooks.org/images/logos/se-logo-128.png",
+                isDefault = true,
+                isEnabled = true,
+                opdsVersion = "1.2",
+                searchUrl = "https://standardebooks.org/opds/search?query={query}",
+                createdAt = now,
+                updatedAt = now
+            ),
+            OPDSCatalog(
+                name = "Internet Archive Books",
+                url = "https://archive.org/services/opds",
+                description = "Millions of digitized books from libraries and archives worldwide.",
+                iconUrl = "https://archive.org/images/glogo.png",
+                isDefault = true,
+                isEnabled = true,
+                opdsVersion = "1.1",
+                searchUrl = "https://archive.org/services/opds?search={query}",
+                createdAt = now,
+                updatedAt = now
+            )
+        )
     }
 
-    suspend fun searchCatalog(catalogUrl: String, query: String): Result<OPDSFeed> = withContext(Dispatchers.IO) {
-        Log.w(TAG, "OPDS search will be fully enabled in v1.1.0")
-        Result.failure(Exception("OPDS search currently limited"))
+    suspend fun ensureDefaultCatalogs() = withContext(Dispatchers.IO) {
+        val existing = catalogDao.getAllCatalogsOnce()
+        val existingByUrl = existing.associateBy { it.url.lowercase() }
+
+        defaultCatalogs.forEach { defaultCatalog ->
+            val match = existingByUrl[defaultCatalog.url.lowercase()]
+            if (match == null) {
+                catalogDao.insertCatalog(defaultCatalog.copy(id = 0))
+            } else {
+                if (!match.isDefault ||
+                    match.description != defaultCatalog.description ||
+                    match.searchUrl != defaultCatalog.searchUrl ||
+                    match.iconUrl != defaultCatalog.iconUrl
+                ) {
+                    catalogDao.updateCatalog(
+                        match.copy(
+                            name = defaultCatalog.name,
+                            description = defaultCatalog.description,
+                            iconUrl = defaultCatalog.iconUrl,
+                            isDefault = true,
+                            searchUrl = defaultCatalog.searchUrl,
+                            opdsVersion = defaultCatalog.opdsVersion,
+                            isEnabled = match.isEnabled || defaultCatalog.isEnabled,
+                            updatedAt = System.currentTimeMillis()
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    suspend fun browseCatalog(catalog: OPDSCatalog): Result<OPDSFeed> = withContext(Dispatchers.IO) {
+        ensureDefaultCatalogs()
+        runCatching {
+            val feed = opdsClient.fetchFeed(catalog.url)
+            if (catalog.id != 0L) {
+                catalogDao.updateLastAccessed(catalog.id, System.currentTimeMillis())
+            }
+            feed
+        }
+    }
+
+    suspend fun searchCatalog(catalog: OPDSCatalog, query: String): Result<OPDSFeed> = withContext(Dispatchers.IO) {
+        ensureDefaultCatalogs()
+        if (catalog.searchUrl.isNullOrBlank()) {
+            return@withContext Result.failure(
+                IllegalStateException("${catalog.name} does not support search.")
+            )
+        }
+
+        runCatching {
+            val searchUrl = opdsClient.buildSearchUrl(catalog.searchUrl!!, query)
+            opdsClient.fetchFeed(searchUrl)
+        }
     }
 
     fun getAllCatalogs(): Flow<List<OPDSCatalog>> {
@@ -39,15 +123,19 @@ class OPDSService @Inject constructor(
     }
 
     suspend fun addCatalog(catalog: OPDSCatalog): Long {
-        return catalogDao.insert(catalog)
+        val now = System.currentTimeMillis()
+        return catalogDao.insertCatalog(
+            catalog.copy(
+                id = 0,
+                isDefault = false,
+                createdAt = now,
+                updatedAt = now
+            )
+        )
     }
 
     suspend fun deleteCatalog(catalog: OPDSCatalog) {
-        catalogDao.delete(catalog)
-    }
-
-    suspend fun updateLastAccessed(catalogId: Long, timestamp: Long) {
-        catalogDao.updateLastAccessed(catalogId, timestamp)
+        catalogDao.deleteCatalog(catalog)
     }
 }
 
