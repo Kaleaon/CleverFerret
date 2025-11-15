@@ -131,7 +131,7 @@ class MediaNotificationService : MediaSessionService() {
                 .setMediaDescriptionAdapter(MediaDescriptionAdapter())
                 .setNotificationListener(notificationListener)
                 .build().apply {
-                    session.sessionCompatToken?.let { setMediaSessionToken(it) }
+                    setMediaSessionToken(session.platformToken)
                     setUseNextAction(true)
                     setUsePreviousAction(true)
                     setUseFastForwardAction(true)
