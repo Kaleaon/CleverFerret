@@ -209,7 +209,7 @@ class SmartRecommendationService @Inject constructor(
             // Get the most popular genres, or use selected genres if specified
             val popularGenres = if (options.selectedGenres.isNotEmpty()) {
                 // Use user-selected genres if available
-                options.selectedGenres.filter { genre -> genreFrequency.containsKey(it) }
+                options.selectedGenres.filter { genre -> genreFrequency.containsKey(genre) }
             } else {
                 // Otherwise use most popular genres
                 genreFrequency
