@@ -132,6 +132,15 @@ fun APIKeysManagerScreen(
                     setupInstructions = "1. Sign up for Listen Notes\\n2. Get free API key\\n3. Upgrade for more requests"
                 ),
                 APIKeyConfig(
+                    key = "podcast_index",
+                    displayName = "PodcastIndex API",
+                    description = "Community-driven podcast directory (enter as KEY:SECRET)",
+                    websiteUrl = "https://podcastindex.org/",
+                    isFree = true,
+                    category = APICategory.PODCASTS,
+                    setupInstructions = "1. Create PodcastIndex account\\n2. Generate API key and secret\\n3. Enter as KEY:SECRET"
+                ),
+                APIKeyConfig(
                     key = "spotify_client_id",
                     displayName = "Spotify Client ID",
                     description = "Access Spotify podcast directory",

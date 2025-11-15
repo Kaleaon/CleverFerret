@@ -40,6 +40,8 @@ object SoundLibrary {
                 enabled = true
             )
         )
+
+        FreeAmbientCollections.registerAll()
     }
     
     /**

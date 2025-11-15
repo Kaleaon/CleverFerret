@@ -514,7 +514,9 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
-        // ViewModel initialized
+        viewModelScope.launch {
+            opdsService.ensureDefaultCatalogs()
+        }
     }
 
     fun selectCatalog(catalog: OPDSCatalog) {
@@ -533,7 +535,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null // Show loading
-            _currentFeed.value = opdsService.browseCatalog(catalog.url)
+            _currentFeed.value = opdsService.browseCatalog(catalog)
         }
     }
 
@@ -543,7 +545,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null
-            _currentFeed.value = opdsService.searchCatalog(catalog.url, query)
+            _currentFeed.value = opdsService.searchCatalog(catalog, query)
         }
     }
 
