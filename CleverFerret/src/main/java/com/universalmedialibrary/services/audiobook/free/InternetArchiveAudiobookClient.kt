@@ -157,7 +157,7 @@ class InternetArchiveAudiobookClient @Inject constructor(
     }
 
     private fun JsonElement.jsonObjectString(key: String): String? {
-        return (this as? JsonObject)?.get(key)?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+        return (this as? JsonObject)?.get(key)?.jsonPrimitive?.content?.takeIf { it.isNotBlank() }
     }
 
     private fun encode(value: String): String {

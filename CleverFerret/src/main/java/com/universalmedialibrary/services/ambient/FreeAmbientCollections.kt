@@ -71,7 +71,7 @@ object FreeAmbientCollections {
             ),
             AmbientSound(
                 name = "City Night Loop",
-                category = AmbientCategory.CITY,
+                category = AmbientCategory.URBAN,
                 soundType = AmbientSoundType.CITY,
                 audioUrl = "https://freesound.org/data/previews/490/490466_1015240-lq.mp3",
                 iconType = "city",
