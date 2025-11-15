@@ -307,4 +307,9 @@ class MidiPlaybackService @Inject constructor(
         serviceScope.cancel()
         Log.d(TAG, "MidiPlaybackService released")
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancel coroutine scope to prevent memory leaks
+        serviceScope.cancel()
+    }
 }
