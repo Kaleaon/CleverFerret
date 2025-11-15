@@ -908,14 +908,6 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
 
-        // Enhanced Media Library Screen route
-        composable("media_library") {
-            com.universalmedialibrary.ui.screens.MediaLibraryScreen(
-                onNavigateToItem = { itemId ->
-                    navController.navigate("open/$itemId")
-                }
-            )
-        }
         composable("media_library/tv") {
             val mediaLibraryViewModel: MediaLibraryViewModel = hiltViewModel()
             LaunchedEffect(Unit) {
@@ -1240,15 +1232,6 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 label = "Collections",
                 icon = { Icon(PhosphorIcons.Stack, contentDescription = "Collections") },
                 routeMatch = "collection"
-            )
-        }
-
-        addIfMissing("media_library") {
-            NavigationItem(
-                route = "media_library",
-                label = "Media Hub",
-                icon = { Icon(PhosphorIcons.Books, contentDescription = "Media Hub") },
-                routeMatch = "media_library"
             )
         }
 

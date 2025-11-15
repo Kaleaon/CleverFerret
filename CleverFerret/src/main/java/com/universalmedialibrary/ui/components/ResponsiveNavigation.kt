@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -462,22 +463,28 @@ private fun ScrollableBottomBar(
         tonalElevation = 3.dp,
         shadowElevation = 0.dp
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (gearPosition == BottomGearPosition.LEFT) {
+                ScrollableNavigationBarEntry(
+                    navController = navController,
+                    item = settingsItem,
+                    currentDestination = currentDestination
+                )
+            }
+
             Row(
                 modifier = Modifier
-                    .horizontalScroll(scrollState)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .weight(1f)
+                    .horizontalScroll(scrollState),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (gearPosition == BottomGearPosition.LEFT) {
-                    ScrollableNavigationBarEntry(
-                        navController = navController,
-                        item = settingsItem,
-                        currentDestination = currentDestination
-                    )
-                }
-
                 items.forEach { item ->
                     ScrollableNavigationBarEntry(
                         navController = navController,
@@ -485,14 +492,14 @@ private fun ScrollableBottomBar(
                         currentDestination = currentDestination
                     )
                 }
+            }
 
-                if (gearPosition == BottomGearPosition.RIGHT) {
-                    ScrollableNavigationBarEntry(
-                        navController = navController,
-                        item = settingsItem,
-                        currentDestination = currentDestination
-                    )
-                }
+            if (gearPosition == BottomGearPosition.RIGHT) {
+                ScrollableNavigationBarEntry(
+                    navController = navController,
+                    item = settingsItem,
+                    currentDestination = currentDestination
+                )
             }
         }
     }
