@@ -68,7 +68,14 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.notificationsEnabledFlow,
                 settingsRepository.bottomGearPositionFlow,
                 settingsRepository.miniPlayerBackgroundModeFlow
-            ) { theme, darkMode, autoDownload, wifiOnly, notificationsEnabled, bottomGear, backgroundMode ->
+            ) { flows ->
+                val theme = flows[0] as com.universalmedialibrary.ui.theme.ThemePalette
+                val darkMode = flows[1] as Boolean
+                val autoDownload = flows[2] as Boolean
+                val wifiOnly = flows[3] as Boolean
+                val notificationsEnabled = flows[4] as Boolean
+                val bottomGear = flows[5] as com.universalmedialibrary.data.settings.BottomGearPosition
+                val backgroundMode = flows[6] as com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
                 SettingsUiState(
                     selectedTheme = theme,
                     darkMode = darkMode,

@@ -369,11 +369,6 @@ class MusicPlaylistManager @Inject constructor(
         )
     }
 
-    suspend fun deletePlaylist(playlistId: Long) {
-        playlistDao.getPlaylistById(playlistId)?.let { playlist ->
-            playlistDao.deletePlaylist(playlist)
-        }
-    }
 }
 
 /**

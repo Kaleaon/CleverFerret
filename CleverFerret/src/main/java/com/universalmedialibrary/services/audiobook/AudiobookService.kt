@@ -523,8 +523,11 @@ class AudiobookService @Inject constructor(
         goToChapter(bookmark.chapterIndex)
         exoPlayerService.seekTo(bookmark.position)
     }
-    override fun onDestroy() {
-        super.onDestroy()
+    
+    /**
+     * Release resources and cancel pending operations
+     */
+    fun release() {
         // Cancel coroutine scope to prevent memory leaks
         serviceScope.cancel()
     }

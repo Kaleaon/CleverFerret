@@ -234,6 +234,8 @@ class AndroidTextToSpeechService @Inject constructor(
         tts?.shutdown()
         tts = null
         _ttsState.value = TtsServiceState()
+        // Cancel coroutine scope to prevent memory leaks
+        serviceScope.cancel()
     }
 }
 
@@ -246,9 +248,4 @@ fun String.extractTextFromHtml(): String {
         .replace(Regex("&[^;]*;"), " ") // Remove HTML entities
         .replace(Regex("\\s+"), " ") // Normalize whitespace
         .trim()
-    override fun onDestroy() {
-        super.onDestroy()
-        // Cancel coroutine scope to prevent memory leaks
-        serviceScope.cancel()
-    }
 }

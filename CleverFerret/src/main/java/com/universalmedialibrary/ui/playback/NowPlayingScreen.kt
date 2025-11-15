@@ -93,6 +93,8 @@ fun NowPlayingScreen(
     }
     
     // Playlist selection dialog
+    // TODO: Implement addToPlaylist functionality in viewModel
+    /*
     if (showPlaylistDialog) {
         PlaylistSelectionDialog(
             currentItem = currentItem,
@@ -105,6 +107,7 @@ fun NowPlayingScreen(
             }
         )
     }
+    */
 }
 
 @Composable

@@ -126,7 +126,7 @@ class Lit2GoClient @Inject constructor(
     }
 
     private fun JsonObject.string(key: String): String? {
-        return this[key]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
+        return this[key]?.jsonPrimitive?.content?.takeIf { it.isNotBlank() }
     }
 
     private fun inferFormat(url: String): String {

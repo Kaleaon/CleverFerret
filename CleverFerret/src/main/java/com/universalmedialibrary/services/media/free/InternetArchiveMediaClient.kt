@@ -91,12 +91,12 @@ class InternetArchiveMediaClient @Inject constructor(
         type: FreeMediaType
     ): FreeMediaItem? = withContext(Dispatchers.IO) {
         val doc = element as? JsonObject ?: return@withContext null
-        val identifier = doc["identifier"]?.jsonPrimitive?.contentOrNull ?: return@withContext null
-        val title = doc["title"]?.jsonPrimitive?.contentOrNull ?: identifier
-        val description = doc["description"]?.jsonPrimitive?.contentOrNull
-        val creator = doc["creator"]?.jsonPrimitive?.contentOrNull
-        val year = doc["year"]?.jsonPrimitive?.contentOrNull
-        val mediatype = doc["mediatype"]?.jsonPrimitive?.contentOrNull
+        val identifier = doc["identifier"]?.jsonPrimitive?.content ?: return@withContext null
+        val title = doc["title"]?.jsonPrimitive?.content ?: identifier
+        val description = doc["description"]?.jsonPrimitive?.content
+        val creator = doc["creator"]?.jsonPrimitive?.content
+        val year = doc["year"]?.jsonPrimitive?.content
+        val mediatype = doc["mediatype"]?.jsonPrimitive?.content
 
         // Filter to expected media types
         when (type) {
