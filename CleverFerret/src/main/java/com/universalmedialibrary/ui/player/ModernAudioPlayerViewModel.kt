@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,7 @@ class ModernAudioPlayerViewModel @Inject constructor(
                 val currentMediaItem = audioPlaybackManager.exoPlayer.currentMediaItem
                 val currentUri = currentMediaItem?.localConfiguration?.uri
                 val previousTrack = _uiState.value.currentTrack
-                _uiState.value = _uiState.value.copy(
+                    _uiState.value = _uiState.value.copy(
                     currentTrack = if (audioState.title != null) {
                         val cover = if (currentUri?.toString() == lastArtworkSource) {
                             previousTrack?.coverUrl
@@ -63,11 +64,16 @@ class ModernAudioPlayerViewModel @Inject constructor(
                         audioPlaybackManager.exoPlayer.currentPosition.toFloat() / audioState.duration
                     } else 0f,
                     isShuffleEnabled = audioState.isShuffleEnabled,
-                    repeatMode = when (audioState.repeatMode) {
+                        repeatMode = when (audioState.repeatMode) {
                         com.universalmedialibrary.services.audio.RepeatMode.OFF -> RepeatMode.OFF
                         com.universalmedialibrary.services.audio.RepeatMode.ONE -> RepeatMode.ONE
                         com.universalmedialibrary.services.audio.RepeatMode.ALL -> RepeatMode.ALL
-                    }
+                        },
+                        skipSilenceEnabled = audioState.skipSilenceEnabled,
+                        crossfadeDurationMs = audioState.crossfadeDurationMs,
+                        queueEntries = audioState.queue,
+                        sleepTimerEndTime = audioState.sleepTimerEndTime,
+                        lastSleepTimerMinutes = audioState.lastSleepTimerMinutes
                 )
                 resolveCurrentArtwork()
             }
@@ -94,6 +100,18 @@ class ModernAudioPlayerViewModel @Inject constructor(
         audioPlaybackManager.toggleRepeat()
     }
 
+    fun toggleSkipSilence() {
+        audioPlaybackManager.toggleSkipSilence()
+    }
+
+    fun toggleCrossfade() {
+        audioPlaybackManager.toggleCrossfade()
+    }
+
+    fun setCrossfadeDurationSeconds(seconds: Int) {
+        audioPlaybackManager.updateCrossfade(seconds * 1000)
+    }
+
     fun toggleLike() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -106,6 +124,37 @@ class ModernAudioPlayerViewModel @Inject constructor(
 
     fun seekTo(position: Long) {
         audioPlaybackManager.seekTo(position)
+    }
+
+    fun seekToFraction(fraction: Float) {
+        val duration = _uiState.value.duration
+        if (duration <= 0) return
+        val clamped = fraction.coerceIn(0f, 1f)
+        audioPlaybackManager.seekTo((duration * clamped).toLong())
+    }
+
+    fun moveQueueItem(from: Int, to: Int) {
+        audioPlaybackManager.moveQueueItem(from, to)
+    }
+
+    fun removeQueueItem(index: Int) {
+        audioPlaybackManager.removeFromQueue(index)
+    }
+
+    fun playQueueItem(index: Int) {
+        audioPlaybackManager.playFromQueue(index)
+    }
+
+    fun scheduleSleepTimer(minutes: Int) {
+        audioPlaybackManager.scheduleSleepTimer(minutes, pauseOnComplete = true)
+    }
+
+    fun cancelSleepTimer() {
+        audioPlaybackManager.clearSleepTimer()
+    }
+
+    fun togglePartyMode() {
+        _uiState.value = _uiState.value.copy(partyModeEnabled = !_uiState.value.partyModeEnabled)
     }
 
     private fun resolveCurrentArtwork() {
@@ -176,16 +225,22 @@ class ModernAudioPlayerViewModel @Inject constructor(
     }
 }
 
-data class ModernAudioPlayerUiState(
-    val currentTrack: AudioTrack? = null,
-    val isPlaying: Boolean = false,
-    val currentPosition: Long = 0L,
-    val duration: Long = 0L,
-    val progress: Float = 0f,
-    val isShuffleEnabled: Boolean = false,
-    val repeatMode: RepeatMode = RepeatMode.OFF,
-    val isLiked: Boolean = false
-)
+    data class ModernAudioPlayerUiState(
+        val currentTrack: AudioTrack? = null,
+        val isPlaying: Boolean = false,
+        val currentPosition: Long = 0L,
+        val duration: Long = 0L,
+        val progress: Float = 0f,
+        val isShuffleEnabled: Boolean = false,
+        val repeatMode: RepeatMode = RepeatMode.OFF,
+        val isLiked: Boolean = false,
+        val skipSilenceEnabled: Boolean = false,
+        val crossfadeDurationMs: Int = 0,
+        val queueEntries: List<AudioQueueEntry> = emptyList(),
+        val sleepTimerEndTime: Long? = null,
+        val lastSleepTimerMinutes: Int = 0,
+        val partyModeEnabled: Boolean = false
+    )
 
 data class AudioTrack(
     val id: Long,

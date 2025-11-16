@@ -13,16 +13,20 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import com.universalmedialibrary.data.local.entity.ListenHistoryEntry
+import com.universalmedialibrary.data.preferences.AudioPlaybackPreferences
+import com.universalmedialibrary.data.preferences.AudioPlaybackPreferencesStore
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.ListenHistoryRepository
 import com.universalmedialibrary.data.repository.MediaRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.universalmedialibrary.services.media.MediaNotificationService
 import com.universalmedialibrary.services.media.MediaSessionManager
@@ -31,18 +35,22 @@ import javax.inject.Singleton
 
 @Singleton
 @OptIn(UnstableApi::class)
-    class AudioPlaybackManager @Inject constructor(
-        @ApplicationContext private val context: Context,
-        private val mediaSessionManager: MediaSessionManager,
-        private val listenHistoryRepository: ListenHistoryRepository,
-        private val mediaRepository: MediaRepository,
-        private val libraryRepository: LibraryRepository
-    ) {
+class AudioPlaybackManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val mediaSessionManager: MediaSessionManager,
+    private val listenHistoryRepository: ListenHistoryRepository,
+    private val mediaRepository: MediaRepository,
+    private val libraryRepository: LibraryRepository,
+    private val audioPreferences: AudioPlaybackPreferencesStore
+) {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "cf_music_playback"
         const val NOTIFICATION_ID = 1001
         private const val DEFAULT_MIN_LISTEN_SECONDS = 30
         private const val DEFAULT_MIN_LISTEN_PERCENT = 35
+        private const val DEFAULT_CROSSFADE_MS = 4000
+        private const val MAX_CROSSFADE_MS = 12000
+        private const val SLEEP_TIMER_TICK_MS = 1000L
     }
 
     private val _state = MutableStateFlow(AudioState())
@@ -52,6 +60,8 @@ import javax.inject.Singleton
     private val scrobblerScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val historyLock = Any()
     private var currentHistoryCandidate: HistoryCandidate? = null
+    private var sleepTimerJob: Job? = null
+    private var cachedPreferences: AudioPlaybackPreferences = AudioPlaybackPreferences()
 
     val exoPlayer: ExoPlayer by lazy {
         val renderersFactory = DefaultRenderersFactory(context)
@@ -97,6 +107,7 @@ import javax.inject.Singleton
                             )
                         }
                           scheduleHistoryCandidate(mediaItem)
+                          publishQueue()
                         updateState(duration = duration)
                     }
                     override fun onRepeatModeChanged(repeatMode: Int) {
@@ -115,6 +126,18 @@ import javax.inject.Singleton
 
     init {
         ensureChannel()
+        scrobblerScope.launch {
+            audioPreferences.preferences.collect { prefs ->
+                cachedPreferences = prefs
+                applySkipSilence(prefs.skipSilence, persist = false)
+                applyCrossfade(
+                    enabled = prefs.crossfadeEnabled,
+                    durationMs = prefs.crossfadeDurationMs,
+                    persist = false
+                )
+                updateState(lastSleepTimerMinutes = prefs.lastSleepTimerMinutes)
+            }
+        }
     }
 
     private fun ensureChannel() {
@@ -193,9 +216,100 @@ import javax.inject.Singleton
         updateState(repeatMode = next)
     }
 
+    fun toggleSkipSilence() {
+        val enable = !_state.value.skipSilenceEnabled
+        applySkipSilence(enable, persist = true)
+    }
+
+    fun setSkipSilence(enabled: Boolean) {
+        applySkipSilence(enabled, persist = true)
+    }
+
+    fun toggleCrossfade() {
+        val enable = _state.value.crossfadeDurationMs <= 0
+        val duration = if (enable) {
+            val stored = cachedPreferences.crossfadeDurationMs.takeIf { it > 0 } ?: DEFAULT_CROSSFADE_MS
+            stored
+        } else 0
+        applyCrossfade(enable, duration, persist = true)
+    }
+
+    fun updateCrossfade(durationMs: Int) {
+        val clamped = durationMs.coerceIn(0, MAX_CROSSFADE_MS)
+        applyCrossfade(clamped > 0, clamped, persist = true)
+    }
+
+    fun scheduleSleepTimer(minutes: Int, pauseOnComplete: Boolean) {
+        sleepTimerJob?.cancel()
+        if (minutes <= 0) {
+            updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
+            return
+        }
+        val endTime = System.currentTimeMillis() + minutes * 60_000L
+        sleepTimerJob = scrobblerScope.launch {
+            try {
+                var remaining = endTime - System.currentTimeMillis()
+                while (remaining > 0) {
+                    delay(minOf(SLEEP_TIMER_TICK_MS, remaining))
+                    remaining = endTime - System.currentTimeMillis()
+                }
+                finalizeHistoryCandidate()
+                exoPlayer.pause()
+                updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
+            } finally {
+                sleepTimerJob = null
+            }
+        }
+        scrobblerScope.launch { audioPreferences.setLastSleepTimerMinutes(minutes) }
+        updateState(sleepTimerEndTime = endTime, sleepTimerUpdated = true, lastSleepTimerMinutes = minutes)
+    }
+
+    fun clearSleepTimer() {
+        sleepTimerJob?.cancel()
+        sleepTimerJob = null
+        updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
+    }
+
+    fun playFromQueue(index: Int) {
+        if (index !in queue.indices) return
+        finalizeHistoryCandidate(exoPlayer.currentPosition)
+        exoPlayer.seekTo(index, C.TIME_UNSET)
+        exoPlayer.playWhenReady = true
+        publishQueue()
+    }
+
     fun setVolume(volume: Float) { exoPlayer.volume = volume.coerceIn(0f, 1f); updateState(volume = exoPlayer.volume) }
 
-    private fun publishQueue() { _state.value = _state.value.copy(queue = queue.map { it.mediaMetadata.title?.toString() ?: it.localConfiguration?.uri?.lastPathSegment ?: "Track" }) }
+    private fun applySkipSilence(enabled: Boolean, persist: Boolean) {
+        exoPlayer.skipSilenceEnabled = enabled
+        updateState(skipSilenceEnabled = enabled)
+        if (persist) {
+            scrobblerScope.launch { audioPreferences.setSkipSilence(enabled) }
+        }
+    }
+
+    private fun applyCrossfade(enabled: Boolean, durationMs: Int, persist: Boolean) {
+        val appliedDuration = if (enabled) durationMs.coerceIn(0, MAX_CROSSFADE_MS) else 0
+        exoPlayer.setCrossFadeDurationMs(appliedDuration.toLong())
+        updateState(crossfadeDurationMs = appliedDuration)
+        if (persist) {
+            scrobblerScope.launch { audioPreferences.setCrossfade(enabled, appliedDuration) }
+        }
+    }
+
+    private fun publishQueue() {
+        val entries = queue.mapIndexed { index, item ->
+            AudioQueueEntry(
+                index = index,
+                title = item.mediaMetadata.title?.toString()
+                    ?: item.localConfiguration?.uri?.lastPathSegment
+                    ?: "Track ${index + 1}",
+                uri = item.localConfiguration?.uri,
+                isCurrent = exoPlayer.currentMediaItemIndex == index
+            )
+        }
+        updateState(queue = entries)
+    }
 
     private fun updateState(
         isLoading: Boolean? = null,
@@ -206,7 +320,13 @@ import javax.inject.Singleton
         album: String? = null,
         isShuffleEnabled: Boolean? = null,
         repeatMode: RepeatMode? = null,
-        volume: Float? = null
+        volume: Float? = null,
+        queue: List<AudioQueueEntry>? = null,
+        skipSilenceEnabled: Boolean? = null,
+        crossfadeDurationMs: Int? = null,
+        sleepTimerEndTime: Long? = null,
+        sleepTimerUpdated: Boolean = false,
+        lastSleepTimerMinutes: Int? = null
     ) {
         val s = _state.value
         val newState = s.copy(
@@ -218,7 +338,12 @@ import javax.inject.Singleton
             album = album ?: s.album,
             isShuffleEnabled = isShuffleEnabled ?: s.isShuffleEnabled,
             repeatMode = repeatMode ?: s.repeatMode,
-            volume = volume ?: s.volume
+            volume = volume ?: s.volume,
+            queue = queue ?: s.queue,
+            skipSilenceEnabled = skipSilenceEnabled ?: s.skipSilenceEnabled,
+            crossfadeDurationMs = crossfadeDurationMs ?: s.crossfadeDurationMs,
+            sleepTimerEndTime = if (sleepTimerUpdated) sleepTimerEndTime else s.sleepTimerEndTime,
+            lastSleepTimerMinutes = lastSleepTimerMinutes ?: s.lastSleepTimerMinutes
         )
         _state.value = newState
 
@@ -391,18 +516,29 @@ import javax.inject.Singleton
         val startedAt: Long = System.currentTimeMillis()
     )
 
+    data class AudioQueueEntry(
+        val index: Int,
+        val title: String,
+        val uri: Uri?,
+        val isCurrent: Boolean
+    )
+
     enum class RepeatMode { OFF, ONE, ALL }
 
-data class AudioState(
-    val isLoading: Boolean = false,
-    val isPlaying: Boolean = false,
-    val title: String? = null,
-    val artist: String? = null,
-    val album: String? = null,
-    val duration: Long = 0L,
-    val currentPosition: Long = 0L,
-    val isShuffleEnabled: Boolean = false,
-    val repeatMode: RepeatMode = RepeatMode.OFF,
-    val volume: Float = 0.8f,
-    val queue: List<String> = emptyList()
-)
+    data class AudioState(
+        val isLoading: Boolean = false,
+        val isPlaying: Boolean = false,
+        val title: String? = null,
+        val artist: String? = null,
+        val album: String? = null,
+        val duration: Long = 0L,
+        val currentPosition: Long = 0L,
+        val isShuffleEnabled: Boolean = false,
+        val repeatMode: RepeatMode = RepeatMode.OFF,
+        val volume: Float = 0.8f,
+        val queue: List<AudioQueueEntry> = emptyList(),
+        val skipSilenceEnabled: Boolean = false,
+        val crossfadeDurationMs: Int = 0,
+        val sleepTimerEndTime: Long? = null,
+        val lastSleepTimerMinutes: Int = 0
+    )
