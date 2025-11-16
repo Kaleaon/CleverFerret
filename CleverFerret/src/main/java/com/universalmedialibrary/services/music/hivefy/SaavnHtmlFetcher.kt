@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.music.hivefy
 
+import android.util.Log
 import com.universalmedialibrary.data.music.hivefy.SaavnLanguage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -42,6 +43,7 @@ class SaavnHtmlFetcher @Inject constructor(
         limit: Int
     ): List<String> = withContext(ioDispatcher) {
         try {
+            val safeLimit = limit.coerceAtLeast(0)
             val document: Document = Jsoup.connect(url)
                 .userAgent(USER_AGENT)
                 .timeout(12_000)
@@ -54,15 +56,18 @@ class SaavnHtmlFetcher @Inject constructor(
                     if (href.isNullOrBlank()) null else "https://www.jiosaavn.com$href"
                 }
                 .distinct()
-                .take(limit)
+                .take(safeLimit)
         } catch (ioe: IOException) {
+            Log.w(TAG, "Failed to fetch Saavn HTML from $url", ioe)
             emptyList()
         } catch (t: Throwable) {
+            Log.e(TAG, "Unexpected error while parsing Saavn HTML from $url", t)
             emptyList()
         }
     }
 
     private companion object {
         private const val USER_AGENT = "Mozilla/5.0 (Android CleverFerret Hivefy Discovery)"
+        private const val TAG = "SaavnHtmlFetcher"
     }
 }

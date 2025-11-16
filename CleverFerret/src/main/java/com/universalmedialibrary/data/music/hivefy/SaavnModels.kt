@@ -49,7 +49,7 @@ data class SaavnAudioSource(
     val quality: String,
     val url: String
 ) {
-    val bitrateKbps: Int = quality.filter { it.isDigit() }.toIntOrNull()
+    val bitrateKbps: Int = QUALITY_REGEX.find(quality)?.value?.toIntOrNull()
         ?: when {
             quality.contains("320", ignoreCase = true) -> 320
             quality.contains("160", ignoreCase = true) -> 160
@@ -57,6 +57,10 @@ data class SaavnAudioSource(
             quality.contains("48", ignoreCase = true) -> 48
             else -> 0
         }
+
+    private companion object {
+        private val QUALITY_REGEX = "\\d+".toRegex()
+    }
 }
 
 @Serializable
@@ -134,4 +138,9 @@ fun SaavnSong.bestAudioSource(): SaavnAudioSource? =
     downloadSources.maxByOrNull { it.bitrateKbps }
 
 fun SaavnPlaylist.primaryArtistLine(): String? =
-    songs.firstOrNull()?.primaryArtists?.joinToString { it.name }
+    songs.asSequence()
+        .flatMap { it.primaryArtists.asSequence() }
+        .distinctBy { it.id }
+        .take(3)
+        .joinToString { it.name }
+        .takeIf { it.isNotBlank() }

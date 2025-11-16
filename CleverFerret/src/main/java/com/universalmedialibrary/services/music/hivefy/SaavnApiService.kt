@@ -71,7 +71,7 @@ class SaavnApiService @Inject constructor(
             queryParams = mapOf("ids" to ids.joinToString(","))
         ) ?: return emptyList()
 
-        val songsArray = data["data"] as? JsonArray ?: data["data"]?.jsonArray
+        val songsArray = data["data"]?.jsonArrayOrNull()
         return songsArray?.mapNotNull { element ->
             element.jsonObjectOrNull()?.let { SaavnJsonMapper.songFromJson(it) }
         } ?: emptyList()
@@ -130,6 +130,9 @@ class SaavnApiService @Inject constructor(
 
     private fun JsonElement.jsonObjectOrNull(): JsonObject? =
         runCatching { jsonObject }.getOrNull()
+
+    private fun JsonElement.jsonArrayOrNull(): JsonArray? =
+        runCatching { jsonArray }.getOrNull()
 
     private companion object {
         private const val SAAVN_MIRROR_HOST =

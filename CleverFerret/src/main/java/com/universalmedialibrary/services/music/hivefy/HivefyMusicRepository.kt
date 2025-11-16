@@ -46,11 +46,19 @@ class HivefyMusicRepository @Inject constructor(
         val playlistLinks = htmlFetcher.fetchFeaturedPlaylistLinks(language, FEATURED_LIMIT)
         val albumLinks = htmlFetcher.fetchNewAlbumLinks(language, FEATURED_LIMIT)
 
+        if (playlistLinks.isEmpty() && albumLinks.isEmpty()) {
+            throw IllegalStateException("Failed to fetch Hivefy discovery links for ${language.slug}")
+        }
+
         val playlists = fetchEntities(playlistLinks) { link ->
             saavnApiService.fetchPlaylistByLink(link, SONG_LIMIT_PER_ENTITY)
         }
         val albums = fetchEntities(albumLinks) { link ->
             saavnApiService.fetchAlbumByLink(link, SONG_LIMIT_PER_ENTITY)
+        }
+
+        if (playlists.isEmpty() && albums.isEmpty()) {
+            throw IllegalStateException("Hivefy discovery returned empty payload for ${language.slug}")
         }
 
         val payload = SaavnDiscoveryPayload(

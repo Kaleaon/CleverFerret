@@ -59,6 +59,7 @@ class SaavnJsonMapperTest {
         val song = playlist.songs.first()
         assertEquals("Alpha", song.title)
         assertEquals("Artist One", song.primaryArtists.first().name)
-        assertEquals("https://cdn/320.mp4", song.bestAudioSource()!!.url)
+        val bestSource = requireNotNull(song.bestAudioSource()) { "Expected best audio source" }
+        assertEquals("https://cdn/320.mp4", bestSource.url)
     }
 }

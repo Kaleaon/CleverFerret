@@ -24,7 +24,7 @@ import kotlinx.serialization.json.jsonPrimitive
 internal object SaavnJsonMapper {
 
     fun playlistFromJson(obj: JsonObject): SaavnPlaylist {
-        val songs = obj["songs"]?.jsonArray?.mapNotNull { element ->
+        val songs = obj["songs"]?.jsonArrayOrNull()?.mapNotNull { element ->
             element.jsonObjectOrNull()?.let { songFromJson(it) }
         } ?: emptyList()
 
@@ -43,15 +43,15 @@ internal object SaavnJsonMapper {
     }
 
     fun albumFromJson(obj: JsonObject): SaavnAlbum {
-        val songs = obj["songs"]?.jsonArray?.mapNotNull { element ->
+        val songs = obj["songs"]?.jsonArrayOrNull()?.mapNotNull { element ->
             element.jsonObjectOrNull()?.let { songFromJson(it) }
         } ?: emptyList()
 
         val artistNames = when {
-            obj["artists"]?.jsonObject != null -> {
-                val primary = obj["artists"]?.jsonObject
+            obj["artists"]?.jsonObjectOrNull() != null -> {
+                val primary = obj["artists"]?.jsonObjectOrNull()
                     ?.get("primary")
-                    ?.jsonArray
+                    ?.jsonArrayOrNull()
                     ?.mapNotNull { it.jsonObjectOrNull()?.string("name") }
                     ?: emptyList()
                 if (primary.isNotEmpty()) primary.joinToString() else obj.string("artist")
@@ -77,7 +77,7 @@ internal object SaavnJsonMapper {
         val primaryArtists = parseArtistArray(obj["primaryArtists"])
         val contributors = parseArtistObject(obj["artists"])
         val albumObj = obj["album"]?.jsonObjectOrNull()
-        val downloadSources = obj["downloadUrl"]?.jsonArray?.mapNotNull { element ->
+        val downloadSources = obj["downloadUrl"]?.jsonArrayOrNull()?.mapNotNull { element ->
             val quality = element.jsonObjectOrNull()?.string("quality")
             val url = element.jsonObjectOrNull()?.string("url")
             if (quality != null && url != null) {
@@ -107,7 +107,7 @@ internal object SaavnJsonMapper {
         val array: JsonArray = when {
             element == null || element is JsonNull -> return emptyList()
             element is JsonArray -> element
-            element is JsonObject && element["artists"] is JsonArray -> element["artists"]!!.jsonArray
+            element is JsonObject -> element["artists"]?.jsonArrayOrNull() ?: return emptyList()
             else -> return emptyList()
         }
 
@@ -132,7 +132,7 @@ internal object SaavnJsonMapper {
         val jsonObject = element?.jsonObjectOrNull() ?: return emptyList()
         val buckets = listOf("primary", "featured", "all")
         return buckets.flatMap { key ->
-            jsonObject[key]?.jsonArray?.mapNotNull { entry ->
+            jsonObject[key]?.jsonArrayOrNull()?.mapNotNull { entry ->
                 entry.jsonObjectOrNull()?.let { artist ->
                     val id = artist.string("id") ?: artist.string("artistid")
                     val name = artist.string("name") ?: artist.string("title")
@@ -151,7 +151,7 @@ internal object SaavnJsonMapper {
     }
 
     private fun bestImageUrl(element: JsonElement?): String? {
-        val images = element?.jsonArray?.mapNotNull { entry ->
+        val images = element?.jsonArrayOrNull()?.mapNotNull { entry ->
             val json = entry.jsonObjectOrNull() ?: return@mapNotNull null
             val quality = json.string("quality") ?: return@mapNotNull null
             val url = json.string("url") ?: return@mapNotNull null
@@ -168,7 +168,9 @@ internal object SaavnJsonMapper {
         val primitive = element.jsonPrimitive
         primitive.intOrNull
             ?: primitive.doubleOrNull?.toInt()
-            ?: primitive.contentOrNull?.filter { it.isDigit() }?.toIntOrNull()
+            ?: primitive.contentOrNull?.trim()?.let { value ->
+                value.toIntOrNull() ?: value.toDoubleOrNull()?.toInt()
+            }
     }
 
     private fun JsonObject.boolean(key: String): Boolean =
@@ -176,4 +178,7 @@ internal object SaavnJsonMapper {
 
     private fun JsonElement.jsonObjectOrNull(): JsonObject? =
         runCatching { jsonObject }.getOrNull()
+
+    private fun JsonElement.jsonArrayOrNull(): JsonArray? =
+        runCatching { jsonArray }.getOrNull()
 }

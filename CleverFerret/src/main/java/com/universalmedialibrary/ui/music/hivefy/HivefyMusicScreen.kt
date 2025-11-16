@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 import com.universalmedialibrary.data.music.hivefy.SaavnAlbum
 import com.universalmedialibrary.data.music.hivefy.SaavnLanguage
 import com.universalmedialibrary.data.music.hivefy.SaavnPlaylist
@@ -65,6 +68,7 @@ fun HivefyMusicScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     var previewPlaylist by remember { mutableStateOf<SaavnPlaylist?>(null) }
 
@@ -188,8 +192,16 @@ fun HivefyMusicScreen(
                 playlist = playlist,
                 onPlaySong = { viewModel.playSong(it) },
                 onOpenExternally = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(playlist.url))
-                    context.startActivity(intent)
+                    val safeIntent = Intent(Intent.ACTION_VIEW, Uri.parse(playlist.url)).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    if (safeIntent.resolveActivity(context.packageManager) != null) {
+                        context.startActivity(safeIntent)
+                    } else {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("No application available to open Hivefy link.")
+                        }
+                    }
                 }
             )
         }

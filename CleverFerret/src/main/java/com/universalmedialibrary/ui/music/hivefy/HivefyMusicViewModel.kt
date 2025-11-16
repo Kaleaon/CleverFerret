@@ -28,8 +28,13 @@ class HivefyMusicViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HivefyMusicUiState())
     val uiState: StateFlow<HivefyMusicUiState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<HivefyMusicEvent>()
+    private val _events = MutableSharedFlow<HivefyMusicEvent>(
+        replay = 0,
+        extraBufferCapacity = 1
+    )
     val events: SharedFlow<HivefyMusicEvent> = _events.asSharedFlow()
+
+    private var refreshToken = 0L
 
     init {
         refresh(forceRefresh = false)
@@ -52,6 +57,7 @@ class HivefyMusicViewModel @Inject constructor(
     }
 
     private fun refreshForLanguage(language: SaavnLanguage, forceRefresh: Boolean) {
+        val token = ++refreshToken
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
@@ -61,9 +67,13 @@ class HivefyMusicViewModel @Inject constructor(
                 )
             }
 
-            runCatching {
+            val result = runCatching {
                 repository.loadDiscovery(language, forceRefresh)
-            }.onSuccess { payload ->
+            }
+
+            if (token != refreshToken) return@launch
+
+            result.onSuccess { payload ->
                 _uiState.update {
                     it.copy(
                         playlists = payload.playlists,
@@ -83,7 +93,7 @@ class HivefyMusicViewModel @Inject constructor(
                         errorMessage = throwable.message ?: "Unable to reach Hivefy servers"
                     )
                 }
-                _events.emit(
+                _events.tryEmit(
                     HivefyMusicEvent.Message(
                         throwable.message ?: "Unable to refresh Hivefy discovery"
                     )
@@ -96,7 +106,7 @@ class HivefyMusicViewModel @Inject constructor(
         viewModelScope.launch {
             val source = song.bestAudioSource()
             if (source == null) {
-                _events.emit(HivefyMusicEvent.Message("Streaming link missing for ${song.title}"))
+                _events.tryEmit(HivefyMusicEvent.Message("Streaming link missing for ${song.title}"))
                 return@launch
             }
 
@@ -110,7 +120,7 @@ class HivefyMusicViewModel @Inject constructor(
                     albumArtUrl = song.artworkUrl
                 )
             }.onFailure { throwable ->
-                _events.emit(
+                _events.tryEmit(
                     HivefyMusicEvent.Message(
                         "Playback failed: ${throwable.message ?: "unknown error"}"
                     )
@@ -122,9 +132,7 @@ class HivefyMusicViewModel @Inject constructor(
     fun playPlaylist(playlist: SaavnPlaylist, startIndex: Int = 0) {
         val targetSong = playlist.songs.getOrNull(startIndex) ?: playlist.songs.firstOrNull()
         if (targetSong == null) {
-            viewModelScope.launch {
-                _events.emit(HivefyMusicEvent.Message("Playlist is still loading songs"))
-            }
+            _events.tryEmit(HivefyMusicEvent.Message("Playlist is still loading songs"))
             return
         }
         playSong(targetSong)
