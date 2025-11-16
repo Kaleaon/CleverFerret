@@ -155,12 +155,16 @@ class AudioPlaybackManager @Inject constructor(
     }
 
     fun loadSingle(uri: Uri, metadata: MediaMetadata? = null, playWhenReady: Boolean = true) {
-        finalizeHistoryCandidate(exoPlayer.currentPosition)
-        val item = (metadata?.let { MediaItem.Builder().setUri(uri).setMediaMetadata(it).build() }
+        val mediaItem = (metadata?.let { MediaItem.Builder().setUri(uri).setMediaMetadata(it).build() }
             ?: MediaItem.fromUri(uri))
+        loadSingle(mediaItem, playWhenReady)
+    }
+
+    fun loadSingle(mediaItem: MediaItem, playWhenReady: Boolean = true) {
+        finalizeHistoryCandidate(exoPlayer.currentPosition)
         queue.clear()
-        queue.add(item)
-        exoPlayer.setMediaItem(item)
+        queue.add(mediaItem)
+        exoPlayer.setMediaItem(mediaItem)
         exoPlayer.prepare()
         exoPlayer.playWhenReady = playWhenReady
         MediaNotificationService.start(context)
@@ -169,11 +173,22 @@ class AudioPlaybackManager @Inject constructor(
     }
 
     fun setQueue(uris: List<Uri>, startIndex: Int = 0, playWhenReady: Boolean = true) {
-        finalizeHistoryCandidate(exoPlayer.currentPosition)
         val items = uris.map { MediaItem.fromUri(it) }
-        queue.clear(); queue.addAll(items)
+        setQueue(items, startIndex, playWhenReady)
+    }
+
+    fun setQueue(
+        items: List<MediaItem>,
+        startIndex: Int = 0,
+        playWhenReady: Boolean = true
+    ) {
+        if (items.isEmpty()) return
+        finalizeHistoryCandidate(exoPlayer.currentPosition)
+        queue.clear()
+        queue.addAll(items)
         exoPlayer.setMediaItems(items, startIndex, C.TIME_UNSET)
-        exoPlayer.prepare(); exoPlayer.playWhenReady = playWhenReady
+        exoPlayer.prepare()
+        exoPlayer.playWhenReady = playWhenReady
         MediaNotificationService.start(context)
         publishQueue()
         scheduleHistoryCandidate(exoPlayer.currentMediaItem)

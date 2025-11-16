@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueEntry
+import com.universalmedialibrary.services.music.hivefy.HivefyPlaybackContract
 import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -183,15 +184,24 @@ class ModernAudioPlayerViewModel @Inject constructor(
 
     private fun resolveCurrentArtwork() {
         val currentMediaItem = audioPlaybackManager.exoPlayer.currentMediaItem ?: return
-        val uri = currentMediaItem.localConfiguration?.uri ?: return
-        val uriString = uri.toString()
-        if (uriString == lastArtworkSource && _uiState.value.currentTrack?.coverUrl != null) {
+        val candidateKeys = buildList {
+            currentMediaItem.localConfiguration?.uri?.toString()?.let { add(it) }
+            currentMediaItem.mediaId?.takeIf { it.isNotBlank() }?.let { add(it) }
+            currentMediaItem.mediaMetadata.extras
+                ?.getString(com.universalmedialibrary.services.music.hivefy.HivefyPlaybackContract.EXTRA_CANONICAL_URL)
+                ?.let { add(it) }
+        }
+        val lookupKey = candidateKeys.firstOrNull { it.isNotBlank() } ?: return
+        if (lookupKey == lastArtworkSource && _uiState.value.currentTrack?.coverUrl != null) {
             return
         }
-        lastArtworkSource = uriString
+        lastArtworkSource = lookupKey
         artworkJob?.cancel()
         artworkJob = viewModelScope.launch(Dispatchers.IO) {
-            val cover = fetchCoverForUri(uri)
+            val cover = fetchCoverFromCandidates(
+                candidatePaths = candidateKeys,
+                fallbackUri = currentMediaItem.localConfiguration?.uri
+            )
             if (cover != null) {
                 withContext(Dispatchers.Main) {
                     val current = _uiState.value.currentTrack
@@ -205,21 +215,25 @@ class ModernAudioPlayerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fetchCoverForUri(uri: Uri): String? {
-        val path = uri.path
-        if (!path.isNullOrEmpty()) {
+    private suspend fun fetchCoverFromCandidates(
+        candidatePaths: List<String>,
+        fallbackUri: Uri?
+    ): String? {
+        candidatePaths.forEach { path ->
+            if (path.isBlank()) return@forEach
             val mediaItem = mediaRepository.getMediaItemByPath(path)
             if (mediaItem != null) {
                 val metadata = mediaRepository.getCommonMetadata(mediaItem.itemId)
-                if (!metadata?.coverImagePath.isNullOrEmpty()) {
-                    return metadata?.coverImagePath
+                val metadataCover = metadata?.coverImagePath
+                if (!metadataCover.isNullOrEmpty()) {
+                    return metadataCover
                 }
                 if (!mediaItem.thumbnailPath.isNullOrEmpty()) {
                     return mediaItem.thumbnailPath
                 }
             }
         }
-        return extractCoverFromUri(uri)
+        return fallbackUri?.let { extractCoverFromUri(it) }
     }
 
     private fun extractCoverFromUri(uri: Uri): String? {

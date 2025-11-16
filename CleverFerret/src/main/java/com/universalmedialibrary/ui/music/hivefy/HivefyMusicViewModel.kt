@@ -1,14 +1,19 @@
 package com.universalmedialibrary.ui.music.hivefy
 
+import android.net.Uri
+import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.music.hivefy.SaavnLanguage
 import com.universalmedialibrary.data.music.hivefy.SaavnPlaylist
 import com.universalmedialibrary.data.music.hivefy.SaavnSong
 import com.universalmedialibrary.data.music.hivefy.bestAudioSource
-import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
+import com.universalmedialibrary.services.audio.AudioPlaybackManager
+import com.universalmedialibrary.services.music.hivefy.HivefyPlaybackContract
 import com.universalmedialibrary.services.music.hivefy.HivefyMusicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HivefyMusicViewModel @Inject constructor(
     private val repository: HivefyMusicRepository,
-    private val musicPlayerService: AdvancedMusicPlayerService
+    private val audioPlaybackManager: AudioPlaybackManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HivefyMusicUiState())
@@ -104,21 +109,13 @@ class HivefyMusicViewModel @Inject constructor(
 
     fun playSong(song: SaavnSong) {
         viewModelScope.launch {
-            val source = song.bestAudioSource()
-            if (source == null) {
+            val mediaItem = buildMediaItem(song)
+            if (mediaItem == null) {
                 _events.tryEmit(HivefyMusicEvent.Message("Streaming link missing for ${song.title}"))
                 return@launch
             }
-
             runCatching {
-                musicPlayerService.playTrackFromUri(
-                    uri = source.url,
-                    title = song.title,
-                    artist = song.primaryArtists.firstOrNull()?.name,
-                    album = song.albumName,
-                    duration = (song.durationSeconds ?: 0) * 1000L,
-                    albumArtUrl = song.artworkUrl
-                )
+                audioPlaybackManager.loadSingle(mediaItem, playWhenReady = true)
             }.onFailure { throwable ->
                 _events.tryEmit(
                     HivefyMusicEvent.Message(
@@ -130,12 +127,49 @@ class HivefyMusicViewModel @Inject constructor(
     }
 
     fun playPlaylist(playlist: SaavnPlaylist, startIndex: Int = 0) {
-        val targetSong = playlist.songs.getOrNull(startIndex) ?: playlist.songs.firstOrNull()
-        if (targetSong == null) {
-            _events.tryEmit(HivefyMusicEvent.Message("Playlist is still loading songs"))
-            return
+        viewModelScope.launch {
+            val mediaItems = playlist.songs.mapNotNull { buildMediaItem(it, emitErrors = false) }
+            if (mediaItems.isEmpty()) {
+                _events.tryEmit(HivefyMusicEvent.Message("No playable tracks found in ${playlist.title}"))
+                return@launch
+            }
+            val safeIndex = startIndex.coerceIn(0, mediaItems.lastIndex)
+            runCatching {
+                audioPlaybackManager.setQueue(mediaItems, safeIndex, playWhenReady = true)
+            }.onFailure { throwable ->
+                _events.tryEmit(
+                    HivefyMusicEvent.Message(
+                        "Unable to start playlist: ${throwable.message ?: "unknown error"}"
+                    )
+                )
+            }
         }
-        playSong(targetSong)
+    }
+
+    private fun buildMediaItem(song: SaavnSong, emitErrors: Boolean = true): MediaItem? {
+        val source = song.bestAudioSource()
+        if (source == null) {
+            if (emitErrors) {
+                _events.tryEmit(HivefyMusicEvent.Message("Streaming link missing for ${song.title}"))
+            }
+            return null
+        }
+        val metadata = MediaMetadata.Builder()
+            .setTitle(song.title)
+            .setArtist(song.primaryArtists.joinToString { it.name })
+            .setAlbumTitle(song.albumName)
+            .setArtworkUri(song.artworkUrl?.let(Uri::parse))
+            .setExtras(Bundle().apply {
+                putString(HivefyPlaybackContract.EXTRA_CANONICAL_URL, song.url)
+                putString(HivefyPlaybackContract.EXTRA_TRACK_ID, song.id)
+            })
+            .build()
+
+        return MediaItem.Builder()
+            .setUri(Uri.parse(source.url))
+            .setMediaId(song.url)
+            .setMediaMetadata(metadata)
+            .build()
     }
 
     data class HivefyMusicUiState(

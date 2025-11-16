@@ -26,7 +26,8 @@ class HivefyMusicRepository @Inject constructor(
     private val htmlFetcher: SaavnHtmlFetcher,
     private val cacheStore: HivefyCacheStore,
     private val json: Json,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val mediaSyncManager: HivefyMediaSyncManager
 ) {
 
     suspend fun loadDiscovery(
@@ -69,6 +70,7 @@ class HivefyMusicRepository @Inject constructor(
         )
 
         cacheStore.write(cacheKey, json.encodeToString(payload))
+        runCatching { mediaSyncManager.syncDiscovery(payload) }
         payload
     }
 

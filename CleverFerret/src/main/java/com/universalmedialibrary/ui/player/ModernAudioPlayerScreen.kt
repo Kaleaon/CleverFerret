@@ -47,7 +47,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.roundToInt
-import kotlin.random.Random
 
 /**
  * Modern Audio Player with beautiful animations and glassmorphic design
@@ -635,12 +634,6 @@ private fun formatTime(ms: Long): String {
     } else {
         String.format(Locale.US, "%d:%02d", minutes, seconds)
     }
-}
-
-private fun generateWaveformPoints(seed: Long, size: Int = 80): List<Float> {
-    val adjustedSeed = if (seed != 0L) seed else System.currentTimeMillis()
-    val random = Random(adjustedSeed)
-    return List(size) { 0.2f + random.nextFloat() * 0.8f }
 }
 
 @Composable
