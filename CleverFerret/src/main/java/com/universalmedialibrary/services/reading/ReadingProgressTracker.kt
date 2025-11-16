@@ -44,20 +44,23 @@ class ReadingProgressTracker @Inject constructor(
         // Get existing progress or create new
         val existing = progressDao.getProgress(mediaItemId).first()
         
+        val timestamp = System.currentTimeMillis()
         val progress = existing?.copy(
             currentPosition = currentPosition,
             currentPage = currentPage,
             currentChapter = currentChapter,
             percentage = percentage,
-            lastUpdate = System.currentTimeMillis()
+            lastUpdate = timestamp,
+            lastModified = timestamp
         ) ?: ReadingProgress(
             itemId = mediaItemId,
             currentPosition = currentPosition,
             currentPage = currentPage,
             currentChapter = currentChapter,
             percentage = percentage,
-            startedDate = System.currentTimeMillis(),
-            lastUpdate = System.currentTimeMillis()
+            startedDate = timestamp,
+            lastUpdate = timestamp,
+            lastModified = timestamp
         )
         
         progressDao.upsert(progress)

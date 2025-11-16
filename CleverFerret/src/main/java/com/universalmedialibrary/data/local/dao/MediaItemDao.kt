@@ -73,6 +73,16 @@ interface MediaItemDao {
     @Query("SELECT COUNT(*) FROM media_items WHERE mediaType = :mediaType")
     suspend fun getItemCountByType(mediaType: String): Int
 
+    @Query(
+        """
+        SELECT mediaType, COUNT(*) AS count
+        FROM media_items
+        WHERE libraryId = :libraryId
+        GROUP BY mediaType
+        """
+    )
+    suspend fun getItemCountsByTypeForLibrary(libraryId: Long): List<MediaTypeCount>
+
     /**
      * Get book details for a library - returns a flow of MediaItems for books
      * The actual BookDetails combination will be done in the repository/viewmodel layer
@@ -166,3 +176,8 @@ interface MediaItemDao {
     """)
     fun getMediaItemsByDirector(directorName: String): Flow<List<MediaItem>>
 }
+
+data class MediaTypeCount(
+    val mediaType: String,
+    val count: Int
+)

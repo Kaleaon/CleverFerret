@@ -28,7 +28,8 @@ class ReadingProgressRepository @Inject constructor(
         currentChapter: Int = 1
     ) {
         val existing = readingProgressDao.getProgress(itemId).first()
-val isCompleted = percentage >= 100f
+        val isCompleted = percentage >= 100f
+        val timestamp = System.currentTimeMillis()
         val updated = (existing ?: ReadingProgress(
             itemId = itemId
         )).copy(
@@ -37,8 +38,9 @@ val isCompleted = percentage >= 100f
             currentPosition = currentPosition,
             percentage = percentage,
             isCompleted = isCompleted,
-            lastUpdate = System.currentTimeMillis(),
-            completedDate = if (isCompleted) System.currentTimeMillis() else null
+            lastUpdate = timestamp,
+            lastModified = timestamp,
+            completedDate = if (isCompleted) timestamp else null
         )
         readingProgressDao.upsert(updated)
     }
