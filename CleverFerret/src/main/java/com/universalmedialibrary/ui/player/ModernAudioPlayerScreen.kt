@@ -46,6 +46,15 @@ fun ModernAudioPlayerScreen(
     viewModel: ModernAudioPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val artworkColors = rememberArtworkPalette(uiState.currentTrack?.coverUrl)
+    val onArtworkColor = if (artworkColors.isDark) Color.White else Color.Black
+    val gradientColors = remember(artworkColors) {
+        listOf(
+            artworkColors.primary,
+            artworkColors.secondary.copy(alpha = 0.9f),
+            artworkColors.accent
+        )
+    }
     
     var showMoreOptions by remember { mutableStateOf(false) }
     var showQueue by remember { mutableStateOf(false) }
@@ -68,13 +77,7 @@ fun ModernAudioPlayerScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF1A1A2E),
-                        Color(0xFF16213E),
-                        Color(0xFF0F3460)
-                    )
-                )
+                Brush.verticalGradient(colors = gradientColors)
             )
     ) {
         // Background blur effect
@@ -103,26 +106,26 @@ fun ModernAudioPlayerScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = onNavigateBack) {
                     Icon(
                         Icons.Default.ExpandMore,
                         contentDescription = "Back",
-                        tint = Color.White
+                            tint = onArtworkColor
                     )
                 }
 
                 Text(
                     text = "NOW PLAYING",
                     style = MaterialTheme.typography.labelLarge,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = onArtworkColor.copy(alpha = 0.7f),
                     letterSpacing = 2.sp
                 )
 
-                IconButton(onClick = { showMoreOptions = true }) {
+                    IconButton(onClick = { showMoreOptions = true }) {
                     Icon(
                         Icons.Default.MoreVert,
                         contentDescription = "More",
-                        tint = Color.White
+                            tint = onArtworkColor
                     )
                 }
             }
@@ -139,7 +142,8 @@ fun ModernAudioPlayerScreen(
                     VinylRecord(
                         rotation = rotation,
                         modifier = Modifier
-                            .fillMaxSize(0.9f)
+                            .fillMaxSize(0.9f),
+                        grooveColor = artworkColors.secondary
                     )
                 }
 
@@ -161,19 +165,19 @@ fun ModernAudioPlayerScreen(
                             contentScale = ContentScale.Crop
                         )
                     } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    Brush.linearGradient(
-                                        colors = listOf(
-                                            Color(0xFF4A148C),
-                                            Color(0xFF9C27B0)
-                                        )
-                                    )
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
+                          Box(
+                              modifier = Modifier
+                                  .fillMaxSize()
+                                  .background(
+                                      Brush.linearGradient(
+                                          colors = listOf(
+                                              artworkColors.primary,
+                                              artworkColors.accent
+                                          )
+                                      )
+                                  ),
+                              contentAlignment = Alignment.Center
+                          ) {
                             Icon(
                                 Icons.Default.MusicNote,
                                 contentDescription = null,
@@ -201,7 +205,7 @@ fun ModernAudioPlayerScreen(
                             blurRadius = 8f
                         )
                     ),
-                    color = Color.White,
+                      color = onArtworkColor,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -209,7 +213,7 @@ fun ModernAudioPlayerScreen(
                 Text(
                     text = uiState.currentTrack?.artist ?: "",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.7f),
+                      color = onArtworkColor.copy(alpha = 0.7f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -233,16 +237,16 @@ fun ModernAudioPlayerScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = formatTime(uiState.currentPosition),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
-                    Text(
-                        text = formatTime(uiState.duration),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                      Text(
+                          text = formatTime(uiState.currentPosition),
+                          style = MaterialTheme.typography.bodySmall,
+                          color = onArtworkColor.copy(alpha = 0.6f)
+                      )
+                      Text(
+                          text = formatTime(uiState.duration),
+                          style = MaterialTheme.typography.bodySmall,
+                          color = onArtworkColor.copy(alpha = 0.6f)
+                      )
                 }
             }
 
@@ -255,7 +259,9 @@ fun ModernAudioPlayerScreen(
                 onShuffle = { viewModel.toggleShuffle() },
                 onRepeat = { viewModel.toggleRepeat() },
                 isShuffleEnabled = uiState.isShuffleEnabled,
-                repeatMode = uiState.repeatMode
+                  repeatMode = uiState.repeatMode,
+                  iconTint = onArtworkColor,
+                  highlightColor = artworkColors.accent
             )
 
             // Bottom actions
@@ -267,7 +273,7 @@ fun ModernAudioPlayerScreen(
                     Icon(
                         if (uiState.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = if (uiState.isLiked) Color(0xFFFF6B9D) else Color.White,
+                        tint = if (uiState.isLiked) artworkColors.accent else onArtworkColor,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -276,7 +282,7 @@ fun ModernAudioPlayerScreen(
                     Icon(
                         Icons.Default.QueueMusic,
                         contentDescription = "Queue",
-                        tint = Color.White,
+                        tint = onArtworkColor,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -285,7 +291,7 @@ fun ModernAudioPlayerScreen(
                     Icon(
                         Icons.Default.PlaylistAdd,
                         contentDescription = "Add to Playlist",
-                        tint = Color.White,
+                        tint = onArtworkColor,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -294,7 +300,7 @@ fun ModernAudioPlayerScreen(
                     Icon(
                         Icons.Default.Share,
                         contentDescription = "Share",
-                        tint = Color.White,
+                        tint = onArtworkColor,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -454,7 +460,9 @@ private fun PlaybackControls(
     onShuffle: () -> Unit,
     onRepeat: () -> Unit,
     isShuffleEnabled: Boolean,
-    repeatMode: RepeatMode
+    repeatMode: RepeatMode,
+    iconTint: Color,
+    highlightColor: Color
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -466,7 +474,7 @@ private fun PlaybackControls(
             Icon(
                 Icons.Default.Shuffle,
                 contentDescription = "Shuffle",
-                tint = if (isShuffleEnabled) Color(0xFF00E5FF) else Color.White.copy(alpha = 0.5f),
+                tint = if (isShuffleEnabled) highlightColor else iconTint.copy(alpha = 0.5f),
                 modifier = Modifier.size(28.dp)
             )
         }
@@ -481,7 +489,7 @@ private fun PlaybackControls(
                 Icon(
                     Icons.Default.SkipPrevious,
                     contentDescription = "Previous",
-                    tint = Color.White,
+                    tint = iconTint,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -523,7 +531,7 @@ private fun PlaybackControls(
                 Icon(
                     Icons.Default.SkipNext,
                     contentDescription = "Next",
-                    tint = Color.White,
+                    tint = iconTint,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -539,8 +547,8 @@ private fun PlaybackControls(
                 },
                 contentDescription = "Repeat",
                 tint = when (repeatMode) {
-                    RepeatMode.OFF -> Color.White.copy(alpha = 0.5f)
-                    else -> Color(0xFF00E5FF)
+                    RepeatMode.OFF -> iconTint.copy(alpha = 0.5f)
+                    else -> highlightColor
                 },
                 modifier = Modifier.size(28.dp)
             )
@@ -551,7 +559,8 @@ private fun PlaybackControls(
 @Composable
 private fun VinylRecord(
     rotation: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    grooveColor: Color = Color.Black.copy(alpha = 0.3f)
 ) {
     Canvas(modifier = modifier.rotate(rotation)) {
         val center = Offset(size.width / 2, size.height / 2)
@@ -560,7 +569,7 @@ private fun VinylRecord(
         // Draw vinyl grooves - reduced iterations for better performance on low-end devices
         for (i in 10 until radius.toInt() step 16) {
             drawCircle(
-                color = Color.Black.copy(alpha = 0.3f),
+                color = grooveColor.copy(alpha = 0.3f),
                 radius = i.toFloat(),
                 center = center,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1f)
@@ -569,7 +578,7 @@ private fun VinylRecord(
 
         // Draw center hole
         drawCircle(
-            color = Color.Black.copy(alpha = 0.5f),
+            color = grooveColor.copy(alpha = 0.6f),
             radius = radius * 0.15f,
             center = center
         )

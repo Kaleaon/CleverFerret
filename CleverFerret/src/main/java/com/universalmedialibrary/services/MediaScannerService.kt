@@ -7,6 +7,10 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -23,6 +27,11 @@ import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.File
+import java.io.FileOutputStream
+import java.security.MessageDigest
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 import javax.inject.Inject
 
 /**
@@ -57,6 +66,8 @@ class MediaScannerService : Service() {
 
         private const val CHANNEL_ID = "media_scanner_channel"
         private const val NOTIFICATION_ID = 2
+        private const val MIN_AUDIO_DURATION_MS = 30_000L
+        private const val MIN_AUDIO_FILE_SIZE_BYTES = 256 * 1024L
 
         // Supported file extensions
         val BOOK_EXTENSIONS = setOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx")
@@ -212,7 +223,10 @@ class MediaScannerService : Service() {
                     val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
 
                     val file = File(path)
-                    if (file.exists()) {
+                      if (file.exists()) {
+                          if (file.length() < MIN_AUDIO_FILE_SIZE_BYTES || duration < MIN_AUDIO_DURATION_MS) {
+                              return@while
+                          }
                         val mediaItem = processMediaFile(file, "MUSIC")
 
                         // Add music-specific metadata
@@ -357,7 +371,10 @@ class MediaScannerService : Service() {
                 file.isFile -> {
                     val mediaType = determineMediaType(file)
                     if (mediaType != null) {
-                        processMediaFile(file, mediaType)
+                          if (mediaType == "MUSIC" && shouldSkipAudioFile(file)) {
+                              return@forEach
+                          }
+                          processMediaFile(file, mediaType)
                     }
                 }
             }
@@ -382,6 +399,21 @@ class MediaScannerService : Service() {
                 // Check if file already exists in database
                 val existingItem = mediaItemDao.getItemByPath(file.absolutePath)
                 if (existingItem != null) {
+                    if (mediaType == "MUSIC" && (existingItem.thumbnailPath.isNullOrEmpty())) {
+                        val coverPath = extractAndStoreAlbumArt(file)
+                        if (coverPath != null) {
+                            val updatedItem = existingItem.copy(
+                                hasThumbnail = true,
+                                thumbnailPath = coverPath
+                            )
+                            mediaItemDao.updateMediaItem(updatedItem)
+                            val existingMetadata = metadataDao.getMetadataCommonByItemId(existingItem.itemId)
+                            if (existingMetadata != null && existingMetadata.coverImagePath.isNullOrEmpty()) {
+                                metadataDao.insertMetadataCommon(existingMetadata.copy(coverImagePath = coverPath))
+                            }
+                            return@withContext updatedItem
+                        }
+                    }
                     return@withContext existingItem
                 }
 
@@ -400,6 +432,8 @@ class MediaScannerService : Service() {
                     library = library.copy(libraryId = libraryId)
                 }
 
+                val coverPath = if (mediaType == "MUSIC") extractAndStoreAlbumArt(file) else null
+
                 // Create media item
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
@@ -415,8 +449,8 @@ class MediaScannerService : Service() {
                     mimeType = null,
                     isAvailable = true,
                     hasMetadata = false,
-                    hasThumbnail = false,
-                    thumbnailPath = null
+                    hasThumbnail = coverPath != null,
+                    thumbnailPath = coverPath
                 )
 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
@@ -436,7 +470,7 @@ class MediaScannerService : Service() {
                     summary = null,
                     plot = null,
                     tagline = null,
-                    coverImagePath = null,
+                    coverImagePath = coverPath,
                     backdropImagePath = null,
                     language = null,
                     country = null,
@@ -453,6 +487,82 @@ class MediaScannerService : Service() {
                 null
             }
         }
+    }
+
+    private fun shouldSkipAudioFile(file: File): Boolean {
+        if (file.length() < MIN_AUDIO_FILE_SIZE_BYTES) return true
+        val durationMs = extractAudioDuration(file) ?: return false
+        return durationMs < MIN_AUDIO_DURATION_MS
+    }
+
+    private fun extractAudioDuration(file: File): Long? {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(file.absolutePath)
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+        } catch (_: Exception) {
+            null
+        } finally {
+            try {
+                retriever.release()
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun extractAndStoreAlbumArt(file: File): String? {
+        val key = "${file.absolutePath}_${file.lastModified()}"
+        val coverDir = File(filesDir, "album_art").apply { if (!exists()) mkdirs() }
+        val coverFile = File(coverDir, "${hashString(key)}.jpg")
+        if (coverFile.exists()) {
+            return coverFile.absolutePath
+        }
+        val bytes = extractEmbeddedAlbumArtBytes(file.absolutePath) ?: return null
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        val normalized = scaleBitmap(bitmap, 1024)
+        return try {
+            FileOutputStream(coverFile).use { out ->
+                normalized.compress(CompressFormat.JPEG, 90, out)
+            }
+            coverFile.absolutePath
+        } catch (_: Exception) {
+            null
+        } finally {
+            if (!normalized.isRecycled) {
+                normalized.recycle()
+            }
+            if (normalized !== bitmap && !bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+        }
+    }
+
+    private fun extractEmbeddedAlbumArtBytes(filePath: String): ByteArray? {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(filePath)
+            retriever.embeddedPicture
+        } catch (_: Exception) {
+            null
+        } finally {
+            try {
+                retriever.release()
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun scaleBitmap(bitmap: Bitmap, maxDimension: Int): Bitmap {
+        val largestSide = max(bitmap.width, bitmap.height)
+        if (largestSide <= maxDimension) return bitmap
+        val scale = maxDimension.toFloat() / largestSide.toFloat()
+        val width = (bitmap.width * scale).roundToInt().coerceAtLeast(1)
+        val height = (bitmap.height * scale).roundToInt().coerceAtLeast(1)
+        return Bitmap.createScaledBitmap(bitmap, width, height, true)
+    }
+
+    private fun hashString(input: String): String {
+        val digest = MessageDigest.getInstance("SHA-1")
+        val bytes = digest.digest(input.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
     }
 
     private fun scanLibrary(libraryId: Long, scanPath: String?) {

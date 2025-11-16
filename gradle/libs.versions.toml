@@ -72,7 +72,8 @@ readium = "3.1.2"
 gemini = "0.9.0"
 
 # Other Libraries
-coil = "2.7.0"
+ coil = "2.7.0"
+ palette = "1.0.0"
 serialization = "1.7.3"
 glance = "1.1.1"
 junrar = "7.5.7"
@@ -155,6 +156,7 @@ gemini-ai = { module = "com.google.ai.client.generativeai:generativeai", version
 # Image Loading
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
  compose-reorderable = { module = "org.burnoutcrew.composereorderable:reorderable", version.ref = "reorderable" }
+ androidx-palette = { module = "androidx.palette:palette-ktx", version.ref = "palette" }
 
 # Other
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version = "1.1.0" }
