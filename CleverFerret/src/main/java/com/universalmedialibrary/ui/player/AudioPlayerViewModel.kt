@@ -3,6 +3,8 @@ package com.universalmedialibrary.ui.player
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
@@ -253,7 +255,10 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     private fun releasePlayerInternal() {
         stopPositionUpdates()
         exoPlayer?.removeListener(playerListener)
-        exoPlayer?.release()
+        // Ensure ExoPlayer is released on the main thread
+        Handler(Looper.getMainLooper()).post {
+            exoPlayer?.release()
+        }
         exoPlayer = null
         mediaQueue.clear()
     }

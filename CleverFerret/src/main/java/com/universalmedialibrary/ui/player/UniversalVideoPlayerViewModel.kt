@@ -2,6 +2,8 @@ package com.universalmedialibrary.ui.player
 
 import android.content.Context
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -81,7 +83,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
 
     private fun initializeExoPlayer(context: Context, uri: Uri) {
         try {
-            exoPlayer?.release()
+            // Ensure ExoPlayer is released on the main thread before creating new instance
+            Handler(Looper.getMainLooper()).post {
+                exoPlayer?.release()
+            }
             val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(context)
                 .setExtensionRendererMode(androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
             exoPlayer = ExoPlayer.Builder(context, renderersFactory).build().apply {
@@ -302,7 +307,10 @@ class UniversalVideoPlayerViewModel @Inject constructor(
     }
 
     private fun releaseCurrentPlayer() {
-        exoPlayer?.release()
+        // Ensure ExoPlayer is released on the main thread
+        Handler(Looper.getMainLooper()).post {
+            exoPlayer?.release()
+        }
         runCatching { safeInvoke(vlcPlayer, "release") }
         exoPlayer = null
         vlcPlayer = null
