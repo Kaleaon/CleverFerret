@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.media.session.MediaSessionCompat
 import androidx.media.app.NotificationCompat as MediaNotificationCompat
 import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
@@ -168,7 +169,7 @@ class MediaNotificationService : MediaSessionService() {
             setSmallIcon(R.drawable.ic_ferret_blue_bitmap)
             
             // Customize notification appearance with Ancient Architect theme colors
-            setMediaSessionToken(mediaSession?.sessionCompatToken)
+            setMediaSessionToken(mediaSession?.platformToken)
         }
 
         // Start the notification
@@ -177,8 +178,9 @@ class MediaNotificationService : MediaSessionService() {
     }
 
     private fun createNotification(player: Player): Notification {
+        val compatToken = mediaSession?.toCompatToken()
         val mediaStyle = MediaNotificationCompat.MediaStyle()
-            .setMediaSession(mediaSession?.sessionCompatToken)
+            .setMediaSession(compatToken)
             .setShowActionsInCompactView(0, 1, 2) // play/pause, next, previous
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -325,8 +327,9 @@ class MediaNotificationService : MediaSessionService() {
         artwork: Bitmap?, 
         mediaItem: MediaItem
     ): Notification {
+        val compatToken = mediaSession?.toCompatToken()
         val mediaStyle = MediaNotificationCompat.MediaStyle()
-            .setMediaSession(mediaSession?.sessionCompatToken)
+            .setMediaSession(compatToken)
             .setShowActionsInCompactView(0, 1, 2)
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -343,6 +346,14 @@ class MediaNotificationService : MediaSessionService() {
 
         addMediaControlActions(builder, player)
         return builder.build()
+    }
+}
+
+private fun MediaSession.toCompatToken(): MediaSessionCompat.Token? {
+    return try {
+        MediaSessionCompat.Token.fromToken(platformToken)
+    } catch (_: Exception) {
+        null
     }
 }
 
