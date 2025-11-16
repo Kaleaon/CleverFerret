@@ -58,6 +58,10 @@ class UniversalMediaNotificationManager @Inject constructor(
     }
 
     private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // Notification channels are only supported on Android O and above
+            return
+        }
         val channels = listOf(
             NotificationChannel(
                 CHANNEL_ID_MUSIC,
