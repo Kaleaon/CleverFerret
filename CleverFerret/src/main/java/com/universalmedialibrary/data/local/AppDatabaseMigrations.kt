@@ -773,4 +773,14 @@ object AppDatabaseMigrations {
                 )
             }
         }
+
+        val MIGRATION_37_38 = object : Migration(37, 38) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+                    ALTER TABLE reading_progress ADD COLUMN lastModified INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}
+                    """.trimIndent()
+                )
+            }
+        }
 }

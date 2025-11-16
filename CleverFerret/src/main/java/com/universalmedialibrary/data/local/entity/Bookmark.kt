@@ -91,6 +91,7 @@ data class ReadingProgress(
     val completedDate: Long? = null,
     val startedDate: Long? = null,
     val lastUpdate: Long = System.currentTimeMillis(),
+    val lastModified: Long = lastUpdate,
 
     // Reading statistics
     val pagesRead: Int = 0,

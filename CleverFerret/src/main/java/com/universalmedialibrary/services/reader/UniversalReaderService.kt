@@ -222,12 +222,14 @@ class EnhancedUniversalReaderService @Inject constructor(
             } else 0f
 
             // Use upsert to insert or update progress
+            val timestamp = System.currentTimeMillis()
             val progress = ReadingProgress(
                 itemId = currentBookId,
                 currentPage = currentPage,
                 percentage = progressPercentage,
                 locator = locatorJson,
-                lastUpdate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp
             )
 
             readingProgressDao.upsert(progress)

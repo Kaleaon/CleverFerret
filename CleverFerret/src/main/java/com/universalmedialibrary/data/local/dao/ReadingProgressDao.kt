@@ -31,6 +31,9 @@ interface ReadingProgressDao {
     @Query("SELECT * FROM reading_progress ORDER BY lastUpdate DESC")
     fun getAllProgress(): Flow<List<ReadingProgress>>
 
+    @Query("SELECT * FROM reading_progress ORDER BY lastUpdate DESC")
+    suspend fun getAllProgressSnapshot(): List<ReadingProgress>
+
     @Upsert
     suspend fun upsert(progress: ReadingProgress)
 
@@ -38,7 +41,7 @@ interface ReadingProgressDao {
     @Upsert
     suspend fun insertProgress(progress: ReadingProgress)
 
-    @Query("UPDATE reading_progress SET isCompleted = :completed, completedDate = CASE WHEN :completed = 1 THEN strftime('%s','now')*1000 ELSE completedDate END, lastUpdate = strftime('%s','now')*1000 WHERE itemId = :itemId")
+    @Query("UPDATE reading_progress SET isCompleted = :completed, completedDate = CASE WHEN :completed = 1 THEN strftime('%s','now')*1000 ELSE completedDate END, lastUpdate = strftime('%s','now')*1000, lastModified = strftime('%s','now')*1000 WHERE itemId = :itemId")
     suspend fun markAsCompleted(itemId: Long, completed: Boolean)
 
     @Query("DELETE FROM reading_progress WHERE itemId = :itemId")

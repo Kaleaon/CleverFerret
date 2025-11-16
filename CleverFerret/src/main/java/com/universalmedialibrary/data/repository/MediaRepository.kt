@@ -114,6 +114,9 @@ class MediaRepository @Inject constructor(
     suspend fun getItemCountByType(mediaType: String): Int =
         mediaItemDao.getItemCountByType(mediaType)
     
+    suspend fun getLibraryItemCountsByType(libraryId: Long): Map<String, Int> =
+        mediaItemDao.getItemCountsByTypeForLibrary(libraryId).associate { it.mediaType to it.count }
+    
     /**
      * PERFORMANCE OPTIMIZATION: Batch fetch metadata for multiple items at once
      * to avoid N+1 query problems.

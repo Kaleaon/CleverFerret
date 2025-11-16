@@ -273,9 +273,7 @@ class EnhancedSyncService @Inject constructor(
             }
             
             // Get reading progress changes
-            // TODO: Add lastModified field to ReadingProgress entity for sync support
-            /*
-            val allProgress = readingProgressDao.getAllProgress()
+            val allProgress = readingProgressDao.getAllProgressSnapshot()
             val progressChanges = allProgress.filter { it.lastModified > since }
             for (progress in progressChanges) {
                 changes.add(
@@ -290,7 +288,8 @@ class EnhancedSyncService @Inject constructor(
                 )
             }
             
-            // Get bookmark changes
+            // Get bookmark changes (pending bookmark lastModified support)
+            /*
             val allBookmarks = bookmarkDao.getAllBookmarks()
             val bookmarkChanges = allBookmarks.filter { it.lastModified > since }
             for (bookmark in bookmarkChanges) {

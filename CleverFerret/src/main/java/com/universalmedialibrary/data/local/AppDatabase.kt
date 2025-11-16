@@ -154,7 +154,7 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class
 
     ],
-      version = 37, // Added waveform metadata caching + playback preference tables
+      version = 38, // Added reading progress lastModified tracking
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -259,25 +259,26 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .addMigrations(
-                    AppDatabaseMigrations.MIGRATION_20_21,
-                    AppDatabaseMigrations.MIGRATION_21_22,
-                    AppDatabaseMigrations.MIGRATION_22_23,
-                    AppDatabaseMigrations.MIGRATION_23_24,
-                    AppDatabaseMigrations.MIGRATION_24_25,
-                    AppDatabaseMigrations.MIGRATION_25_26,
-                    AppDatabaseMigrations.MIGRATION_26_27,
-                    AppDatabaseMigrations.MIGRATION_27_28,
-                    AppDatabaseMigrations.MIGRATION_28_29,
-                    AppDatabaseMigrations.MIGRATION_29_30,
-                    AppDatabaseMigrations.MIGRATION_30_31,
-                    AppDatabaseMigrations.MIGRATION_31_32,
-                    AppDatabaseMigrations.MIGRATION_32_33,
-                      AppDatabaseMigrations.MIGRATION_33_34
-                         , AppDatabaseMigrations.MIGRATION_34_35
-                     , AppDatabaseMigrations.MIGRATION_35_36
-                     , AppDatabaseMigrations.MIGRATION_36_37
-                )
+                    .addMigrations(
+                        AppDatabaseMigrations.MIGRATION_20_21,
+                        AppDatabaseMigrations.MIGRATION_21_22,
+                        AppDatabaseMigrations.MIGRATION_22_23,
+                        AppDatabaseMigrations.MIGRATION_23_24,
+                        AppDatabaseMigrations.MIGRATION_24_25,
+                        AppDatabaseMigrations.MIGRATION_25_26,
+                        AppDatabaseMigrations.MIGRATION_26_27,
+                        AppDatabaseMigrations.MIGRATION_27_28,
+                        AppDatabaseMigrations.MIGRATION_28_29,
+                        AppDatabaseMigrations.MIGRATION_29_30,
+                        AppDatabaseMigrations.MIGRATION_30_31,
+                        AppDatabaseMigrations.MIGRATION_31_32,
+                        AppDatabaseMigrations.MIGRATION_32_33,
+                        AppDatabaseMigrations.MIGRATION_33_34,
+                        AppDatabaseMigrations.MIGRATION_34_35,
+                        AppDatabaseMigrations.MIGRATION_35_36,
+                        AppDatabaseMigrations.MIGRATION_36_37,
+                        AppDatabaseMigrations.MIGRATION_37_38
+                    )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
                 INSTANCE = instance
