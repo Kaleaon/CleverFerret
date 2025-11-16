@@ -738,4 +738,39 @@ object AppDatabaseMigrations {
                 database.execSQL("CREATE INDEX IF NOT EXISTS index_listen_history_completedAt ON listen_history(completedAt)")
           }
       }
+
+        val MIGRATION_36_37 = object : Migration(36, 37) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+                    ALTER TABLE metadata_music_track ADD COLUMN waveformData BLOB
+                    """.trimIndent()
+                )
+                database.execSQL(
+                    """
+                    ALTER TABLE metadata_music_track ADD COLUMN waveformSampleCount INTEGER NOT NULL DEFAULT 0
+                    """.trimIndent()
+                )
+                database.execSQL(
+                    """
+                    ALTER TABLE metadata_music_track ADD COLUMN waveformFrameDurationMs INTEGER NOT NULL DEFAULT 20
+                    """.trimIndent()
+                )
+                database.execSQL(
+                    """
+                    ALTER TABLE metadata_music_track ADD COLUMN waveformOffsetMs INTEGER NOT NULL DEFAULT 0
+                    """.trimIndent()
+                )
+                database.execSQL(
+                    """
+                    ALTER TABLE metadata_music_track ADD COLUMN waveformGeneratedAt INTEGER
+                    """.trimIndent()
+                )
+                database.execSQL(
+                    """
+                    ALTER TABLE metadata_music_track ADD COLUMN waveformVersion INTEGER NOT NULL DEFAULT 1
+                    """.trimIndent()
+                )
+            }
+        }
 }

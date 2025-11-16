@@ -40,10 +40,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueEntry
+import com.universalmedialibrary.ui.player.WaveformSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.PI
+import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.roundToInt
@@ -79,6 +81,16 @@ fun ModernAudioPlayerScreen(
         waveformPoints
     } else {
         remember(uiState.currentTrack?.id) { List(96) { 0.1f } }
+    }
+    val waveformProgress = remember(
+        uiState.currentPosition,
+        uiState.duration,
+        uiState.waveformOffsetMs
+    ) {
+        if (uiState.duration > 0) {
+            ((uiState.currentPosition + uiState.waveformOffsetMs).toFloat() / uiState.duration)
+                .coerceIn(0f, 1f)
+        } else 0f
     }
     
     // Animated vinyl rotation
@@ -251,10 +263,10 @@ fun ModernAudioPlayerScreen(
             ) {
                 WaveformSeekBar(
                     points = waveformToRender,
-                    progress = uiState.progress,
+                    progress = waveformProgress,
                     accent = artworkColors.accent,
                     backgroundColor = onArtworkColor.copy(alpha = 0.15f),
-                    onSeek = { viewModel.seekToFraction(it) },
+                    onSeek = { viewModel.seekUsingWaveformFraction(it) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
@@ -273,6 +285,14 @@ fun ModernAudioPlayerScreen(
                         text = formatTime(uiState.duration),
                         style = MaterialTheme.typography.bodySmall,
                         color = onArtworkColor.copy(alpha = 0.6f)
+                    )
+                }
+                if (uiState.waveformSource == WaveformSource.PRECOMPUTED) {
+                    WaveformAlignmentControls(
+                        offsetMs = uiState.waveformOffsetMs,
+                        accent = artworkColors.accent,
+                        textColor = onArtworkColor,
+                        onAdjust = viewModel::adjustWaveformAlignment
                     )
                 }
             }
@@ -636,6 +656,14 @@ private fun formatTime(ms: Long): String {
     }
 }
 
+private fun formatOffset(offsetMs: Int): String {
+    return if (offsetMs >= 0) {
+        "+${offsetMs} ms"
+    } else {
+        "-${offsetMs.absoluteValue} ms"
+    }
+}
+
 @Composable
 private fun WaveformSeekBar(
     points: List<Float>,
@@ -668,6 +696,45 @@ private fun WaveformSeekBar(
                 size = androidx.compose.ui.geometry.Size(barWidth, height * 2),
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(barWidth / 2, barWidth / 2)
             )
+        }
+    }
+}
+
+@Composable
+private fun WaveformAlignmentControls(
+    offsetMs: Int,
+    accent: Color,
+    textColor: Color,
+    onAdjust: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Waveform offset ${formatOffset(offsetMs)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = textColor
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf(-100, -25, 25, 100).forEach { delta ->
+                OutlinedButton(
+                    onClick = { onAdjust(delta) },
+                    border = BorderStroke(1.dp, accent.copy(alpha = 0.6f)),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "${if (delta > 0) "+" else ""}$delta ms",
+                        color = textColor,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
     }
 }

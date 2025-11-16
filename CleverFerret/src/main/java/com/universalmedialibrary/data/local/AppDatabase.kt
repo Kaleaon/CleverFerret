@@ -154,7 +154,7 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class
 
     ],
-      version = 36, // Added playback/user preference fields + per-library scan settings table
+      version = 37, // Added waveform metadata caching + playback preference tables
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -275,7 +275,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_32_33,
                       AppDatabaseMigrations.MIGRATION_33_34
                          , AppDatabaseMigrations.MIGRATION_34_35
-                         , AppDatabaseMigrations.MIGRATION_35_36
+                     , AppDatabaseMigrations.MIGRATION_35_36
+                     , AppDatabaseMigrations.MIGRATION_36_37
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

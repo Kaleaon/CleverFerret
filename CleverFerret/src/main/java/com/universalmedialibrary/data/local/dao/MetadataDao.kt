@@ -40,6 +40,31 @@ interface MetadataDao {
     @Query("SELECT * FROM metadata_music_track WHERE itemId = :itemId")
     suspend fun getMetadataMusicTrackByItemId(itemId: Long): MetadataMusicTrack?
 
+    @Query(
+        """
+        UPDATE metadata_music_track
+        SET waveformData = :waveformData,
+            waveformSampleCount = :sampleCount,
+            waveformFrameDurationMs = :frameDurationMs,
+            waveformOffsetMs = :offsetMs,
+            waveformGeneratedAt = :generatedAt,
+            waveformVersion = :version
+        WHERE itemId = :itemId
+        """
+    )
+    suspend fun upsertWaveform(
+        itemId: Long,
+        waveformData: ByteArray?,
+        sampleCount: Int,
+        frameDurationMs: Int,
+        offsetMs: Int,
+        generatedAt: Long,
+        version: Int = 1
+    )
+
+    @Query("UPDATE metadata_music_track SET waveformOffsetMs = :offsetMs WHERE itemId = :itemId")
+    suspend fun updateWaveformOffset(itemId: Long, offsetMs: Int)
+
     // Basic metadata operations
     @Query("UPDATE metadata_common SET title = :title, summary = :summary WHERE itemId = :itemId")
     suspend fun updateMetadataCommon(itemId: Long, title: String, summary: String?)

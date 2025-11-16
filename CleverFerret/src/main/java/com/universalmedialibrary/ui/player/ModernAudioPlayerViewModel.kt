@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,17 +43,21 @@ class ModernAudioPlayerViewModel @Inject constructor(
 
     private var artworkJob: Job? = null
     private var lastArtworkSource: String? = null
+    private var waveformJob: Job? = null
+    private var lastWaveformSource: String? = null
+    private val precomputedWaveform = MutableStateFlow<WaveformBundle?>(null)
+    private var waveformAlignmentPersistJob: Job? = null
     private val waveformSampleCount = 96
 
     val waveformPoints: StateFlow<List<Float>> = combine(
+        precomputedWaveform,
         audioVisualizerService.visualizerState,
         _uiState
-    ) { visualizerState, ui ->
-        val waveform = visualizerState.waveform
-        if (waveform.isNotEmpty()) {
-            downsampleWaveform(waveform, waveformSampleCount)
-        } else {
-            fallbackWaveform(ui.currentTrack?.id ?: 0L, waveformSampleCount)
+    ) { stored, visualizerState, ui ->
+        when {
+            stored != null && stored.points.isNotEmpty() -> stored.points
+            visualizerState.waveform.isNotEmpty() -> downsampleWaveform(visualizerState.waveform, waveformSampleCount)
+            else -> fallbackWaveform(ui.currentTrack?.id ?: 0L, waveformSampleCount)
         }
     }.stateIn(
         scope = viewModelScope,
@@ -101,6 +106,7 @@ class ModernAudioPlayerViewModel @Inject constructor(
                         lastSleepTimerMinutes = audioState.lastSleepTimerMinutes
                 )
                 resolveCurrentArtwork()
+                resolveCurrentWaveform()
             }
         }
     }
@@ -156,6 +162,29 @@ class ModernAudioPlayerViewModel @Inject constructor(
         if (duration <= 0) return
         val clamped = fraction.coerceIn(0f, 1f)
         audioPlaybackManager.seekTo((duration * clamped).toLong())
+    }
+
+    fun seekUsingWaveformFraction(fraction: Float) {
+        if (_uiState.value.waveformSource == WaveformSource.PRECOMPUTED) {
+            val duration = _uiState.value.duration
+            if (duration <= 0) return
+            val clamped = fraction.coerceIn(0f, 1f)
+            val offset = _uiState.value.waveformOffsetMs
+            val targetPosition = (duration * clamped).toLong() - offset
+            audioPlaybackManager.seekTo(targetPosition.coerceIn(0L, duration))
+        } else {
+            seekToFraction(fraction)
+        }
+    }
+
+    fun adjustWaveformAlignment(deltaMs: Int) {
+        val bundle = precomputedWaveform.value ?: return
+        val currentOffset = _uiState.value.waveformOffsetMs
+        val newOffset = (currentOffset + deltaMs).coerceIn(-MAX_ALIGNMENT_MS, MAX_ALIGNMENT_MS)
+        if (newOffset == currentOffset) return
+        precomputedWaveform.value = bundle.copy(offsetMs = newOffset)
+        _uiState.value = _uiState.value.copy(waveformOffsetMs = newOffset)
+        persistWaveformOffset(bundle.itemId, newOffset)
     }
 
     fun moveQueueItem(from: Int, to: Int) {
@@ -215,6 +244,41 @@ class ModernAudioPlayerViewModel @Inject constructor(
         }
     }
 
+    private fun resolveCurrentWaveform() {
+        val currentMediaItem = audioPlaybackManager.exoPlayer.currentMediaItem
+        if (currentMediaItem == null) {
+            precomputedWaveform.value = null
+            applyWaveformBundle(null)
+            lastWaveformSource = null
+            return
+        }
+        val candidateKeys = buildList {
+            currentMediaItem.localConfiguration?.uri?.toString()?.let { add(it) }
+            currentMediaItem.mediaId?.takeIf { it.isNotBlank() }?.let { add(it) }
+            currentMediaItem.mediaMetadata.extras
+                ?.getString(HivefyPlaybackContract.EXTRA_CANONICAL_URL)
+                ?.let { add(it) }
+        }
+        if (candidateKeys.isEmpty()) {
+            precomputedWaveform.value = null
+            applyWaveformBundle(null)
+            return
+        }
+        val lookupKey = candidateKeys.firstOrNull { it.isNotBlank() } ?: return
+        if (lookupKey == lastWaveformSource && precomputedWaveform.value != null) {
+            return
+        }
+        lastWaveformSource = lookupKey
+        waveformJob?.cancel()
+        waveformJob = viewModelScope.launch(Dispatchers.IO) {
+            val bundle = fetchWaveformBundle(candidateKeys)
+            precomputedWaveform.value = bundle
+            withContext(Dispatchers.Main) {
+                applyWaveformBundle(bundle)
+            }
+        }
+    }
+
     private suspend fun fetchCoverFromCandidates(
         candidatePaths: List<String>,
         fallbackUri: Uri?
@@ -234,6 +298,37 @@ class ModernAudioPlayerViewModel @Inject constructor(
             }
         }
         return fallbackUri?.let { extractCoverFromUri(it) }
+    }
+
+    private suspend fun fetchWaveformBundle(candidatePaths: List<String>): WaveformBundle? {
+        candidatePaths.forEach { path ->
+            if (path.isBlank()) return@forEach
+            val mediaItem = mediaRepository.getMediaItemByPath(path) ?: return@forEach
+            val metadata = mediaRepository.getMusicMetadata(mediaItem.itemId) ?: return@forEach
+            val bytes = metadata.waveformData ?: return@forEach
+            if (metadata.waveformSampleCount <= 0) return@forEach
+            val floats = decodeWaveform(bytes)
+            if (floats.isEmpty()) return@forEach
+            val normalized = if (floats.size == waveformSampleCount) {
+                floats
+            } else {
+                downsampleWaveform(floats, waveformSampleCount)
+            }
+            return WaveformBundle(
+                itemId = mediaItem.itemId,
+                points = normalized,
+                offsetMs = metadata.waveformOffsetMs,
+                frameDurationMs = metadata.waveformFrameDurationMs.takeIf { it > 0 } ?: 20
+            )
+        }
+        return null
+    }
+
+    private fun applyWaveformBundle(bundle: WaveformBundle?) {
+        _uiState.value = _uiState.value.copy(
+            waveformOffsetMs = bundle?.offsetMs ?: 0,
+            waveformSource = if (bundle != null) WaveformSource.PRECOMPUTED else WaveformSource.VISUALIZER
+        )
     }
 
     private fun extractCoverFromUri(uri: Uri): String? {
@@ -262,6 +357,24 @@ class ModernAudioPlayerViewModel @Inject constructor(
         }
     }
 
+    private fun persistWaveformOffset(itemId: Long?, offsetMs: Int) {
+        if (itemId == null) return
+        waveformAlignmentPersistJob?.cancel()
+        waveformAlignmentPersistJob = viewModelScope.launch {
+            delay(600)
+            withContext(Dispatchers.IO) {
+                runCatching { mediaRepository.updateWaveformOffset(itemId, offsetMs) }
+            }
+        }
+    }
+
+    private fun decodeWaveform(bytes: ByteArray): List<Float> {
+        if (bytes.isEmpty()) return emptyList()
+        return List(bytes.size) { index ->
+            (bytes[index].toInt() and 0xFF) / 255f
+        }
+    }
+
     private fun downsampleWaveform(source: List<Float>, targetSize: Int): List<Float> {
         if (source.isEmpty() || targetSize <= 0) return emptyList()
         val chunkSize = (source.size / targetSize).coerceAtLeast(1)
@@ -282,6 +395,10 @@ class ModernAudioPlayerViewModel @Inject constructor(
             0.25f + random.nextFloat() * 0.6f
         }
     }
+
+    companion object {
+        private const val MAX_ALIGNMENT_MS = 2_000
+    }
 }
 
     data class ModernAudioPlayerUiState(
@@ -298,7 +415,9 @@ class ModernAudioPlayerViewModel @Inject constructor(
         val queueEntries: List<AudioQueueEntry> = emptyList(),
         val sleepTimerEndTime: Long? = null,
         val lastSleepTimerMinutes: Int = 0,
-        val partyModeEnabled: Boolean = false
+    val partyModeEnabled: Boolean = false,
+    val waveformSource: WaveformSource = WaveformSource.VISUALIZER,
+    val waveformOffsetMs: Int = 0
     )
 
 data class AudioTrack(
@@ -309,3 +428,15 @@ data class AudioTrack(
     val coverUrl: String? = null,
     val duration: Long = 0L
 )
+
+data class WaveformBundle(
+    val itemId: Long?,
+    val points: List<Float>,
+    val offsetMs: Int,
+    val frameDurationMs: Int
+)
+
+enum class WaveformSource {
+    PRECOMPUTED,
+    VISUALIZER
+}
