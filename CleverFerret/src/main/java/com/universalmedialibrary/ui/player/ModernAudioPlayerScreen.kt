@@ -75,8 +75,11 @@ fun ModernAudioPlayerScreen(
     var showQueueSheet by remember { mutableStateOf(false) }
     var showAddToPlaylist by remember { mutableStateOf(false) }
     var showShare by remember { mutableStateOf(false) }
-    val waveformPoints = remember(uiState.currentTrack?.id) {
-        generateWaveformPoints(uiState.currentTrack?.id ?: 0L)
+    val waveformPoints by viewModel.waveformPoints.collectAsStateWithLifecycle()
+    val waveformToRender = if (waveformPoints.isNotEmpty()) {
+        waveformPoints
+    } else {
+        remember(uiState.currentTrack?.id) { List(96) { 0.1f } }
     }
     
     // Animated vinyl rotation
@@ -248,7 +251,7 @@ fun ModernAudioPlayerScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 WaveformSeekBar(
-                    points = waveformPoints,
+                    points = waveformToRender,
                     progress = uiState.progress,
                     accent = artworkColors.accent,
                     backgroundColor = onArtworkColor.copy(alpha = 0.15f),

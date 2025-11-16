@@ -18,6 +18,7 @@ import com.universalmedialibrary.data.preferences.AudioPlaybackPreferencesStore
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.ListenHistoryRepository
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,9 +40,10 @@ class AudioPlaybackManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val mediaSessionManager: MediaSessionManager,
     private val listenHistoryRepository: ListenHistoryRepository,
-    private val mediaRepository: MediaRepository,
-    private val libraryRepository: LibraryRepository,
-    private val audioPreferences: AudioPlaybackPreferencesStore
+        private val mediaRepository: MediaRepository,
+        private val libraryRepository: LibraryRepository,
+        private val audioPreferences: AudioPlaybackPreferencesStore,
+        private val audioVisualizerService: AudioVisualizerService
 ) {
     companion object {
         const val NOTIFICATION_CHANNEL_ID = "cf_music_playback"
@@ -77,6 +79,7 @@ class AudioPlaybackManager @Inject constructor(
                     true
                 )
                 mediaSessionManager.setPlayer(this, MediaNotificationService::class.java)
+                audioVisualizerService.attachToPlayer(this)
                 addListener(object : Player.Listener {
                     override fun onPlaybackStateChanged(playbackState: Int) {
                         when (playbackState) {

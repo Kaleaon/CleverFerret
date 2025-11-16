@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueEntry
+import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -15,16 +16,23 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.abs
+import kotlin.math.min
+import kotlin.random.Random
 import javax.inject.Inject
 
 @HiltViewModel
 class ModernAudioPlayerViewModel @Inject constructor(
     private val audioPlaybackManager: AudioPlaybackManager,
     private val mediaRepository: MediaRepository,
+    private val audioVisualizerService: AudioVisualizerService,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -33,7 +41,23 @@ class ModernAudioPlayerViewModel @Inject constructor(
 
     private var artworkJob: Job? = null
     private var lastArtworkSource: String? = null
+    private val waveformSampleCount = 96
 
+    val waveformPoints: StateFlow<List<Float>> = combine(
+        audioVisualizerService.visualizerState,
+        _uiState
+    ) { visualizerState, ui ->
+        val waveform = visualizerState.waveform
+        if (waveform.isNotEmpty()) {
+            downsampleWaveform(waveform, waveformSampleCount)
+        } else {
+            fallbackWaveform(ui.currentTrack?.id ?: 0L, waveformSampleCount)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
     init {
         // Observe audio playback state
         viewModelScope.launch {
@@ -221,6 +245,27 @@ class ModernAudioPlayerViewModel @Inject constructor(
             file.absolutePath
         } catch (_: Exception) {
             null
+        }
+    }
+
+    private fun downsampleWaveform(source: List<Float>, targetSize: Int): List<Float> {
+        if (source.isEmpty() || targetSize <= 0) return emptyList()
+        val chunkSize = (source.size / targetSize).coerceAtLeast(1)
+        return List(targetSize) { index ->
+            val start = index * chunkSize
+            val end = min(source.size, start + chunkSize)
+            if (start >= source.size) 0f else {
+                val slice = source.subList(start, end)
+                slice.map { abs(it) }.average().toFloat().coerceIn(0f, 1f)
+            }
+        }
+    }
+
+    private fun fallbackWaveform(seed: Long, targetSize: Int): List<Float> {
+        val adjustedSeed = if (seed != 0L) seed else System.currentTimeMillis()
+        val random = Random(adjustedSeed)
+        return List(targetSize.coerceAtLeast(1)) {
+            0.25f + random.nextFloat() * 0.6f
         }
     }
 }
