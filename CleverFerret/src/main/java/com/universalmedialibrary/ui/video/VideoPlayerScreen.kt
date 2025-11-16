@@ -1,5 +1,7 @@
 package com.universalmedialibrary.ui.video
 
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
@@ -38,7 +40,10 @@ fun VideoPlayerScreen(
 
     DisposableEffect(Unit) {
         onDispose {
-            exoPlayer.release()
+            // Ensure ExoPlayer is released on the main thread
+            Handler(Looper.getMainLooper()).post {
+                exoPlayer.release()
+            }
         }
     }
 

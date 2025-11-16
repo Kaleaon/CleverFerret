@@ -19,6 +19,7 @@ import com.universalmedialibrary.data.local.dao.LibraryDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.File
@@ -109,7 +110,7 @@ class MediaScannerService : Service() {
                 delay(2000)
                 stopSelf()
             } catch (e: Exception) {
-                e.printStackTrace()
+                ErrorLogger.logMediaScanError("Media scan failed", e)
                 updateNotification("Scan failed: ${e.message}")
                 delay(2000)
                 stopSelf()
@@ -448,7 +449,7 @@ class MediaScannerService : Service() {
                 updateNotification("Found: ${file.name}")
                 newItem
             } catch (e: Exception) {
-                e.printStackTrace()
+                ErrorLogger.logMediaScanError("Error processing media file", e)
                 null
             }
         }
@@ -471,7 +472,7 @@ class MediaScannerService : Service() {
                 delay(2000)
                 stopSelf()
             } catch (e: Exception) {
-                e.printStackTrace()
+                ErrorLogger.logMediaScanError("Library scan failed", e)
                 updateNotification("Scan failed: ${e.message}")
                 delay(2000)
                 stopSelf()
