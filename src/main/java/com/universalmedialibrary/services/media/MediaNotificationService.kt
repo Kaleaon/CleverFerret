@@ -9,7 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import android.support.v4.media.session.MediaSessionCompat
+import androidx.media.session.MediaSessionCompat
 import androidx.media.app.NotificationCompat as MediaNotificationCompat
 import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
