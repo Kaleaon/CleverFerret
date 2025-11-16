@@ -166,6 +166,10 @@ fun MusicLibraryScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            HivefyPromoCard(
+                onExplore = { navController.navigate("hivefy_music") }
+            )
+
             // Tab Row
             ScrollableTabRow(
                 selectedTabIndex = state.currentTab.ordinal,
@@ -271,6 +275,44 @@ fun MusicLibraryScreen(
                         .padding(bottom = 72.dp) // Above mini player
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun HivefyPromoCard(onExplore: () -> Unit) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        onClick = onExplore
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Hivefy x CleverFerret",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Stream trending Saavn playlists and albums directly in the app.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            AssistChip(
+                onClick = onExplore,
+                label = { Text("Explore") }
+            )
         }
     }
 }

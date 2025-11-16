@@ -860,6 +860,12 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                 onBack = { navController.navigateUp() }
             )
         }
+
+        composable("hivefy_music") {
+            com.universalmedialibrary.ui.music.hivefy.HivefyMusicScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
         
         composable(
             route = "audiobook_player/{audiobookId}",
