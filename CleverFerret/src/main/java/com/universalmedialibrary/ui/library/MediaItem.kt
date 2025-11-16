@@ -43,15 +43,24 @@ enum class MediaType {
 fun MediaItem(
     item: MediaItemData,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectionEnabled: Boolean = false,
+    isSelected: Boolean = false,
+    onSelectionToggle: (() -> Unit)? = null
 ) {
     var isHovered by remember { mutableStateOf(false) }
+
+    val clickHandler = if (selectionEnabled && onSelectionToggle != null) {
+        { onSelectionToggle() }
+    } else {
+        onClick
+    }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(350.dp)
-            .clickable { onClick() },
+            .clickable { clickHandler() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
@@ -214,11 +223,21 @@ fun MediaItem(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Metadata action buttons
+                // Selection indicator / Metadata action buttons
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (selectionEnabled) {
+                        Checkbox(
+                            checked = isSelected,
+                            onCheckedChange = { onSelectionToggle?.invoke() },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Color(0xFFE5A00D),
+                                uncheckedColor = Color(0xFFE5A00D).copy(alpha = 0.6f)
+                            )
+                        )
+                    }
                     // API Search button
                     Surface(
                         modifier = Modifier
