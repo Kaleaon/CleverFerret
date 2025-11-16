@@ -142,7 +142,7 @@ object NavigationItems {
             route = "hivefy_music",
             label = "Hivefy",
             icon = { Icon(Icons.Filled.GraphicEq, contentDescription = "Hivefy") },
-            showInBottomNav = false
+            showInBottomNav = true
         ),
         NavigationItem(
             route = "library_details/4",
