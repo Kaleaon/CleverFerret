@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LibraryMusic
@@ -135,6 +136,12 @@ object NavigationItems {
             route = "free_music",
             label = "Free Music",
             icon = { Icon(Icons.Filled.LibraryMusic, contentDescription = "Free Music") },
+            showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "hivefy_music",
+            label = "Hivefy",
+            icon = { Icon(Icons.Filled.GraphicEq, contentDescription = "Hivefy") },
             showInBottomNav = false
         ),
         NavigationItem(
