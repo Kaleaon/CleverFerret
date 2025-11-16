@@ -1,7 +1,9 @@
 package com.universalmedialibrary.data.repository
 
 import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.LibraryScanSettingsDao
 import com.universalmedialibrary.data.local.entity.Library
+import com.universalmedialibrary.data.local.entity.LibraryScanSettings
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,7 +14,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class LibraryRepository @Inject constructor(
-    private val libraryDao: LibraryDao
+    private val libraryDao: LibraryDao,
+    private val libraryScanSettingsDao: LibraryScanSettingsDao
 ) {
 
     fun getAllActiveLibraries(): Flow<List<Library>> = libraryDao.getAllActiveLibraries()
@@ -26,7 +29,14 @@ class LibraryRepository @Inject constructor(
     fun getLibrariesByType(type: String): Flow<List<Library>> =
         libraryDao.getLibrariesByTypeFlow(type)
 
-    suspend fun createLibrary(library: Library): Long = libraryDao.insertLibrary(library)
+    suspend fun createLibrary(library: Library): Long {
+        val libraryId = libraryDao.insertLibrary(library)
+        if (libraryId > 0) {
+            val defaults = LibraryScanSettings.defaults(libraryId, library.path)
+            libraryScanSettingsDao.upsert(defaults)
+        }
+        return libraryId
+    }
 
     suspend fun updateLibrary(library: Library) = libraryDao.updateLibrary(library)
 
@@ -61,6 +71,28 @@ class LibraryRepository @Inject constructor(
             "music" to musicLibraries,
             "movies" to movieLibraries,
             "other" to otherLibraries
+        )
+    }
+
+    suspend fun getScanSettings(libraryId: Long, fallbackPath: String = ""): LibraryScanSettings {
+        val existing = libraryScanSettingsDao.getSettings(libraryId)
+        if (existing != null) return existing
+        val libraryPath = if (fallbackPath.isNotBlank()) {
+            fallbackPath
+        } else {
+            libraryDao.getLibraryById(libraryId)?.path ?: ""
+        }
+        val defaults = LibraryScanSettings.defaults(libraryId, libraryPath)
+        libraryScanSettingsDao.upsert(defaults)
+        return defaults
+    }
+
+    fun observeScanSettings(libraryId: Long): Flow<LibraryScanSettings?> =
+        libraryScanSettingsDao.observeSettings(libraryId)
+
+    suspend fun updateScanSettings(settings: LibraryScanSettings) {
+        libraryScanSettingsDao.upsert(
+            settings.copy(lastUpdated = System.currentTimeMillis())
         )
     }
 }

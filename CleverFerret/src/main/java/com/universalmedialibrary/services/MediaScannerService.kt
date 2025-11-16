@@ -7,6 +7,10 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat
+import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -16,13 +20,20 @@ import android.provider.OpenableColumns
 import androidx.core.app.NotificationCompat
 import com.universalmedialibrary.data.MediaType
 import com.universalmedialibrary.data.local.dao.LibraryDao
+import com.universalmedialibrary.data.local.dao.LibraryScanSettingsDao
 import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.services.audio.WaveformGenerator
 import com.universalmedialibrary.utils.ErrorLogger
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.File
+import java.io.FileOutputStream
+import java.security.MessageDigest
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 import javax.inject.Inject
 
 /**
@@ -43,10 +54,13 @@ import javax.inject.Inject
 class MediaScannerService : Service() {
 
     @Inject lateinit var libraryDao: LibraryDao
+    @Inject lateinit var libraryScanSettingsDao: LibraryScanSettingsDao
     @Inject lateinit var mediaItemDao: MediaItemDao
     @Inject lateinit var metadataDao: MetadataDao
+    @Inject lateinit var waveformGenerator: WaveformGenerator
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scanSettingsCache = mutableMapOf<Long, ResolvedScanSettings>()
     private var scanJob: Job? = null
 
     companion object {
@@ -57,6 +71,8 @@ class MediaScannerService : Service() {
 
         private const val CHANNEL_ID = "media_scanner_channel"
         private const val NOTIFICATION_ID = 2
+        private const val MIN_AUDIO_DURATION_MS = 30_000L
+        private const val MIN_AUDIO_FILE_SIZE_BYTES = 256 * 1024L
 
         // Supported file extensions
         val BOOK_EXTENSIONS = setOf("epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx")
@@ -65,6 +81,12 @@ class MediaScannerService : Service() {
         val IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff")
         val COMIC_EXTENSIONS = setOf("cbz", "cbr", "cb7", "cbt")
     }
+
+    private data class ResolvedScanSettings(
+        val config: LibraryScanSettings,
+        val includeMatchers: List<String>,
+        val excludeMatchers: List<String>
+    )
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -206,30 +228,14 @@ class MediaScannerService : Service() {
             cursor?.use {
                 while (it.moveToNext()) {
                     val path = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-                    val title = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
-                    val artist = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
-                    val album = it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM))
                     val duration = it.getLong(it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
 
                     val file = File(path)
                     if (file.exists()) {
-                        val mediaItem = processMediaFile(file, "MUSIC")
-
-                        // Add music-specific metadata
-                        mediaItem?.let { item ->
-                            val metadata = MetadataMusicTrack(
-                                itemId = item.itemId,
-                                artist = artist,
-                                album = album,
-                                trackNumber = 0,
-
-                                duration = duration,
-                                bitrate = null,
-                                sampleRate = null
-
-                            )
-                            metadataDao.insertMetadataMusicTrack(metadata)
+                        if (file.length() < MIN_AUDIO_FILE_SIZE_BYTES || duration < MIN_AUDIO_DURATION_MS) {
+                            return@while
                         }
+                        processMediaFile(file, "MUSIC")
                     }
                 }
             }
@@ -348,16 +354,31 @@ class MediaScannerService : Service() {
         }
     }
 
-    private suspend fun scanDirectory(directory: File) {
+    private suspend fun scanDirectory(
+        directory: File,
+        resolvedSettings: ResolvedScanSettings? = null,
+        forcedLibrary: Library? = null
+    ) {
         directory.listFiles()?.forEach { file ->
             when {
                 file.isDirectory && !file.name.startsWith(".") -> {
-                    scanDirectory(file)
+                    if (resolvedSettings != null && resolvedSettings.shouldSkipDirectory(file)) {
+                        return@forEach
+                    }
+                    scanDirectory(file, resolvedSettings, forcedLibrary)
                 }
                 file.isFile -> {
                     val mediaType = determineMediaType(file)
                     if (mediaType != null) {
-                        processMediaFile(file, mediaType)
+                        if (resolvedSettings != null && !resolvedSettings.allowsFile(file)) {
+                            return@forEach
+                        }
+                        val minAudioDuration = resolvedSettings?.config?.minAudioDurationMs ?: MIN_AUDIO_DURATION_MS
+                        val minFileSizeBytes = resolvedSettings?.config?.minFileSizeBytes ?: MIN_AUDIO_FILE_SIZE_BYTES
+                        if (mediaType == "MUSIC" && shouldSkipAudioFile(file, minAudioDuration, minFileSizeBytes)) {
+                            return@forEach
+                        }
+                        processMediaFile(file, mediaType, forcedLibrary, resolvedSettings)
                     }
                 }
             }
@@ -376,29 +397,89 @@ class MediaScannerService : Service() {
         }
     }
 
-    private suspend fun processMediaFile(file: File, mediaType: String): MediaItem? {
+    private suspend fun processMediaFile(
+        file: File,
+        mediaType: String,
+        forcedLibrary: Library? = null,
+        resolvedSettings: ResolvedScanSettings? = null
+    ): MediaItem? {
         return withContext(Dispatchers.IO) {
             try {
                 // Check if file already exists in database
                 val existingItem = mediaItemDao.getItemByPath(file.absolutePath)
                 if (existingItem != null) {
+                    if (mediaType == "MUSIC" && (existingItem.thumbnailPath.isNullOrEmpty())) {
+                        val coverPath = extractAndStoreAlbumArt(file)
+                        if (coverPath != null) {
+                            val updatedItem = existingItem.copy(
+                                hasThumbnail = true,
+                                thumbnailPath = coverPath
+                            )
+                            mediaItemDao.updateMediaItem(updatedItem)
+                            val existingMetadata = metadataDao.getMetadataCommonByItemId(existingItem.itemId)
+                            if (existingMetadata != null && existingMetadata.coverImagePath.isNullOrEmpty()) {
+                                metadataDao.insertMetadataCommon(existingMetadata.copy(coverImagePath = coverPath))
+                            }
+                            return@withContext updatedItem
+                        }
+                    }
                     return@withContext existingItem
                 }
 
                 // Get or create library for this media type
-                var library = libraryDao.getLibrariesByType(mediaType).firstOrNull()
+                var library = forcedLibrary ?: libraryDao.getLibrariesByType(mediaType).firstOrNull()
                 if (library == null) {
                     library = Library(
-
                         name = "${mediaType.lowercase().replaceFirstChar { it.uppercase() }} Library",
                         type = mediaType,
-
                         path = file.parent ?: "",
                         dateModified = System.currentTimeMillis()
                     )
                     val libraryId = libraryDao.insertLibrary(library)
                     library = library.copy(libraryId = libraryId)
                 }
+
+                val effectiveSettings = resolvedSettings ?: getCachedScanSettings(library)
+                if (mediaType == "MUSIC") {
+                    val minDuration = effectiveSettings.config.minAudioDurationMs
+                    val minSize = effectiveSettings.config.minFileSizeBytes
+                    if (shouldSkipAudioFile(file, minDuration, minSize)) {
+                        return@withContext null
+                    }
+                }
+
+                val preventDuplicates = effectiveSettings.config.preventDuplicates
+                val strategy = effectiveSettings.config.deduplicationStrategy.uppercase()
+                var fileHash: String? = null
+                if (preventDuplicates) {
+                    when (strategy) {
+                        "FILENAME_SIZE" -> {
+                            val duplicate = mediaItemDao.findDuplicateByNameAndSize(
+                                library.libraryId,
+                                file.name,
+                                file.length()
+                            )
+                            if (duplicate != null) {
+                                return@withContext null
+                            }
+                        }
+                        "HASH" -> {
+                            fileHash = computeFileHash(file)
+                            if (!fileHash.isNullOrEmpty()) {
+                                val duplicate = mediaItemDao.findDuplicateByHash(
+                                    library.libraryId,
+                                    fileHash!!
+                                )
+                                if (duplicate != null) {
+                                    return@withContext null
+                                }
+                            }
+                        }
+                    }
+                }
+
+                val musicInfo = if (mediaType == "MUSIC") extractMusicTrackInfo(file) else null
+                val coverPath = if (mediaType == "MUSIC") extractAndStoreAlbumArt(file) else null
 
                 // Create media item
                 val mediaItem = MediaItem(
@@ -407,7 +488,7 @@ class MediaScannerService : Service() {
                     fileName = file.name,
                     fileExtension = file.extension.lowercase(),
                     fileSize = file.length(),
-                    fileHash = null,
+                    fileHash = fileHash,
                     dateAdded = System.currentTimeMillis(),
                     lastScanned = System.currentTimeMillis(),
                     lastModified = file.lastModified(),
@@ -415,17 +496,18 @@ class MediaScannerService : Service() {
                     mimeType = null,
                     isAvailable = true,
                     hasMetadata = false,
-                    hasThumbnail = false,
-                    thumbnailPath = null
+                    hasThumbnail = coverPath != null,
+                    thumbnailPath = coverPath
                 )
 
                 val itemId = mediaItemDao.insertMediaItem(mediaItem)
                 val newItem = mediaItem.copy(itemId = itemId)
 
                 // Create basic metadata
-                val metadata = MetadataCommon(
-                    itemId = itemId,
-                    title = file.nameWithoutExtension,
+                  val resolvedTitle = musicInfo?.title?.takeIf { it.isNotBlank() } ?: file.nameWithoutExtension
+                  val metadata = MetadataCommon(
+                      itemId = itemId,
+                      title = resolvedTitle,
                     sortTitle = null,
                     originalTitle = null,
                     year = null,
@@ -436,7 +518,7 @@ class MediaScannerService : Service() {
                     summary = null,
                     plot = null,
                     tagline = null,
-                    coverImagePath = null,
+                    coverImagePath = coverPath,
                     backdropImagePath = null,
                     language = null,
                     country = null,
@@ -444,7 +526,10 @@ class MediaScannerService : Service() {
                     metadataSource = null,
                     externalId = null
                 )
-                metadataDao.insertMetadataCommon(metadata)
+                  metadataDao.insertMetadataCommon(metadata)
+                  if (musicInfo != null) {
+                      persistMusicTrackMetadata(newItem, musicInfo)
+                  }
 
                 updateNotification("Found: ${file.name}")
                 newItem
@@ -455,6 +540,265 @@ class MediaScannerService : Service() {
         }
     }
 
+    private fun shouldSkipAudioFile(
+        file: File,
+        minDurationMs: Long = MIN_AUDIO_DURATION_MS,
+        minSizeBytes: Long = MIN_AUDIO_FILE_SIZE_BYTES
+    ): Boolean {
+        if (minSizeBytes > 0 && file.length() < minSizeBytes) return true
+        if (minDurationMs <= 0) return false
+        val durationMs = extractAudioDuration(file) ?: return false
+        return durationMs < minDurationMs
+    }
+
+    private fun extractAudioDuration(file: File): Long? {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(file.absolutePath)
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+        } catch (_: Exception) {
+            null
+        } finally {
+            try {
+                retriever.release()
+            } catch (_: Exception) { }
+        }
+    }
+
+    private suspend fun persistMusicTrackMetadata(
+        mediaItem: MediaItem,
+        info: MusicTrackInfo
+    ) {
+        val waveform = runCatching {
+            waveformGenerator.generate(File(mediaItem.filePath), info.durationMs)
+        }.getOrNull()
+
+        val metadata = MetadataMusicTrack(
+            itemId = mediaItem.itemId,
+            album = info.album,
+            albumArtist = info.albumArtist,
+            artist = info.artist,
+            composer = info.composer,
+            trackNumber = info.trackNumber,
+            totalTracks = info.totalTracks,
+            discNumber = info.discNumber,
+            totalDiscs = info.totalDiscs,
+            duration = info.durationMs,
+            bitrate = info.bitrate,
+            sampleRate = info.sampleRate,
+            channels = info.channels,
+            waveformData = waveform?.samples,
+            waveformSampleCount = waveform?.sampleCount ?: 0,
+            waveformFrameDurationMs = waveform?.frameDurationMs ?: 20,
+            waveformOffsetMs = 0,
+            waveformGeneratedAt = waveform?.generatedAt,
+            waveformVersion = waveform?.version ?: 1
+        )
+
+        metadataDao.insertMetadataMusicTrack(metadata)
+    }
+
+    private fun extractMusicTrackInfo(file: File): MusicTrackInfo {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(file.absolutePath)
+            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+            val artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+            val albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
+            val composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
+            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
+            val sampleRate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)?.toIntOrNull()
+            val trackPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER))
+            val discPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER))
+            val totalTracks = trackPair.second
+                ?: retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_NUM_TRACKS)?.toIntOrNull()
+
+            MusicTrackInfo(
+                title = title ?: file.nameWithoutExtension,
+                artist = artist,
+                album = album,
+                albumArtist = albumArtist,
+                composer = composer,
+                trackNumber = trackPair.first,
+                totalTracks = totalTracks,
+                discNumber = discPair.first,
+                totalDiscs = discPair.second,
+                durationMs = duration,
+                bitrate = bitrate,
+                sampleRate = sampleRate,
+                channels = null
+            )
+        } catch (_: Exception) {
+            MusicTrackInfo(title = file.nameWithoutExtension)
+        } finally {
+            try {
+                retriever.release()
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun parseNumberPair(raw: String?): Pair<Int?, Int?> {
+        if (raw.isNullOrBlank()) return null to null
+        val parts = raw.split("/")
+        val first = parts.getOrNull(0)?.toIntOrNull()
+        val second = parts.getOrNull(1)?.toIntOrNull()
+        return first to second
+    }
+
+    private data class MusicTrackInfo(
+        val title: String? = null,
+        val artist: String? = null,
+        val album: String? = null,
+        val albumArtist: String? = null,
+        val composer: String? = null,
+        val trackNumber: Int? = null,
+        val totalTracks: Int? = null,
+        val discNumber: Int? = null,
+        val totalDiscs: Int? = null,
+        val durationMs: Long? = null,
+        val bitrate: Int? = null,
+        val sampleRate: Int? = null,
+        val channels: Int? = null
+    )
+
+    private fun extractAndStoreAlbumArt(file: File): String? {
+        val key = "${file.absolutePath}_${file.lastModified()}"
+        val coverDir = File(filesDir, "album_art").apply { if (!exists()) mkdirs() }
+        val coverFile = File(coverDir, "${hashString(key)}.jpg")
+        if (coverFile.exists()) {
+            return coverFile.absolutePath
+        }
+        val bytes = extractEmbeddedAlbumArtBytes(file.absolutePath) ?: return null
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        val normalized = scaleBitmap(bitmap, 1024)
+        return try {
+            FileOutputStream(coverFile).use { out ->
+                normalized.compress(CompressFormat.JPEG, 90, out)
+            }
+            coverFile.absolutePath
+        } catch (_: Exception) {
+            null
+        } finally {
+            if (!normalized.isRecycled) {
+                normalized.recycle()
+            }
+            if (normalized !== bitmap && !bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+        }
+    }
+
+    private fun extractEmbeddedAlbumArtBytes(filePath: String): ByteArray? {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(filePath)
+            retriever.embeddedPicture
+        } catch (_: Exception) {
+            null
+        } finally {
+            try {
+                retriever.release()
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun scaleBitmap(bitmap: Bitmap, maxDimension: Int): Bitmap {
+        val largestSide = max(bitmap.width, bitmap.height)
+        if (largestSide <= maxDimension) return bitmap
+        val scale = maxDimension.toFloat() / largestSide.toFloat()
+        val width = (bitmap.width * scale).roundToInt().coerceAtLeast(1)
+        val height = (bitmap.height * scale).roundToInt().coerceAtLeast(1)
+        return Bitmap.createScaledBitmap(bitmap, width, height, true)
+    }
+
+    private fun hashString(input: String): String {
+        val digest = MessageDigest.getInstance("SHA-1")
+        val bytes = digest.digest(input.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
+    private fun computeFileHash(file: File): String? {
+        return try {
+            val digest = MessageDigest.getInstance("SHA-1")
+            file.inputStream().use { stream ->
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                var bytesRead = stream.read(buffer)
+                while (bytesRead > 0) {
+                    digest.update(buffer, 0, bytesRead)
+                    bytesRead = stream.read(buffer)
+                }
+            }
+            digest.digest().joinToString("") { "%02x".format(it) }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private suspend fun getCachedScanSettings(library: Library): ResolvedScanSettings {
+        synchronized(scanSettingsCache) {
+            scanSettingsCache[library.libraryId]?.let { return it }
+        }
+        val resolved = resolveScanSettings(library)
+        synchronized(scanSettingsCache) {
+            scanSettingsCache[library.libraryId] = resolved
+        }
+        return resolved
+    }
+
+    private suspend fun resolveScanSettings(library: Library): ResolvedScanSettings {
+        val settings = libraryScanSettingsDao.getSettings(library.libraryId)
+            ?: LibraryScanSettings.defaults(library.libraryId, library.path).also {
+                libraryScanSettingsDao.upsert(it)
+            }
+        return settings.toResolved()
+    }
+
+    private fun LibraryScanSettings.toResolved(): ResolvedScanSettings {
+        val includes = includePaths.mapNotNull { it.normalizeMatcher() }.distinct()
+        val excludes = excludePaths.mapNotNull { it.normalizeMatcher() }.distinct()
+        return ResolvedScanSettings(this, includes, excludes)
+    }
+
+    private fun ResolvedScanSettings.shouldSkipDirectory(directory: File): Boolean {
+        val normalized = directory.normalizedPath()
+        return excludeMatchers.any { normalized.startsWith(it) }
+    }
+
+    private fun ResolvedScanSettings.allowsFile(file: File): Boolean {
+        val normalizedPath = file.normalizedPath()
+        val includeOk = if (includeMatchers.isEmpty()) {
+            true
+        } else if (config.includeSubdirectories) {
+            includeMatchers.any { normalizedPath.startsWith(it) }
+        } else {
+            val parent = file.parent?.normalizeMatcher() ?: ""
+            includeMatchers.any { parent == it || normalizedPath == it }
+        }
+        if (!includeOk) return false
+        if (excludeMatchers.any { normalizedPath.startsWith(it) }) return false
+        if (config.minFileSizeBytes > 0 && file.length() < config.minFileSizeBytes) return false
+        return true
+    }
+
+    private fun String.normalizeMatcher(): String? {
+        if (isBlank()) return null
+        return try {
+            val raw = if (startsWith("content://")) {
+                trim()
+            } else {
+                File(this).canonicalPath
+            }
+            raw.replace("\\", "/").trim().lowercase()
+        } catch (_: Exception) {
+            trim().replace("\\", "/").lowercase()
+        }
+    }
+
+    private fun File.normalizedPath(): String =
+        absolutePath.normalizeMatcher() ?: absolutePath.lowercase()
+
     private fun scanLibrary(libraryId: Long, scanPath: String?) {
         scanJob?.cancel()
         scanJob = serviceScope.launch {
@@ -464,8 +808,9 @@ class MediaScannerService : Service() {
                     val path = scanPath ?: library.path
                     val directory = File(path)
                     if (directory.exists() && directory.isDirectory) {
+                        val resolvedSettings = getCachedScanSettings(library)
                         updateNotification("Scanning ${library.name}...")
-                        scanDirectory(directory)
+                        scanDirectory(directory, resolvedSettings, library)
                         updateNotification("Library scan complete!")
                     }
                 }

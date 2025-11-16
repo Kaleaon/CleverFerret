@@ -27,12 +27,14 @@ import com.universalmedialibrary.data.Tag
 @Database(
     entities = [
         // Core entities only for now
-        Library::class,
+          Library::class,
+          LibraryScanSettings::class,
         MediaItem::class,
         MetadataCommon::class,
         MetadataBook::class,
         MetadataMovie::class,
-        MetadataMusicTrack::class,
+          MetadataMusicTrack::class,
+          ListenHistoryEntry::class,
 
         // Essential system entities
         APIKey::class,
@@ -152,7 +154,7 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class
 
     ],
-    version = 35, // Added playback and user preference fields to MediaItem entity (isFavorite, playCount, lastPlayed)
+      version = 37, // Added waveform metadata caching + playback preference tables
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -161,10 +163,12 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Core DAOs
 
-    abstract fun libraryDao(): LibraryDao
+      abstract fun libraryDao(): LibraryDao
+      abstract fun libraryScanSettingsDao(): LibraryScanSettingsDao
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
-    abstract fun metadataDao(): MetadataDao
+      abstract fun metadataDao(): MetadataDao
+      abstract fun listenHistoryDao(): ListenHistoryDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun readingProgressDao(): ReadingProgressDao
     abstract fun playlistDao(): PlaylistDao
@@ -269,8 +273,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabaseMigrations.MIGRATION_30_31,
                     AppDatabaseMigrations.MIGRATION_31_32,
                     AppDatabaseMigrations.MIGRATION_32_33,
-                    AppDatabaseMigrations.MIGRATION_33_34
-                       , AppDatabaseMigrations.MIGRATION_34_35
+                      AppDatabaseMigrations.MIGRATION_33_34
+                         , AppDatabaseMigrations.MIGRATION_34_35
+                     , AppDatabaseMigrations.MIGRATION_35_36
+                     , AppDatabaseMigrations.MIGRATION_36_37
                 )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()

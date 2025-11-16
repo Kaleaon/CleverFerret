@@ -61,6 +61,12 @@ interface MediaItemDao {
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountByLibrary(libraryId: Long): Int
 
+      @Query("SELECT * FROM media_items WHERE libraryId = :libraryId AND fileName = :fileName AND fileSize = :fileSize LIMIT 1")
+      suspend fun findDuplicateByNameAndSize(libraryId: Long, fileName: String, fileSize: Long): MediaItem?
+
+      @Query("SELECT * FROM media_items WHERE libraryId = :libraryId AND fileHash = :fileHash LIMIT 1")
+      suspend fun findDuplicateByHash(libraryId: Long, fileHash: String): MediaItem?
+
     @Query("SELECT * FROM media_items WHERE isFavorite = 1 ORDER BY dateAdded DESC")
     fun getFavoriteMediaItems(): Flow<List<MediaItem>>
 

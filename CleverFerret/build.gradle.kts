@@ -141,6 +141,7 @@ dependencies {
 
     // Image loading & UI utilities
     implementation(libs.coil.compose)
+    implementation(libs.androidx.palette)
     implementation(libs.compose.reorderable)
 
     // Media playback

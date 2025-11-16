@@ -38,6 +38,11 @@ object DatabaseModule {
         return database.libraryDao()
     }
 
+      @Provides
+      fun provideLibraryScanSettingsDao(database: AppDatabase): LibraryScanSettingsDao {
+          return database.libraryScanSettingsDao()
+      }
+
     @Provides
     fun provideAPIKeyDao(appDatabase: AppDatabase): APIKeyDao {
         return appDatabase.apiKeyDao()
@@ -47,6 +52,11 @@ object DatabaseModule {
     fun provideMediaItemDao(appDatabase: AppDatabase): MediaItemDao {
         return appDatabase.mediaItemDao()
     }
+
+      @Provides
+      fun provideListenHistoryDao(appDatabase: AppDatabase): ListenHistoryDao {
+          return appDatabase.listenHistoryDao()
+      }
 
     @Provides
     fun provideMetadataDao(database: AppDatabase): MetadataDao {

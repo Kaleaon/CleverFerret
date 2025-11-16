@@ -4,6 +4,7 @@ import com.universalmedialibrary.data.local.dao.MediaItemDao
 import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.MetadataCommon
+import com.universalmedialibrary.data.local.entity.MetadataMusicTrack
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,6 +50,9 @@ class MediaRepository @Inject constructor(
     suspend fun getCommonMetadata(itemId: Long): MetadataCommon? =
         metadataDao.getCommonMetadata(itemId)
 
+    suspend fun getMusicMetadata(itemId: Long): MetadataMusicTrack? =
+        metadataDao.getMetadataMusicTrackByItemId(itemId)
+
     suspend fun saveCommonMetadata(metadata: MetadataCommon) =
         metadataDao.insertCommonMetadata(metadata)
 
@@ -62,6 +66,29 @@ class MediaRepository @Inject constructor(
         mediaItemDao.setFavorite(itemId, isFavorite)
         metadataDao.setFavorite(itemId, isFavorite)
     }
+
+    suspend fun updateWaveform(
+        itemId: Long,
+        waveformData: ByteArray?,
+        sampleCount: Int,
+        frameDurationMs: Int,
+        offsetMs: Int,
+        generatedAt: Long,
+        version: Int = 1
+    ) {
+        metadataDao.upsertWaveform(
+            itemId = itemId,
+            waveformData = waveformData,
+            sampleCount = sampleCount,
+            frameDurationMs = frameDurationMs,
+            offsetMs = offsetMs,
+            generatedAt = generatedAt,
+            version = version
+        )
+    }
+
+    suspend fun updateWaveformOffset(itemId: Long, offsetMs: Int) =
+        metadataDao.updateWaveformOffset(itemId, offsetMs)
 
     suspend fun toggleFavorite(itemId: Long): Boolean {
         val current = mediaItemDao.getMediaItemById(itemId)?.isFavorite ?: false
