@@ -6,7 +6,7 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * Centralized error logging utility for CleverFerret
- * 
+ *
  * Provides consistent error logging across the application with support for:
  * - Standard logging with tags
  * - Coroutine exception handling
@@ -14,36 +14,36 @@ import kotlin.coroutines.CoroutineContext
  * - Debug vs Production logging
  */
 object ErrorLogger {
-    
+
     private const val DEFAULT_TAG = "CleverFerret"
     private var crashReporter: CrashReporter? = null
-    
+
     /**
      * Initialize error logger with optional crash reporter
      */
     fun initialize(reporter: CrashReporter? = null) {
         crashReporter = reporter
     }
-    
+
     /**
      * Log an error with exception
      */
     fun logError(tag: String = DEFAULT_TAG, message: String, throwable: Throwable? = null) {
         Log.e(tag, message, throwable)
-        
+
         // Report to crash analytics if available
-        throwable?.let { 
+        throwable?.let {
             crashReporter?.recordException(it, message)
         }
     }
-    
+
     /**
      * Log a warning
      */
     fun logWarning(tag: String = DEFAULT_TAG, message: String, throwable: Throwable? = null) {
         Log.w(tag, message, throwable)
     }
-    
+
     /**
      * Log debug information (only in debug builds)
      */
@@ -52,14 +52,14 @@ object ErrorLogger {
             Log.d(tag, message)
         }
     }
-    
+
     /**
      * Log info message
      */
     fun logInfo(tag: String = DEFAULT_TAG, message: String) {
         Log.i(tag, message)
     }
-    
+
     /**
      * Create a CoroutineExceptionHandler that logs uncaught exceptions
      */
@@ -76,35 +76,35 @@ object ErrorLogger {
             onError?.invoke(throwable)
         }
     }
-    
+
     /**
      * Log ExoPlayer errors
      */
     fun logExoPlayerError(message: String, throwable: Throwable? = null) {
         logError(tag = "ExoPlayer", message = message, throwable = throwable)
     }
-    
+
     /**
      * Log media scanning errors
      */
     fun logMediaScanError(message: String, throwable: Throwable? = null) {
         logError(tag = "MediaScanner", message = message, throwable = throwable)
     }
-    
+
     /**
      * Log network errors
      */
     fun logNetworkError(message: String, throwable: Throwable? = null) {
         logError(tag = "Network", message = message, throwable = throwable)
     }
-    
+
     /**
      * Log database errors
      */
     fun logDatabaseError(message: String, throwable: Throwable? = null) {
         logError(tag = "Database", message = message, throwable = throwable)
     }
-    
+
     /**
      * Log service errors
      */
