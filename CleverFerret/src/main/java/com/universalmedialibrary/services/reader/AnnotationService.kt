@@ -1,6 +1,5 @@
 package com.universalmedialibrary.services.reader
 
-import android.content.Context
 import com.universalmedialibrary.data.local.dao.AnnotationDao
 import com.universalmedialibrary.data.local.dao.EnhancedAnnotationDao
 import com.universalmedialibrary.data.local.dao.SearchIndexDao
@@ -11,7 +10,6 @@ import com.universalmedialibrary.data.local.entity.ReadingStatistics
 import com.universalmedialibrary.data.local.entity.AnnotationColor
 import com.universalmedialibrary.data.local.entity.AnnotationStyle
 import com.universalmedialibrary.data.local.entity.EnhancedAnnotation
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -23,7 +21,6 @@ import javax.inject.Singleton
  */
 @Singleton
 class AnnotationService @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val annotationDao: AnnotationDao,
     private val enhancedAnnotationDao: EnhancedAnnotationDao,
     private val searchIndexDao: SearchIndexDao,
@@ -57,7 +54,7 @@ class AnnotationService @Inject constructor(
             contextAfter = contextAfter
         )
         val annotationId = annotationDao.insertAnnotation(annotation)
-        enhancedAnnotationDao.insertAnnotation(
+        enhancedAnnotationDao.saveEnhancedAnnotation(
             annotationId = annotationId,
             annotation = annotation,
             selectedText = selectedText,
@@ -96,7 +93,7 @@ class AnnotationService @Inject constructor(
             contextAfter = contextAfter
         )
         val annotationId = annotationDao.insertAnnotation(annotation)
-        enhancedAnnotationDao.insertAnnotation(
+        enhancedAnnotationDao.saveEnhancedAnnotation(
             annotationId = annotationId,
             annotation = annotation,
             selectedText = selectedText,
@@ -323,7 +320,7 @@ data class SearchResult(
     }
 }
 
-private suspend fun EnhancedAnnotationDao.insertAnnotation(
+private suspend fun EnhancedAnnotationDao.saveEnhancedAnnotation(
     annotationId: Long,
     annotation: TextAnnotation,
     selectedText: String,
@@ -346,7 +343,7 @@ private suspend fun EnhancedAnnotationDao.insertAnnotation(
         modifiedAt = annotation.dateModified,
         tags = emptyList()
     )
-    insertAnnotation(enhanced)
+    this.insertAnnotation(enhanced)
 }
 
 private fun mapColor(hex: String): AnnotationColor = when (hex.uppercase()) {

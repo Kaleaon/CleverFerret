@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.GenericFontFamily
@@ -28,6 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import com.universalmedialibrary.data.local.entity.AnnotationExportConfig
+import com.universalmedialibrary.data.local.entity.ExportFormat
+import java.io.File
 
 /**
  * Enhanced eBook Reader with beautiful, customizable reading experience
@@ -41,6 +47,7 @@ fun EnhancedEReaderScreen(
     viewModel: EnhancedEReaderViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var showControls by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
@@ -257,28 +264,84 @@ fun EnhancedEReaderScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = {
-                            // Add bookmark at current position - shows confirmation
-                            showBookmarks = false
+                            val exportName = uiState.bookTitle.ifBlank { "annotations" }
+                            val exportFile = File(context.cacheDir, "$exportName.md")
+                            viewModel.exportAnnotations(
+                                destination = exportFile,
+                                config = AnnotationExportConfig(
+                                    format = ExportFormat.MARKDOWN,
+                                    includeNotes = true,
+                                    includeQuotes = true,
+                                    includeMetadata = true,
+                                    groupByChapter = true
+                                )
+                            )
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.AddCircle, "Add", modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Share, contentDescription = "Export", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add Bookmark Here")
+                        Text("Export Annotations")
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Your Bookmarks",
+                        "Your Highlights & Notes",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        "No bookmarks yet",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 32.dp)
-                    )
+                    if (uiState.enhancedAnnotations.isEmpty()) {
+                        Text(
+                            "No annotations yet",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 32.dp)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = false)
+                        ) {
+                            items(uiState.enhancedAnnotations) { annotation ->
+                                val chapterIndex = annotation.chapterId?.toInt() ?: 0
+                                val chapterTitle = annotation.chapterName ?: "Chapter ${chapterIndex + 1}"
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp)
+                                        .clickable {
+                                            viewModel.goToChapter(chapterIndex)
+                                            showBookmarks = false
+                                        },
+                                    tonalElevation = 2.dp,
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(
+                                            text = chapterTitle,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = annotation.quote ?: annotation.text,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            maxLines = 4
+                                        )
+                                        annotation.note?.takeIf { it.isNotBlank() }?.let { note ->
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Text(
+                                                text = "Note: $note",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.secondary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -298,6 +361,8 @@ fun EnhancedEReaderScreen(
                             )
                         } else {
                             repeat(uiState.totalChapters) { index ->
+                                val chapterTitle = uiState.chapters.getOrNull(index)?.takeIf { it.isNotBlank() }
+                                val displayTitle = chapterTitle ?: "Chapter ${index + 1}"
                                 Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -313,7 +378,7 @@ fun EnhancedEReaderScreen(
                                     }
                                 ) {
                                     Text(
-                                        text = "Chapter " + (index + 1).toString(),
+                                        text = displayTitle,
                                         style = MaterialTheme.typography.bodyLarge,
                                         modifier = Modifier.padding(12.dp)
                                     )

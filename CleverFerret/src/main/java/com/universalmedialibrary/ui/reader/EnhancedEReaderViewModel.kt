@@ -68,6 +68,8 @@ class EnhancedEReaderViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
+            annotationsJob?.cancel()
+
             val file = File(bookFilePath)
             if (!file.exists()) {
                 _uiState.value = _uiState.value.copy(
@@ -111,6 +113,7 @@ class EnhancedEReaderViewModel @Inject constructor(
                     isLoading = false,
                     error = result.exceptionOrNull()?.message ?: "Failed to open book"
                 )
+                currentBookId = 0
             }
         }
     }
