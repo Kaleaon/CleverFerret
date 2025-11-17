@@ -304,8 +304,7 @@ class CharacterVoiceService @Inject constructor(
      * Get the current TTS provider
      */
     suspend fun getCurrentProvider(): TtsProvider = withContext(Dispatchers.IO) {
-        val settings = kotlinx.coroutines.flow.first(ttsProviderManager.providerSettings)
-        return@withContext settings.provider
+        return@withContext TtsProvider.GEMINI // Default to Gemini for audiobook maker
     }
     
     /**

@@ -149,7 +149,7 @@ class AudiobookMakerService @Inject constructor(
                 chapterId,
                 chapterContext,
                 analysis,
-                ambientSounds.firstOrNull()?.first?.id,
+                ambientSounds.firstOrNull()?.first?.id?.toString(),
                 actionSounds
             )
             
