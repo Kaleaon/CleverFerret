@@ -10,7 +10,7 @@
 [versions]
 # Kotlin & Compose
  kotlin = "2.1.0"
- compose-bom = "2025.10.01"
+ compose-bom = "2025.11.00"
  compose-compiler = "2.1.0"
 
 # AndroidX Core
@@ -18,7 +18,7 @@ core-ktx = "1.17.0"
 appcompat = "1.7.1"
 lifecycle = "2.9.4"
 activity-compose = "1.11.0"
-navigation-compose = "2.9.5"
+navigation-compose = "2.9.6"
 
 # Dependency Injection
  hilt = "2.53"
@@ -255,7 +255,7 @@ glance = [
 ]
 
 [plugins]
-android-application = { id = "com.android.application", version = "8.13.0" }
+android-application = { id = "com.android.application", version = "8.13.1" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
