@@ -754,6 +754,14 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // ========== Calibre Features Routes ==========
         
         // Fanfiction routes
+        // New unified hub - all-in-one interface
+        composable("fanfiction_hub") {
+            com.universalmedialibrary.ui.webfiction.UnifiedFanfictionHubScreen(
+                navController = navController
+            )
+        }
+        
+        // Legacy routes - kept for backward compatibility
         composable("fanfiction_download") {
             com.universalmedialibrary.ui.webfiction.FanfictionDownloaderScreen(
                 navController = navController

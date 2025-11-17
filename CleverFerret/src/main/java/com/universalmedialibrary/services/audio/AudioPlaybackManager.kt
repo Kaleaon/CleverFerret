@@ -144,7 +144,7 @@ class AudioPlaybackManager @Inject constructor(
     }
 
     private fun ensureChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        // minSdk is 26 (Android 8.0+), so notification channels are always available
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,

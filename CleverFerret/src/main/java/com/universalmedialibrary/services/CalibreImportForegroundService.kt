@@ -82,7 +82,7 @@ class CalibreImportForegroundService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        // minSdk is 26 (Android 8.0+), so notification channels are always available
         val serviceChannel = NotificationChannel(
             CHANNEL_ID,
             "Calibre Import Service Channel",
