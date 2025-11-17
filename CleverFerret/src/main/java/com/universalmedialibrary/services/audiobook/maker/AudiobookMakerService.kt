@@ -4,6 +4,9 @@ import android.content.Context
 import com.universalmedialibrary.services.ai.GeminiTTSService
 import com.universalmedialibrary.services.ambient.AmbientSoundService
 import com.universalmedialibrary.services.ambient.ContextDetectionService
+import com.universalmedialibrary.services.tts.TtsProviderManager
+import com.universalmedialibrary.services.tts.TtsProvider
+import com.universalmedialibrary.services.tts.TextToSpeechService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +22,7 @@ import javax.inject.Singleton
 /**
  * Main service for audiobook maker functionality
  * Orchestrates character voices, background sounds, and action effects
+ * Supports multiple TTS providers (Gemini, ElevenLabs, OpenAI, etc.)
  */
 @Singleton
 class AudiobookMakerService @Inject constructor(
@@ -28,7 +32,8 @@ class AudiobookMakerService @Inject constructor(
     private val actionSoundService: ActionSoundService,
     private val ambientSoundService: AmbientSoundService,
     private val contextDetectionService: ContextDetectionService,
-    private val geminiTtsService: GeminiTTSService
+    private val geminiTtsService: GeminiTTSService,
+    private val ttsProviderManager: TtsProviderManager
 ) {
     
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -291,25 +296,77 @@ class AudiobookMakerService @Inject constructor(
     }
     
     /**
-     * Generate speech audio for a segment
-     * This would integrate with TTS services
+     * Generate speech audio for a segment using configured TTS provider
      */
     suspend fun generateSegmentAudio(segment: AudiobookSegment): Boolean = 
         withContext(Dispatchers.IO) {
         try {
             val voiceProfile = segment.voiceProfile ?: return@withContext false
             
-            // Use Gemini TTS to generate speech with character voice
-            geminiTtsService.speak(
-                text = segment.text,
-                speed = voiceProfile.speed,
-                pitch = voiceProfile.pitch
-            )
+            // Get active TTS service based on configuration
+            val ttsService = ttsProviderManager.getActiveService()
+            
+            // Apply voice settings
+            ttsService.setSpeechRate(voiceProfile.speed)
+            ttsService.setPitch(voiceProfile.pitch)
+            
+            // Generate speech
+            ttsService.speak(segment.text)
             
             true
         } catch (e: Exception) {
+            updateStatus(error = "TTS generation failed: ${e.message}")
             false
         }
+    }
+    
+    /**
+     * Set the TTS provider for audiobook generation
+     */
+    suspend fun setTtsProvider(provider: TtsProviderType) {
+        val ttsProvider = when (provider) {
+            TtsProviderType.ANDROID -> TtsProvider.ANDROID
+            TtsProviderType.GEMINI -> TtsProvider.GEMINI
+            TtsProviderType.GOOGLE_CLOUD -> TtsProvider.GOOGLE_CLOUD
+            TtsProviderType.ELEVEN_LABS -> TtsProvider.ELEVEN_LABS
+            TtsProviderType.OPENAI -> TtsProvider.OPENAI
+        }
+        ttsProviderManager.setProvider(ttsProvider)
+    }
+    
+    /**
+     * Get available TTS providers
+     */
+    fun getAvailableProviders(): List<TtsProviderInfo> {
+        return TtsProviderType.values().map { type ->
+            val provider = when (type) {
+                TtsProviderType.ANDROID -> TtsProvider.ANDROID
+                TtsProviderType.GEMINI -> TtsProvider.GEMINI
+                TtsProviderType.GOOGLE_CLOUD -> TtsProvider.GOOGLE_CLOUD
+                TtsProviderType.ELEVEN_LABS -> TtsProvider.ELEVEN_LABS
+                TtsProviderType.OPENAI -> TtsProvider.OPENAI
+            }
+            TtsProviderInfo(
+                type = type,
+                displayName = provider.displayName,
+                description = provider.description,
+                requiresApiKey = provider.requiresApiKey
+            )
+        }
+    }
+    
+    /**
+     * Check if a TTS provider is configured and ready
+     */
+    suspend fun isProviderConfigured(provider: TtsProviderType): Boolean {
+        val ttsProvider = when (provider) {
+            TtsProviderType.ANDROID -> TtsProvider.ANDROID
+            TtsProviderType.GEMINI -> TtsProvider.GEMINI
+            TtsProviderType.GOOGLE_CLOUD -> TtsProvider.GOOGLE_CLOUD
+            TtsProviderType.ELEVEN_LABS -> TtsProvider.ELEVEN_LABS
+            TtsProviderType.OPENAI -> TtsProvider.OPENAI
+        }
+        return ttsProviderManager.isProviderConfigured(ttsProvider)
     }
     
     /**

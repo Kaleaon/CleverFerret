@@ -1,6 +1,8 @@
 package com.universalmedialibrary.services.audiobook.maker
 
 import com.universalmedialibrary.services.ai.GeminiTTSService
+import com.universalmedialibrary.services.tts.TtsProviderManager
+import com.universalmedialibrary.services.tts.TtsProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -9,10 +11,12 @@ import javax.inject.Singleton
 /**
  * Manages character voices for audiobook generation
  * Creates and maintains consistent voice profiles for each character
+ * Supports multiple TTS providers (Gemini, ElevenLabs, OpenAI, etc.)
  */
 @Singleton
 class CharacterVoiceService @Inject constructor(
-    private val geminiTtsService: GeminiTTSService
+    private val geminiTtsService: GeminiTTSService,
+    private val ttsProviderManager: TtsProviderManager
 ) {
     
     // Cache of character voices
@@ -287,5 +291,34 @@ class CharacterVoiceService @Inject constructor(
      */
     fun getAllVoiceProfiles(): List<CharacterVoiceProfile> {
         return characterVoices.values.toList()
+    }
+    
+    /**
+     * Get available TTS providers
+     */
+    fun getAvailableProviders(): List<TtsProvider> {
+        return TtsProvider.values().toList()
+    }
+    
+    /**
+     * Get the current TTS provider
+     */
+    suspend fun getCurrentProvider(): TtsProvider = withContext(Dispatchers.IO) {
+        val settings = kotlinx.coroutines.flow.first(ttsProviderManager.providerSettings)
+        return@withContext settings.provider
+    }
+    
+    /**
+     * Set the TTS provider for audiobook generation
+     */
+    suspend fun setTtsProvider(provider: TtsProvider) {
+        ttsProviderManager.setProvider(provider)
+    }
+    
+    /**
+     * Check if a TTS provider is properly configured
+     */
+    suspend fun isProviderConfigured(provider: TtsProvider): Boolean {
+        return ttsProviderManager.isProviderConfigured(provider)
     }
 }

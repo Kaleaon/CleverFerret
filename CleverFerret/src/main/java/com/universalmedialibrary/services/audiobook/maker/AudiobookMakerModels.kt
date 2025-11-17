@@ -293,8 +293,23 @@ data class AudiobookGenerationConfig(
     val narratorVoice: CharacterVoiceProfile? = null,
     val autoDetectCharacters: Boolean = true,
     val autoDetectSounds: Boolean = true,
-    val genreOverride: BookGenre? = null
+    val genreOverride: BookGenre? = null,
+    val ttsProvider: TtsProviderType = TtsProviderType.GEMINI,
+    val elevenLabsVoiceId: String? = null, // Specific voice for ElevenLabs
+    val elevenLabsModelId: String? = null, // Model for ElevenLabs
+    val openAiVoice: String? = null // Voice for OpenAI TTS
 )
+
+/**
+ * TTS Provider type for audiobook generation
+ */
+enum class TtsProviderType {
+    ANDROID,      // Built-in Android TTS (free, offline)
+    GEMINI,       // Google Gemini (requires API key)
+    GOOGLE_CLOUD, // Google Cloud TTS (requires API key)
+    ELEVEN_LABS,  // ElevenLabs (requires API key, ultra-realistic)
+    OPENAI        // OpenAI TTS (requires API key)
+}
 
 /**
  * Status of audiobook generation
@@ -308,4 +323,14 @@ data class GenerationStatus(
     val progress: Float = 0f, // 0.0 - 1.0
     val estimatedTimeRemaining: Long = 0, // milliseconds
     val error: String? = null
+)
+
+/**
+ * Information about a TTS provider
+ */
+data class TtsProviderInfo(
+    val type: TtsProviderType,
+    val displayName: String,
+    val description: String,
+    val requiresApiKey: Boolean
 )
