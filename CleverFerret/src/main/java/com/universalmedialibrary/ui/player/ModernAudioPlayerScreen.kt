@@ -774,7 +774,7 @@ private fun QuickToggleRow(
 }
 
 @Composable
-private fun QuickToggleChip(
+private fun RowScope.QuickToggleChip(
     label: String,
     enabled: Boolean,
     accent: Color,

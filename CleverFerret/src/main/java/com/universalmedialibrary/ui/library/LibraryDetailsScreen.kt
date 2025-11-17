@@ -112,11 +112,12 @@ import com.universalmedialibrary.ui.selection.SelectedMediaItem
             )
 
             // Main content
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
                 // Header section
                 Text(
                     text = uiState.library?.name ?: "Library",
@@ -315,6 +316,7 @@ import com.universalmedialibrary.ui.selection.SelectedMediaItem
                 )
             }
         }
+        }
     }
 }
 
@@ -343,6 +345,7 @@ private fun LibraryScanSettingsCard(
     var showIncludeDialog by remember { mutableStateOf(false) }
     var showExcludeDialog by remember { mutableStateOf(false) }
     var strategyExpanded by remember { mutableStateOf(false) }
+    val strategies = listOf("PATH", "FILENAME_SIZE", "HASH")
 
     if (showIncludeDialog) {
         PathInputDialog(

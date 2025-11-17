@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.audio.AudioPlaybackManager.AudioQueueEntry
+import com.universalmedialibrary.services.audio.AudioPlaybackManager.RepeatMode as AudioRepeatMode
 import com.universalmedialibrary.services.music.hivefy.HivefyPlaybackContract
 import com.universalmedialibrary.services.visualizer.AudioVisualizerService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -95,9 +96,9 @@ class ModernAudioPlayerViewModel @Inject constructor(
                     } else 0f,
                     isShuffleEnabled = audioState.isShuffleEnabled,
                         repeatMode = when (audioState.repeatMode) {
-                        com.universalmedialibrary.services.audio.RepeatMode.OFF -> RepeatMode.OFF
-                        com.universalmedialibrary.services.audio.RepeatMode.ONE -> RepeatMode.ONE
-                        com.universalmedialibrary.services.audio.RepeatMode.ALL -> RepeatMode.ALL
+                        AudioRepeatMode.OFF -> RepeatMode.OFF
+                        AudioRepeatMode.ONE -> RepeatMode.ONE
+                        AudioRepeatMode.ALL -> RepeatMode.ALL
                         },
                         skipSilenceEnabled = audioState.skipSilenceEnabled,
                         crossfadeDurationMs = audioState.crossfadeDurationMs,
