@@ -5,16 +5,22 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.net.Uri
+import com.universalmedialibrary.data.local.entity.EnhancedAnnotation
+import com.universalmedialibrary.data.local.entity.AnnotationExportConfig
+import com.universalmedialibrary.services.reader.EnhancedUniversalReaderService
+import com.universalmedialibrary.services.reader.AnnotationService
+import com.universalmedialibrary.services.reading.AnnotationExportService
+import com.universalmedialibrary.services.reader.model.BookFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
-import java.util.zip.ZipFile
 import javax.inject.Inject
 import com.universalmedialibrary.data.local.entity.ReaderSettings as ReaderSettingsModel
 
@@ -24,6 +30,7 @@ data class EnhancedReaderUiState(
     val totalChapters: Int = 0,
     val currentChapterIndex: Int = 0,
     val chapters: List<String> = emptyList(),
+    val enhancedAnnotations: List<EnhancedAnnotation> = emptyList(),
     val isBookmarked: Boolean = false,
     val isLoading: Boolean = false,
     val isLoaded: Boolean = false,
@@ -38,7 +45,11 @@ data class SimpleTtsState(
 )
 
 @HiltViewModel
-class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
+class EnhancedEReaderViewModel @Inject constructor(
+    private val readerService: EnhancedUniversalReaderService,
+    private val annotationService: AnnotationService,
+    private val annotationExportService: AnnotationExportService
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EnhancedReaderUiState())
     val uiState: StateFlow<EnhancedReaderUiState> = _uiState.asStateFlow()
@@ -50,126 +61,57 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
     val ttsState: StateFlow<SimpleTtsState> = _ttsState.asStateFlow()
 
     private var textToSpeech: TextToSpeech? = null
-    private var chapters: List<String> = emptyList()
+    private var currentBookId: Long = 0
+    private var annotationsJob: Job? = null
 
-    fun loadBook(context: Context, bookFilePath: String) {
+    fun loadBook(bookFilePath: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
-            try {
-                val file = File(bookFilePath)
-                if (!file.exists()) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = "File not found: $bookFilePath"
-                    )
-                    return@launch
-                }
 
-                when (file.extension.lowercase()) {
-                    "txt", "md" -> loadTextFile(file)
-                    "html", "htm" -> loadHtmlFile(file)
-                    "epub" -> loadEpubFile(file)
-                    else -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            error = "Unsupported format: ${file.extension}"
-                        )
-                    }
-                }
-            } catch (e: Exception) {
+            val file = File(bookFilePath)
+            if (!file.exists()) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to load book: ${e.message}"
+                    error = "File not found: $bookFilePath"
+                )
+                return@launch
+            }
+
+            val bookId = file.absolutePath.hashCode().toLong()
+            currentBookId = bookId
+            val format = determineFormat(file.extension)
+            val uri = Uri.fromFile(file)
+
+            val result = readerService.openBook(bookId, uri, format)
+            if (result.isSuccess) {
+                val chapters = readerService.getTableOfContents()
+                val progress = readerService.getEpubProgress()
+                val currentIndex = (progress?.currentChapter ?: 1).coerceAtLeast(1) - 1
+                val content = readerService.getCurrentChapterContent().orEmpty()
+
+                _uiState.value = _uiState.value.copy(
+                    bookTitle = file.nameWithoutExtension,
+                    currentChapterContent = content,
+                    chapters = chapters.map { it.title },
+                    totalChapters = chapters.size.coerceAtLeast(1),
+                    currentChapterIndex = currentIndex.coerceIn(0, chapters.size.coerceAtLeast(1) - 1),
+                    isLoading = false,
+                    isLoaded = true,
+                    error = null
+                )
+
+                annotationsJob?.cancel()
+                annotationsJob = viewModelScope.launch {
+                    annotationService.getEnhancedAnnotationsForBook(bookId).collect { annotations ->
+                        _uiState.value = _uiState.value.copy(enhancedAnnotations = annotations)
+                    }
+                }
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = result.exceptionOrNull()?.message ?: "Failed to open book"
                 )
             }
-        }
-    }
-
-    private suspend fun loadTextFile(file: File) = withContext(Dispatchers.IO) {
-        val content = file.readText()
-        
-        // Split into chapters
-        chapters = content.split(Regex("\\n\\s*(Chapter|CHAPTER|Part|PART)\\s+\\d+[:\\s]"))
-            .filter { it.isNotBlank() }
-        
-        if (chapters.isEmpty()) {
-            chapters = listOf(content)
-        }
-        
-        _uiState.value = _uiState.value.copy(
-            bookTitle = file.nameWithoutExtension,
-            currentChapterContent = chapters[0],
-            chapters = chapters,
-            totalChapters = chapters.size,
-            currentChapterIndex = 0,
-            isLoading = false,
-            isLoaded = true,
-            error = null
-        )
-    }
-
-    private suspend fun loadHtmlFile(file: File) = withContext(Dispatchers.IO) {
-        val content = file.readText()
-        val strippedContent = content.replace(Regex("<[^>]*>"), "").trim()
-        
-        chapters = listOf(strippedContent)
-        
-        _uiState.value = _uiState.value.copy(
-            bookTitle = file.nameWithoutExtension,
-            currentChapterContent = strippedContent,
-            totalChapters = 1,
-            currentChapterIndex = 0,
-            isLoading = false,
-            isLoaded = true,
-            error = null
-        )
-    }
-
-    private suspend fun loadEpubFile(file: File) = withContext(Dispatchers.IO) {
-        try {
-            val zipFile = ZipFile(file)
-            val entries = zipFile.entries().toList()
-            
-            val contentFiles = entries.filter { 
-                it.name.endsWith(".html") || it.name.endsWith(".xhtml") || it.name.endsWith(".htm")
-            }.sortedBy { it.name }
-            
-            chapters = contentFiles.mapNotNull { entry ->
-                try {
-                    zipFile.getInputStream(entry).use { inputStream ->
-                        val content = inputStream.bufferedReader().use { it.readText() }
-                        content.replace(Regex("<[^>]*>"), "")
-                            .replace(Regex("&nbsp;"), " ")
-                            .replace(Regex("&[a-z]+;"), "")
-                            .trim()
-                    }
-                } catch (e: Exception) {
-                    null
-                }
-            }.filter { it.isNotBlank() }
-            
-            zipFile.close()
-            
-            if (chapters.isEmpty()) {
-                chapters = listOf("Unable to extract text content from EPUB file.")
-            }
-            
-            _uiState.value = _uiState.value.copy(
-                bookTitle = file.nameWithoutExtension,
-                currentChapterContent = chapters[0],
-                chapters = chapters,
-                totalChapters = chapters.size,
-                currentChapterIndex = 0,
-                isLoading = false,
-                isLoaded = true,
-                error = null
-            )
-        } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                error = "Failed to parse EPUB: ${e.message}"
-            )
         }
     }
 
@@ -237,47 +179,42 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
     }
 
     fun previousChapter() {
-        val currentIndex = _uiState.value.currentChapterIndex
-        if (currentIndex > 0 && chapters.isNotEmpty()) {
-            val newIndex = currentIndex - 1
-            _uiState.value = _uiState.value.copy(
-                currentChapterIndex = newIndex,
-                currentChapterContent = chapters[newIndex]
-            )
-            
-            // Stop TTS when changing chapters
-            stopTTS()
-        }
+        val targetIndex = (_uiState.value.currentChapterIndex - 1).coerceAtLeast(0)
+        goToChapter(targetIndex)
     }
 
     fun nextChapter() {
-        val currentIndex = _uiState.value.currentChapterIndex
-        if (currentIndex < chapters.size - 1) {
-            val newIndex = currentIndex + 1
-            _uiState.value = _uiState.value.copy(
-                currentChapterIndex = newIndex,
-                currentChapterContent = chapters[newIndex]
-            )
-            
-            // Stop TTS when changing chapters
-            stopTTS()
-        }
+        val total = _uiState.value.totalChapters
+        val targetIndex = (_uiState.value.currentChapterIndex + 1).coerceAtMost(total - 1)
+        goToChapter(targetIndex)
     }
     
     fun goToChapter(index: Int) {
-        if (index in chapters.indices) {
-            _uiState.value = _uiState.value.copy(
-                currentChapterIndex = index,
-                currentChapterContent = chapters[index]
-            )
-            stopTTS()
+        viewModelScope.launch {
+            val total = _uiState.value.totalChapters
+            val current = _uiState.value.currentChapterIndex
+            if (index !in 0 until total || index == current) return@launch
+
+            val success = readerService.goToChapter(index)
+            if (success) {
+                val content = readerService.getCurrentChapterContent().orEmpty()
+                _uiState.value = _uiState.value.copy(
+                    currentChapterIndex = index,
+                    currentChapterContent = content
+                )
+                stopTTS()
+            }
         }
     }
     
     override fun onCleared() {
-        super.onCleared()
+        viewModelScope.launch {
+            readerService.closeCurrentBook()
+        }
+        annotationsJob?.cancel()
         textToSpeech?.stop()
         textToSpeech?.shutdown()
+        super.onCleared()
     }
 
     fun increaseFontSize() {
@@ -298,5 +235,29 @@ class EnhancedEReaderViewModel @Inject constructor() : ViewModel() {
     fun toggleJustified() {
         val newAlignment = if (_readerSettings.value.textAlignment == "Justify") "Left" else "Justify"
         _readerSettings.value = _readerSettings.value.copy(textAlignment = newAlignment)
+    }
+
+    fun exportAnnotations(
+        destination: File,
+        config: AnnotationExportConfig,
+        onResult: (Result<File>) -> Unit = {}
+    ) {
+        val bookId = currentBookId.takeIf { it != 0L } ?: return
+        viewModelScope.launch {
+            val result = annotationExportService.exportAnnotations(
+                itemId = bookId,
+                config = config,
+                outputPath = destination.absolutePath
+            )
+            onResult(result)
+        }
+    }
+
+    private fun determineFormat(extension: String): BookFormat = when (extension.lowercase()) {
+        "epub" -> BookFormat.EPUB
+        "pdf" -> BookFormat.PDF
+        "cbz" -> BookFormat.CBZ
+        "cbr" -> BookFormat.CBR
+        else -> BookFormat.UNKNOWN
     }
 }

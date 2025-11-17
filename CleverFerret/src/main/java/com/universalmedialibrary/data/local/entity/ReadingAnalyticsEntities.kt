@@ -9,8 +9,7 @@ import com.universalmedialibrary.data.local.converters.StringListConverter
 import kotlinx.serialization.Serializable
 
 /**
- * ReadingAnalytics entity - tracks reading time and habits
- * Inspired by Anx-reader's reading insights feature
+ * Daily reading analytics entry capturing aggregated metrics per book.
  */
 @Serializable
 @Entity(
@@ -28,35 +27,35 @@ import kotlinx.serialization.Serializable
         Index(value = ["date"])
     ]
 )
-data class ReadingAnalytics(
+data class ReadingAnalyticsEntry(
     @PrimaryKey(autoGenerate = true)
     val analyticsId: Long = 0,
-    
+
     val itemId: Long,
-    val date: String, // Format: YYYY-MM-DD
-    
+    val date: String,
+
     // Reading Time (in seconds)
     val readingTimeSeconds: Long = 0,
-    
-    // Pages/Progress
+
+    // Progress metrics
     val pagesRead: Int = 0,
     val wordsRead: Int = 0,
-    
+
     // Session Information
     val sessionCount: Int = 0,
     val averageSessionDuration: Long = 0,
-    
+
     // Timestamps
     val firstReadTime: Long = System.currentTimeMillis(),
     val lastReadTime: Long = System.currentTimeMillis()
 )
 
 /**
- * Reading session for detailed tracking
+ * Detailed reading session log to power analytics and history.
  */
 @Serializable
 @Entity(
-    tableName = "reading_sessions",
+    tableName = "reading_session_logs",
     foreignKeys = [
         ForeignKey(
             entity = MediaItem::class,
@@ -70,27 +69,27 @@ data class ReadingAnalytics(
         Index(value = ["startTime"])
     ]
 )
-data class ReadingSession(
+data class ReadingSessionLog(
     @PrimaryKey(autoGenerate = true)
     val sessionId: Long = 0,
-    
+
     val itemId: Long,
     val startTime: Long,
     val endTime: Long? = null,
     val durationSeconds: Long = 0,
-    
+
     // Progress during session
     val startProgress: Float = 0f,
     val endProgress: Float = 0f,
     val pagesRead: Int = 0,
-    
+    val wordsRead: Int = 0,
+
     // Context
     val deviceInfo: String? = null
 )
 
 /**
- * AI-generated insights for books
- * Inspired by Anx-reader's AI features
+ * AI-generated insights for books.
  */
 @Serializable
 @Entity(
@@ -106,27 +105,27 @@ data class ReadingSession(
     indices = [Index(value = ["itemId"])]
 )
 @TypeConverters(StringListConverter::class)
-data class AIBookInsight(
+data class ReaderAIInsight(
     @PrimaryKey(autoGenerate = true)
     val insightId: Long = 0,
-    
+
     val itemId: Long,
-    val insightType: AIInsightType,
-    
+    val insightType: ReaderAIInsightType,
+
     // Generated Content
     val summary: String? = null,
-    val mindMap: String? = null, // JSON format
+    val mindMap: String? = null,
     val keyThemes: List<String> = emptyList(),
     val characterAnalysis: String? = null,
     val perspectiveAnalysis: String? = null,
-    
+
     // Metadata
     val generatedAt: Long = System.currentTimeMillis(),
     val modelUsed: String? = null,
     val confidence: Float = 0f
 )
 
-enum class AIInsightType {
+enum class ReaderAIInsightType {
     SUMMARY,
     MIND_MAP,
     THEMES,

@@ -9,8 +9,8 @@ import com.universalmedialibrary.data.local.converters.StringListConverter
 import kotlinx.serialization.Serializable
 
 /**
- * Enhanced annotation system with export and sharing capabilities
- * Inspired by Anx-reader's notes workspace
+ * Enhanced annotation system with export and sharing capabilities.
+ * Inspired by Anx-reader's notes workspace.
  */
 @Serializable
 @Entity(
@@ -33,33 +33,33 @@ import kotlinx.serialization.Serializable
 data class EnhancedAnnotation(
     @PrimaryKey(autoGenerate = true)
     val annotationId: Long = 0,
-    
+
     val itemId: Long,
-    
+
     // Content
     val text: String,
     val note: String? = null,
     val quote: String? = null,
-    
+
     // Location
     val chapterId: Long? = null,
     val chapterName: String? = null,
     val pageNumber: Int? = null,
-    val position: Float = 0f, // 0.0 to 1.0
-    
+    val position: Float = 0f,
+
     // Styling
     val colorTag: AnnotationColor = AnnotationColor.YELLOW,
     val stylePreset: AnnotationStyle = AnnotationStyle.HIGHLIGHT,
-    
+
     // Metadata
     val createdAt: Long = System.currentTimeMillis(),
     val modifiedAt: Long = System.currentTimeMillis(),
-    
+
     // AI Features
     val aiSummary: String? = null,
     val aiTranslation: String? = null,
     val aiInsights: String? = null,
-    
+
     // Tags
     val tags: List<String> = emptyList()
 )
@@ -84,7 +84,7 @@ enum class AnnotationStyle {
 }
 
 /**
- * Annotation export configuration
+ * Annotation export configuration.
  */
 @Serializable
 data class AnnotationExportConfig(
@@ -113,7 +113,7 @@ enum class AnnotationSortField {
 }
 
 /**
- * Shareable annotation card
+ * Shareable annotation card.
  */
 @Serializable
 @Entity(
@@ -131,21 +131,21 @@ enum class AnnotationSortField {
 data class AnnotationCard(
     @PrimaryKey(autoGenerate = true)
     val cardId: Long = 0,
-    
+
     val annotationId: Long,
-    
+
     // Card Design
     val template: CardTemplate = CardTemplate.MODERN,
     val backgroundColor: Int = 0xFFFFFFFF.toInt(),
     val textColor: Int = 0xFF000000.toInt(),
     val accentColor: Int = 0xFF2196F3.toInt(),
-    
+
     // Content
     val includeBookCover: Boolean = true,
     val includeBookTitle: Boolean = true,
     val includeAuthor: Boolean = true,
     val includeTimestamp: Boolean = false,
-    
+
     // Generated Image
     val imageUrl: String? = null,
     val generatedAt: Long = System.currentTimeMillis()

@@ -27,9 +27,9 @@ Add the new entities to your database:
         // New entities for advanced features
         BookSource::class,
         BookChapter::class,
-        ReadingAnalytics::class,
-        ReadingSession::class,
-        AIBookInsight::class,
+        ReadingAnalyticsEntry::class,
+        ReadingSessionLog::class,
+        ReaderAIInsight::class,
         EnhancedAnnotation::class,
         AnnotationCard::class,
         AudioWaveform::class,
@@ -391,14 +391,6 @@ object ServicesModule {
     
     @Provides
     @Singleton
-    fun provideWaveformGeneratorService(
-        waveformDao: AudioWaveformDao
-    ): WaveformGeneratorService {
-        return WaveformGeneratorService(waveformDao)
-    }
-    
-    @Provides
-    @Singleton
     fun provideMultiRoomAudioService(
         serverDao: AudioSyncServerDao,
         clientDao: AudioSyncClientDao,
@@ -505,8 +497,8 @@ class ReadingAnalyticsViewModel @Inject constructor(
     private val _readingStats = MutableStateFlow<ReadingStats?>(null)
     val readingStats: StateFlow<ReadingStats?> = _readingStats.asStateFlow()
     
-    private val _currentSession = MutableStateFlow<ReadingSession?>(null)
-    val currentSession: StateFlow<ReadingSession?> = _currentSession.asStateFlow()
+    private val _currentSession = MutableStateFlow<ReadingSessionLog?>(null)
+    val currentSession: StateFlow<ReadingSessionLog?> = _currentSession.asStateFlow()
     
     fun loadReadingStats(period: TimePeriod) {
         viewModelScope.launch {

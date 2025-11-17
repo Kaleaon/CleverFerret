@@ -1,14 +1,13 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 import androidx.room.Index
+import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 /**
- * AudioWaveform entity - stores waveform data for audio visualization
- * Inspired by FDWaveformView's waveform rendering capabilities
+ * AudioWaveform entity - stores waveform data for audio visualization.
  */
 @Serializable
 @Entity(
@@ -26,23 +25,23 @@ import kotlinx.serialization.Serializable
 data class AudioWaveform(
     @PrimaryKey(autoGenerate = true)
     val waveformId: Long = 0,
-    
+
     val itemId: Long,
-    
+
     // Waveform Data
-    val sampleData: ByteArray, // Compressed waveform samples
+    val sampleData: ByteArray,
     val totalSamples: Int,
     val sampleRate: Int,
     val channels: Int,
-    
+
     // Audio Properties
-    val duration: Long, // in milliseconds
+    val duration: Long,
     val bitDepth: Int = 16,
-    
+
     // Rendering Configuration
     val zoomLevel: Float = 1.0f,
     val renderQuality: WaveformQuality = WaveformQuality.MEDIUM,
-    
+
     // Cache Information
     val generatedAt: Long = System.currentTimeMillis(),
     val fileHash: String? = null,
@@ -72,14 +71,14 @@ data class AudioWaveform(
 }
 
 enum class WaveformQuality {
-    LOW,      // Fast rendering, lower detail
-    MEDIUM,   // Balanced
-    HIGH,     // Detailed rendering
-    ULTRA     // Maximum detail for zoomed views
+    LOW,
+    MEDIUM,
+    HIGH,
+    ULTRA
 }
 
 /**
- * Waveform rendering settings
+ * Waveform rendering settings.
  */
 @Serializable
 data class WaveformRenderSettings(

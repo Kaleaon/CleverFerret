@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.GenericFontFamily
@@ -42,8 +41,6 @@ fun EnhancedEReaderScreen(
     viewModel: EnhancedEReaderViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
     var showControls by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showBookmarks by remember { mutableStateOf(false) }
@@ -59,7 +56,7 @@ fun EnhancedEReaderScreen(
     var brightness by remember { mutableStateOf(1f) }
 
     LaunchedEffect(bookFilePath) {
-        viewModel.loadBook(context, bookFilePath)
+        viewModel.loadBook(bookFilePath)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -87,7 +84,7 @@ fun EnhancedEReaderScreen(
                 uiState.error != null -> {
                     ErrorView(
                         message = uiState.error!!,
-                        onRetry = { viewModel.loadBook(context, bookFilePath) }
+                        onRetry = { viewModel.loadBook(bookFilePath) }
                     )
                 }
                 uiState.isLoaded -> {

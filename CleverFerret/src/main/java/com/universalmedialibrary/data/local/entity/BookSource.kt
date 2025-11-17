@@ -7,8 +7,8 @@ import com.universalmedialibrary.data.local.converters.StringListConverter
 import kotlinx.serialization.Serializable
 
 /**
- * BookSource entity - inspired by Legado's custom source system
- * Allows users to add custom online book sources with flexible rule-based content extraction
+ * BookSource entity - inspired by Legado's custom source system.
+ * Allows users to add custom online book sources with flexible rule-based content extraction.
  */
 @Serializable
 @Entity(tableName = "book_sources")
@@ -16,46 +16,49 @@ import kotlinx.serialization.Serializable
 data class BookSource(
     @PrimaryKey(autoGenerate = true)
     val sourceId: Long = 0,
-    
+
     // Basic Information
     val sourceName: String,
     val sourceUrl: String,
     val sourceGroup: String? = null,
     val sourceType: BookSourceType = BookSourceType.TEXT,
-    
+
     // Configuration
     val enabled: Boolean = true,
     val enabledExplore: Boolean = true,
     val customOrder: Int = 0,
     val weight: Int = 0,
-    
+
     // Network Configuration
     val header: String? = null,
     val loginUrl: String? = null,
     val loginCheckJs: String? = null,
     val enabledCookieJar: Boolean = true,
     val concurrentRate: String? = null,
-    
+
     // JavaScript Support
     val jsLib: String? = null,
-    
-    // Content Rules (stored as JSON)
+
+    // Content Rules (stored as JSON strings)
     val searchUrl: String? = null,
-    val searchRule: String? = null, // JSON string
+    val searchRule: String? = null,
     val exploreUrl: String? = null,
-    val exploreRule: String? = null, // JSON string
-    val bookInfoRule: String? = null, // JSON string
-    val tocRule: String? = null, // JSON string (Table of Contents)
-    val contentRule: String? = null, // JSON string
-    
+    val exploreRule: String? = null,
+    val bookInfoRule: String? = null,
+    val tocRule: String? = null,
+    val contentRule: String? = null,
+
     // Metadata
     val bookSourceComment: String? = null,
     val lastUpdateTime: Long = System.currentTimeMillis(),
     val respondTime: Long = 180000L,
-    
+
     // Pattern matching
     val bookUrlPattern: String? = null,
-    val coverDecodeJs: String? = null
+    val coverDecodeJs: String? = null,
+
+    // Tags
+    val tags: List<String> = emptyList()
 )
 
 enum class BookSourceType {
@@ -66,7 +69,7 @@ enum class BookSourceType {
 }
 
 /**
- * Search rule for finding books
+ * Search rule for finding books.
  */
 @Serializable
 data class SearchRule(
@@ -83,7 +86,7 @@ data class SearchRule(
 )
 
 /**
- * Book info rule for extracting book details
+ * Book info rule for extracting book details.
  */
 @Serializable
 data class BookInfoRule(
@@ -100,7 +103,7 @@ data class BookInfoRule(
 )
 
 /**
- * Table of Contents rule
+ * Table of Contents rule.
  */
 @Serializable
 data class TocRule(
@@ -114,7 +117,7 @@ data class TocRule(
 )
 
 /**
- * Content extraction rule
+ * Content extraction rule.
  */
 @Serializable
 data class ContentRule(

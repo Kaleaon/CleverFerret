@@ -102,15 +102,17 @@ Inspired by Anx-reader's AI capabilities, CleverFerret now includes comprehensiv
 #### 4. Key Components
 
 **Entities:**
-- `ReadingAnalytics`: Daily reading statistics
-- `ReadingSession`: Individual reading sessions
-- `AIBookInsight`: AI-generated insights
+- `ReadingAnalyticsEntry`: Daily reading statistics
+- `ReadingSessionLog`: Individual reading sessions
+- `ReaderAIInsight`: AI-generated insights
 - `EnhancedAnnotation`: Advanced annotation system
 - `AnnotationCard`: Shareable annotation cards
 
 **Services:**
 - `ReadingAnalyticsService`: Manages reading tracking and analytics
 - `AnnotationExportService`: Handles annotation export
+- `BookSourceService`: Legado-style custom source management
+- `MultiRoomAudioService`: Synchronized playback management
 
 **DAOs:**
 - `ReadingAnalyticsDao`: Database operations for analytics
@@ -139,7 +141,7 @@ println("Pages read: ${stats.totalPagesRead}")
 // Generate AI insight
 readingAnalyticsService.generateAIInsight(
     itemId = bookId,
-    insightType = AIInsightType.SUMMARY,
+    insightType = ReaderAIInsightType.SUMMARY,
     content = "AI-generated summary..."
 )
 
@@ -149,7 +151,11 @@ val config = AnnotationExportConfig(
     includeNotes = true,
     groupByChapter = true
 )
-annotationExportService.exportAnnotations(bookId, config, "/path/to/export.md")
+annotationExportService.exportAnnotations(
+    itemId = bookId,
+    config = config,
+    outputPath = "/path/to/export.md"
+).onSuccess { println("Exported annotations to ${it.absolutePath}") }
 ```
 
 ---
@@ -182,36 +188,39 @@ Inspired by FDWaveformView, CleverFerret now includes real-time audio waveform v
 #### 4. Key Components
 
 **Entities:**
-- `AudioWaveform`: Waveform data storage
-- `WaveformRenderSettings`: Rendering configuration
+- `AudioWaveform`: Waveform data storage linked to media items
+- `WaveformRenderSettings`: Rendering configuration (UI layer)
 - `WaveformQuality`: Quality levels
 
-**Services:**
-- `WaveformGeneratorService`: Generates and manages waveforms
-
-**DAOs:**
-- `AudioWaveformDao`: Database operations for waveforms
+**Services & Utilities:**
+- `WaveformGenerator`: Existing component that produces waveform samples
+- `AudioWaveformDao`: Persists generated waveform data for reuse
 
 ### Usage Example
 
 ```kotlin
-// Generate waveform
-val result = waveformGeneratorService.generateWaveform(
-    itemId = audioFileId,
-    audioPath = "/path/to/audio.mp3",
-    quality = WaveformQuality.HIGH
-)
+// Generate waveform samples with the existing utility
+val generator = WaveformGenerator()
+val result = generator.generate(File("/path/to/audio.mp3"))
 
-result.onSuccess { waveform ->
-    println("Generated ${waveform.totalSamples} samples")
-    println("Duration: ${waveform.duration}ms")
+if (result != null) {
+    audioWaveformDao.insertWaveform(
+        AudioWaveform(
+            itemId = audioFileId,
+            sampleData = result.samples,
+            totalSamples = result.sampleCount,
+            sampleRate = result.sampleRate,
+            channels = result.channelCount,
+            duration = result.durationMs
+        )
+    )
 }
 
-// Get waveform for display
-val waveform = waveformGeneratorService.getWaveform(audioFileId)
+// Retrieve cached waveform for rendering
+val waveform = audioWaveformDao.getWaveformByItemId(audioFileId)
 
-// Clean up old waveforms
-waveformGeneratorService.cleanupOldWaveforms(daysOld = 30)
+// Periodically prune old cache entries
+audioWaveformDao.deleteOldWaveforms(timestamp = System.currentTimeMillis() - THIRTY_DAYS)
 ```
 
 ---

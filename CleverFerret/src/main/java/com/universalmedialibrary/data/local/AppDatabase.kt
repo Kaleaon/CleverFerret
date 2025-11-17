@@ -102,6 +102,14 @@ import com.universalmedialibrary.data.Tag
         ReadingStatistics::class,
         ReaderSettingsEntity::class,
         BookReaderSettingsEntity::class,
+        // Advanced reader data
+        BookSource::class,
+        BookChapter::class,
+        EnhancedAnnotation::class,
+        AnnotationCard::class,
+        ReadingAnalyticsEntry::class,
+        ReadingSessionLog::class,
+        ReaderAIInsight::class,
 
         // Settings
         GeneralSettingsEntity::class,
@@ -147,6 +155,14 @@ import com.universalmedialibrary.data.Tag
         AudioPack::class,
         AudioPackSound::class,
 
+        // Audio analytics and multi-room sync
+        AudioWaveform::class,
+        AudioSyncServer::class,
+        AudioSyncClient::class,
+        AudioSyncGroup::class,
+        AudioStream::class,
+        SyncStatistics::class,
+
         // Collaborative playlist sharing
         CollaborativeSession::class,
         SessionClient::class,
@@ -154,7 +170,7 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class
 
     ],
-      version = 38, // Added reading progress lastModified tracking
+      version = 39,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -202,9 +218,13 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Reader enhancement DAOs
     abstract fun annotationDao(): AnnotationDao
+    abstract fun enhancedAnnotationDao(): EnhancedAnnotationDao
+    abstract fun bookSourceDao(): BookSourceDao
+    abstract fun bookChapterDao(): BookChapterDao
     abstract fun readerSettingsDao(): ReaderSettingsDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
+    abstract fun readingAnalyticsDao(): ReadingAnalyticsDao
 
     // Tag DAO
     abstract fun tagDao(): TagDao
@@ -235,6 +255,12 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Ambient Sound DAO
     abstract fun ambientSoundDao(): AmbientSoundDao
+    abstract fun audioWaveformDao(): AudioWaveformDao
+    abstract fun audioSyncServerDao(): AudioSyncServerDao
+    abstract fun audioSyncClientDao(): AudioSyncClientDao
+    abstract fun audioSyncGroupDao(): AudioSyncGroupDao
+    abstract fun audioStreamDao(): AudioStreamDao
+    abstract fun syncStatisticsDao(): SyncStatisticsDao
     
     // Audio Pack DAO
     abstract fun audioPackDao(): AudioPackDao
@@ -277,7 +303,8 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabaseMigrations.MIGRATION_34_35,
                         AppDatabaseMigrations.MIGRATION_35_36,
                         AppDatabaseMigrations.MIGRATION_36_37,
-                        AppDatabaseMigrations.MIGRATION_37_38
+                        AppDatabaseMigrations.MIGRATION_37_38,
+                        AppDatabaseMigrations.MIGRATION_38_39
                     )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
