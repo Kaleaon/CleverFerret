@@ -1,7 +1,6 @@
 package com.universalmedialibrary.ui.webfiction
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,16 +24,15 @@ import com.universalmedialibrary.ui.theme.ThemePalette
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery and download
  * 
- * This screen provides a streamlined experience with:
+ * Streamlined experience combining:
  * - Site selection
- * - Tag-based browsing
+ * - Tag-based browsing  
  * - Direct story download
- * - Story updates checker
+ * - Update checker
  * 
- * No more jumping between screens!
- * Reading is handled by the separate eReader interface.
+ * No more jumping between screens! Reading is handled by the separate eReader.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun UnifiedFanfictionHubScreen(
     navController: NavController,
@@ -63,20 +61,19 @@ fun UnifiedFanfictionHubScreen(
                         }
                     },
                     actions = {
-                        // Quick download button - always accessible
+                        // Quick download button
                         IconButton(onClick = { showQuickDownloadDialog = true }) {
-                            Icon(
-                                Icons.Default.Download,
-                                contentDescription = "Quick Download"
-                            )
+                            Icon(Icons.Default.Download, contentDescription = "Quick Download")
                         }
                         
                         // Refresh tags
-                        IconButton(onClick = { viewModel.refreshTags() }) {
-                            Icon(Icons.Default.Refresh, contentDescription = "Refresh Tags")
+                        if (uiState.selectedSite != null) {
+                            IconButton(onClick = { viewModel.refreshTags() }) {
+                                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                            }
                         }
                         
-                        // Open library in separate screen
+                        // Library link
                         IconButton(onClick = { navController.navigate("fanfiction_library") }) {
                             Icon(Icons.Default.Book, contentDescription = "My Library")
                         }
@@ -92,8 +89,29 @@ fun UnifiedFanfictionHubScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Single unified view: Browse, tag, and download
-                BrowseAndDownloadContent(
+                // Download progress indicator
+                if (downloadState.isLoading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                    downloadState.progressMessage?.let { message ->
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                
+                // Tag loading indicator
+                if (uiState.isLoadingTags) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+                
+                // Main content
+                UnifiedContent(
                     uiState = uiState,
                     downloadState = downloadState,
                     viewModel = viewModel,
@@ -111,6 +129,20 @@ fun UnifiedFanfictionHubScreen(
             )
         }
 
+        // Download result snackbar
+        downloadState.result?.let { result ->
+            LaunchedEffect(result) {
+                // Could show a snackbar here
+            }
+        }
+
+        // Error snackbar
+        downloadState.error?.let { error ->
+            LaunchedEffect(error) {
+                // Could show error snackbar here
+            }
+        }
+
         // PIN challenge dialog
         uiState.pendingPinChallenge?.let { challenge ->
             PinAccessDialog(
@@ -123,64 +155,118 @@ fun UnifiedFanfictionHubScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BrowseAndDownloadContent(
+private fun UnifiedContent(
     uiState: UniversalTagBrowserUiState,
     downloadState: FanfictionDownloaderUiState,
     viewModel: UniversalTagBrowserViewModel,
     downloadViewModel: FanfictionDownloaderViewModel,
     adultSitesEnabled: Boolean
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Site selector at the top
-        SiteSelector(
-            selectedSite = uiState.selectedSite,
-            adultSitesEnabled = adultSitesEnabled,
-            onSiteSelected = { viewModel.selectSite(it) }
-        )
-        
-        // Show download progress if active
-        if (downloadState.isLoading) {
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.tertiary
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Site Selector Card
+        item {
+            SiteSelectorCard(
+                selectedSite = uiState.selectedSite,
+                adultSitesEnabled = adultSitesEnabled,
+                onSiteSelected = { viewModel.selectSite(it) }
             )
-            downloadState.progressMessage?.let { message ->
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        
+        // Only show content if a site is selected
+        if (uiState.selectedSite != null) {
+            // Selected tags display
+            if (uiState.selectedTags.isNotEmpty()) {
+                item {
+                    SelectedTagsCard(
+                        selectedTags = uiState.selectedTags,
+                        onTagRemove = { viewModel.toggleTag(it) },
+                        onClearAll = { viewModel.clearTags() }
+                    )
+                }
+            }
+            
+            // Available tags
+            item {
+                AvailableTagsCard(
+                    tags = uiState.tags,
+                    selectedTags = uiState.selectedTags,
+                    onTagToggle = { viewModel.toggleTag(it.name) }
                 )
             }
-        }
-        
-        if (uiState.isLoadingTags) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        }
-        
-        if (uiState.selectedSite != null) {
-            // Tag-based browsing with inline story results and download buttons
-            IntegratedTagBrowsingContent(
-                uiState = uiState,
-                viewModel = viewModel,
-                downloadViewModel = downloadViewModel
-            )
+            
+            // Search button
+            if (uiState.selectedTags.isNotEmpty()) {
+                item {
+                    Button(
+                        onClick = { viewModel.browseStories() },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uiState.isLoadingStories
+                    ) {
+                        Icon(Icons.Default.Search, null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Search Stories")
+                    }
+                }
+            }
+            
+            // Search results
+            if (uiState.isLoadingStories) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+            
+            uiState.searchResult?.let { result ->
+                if (result.stories.isNotEmpty()) {
+                    item {
+                        Text(
+                            "${result.stories.size} Stories Found",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    items(result.stories) { story ->
+                        StoryCard(
+                            story = story,
+                            onDownload = { 
+                                story.url?.let { downloadViewModel.downloadFromUrl(it) }
+                            },
+                            isDownloading = downloadState.isLoading
+                        )
+                    }
+                } else if (!uiState.isLoadingStories) {
+                    item {
+                        EmptyResultsCard()
+                    }
+                }
+            }
         }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SiteSelector(
+private fun SiteSelectorCard(
     selectedSite: WebFictionSiteType?,
     adultSitesEnabled: Boolean,
     onSiteSelected: (WebFictionSiteType) -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
@@ -189,13 +275,28 @@ private fun SiteSelector(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = if (selectedSite == null) "Select a Site" else "Selected: ${selectedSite.displayName}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Select a Site",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                if (selectedSite != null) {
+                    FilterChip(
+                        selected = false,
+                        onClick = { onSiteSelected(selectedSite) },
+                        label = { Text(selectedSite.displayName) },
+                        leadingIcon = {
+                            Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp))
+                        }
+                    )
+                }
+            }
             
-            // Horizontal scrollable chips for site selection
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -210,11 +311,7 @@ private fun SiteSelector(
                         enabled = isEnabled,
                         leadingIcon = if (selectedSite == siteType) {
                             { Icon(Icons.Default.Check, null, modifier = Modifier.size(18.dp)) }
-                        } else null,
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = MaterialTheme.colorScheme.primary,
-                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                        } else null
                     )
                 }
             }
@@ -232,146 +329,97 @@ private fun SiteSelector(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun IntegratedTagBrowsingContent(
-    uiState: UniversalTagBrowserUiState,
-    viewModel: UniversalTagBrowserViewModel,
-    downloadViewModel: FanfictionDownloaderViewModel
+private fun SelectedTagsCard(
+    selectedTags: List<String>,
+    onTagRemove: (String) -> Unit,
+    onClearAll: () -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
     ) {
-        // Selected tags section
-        item {
-            if (uiState.selectedTags.isNotEmpty()) {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "Selected Tags",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            TextButton(onClick = { viewModel.clearTags() }) {
-                                Text("Clear All")
-                            }
-                        }
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            uiState.selectedTags.forEach { tag ->
-                                FilterChip(
-                                    selected = true,
-                                    onClick = { viewModel.toggleTag(tag) },
-                                    label = { Text(tag) },
-                                    trailingIcon = {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            null,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Available tags
-        item {
-            Card {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text(
-                        "Browse Tags",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        uiState.availableTags.take(50).forEach { tag ->
-                            FilterChip(
-                                selected = tag in uiState.selectedTags,
-                                onClick = { viewModel.toggleTag(tag) },
-                                label = { Text(tag) }
-                            )
-                        }
-                    }
-                    
-                    if (uiState.availableTags.size > 50) {
-                        Text(
-                            "... and ${uiState.availableTags.size - 50} more tags",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
-        
-        // Search results with inline download buttons
-        if (uiState.searchResults.isNotEmpty()) {
-            item {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    "${uiState.searchResults.size} Stories Found",
-                    style = MaterialTheme.typography.titleMedium,
+                    "Selected Tags (${selectedTags.size})",
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
+                TextButton(onClick = onClearAll) {
+                    Text("Clear All")
+                }
             }
-            
-            items(uiState.searchResults) { story ->
-                StoryCardWithDownload(
-                    story = story,
-                    downloadViewModel = downloadViewModel
-                )
-            }
-        } else if (uiState.selectedTags.isNotEmpty() && !uiState.isLoadingResults) {
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                selectedTags.forEach { tag ->
+                    FilterChip(
+                        selected = true,
+                        onClick = { onTagRemove(tag) },
+                        label = { Text(tag) },
+                        trailingIcon = {
+                            Icon(
+                                Icons.Default.Close,
+                                null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("No stories found with selected tags")
-                    }
                 }
             }
         }
-        
-        if (uiState.isLoadingResults) {
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AvailableTagsCard(
+    tags: List<WebFictionTag>,
+    selectedTags: List<String>,
+    onTagToggle: (WebFictionTag) -> Unit
+) {
+    Card {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(
+                "Browse Tags",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            if (tags.isEmpty()) {
+                Text(
+                    "Select a site to see available tags",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    CircularProgressIndicator()
+                    tags.take(50).forEach { tag ->
+                        FilterChip(
+                            selected = tag.name in selectedTags,
+                            onClick = { onTagToggle(tag) },
+                            label = { Text(tag.name) }
+                        )
+                    }
+                }
+                
+                if (tags.size > 50) {
+                    Text(
+                        "... and ${tags.size - 50} more tags",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
@@ -379,9 +427,10 @@ private fun IntegratedTagBrowsingContent(
 }
 
 @Composable
-private fun StoryCardWithDownload(
+private fun StoryCard(
     story: WebFictionStory,
-    downloadViewModel: FanfictionDownloaderViewModel
+    onDownload: () -> Unit,
+    isDownloading: Boolean
 ) {
     var showDetails by remember { mutableStateOf(false) }
     
@@ -412,7 +461,7 @@ private fun StoryCardWithDownload(
             ) {
                 story.wordCount?.let {
                     Text(
-                        "📝 ${formatNumber(it)} words",
+                        "📝 ${formatNumber(it.toInt())} words",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -422,21 +471,29 @@ private fun StoryCardWithDownload(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                story.status?.let {
-                    Text(
-                        if (it == StoryStatus.COMPLETE) "✅ Complete" else "📝 In Progress",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                Text(
+                    if (story.status == StoryStatus.COMPLETED) "✅ Complete" else "📝 In Progress",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             
             // Expandable description
             AnimatedVisibility(visible = showDetails) {
                 Column {
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
-                    story.summary?.let {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    story.description?.let {
                         Text(
                             text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    // Tags
+                    if (story.tags.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "Tags: ${story.tags.joinToString(", ")}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -450,14 +507,13 @@ private fun StoryCardWithDownload(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = { 
-                        story.url?.let { downloadViewModel.downloadFromUrl(it) }
-                    },
-                    modifier = Modifier.weight(1f)
+                    onClick = onDownload,
+                    modifier = Modifier.weight(1f),
+                    enabled = !isDownloading
                 ) {
                     Icon(Icons.Default.Download, null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Download")
+                    Text(if (isDownloading) "Downloading..." else "Download")
                 }
                 OutlinedButton(
                     onClick = { showDetails = !showDetails },
@@ -472,6 +528,40 @@ private fun StoryCardWithDownload(
                     Text(if (showDetails) "Less" else "More")
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EmptyResultsCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(32.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                Icons.Default.Search,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "No stories found",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                "Try different tags or adjust your filters",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
