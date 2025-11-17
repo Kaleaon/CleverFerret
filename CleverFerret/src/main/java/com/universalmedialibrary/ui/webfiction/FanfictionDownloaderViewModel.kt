@@ -181,6 +181,28 @@ class FanfictionDownloaderViewModel @Inject constructor(
         // This is a placeholder - ideally we'd track this during conversion
         return 1
     }
+
+    /**
+     * Download from URL - wrapper for existing functionality
+     */
+    fun downloadFromUrl(url: String) {
+        updateUrl(url)
+        downloadFanfiction()
+    }
+
+    /**
+     * Refresh library - placeholder for future implementation
+     */
+    fun refreshLibrary() {
+        // TODO: Implement library refresh
+    }
+
+    /**
+     * Delete story - placeholder for future implementation
+     */
+    fun deleteStory(storyId: String) {
+        // TODO: Implement story deletion
+    }
 }
 
 data class FanfictionDownloaderUiState(
@@ -188,7 +210,8 @@ data class FanfictionDownloaderUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val result: DownloadResult? = null,
-    val progressMessage: String? = null
+    val progressMessage: String? = null,
+    val downloadedStories: List<DownloadedStory> = emptyList()
 )
 
 data class DownloadResult(
@@ -196,4 +219,12 @@ data class DownloadResult(
     val author: String,
     val chapters: Int,
     val filePath: String
+)
+
+data class DownloadedStory(
+    val id: String,
+    val title: String,
+    val author: String,
+    val filePath: String,
+    val downloadDate: Long
 )
