@@ -186,9 +186,9 @@ class RadioPlayerWidget : AppWidgetProvider() {
                     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     val currentStationId = prefs.getLong(PREF_CURRENT_STATION_ID, -1)
                     if (currentStationId > 0) {
-                        val station = kotlinx.coroutines.runBlocking { radioStationDao.getStationByIdDirect(currentStationId) }
+                        val station = radioStationDao.getStationByIdDirect(currentStationId)
                         if (station != null) {
-                            kotlinx.coroutines.runBlocking { radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite) }
+                            radioStationDao.updateFavoriteStatus(station.id, !station.isFavorite)
                         }
                     }
                     updateAllWidgets(context)
