@@ -1,13 +1,15 @@
 package com.universalmedialibrary.services.reader
 
-import android.content.Context
 import com.universalmedialibrary.data.local.dao.AnnotationDao
+import com.universalmedialibrary.data.local.dao.EnhancedAnnotationDao
 import com.universalmedialibrary.data.local.dao.SearchIndexDao
 import com.universalmedialibrary.data.local.dao.ReadingStatisticsDao
 import com.universalmedialibrary.data.local.entity.TextAnnotation
 import com.universalmedialibrary.data.local.entity.SearchIndex
 import com.universalmedialibrary.data.local.entity.ReadingStatistics
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.universalmedialibrary.data.local.entity.AnnotationColor
+import com.universalmedialibrary.data.local.entity.AnnotationStyle
+import com.universalmedialibrary.data.local.entity.EnhancedAnnotation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -19,8 +21,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class AnnotationService @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val annotationDao: AnnotationDao,
+    private val enhancedAnnotationDao: EnhancedAnnotationDao,
     private val searchIndexDao: SearchIndexDao,
     private val readingStatisticsDao: ReadingStatisticsDao
 ) {
@@ -51,7 +53,15 @@ class AnnotationService @Inject constructor(
             contextBefore = contextBefore,
             contextAfter = contextAfter
         )
-        annotationDao.insertAnnotation(annotation)
+        val annotationId = annotationDao.insertAnnotation(annotation)
+        enhancedAnnotationDao.saveEnhancedAnnotation(
+            annotationId = annotationId,
+            annotation = annotation,
+            selectedText = selectedText,
+            noteText = null,
+            highlightColor = highlightColor
+        )
+        annotationId
     }
 
     /**
@@ -82,7 +92,15 @@ class AnnotationService @Inject constructor(
             contextBefore = contextBefore,
             contextAfter = contextAfter
         )
-        annotationDao.insertAnnotation(annotation)
+        val annotationId = annotationDao.insertAnnotation(annotation)
+        enhancedAnnotationDao.saveEnhancedAnnotation(
+            annotationId = annotationId,
+            annotation = annotation,
+            selectedText = selectedText,
+            noteText = noteText,
+            highlightColor = highlightColor
+        )
+        annotationId
     }
 
     /**
@@ -91,6 +109,21 @@ class AnnotationService @Inject constructor(
     suspend fun updateAnnotation(annotation: TextAnnotation) = withContext(Dispatchers.IO) {
         val updatedAnnotation = annotation.copy(dateModified = System.currentTimeMillis())
         annotationDao.updateAnnotation(updatedAnnotation)
+
+        enhancedAnnotationDao.getAnnotationById(annotation.annotationId)?.let { existing ->
+            val updatedEnhanced = existing.copy(
+                text = updatedAnnotation.selectedText,
+                note = updatedAnnotation.noteText,
+                quote = updatedAnnotation.selectedText,
+                chapterId = updatedAnnotation.chapterIndex.toLong(),
+                chapterName = updatedAnnotation.chapterTitle,
+                position = 0f,
+                colorTag = mapColor(updatedAnnotation.highlightColor),
+                stylePreset = mapStyle(updatedAnnotation.annotationType),
+                modifiedAt = updatedAnnotation.dateModified
+            )
+            enhancedAnnotationDao.updateAnnotation(updatedEnhanced)
+        }
     }
 
     /**
@@ -98,6 +131,7 @@ class AnnotationService @Inject constructor(
      */
     suspend fun deleteAnnotation(annotationId: Long) = withContext(Dispatchers.IO) {
         annotationDao.deleteAnnotation(annotationId)
+        enhancedAnnotationDao.deleteAnnotationById(annotationId)
     }
 
     /**
@@ -107,12 +141,18 @@ class AnnotationService @Inject constructor(
         return annotationDao.getAnnotationsForBook(itemId)
     }
 
+    fun getEnhancedAnnotationsForBook(itemId: Long): Flow<List<EnhancedAnnotation>> =
+        enhancedAnnotationDao.getAnnotationsByItemId(itemId)
+
     /**
      * Get all annotations for a specific chapter
      */
     fun getAnnotationsForChapter(itemId: Long, chapterIndex: Int): Flow<List<TextAnnotation>> {
         return annotationDao.getAnnotationsForChapter(itemId, chapterIndex)
     }
+
+    fun getEnhancedAnnotationsByChapter(itemId: Long, chapterId: Long): Flow<List<EnhancedAnnotation>> =
+        enhancedAnnotationDao.getAnnotationsByChapter(itemId, chapterId)
 
     /**
      * Get all annotations with notes
@@ -278,6 +318,52 @@ data class SearchResult(
             ignoreCase = true
         )
     }
+}
+
+private suspend fun EnhancedAnnotationDao.saveEnhancedAnnotation(
+    annotationId: Long,
+    annotation: TextAnnotation,
+    selectedText: String,
+    noteText: String?,
+    highlightColor: String
+) {
+    val enhanced = EnhancedAnnotation(
+        annotationId = annotationId,
+        itemId = annotation.itemId,
+        text = selectedText,
+        note = noteText,
+        quote = selectedText,
+        chapterId = annotation.chapterIndex.toLong(),
+        chapterName = annotation.chapterTitle,
+        pageNumber = null,
+        position = annotation.startOffset.toFloat(),
+        colorTag = mapColor(highlightColor),
+        stylePreset = mapStyle(annotation.annotationType),
+        createdAt = annotation.dateCreated,
+        modifiedAt = annotation.dateModified,
+        tags = emptyList()
+    )
+    this.insertAnnotation(enhanced)
+}
+
+private fun mapColor(hex: String): AnnotationColor = when (hex.uppercase()) {
+    "#FFFF00" -> AnnotationColor.YELLOW
+    "#90EE90" -> AnnotationColor.GREEN
+    "#ADD8E6" -> AnnotationColor.BLUE
+    "#FF0000", "#FF6B6B" -> AnnotationColor.RED
+    "#DDA0DD" -> AnnotationColor.PURPLE
+    "#FFA500" -> AnnotationColor.ORANGE
+    "#FFB6C1" -> AnnotationColor.PINK
+    "#808080", "#A0A0A0" -> AnnotationColor.GRAY
+    else -> AnnotationColor.YELLOW
+}
+
+private fun mapStyle(annotationType: String): AnnotationStyle = when (annotationType.uppercase()) {
+    "NOTE" -> AnnotationStyle.NOTE
+    "UNDERLINE" -> AnnotationStyle.UNDERLINE
+    "STRIKETHROUGH" -> AnnotationStyle.STRIKETHROUGH
+    "BOOKMARK" -> AnnotationStyle.BOOKMARK
+    else -> AnnotationStyle.HIGHLIGHT
 }
 
 /**

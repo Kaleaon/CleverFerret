@@ -3,13 +3,17 @@ package com.universalmedialibrary.di
 import android.content.Context
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.dao.*
-import com.universalmedialibrary.services.StorageAccessService
 import com.universalmedialibrary.data.repository.APIKeyRepository
 import com.universalmedialibrary.data.repository.StoryRepository
+import com.universalmedialibrary.services.StorageAccessService
+import com.universalmedialibrary.services.audio.MultiRoomAudioService
 import com.universalmedialibrary.services.podcast.PodcastService
 import com.universalmedialibrary.services.contentcreation.FanfictionToEpubConverter
 import com.universalmedialibrary.services.contentcreation.StoryUpdateManager
 import com.universalmedialibrary.services.webfiction.RedditFanficDownloader
+import com.universalmedialibrary.services.reading.AnnotationExportService
+import com.universalmedialibrary.services.reading.BookSourceService
+import com.universalmedialibrary.services.reading.ReadingAnalyticsService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -87,4 +91,38 @@ object ServicesModule {
     @Provides
     @Singleton
     fun provideRedditFanficDownloader(): RedditFanficDownloader = RedditFanficDownloader()
+
+    @Provides
+    @Singleton
+    fun provideBookSourceService(
+        bookSourceDao: BookSourceDao
+    ): BookSourceService = BookSourceService(bookSourceDao)
+
+    @Provides
+    @Singleton
+    fun provideReadingAnalyticsService(
+        readingAnalyticsDao: ReadingAnalyticsDao
+    ): ReadingAnalyticsService = ReadingAnalyticsService(readingAnalyticsDao)
+
+    @Provides
+    @Singleton
+    fun provideAnnotationExportService(
+        enhancedAnnotationDao: EnhancedAnnotationDao
+    ): AnnotationExportService = AnnotationExportService(enhancedAnnotationDao)
+
+    @Provides
+    @Singleton
+    fun provideMultiRoomAudioService(
+        audioSyncServerDao: AudioSyncServerDao,
+        audioSyncClientDao: AudioSyncClientDao,
+        audioSyncGroupDao: AudioSyncGroupDao,
+        audioStreamDao: AudioStreamDao,
+        syncStatisticsDao: SyncStatisticsDao
+    ): MultiRoomAudioService = MultiRoomAudioService(
+        audioSyncServerDao,
+        audioSyncClientDao,
+        audioSyncGroupDao,
+        audioStreamDao,
+        syncStatisticsDao
+    )
 }
