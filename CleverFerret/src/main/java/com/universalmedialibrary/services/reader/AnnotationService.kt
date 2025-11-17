@@ -336,7 +336,7 @@ private suspend fun EnhancedAnnotationDao.saveEnhancedAnnotation(
         chapterId = annotation.chapterIndex.toLong(),
         chapterName = annotation.chapterTitle,
         pageNumber = null,
-        position = 0f,
+        position = annotation.startOffset.toFloat(),
         colorTag = mapColor(highlightColor),
         stylePreset = mapStyle(annotation.annotationType),
         createdAt = annotation.dateCreated,
