@@ -9,7 +9,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -52,15 +51,5 @@ object OcrModule {
         @ApplicationContext context: Context
     ): MultiLanguageOcrService {
         return MultiLanguageOcrService(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideJson(): Json {
-        return Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-            encodeDefaults = true
-        }
     }
 }
