@@ -233,7 +233,7 @@ class MediaScannerService : Service() {
                     val file = File(path)
                     if (file.exists()) {
                         if (file.length() < MIN_AUDIO_FILE_SIZE_BYTES || duration < MIN_AUDIO_DURATION_MS) {
-                            return@while
+                            continue
                         }
                         processMediaFile(file, "MUSIC")
                     }

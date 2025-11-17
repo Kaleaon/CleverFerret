@@ -5,7 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.universalmedialibrary.data.local.entity.DownloadedStory.Converters
 
 /**
  * Per-library scan and ingest preferences inspired by Namida's flexible indexer.

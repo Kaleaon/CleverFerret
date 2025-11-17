@@ -449,7 +449,7 @@ private fun PlaylistSelectionDialog(
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
-                                        text = "${playlist.itemCount} items",
+                                        text = playlist.description ?: "Playlist",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

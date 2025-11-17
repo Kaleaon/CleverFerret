@@ -172,7 +172,7 @@ class AudioPlaybackManager @Inject constructor(
         scheduleHistoryCandidate(exoPlayer.currentMediaItem)
     }
 
-    fun setQueue(uris: List<Uri>, startIndex: Int = 0, playWhenReady: Boolean = true) {
+    fun setQueueFromUris(uris: List<Uri>, startIndex: Int = 0, playWhenReady: Boolean = true) {
         val items = uris.map { MediaItem.fromUri(it) }
         setQueue(items, startIndex, playWhenReady)
     }
@@ -206,7 +206,7 @@ class AudioPlaybackManager @Inject constructor(
     }
 
     fun skipToPrevious() {
-        if (getCurrentPosition() > 3000) {
+        if (exoPlayer.currentPosition > 3000) {
             seekTo(0)
             return
         }
@@ -308,7 +308,8 @@ class AudioPlaybackManager @Inject constructor(
 
     private fun applyCrossfade(enabled: Boolean, durationMs: Int, persist: Boolean) {
         val appliedDuration = if (enabled) durationMs.coerceIn(0, MAX_CROSSFADE_MS) else 0
-        exoPlayer.setCrossFadeDurationMs(appliedDuration.toLong())
+        // TODO: Implement crossfade support when available in ExoPlayer API
+        // exoPlayer.setCrossFadeDurationMs(appliedDuration.toLong())
         updateState(crossfadeDurationMs = appliedDuration)
         if (persist) {
             scrobblerScope.launch { audioPreferences.setCrossfade(enabled, appliedDuration) }
@@ -409,7 +410,7 @@ class AudioPlaybackManager @Inject constructor(
                 }
             }
             if (uris.isEmpty()) return false
-            setQueue(uris, 0, playWhenReady)
+            setQueueFromUris(uris, 0, playWhenReady)
             true
         } catch (_: Exception) { false }
     }
@@ -441,8 +442,7 @@ class AudioPlaybackManager @Inject constructor(
             ?: "Unknown Track"
         val artist = mediaItem.mediaMetadata.artist?.toString()
         val album = mediaItem.mediaMetadata.albumTitle?.toString()
-        val metadataDuration = mediaItem.mediaMetadata.extras?.getLong(MediaMetadata.METADATA_KEY_DURATION)
-            ?: mediaItem.mediaMetadata.durationMs
+        val metadataDuration = mediaItem.mediaMetadata.durationMs
             ?: databaseItem?.duration ?: 0L
         val candidate = HistoryCandidate(
             uriString = uri?.toString(),
@@ -560,3 +560,4 @@ class AudioPlaybackManager @Inject constructor(
         val sleepTimerEndTime: Long? = null,
         val lastSleepTimerMinutes: Int = 0
     )
+}
