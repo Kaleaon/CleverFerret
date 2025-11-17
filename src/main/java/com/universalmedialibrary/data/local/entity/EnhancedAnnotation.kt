@@ -1,9 +1,11 @@
 package com.universalmedialibrary.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.universalmedialibrary.data.local.converters.StringListConverter
 import kotlinx.serialization.Serializable
 
 /**
@@ -27,6 +29,7 @@ import kotlinx.serialization.Serializable
         Index(value = ["colorTag"])
     ]
 )
+@TypeConverters(StringListConverter::class)
 data class EnhancedAnnotation(
     @PrimaryKey(autoGenerate = true)
     val annotationId: Long = 0,

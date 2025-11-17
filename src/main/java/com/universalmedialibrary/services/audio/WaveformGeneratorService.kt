@@ -1,6 +1,5 @@
 package com.universalmedialibrary.services.audio
 
-import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import com.universalmedialibrary.data.local.dao.AudioWaveformDao
@@ -13,9 +12,7 @@ import java.nio.ByteBuffer
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.min
 
 /**
  * Service for generating and managing audio waveforms
@@ -57,41 +54,46 @@ class WaveformGeneratorService @Inject constructor(
                 return@withContext Result.failure(Exception("No audio track found"))
             }
             
-            extractor.selectTrack(audioTrackIndex)
-            
-            // Extract audio properties
-            val sampleRate = audioFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE)
-            val channelCount = audioFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
-            val duration = audioFormat.getLong(MediaFormat.KEY_DURATION)
-            
-            // Generate samples based on quality
-            val samplesPerSecond = when (quality) {
-                WaveformQuality.LOW -> 10
-                WaveformQuality.MEDIUM -> 20
-                WaveformQuality.HIGH -> 50
-                WaveformQuality.ULTRA -> 100
-            }
-            
-            val totalSamples = ((duration / 1_000_000) * samplesPerSecond).toInt()
-            val samples = extractAudioSamples(extractor, totalSamples, channelCount)
-            
-            // Compress sample data
-            val compressedData = compressSamples(samples)
-            
-            val waveform = AudioWaveform(
-                itemId = itemId,
-                sampleData = compressedData,
-                totalSamples = samples.size,
-                sampleRate = sampleRate,
-                channels = channelCount,
-                duration = duration / 1000, // Convert to milliseconds
-                renderQuality = quality
-            )
-            
-            waveformDao.insertWaveform(waveform)
-            extractor.release()
-            
-            Result.success(waveform)
+              extractor.selectTrack(audioTrackIndex)
+
+              // Extract audio properties
+              val sampleRate = audioFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE)
+              val channelCount = audioFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+              val duration = audioFormat.getLong(MediaFormat.KEY_DURATION)
+
+              // Generate samples based on quality
+              val samplesPerSecond = when (quality) {
+                  WaveformQuality.LOW -> 10
+                  WaveformQuality.MEDIUM -> 20
+                  WaveformQuality.HIGH -> 50
+                  WaveformQuality.ULTRA -> 100
+              }
+
+              val totalSamples = ((duration / 1_000_000) * samplesPerSecond).toInt()
+              val samples = extractAudioSamples(
+                  extractor = extractor,
+                  targetSampleCount = totalSamples,
+                  channelCount = channelCount,
+                  durationUs = duration
+              )
+
+              // Compress sample data
+              val compressedData = compressSamples(samples)
+
+              val waveform = AudioWaveform(
+                  itemId = itemId,
+                  sampleData = compressedData,
+                  totalSamples = samples.size,
+                  sampleRate = sampleRate,
+                  channels = channelCount,
+                  duration = duration / 1000, // Convert to milliseconds
+                  renderQuality = quality
+              )
+
+              waveformDao.insertWaveform(waveform)
+              extractor.release()
+
+              Result.success(waveform)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -103,32 +105,40 @@ class WaveformGeneratorService @Inject constructor(
     private fun extractAudioSamples(
         extractor: MediaExtractor,
         targetSampleCount: Int,
-        channelCount: Int
+        channelCount: Int,
+        durationUs: Long
     ): FloatArray {
         val samples = FloatArray(targetSampleCount)
         val buffer = ByteBuffer.allocate(256 * 1024)
         var sampleIndex = 0
         var maxAmplitude = 0f
-        
-        val samplesPerBucket = max(1, (extractor.sampleTime / 1000) / targetSampleCount)
+
+        val effectiveTargetCount = targetSampleCount.takeIf { it > 0 } ?: 1
+        val durationMs = durationUs / 1000L
+        val samplesPerBucket = if (durationMs > 0L && effectiveTargetCount > 0) {
+            val bucketSize = durationMs / effectiveTargetCount
+            max(1, bucketSize.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+        } else {
+            1
+        }
         var currentBucket = mutableListOf<Float>()
-        
+
         while (extractor.readSampleData(buffer, 0) >= 0 && sampleIndex < targetSampleCount) {
             buffer.rewind()
-            
+
             // Calculate RMS amplitude for this buffer
             var sum = 0.0
             var count = 0
-            
+
             while (buffer.hasRemaining()) {
                 val sample = buffer.short.toFloat() / Short.MAX_VALUE
                 sum += sample * sample
                 count++
             }
-            
+
             val rms = if (count > 0) kotlin.math.sqrt(sum / count).toFloat() else 0f
             currentBucket.add(rms)
-            
+
             if (currentBucket.size >= samplesPerBucket) {
                 val average = currentBucket.average().toFloat()
                 samples[sampleIndex] = average
@@ -136,18 +146,18 @@ class WaveformGeneratorService @Inject constructor(
                 currentBucket.clear()
                 sampleIndex++
             }
-            
+
             extractor.advance()
             buffer.clear()
         }
-        
+
         // Normalize samples
         if (maxAmplitude > 0) {
             for (i in samples.indices) {
                 samples[i] = samples[i] / maxAmplitude
             }
         }
-        
+
         return samples
     }
     
