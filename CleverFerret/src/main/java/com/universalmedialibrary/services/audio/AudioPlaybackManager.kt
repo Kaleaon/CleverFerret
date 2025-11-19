@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.universalmedialibrary.services.media.MediaNotificationService
 import com.universalmedialibrary.services.media.MediaSessionManager
 import javax.inject.Inject
@@ -132,12 +133,14 @@ class AudioPlaybackManager @Inject constructor(
         scrobblerScope.launch {
             audioPreferences.preferences.collect { prefs ->
                 cachedPreferences = prefs
-                applySkipSilence(prefs.skipSilence, persist = false)
-                applyCrossfade(
-                    enabled = prefs.crossfadeEnabled,
-                    durationMs = prefs.crossfadeDurationMs,
-                    persist = false
-                )
+                withContext(Dispatchers.Main.immediate) {
+                    applySkipSilence(prefs.skipSilence, persist = false)
+                    applyCrossfade(
+                        enabled = prefs.crossfadeEnabled,
+                        durationMs = prefs.crossfadeDurationMs,
+                        persist = false
+                    )
+                }
                 updateState(lastSleepTimerMinutes = prefs.lastSleepTimerMinutes)
             }
         }
@@ -271,9 +274,11 @@ class AudioPlaybackManager @Inject constructor(
                     delay(minOf(SLEEP_TIMER_TICK_MS, remaining))
                     remaining = endTime - System.currentTimeMillis()
                 }
-                finalizeHistoryCandidate()
-                exoPlayer.pause()
-                updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
+                withContext(Dispatchers.Main.immediate) {
+                    finalizeHistoryCandidate()
+                    exoPlayer.pause()
+                    updateState(sleepTimerEndTime = null, sleepTimerUpdated = true)
+                }
             } finally {
                 sleepTimerJob = null
             }
