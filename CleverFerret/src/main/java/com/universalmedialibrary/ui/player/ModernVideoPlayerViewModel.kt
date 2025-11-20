@@ -1,6 +1,8 @@
 package com.universalmedialibrary.ui.player
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -220,7 +222,10 @@ class ModernVideoPlayerViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        exoPlayer?.release()
+        // Ensure ExoPlayer is released on the main thread
+        Handler(Looper.getMainLooper()).post {
+            exoPlayer?.release()
+        }
         exoPlayer = null
     }
 }

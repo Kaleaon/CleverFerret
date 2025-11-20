@@ -107,7 +107,7 @@ class SyncViewModel @Inject constructor(
             try {
                 // Implemented: For now, return empty conflicts list
                 // In a full implementation, this would fetch from sync service
-                val conflicts = emptyList<SyncConflict>()
+                val conflicts = emptyList<EnhancedSyncConflict>()
                 _uiState.value = _uiState.value.copy(
                     pendingConflicts = conflicts,
                     currentConflict = conflicts.firstOrNull()

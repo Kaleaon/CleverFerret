@@ -35,6 +35,7 @@ class HistoryRepository @Inject constructor(
         currentPosition: Long = 0L
     ) {
         val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+        val timestamp = System.currentTimeMillis()
         
         val progress = if (existing != null) {
             // Clamp values to valid ranges
@@ -48,7 +49,8 @@ class HistoryRepository @Inject constructor(
                 currentPage = validCurrentPage,
                 currentPosition = currentPosition,
                 percentage = calculatedPercentage,
-                lastUpdate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp
             )
         } else {
             val validCurrentPage = currentPage.coerceIn(0, maxOf(totalPages, 0))
@@ -62,8 +64,9 @@ class HistoryRepository @Inject constructor(
                 currentPage = validCurrentPage,
                 currentPosition = currentPosition,
                 percentage = calculatedPercentage,
-                lastUpdate = System.currentTimeMillis(),
-                startedDate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp,
+                startedDate = timestamp
             )
         }
         
@@ -90,12 +93,14 @@ class HistoryRepository @Inject constructor(
      */
     suspend fun markAsFinished(itemId: Long) {
         val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+        val timestamp = System.currentTimeMillis()
         if (existing != null) {
             val updated = existing.copy(
                 percentage = 100f,
                 isCompleted = true,
-                completedDate = System.currentTimeMillis(),
-                lastUpdate = System.currentTimeMillis()
+                completedDate = timestamp,
+                lastUpdate = timestamp,
+                lastModified = timestamp
             )
             progressDao.insertProgress(updated)
         }
@@ -145,19 +150,22 @@ class HistoryRepository @Inject constructor(
         } else 0f
         
         val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+        val timestamp = System.currentTimeMillis()
         val progress = if (existing != null) {
             existing.copy(
                 currentPosition = validPosition,
                 percentage = percentage,
-                lastUpdate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp
             )
         } else {
             ReadingProgress(
                 itemId = itemId,
                 currentPosition = position,
                 percentage = percentage,
-                lastUpdate = System.currentTimeMillis(),
-                startedDate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp,
+                startedDate = timestamp
             )
         }
         
@@ -185,16 +193,19 @@ class HistoryRepository @Inject constructor(
         // For now, we track this through progress updates
         // A dedicated play count table could be added later
         val existing = progressDao.getProgressByItemId(itemId).firstOrNull()
+        val timestamp = System.currentTimeMillis()
         if (existing != null) {
             val updated = existing.copy(
-                lastUpdate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp
             )
             progressDao.insertProgress(updated)
         } else {
             val newProgress = ReadingProgress(
                 itemId = itemId,
-                lastUpdate = System.currentTimeMillis(),
-                startedDate = System.currentTimeMillis()
+                lastUpdate = timestamp,
+                lastModified = timestamp,
+                startedDate = timestamp
             )
             progressDao.insertProgress(newProgress)
         }

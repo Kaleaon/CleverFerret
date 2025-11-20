@@ -54,5 +54,12 @@ data class MetadataMusicTrack(
 
     val lyrics: String? = null,
     val hasLyrics: Boolean = false,
-    val lyricsSource: String? = null
+    val lyricsSource: String? = null,
+
+    val waveformData: ByteArray? = null,
+    val waveformSampleCount: Int = 0,
+    val waveformFrameDurationMs: Int = 20,
+    val waveformOffsetMs: Int = 0,
+    val waveformGeneratedAt: Long? = null,
+    val waveformVersion: Int = 1
 )

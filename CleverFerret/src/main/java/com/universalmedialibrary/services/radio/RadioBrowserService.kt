@@ -114,7 +114,7 @@ class RadioBrowserService @Inject constructor(
                 responseBody
             ).mapNotNull(::dtoToStation)
         }.getOrElse {
-            lastError = it
+            lastError = it as? Exception
             emptyList()
         }
 

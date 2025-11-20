@@ -49,6 +49,14 @@ fun ComicReaderScreen(
     var translationsJson by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
+    // Cleanup bitmap on screen exit to prevent memory leaks
+    DisposableEffect(Unit) {
+        onDispose {
+            currentBitmap?.recycle()
+            currentBitmap = null
+        }
+    }
+
     LaunchedEffect(uri) {
         images = try {
             when (extension) {
@@ -58,6 +66,7 @@ fun ComicReaderScreen(
             }
         } catch (_: Exception) { emptyList() }
         index = 0
+        currentBitmap?.recycle()
         currentBitmap = loadBitmap(images.getOrNull(index))
     }
 
@@ -87,6 +96,7 @@ fun ComicReaderScreen(
                     onClick = {
                         if (index > 0) {
                             index -= 1
+                            currentBitmap?.recycle()
                             currentBitmap = loadBitmap(images.getOrNull(index))
                         }
                     },
@@ -99,6 +109,7 @@ fun ComicReaderScreen(
                     onClick = {
                         if (index < images.size - 1) {
                             index += 1
+                            currentBitmap?.recycle()
                             currentBitmap = loadBitmap(images.getOrNull(index))
                         }
                     },
@@ -186,6 +197,37 @@ private fun copyToTempFile(context: android.content.Context, uri: Uri, suffix: S
     return tmp
 }
 
-private fun loadBitmap(file: File?): Bitmap? {
-    return try { file?.let { BitmapFactory.decodeFile(it.absolutePath) } } catch (_: Exception) { null }
+private fun loadBitmap(file: File?, maxWidth: Int = 2048, maxHeight: Int = 2048): Bitmap? {
+    return try {
+        file?.let {
+            // First decode with inJustDecodeBounds=true to check dimensions
+            val options = BitmapFactory.Options().apply {
+                inJustDecodeBounds = true
+            }
+            BitmapFactory.decodeFile(it.absolutePath, options)
+            
+            // Calculate inSampleSize to reduce memory usage
+            options.inSampleSize = calculateInSampleSize(options, maxWidth, maxHeight)
+            options.inJustDecodeBounds = false
+            
+            // Now decode with the calculated sample size
+            BitmapFactory.decodeFile(it.absolutePath, options)
+        }
+    } catch (_: Exception) { null }
+}
+
+private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+    val height = options.outHeight
+    val width = options.outWidth
+    var inSampleSize = 1
+    
+    if (height > reqHeight || width > reqWidth) {
+        val halfHeight = height / 2
+        val halfWidth = width / 2
+        
+        while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+            inSampleSize *= 2
+        }
+    }
+    return inSampleSize
 }

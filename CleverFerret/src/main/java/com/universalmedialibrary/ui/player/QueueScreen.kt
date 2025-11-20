@@ -22,9 +22,12 @@ fun QueueScreen(
     val state by viewModel.state.collectAsState()
     Scaffold(topBar = { TopAppBar(title = { Text("Up Next") }) }) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            itemsIndexed(state.queue) { index, title ->
+            itemsIndexed(state.queue) { index, entry ->
                 ListItem(
-                    headlineContent = { Text(title) },
+                    headlineContent = { Text(entry.title) },
+                    supportingContent = if (entry.isCurrent) {
+                        { Text("Now playing", color = MaterialTheme.colorScheme.primary) }
+                    } else null,
                     trailingContent = {
                         Row {
                             IconButton(onClick = { viewModel.moveUp(index) }, enabled = index > 0) { Icon(Icons.Default.KeyboardArrowUp, contentDescription = null) }

@@ -61,11 +61,27 @@ interface MediaItemDao {
     @Query("SELECT COUNT(*) FROM media_items WHERE libraryId = :libraryId")
     suspend fun getItemCountByLibrary(libraryId: Long): Int
 
+      @Query("SELECT * FROM media_items WHERE libraryId = :libraryId AND fileName = :fileName AND fileSize = :fileSize LIMIT 1")
+      suspend fun findDuplicateByNameAndSize(libraryId: Long, fileName: String, fileSize: Long): MediaItem?
+
+      @Query("SELECT * FROM media_items WHERE libraryId = :libraryId AND fileHash = :fileHash LIMIT 1")
+      suspend fun findDuplicateByHash(libraryId: Long, fileHash: String): MediaItem?
+
     @Query("SELECT * FROM media_items WHERE isFavorite = 1 ORDER BY dateAdded DESC")
     fun getFavoriteMediaItems(): Flow<List<MediaItem>>
 
     @Query("SELECT COUNT(*) FROM media_items WHERE mediaType = :mediaType")
     suspend fun getItemCountByType(mediaType: String): Int
+
+    @Query(
+        """
+        SELECT mediaType, COUNT(*) AS count
+        FROM media_items
+        WHERE libraryId = :libraryId
+        GROUP BY mediaType
+        """
+    )
+    suspend fun getItemCountsByTypeForLibrary(libraryId: Long): List<MediaTypeCount>
 
     /**
      * Get book details for a library - returns a flow of MediaItems for books
@@ -160,3 +176,8 @@ interface MediaItemDao {
     """)
     fun getMediaItemsByDirector(directorName: String): Flow<List<MediaItem>>
 }
+
+data class MediaTypeCount(
+    val mediaType: String,
+    val count: Int
+)

@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LibraryMusic
@@ -136,6 +137,12 @@ object NavigationItems {
             label = "Free Music",
             icon = { Icon(Icons.Filled.LibraryMusic, contentDescription = "Free Music") },
             showInBottomNav = false
+        ),
+        NavigationItem(
+            route = "hivefy_music",
+            label = "Hivefy",
+            icon = { Icon(Icons.Filled.GraphicEq, contentDescription = "Hivefy") },
+            showInBottomNav = true
         ),
         NavigationItem(
             route = "library_details/4",
@@ -462,22 +469,28 @@ private fun ScrollableBottomBar(
         tonalElevation = 3.dp,
         shadowElevation = 0.dp
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (gearPosition == BottomGearPosition.LEFT) {
+                ScrollableNavigationBarEntry(
+                    navController = navController,
+                    item = settingsItem,
+                    currentDestination = currentDestination
+                )
+            }
+
             Row(
                 modifier = Modifier
-                    .horizontalScroll(scrollState)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .weight(1f)
+                    .horizontalScroll(scrollState),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (gearPosition == BottomGearPosition.LEFT) {
-                    ScrollableNavigationBarEntry(
-                        navController = navController,
-                        item = settingsItem,
-                        currentDestination = currentDestination
-                    )
-                }
-
                 items.forEach { item ->
                     ScrollableNavigationBarEntry(
                         navController = navController,
@@ -485,14 +498,14 @@ private fun ScrollableBottomBar(
                         currentDestination = currentDestination
                     )
                 }
+            }
 
-                if (gearPosition == BottomGearPosition.RIGHT) {
-                    ScrollableNavigationBarEntry(
-                        navController = navController,
-                        item = settingsItem,
-                        currentDestination = currentDestination
-                    )
-                }
+            if (gearPosition == BottomGearPosition.RIGHT) {
+                ScrollableNavigationBarEntry(
+                    navController = navController,
+                    item = settingsItem,
+                    currentDestination = currentDestination
+                )
             }
         }
     }

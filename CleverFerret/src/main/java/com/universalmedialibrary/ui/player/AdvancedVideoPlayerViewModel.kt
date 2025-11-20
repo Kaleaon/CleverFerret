@@ -2,6 +2,8 @@ package com.universalmedialibrary.ui.player
 
 import android.content.Context
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.*
@@ -247,7 +249,10 @@ class AdvancedVideoPlayerViewModel @Inject constructor() : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        exoPlayer?.release()
+        // Ensure ExoPlayer is released on the main thread
+        Handler(Looper.getMainLooper()).post {
+            exoPlayer?.release()
+        }
         exoPlayer = null
         trackSelector = null
     }

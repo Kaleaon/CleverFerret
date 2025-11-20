@@ -273,7 +273,7 @@ class EnhancedSyncService @Inject constructor(
             }
             
             // Get reading progress changes
-            val allProgress = readingProgressDao.getAllProgress()
+            val allProgress = readingProgressDao.getAllProgressSnapshot()
             val progressChanges = allProgress.filter { it.lastModified > since }
             for (progress in progressChanges) {
                 changes.add(
@@ -288,7 +288,8 @@ class EnhancedSyncService @Inject constructor(
                 )
             }
             
-            // Get bookmark changes
+            // Get bookmark changes (pending bookmark lastModified support)
+            /*
             val allBookmarks = bookmarkDao.getAllBookmarks()
             val bookmarkChanges = allBookmarks.filter { it.lastModified > since }
             for (bookmark in bookmarkChanges) {
@@ -303,6 +304,7 @@ class EnhancedSyncService @Inject constructor(
                     )
                 )
             }
+            */
             
         } catch (e: Exception) {
             updateState(error = "Failed to get local changes: ${e.message}")
@@ -356,7 +358,7 @@ class EnhancedSyncService @Inject constructor(
                                 mediaItemDao.insertMediaItem(mediaItem)
                             }
                             ChangeOperation.DELETE -> {
-                                mediaItemDao.deleteMediaItem(mediaItem.itemId)
+                                mediaItemDao.deleteMediaItem(mediaItem)
                             }
                         }
                     }
@@ -370,7 +372,7 @@ class EnhancedSyncService @Inject constructor(
                                 readingProgressDao.insertProgress(progress)
                             }
                             ChangeOperation.DELETE -> {
-                                readingProgressDao.deleteProgress(progress.itemId)
+                                readingProgressDao.deleteProgressByItemId(progress.itemId)
                             }
                         }
                     }
@@ -380,11 +382,8 @@ class EnhancedSyncService @Inject constructor(
                     val bookmark = change.data as? Bookmark
                     if (bookmark != null) {
                         when (change.operation) {
-                            ChangeOperation.CREATE -> {
+                            ChangeOperation.CREATE, ChangeOperation.MODIFY -> {
                                 bookmarkDao.insertBookmark(bookmark)
-                            }
-                            ChangeOperation.MODIFY -> {
-                                bookmarkDao.updateBookmark(bookmark)
                             }
                             ChangeOperation.DELETE -> {
                                 bookmarkDao.deleteBookmark(bookmark.bookmarkId)
@@ -455,6 +454,15 @@ class EnhancedSyncService @Inject constructor(
             error = error ?: _syncState.value.error,
             lastSyncTime = lastSyncTime ?: _syncState.value.lastSyncTime
         )
+    }
+    
+    /**
+     * Generate checksum for data integrity verification
+     */
+    private fun generateChecksum(data: Any): String {
+        // Simple hashcode-based checksum
+        // In production, use a proper hashing algorithm like MD5 or SHA-256
+        return data.hashCode().toString()
     }
 }
 

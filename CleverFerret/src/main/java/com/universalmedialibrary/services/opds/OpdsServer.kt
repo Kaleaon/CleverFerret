@@ -154,6 +154,7 @@ class OpdsServer @Inject constructor(
                 "cbr" -> "application/x-cbr"
                 else -> "application/octet-stream"
             }
+            // FileInputStream will be closed by NanoHTTPD after response is sent
             val fis = java.io.FileInputStream(file)
             newFixedLengthResponse(Response.Status.OK, mime, fis, file.length())
         } catch (e: Exception) {

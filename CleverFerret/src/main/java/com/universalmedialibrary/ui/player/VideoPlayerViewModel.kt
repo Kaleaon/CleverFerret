@@ -1,6 +1,8 @@
 package com.universalmedialibrary.ui.player
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -69,8 +71,10 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-                // Release any existing player
-                exoPlayer?.release()
+                // Release any existing player on main thread
+                Handler(Looper.getMainLooper()).post {
+                    exoPlayer?.release()
+                }
 
                 // Create new ExoPlayer
                 val renderersFactory = androidx.media3.exoplayer.DefaultRenderersFactory(context)
@@ -133,7 +137,10 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        exoPlayer?.release()
+        // Ensure ExoPlayer is released on the main thread
+        Handler(Looper.getMainLooper()).post {
+            exoPlayer?.release()
+        }
     }
 }
 

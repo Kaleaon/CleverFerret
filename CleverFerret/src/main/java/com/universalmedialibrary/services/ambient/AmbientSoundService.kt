@@ -15,6 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancel
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -243,5 +244,8 @@ class AmbientSoundService @Inject constructor(
         }
         mediaPlayers.clear()
         currentSessionId = null
+        
+        // Cancel coroutine scope to prevent memory leaks
+        serviceScope.cancel()
     }
 }

@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.cancel
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
@@ -521,5 +522,13 @@ class AudiobookService @Inject constructor(
     fun jumpToBookmark(bookmark: AudiobookBookmark) {
         goToChapter(bookmark.chapterIndex)
         exoPlayerService.seekTo(bookmark.position)
+    }
+    
+    /**
+     * Release resources and cancel pending operations
+     */
+    fun release() {
+        // Cancel coroutine scope to prevent memory leaks
+        serviceScope.cancel()
     }
 }

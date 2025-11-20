@@ -14,6 +14,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -158,6 +159,8 @@ class FreeAudiobookDownloadService @Inject constructor(
             context.unregisterReceiver(downloadReceiver)
         } catch (_: Exception) {
         }
+        // Cancel coroutine scope to prevent memory leaks
+        scope.cancel()
     }
 
     private fun sanitize(input: String): String {

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 /**
  * Service for identifying songs playing on radio streams
@@ -325,7 +326,7 @@ class RadioIdentificationService @Inject constructor(
         }
         
         return if (count > 0) {
-            kotlin.math.sqrt(sum / count) / Short.MAX_VALUE.toFloat()
+            (kotlin.math.sqrt(sum / count) / Short.MAX_VALUE.toFloat()).toFloat()
         } else {
             0f
         }

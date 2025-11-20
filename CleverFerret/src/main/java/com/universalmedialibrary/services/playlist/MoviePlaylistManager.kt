@@ -377,13 +377,13 @@ class MoviePlaylistManager @Inject constructor(
         for (item in items) {
             try {
                 // Get movie metadata for runtime information
-                val movieMetadata = metadataDao.getMetadataMovieByItemId(item.itemId)
+                val movieMetadata = metadataDao.getMetadataMovieByItemId(item.mediaItemId)
                 movieMetadata?.runtime?.let { runtime ->
                     totalRuntime += runtime.toLong()
                 }
             } catch (e: Exception) {
                 // Log error but continue processing other items
-                android.util.Log.w("MoviePlaylistManager", "Failed to get runtime for item ${item.itemId}: ${e.message}")
+                android.util.Log.w("MoviePlaylistManager", "Failed to get runtime for item ${item.mediaItemId}: ${e.message}")
             }
         }
         

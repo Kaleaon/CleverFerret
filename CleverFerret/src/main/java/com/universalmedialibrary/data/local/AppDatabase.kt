@@ -27,12 +27,14 @@ import com.universalmedialibrary.data.Tag
 @Database(
     entities = [
         // Core entities only for now
-        Library::class,
+          Library::class,
+          LibraryScanSettings::class,
         MediaItem::class,
         MetadataCommon::class,
         MetadataBook::class,
         MetadataMovie::class,
-        MetadataMusicTrack::class,
+          MetadataMusicTrack::class,
+          ListenHistoryEntry::class,
 
         // Essential system entities
         APIKey::class,
@@ -100,6 +102,14 @@ import com.universalmedialibrary.data.Tag
         ReadingStatistics::class,
         ReaderSettingsEntity::class,
         BookReaderSettingsEntity::class,
+        // Advanced reader data
+        BookSource::class,
+        BookChapter::class,
+        EnhancedAnnotation::class,
+        AnnotationCard::class,
+        ReadingAnalyticsEntry::class,
+        ReadingSessionLog::class,
+        ReaderAIInsight::class,
 
         // Settings
         GeneralSettingsEntity::class,
@@ -145,6 +155,14 @@ import com.universalmedialibrary.data.Tag
         AudioPack::class,
         AudioPackSound::class,
 
+        // Audio analytics and multi-room sync
+        AudioWaveform::class,
+        AudioSyncServer::class,
+        AudioSyncClient::class,
+        AudioSyncGroup::class,
+        AudioStream::class,
+        SyncStatistics::class,
+
         // Collaborative playlist sharing
         CollaborativeSession::class,
         SessionClient::class,
@@ -152,7 +170,7 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class
 
     ],
-    version = 35, // Added playback and user preference fields to MediaItem entity (isFavorite, playCount, lastPlayed)
+      version = 39,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -161,10 +179,12 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Core DAOs
 
-    abstract fun libraryDao(): LibraryDao
+      abstract fun libraryDao(): LibraryDao
+      abstract fun libraryScanSettingsDao(): LibraryScanSettingsDao
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
-    abstract fun metadataDao(): MetadataDao
+      abstract fun metadataDao(): MetadataDao
+      abstract fun listenHistoryDao(): ListenHistoryDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun readingProgressDao(): ReadingProgressDao
     abstract fun playlistDao(): PlaylistDao
@@ -198,9 +218,13 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Reader enhancement DAOs
     abstract fun annotationDao(): AnnotationDao
+    abstract fun enhancedAnnotationDao(): EnhancedAnnotationDao
+    abstract fun bookSourceDao(): BookSourceDao
+    abstract fun bookChapterDao(): BookChapterDao
     abstract fun readerSettingsDao(): ReaderSettingsDao
     abstract fun searchIndexDao(): SearchIndexDao
     abstract fun readingStatisticsDao(): ReadingStatisticsDao
+    abstract fun readingAnalyticsDao(): ReadingAnalyticsDao
 
     // Tag DAO
     abstract fun tagDao(): TagDao
@@ -231,6 +255,12 @@ abstract class AppDatabase : RoomDatabase() {
     
     // Ambient Sound DAO
     abstract fun ambientSoundDao(): AmbientSoundDao
+    abstract fun audioWaveformDao(): AudioWaveformDao
+    abstract fun audioSyncServerDao(): AudioSyncServerDao
+    abstract fun audioSyncClientDao(): AudioSyncClientDao
+    abstract fun audioSyncGroupDao(): AudioSyncGroupDao
+    abstract fun audioStreamDao(): AudioStreamDao
+    abstract fun syncStatisticsDao(): SyncStatisticsDao
     
     // Audio Pack DAO
     abstract fun audioPackDao(): AudioPackDao
@@ -255,23 +285,27 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     DATABASE_NAME
                 )
-                .addMigrations(
-                    AppDatabaseMigrations.MIGRATION_20_21,
-                    AppDatabaseMigrations.MIGRATION_21_22,
-                    AppDatabaseMigrations.MIGRATION_22_23,
-                    AppDatabaseMigrations.MIGRATION_23_24,
-                    AppDatabaseMigrations.MIGRATION_24_25,
-                    AppDatabaseMigrations.MIGRATION_25_26,
-                    AppDatabaseMigrations.MIGRATION_26_27,
-                    AppDatabaseMigrations.MIGRATION_27_28,
-                    AppDatabaseMigrations.MIGRATION_28_29,
-                    AppDatabaseMigrations.MIGRATION_29_30,
-                    AppDatabaseMigrations.MIGRATION_30_31,
-                    AppDatabaseMigrations.MIGRATION_31_32,
-                    AppDatabaseMigrations.MIGRATION_32_33,
-                    AppDatabaseMigrations.MIGRATION_33_34
-                       , AppDatabaseMigrations.MIGRATION_34_35
-                )
+                    .addMigrations(
+                        AppDatabaseMigrations.MIGRATION_20_21,
+                        AppDatabaseMigrations.MIGRATION_21_22,
+                        AppDatabaseMigrations.MIGRATION_22_23,
+                        AppDatabaseMigrations.MIGRATION_23_24,
+                        AppDatabaseMigrations.MIGRATION_24_25,
+                        AppDatabaseMigrations.MIGRATION_25_26,
+                        AppDatabaseMigrations.MIGRATION_26_27,
+                        AppDatabaseMigrations.MIGRATION_27_28,
+                        AppDatabaseMigrations.MIGRATION_28_29,
+                        AppDatabaseMigrations.MIGRATION_29_30,
+                        AppDatabaseMigrations.MIGRATION_30_31,
+                        AppDatabaseMigrations.MIGRATION_31_32,
+                        AppDatabaseMigrations.MIGRATION_32_33,
+                        AppDatabaseMigrations.MIGRATION_33_34,
+                        AppDatabaseMigrations.MIGRATION_34_35,
+                        AppDatabaseMigrations.MIGRATION_35_36,
+                        AppDatabaseMigrations.MIGRATION_36_37,
+                        AppDatabaseMigrations.MIGRATION_37_38,
+                        AppDatabaseMigrations.MIGRATION_38_39
+                    )
                 .fallbackToDestructiveMigration() // Fallback for unexpected migrations only
                 .build()
                 INSTANCE = instance

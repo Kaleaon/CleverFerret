@@ -58,6 +58,7 @@ class UniversalMediaNotificationManager @Inject constructor(
     }
 
     private fun createNotificationChannels() {
+        // minSdk is 26 (Android 8.0+), so notification channels are always available
         val channels = listOf(
             NotificationChannel(
                 CHANNEL_ID_MUSIC,

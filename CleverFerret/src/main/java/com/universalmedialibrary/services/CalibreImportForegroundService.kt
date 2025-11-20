@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancelChildren
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -81,6 +82,7 @@ class CalibreImportForegroundService : Service() {
     }
 
     private fun createNotificationChannel() {
+        // minSdk is 26 (Android 8.0+), so notification channels are always available
         val serviceChannel = NotificationChannel(
             CHANNEL_ID,
             "Calibre Import Service Channel",
@@ -92,6 +94,12 @@ class CalibreImportForegroundService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancel all coroutines to prevent memory leaks
+        serviceScope.coroutineContext.cancelChildren()
     }
 
     companion object {

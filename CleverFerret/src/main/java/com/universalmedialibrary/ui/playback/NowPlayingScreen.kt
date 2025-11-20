@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.universalmedialibrary.data.local.entity.Playlist
 import com.universalmedialibrary.data.local.entity.QueueItem
 import com.universalmedialibrary.services.playback.UnifiedPlaybackState
 import com.universalmedialibrary.ui.icons.PhosphorIcons
@@ -27,14 +28,15 @@ import java.util.Locale
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NowPlayingScreen(
-    viewModel: NowPlayingViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit = {}
-) {
+    fun NowPlayingScreen(
+        viewModel: NowPlayingViewModel = hiltViewModel(),
+        onNavigateBack: () -> Unit = {}
+    ) {
     val playbackState by viewModel.playbackState.collectAsState()
     val currentItem by viewModel.currentItem.collectAsState()
     val queueItems by viewModel.queueItems.collectAsState()
     val currentQueue by viewModel.currentQueue.collectAsState()
+    val playlists by viewModel.availablePlaylists.collectAsState()
     
     var showPlaylistDialog by remember { mutableStateOf(false) }
 
@@ -92,15 +94,17 @@ fun NowPlayingScreen(
         }
     }
     
-    // Playlist selection dialog
-    if (showPlaylistDialog) {
+    if (showPlaylistDialog && currentItem != null) {
         PlaylistSelectionDialog(
+            playlists = playlists,
             currentItem = currentItem,
             onDismiss = { showPlaylistDialog = false },
             onPlaylistSelected = { playlistId ->
-                currentItem?.let { item ->
-                    viewModel.addToPlaylist(item.itemId, playlistId)
-                }
+                viewModel.addCurrentTrackToPlaylist(playlistId)
+                showPlaylistDialog = false
+            },
+            onCreatePlaylist = { name ->
+                viewModel.createPlaylistWithCurrentTrack(name)
                 showPlaylistDialog = false
             }
         )
@@ -400,39 +404,82 @@ private fun formatTime(timeMs: Long): String {
  */
 @Composable
 private fun PlaylistSelectionDialog(
+    playlists: List<Playlist>,
     currentItem: QueueItem?,
     onDismiss: () -> Unit,
-    onPlaylistSelected: (Long) -> Unit
+    onPlaylistSelected: (Long) -> Unit,
+    onCreatePlaylist: (String) -> Unit
 ) {
+    var newPlaylistName by remember { mutableStateOf("") }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add to Playlist") },
         text = {
             Column {
                 Text(
-                    text = "Select a playlist to add &quot;${currentItem?.title ?: "this item"}&quot; to:",
+                    text = "Select a playlist to add \"${currentItem?.title ?: "this item"}\" to:",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // Placeholder playlist items - in a real implementation, 
-                // these would be fetched from a playlist repository
-                val samplePlaylists = listOf(
-                    "Favorites" to 1L,
-                    "Recently Played" to 2L,
-                    "My Playlist" to 3L
-                )
-                
-                samplePlaylists.forEach { (name, id) ->
-                    TextButton(
-                        onClick = { onPlaylistSelected(id) },
-                        modifier = Modifier.fillMaxWidth()
+
+                if (playlists.isEmpty()) {
+                    Text(
+                        text = "No playlists found. Create a new playlist below.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 240.dp)
                     ) {
-                        Text(
-                            text = name,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        itemsIndexed(playlists) { _, playlist ->
+                            TextButton(
+                                onClick = { onPlaylistSelected(playlist.playlistId) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        text = playlist.name,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = playlist.description ?: "Playlist",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = newPlaylistName,
+                    onValueChange = { newPlaylistName = it },
+                    label = { Text("New playlist name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        val trimmed = newPlaylistName.trim()
+                        if (trimmed.isNotEmpty()) {
+                            onCreatePlaylist(trimmed)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = newPlaylistName.isNotBlank()
+                ) {
+                    Text("Create and add")
                 }
             }
         },
