@@ -25,6 +25,7 @@ import com.universalmedialibrary.data.settings.AppTheme
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,15 +68,16 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.wifiOnlyDownloadsFlow,
                 settingsRepository.notificationsEnabledFlow,
                 settingsRepository.bottomGearPositionFlow,
-                settingsRepository.miniPlayerBackgroundModeFlow
-            ) { flows ->
-                val theme = flows[0] as com.universalmedialibrary.ui.theme.ThemePalette
-                val darkMode = flows[1] as Boolean
-                val autoDownload = flows[2] as Boolean
-                val wifiOnly = flows[3] as Boolean
-                val notificationsEnabled = flows[4] as Boolean
-                val bottomGear = flows[5] as com.universalmedialibrary.data.settings.BottomGearPosition
-                val backgroundMode = flows[6] as com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
+                settingsRepository.miniPlayerBackgroundModeFlow,
+                settingsRepository.bottomBarPreferencesFlow
+            ) { theme,
+                darkMode,
+                autoDownload,
+                wifiOnly,
+                notificationsEnabled,
+                bottomGear,
+                backgroundMode,
+                bottomBarPrefs ->
                 SettingsUiState(
                     selectedTheme = theme,
                     darkMode = darkMode,
@@ -83,7 +85,8 @@ class SettingsViewModel @Inject constructor(
                     wifiOnlyDownloads = wifiOnly,
                     notificationsEnabled = notificationsEnabled,
                     bottomGearPosition = bottomGear,
-                    miniPlayerBackgroundMode = backgroundMode
+                    miniPlayerBackgroundMode = backgroundMode,
+                    bottomBarPreferences = bottomBarPrefs
                 )
             }.collect { newState ->
                 _uiState.value = newState
@@ -137,6 +140,20 @@ class SettingsViewModel @Inject constructor(
     fun setMiniPlayerBackgroundMode(mode: MiniPlayerBackgroundMode) {
         viewModelScope.launch {
             settingsRepository.setMiniPlayerBackgroundMode(mode)
+        }
+    }
+
+    fun updateBottomBarPreferences(order: List<String>, hidden: Set<String>) {
+        viewModelScope.launch {
+            settingsRepository.setBottomBarPreferences(
+                BottomBarPreferences(order = order, hidden = hidden)
+            )
+        }
+    }
+
+    fun resetBottomBarPreferences() {
+        viewModelScope.launch {
+            settingsRepository.setBottomBarPreferences(BottomBarPreferences.Default)
         }
     }
 
@@ -327,5 +344,6 @@ data class SettingsUiState(
     val wifiOnlyDownloads: Boolean = true,
     val notificationsEnabled: Boolean = true,
     val bottomGearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
-    val miniPlayerBackgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME
+    val miniPlayerBackgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME,
+    val bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default
 )

@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,8 +17,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.data.settings.BottomGearPosition
+import com.universalmedialibrary.ui.components.NavigationItem
+import com.universalmedialibrary.ui.components.orderedForEditor
 import com.universalmedialibrary.ui.theme.*
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 
 /**
  * Settings Screen with metallic theme
@@ -26,7 +33,8 @@ import com.universalmedialibrary.ui.theme.*
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    navController: androidx.navigation.NavController,
+    navController: NavController,
+    availableBottomItems: List<NavigationItem>,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -299,6 +307,17 @@ fun SettingsScreen(
                           }
                       }
                   }
+
+                    item {
+                        BottomBarPreferencesCard(
+                            availableItems = availableBottomItems,
+                            preferences = uiState.bottomBarPreferences,
+                            onOrderChanged = { order, hidden ->
+                                viewModel.updateBottomBarPreferences(order, hidden)
+                            },
+                            onReset = viewModel::resetBottomBarPreferences
+                        )
+                    }
 
                    // Reading & Audio Section
                 item {
@@ -827,6 +846,8 @@ private fun ThemePickerDialog(
                             }
                         }
                     }
+
+                    
                 }
             }
         },
@@ -836,6 +857,205 @@ private fun ThemePickerDialog(
             }
         }
     )
+}
+
+@Composable
+private fun BottomBarPreferencesCard(
+    availableItems: List<NavigationItem>,
+    preferences: BottomBarPreferences,
+    onOrderChanged: (List<String>, Set<String>) -> Unit,
+    onReset: () -> Unit
+) {
+    MetallicCard {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Bottom Bar Items",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Reorder and hide shortcuts to match how you use the app.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                TextButton(
+                    onClick = onReset,
+                    enabled = preferences != BottomBarPreferences.Default
+                ) {
+                    Text("Reset")
+                }
+            }
+
+            if (availableItems.isEmpty()) {
+                Text(
+                    text = "Add a library to unlock bottom bar customization.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            } else {
+                BottomBarPreferencesEditor(
+                    availableItems = availableItems,
+                    preferences = preferences,
+                    onOrderChanged = onOrderChanged
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomBarPreferencesEditor(
+    availableItems: List<NavigationItem>,
+    preferences: BottomBarPreferences,
+    onOrderChanged: (List<String>, Set<String>) -> Unit
+) {
+    val orderedItems = remember(availableItems, preferences) {
+        availableItems.orderedForEditor(preferences)
+    }
+    val editorItems = remember(orderedItems, preferences) {
+        mutableStateListOf<BottomBarEditorItem>().apply {
+            orderedItems.forEach { item ->
+                add(
+                    BottomBarEditorItem(
+                        item = item,
+                        visible = item.preferenceId !in preferences.hidden
+                    )
+                )
+            }
+        }
+    }
+
+    val reorderState = rememberReorderableLazyListState(onMove = { from, to ->
+        editorItems.move(from.index, to.index)
+        persistPreferences(editorItems, onOrderChanged)
+    })
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = 320.dp)
+            .reorderable(reorderState),
+        state = reorderState.listState,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        userScrollEnabled = editorItems.size > 3
+    ) {
+        items(editorItems, key = { it.item.preferenceId }) { editorItem ->
+            BottomBarEditorRow(
+                editorItem = editorItem,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .detectReorderAfterLongPress(reorderState),
+                onVisibilityToggle = { visible ->
+                    val index = editorItems.indexOfFirst { it.item.preferenceId == editorItem.item.preferenceId }
+                    if (index != -1) {
+                        editorItems[index] = editorItems[index].copy(visible = visible)
+                        persistPreferences(editorItems, onOrderChanged)
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun BottomBarEditorRow(
+    editorItem: BottomBarEditorItem,
+    modifier: Modifier = Modifier,
+    onVisibilityToggle: (Boolean) -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        tonalElevation = 0.dp,
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                if (editorItem.visible) {
+                    editorItem.item.selectedIcon()
+                } else {
+                    editorItem.item.icon()
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = editorItem.item.label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = if (editorItem.visible) FontWeight.Medium else FontWeight.Normal
+                )
+                if (!editorItem.visible) {
+                    Text(
+                        text = "Hidden",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Switch(
+                checked = editorItem.visible,
+                onCheckedChange = onVisibilityToggle
+            )
+
+            Icon(
+                imageVector = Icons.Default.DragHandle,
+                contentDescription = "Drag to reorder",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+private data class BottomBarEditorItem(
+    val item: NavigationItem,
+    val visible: Boolean
+)
+
+private fun <T> MutableList<T>.move(fromIndex: Int, toIndex: Int) {
+    if (fromIndex == toIndex) return
+    val element = removeAt(fromIndex)
+    val targetIndex = if (toIndex > fromIndex) toIndex - 1 else toIndex
+    add(targetIndex.coerceIn(0, size), element)
+}
+
+private fun persistPreferences(
+    items: List<BottomBarEditorItem>,
+    onOrderChanged: (List<String>, Set<String>) -> Unit
+) {
+    val order = items.map { it.item.preferenceId }
+    val hidden = items.filterNot { it.visible }.map { it.item.preferenceId }.toSet()
+    onOrderChanged(order, hidden)
 }
 
 @Composable

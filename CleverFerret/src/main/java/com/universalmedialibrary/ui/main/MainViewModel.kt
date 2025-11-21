@@ -11,6 +11,7 @@ import com.universalmedialibrary.ui.home.SampleClassic
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.data.settings.BottomGearPosition
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
 import java.io.IOException
@@ -78,6 +79,14 @@ class MainViewModel @Inject constructor(
                 scope = viewModelScope,
                 started = SharingStarted.Eagerly,
                 initialValue = MiniPlayerBackgroundMode.THEME
+            )
+
+    val bottomBarPreferences: StateFlow<BottomBarPreferences> =
+        settingsRepository.bottomBarPreferencesFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = BottomBarPreferences.Default
             )
 
     fun addLibrary(name: String, type: String, path: String) {

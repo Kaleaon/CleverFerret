@@ -90,7 +90,8 @@ data class NavigationItem(
     val icon: @Composable () -> Unit,
     val selectedIcon: @Composable () -> Unit = icon,
     val routeMatch: String? = null,
-    val showInBottomNav: Boolean = true
+    val showInBottomNav: Boolean = true,
+    val preferenceId: String = route
 )
 
 /**
