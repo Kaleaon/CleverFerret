@@ -70,24 +70,8 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.bottomGearPositionFlow,
                 settingsRepository.miniPlayerBackgroundModeFlow,
                 settingsRepository.bottomBarPreferencesFlow
-            ) { theme,
-                darkMode,
-                autoDownload,
-                wifiOnly,
-                notificationsEnabled,
-                bottomGear,
-                backgroundMode,
-                bottomBarPrefs ->
-                SettingsUiState(
-                    selectedTheme = theme,
-                    darkMode = darkMode,
-                    autoDownloadPodcasts = autoDownload,
-                    wifiOnlyDownloads = wifiOnly,
-                    notificationsEnabled = notificationsEnabled,
-                    bottomGearPosition = bottomGear,
-                    miniPlayerBackgroundMode = backgroundMode,
-                    bottomBarPreferences = bottomBarPrefs
-                )
+            ) { values: Array<Any?> ->
+                createSettingsUiState(values)
             }.collect { newState ->
                 _uiState.value = newState
             }
@@ -335,6 +319,29 @@ class SettingsViewModel @Inject constructor(
         skipOutroSeconds = skipOutroSeconds, // Now using the actual field from GeneralSettings
         lastUpdated = System.currentTimeMillis()
     )
+
+    @Suppress("UNCHECKED_CAST")
+    private fun createSettingsUiState(values: Array<Any?>): SettingsUiState {
+        val theme = values[0] as ThemePalette
+        val darkMode = values[1] as Boolean
+        val autoDownload = values[2] as Boolean
+        val wifiOnly = values[3] as Boolean
+        val notificationsEnabled = values[4] as Boolean
+        val bottomGear = values[5] as BottomGearPosition
+        val backgroundMode = values[6] as MiniPlayerBackgroundMode
+        val bottomBarPrefs = values[7] as BottomBarPreferences
+
+        return SettingsUiState(
+            selectedTheme = theme,
+            darkMode = darkMode,
+            autoDownloadPodcasts = autoDownload,
+            wifiOnlyDownloads = wifiOnly,
+            notificationsEnabled = notificationsEnabled,
+            bottomGearPosition = bottomGear,
+            miniPlayerBackgroundMode = backgroundMode,
+            bottomBarPreferences = bottomBarPrefs
+        )
+    }
 }
 
 data class SettingsUiState(
