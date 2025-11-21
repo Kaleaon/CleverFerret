@@ -7,6 +7,7 @@ import android.os.Environment
 import com.universalmedialibrary.data.local.dao.AmbientSoundDao
 import com.universalmedialibrary.data.local.dao.AudioPackDao
 import com.universalmedialibrary.data.local.entity.*
+import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -247,8 +248,7 @@ class AudioPackImporter @Inject constructor(
                 ?.toLongOrNull() ?: 0L
             val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
                 ?.toIntOrNull() ?: 0
-            val sampleRate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)
-                ?.toIntOrNull() ?: 0
+            val sampleRate = AudioMetadataUtils.extractSampleRate(file) ?: 0
             
             // Estimate bit depth from bitrate and sample rate
             val estimatedBitDepth = if (sampleRate > 0) {
