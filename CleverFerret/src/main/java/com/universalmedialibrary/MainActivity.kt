@@ -1662,9 +1662,8 @@ fun LibraryListScreen(
       }
 
 
-      val mainContent: @Composable (Modifier) -> Unit = { contentModifier ->
-          Box(modifier = contentModifier.fillMaxSize()) {
-              Scaffold(
+      Box(modifier = Modifier.fillMaxSize()) {
+          Scaffold(
                 topBar = {
                 Column {
                     TopAppBar(
@@ -1898,7 +1897,6 @@ fun LibraryListScreen(
                   }
             }
         }
-    }
 
     if (showCreateDialog) {
         CreateLibraryDialog(
