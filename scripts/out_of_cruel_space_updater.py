@@ -14,11 +14,14 @@ import sys
 import json
 import time
 import re
+import html
 import argparse
 from datetime import datetime
-from typing import List, Dict, Optional
-import requests
+from typing import List, Dict, Optional, Set
 from pathlib import Path
+from urllib.parse import urlparse, urlunparse
+
+import requests
 
 # Reddit API Configuration
 REDDIT_CLIENT_ID = "EvU-yXXa66v0qe94RLorQw"
@@ -28,8 +31,46 @@ REDDIT_USER_AGENT = "CleverFerret:OutOfCruelSpaceDownloader:v1.0 (by /u/cleverfe
 SERIES_NAME = "Out of Cruel Space"
 SUBREDDIT = "HFY"
 AUTHOR = "KyleKKent"  # Primary author
+SERIES_KEYWORDS = [
+    "out of cruel space",
+    "oocs",
+    "wider galaxy"
+]
 OUTPUT_DIR = Path("./epub_output")
 CACHE_FILE = OUTPUT_DIR / "oocs_cache.json"
+
+PREVIOUS_HTML_PATTERN = re.compile(
+    r'<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>',
+    re.IGNORECASE | re.DOTALL
+)
+PREVIOUS_MD_PATTERN = re.compile(
+    r'\[([^\]]*prev[^\]]*)\]\(([^)]+)\)',
+    re.IGNORECASE
+)
+
+
+def normalize_reddit_url(url: Optional[str]) -> Optional[str]:
+    if not url:
+        return None
+    url = url.strip()
+    if not url:
+        return None
+    if url.startswith("//"):
+        url = f"https:{url}"
+    if url.startswith("/"):
+        url = f"https://www.reddit.com{url}"
+    if url.startswith("http://"):
+        url = "https://" + url[len("http://"):]
+    parsed = urlparse(url)
+    if not parsed.netloc or "reddit" not in parsed.netloc:
+        return None
+    normalized = parsed._replace(query="", fragment="")
+    return urlunparse(normalized)
+
+
+def contains_series_keyword(title: str) -> bool:
+    lowered = title.lower()
+    return any(keyword in lowered for keyword in SERIES_KEYWORDS)
 
 
 class RedditChapter:
@@ -44,9 +85,11 @@ class RedditChapter:
         self.created_utc = post_data.get('created_utc', 0)
         self.author = post_data.get('author', 'Unknown')
         self.score = post_data.get('score', 0)
+        self.permalink = post_data.get('permalink', '')
         
         # Extract chapter number
         self.chapter_number = self._extract_chapter_number()
+        self.previous_url = self._extract_previous_link()
         
     def _extract_chapter_number(self) -> int:
         """Extract chapter number from title"""
@@ -72,7 +115,6 @@ class RedditChapter:
         # Use selftext_html if available, otherwise convert selftext
         if self.selftext_html:
             # Reddit's HTML is HTML-escaped, need to decode it
-            import html
             content = html.unescape(self.selftext_html)
             # Remove the surrounding <div> tags that Reddit adds
             content = re.sub(r'^<div class="md">|</div>$', '', content.strip())
@@ -109,6 +151,25 @@ class RedditChapter:
             'score': self.score,
             'chapter_number': self.chapter_number
         }
+
+    def _extract_previous_link(self) -> Optional[str]:
+        """Identify the 'Previous' button/link inside the post body"""
+        html_content = html.unescape(self.selftext_html or "")
+        for match in PREVIOUS_HTML_PATTERN.finditer(html_content):
+            href, text = match.groups()
+            if 'prev' in (text or '').lower():
+                normalized = normalize_reddit_url(href)
+                if normalized:
+                    return normalized
+
+        markdown = self.selftext or ""
+        md_match = PREVIOUS_MD_PATTERN.search(markdown)
+        if md_match:
+            normalized = normalize_reddit_url(md_match.group(2))
+            if normalized:
+                return normalized
+
+        return None
 
 
 class OutOfCruelSpaceDownloader:
@@ -201,6 +262,90 @@ class OutOfCruelSpaceDownloader:
             print(f"Error getting post {post_id}: {e}")
         
         return None
+
+    @staticmethod
+    def extract_post_id(url: str) -> Optional[str]:
+        """Extract the Reddit post ID from a permalink"""
+        if not url:
+            return None
+        match = re.search(r'/comments/([a-z0-9]+)/', url)
+        if match:
+            return match.group(1)
+        return None
+
+    def get_post_by_url(self, url: str, subreddit: str = SUBREDDIT) -> Optional[RedditChapter]:
+        """Fetch a Reddit post given its URL"""
+        post_id = self.extract_post_id(url)
+        if not post_id:
+            return None
+        return self.get_post_by_id(post_id, subreddit=subreddit)
+
+    def find_latest_series_url(self) -> Optional[str]:
+        """Locate the latest post for the series using author search."""
+        search_url = f"https://www.reddit.com/r/{SUBREDDIT}/search.json"
+        params = {
+            'q': f'author:{AUTHOR}',
+            'restrict_sr': '1',
+            'sort': 'new',
+            'limit': 100,
+            't': 'all'
+        }
+
+        try:
+            response = self.session.get(search_url, params=params, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+            posts = data.get('data', {}).get('children', [])
+            for post in posts:
+                post_data = post.get('data', {})
+                title = post_data.get('title', '')
+                if not contains_series_keyword(title):
+                    continue
+                permalink = post_data.get('permalink')
+                if permalink:
+                    return f"https://www.reddit.com{permalink}"
+        except Exception as e:
+            print(f"Error locating latest series post: {e}")
+
+        return None
+
+    def crawl_series_from(self, start_url: str, limit: int = 1000) -> List[RedditChapter]:
+        """Follow 'Previous' links starting from start_url to collect chapters."""
+        if not start_url:
+            return []
+
+        print(f"Following previous links starting from: {start_url}")
+        chapters: List[RedditChapter] = []
+        visited: Set[str] = set()
+        current_url = start_url
+
+        while current_url and len(chapters) < limit:
+            post_id = self.extract_post_id(current_url)
+            if not post_id:
+                print(f"Could not parse post ID from URL: {current_url}")
+                break
+            if post_id in visited:
+                print("Encountered repeated post, stopping crawl to avoid loop.")
+                break
+
+            chapter = self.get_post_by_id(post_id)
+            if not chapter:
+                print(f"Stopping crawl: failed to fetch post {post_id}")
+                break
+
+            chapters.append(chapter)
+            visited.add(post_id)
+
+            if chapter.previous_url:
+                current_url = chapter.previous_url
+                time.sleep(2)
+            else:
+                print("No 'Previous' link found; reached the earliest chapter.")
+                break
+
+        chapters.reverse()
+        print(f"Collected {len(chapters)} chapters via previous-link crawl.")
+        return chapters
 
 
 class EPUBManager:
@@ -397,6 +542,11 @@ def main():
         action='store_true',
         help='Rebuild EPUB from scratch, ignoring cache'
     )
+    parser.add_argument(
+        '--start-url',
+        type=str,
+        help='Specific Reddit post URL to start crawling via Previous links'
+    )
     
     args = parser.parse_args()
     
@@ -415,15 +565,21 @@ def main():
         print("❌ Failed to authenticate with Reddit API")
         return 1
     
-    # Download chapters
-    print(f"\nSearching for chapters (max: {args.max_chapters})...")
-    chapters = downloader.search_series(SUBREDDIT, SERIES_NAME, limit=args.max_chapters)
+    # Download chapters via previous-link crawl if possible
+    chapters: List[RedditChapter] = []
+    start_url = args.start_url or downloader.find_latest_series_url()
+    if start_url:
+        chapters = downloader.crawl_series_from(start_url, limit=args.max_chapters)
+
+    if not chapters:
+        print(f"\nFalling back to subreddit search for '{SERIES_NAME}' (max: {args.max_chapters})...")
+        chapters = downloader.search_series(SUBREDDIT, SERIES_NAME, limit=args.max_chapters)
     
     if not chapters:
         print("❌ No chapters found!")
         return 1
     
-    print(f"✓ Found {len(chapters)} total posts")
+    print(f"✓ Collected {len(chapters)} total posts")
     
     # Filter valid chapters (those with chapter numbers)
     valid_chapters = [ch for ch in chapters if ch.chapter_number > 0]
