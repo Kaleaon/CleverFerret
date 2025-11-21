@@ -2,11 +2,21 @@ package com.universalmedialibrary.services.webfiction
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
-import java.net.URLEncoder
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Entities
+import org.jsoup.parser.Parser
+import java.net.URLEncoder
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Reddit fanfiction downloader for series like "Out of Cruel Space" (HFY).
@@ -63,21 +73,29 @@ class RedditFanficDownloader {
             .get()
             .text()
 
-        val data = kotlinx.serialization.json.Json.parseToJsonElement(json).jsonObject
+        val data = Json.parseToJsonElement(json).jsonObject
         val posts = data["data"]?.jsonObject?.get("children")?.jsonArray ?: kotlinx.serialization.json.JsonArray(emptyList())
 
         val rawChapters = posts.mapNotNull { child ->
             val post = child.jsonObject["data"]?.jsonObject ?: return@mapNotNull null
-            val title = post["title"]?.toString()?.trim('"') ?: return@mapNotNull null
-            val postAuthor = post["author"]?.toString()?.trim('"') ?: ""
-            val createdUtc = post["created_utc"]?.toString()?.toDoubleOrNull()?.toLong() ?: 0L
-            val isSelfPost = post["is_self"]?.toString() == "true"
-            
+            val title = post["title"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
+            val postAuthor = post["author"]?.jsonPrimitive?.contentOrNull ?: ""
+            val createdUtc = post["created_utc"]?.jsonPrimitive?.doubleOrNull?.toLong() ?: 0L
+            val isSelfPost = post["is_self"]?.jsonPrimitive?.booleanOrNull ?: false
+
             // Filter to only self-posts (text posts, not links) for stories
             if (!isSelfPost) return@mapNotNull null
-            
-            val url = post["url_overridden_by_dest"]?.toString()?.trim('"')
-                ?: ("https://www.reddit.com" + (post["permalink"]?.toString()?.trim('"') ?: return@mapNotNull null))
+
+            val permalink = post["permalink"]?.jsonPrimitive?.contentOrNull
+            val directUrl = post["url_overridden_by_dest"]?.jsonPrimitive?.contentOrNull
+            val url = when {
+                !permalink.isNullOrBlank() -> "https://www.reddit.com$permalink"
+                !directUrl.isNullOrBlank() -> directUrl
+                else -> return@mapNotNull null
+            }
+
+            val selftextHtml = post["selftext_html"]?.jsonPrimitive?.contentOrNull
+            val selftext = post["selftext"]?.jsonPrimitive?.contentOrNull
 
             // Heuristic to extract chapter number - improved patterns
             val number = Regex("(?i)(?:chapter|ch\\.?)[\\s-_]*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
@@ -85,11 +103,18 @@ class RedditFanficDownloader {
                 ?: Regex("(?i)#\\s*([0-9]+)").find(title)?.groupValues?.get(1)?.toIntOrNull()
                 ?: 0
 
-            val html = fetchPostHtml(url)
+            val html = buildChapterHtml(
+                url = url,
+                author = postAuthor,
+                createdUtc = createdUtc,
+                selftextHtml = selftextHtml,
+                selftext = selftext
+            )
+
             ChapterPost(
-                number = number, 
-                title = title, 
-                url = url, 
+                number = number,
+                title = title,
+                url = url,
                 html = html,
                 author = postAuthor,
                 createdUtc = createdUtc
@@ -122,35 +147,110 @@ class RedditFanficDownloader {
         )
     }
 
-    private fun fetchPostHtml(url: String): String {
-        return try {
-            val doc = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0")
-                .timeout(15000)
-                .get()
+    private fun buildChapterHtml(
+        url: String,
+        author: String,
+        createdUtc: Long,
+        selftextHtml: String?,
+        selftext: String?
+    ): String {
+        val content = decodeSelftextHtml(selftextHtml)
+            ?: convertMarkdownToHtml(selftext)
+            ?: downloadPostBody(url)
+            ?: "<p>Failed to fetch content from ${Entities.escape(url)}.</p>"
 
-            // Prefer old.reddit if possible for consistent markup
-            if (url.contains("reddit.com") && !url.contains("old.reddit.com")) {
-                val oldUrl = url.replace("www.reddit.com", "old.reddit.com")
-                if (oldUrl != url) {
-                    return fetchPostHtml(oldUrl)
-                }
+        return wrapChapterHtml(url, author, createdUtc, content.ifBlank { "<p>No content available.</p>" })
+    }
+
+    private fun decodeSelftextHtml(raw: String?): String? {
+        if (raw.isNullOrBlank()) return null
+        val decoded = Parser.unescapeEntities(raw, false).trim()
+        if (decoded.isBlank()) return null
+        val doc = Jsoup.parseBodyFragment(decoded)
+        return doc.selectFirst("div.md")?.html()
+            ?: doc.body().html().takeIf { it.isNotBlank() }
+    }
+
+    private fun convertMarkdownToHtml(text: String?): String? {
+        if (text.isNullOrBlank()) return null
+        val normalized = text.replace("\r\n", "\n").trim()
+        if (normalized.isBlank()) return null
+
+        val escaped = Entities.escape(normalized)
+        val paragraphs = escaped
+            .split("\n\n")
+            .filter { it.isNotBlank() }
+            .joinToString(separator = "") { paragraph ->
+                "<p>${paragraph.replace("\n", "<br/>")}</p>"
             }
 
-            // Extract self-text content if available
-            val content = doc.select(".usertext-body .md").first()?.html()
-                ?: doc.select("div[data-test-id=post-content] div[data-click-id=text]").first()?.html()
-                ?: doc.select("article").first()?.html()
-                ?: doc.body().html()
+        return paragraphs.ifBlank { null }
+    }
 
-            """
-            <article class="reddit-chapter">
-              <h2><a href="$url">Source</a></h2>
-              $content
-            </article>
-            """.trimIndent()
-        } catch (e: Exception) {
-            "<p>Failed to fetch content from $url: ${e.message}</p>"
+    private fun downloadPostBody(originalUrl: String): String? {
+        val candidateUrls = mutableListOf<String>()
+        if (originalUrl.contains("reddit.com") && !originalUrl.contains("old.reddit.com")) {
+            candidateUrls.add(
+                originalUrl
+                    .replace("https://www.reddit.com", "https://old.reddit.com")
+                    .replace("http://www.reddit.com", "https://old.reddit.com")
+                    .replace("https://reddit.com", "https://old.reddit.com")
+            )
         }
+        candidateUrls.add(originalUrl)
+
+        for (candidate in candidateUrls.distinct()) {
+            try {
+                val doc = Jsoup.connect(candidate)
+                    .userAgent("Mozilla/5.0")
+                    .timeout(REQUEST_TIMEOUT)
+                    .get()
+
+                val content = doc.select(".usertext-body .md").first()?.html()
+                    ?: doc.select("div[data-test-id=post-content] div[data-click-id=text]").first()?.html()
+                    ?: doc.select("article").first()?.html()
+                    ?: doc.body().html()
+
+                if (!content.isNullOrBlank()) {
+                    return content
+                }
+            } catch (_: Exception) {
+                // Try the next option
+            }
+        }
+
+        return null
+    }
+
+    private fun wrapChapterHtml(url: String, author: String, createdUtc: Long, content: String): String {
+        val safeUrl = Entities.escape(url)
+        val metaBuilder = buildString {
+            append("""<p><strong>Source:</strong> <a href="$safeUrl">$safeUrl</a></p>""")
+            if (author.isNotBlank()) {
+                append("""<p><strong>Author:</strong> ${Entities.escape(author)}</p>""")
+            }
+            formatTimestamp(createdUtc)?.let { formatted ->
+                append("""<p><strong>Posted:</strong> $formatted</p>""")
+            }
+        }
+
+        return """
+        <article class="reddit-chapter">
+          <div class="chapter-meta">
+            $metaBuilder
+          </div>
+          <div class="chapter-content">
+            $content
+          </div>
+        </article>
+        """.trimIndent()
+    }
+
+    private fun formatTimestamp(createdUtc: Long): String? {
+        if (createdUtc <= 0L) return null
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        return formatter.format(Date(createdUtc * 1000))
     }
 }
