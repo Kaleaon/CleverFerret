@@ -147,6 +147,8 @@ import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 import com.universalmedialibrary.ui.components.MediaControlActions
 import com.universalmedialibrary.ui.components.NavigationItem
+import com.universalmedialibrary.ui.components.applyBottomBarPreferences
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.ui.components.ResponsiveNavigationScaffold
 import com.universalmedialibrary.ui.components.rememberMediaControlsState
 import com.universalmedialibrary.ui.ambient.AmbientSoundScreen
@@ -322,8 +324,12 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         )
     }
 
-    val bottomNavItems = remember(libraries) {
+    val availableBottomNavItems = remember(libraries) {
         buildBottomNavItems(libraries)
+    }
+    val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
+    val bottomNavItems = remember(availableBottomNavItems, bottomBarPreferences) {
+        availableBottomNavItems.applyBottomBarPreferences(bottomBarPreferences)
     }
     
     // Handle external file opening
@@ -664,7 +670,8 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings") {
             com.universalmedialibrary.ui.settings.SettingsScreen(
                 onBack = { navController.navigateUp() },
-                   navController = navController
+                navController = navController,
+                availableBottomItems = availableBottomNavItems
             )
         }
         

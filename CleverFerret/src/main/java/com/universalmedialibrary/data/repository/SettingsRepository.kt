@@ -37,6 +37,7 @@ class SettingsRepository @Inject constructor(
         val MAX_CACHE_SIZE_MB = stringPreferencesKey("max_cache_size_mb")
         val BOTTOM_GEAR_POSITION = stringPreferencesKey("bottom_gear_position")
         val MINI_PLAYER_BACKGROUND = stringPreferencesKey("mini_player_background")
+        val BOTTOM_BAR_CONFIG = stringPreferencesKey("bottom_bar_config")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -98,6 +99,16 @@ class SettingsRepository @Inject constructor(
         MiniPlayerBackgroundMode.fromName(preferences[PreferencesKeys.MINI_PLAYER_BACKGROUND])
     }
 
+    val bottomBarPreferencesFlow: Flow<BottomBarPreferences> = context.dataStore.data.map { preferences ->
+        val configJson = preferences[PreferencesKeys.BOTTOM_BAR_CONFIG]
+        if (configJson.isNullOrBlank()) {
+            BottomBarPreferences.Default
+        } else {
+            runCatching { json.decodeFromString<BottomBarPreferences>(configJson) }
+                .getOrDefault(BottomBarPreferences.Default)
+        }
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -155,6 +166,16 @@ class SettingsRepository @Inject constructor(
     suspend fun setMiniPlayerBackgroundMode(mode: MiniPlayerBackgroundMode) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.MINI_PLAYER_BACKGROUND] = mode.name
+        }
+    }
+
+    suspend fun setBottomBarPreferences(preferencesValue: BottomBarPreferences) {
+        context.dataStore.edit { preferences ->
+            if (preferencesValue == BottomBarPreferences.Default) {
+                preferences.remove(PreferencesKeys.BOTTOM_BAR_CONFIG)
+            } else {
+                preferences[PreferencesKeys.BOTTOM_BAR_CONFIG] = json.encodeToString(preferencesValue)
+            }
         }
     }
 }
