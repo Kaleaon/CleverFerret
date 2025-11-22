@@ -20,6 +20,7 @@ import com.universalmedialibrary.services.webfiction.*
 import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
+import java.util.Locale
 
 /**
  * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery and download
@@ -612,9 +613,10 @@ private fun QuickDownloadDialog(
 }
 
 private fun formatNumber(number: Int): String {
+    val locale = Locale.getDefault()
     return when {
-        number >= 1_000_000 -> String.format("%.1fM", number / 1_000_000.0)
-        number >= 1_000 -> String.format("%.1fK", number / 1_000.0)
+        number >= 1_000_000 -> String.format(locale, "%.1fM", number / 1_000_000.0)
+        number >= 1_000 -> String.format(locale, "%.1fK", number / 1_000.0)
         else -> number.toString()
     }
 }

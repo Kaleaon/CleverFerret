@@ -394,7 +394,7 @@ class MusicLibraryViewModel @Inject constructor(
                         artist = firstTrack.artist,
                         album = firstTrack.album,
                         duration = firstTrack.duration,
-                        albumArtUrl = null
+                        albumArtUrl = firstTrack.albumArtUri?.toString()
                     )
                 }
             } catch (e: Exception) {
@@ -412,7 +412,7 @@ class MusicLibraryViewModel @Inject constructor(
                     artist = track.artist,
                     album = track.album,
                     duration = track.duration,
-                    albumArtUrl = null
+                    albumArtUrl = track.albumArtUri?.toString()
                 )
             } catch (e: Exception) {
                 // Handle playback error
@@ -468,7 +468,7 @@ class MusicLibraryViewModel @Inject constructor(
                         artist = trackToPlay.artist,
                         album = trackToPlay.album,
                         duration = trackToPlay.duration,
-                        albumArtUrl = null
+                        albumArtUrl = trackToPlay.albumArtUri?.toString()
                     )
                 }
             } catch (e: Exception) {
@@ -491,7 +491,7 @@ class MusicLibraryViewModel @Inject constructor(
                         artist = firstTrack.artist,
                         album = firstTrack.album,
                         duration = firstTrack.duration,
-                        albumArtUrl = null
+                        albumArtUrl = firstTrack.albumArtUri?.toString()
                     )
                 }
             } catch (e: Exception) {
@@ -514,7 +514,7 @@ class MusicLibraryViewModel @Inject constructor(
                         artist = firstTrack.artist,
                         album = firstTrack.album,
                         duration = firstTrack.duration,
-                        albumArtUrl = null
+                        albumArtUrl = firstTrack.albumArtUri?.toString()
                     )
                 }
             } catch (e: Exception) {
@@ -538,7 +538,7 @@ class MusicLibraryViewModel @Inject constructor(
                         artist = firstTrack.artist,
                         album = firstTrack.album,
                         duration = firstTrack.duration,
-                        albumArtUrl = null
+                        albumArtUrl = firstTrack.albumArtUri?.toString()
                     )
                 }
             } catch (e: Exception) {
