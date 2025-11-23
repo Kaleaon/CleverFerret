@@ -28,11 +28,17 @@ val LocalMetallicGradient = staticCompositionLocalOf { MetallicEffects.Gold }
 private fun getMetallicEffectForTheme(palette: ThemePalette): MetallicGradient {
     return when (palette) {
         ThemePalette.NAVY_GOLD -> MetallicEffects.Gold
+        ThemePalette.EMERALD_SILVER -> MetallicEffects.Silver
+        ThemePalette.ROYAL_BRONZE -> MetallicEffects.Copper
+        ThemePalette.MIDNIGHT_AMBER -> MetallicEffects.Gold
+        ThemePalette.OBSIDIAN_CRIMSON -> MetallicEffects.Copper
+        ThemePalette.SLATE_CYAN -> MetallicEffects.Gunmetal
         ThemePalette.ROYAL_SILVER -> MetallicEffects.Silver
         ThemePalette.FOREST_COPPER -> MetallicEffects.Copper
         ThemePalette.BURGUNDY_ROSE_GOLD -> MetallicEffects.RoseGold
         ThemePalette.CHARCOAL_CHAMPAGNE -> MetallicEffects.Champagne
         ThemePalette.SLATE_GUNMETAL -> MetallicEffects.Gunmetal
+        ThemePalette.DEEP_PURPLE_PLATINUM -> MetallicEffects.Silver
         ThemePalette.COPPER_BRONZE -> MetallicEffects.Copper
         ThemePalette.AMBER_GOLD -> MetallicEffects.Gold
         ThemePalette.ROSE_BRASS -> MetallicEffects.RoseGold
@@ -55,11 +61,17 @@ fun CleverFerretTheme(
     // Map old enum to new unified theme system
     val theme = when (palette) {
         ThemePalette.NAVY_GOLD -> CleverFerretTheme.NAVY_GOLD
+        ThemePalette.EMERALD_SILVER -> CleverFerretTheme.EMERALD_SILVER
+        ThemePalette.ROYAL_BRONZE -> CleverFerretTheme.ROYAL_BRONZE
+        ThemePalette.MIDNIGHT_AMBER -> CleverFerretTheme.MIDNIGHT_AMBER
+        ThemePalette.OBSIDIAN_CRIMSON -> CleverFerretTheme.OBSIDIAN_CRIMSON
+        ThemePalette.SLATE_CYAN -> CleverFerretTheme.SLATE_CYAN
         ThemePalette.ROYAL_SILVER -> CleverFerretTheme.ROYAL_SILVER
         ThemePalette.FOREST_COPPER -> CleverFerretTheme.FOREST_COPPER
         ThemePalette.BURGUNDY_ROSE_GOLD -> CleverFerretTheme.BURGUNDY_ROSE_GOLD
         ThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
         ThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
+        ThemePalette.DEEP_PURPLE_PLATINUM -> CleverFerretTheme.DEEP_PURPLE_PLATINUM
         ThemePalette.COPPER_BRONZE -> CleverFerretTheme.COPPER_BRONZE
         ThemePalette.AMBER_GOLD -> CleverFerretTheme.AMBER_GOLD
         ThemePalette.ROSE_BRASS -> CleverFerretTheme.ROSE_BRASS

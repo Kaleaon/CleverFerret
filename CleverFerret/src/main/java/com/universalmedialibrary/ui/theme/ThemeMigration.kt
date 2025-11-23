@@ -12,11 +12,17 @@ package com.universalmedialibrary.ui.theme
 fun ThemePalette.toCleverFerretTheme(): CleverFerretTheme {
     return when (this) {
         ThemePalette.NAVY_GOLD -> CleverFerretTheme.NAVY_GOLD
+        ThemePalette.EMERALD_SILVER -> CleverFerretTheme.EMERALD_SILVER
+        ThemePalette.ROYAL_BRONZE -> CleverFerretTheme.ROYAL_BRONZE
+        ThemePalette.MIDNIGHT_AMBER -> CleverFerretTheme.MIDNIGHT_AMBER
+        ThemePalette.OBSIDIAN_CRIMSON -> CleverFerretTheme.OBSIDIAN_CRIMSON
+        ThemePalette.SLATE_CYAN -> CleverFerretTheme.SLATE_CYAN
         ThemePalette.ROYAL_SILVER -> CleverFerretTheme.ROYAL_SILVER
         ThemePalette.FOREST_COPPER -> CleverFerretTheme.FOREST_COPPER
         ThemePalette.BURGUNDY_ROSE_GOLD -> CleverFerretTheme.BURGUNDY_ROSE_GOLD
         ThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
         ThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
+        ThemePalette.DEEP_PURPLE_PLATINUM -> CleverFerretTheme.DEEP_PURPLE_PLATINUM
         ThemePalette.COPPER_BRONZE -> CleverFerretTheme.COPPER_BRONZE
         ThemePalette.AMBER_GOLD -> CleverFerretTheme.AMBER_GOLD
         ThemePalette.ROSE_BRASS -> CleverFerretTheme.ROSE_BRASS
