@@ -855,6 +855,12 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             }
         }
 
+        composable("web_comic_downloader") {
+            com.universalmedialibrary.ui.comic.WebComicDownloaderScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
         composable("story_manager") {
             com.universalmedialibrary.ui.webfiction.StoryManagerRoute(
                 onBack = { navController.navigateUp() }
