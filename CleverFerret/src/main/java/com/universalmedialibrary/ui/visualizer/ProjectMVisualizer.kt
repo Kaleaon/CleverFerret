@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.services.visualizer.VisualizerState
 import kotlin.math.*
@@ -107,7 +108,7 @@ private fun TunnelVisualizer(
             val alpha = progress * (0.5f + bass * 0.5f)
             val rotationOffset = progress * 90f
             
-            rotate(rotation + rotationOffset, center = Offset(centerX, centerY)) {
+            rotate(rotation + rotationOffset, pivot = Offset(centerX, centerY)) {
                 drawRect(
                     color = primaryColor.copy(alpha = alpha),
                     topLeft = Offset(centerX - size / 2, centerY - size / 2),

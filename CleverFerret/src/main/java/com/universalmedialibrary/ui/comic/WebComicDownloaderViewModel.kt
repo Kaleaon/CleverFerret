@@ -13,7 +13,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WebComicDownloaderViewModel @Inject constructor(
-    private val comicvineMetadataSource: ComicvineMetadataSource
+    private val comicvineMetadataSource: ComicvineMetadataSource,
+    private val webComicScraperService: com.universalmedialibrary.services.comic.WebComicScraperService,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WebComicDownloaderState())
@@ -45,17 +47,27 @@ class WebComicDownloaderViewModel @Inject constructor(
     }
 
     fun downloadFromUrl(url: String) {
-        // TODO: Implement actual file download logic
-        // For now, just simulate a download process
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isDownloading = true, downloadStatus = "Starting download...")
-            kotlinx.coroutines.delay(1000)
-            _uiState.value = _uiState.value.copy(downloadStatus = "Downloading... 50%")
-            kotlinx.coroutines.delay(1000)
-            _uiState.value = _uiState.value.copy(
-                isDownloading = false, 
-                downloadStatus = "Download complete (Simulated)",
-                downloadSuccess = true
+            _uiState.value = _uiState.value.copy(isDownloading = true, downloadStatus = "Fetching page...", error = null)
+            
+            val outputDir = java.io.File(context.externalCacheDir, "web_comics")
+            val result = webComicScraperService.downloadComicFromUrl(url, outputDir)
+            
+            result.fold(
+                onSuccess = { file ->
+                    _uiState.value = _uiState.value.copy(
+                        isDownloading = false,
+                        downloadStatus = "Downloaded to ${file.parentFile?.name ?: "cache"}",
+                        downloadSuccess = true
+                    )
+                },
+                onFailure = { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isDownloading = false,
+                        downloadStatus = "",
+                        error = "Download failed: ${error.message}"
+                    )
+                }
             )
         }
     }
