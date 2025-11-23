@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancel
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,7 +29,8 @@ import javax.inject.Singleton
 class AmbientSoundService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val ambientSoundDao: AmbientSoundDao,
-    private val freesoundClient: FreesoundClient
+    private val freesoundClient: FreesoundClient,
+    private val ambientSoundDownloader: AmbientSoundDownloader
 ) {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val mediaPlayers = mutableMapOf<Long, MediaPlayer>()
@@ -155,8 +157,17 @@ class AmbientSoundService @Inject constructor(
             return@withContext // Already playing
         }
         
-        val url = sound.audioUrl
-        if (url.isNullOrBlank()) {
+        var dataSource = sound.audioUrl
+        
+        // Prefer local file if it exists
+        if (!sound.audioResourcePath.isNullOrBlank()) {
+            val file = File(sound.audioResourcePath)
+            if (file.exists()) {
+                dataSource = sound.audioResourcePath
+            }
+        }
+
+        if (dataSource.isNullOrBlank()) {
             return@withContext
         }
 
@@ -168,7 +179,7 @@ class AmbientSoundService @Inject constructor(
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .build()
                 )
-                setDataSource(url)
+                setDataSource(dataSource)
                 isLooping = true
                 setVolume(sound.volume, sound.volume)
                 prepare()
@@ -179,6 +190,46 @@ class AmbientSoundService @Inject constructor(
             e.printStackTrace()
         }
     }
+
+    /**
+     * Download a specific sound for offline playback
+     */
+    suspend fun downloadSound(soundId: Long): Boolean {
+        val sound = ambientSoundDao.getSoundById(soundId) ?: return false
+        return ambientSoundDownloader.downloadSound(sound)
+    }
+
+    /**
+     * Download all sounds in a collection/pack
+     */
+    suspend fun downloadCollection(collectionId: String) {
+        SoundLibrary.getCollection(collectionId)?.let { collection ->
+            // We need to get the actual sound entities from DB because they might have URLs that were updated (e.g. Freesound hydration)
+            // The SoundLibrary is just the initial definition.
+            // However, if they are already in DB, we should query them.
+            // SoundLibrary sounds don't have IDs until inserted.
+            // Strategy: Find sounds in DB that match the names in the collection? 
+            // Or assuming they were inserted.
+            
+            // Simpler approach: Get all enabled sounds and filter by those that are in this collection (by name/category match?)
+            // Ideally AmbientSound would have a collectionId field, but it doesn't.
+            
+            // Let's iterate the sounds in the collection definition, and try to find them in DB by name/category.
+            // Or just use the SoundLibrary definition if it's not inserted yet?
+            // But we need the hydrated URLs for Freesound!
+            
+            // Let's fetch all sounds from DB.
+            val dbSounds = ambientSoundDao.getAllSoundsSync()
+            val collectionSoundNames = collection.sounds.map { it.name }.toSet()
+            
+            val soundsToDownload = dbSounds.filter { it.name in collectionSoundNames }
+            
+            soundsToDownload.forEach { sound ->
+                ambientSoundDownloader.downloadSound(sound)
+            }
+        }
+    }
+
 
     /**
      * Stop playing an ambient sound
