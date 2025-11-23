@@ -362,11 +362,17 @@ private fun PaletteSelectorDialog(
 
 private fun getThemeDescription(palette: ThemePalette): String = when (palette) {
     ThemePalette.NAVY_GOLD -> "Navy + Metallic Gold • Elegant"
+    ThemePalette.EMERALD_SILVER -> "Emerald Green + Silver • Nature Inspired"
+    ThemePalette.ROYAL_BRONZE -> "Royal Purple + Bronze • Regal"
+    ThemePalette.MIDNIGHT_AMBER -> "Midnight Blue + Amber • Night Mode"
+    ThemePalette.OBSIDIAN_CRIMSON -> "Obsidian Black + Crimson • Dramatic"
+    ThemePalette.SLATE_CYAN -> "Slate Grey + Cyan • Futuristic"
     ThemePalette.ROYAL_SILVER -> "Royal Purple + Silver • Regal"
     ThemePalette.FOREST_COPPER -> "Forest Green + Copper • Natural"
     ThemePalette.BURGUNDY_ROSE_GOLD -> "Burgundy + Rose Gold • Luxurious"
     ThemePalette.CHARCOAL_CHAMPAGNE -> "Charcoal + Champagne • Sophisticated"
     ThemePalette.SLATE_GUNMETAL -> "Slate + Gunmetal • Modern"
+    ThemePalette.DEEP_PURPLE_PLATINUM -> "Deep Purple + Platinum • Premium"
     ThemePalette.COPPER_BRONZE -> "Copper + Bronze • Warm & Rich"
     ThemePalette.AMBER_GOLD -> "Amber + Gold • Luminous"
     ThemePalette.ROSE_BRASS -> "Rose + Brass • Romantic"
