@@ -319,6 +319,46 @@ fun SettingsScreen(
                         )
                     }
 
+                // API & Integrations Section
+                item {
+                    MetallicText(
+                        text = "API & Integrations",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/api") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "API Keys & Services",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Manage Gemini, ComicVine, Last.fm and other API keys",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.Key,
+                                contentDescription = "API Settings"
+                            )
+                        }
+                    }
+                }
+
                 // Web Content Section
                 item {
                     MetallicText(

@@ -693,6 +693,13 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
         
+        // API Settings route
+        composable("settings/api") {
+            com.universalmedialibrary.ui.settings.APISettingsScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
         // Import/Export route
         composable("settings/import_export") {
             com.universalmedialibrary.ui.settings.ImportExportScreen(

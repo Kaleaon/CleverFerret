@@ -41,10 +41,14 @@ fun APISettingsScreen(
 
     var showGeminiKey by remember { mutableStateOf(false) }
     var geminiKey by remember { mutableStateOf("") }
+    
+    var showComicVineKey by remember { mutableStateOf(false) }
+    var comicVineKey by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.loadSettings()
         geminiKey = uiState.geminiApiKey ?: ""
+        comicVineKey = uiState.comicVineApiKey ?: ""
     }
 
     Column(
@@ -81,6 +85,16 @@ fun APISettingsScreen(
                 onTestKey = { viewModel.testGeminiApiKey(geminiKey) },
                 isLoading = uiState.isLoading,
                 testResult = uiState.geminiTestResult
+            )
+            
+            // Comics & Manga Section
+            ComicVineAPISection(
+                apiKey = comicVineKey,
+                showKey = showComicVineKey,
+                onKeyChanged = { comicVineKey = it },
+                onShowKeyToggle = { showComicVineKey = !showComicVineKey },
+                onSaveKey = { viewModel.saveComicVineApiKey(comicVineKey) },
+                isLoading = uiState.isLoading
             )
 
             // Image Generator Selection Section
@@ -414,6 +428,77 @@ private fun FeatureFlagsSection(
                     checked = podcastsEnabled,
                     onCheckedChange = onPodcastsToggle
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ComicVineAPISection(
+    apiKey: String,
+    showKey: Boolean,
+    onKeyChanged: (String) -> Unit,
+    onShowKeyToggle: () -> Unit,
+    onSaveKey: () -> Unit,
+    isLoading: Boolean
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "Comics & Manga",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Enable ComicVine integration for comic metadata and search.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // API Key Input
+            OutlinedTextField(
+                value = apiKey,
+                onValueChange = onKeyChanged,
+                label = { Text("ComicVine API Key") },
+                placeholder = { Text("Enter your ComicVine API key") },
+                visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = onShowKeyToggle) {
+                        Icon(
+                            imageVector = if (showKey) PhosphorIcons.Warning else PhosphorIcons.Star,
+                            contentDescription = if (showKey) "Hide key" else "Show key"
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onSaveKey,
+                enabled = !isLoading && apiKey.isNotBlank(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Save Key")
+                }
             }
         }
     }
