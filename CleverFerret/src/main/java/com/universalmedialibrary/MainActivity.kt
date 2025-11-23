@@ -456,6 +456,11 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings/opds") {
             OpdsSettingsScreen(onBack = { navController.navigateUp() })
         }
+        composable("opds_catalog") {
+            com.universalmedialibrary.ui.opds.OPDSCatalogBrowserScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
         composable("maintenance") {
             MaintenanceScreen(onBack = { navController.navigateUp() })
         }
@@ -641,6 +646,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
         
+        composable("old_time_radio") {
+            com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToSeries = { series -> 
+                    // TODO: Implement series navigation
+                },
+                onNavigateToEpisode = { episodeId ->
+                    // TODO: Implement episode navigation
+                }
+            )
+        }
+        
         composable("fm_radio") {
             com.universalmedialibrary.ui.radio.FMRadioScreen(
                 onNavigateBack = { navController.navigateUp() }
@@ -687,7 +704,8 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings/audio_effects") {
             AudioEffectsSettingsScreen(
                 viewModel = hiltViewModel(),
-                onNavigateBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToShowcase = { navController.navigate("advanced_effects_showcase") }
             )
         }
 
@@ -904,6 +922,10 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // Theme preview for testing (old)
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
+        }
+        
+        composable("advanced_effects_showcase") {
+            com.universalmedialibrary.ui.screens.AdvancedEffectsShowcaseScreen()
         }
         
         // New unified theme showcase with all 15 themes
