@@ -98,7 +98,7 @@ object FreeAmbientCollections {
                 description = "Community-contributed ambiences from Freesound.org. Check track licenses for attribution.",
                 theme = "ambient",
                 sounds = sounds,
-                enabled = false
+                enabled = true
             )
         )
     }

@@ -16,6 +16,9 @@ interface AmbientSoundDao {
     @Query("SELECT * FROM ambient_sounds WHERE isEnabled = 1 ORDER BY name ASC")
     fun getAllEnabledSounds(): Flow<List<AmbientSound>>
 
+    @Query("SELECT * FROM ambient_sounds")
+    suspend fun getAllSoundsSync(): List<AmbientSound>
+
     @Query("SELECT * FROM ambient_sounds WHERE id = :id")
     suspend fun getSoundById(id: Long): AmbientSound?
 
