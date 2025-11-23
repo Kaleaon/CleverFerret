@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.local.entity.AmbientSound
 import com.universalmedialibrary.data.local.entity.AmbientPlaylist
 import com.universalmedialibrary.data.local.entity.AmbientReadingSession
 import com.universalmedialibrary.data.local.entity.AmbientSoundType
+import com.universalmedialibrary.data.remote.freesound.FreesoundClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.cancel
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,11 +28,19 @@ import javax.inject.Singleton
 @Singleton
 class AmbientSoundService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val ambientSoundDao: AmbientSoundDao
+    private val ambientSoundDao: AmbientSoundDao,
+    private val freesoundClient: FreesoundClient,
+    private val ambientSoundDownloader: AmbientSoundDownloader
 ) {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val mediaPlayers = mutableMapOf<Long, MediaPlayer>()
     private var currentSessionId: Long? = null
+
+    init {
+        serviceScope.launch(Dispatchers.IO) {
+            hydrateFreesoundUrls()
+        }
+    }
 
     /**
      * Initialize default ambient sounds from SoundLibrary
@@ -44,6 +54,46 @@ class AmbientSoundService @Inject constructor(
     suspend fun initializeDefaultSounds() {
         val allSounds = SoundLibrary.getAllSounds()
         ambientSoundDao.insertSounds(allSounds)
+        hydrateFreesoundUrls()
+    }
+
+    private suspend fun hydrateFreesoundUrls() {
+        withContext(Dispatchers.IO) {
+            try {
+                val sounds = ambientSoundDao.getAllSoundsSync()
+                
+                sounds.forEach { sound ->
+                    val url = sound.audioUrl ?: return@forEach
+                    if (url.contains("freesound.org") && url.contains("-lq.mp3")) {
+                        try {
+                            // Extract ID from URL
+                            val filename = url.substringAfterLast("/")
+                            val idString = filename.substringBefore("_")
+                            val id = idString.toIntOrNull()
+                            
+                            if (id != null) {
+                                val freesoundData = freesoundClient.getSound(id)
+                                val hqUrl = freesoundData.previews.previewHqMp3
+                                
+                                if (hqUrl.isNotEmpty() && hqUrl != url) {
+                                    ambientSoundDao.updateSound(
+                                        sound.copy(
+                                            audioUrl = hqUrl,
+                                            description = sound.description.ifEmpty { freesoundData.description.take(200) + "..." },
+                                            updatedAt = System.currentTimeMillis()
+                                        )
+                                    )
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
     
     /**
@@ -106,13 +156,80 @@ class AmbientSoundService @Inject constructor(
         if (mediaPlayers.containsKey(sound.id)) {
             return@withContext // Already playing
         }
-
-        // For now, we'll use a placeholder since we don't have actual audio files
-        // In production, you would load from sound.audioResourcePath or sound.audioUrl
-        // This is a minimal implementation that sets up the structure
         
-        // Note: Actual audio files would need to be added to res/raw/ or streamed
+        var dataSource = sound.audioUrl
+        
+        // Prefer local file if it exists
+        if (!sound.audioResourcePath.isNullOrBlank()) {
+            val file = File(sound.audioResourcePath)
+            if (file.exists()) {
+                dataSource = sound.audioResourcePath
+            }
+        }
+
+        if (dataSource.isNullOrBlank()) {
+            return@withContext
+        }
+
+        try {
+            val mediaPlayer = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .build()
+                )
+                setDataSource(dataSource)
+                isLooping = true
+                setVolume(sound.volume, sound.volume)
+                prepare()
+                start()
+            }
+            mediaPlayers[sound.id] = mediaPlayer
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
+
+    /**
+     * Download a specific sound for offline playback
+     */
+    suspend fun downloadSound(soundId: Long): Boolean {
+        val sound = ambientSoundDao.getSoundById(soundId) ?: return false
+        return ambientSoundDownloader.downloadSound(sound)
+    }
+
+    /**
+     * Download all sounds in a collection/pack
+     */
+    suspend fun downloadCollection(collectionId: String) {
+        SoundLibrary.getCollection(collectionId)?.let { collection ->
+            // We need to get the actual sound entities from DB because they might have URLs that were updated (e.g. Freesound hydration)
+            // The SoundLibrary is just the initial definition.
+            // However, if they are already in DB, we should query them.
+            // SoundLibrary sounds don't have IDs until inserted.
+            // Strategy: Find sounds in DB that match the names in the collection? 
+            // Or assuming they were inserted.
+            
+            // Simpler approach: Get all enabled sounds and filter by those that are in this collection (by name/category match?)
+            // Ideally AmbientSound would have a collectionId field, but it doesn't.
+            
+            // Let's iterate the sounds in the collection definition, and try to find them in DB by name/category.
+            // Or just use the SoundLibrary definition if it's not inserted yet?
+            // But we need the hydrated URLs for Freesound!
+            
+            // Let's fetch all sounds from DB.
+            val dbSounds = ambientSoundDao.getAllSoundsSync()
+            val collectionSoundNames = collection.sounds.map { it.name }.toSet()
+            
+            val soundsToDownload = dbSounds.filter { it.name in collectionSoundNames }
+            
+            soundsToDownload.forEach { sound ->
+                ambientSoundDownloader.downloadSound(sound)
+            }
+        }
+    }
+
 
     /**
      * Stop playing an ambient sound
