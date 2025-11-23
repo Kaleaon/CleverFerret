@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import java.io.File
 import java.io.FileOutputStream
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * ViewModel for the audio player with metadata extraction and playlist support
@@ -41,6 +42,13 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
 
     // Configurable position update interval (in milliseconds)
     private var positionUpdateIntervalMs: Long = 250L
+
+    private val exceptionHandler = ErrorLogger.createCoroutineExceptionHandler("AudioPlayerViewModel") {
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            error = "Unexpected error: ${it.message}"
+        )
+    }
 
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -70,6 +78,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
 
         override fun onPlayerErrorChanged(error: PlaybackException?) {
             error?.let {
+                ErrorLogger.logExoPlayerError("Audio playback error", it)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Playback error: ${it.message}"
@@ -108,7 +117,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
      * Start playback for a single local audio file
      */
     fun loadAudio(context: Context, filePath: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
@@ -141,9 +150,10 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
                 )
 
             } catch (e: Exception) {
+                ErrorLogger.logError("AudioPlayerViewModel", "Failed to load audio", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to load audio: ${'$'}{e.message}"
+                    error = "Failed to load audio: ${e.message}"
                 )
             }
         }
@@ -153,7 +163,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
      * Set a playlist (queue) from file paths
      */
     fun setQueue(context: Context, filePaths: List<String>, startIndex: Int = 0, playWhenReady: Boolean = true) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
                 if (exoPlayer == null) {
@@ -183,6 +193,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
+                ErrorLogger.logError("AudioPlayerViewModel", "Error setting queue", e)
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
@@ -236,7 +247,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun startPositionUpdates() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             while (exoPlayer != null && (exoPlayer?.isPlaying == true)) {
                 _uiState.value = _uiState.value.copy(
                     currentPosition = exoPlayer?.currentPosition ?: 0L,
@@ -288,6 +299,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
             val coverUri = if (picture != null) saveCoverToCache(context, picture) else null
             ExtractedMeta(title, artist, album, coverUri)
         } catch (e: Exception) {
+            ErrorLogger.logWarning("AudioPlayerViewModel", "Failed to extract metadata for $filePath", e)
             ExtractedMeta(File(filePath).nameWithoutExtension, null, null, null)
         } finally {
             try { retriever.release() } catch (_: Exception) {}
@@ -300,6 +312,7 @@ class AudioPlayerViewModel @Inject constructor() : ViewModel() {
             FileOutputStream(file).use { it.write(bytes) }
             Uri.fromFile(file).toString()
         } catch (e: Exception) {
+            ErrorLogger.logWarning("AudioPlayerViewModel", "Failed to save cover to cache", e)
             null
         }
     }
