@@ -17,6 +17,7 @@ import com.universalmedialibrary.data.repository.APIKeyRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * Test activity for metadata fetching
@@ -67,7 +68,7 @@ class MetadataTestActivity : ComponentActivity() {
                 }
             } catch (e: Exception) {
                 println("Error fetching book metadata: ${e.message}")
-                e.printStackTrace()
+                ErrorLogger.logError("MetadataTestActivity", "Error fetching book metadata", e)
             }
         }
     }
@@ -89,7 +90,7 @@ class MetadataTestActivity : ComponentActivity() {
                 }
             } catch (e: Exception) {
                 println("Error fetching movie metadata: ${e.message}")
-                e.printStackTrace()
+                ErrorLogger.logError("MetadataTestActivity", "Error fetching movie metadata", e)
             }
         }
     }
@@ -109,7 +110,7 @@ class MetadataTestActivity : ComponentActivity() {
                 }
             } catch (e: Exception) {
                 println("Error fetching music metadata: ${e.message}")
-                e.printStackTrace()
+                ErrorLogger.logError("MetadataTestActivity", "Error fetching music metadata", e)
             }
         }
     }

@@ -13,6 +13,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * Service for converting news articles to EPUB format
@@ -88,7 +89,7 @@ class NewsToEPUBConverter @Inject constructor(
 
             outputFile
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("NewsToEPUBConverter", "Error converting news to EPUB", e)
             null
         }
     }
@@ -123,10 +124,11 @@ class NewsToEPUBConverter @Inject constructor(
                     }
                 } catch (e: Exception) {
                     // Skip failed articles
+                    ErrorLogger.logWarning("NewsToEPUBConverter", "Failed to fetch article: $link", e)
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("NewsToEPUBConverter", "Error fetching articles list", e)
         }
 
         articles

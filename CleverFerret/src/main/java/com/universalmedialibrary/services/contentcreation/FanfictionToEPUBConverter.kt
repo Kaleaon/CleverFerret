@@ -11,6 +11,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * Service for converting fanfiction stories to EPUB format
@@ -97,7 +98,7 @@ class FanfictionToEPUBConverter @Inject constructor(
 
             outputFile
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("FanfictionToEPUBConverter", "Error converting story to EPUB", e)
             null
         }
     }
@@ -132,7 +133,7 @@ class FanfictionToEPUBConverter @Inject constructor(
 
             ConversionResult(outputFile, story)
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("FanfictionToEPUBConverter", "Error converting story to EPUB (detailed)", e)
             null
         }
     }
@@ -184,7 +185,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 metadata = metadata
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching FFNet story", e)
             null
         }
     }
@@ -210,6 +211,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 content = cleanHtml(content)
             )
         } catch (e: Exception) {
+            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Error fetching FFNet chapter $chapterNumber", e)
             null
         }
     }
@@ -274,7 +276,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 metadata = metadata
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching AO3 story", e)
             null
         }
     }
@@ -314,7 +316,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 metadata = StoryMetadata()
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching Wattpad story", e)
             null
         }
     }
@@ -338,6 +340,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 content = cleanHtml(content)
             )
         } catch (e: Exception) {
+            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Error fetching Wattpad chapter $chapterNumber", e)
             null
         }
     }

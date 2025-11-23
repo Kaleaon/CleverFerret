@@ -41,11 +41,13 @@ class APISettingsViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true)
 
                 val geminiKey = apiKeyRepository.getGeminiApiKey()
+                val comicVineKey = apiKeyRepository.getAPIKeyValue("comicvine")
                 val imageGeneratorType = apiKeyRepository.getImageGeneratorType()
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiApiKey = geminiKey,
+                    comicVineApiKey = comicVineKey,
                     imageGeneratorType = imageGeneratorType,
                     geminiEnabled = FeatureFlags.ENABLE_GEMINI,
                     exoPlayerEnabled = FeatureFlags.ENABLE_EXOPLAYER,
@@ -70,6 +72,29 @@ class APISettingsViewModel @Inject constructor(
 
     fun saveLyricsApis(settings: LyricsApiSettings) {
         _uiState.value = _uiState.value.copy(statusMessage = "Lyrics API settings saved", hasError = false, lyricsApis = settings)
+    }
+
+    fun saveComicVineApiKey(apiKey: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                apiKeyRepository.saveAPIKey("comicvine", apiKey, "COMICS_MANGA", true)
+                
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    comicVineApiKey = apiKey,
+                    statusMessage = "ComicVine API key saved successfully",
+                    hasError = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Error saving ComicVine key: ${e.message}",
+                    hasError = true
+                )
+            }
+        }
     }
 
     /**
@@ -233,6 +258,7 @@ class APISettingsViewModel @Inject constructor(
 data class APISettingsUiState(
     val isLoading: Boolean = false,
     val geminiApiKey: String? = null,
+    val comicVineApiKey: String? = null,
     val geminiTestResult: String? = null,
     val imageGeneratorType: ImageGeneratorType = ImageGeneratorType.IMAGEN,
     val geminiEnabled: Boolean = true,

@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 // import org.videolan.libvlc.MediaPlayer
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * Comprehensive Video Service
@@ -67,7 +68,7 @@ class ComprehensiveVideoService @Inject constructor(
 
             true
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("ComprehensiveVideoService", "Error initializing VLC", e)
             false
         }
     }
@@ -178,7 +179,7 @@ class ComprehensiveVideoService @Inject constructor(
 
             vlcMediaPlayer
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("ComprehensiveVideoService", "Error creating VLC player", e)
             null
         }
     }
@@ -214,7 +215,7 @@ class ComprehensiveVideoService @Inject constructor(
                 frameRate = 0f
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("ComprehensiveVideoService", "Error getting video metadata", e)
             null
         }
     }
@@ -273,7 +274,7 @@ class ComprehensiveVideoService @Inject constructor(
                 releaseMethod.invoke(vlc)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("ComprehensiveVideoService", "Error releasing resources", e)
         }
         vlcMediaPlayer = null
         libVLC = null
