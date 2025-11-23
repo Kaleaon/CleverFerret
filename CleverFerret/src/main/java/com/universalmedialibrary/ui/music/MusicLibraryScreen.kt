@@ -753,14 +753,24 @@ private fun TrackGridItem(track: Track, onClick: () -> Unit) {
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
             ) {
-                Icon(
-                    Icons.Default.MusicNote,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                val albumArt = track.albumArtUri
+                if (albumArt != null) {
+                    AsyncImage(
+                        model = albumArt,
+                        contentDescription = "${track.displayAlbum} artwork",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.MusicNote,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
@@ -811,11 +821,21 @@ internal fun TrackListItem(track: Track, compact: Boolean = false, onClick: () -
                 shape = RoundedCornerShape(4.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
-                Icon(
-                    Icons.Default.MusicNote,
-                    contentDescription = null,
-                    modifier = Modifier.padding(8.dp)
-                )
+                val albumArt = track.albumArtUri
+                if (albumArt != null) {
+                    AsyncImage(
+                        model = albumArt,
+                        contentDescription = "${track.displayAlbum} artwork",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.MusicNote,
+                        contentDescription = null,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
             }
         },
         trailingContent = {

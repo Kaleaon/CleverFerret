@@ -26,6 +26,7 @@ import com.universalmedialibrary.data.local.dao.MetadataDao
 import com.universalmedialibrary.data.local.entity.*
 import com.universalmedialibrary.services.audio.WaveformGenerator
 import com.universalmedialibrary.utils.ErrorLogger
+import com.universalmedialibrary.utils.media.AudioMetadataUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.File
@@ -609,7 +610,7 @@ class MediaScannerService : Service() {
             val composer = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)
             val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
             val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toIntOrNull()
-            val sampleRate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE)?.toIntOrNull()
+            val sampleRate = AudioMetadataUtils.extractSampleRate(file)
             val trackPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER))
             val discPair = parseNumberPair(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER))
             val totalTracks = trackPair.second
