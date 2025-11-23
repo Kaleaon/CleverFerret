@@ -40,7 +40,7 @@ okhttp = "5.2.1"
   # Tooling & utilities
   desugar = "2.1.5"
   retrofit-serialization = "1.0.0"
-  jellyfin = "1.8.1"
+  jellyfin = "1.8.3"
   jcifs = "2.1.10"
   commons-compress = "1.27.1"
   xz = "1.10"
