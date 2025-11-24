@@ -905,6 +905,16 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             }
         }
 
+        composable("news_hub") {
+            com.universalmedialibrary.ui.news.NewsScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onOpenEpub = { path ->
+                    val encodedPath = java.net.URLEncoder.encode(path, "UTF-8")
+                    navController.navigate("reader_path/$encodedPath")
+                }
+            )
+        }
+        
         composable("web_comic_downloader") {
             com.universalmedialibrary.ui.comic.WebComicDownloaderScreen(
                 onNavigateBack = { navController.navigateUp() }
@@ -1791,6 +1801,13 @@ fun LibraryListScreen(
                                     onClick = {
                                         showMenu = false
                                         navController.navigate("settings/opds")
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Newsstand") },
+                                    onClick = {
+                                        showMenu = false
+                                        navController.navigate("news_hub")
                                     }
                                 )
                                 DropdownMenuItem(

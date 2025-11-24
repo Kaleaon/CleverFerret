@@ -32,7 +32,7 @@ import com.universalmedialibrary.services.webfiction.*
  * - Story browsing by tags
  * - Advanced filtering
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MetabodsTagBrowserScreen(
     navController: NavController,
@@ -288,6 +288,7 @@ private fun TagCategoriesSection(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TagCategoryCard(
     category: TagCategory,
@@ -609,20 +610,6 @@ private fun ErrorCard(error: String, onDismiss: () -> Unit) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun FlowRow(
-    modifier: Modifier = Modifier,
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    content: @Composable () -> Unit
-) {
-    // Simple flow row implementation
-    // In production, use ExperimentalLayoutApi FlowRow
-    Column(modifier = modifier, verticalArrangement = verticalArrangement) {
-        content()
     }
 }
 
