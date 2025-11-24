@@ -363,4 +363,12 @@ object DatabaseModule {
         return database.collaborativeSessionDao()
     }
 
+    /**
+     * Provides the DAO for accessing dictionary entries.
+     */
+    @Provides
+    fun provideDictionaryDao(database: AppDatabase): DictionaryDao {
+        return database.dictionaryDao()
+    }
+
 }

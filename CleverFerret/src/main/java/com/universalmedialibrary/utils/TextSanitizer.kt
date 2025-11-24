@@ -1,8 +1,10 @@
 package com.universalmedialibrary.utils
 
+import com.universalmedialibrary.data.repository.DictionaryRepository
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 /**
  * Utility for cleaning up text content in downloaded stories.
@@ -10,12 +12,16 @@ import javax.inject.Singleton
  * - Markdown artifacts
  * - Punctuation standardization (Smart quotes, ellipses)
  * - Common typo correction (safe list)
+ * - Custom Dictionary support (Whitelists and Replacements)
  * - Whitespace cleanup
  */
 @Singleton
-class TextSanitizer @Inject constructor() {
+class TextSanitizer @Inject constructor(
+    private val dictionaryRepository: DictionaryRepository
+) {
 
-    private val fictionalTerms = setOf(
+    // Base fictional terms (hardcoded fallback)
+    private val baseFictionalTerms = setOf(
         "Axiom", "Cannidor", "Centris", "Nagasha", "Sonir", "Tret", "Lydris", 
         "Metak", "Undaunted", "Dauntless", "Apuk", "Gravia", "Phosa", "Slob", 
         "Yauya", "Zullt", "Porg", "Kohb", "Gorg", "Horchka"
@@ -35,10 +41,16 @@ class TextSanitizer @Inject constructor() {
         "towrads" to "towards"
     )
 
-    fun sanitize(htmlContent: String): String {
+    /**
+     * Sanitize HTML content using global rules and specific book dictionary.
+     * 
+     * @param htmlContent The raw HTML content.
+     * @param bookId Optional ID of the book to apply specific dictionary rules.
+     */
+    fun sanitize(htmlContent: String, bookId: Long? = null): String {
         var text = htmlContent
 
-        // 1. Standardize Punctuation
+        // 1. Standardize Punctuation (Safe Regex)
         text = text.replace("...", "…") // Standard ellipsis
         text = text.replace("..", "…")  // Lazy ellipsis
         text = text.replace(" ,", ",")  // Space before comma
@@ -46,60 +58,76 @@ class TextSanitizer @Inject constructor() {
         text = text.replace(" !", "!")
         text = text.replace(" ?", "?")
 
-        // Smart Quotes (Simple heuristic)
-        // Convert generic straight quotes to curly quotes where possible
-        // This is complex in HTML tags, so we must be careful not to break tags.
-        // For now, we skip regex replacement of quotes to avoid breaking <a href="...">
-        // A safer approach is to replace only text outside tags, but that requires parsing.
-        // We will skip smart quote conversion for now to ensure HTML safety.
-
         // 2. Whitespace Cleanup
-        text = text.replace(Regex("\\s+"), " ") // Collapse multiple spaces (in HTML this doesn't matter much but good for source)
-        text = text.replace(Regex("\\s<"), "<") // Remove space before tag start if accidental
-        
-        // 3. Typo Correction (Case-insensitive, whole word only)
-        // We process text content, avoiding HTML tags.
-        // For a simple robust solution without full HTML parsing overhead for every word:
-        // We will rely on the fact that typos usually don't appear in HTML tags (class names, etc).
-        // But they might.
-        // Ideally, we iterate over text nodes.
-        
-        // Since we are dealing with HTML, regex replacement on the raw string is risky.
-        // We should only sanitize TEXT content.
-        
+        text = text.replace(Regex("\\s+"), " ") // Collapse multiple spaces
+        text = text.replace(Regex("\\s<"), "<") // Remove space before tag start
+
+        // 3. Apply Custom Dictionary Replacements (Global + Book Specific)
+        // Note: runBlocking is used here because sanitization is typically run in background IO context
+        // If running on UI thread, this is bad, but downloaders run in IO.
+        if (bookId != null) {
+            val dictionary = runBlocking { dictionaryRepository.getApplicableDictionary(bookId) }
+            
+            // Sort replacements by length descending to avoid partial matches (e.g. replacing "cat" inside "catapult")
+            // Actually, we use word boundaries \b so length order is less critical but still good practice.
+            val replacements = dictionary.filter { it.replacement != null }
+            
+            replacements.forEach { entry ->
+                val pattern = Pattern.compile("\\b${Pattern.quote(entry.word)}\\b", Pattern.CASE_INSENSITIVE)
+                val matcher = pattern.matcher(text)
+                val sb = StringBuffer()
+                while (matcher.find()) {
+                    // Preserve capitalization of the replacement if source was capitalized
+                    val found = matcher.group()
+                    val replacement = entry.replacement!!
+                    
+                    val finalReplacement = if (found[0].isUpperCase()) {
+                        replacement.replaceFirstChar { it.uppercase() }
+                    } else {
+                        replacement
+                    }
+                    matcher.appendReplacement(sb, finalReplacement)
+                }
+                matcher.appendTail(sb)
+                text = sb.toString()
+            }
+        }
+
         return text
     }
 
     /**
      * Sanitize raw text (before HTML conversion) or extracted text nodes.
      */
-    fun sanitizeText(text: String): String {
+    fun sanitizeText(text: String, bookId: Long? = null): String {
         var clean = text
 
         // Whitespace
-        clean = clean.replace(Regex("[ \\t]+"), " ") // Collapse spaces/tabs
+        clean = clean.replace(Regex("[ \\t]+"), " ")
         
         // Punctuation
         clean = clean.replace("...", "…")
         clean = clean.replace("..", "…")
         
-        // Smart Quotes (Safe here)
-        clean = clean.replace("\"", "”") // Default to closing/right
-               .replace(Regex("(\\s)\""), "$1“") // Open if preceded by space
-               .replace(Regex("^\""), "“") // Open if start of line
+        // Smart Quotes
+        clean = clean.replace("\"", "”")
+               .replace(Regex("(\\s)\""), "$1“")
+               .replace(Regex("^\""), "“")
                
         clean = clean.replace("'", "’")
                .replace(Regex("(\\s)'"), "$1‘")
                .replace(Regex("^'"), "‘")
 
-        // Typo Correction
+        // Common Typo Correction
         commonTypos.forEach { (typo, correction) ->
-            // \b matches word boundary
+            // Skip if this typo is whitelisted in the custom dictionary
+            // (Optimization: Check whitelist once instead of per typo?)
+            // For now, we assume commonTypos are always errors unless overridden.
+            
             val pattern = Pattern.compile("\\b$typo\\b", Pattern.CASE_INSENSITIVE)
             val matcher = pattern.matcher(clean)
             val sb = StringBuffer()
             while (matcher.find()) {
-                // Preserve casing
                 val found = matcher.group()
                 val replacement = if (found[0].isUpperCase()) {
                     correction.replaceFirstChar { it.uppercase() }
@@ -111,7 +139,36 @@ class TextSanitizer @Inject constructor() {
             matcher.appendTail(sb)
             clean = sb.toString()
         }
+        
+        // Apply Custom Replacements
+        if (bookId != null) {
+            val dictionary = runBlocking { dictionaryRepository.getApplicableDictionary(bookId) }
+            val replacements = dictionary.filter { it.replacement != null }
+            
+            replacements.forEach { entry ->
+                val pattern = Pattern.compile("\\b${Pattern.quote(entry.word)}\\b", Pattern.CASE_INSENSITIVE)
+                val matcher = pattern.matcher(clean)
+                val sb = StringBuffer()
+                while (matcher.find()) {
+                    val found = matcher.group()
+                    val replacement = entry.replacement!!
+                    val finalReplacement = if (found[0].isUpperCase()) {
+                        replacement.replaceFirstChar { it.uppercase() }
+                    } else {
+                        replacement
+                    }
+                    matcher.appendReplacement(sb, finalReplacement)
+                }
+                matcher.appendTail(sb)
+                clean = sb.toString()
+            }
+        }
 
         return clean
     }
+    
+    /**
+     * Helper to get default whitelist for initial setup
+     */
+    fun getBaseFictionalTerms(): Set<String> = baseFictionalTerms
 }

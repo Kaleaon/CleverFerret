@@ -168,10 +168,13 @@ import com.universalmedialibrary.data.Tag
         CollaborativeSession::class,
         SessionClient::class,
         SessionQueueItem::class,
-        SessionVote::class
+        SessionVote::class,
+
+        // Dictionary
+        DictionaryEntry::class
 
     ],
-      version = 40,
+    version = 41,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -180,13 +183,13 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Core DAOs
 
-      abstract fun libraryDao(): LibraryDao
-      abstract fun libraryScanSettingsDao(): LibraryScanSettingsDao
+    abstract fun libraryDao(): LibraryDao
+    abstract fun libraryScanSettingsDao(): LibraryScanSettingsDao
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
-      abstract fun metadataDao(): MetadataDao
-      abstract fun extendedMetadataDao(): ExtendedMetadataDao
-      abstract fun listenHistoryDao(): ListenHistoryDao
+    abstract fun metadataDao(): MetadataDao
+    abstract fun extendedMetadataDao(): ExtendedMetadataDao
+    abstract fun listenHistoryDao(): ListenHistoryDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun readingProgressDao(): ReadingProgressDao
     abstract fun playlistDao(): PlaylistDao
@@ -199,6 +202,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun jellyfinServerDao(): JellyfinServerDao
     abstract fun yaaccServerDao(): YaaccServerDao
     abstract fun sharedLinkDao(): SharedLinkDao
+    abstract fun dictionaryDao(): DictionaryDao
 
     // Podcast DAOs
     abstract fun podcastDao(): PodcastDao
