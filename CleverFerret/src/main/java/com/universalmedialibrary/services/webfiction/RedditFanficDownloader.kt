@@ -157,9 +157,12 @@ class RedditFanficDownloader {
         val content = decodeSelftextHtml(selftextHtml)
             ?: convertMarkdownToHtml(selftext)
             ?: downloadPostBody(url, author)
-            ?: "<p>Failed to fetch content from ${Entities.escape(url)}.</p>"
+            ?: "<p class=\"ps2\">Failed to fetch content from ${Entities.escape(url)}.</p>"
 
-        return wrapChapterHtml(url, author, createdUtc, content.ifBlank { "<p>No content available.</p>" })
+        // Wrap content in styled paragraphs
+        val styledContent = content.replace("<p>", "<p class=\"ps2\">")
+        
+        return wrapChapterHtml(url, author, createdUtc, styledContent)
     }
 
     private fun decodeSelftextHtml(raw: String?): String? {
@@ -181,7 +184,7 @@ class RedditFanficDownloader {
             .split("\n\n")
             .filter { it.isNotBlank() }
             .joinToString(separator = "") { paragraph ->
-                "<p>${paragraph.replace("\n", "<br/>")}</p>"
+                "<p class=\"ps2\">${paragraph.replace("\n", "<br/>")}</p>"
             }
 
         return paragraphs.ifBlank { null }
@@ -240,27 +243,7 @@ class RedditFanficDownloader {
     }
 
     private fun wrapChapterHtml(url: String, author: String, createdUtc: Long, content: String): String {
-        val safeUrl = Entities.escape(url)
-        val metaBuilder = buildString {
-            append("""<p><strong>Source:</strong> <a href="$safeUrl">$safeUrl</a></p>""")
-            if (author.isNotBlank()) {
-                append("""<p><strong>Author:</strong> ${Entities.escape(author)}</p>""")
-            }
-            formatTimestamp(createdUtc)?.let { formatted ->
-                append("""<p><strong>Posted:</strong> $formatted</p>""")
-            }
-        }
-
-        return """
-        <article class="reddit-chapter">
-          <div class="chapter-meta">
-            $metaBuilder
-          </div>
-          <div class="chapter-content">
-            $content
-          </div>
-        </article>
-        """.trimIndent()
+        return content // Content is already styled
     }
 
     private fun formatTimestamp(createdUtc: Long): String? {
