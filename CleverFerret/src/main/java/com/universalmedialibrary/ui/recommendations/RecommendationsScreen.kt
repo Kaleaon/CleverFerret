@@ -412,6 +412,29 @@ private fun RecommendationOptionsBottomSheet(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
+            // TasteDive Recommendations
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("TasteDive Discovery")
+                        Text(
+                            "Discover similar items from the web",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = tempOptions.includeTasteDive,
+                        onCheckedChange = { tempOptions = tempOptions.copy(includeTasteDive = it) }
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             // Max Results
             item {
                 Text("Max Results: ${tempOptions.limit}", style = MaterialTheme.typography.titleSmall)
@@ -446,6 +469,7 @@ private fun formatSourceTitle(source: String): String {
         "history_based" -> "Continue Your Journey"
         "genre_based" -> "Popular in Your Genres"
         "ai_powered" -> "AI Recommendations"
+        "tastedive" -> "Discovery from TasteDive"
         else -> source.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase(Locale.getDefault()) } }
     }
 }
@@ -456,6 +480,7 @@ private fun formatSourceSubtitle(source: String, count: Int): String {
         "history_based" -> "From series and authors you're reading"
         "genre_based" -> "Trending in genres you like"
         "ai_powered" -> "Powered by AI • $count suggestions"
+        "tastedive" -> "Similar items found on the web"
         else -> "$count recommendations"
     }
 }
@@ -465,5 +490,6 @@ private fun getSourceIcon(source: String) = when {
     source.contains("Journey") -> Icons.Default.AutoStories
     source.contains("Popular") -> Icons.Default.TrendingUp
     source.contains("AI") -> Icons.Default.AutoAwesome
+    source.contains("TasteDive") || source.contains("Discovery") -> Icons.Default.Public
     else -> Icons.Default.Recommend
 }
