@@ -104,6 +104,7 @@ class RedditFanficDownloader {
                 ?: 0
 
             val html = buildChapterHtml(
+                title = title, // Pass title for Arc extraction
                 url = url,
                 author = postAuthor,
                 createdUtc = createdUtc,
@@ -148,6 +149,7 @@ class RedditFanficDownloader {
     }
 
     private fun buildChapterHtml(
+        title: String,
         url: String,
         author: String,
         createdUtc: Long,
@@ -159,21 +161,46 @@ class RedditFanficDownloader {
             ?: downloadPostBody(url, author)
             ?: "<p class=\"ps2\">Failed to fetch content from ${Entities.escape(url)}.</p>"
 
-        // Wrap content in styled paragraphs
-        // Add specific heuristic to check if first paragraph is actually a title
         var processedContent = content.replace("<p>", "<p class=\"ps2\">")
-        
-        // Attempt to find title in the first paragraph if it's bold or short
         val doc = Jsoup.parseBodyFragment(processedContent)
-        val firstP = doc.selectFirst("p.ps2")
-        if (firstP != null) {
-            val text = firstP.text()
-            // Heuristic: Short text (< 50 chars) and possibly bold/strong
-            if (text.length < 50 && (firstP.select("strong").isNotEmpty() || firstP.select("b").isNotEmpty())) {
-                firstP.tagName("h1").attr("class", "ps1").text(text)
-                processedContent = doc.body().html()
+
+        // 1. Inject Arc Title if present in Post Title
+        // Example: "OOCS, Into A Wider Galaxy, Part 514" -> "Into A Wider Galaxy"
+        val arcRegex = Regex("(?i)(?:OOCS|Out of Cruel Space)[^a-z0-9]*(.*?)[\s,:-]*(?:Part|Chapter|Ch)[^0-9]*([0-9]+)")
+        val match = arcRegex.find(title)
+        if (match != null) {
+            val arcTitle = match.groupValues[1].trim()
+            if (arcTitle.isNotEmpty() && !arcTitle.equals("Part", ignoreCase = true)) {
+                // Inject Arc Title as H2 at the very top
+                doc.body().prepend("<h2 class=\"ps1\">$arcTitle</h2>")
             }
         }
+
+        // 2. Find Chapter Title in Body (skipping navigation links)
+        // Look for first non-link paragraph that is short and title-like
+        val paragraphs = doc.select("p.ps2")
+        for (p in paragraphs.take(5)) { // Check first 5 paragraphs
+            val text = p.text().trim()
+            
+            // Skip if it's a navigation link (contains First/Next/Prev/Last/Wiki)
+            if (p.select("a").isNotEmpty() && 
+                (text.contains("First", true) || text.contains("Next", true) || text.contains("Previous", true) || text.contains("Last", true))) {
+                continue
+            }
+            
+            // Skip empty lines
+            if (text.isBlank()) continue
+
+            // Candidate check: Short (< 100 chars), no starting quote
+            if (text.length < 100 && !text.startsWith("\"") && !text.startsWith("“")) {
+                // Convert to Title
+                p.tagName("h1").attr("class", "ps1").text(text)
+                // Stop after finding the first title
+                break 
+            }
+        }
+        
+        processedContent = doc.body().html()
 
         return wrapChapterHtml(url, author, createdUtc, processedContent)
     }
@@ -255,12 +282,7 @@ class RedditFanficDownloader {
                 } else ""
 
                 if (!postContent.isNullOrBlank()) {
-                    // If we found a title in comments, prepend it (it's in commentsHtml)
-                    // But wait, comments usually come AFTER.
-                    // If the user says "Check creator comment below selfpost for chapter titles", 
-                    // we should look at the commentsHtml string we just built.
-                    
-                    // If commentsHtml starts with <h1 class='ps1'>, we should put that BEFORE postContent.
+                    // If commentsHtml starts with <h1 class='ps1'>, put that BEFORE postContent.
                     if (commentsHtml.startsWith("<h1 class='ps1'>")) {
                         val endOfTitle = commentsHtml.indexOf("</h1>") + 5
                         val titlePart = commentsHtml.substring(0, endOfTitle)
