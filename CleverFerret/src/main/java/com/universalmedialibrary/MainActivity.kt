@@ -650,12 +650,43 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onNavigateToSeries = { series -> 
-                    // TODO: Implement series navigation
+                    val encodedTitle = java.net.URLEncoder.encode(series, "UTF-8")
+                    navController.navigate("otr_series/$encodedTitle")
                 },
                 onNavigateToEpisode = { episodeId ->
-                    // TODO: Implement episode navigation
+                    navController.navigate("otr_player/$episodeId")
                 }
             )
+        }
+        
+        composable(
+            "otr_series/{seriesTitle}",
+            arguments = listOf(navArgument("seriesTitle") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val seriesTitle = backStackEntry.arguments?.getString("seriesTitle") ?: ""
+            val decodedTitle = java.net.URLDecoder.decode(seriesTitle, "UTF-8")
+            
+            com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioSeriesDetailScreen(
+                seriesTitle = decodedTitle,
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { episodeId ->
+                    navController.navigate("otr_player/$episodeId")
+                }
+            )
+        }
+        
+        composable(
+            "otr_player/{episodeId}",
+            arguments = listOf(navArgument("episodeId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val episodeId = backStackEntry.arguments?.getLong("episodeId") ?: -1L
+            
+            if (episodeId != -1L) {
+                com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioPlayerLauncher(
+                    episodeId = episodeId,
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
         }
         
         composable("fm_radio") {
