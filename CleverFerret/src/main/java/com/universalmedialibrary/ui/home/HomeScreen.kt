@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -178,7 +179,7 @@ fun SearchBarButton(onClick: () -> Unit) {
             .height(56.dp)
             .padding(end = 64.dp) // Space for settings gear
             .clickable(onClick = onClick),
-        shape = if (LocalIsAncientArchitect.current) AncientArchitectShapes.cutSmall else RoundedCornerShape(28.dp),
+        shape = if (LocalIsAncientArchitect.current) AncientArchitectShapes.beveledSmall else RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         tonalElevation = 2.dp
     ) {

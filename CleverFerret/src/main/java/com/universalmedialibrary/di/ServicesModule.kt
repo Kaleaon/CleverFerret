@@ -14,6 +14,7 @@ import com.universalmedialibrary.services.webfiction.RedditFanficDownloader
 import com.universalmedialibrary.services.reading.AnnotationExportService
 import com.universalmedialibrary.services.reading.BookSourceService
 import com.universalmedialibrary.services.reading.ReadingAnalyticsService
+import com.universalmedialibrary.services.ai.AIServiceManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -101,8 +102,9 @@ object ServicesModule {
     @Provides
     @Singleton
     fun provideReadingAnalyticsService(
-        readingAnalyticsDao: ReadingAnalyticsDao
-    ): ReadingAnalyticsService = ReadingAnalyticsService(readingAnalyticsDao)
+        readingAnalyticsDao: ReadingAnalyticsDao,
+        aiServiceManager: AIServiceManager
+    ): ReadingAnalyticsService = ReadingAnalyticsService(readingAnalyticsDao, aiServiceManager)
 
     @Provides
     @Singleton

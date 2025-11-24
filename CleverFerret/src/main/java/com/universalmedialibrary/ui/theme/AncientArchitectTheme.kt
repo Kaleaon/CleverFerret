@@ -334,13 +334,13 @@ fun AncientArchitectTheme(
         MaterialTheme(
             colorScheme = materialColorScheme,
             typography = AncientArchitectTypography,
-            shapes = Shapes(
-                extraSmall = AncientArchitectShapes.beveledSmall,
-                small = AncientArchitectShapes.beveledMedium,
-                medium = AncientArchitectShapes.steppedMedium,
-                large = AncientArchitectShapes.steppedLarge,
-                extraLarge = AncientArchitectShapes.steppedLarge
-            ),
+            // shapes = Shapes(
+            //     extraSmall = AncientArchitectShapes.beveledSmall,
+            //     small = AncientArchitectShapes.beveledMedium,
+            //     medium = AncientArchitectShapes.steppedMedium,
+            //     large = AncientArchitectShapes.steppedLarge,
+            //     extraLarge = AncientArchitectShapes.steppedLarge
+            // ),
             content = content
         )
     }
