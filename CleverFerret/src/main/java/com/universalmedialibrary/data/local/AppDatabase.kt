@@ -174,7 +174,7 @@ import com.universalmedialibrary.data.Tag
         DictionaryEntry::class
 
     ],
-    version = 41,
+    version = 42,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)

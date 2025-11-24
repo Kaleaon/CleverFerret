@@ -26,7 +26,8 @@ class RadioDnsService @Inject constructor(
         val name: String,
         val shortName: String? = null,
         val logoUrl: String? = null,
-        val description: String? = null
+        val description: String? = null,
+        val streamUrl: String? = null
     )
 
     /**
@@ -112,12 +113,23 @@ class RadioDnsService @Inject constructor(
             // Find Description
             val descMatcher = Pattern.compile("<description[^>]*>([^<]+)</description>").matcher(xml)
             val description = if (descMatcher.find()) descMatcher.group(1) else null
+
+            // Find IP Bearer (Stream URL)
+            // Look for <bearer> with id starting with http/https
+            // <bearer id="http://example.com/stream" cost="10" mimeType="audio/mpeg"/>
+            // OR for older specs, might be in <onDemand> or similar, but Hybrid Radio uses bearers.
+            val bearerMatcher = Pattern.compile("<bearer[^>]*id=\"(http[s]?://[^\"]+)\"[^>]*>").matcher(xml)
+            var streamUrl: String? = null
+            if (bearerMatcher.find()) {
+                streamUrl = bearerMatcher.group(1)
+            }
             
             return StationMetadata(
                 name = name,
                 shortName = name, // Simplify
                 logoUrl = logoUrl,
-                description = description
+                description = description,
+                streamUrl = streamUrl
             )
             
         } catch (e: Exception) {
