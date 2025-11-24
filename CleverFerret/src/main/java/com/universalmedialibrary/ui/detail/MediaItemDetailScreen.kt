@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.universalmedialibrary.data.local.entity.UnifiedTag
 import java.text.DecimalFormat
 import kotlin.math.log10
 import kotlin.math.pow
@@ -32,7 +33,7 @@ import kotlin.math.pow
  * Detail screen showing comprehensive information about a media item
  * including metadata, progress, and actions.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MediaItemDetailScreen(
     itemId: Long,
@@ -73,6 +74,19 @@ fun MediaItemDetailScreen(
                             )
                         } else {
                             Icon(Icons.Default.CloudDownload, contentDescription = "Fetch Metadata")
+                        }
+                    }
+                    IconButton(
+                        onClick = { viewModel.suggestTags() },
+                        enabled = !uiState.isSuggestingTags
+                    ) {
+                        if (uiState.isSuggestingTags) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = "AI Tag Suggestion")
                         }
                     }
                     IconButton(onClick = { viewModel.toggleFavorite() }) {
@@ -164,6 +178,12 @@ fun MediaItemDetailScreen(
                         uiState.metadataFetchError?.let { error ->
                             ErrorMessage(message = error, onDismiss = { viewModel.clearMetadataFetchStatus() })
                         }
+
+                        // Tag suggestion error
+                        uiState.tagSuggestionError?.let { error ->
+                            ErrorMessage(message = error, onDismiss = { viewModel.dismissTagSuggestions() })
+                        }
+
                         // Cover/Thumbnail Section
                         CoverSection(
                             coverPath = uiState.metadata?.coverImagePath,
@@ -177,6 +197,9 @@ fun MediaItemDetailScreen(
                             mediaType = uiState.mediaItem?.mediaType ?: "UNKNOWN",
                             rating = uiState.metadata?.userRating
                         )
+
+                        // Tags Section
+                        TagsSection(tags = uiState.tags)
 
                         // Progress Section
                         uiState.progress?.let { progress ->
@@ -222,6 +245,111 @@ fun MediaItemDetailScreen(
             }
         )
     }
+
+    // Tag Suggestion Dialog
+    if (uiState.suggestedTags.isNotEmpty()) {
+        TagSuggestionDialog(
+            suggestedTags = uiState.suggestedTags,
+            onDismiss = { viewModel.dismissTagSuggestions() },
+            onSave = { selectedTags -> viewModel.saveSuggestedTags(selectedTags) }
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TagsSection(tags: List<UnifiedTag>) {
+    if (tags.isNotEmpty()) {
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Tags",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    tags.forEach { tag ->
+                        Chip(text = tag.name)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TagSuggestionDialog(
+    suggestedTags: List<String>,
+    onDismiss: () -> Unit,
+    onSave: (List<String>) -> Unit
+) {
+    val selectedTags = remember { mutableStateListOf<String>().apply { addAll(suggestedTags) } }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                Text("AI Suggested Tags")
+            }
+        },
+        text = {
+            Column {
+                Text("Select tags to add:", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyColumn(
+                    modifier = Modifier.heightIn(max = 300.dp)
+                ) {
+                    items(suggestedTags) { tag ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    if (selectedTags.contains(tag)) {
+                                        selectedTags.remove(tag)
+                                    } else {
+                                        selectedTags.add(tag)
+                                    }
+                                }
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Checkbox(
+                                checked = selectedTags.contains(tag),
+                                onCheckedChange = { checked ->
+                                    if (checked) selectedTags.add(tag) else selectedTags.remove(tag)
+                                }
+                            )
+                            Text(
+                                text = tag,
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSave(selectedTags) }) {
+                Text("Add Selected")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
