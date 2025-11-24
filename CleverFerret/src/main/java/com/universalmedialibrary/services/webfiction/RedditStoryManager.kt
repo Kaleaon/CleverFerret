@@ -64,6 +64,9 @@ class RedditStoryManager @Inject constructor(
 
     private val downloader = RedditFanficDownloader()
     private val epubCreator = SimpleEpubCreator()
+    
+    @Inject
+    lateinit var textSanitizer: com.universalmedialibrary.utils.TextSanitizer
 
     /**
      * Download a Reddit series and add it to the library
@@ -363,13 +366,16 @@ class RedditStoryManager @Inject constructor(
             val outputFile = File(outputDir, "${safeFileName}_$timestamp.epub")
 
             val chapters = series.chapters.mapIndexed { index, ch ->
+                // Sanitize content
+                val cleanContent = textSanitizer.sanitize(ch.html)
+                
                 SimpleEpubCreator.Chapter(
                     title = if (ch.number > 0) {
                         "Chapter ${ch.number}" // Clean title for TOC
                     } else {
                         ch.title
                     },
-                    content = ch.html,
+                    content = cleanContent,
                     id = "chapter_${ch.number}_${index}"
                 )
             }

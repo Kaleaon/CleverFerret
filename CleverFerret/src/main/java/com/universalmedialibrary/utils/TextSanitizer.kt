@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
  * - Markdown artifacts
  * - Punctuation standardization (Smart quotes, ellipses)
  * - Common typo correction (safe list)
+ * - Fictional typo correction (OOCS specific)
  * - Custom Dictionary support (Whitelists and Replacements)
  * - Whitespace cleanup
  * - Verification against online dictionary
@@ -23,11 +24,24 @@ class TextSanitizer @Inject constructor(
     private val dictionaryService: DictionaryService
 ) {
 
-    // Base fictional terms (hardcoded fallback)
+    // Base fictional terms (hardcoded whitelist fallback)
     private val baseFictionalTerms = setOf(
         "Axiom", "Cannidor", "Centris", "Nagasha", "Sonir", "Tret", "Lydris", 
         "Metak", "Undaunted", "Dauntless", "Apuk", "Gravia", "Phosa", "Slob", 
         "Yauya", "Zullt", "Porg", "Kohb", "Gorg", "Horchka"
+    )
+
+    // Common Fictional Typos Correction Map
+    // These are specific to "Out of Cruel Space" and similar HFY stories where users might
+    // consistently misspell certain made-up terms.
+    private val fictionalTypos = mapOf(
+        "camidor" to "Cannidor",
+        "axium" to "Axiom",
+        "centis" to "Centris",
+        "nagasha" to "Nagasha", // Capitalization
+        "sonir" to "Sonir",     // Capitalization
+        "tret" to "Tret",       // Capitalization
+        "metak" to "Metak"      // Capitalization
     )
 
     // Safe, common English typos that are almost always errors
@@ -65,7 +79,28 @@ class TextSanitizer @Inject constructor(
         text = text.replace(Regex("\\s+"), " ") // Collapse multiple spaces
         text = text.replace(Regex("\\s<"), "<") // Remove space before tag start
 
-        // 3. Apply Custom Dictionary Replacements (Global + Book Specific)
+        // 3. Apply Typos (Common + Fictional)
+        // Merged list of standard typos and fictional specific typos
+        val allTypos = commonTypos + fictionalTypos
+        
+        allTypos.forEach { (typo, correction) ->
+            val pattern = Pattern.compile("\\b$typo\\b", Pattern.CASE_INSENSITIVE)
+            val matcher = pattern.matcher(text)
+            val sb = StringBuffer()
+            while (matcher.find()) {
+                val found = matcher.group()
+                val replacement = if (found[0].isUpperCase()) {
+                    correction.replaceFirstChar { it.uppercase() }
+                } else {
+                    correction
+                }
+                matcher.appendReplacement(sb, replacement)
+            }
+            matcher.appendTail(sb)
+            text = sb.toString()
+        }
+
+        // 4. Apply Custom Dictionary Replacements (Global + Book Specific)
         if (bookId != null) {
             val dictionary = runBlocking { dictionaryRepository.getApplicableDictionary(bookId) }
             val replacements = dictionary.filter { it.replacement != null }
@@ -114,8 +149,9 @@ class TextSanitizer @Inject constructor(
                .replace(Regex("(\\s)'"), "$1‘")
                .replace(Regex("^'"), "‘")
 
-        // Common Typo Correction
-        commonTypos.forEach { (typo, correction) ->
+        // Apply Typos (Common + Fictional)
+        val allTypos = commonTypos + fictionalTypos
+        allTypos.forEach { (typo, correction) ->
             val pattern = Pattern.compile("\\b$typo\\b", Pattern.CASE_INSENSITIVE)
             val matcher = pattern.matcher(clean)
             val sb = StringBuffer()
@@ -166,6 +202,7 @@ class TextSanitizer @Inject constructor(
     suspend fun verifyWord(word: String, bookId: Long? = null): Boolean {
         // 1. Check basic fictional terms
         if (baseFictionalTerms.contains(word)) return true
+        if (fictionalTypos.containsValue(word)) return true // It's a valid correction term
         
         // 2. Check custom dictionary
         if (bookId != null) {
