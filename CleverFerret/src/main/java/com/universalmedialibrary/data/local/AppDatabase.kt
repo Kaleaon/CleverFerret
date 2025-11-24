@@ -35,6 +35,7 @@ import com.universalmedialibrary.data.Tag
         MetadataMovie::class,
           MetadataMusicTrack::class,
           ListenHistoryEntry::class,
+          ExtendedMetadata::class,
 
         // Essential system entities
         APIKey::class,
@@ -170,7 +171,7 @@ import com.universalmedialibrary.data.Tag
         SessionVote::class
 
     ],
-      version = 39,
+      version = 40,
     exportSchema = false
 )
 @TypeConverters(Converters::class, AudioChapterListConverter::class, AmbientSoundConverters::class, AudioPackConverters::class, CollaborativeSessionConverters::class)
@@ -184,6 +185,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun apiKeyDao(): APIKeyDao
     abstract fun mediaItemDao(): MediaItemDao
       abstract fun metadataDao(): MetadataDao
+      abstract fun extendedMetadataDao(): ExtendedMetadataDao
       abstract fun listenHistoryDao(): ListenHistoryDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun readingProgressDao(): ReadingProgressDao
