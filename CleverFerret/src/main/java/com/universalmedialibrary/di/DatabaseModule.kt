@@ -208,6 +208,11 @@ object DatabaseModule {
         return database.maintenanceChangeDao()
     }
 
+    @Provides
+    fun provideExtendedMetadataDao(database: AppDatabase): ExtendedMetadataDao {
+        return database.extendedMetadataDao()
+    }
+
     // Metadata Fetch Repository
     @Provides
     @Singleton

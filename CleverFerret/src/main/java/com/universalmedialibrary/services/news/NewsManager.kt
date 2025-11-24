@@ -8,6 +8,7 @@ import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.services.contentcreation.SimpleEpubCreator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.xmlpull.v1.XmlPullParser
@@ -209,12 +210,13 @@ class NewsManager @Inject constructor(
 
     private suspend fun addToLibrary(file: File, recipe: NewsRecipe, metadata: SimpleEpubCreator.EpubMetadata) {
         // Find or create "News" library
-        val library = libraryRepository.getLibraryByName("News") ?: run {
+        val library = libraryRepository.getLibrariesByType("BOOK").first().find { it.name == "News" } ?: run {
             val libId = libraryRepository.createLibrary(
                 com.universalmedialibrary.data.local.entity.Library(
                     name = "News",
                     path = file.parent ?: "",
-                    type = "BOOK"
+                    type = "BOOK",
+                    dateModified = System.currentTimeMillis()
                 )
             )
             libraryRepository.getLibraryById(libId)!!
@@ -231,7 +233,10 @@ class NewsManager @Inject constructor(
             mimeType = "application/epub+zip",
             dateAdded = System.currentTimeMillis(),
             lastModified = System.currentTimeMillis(),
-            isAvailable = true
+            lastScanned = System.currentTimeMillis(),
+            isAvailable = true,
+            hasMetadata = true,
+            hasThumbnail = false
         )
         
         val itemId = mediaRepository.createMediaItem(mediaItem)
@@ -240,9 +245,8 @@ class NewsManager @Inject constructor(
         val meta = MetadataCommon(
             itemId = itemId,
             title = metadata.title,
-            author = metadata.author,
-            description = metadata.description,
-            date = metadata.date
+            summary = metadata.description,
+            lastUpdated = System.currentTimeMillis()
         )
         mediaRepository.saveCommonMetadata(meta)
     }
