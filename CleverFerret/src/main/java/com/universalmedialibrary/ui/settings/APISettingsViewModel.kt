@@ -48,6 +48,13 @@ class APISettingsViewModel @Inject constructor(
                 val googleBooksKey = apiKeyRepository.getAPIKeyValue("google_books")
                 val openLibraryKey = apiKeyRepository.getAPIKeyValue("open_library")
                 
+                // New keys
+                val goodreadsKey = apiKeyRepository.getAPIKeyValue("goodreads")
+                val nytKey = apiKeyRepository.getAPIKeyValue("nyt")
+                val tvdbKey = apiKeyRepository.getAPIKeyValue("tvdb")
+                val omdbKey = apiKeyRepository.getAPIKeyValue("omdb")
+                val discogsKey = apiKeyRepository.getAPIKeyValue("discogs_token")
+                
                 // Podcast
                 val podcastIndexKey = apiKeyRepository.getAPIKeyValue("podcast_index")
                 val itunesKey = apiKeyRepository.getAPIKeyValue("itunes")
@@ -67,6 +74,11 @@ class APISettingsViewModel @Inject constructor(
                     musicBrainzApiKey = musicBrainzKey,
                     googleBooksApiKey = googleBooksKey,
                     openLibraryApiKey = openLibraryKey,
+                    goodreadsApiKey = goodreadsKey,
+                    nytApiKey = nytKey,
+                    tvdbApiKey = tvdbKey,
+                    omdbApiKey = omdbKey,
+                    discogsApiKey = discogsKey,
                     podcastIndexApiKey = podcastIndexKey,
                     itunesApiKey = itunesKey,
                     listenNotesApiKey = listenNotesKey,
@@ -112,6 +124,11 @@ class APISettingsViewModel @Inject constructor(
                     "musicbrainz" -> _uiState.value.copy(musicBrainzApiKey = apiKey)
                     "google_books" -> _uiState.value.copy(googleBooksApiKey = apiKey)
                     "open_library" -> _uiState.value.copy(openLibraryApiKey = apiKey)
+                    "goodreads" -> _uiState.value.copy(goodreadsApiKey = apiKey)
+                    "nyt" -> _uiState.value.copy(nytApiKey = apiKey)
+                    "tvdb" -> _uiState.value.copy(tvdbApiKey = apiKey)
+                    "omdb" -> _uiState.value.copy(omdbApiKey = apiKey)
+                    "discogs_token" -> _uiState.value.copy(discogsApiKey = apiKey)
                     "podcast_index" -> _uiState.value.copy(podcastIndexApiKey = apiKey)
                     "itunes" -> _uiState.value.copy(itunesApiKey = apiKey)
                     "listen_notes" -> _uiState.value.copy(listenNotesApiKey = apiKey)
@@ -308,6 +325,12 @@ data class APISettingsUiState(
     val musicBrainzApiKey: String? = null,
     val googleBooksApiKey: String? = null,
     val openLibraryApiKey: String? = null,
+    val goodreadsApiKey: String? = null,
+    val nytApiKey: String? = null,
+    val tvdbApiKey: String? = null,
+    val omdbApiKey: String? = null,
+    val discogsApiKey: String? = null,
+    
     val podcastIndexApiKey: String? = null,
     val itunesApiKey: String? = null,
     val listenNotesApiKey: String? = null,

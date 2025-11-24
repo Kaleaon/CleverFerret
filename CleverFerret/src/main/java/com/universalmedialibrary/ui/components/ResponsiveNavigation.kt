@@ -80,6 +80,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.ui.theme.LocalIsAncientArchitect
 
 /**
  * Represents a navigation item for bottom navigation, navigation rail, and drawer destinations.
@@ -259,8 +260,6 @@ fun BottomNavigationBar(navController: NavController) {
         }
     }
 }
-
-import com.universalmedialibrary.ui.theme.LocalIsAncientArchitect
 
 /**
  * Navigation rail shown on medium and expanded width devices.

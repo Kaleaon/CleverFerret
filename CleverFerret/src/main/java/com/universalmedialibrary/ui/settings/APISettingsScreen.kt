@@ -105,6 +105,28 @@ fun APISettingsScreen(
                 placeholder = "Enter TMDB API Key"
             )
 
+            // OMDb
+            GenericApiKeySection(
+                title = "OMDb",
+                description = "Open Movie Database metadata.",
+                apiKey = uiState.omdbApiKey ?: "",
+                onSaveKey = { viewModel.saveApiKey("omdb", it, "MOVIES_TV", "OMDb") },
+                isLoading = uiState.isLoading,
+                getKeyUrl = "http://www.omdbapi.com/apikey.aspx",
+                placeholder = "Enter OMDb API Key"
+            )
+
+            // TVDB
+            GenericApiKeySection(
+                title = "TheTVDB",
+                description = "TV show metadata.",
+                apiKey = uiState.tvdbApiKey ?: "",
+                onSaveKey = { viewModel.saveApiKey("tvdb", it, "MOVIES_TV", "TVDB") },
+                isLoading = uiState.isLoading,
+                getKeyUrl = "https://thetvdb.com/api-information",
+                placeholder = "Enter TVDB API Key"
+            )
+
             // MusicBrainz
             GenericApiKeySection(
                 title = "MusicBrainz",
@@ -115,6 +137,17 @@ fun APISettingsScreen(
                 getKeyUrl = "https://musicbrainz.org/doc/MusicBrainz_API",
                 placeholder = "Enter MusicBrainz Token (Optional)",
                 note = "Optional: Improves rate limits."
+            )
+
+            // Discogs
+            GenericApiKeySection(
+                title = "Discogs",
+                description = "Music database and marketplace.",
+                apiKey = uiState.discogsApiKey ?: "",
+                onSaveKey = { viewModel.saveApiKey("discogs_token", it, "MUSIC", "Discogs") },
+                isLoading = uiState.isLoading,
+                getKeyUrl = "https://www.discogs.com/settings/developers",
+                placeholder = "Enter Discogs Personal Access Token"
             )
 
             // Google Books
@@ -138,6 +171,28 @@ fun APISettingsScreen(
                 getKeyUrl = "https://openlibrary.org/developers/api",
                 placeholder = "Enter Open Library API Key (Optional)",
                 note = "Usually not required, but helps with rate limits."
+            )
+
+            // Goodreads
+            GenericApiKeySection(
+                title = "Goodreads",
+                description = "Book reviews and metadata (Legacy).",
+                apiKey = uiState.goodreadsApiKey ?: "",
+                onSaveKey = { viewModel.saveApiKey("goodreads", it, "BOOKS", "Goodreads") },
+                isLoading = uiState.isLoading,
+                getKeyUrl = "https://www.goodreads.com/api",
+                placeholder = "Enter Goodreads API Key"
+            )
+
+            // NYT
+            GenericApiKeySection(
+                title = "NYT Books",
+                description = "New York Times Best Sellers lists.",
+                apiKey = uiState.nytApiKey ?: "",
+                onSaveKey = { viewModel.saveApiKey("nyt", it, "BOOKS", "NYT") },
+                isLoading = uiState.isLoading,
+                getKeyUrl = "https://developer.nytimes.com/get-started",
+                placeholder = "Enter NYT API Key"
             )
 
             // ComicVine

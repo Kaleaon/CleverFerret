@@ -80,6 +80,7 @@ class APIKeyRepository @Inject constructor(
             Triple("amazon_access_key", "BOOKS", false),
             Triple("amazon_secret_key", "BOOKS", false),
             Triple("isbn_db", "BOOKS", false),
+            Triple("nyt", "BOOKS", false),
 
             // Comic/Manga APIs
             Triple("comicvine", "COMICS_MANGA", true),
@@ -138,6 +139,7 @@ class APIKeyRepository @Inject constructor(
             "amazon_access_key" -> "Amazon Access Key"
             "amazon_secret_key" -> "Amazon Secret Key"
             "isbn_db" -> "ISBN-DB API"
+            "nyt" -> "New York Times API"
             "comicvine" -> "ComicVine API"
             "listen_notes" -> "Listen Notes API"
             "spotify_client_id" -> "Spotify Client ID"
