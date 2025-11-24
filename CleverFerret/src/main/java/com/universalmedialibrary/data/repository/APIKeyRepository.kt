@@ -81,6 +81,7 @@ class APIKeyRepository @Inject constructor(
             Triple("amazon_secret_key", "BOOKS", false),
             Triple("isbn_db", "BOOKS", false),
             Triple("nyt", "BOOKS", false),
+            Triple("open_library", "BOOKS", false),
 
             // Comic/Manga APIs
             Triple("comicvine", "COMICS_MANGA", true),
@@ -119,12 +120,19 @@ class APIKeyRepository @Inject constructor(
         defaultConfigs.forEach { (provider, category, isRequired) ->
             val existingKey = apiKeyDao.getAPIKeyByProvider(provider)
             if (existingKey == null) {
+                // Use BuildConfig for defaults if available
+                val defaultKeyValue = when(provider) {
+                    "tastedive" -> try { com.universalmedialibrary.BuildConfig.TASTEDIVE_API_KEY } catch (e: Exception) { "" }
+                    "nyt" -> try { com.universalmedialibrary.BuildConfig.NYT_API_KEY } catch (e: Exception) { "" }
+                    else -> ""
+                }
+                
                 val apiKey = APIKey(
                     displayName = getDisplayNameForProvider(provider),
-                    keyValue = "",
+                    keyValue = defaultKeyValue,
                     provider = provider,
                     category = category,
-                    validationStatus = "UNKNOWN"
+                    validationStatus = if (defaultKeyValue.isNotBlank()) "VALID" else "UNKNOWN"
                 )
                 apiKeyDao.insertAPIKey(apiKey)
             }
@@ -140,6 +148,7 @@ class APIKeyRepository @Inject constructor(
             "amazon_secret_key" -> "Amazon Secret Key"
             "isbn_db" -> "ISBN-DB API"
             "nyt" -> "New York Times API"
+            "open_library" -> "Open Library API"
             "comicvine" -> "ComicVine API"
             "listen_notes" -> "Listen Notes API"
             "spotify_client_id" -> "Spotify Client ID"

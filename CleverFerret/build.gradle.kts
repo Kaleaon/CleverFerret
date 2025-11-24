@@ -46,6 +46,15 @@ android {
 
         val tasteDiveKey = project.properties["TASTEDIVE_API_KEY"] ?: "1062990-CleverFe-17BF9586"
         buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
+
+        val nytApiKey = project.properties["NYT_API_KEY"] ?: ""
+        buildConfigField("String", "NYT_API_KEY", "\"$nytApiKey\"")
+
+        val nytApiSecret = project.properties["NYT_API_SECRET"] ?: ""
+        buildConfigField("String", "NYT_API_SECRET", "\"$nytApiSecret\"")
+
+        val nytAppId = project.properties["NYT_APP_ID"] ?: ""
+        buildConfigField("String", "NYT_APP_ID", "\"$nytAppId\"")
     }
 
     buildTypes {

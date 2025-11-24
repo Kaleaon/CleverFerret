@@ -39,7 +39,7 @@ class MultiRoomAudioViewModel @Inject constructor(
         // Strategy: Observe servers. If servers exist, observe clients/groups for the "selected" or first server.
         
         serversFlow.onEach { servers ->
-            val selectedId = _uiState.value.selectedServerId ?: servers.firstOrNull()?.id
+            val selectedId = _uiState.value.selectedServerId ?: servers.firstOrNull()?.serverId
             _uiState.value = _uiState.value.copy(
                 servers = servers,
                 selectedServerId = selectedId
@@ -71,10 +71,10 @@ class MultiRoomAudioViewModel @Inject constructor(
     fun addServer(name: String, host: String, port: Int) {
         viewModelScope.launch {
             val server = AudioSyncServer(
-                name = name,
-                host = host,
+                serverName = name,
+                serverUrl = host,
                 port = port,
-                isEnabled = true
+                enabled = true
             )
             multiRoomAudioService.addServer(server)
         }
@@ -83,7 +83,7 @@ class MultiRoomAudioViewModel @Inject constructor(
     fun deleteServer(server: AudioSyncServer) {
         viewModelScope.launch {
             multiRoomAudioService.deleteServer(server)
-            if (_uiState.value.selectedServerId == server.id) {
+            if (_uiState.value.selectedServerId == server.serverId) {
                 _uiState.value = _uiState.value.copy(selectedServerId = null, clients = emptyList(), groups = emptyList())
             }
         }
@@ -97,7 +97,7 @@ class MultiRoomAudioViewModel @Inject constructor(
 
     fun toggleClientMute(client: AudioSyncClient) {
         viewModelScope.launch {
-            multiRoomAudioService.setClientMuted(client.id, !client.isMuted)
+            multiRoomAudioService.setClientMuted(client.id, !client.muted)
         }
     }
 
@@ -106,9 +106,9 @@ class MultiRoomAudioViewModel @Inject constructor(
         viewModelScope.launch {
             val group = AudioSyncGroup(
                 serverId = serverId,
-                name = name,
+                groupName = name,
                 volume = 100,
-                isMuted = false
+                muted = false
             )
             val groupId = multiRoomAudioService.createGroup(group)
             clientIds.forEach { clientId ->
