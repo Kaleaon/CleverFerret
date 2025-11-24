@@ -394,7 +394,19 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             modifier = Modifier.padding(paddingValues)
         ) {
         composable("home") {
-            LibraryListScreen(navController = navController)
+            com.universalmedialibrary.ui.home.HomeScreen(
+                onNavigateToMedia = { type, id -> navController.navigate("open/$id") },
+                onNavigateToSearch = { navController.navigate("search") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onNavigateToLibrary = { navController.navigate("libraries") }
+            )
+        }
+        composable("libraries") {
+            com.universalmedialibrary.ui.library.LibraryListScreen(
+                onNavigateToLibrary = { id -> navController.navigate("library_details/$id") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onCreateLibrary = { /* Handle creation logic or dialog */ }
+            )
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
@@ -1202,25 +1214,16 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         )
 
-        sortedLibraries.forEach { library ->
-            val navConfig = libraryNavConfig(library.type)
-            val label = formatLibraryLabel(
-                name = library.name,
-                type = library.type,
-                canonicalLabel = navConfig?.canonicalLabel
+        // Libraries Tab
+        add(
+            NavigationItem(
+                route = "libraries",
+                label = "Libraries",
+                icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
+                selectedIcon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
+                routeMatch = "libraries"
             )
-            val iconVector = navConfig?.icon ?: iconForLibraryType(library.type)
-            val selectedIconVector = navConfig?.selectedIcon ?: iconVector
-            add(
-                NavigationItem(
-                    route = "library_details/${library.libraryId}",
-                    label = label,
-                    icon = { Icon(iconVector, contentDescription = label) },
-                    selectedIcon = { Icon(selectedIconVector, contentDescription = label) },
-                    routeMatch = "library_details/{libraryId}"
-                )
-            )
-        }
+        )
 
         val hasAudiobookLibrary = normalizedTypes.any { it in AUDIOBOOK_TYPE_TOKENS }
         val hasPodcastLibrary = normalizedTypes.any { it in PODCAST_TYPE_TOKENS }
