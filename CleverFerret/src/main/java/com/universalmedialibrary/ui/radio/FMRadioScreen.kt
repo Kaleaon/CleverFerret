@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,6 +33,8 @@ import com.universalmedialibrary.services.music.MusicInfoService
 import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.radio.FMStation
 import com.universalmedialibrary.services.radio.RDSData
+import com.universalmedialibrary.services.recommendations.TasteDiveItem
+import com.universalmedialibrary.services.recommendations.TasteDiveService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -59,6 +63,7 @@ fun FMRadioScreen(
     val signalStrength by viewModel.signalStrength.collectAsState()
     val hasInternetStream by viewModel.hasInternetStream.collectAsState()
     val songInfo by viewModel.songInfo.collectAsState()
+    val similarItems by viewModel.similarItems.collectAsState()
 
     Scaffold(
         topBar = {
@@ -231,6 +236,53 @@ fun FMRadioScreen(
                     }
                 }
 
+                // Similar Items (TasteDive)
+                if (similarItems.isNotEmpty()) {
+                    Text(
+                        "You Might Also Like",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        items(similarItems) { item ->
+                            Card(
+                                modifier = Modifier
+                                    .width(140.dp)
+                                    .clickable {
+                                        item.youtubeUrl?.let { url ->
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                            context.startActivity(intent)
+                                        }
+                                    },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
+                                    Text(
+                                        item.name,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        item.type.replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Tuning Controls
                 Card(
                     modifier = Modifier.fillMaxWidth()
@@ -366,7 +418,8 @@ fun FMRadioScreen(
 class FMRadioViewModel @Inject constructor(
     private val fmRadioService: FMRadioService,
     private val radioStationDao: RadioStationDao,
-    private val musicInfoService: MusicInfoService
+    private val musicInfoService: MusicInfoService,
+    private val tasteDiveService: TasteDiveService
 ) : ViewModel() {
 
     val currentFrequency = fmRadioService.currentFrequency
@@ -381,6 +434,9 @@ class FMRadioViewModel @Inject constructor(
     
     private val _songInfo = MutableStateFlow<MusicInfoService.SongInfo?>(null)
     val songInfo: StateFlow<MusicInfoService.SongInfo?> = _songInfo.asStateFlow()
+
+    private val _similarItems = MutableStateFlow<List<TasteDiveItem>>(emptyList())
+    val similarItems: StateFlow<List<TasteDiveItem>> = _similarItems.asStateFlow()
     
     // Load favorites from DB where frequencyKhz is not null
     // Note: Logic here assumes we want to filter for FM stations.
@@ -404,6 +460,7 @@ class FMRadioViewModel @Inject constructor(
     private fun parseAndFetchSongInfo(rds: RDSData?) {
         if (rds == null) {
             _songInfo.value = null
+            _similarItems.value = emptyList()
             return
         }
         
@@ -414,10 +471,26 @@ class FMRadioViewModel @Inject constructor(
             viewModelScope.launch {
                 val info = musicInfoService.fetchSongInfo(text)
                 _songInfo.value = info
+                
+                // Fetch similar items using TasteDive
+                if (info != null) {
+                    val artist = info.artist
+                    val similar = tasteDiveService.getSimilarItems(artist, type = "music")
+                    _similarItems.value = similar
+                } else {
+                    // Try with raw text if song parsing failed but looked like song
+                    // Extract potential artist?
+                    val potentialArtist = text.split(" - ").firstOrNull()?.trim() ?: text
+                    if (potentialArtist.isNotEmpty()) {
+                         val similar = tasteDiveService.getSimilarItems(potentialArtist, type = "music")
+                        _similarItems.value = similar
+                    }
+                }
             }
         } else {
              // If we can't parse it confidently, clear song info so we don't show wrong cover
              _songInfo.value = null
+             _similarItems.value = emptyList()
         }
     }
     
