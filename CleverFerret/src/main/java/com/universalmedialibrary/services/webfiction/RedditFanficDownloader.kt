@@ -160,9 +160,22 @@ class RedditFanficDownloader {
             ?: "<p class=\"ps2\">Failed to fetch content from ${Entities.escape(url)}.</p>"
 
         // Wrap content in styled paragraphs
-        val styledContent = content.replace("<p>", "<p class=\"ps2\">")
+        // Add specific heuristic to check if first paragraph is actually a title
+        var processedContent = content.replace("<p>", "<p class=\"ps2\">")
         
-        return wrapChapterHtml(url, author, createdUtc, styledContent)
+        // Attempt to find title in the first paragraph if it's bold or short
+        val doc = Jsoup.parseBodyFragment(processedContent)
+        val firstP = doc.selectFirst("p.ps2")
+        if (firstP != null) {
+            val text = firstP.text()
+            // Heuristic: Short text (< 50 chars) and possibly bold/strong
+            if (text.length < 50 && (firstP.select("strong").isNotEmpty() || firstP.select("b").isNotEmpty())) {
+                firstP.tagName("h1").attr("class", "ps1").text(text)
+                processedContent = doc.body().html()
+            }
+        }
+
+        return wrapChapterHtml(url, author, createdUtc, processedContent)
     }
 
     private fun decodeSelftextHtml(raw: String?): String? {
@@ -209,29 +222,52 @@ class RedditFanficDownloader {
                     .timeout(REQUEST_TIMEOUT)
                     .get()
 
-                val postContent = doc.select(".usertext-body .md").first()?.html()
+                var postContent = doc.select(".usertext-body .md").first()?.html()
                     ?: doc.select("div[data-test-id=post-content] div[data-click-id=text]").first()?.html()
                     ?: doc.select("article").first()?.html()
                     ?: doc.body().html()
 
-                // Extract comments by the author (likely continuations)
+                // Extract comments by the author (likely continuations or TITLES)
                 val commentsHtml = if (author.isNotBlank()) {
                     val comments = doc.select(".commentarea .thing.comment[data-author=\"$author\"]")
                     if (comments.isNotEmpty()) {
                         buildString {
-                            append("<hr/><div class='author-comments'><h3>Author Comments</h3>")
+                            var isFirstComment = true
                             comments.forEach { comment ->
                                 val commentBody = comment.selectFirst(".usertext-body .md")?.html()
                                 if (!commentBody.isNullOrBlank()) {
-                                    append("<div class='comment'>$commentBody</div><hr/>")
+                                    val cleanComment = commentBody.trim()
+                                    // Check if this is a title (short text, first comment)
+                                    if (isFirstComment && cleanComment.length < 100 && !cleanComment.contains("http")) {
+                                        // Inject as title
+                                        append("<h1 class='ps1'>${Jsoup.parse(cleanComment).text()}</h1>")
+                                    } else {
+                                        // Regular continuation
+                                        append("<hr/><div class='author-comments'><h3>Author Continuation</h3>")
+                                        append("<div class='comment'>$commentBody</div><hr/>")
+                                        append("</div>")
+                                    }
                                 }
+                                isFirstComment = false
                             }
-                            append("</div>")
                         }
                     } else ""
                 } else ""
 
                 if (!postContent.isNullOrBlank()) {
+                    // If we found a title in comments, prepend it (it's in commentsHtml)
+                    // But wait, comments usually come AFTER.
+                    // If the user says "Check creator comment below selfpost for chapter titles", 
+                    // we should look at the commentsHtml string we just built.
+                    
+                    // If commentsHtml starts with <h1 class='ps1'>, we should put that BEFORE postContent.
+                    if (commentsHtml.startsWith("<h1 class='ps1'>")) {
+                        val endOfTitle = commentsHtml.indexOf("</h1>") + 5
+                        val titlePart = commentsHtml.substring(0, endOfTitle)
+                        val restOfComments = commentsHtml.substring(endOfTitle)
+                        return titlePart + postContent + restOfComments
+                    }
+                    
                     return postContent + commentsHtml
                 }
             } catch (_: Exception) {
