@@ -179,12 +179,13 @@ class RedditFanficDownloader {
         // 2. Find Chapter Title in Body (skipping navigation links)
         // Look for first non-link paragraph that is short and title-like
         val paragraphs = doc.select("p.ps2")
+        val navKeywords = listOf("First", "Previous", "Next", "Last", "Wiki", "Patreon", "Ko-fi")
+
         for (p in paragraphs.take(5)) { // Check first 5 paragraphs
             val text = p.text().trim()
             
             // Skip if it's a navigation link (contains First/Next/Prev/Last/Wiki)
-            if (p.select("a").isNotEmpty() && 
-                (text.contains("First", true) || text.contains("Next", true) || text.contains("Previous", true) || text.contains("Last", true))) {
+            if (p.select("a").isNotEmpty() && isNavigationParagraph(p, navKeywords)) {
                 continue
             }
             
@@ -199,10 +200,34 @@ class RedditFanficDownloader {
                 break 
             }
         }
+
+        // 3. Remove Navigation Links (Top and Bottom)
+        // Top Cleaning
+        for (p in paragraphs.take(3)) {
+             if (isNavigationParagraph(p, navKeywords)) {
+                 p.remove()
+             }
+        }
+        
+        // Bottom Cleaning
+        // Re-select because we removed some and structure might have changed
+        val remainingParagraphs = doc.select("p.ps2")
+        for (p in remainingParagraphs.takeLast(3)) {
+             if (isNavigationParagraph(p, navKeywords)) {
+                 p.remove()
+             }
+        }
         
         processedContent = doc.body().html()
 
         return wrapChapterHtml(url, author, createdUtc, processedContent)
+    }
+
+    private fun isNavigationParagraph(p: org.jsoup.nodes.Element, keywords: List<String>): Boolean {
+        val text = p.text()
+        val links = p.select("a")
+        // Must contain at least one link AND one of the keywords
+        return links.isNotEmpty() && keywords.any { text.contains(it, ignoreCase = true) }
     }
 
     private fun decodeSelftextHtml(raw: String?): String? {
