@@ -86,13 +86,13 @@ fun Modifier.metallicShimmer(
 fun Modifier.crystalGlow(
     enabled: Boolean = true,
     glowColor: Color,
-    intensity: Float = 0.3f,
-    pulseSpeed: Int = 2000
+    intensity: Float = 0.2f, // Reduced default intensity
+    pulseSpeed: Int = 3000 // Slower pulse
 ): Modifier = if (enabled) {
     composed {
         val infiniteTransition = rememberInfiniteTransition(label = "glow")
         val glowAlpha by infiniteTransition.animateFloat(
-            initialValue = intensity * 0.5f,
+            initialValue = intensity * 0.3f,
             targetValue = intensity,
             animationSpec = infiniteRepeatable(
                 animation = tween(pulseSpeed, easing = FastOutSlowInEasing),
@@ -102,9 +102,17 @@ fun Modifier.crystalGlow(
         )
         
         drawBehind {
+            // Draw a soft radial glow behind the content
+            // Use standard alpha blending instead of BlendMode.Plus to avoid "blown out" colors
             drawRect(
-                color = glowColor.copy(alpha = glowAlpha),
-                blendMode = BlendMode.Plus
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        glowColor.copy(alpha = glowAlpha),
+                        glowColor.copy(alpha = glowAlpha * 0.5f),
+                        Color.Transparent
+                    ),
+                    radius = size.maxDimension / 1.5f
+                )
             )
         }
     }

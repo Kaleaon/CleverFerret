@@ -133,22 +133,10 @@ fun AncientArchitectElevatedCard(
     
     Box(
         modifier = modifier
-            .then(
-                if (glowEnabled) {
-                    Modifier.drawBehind {
-                        // Crystal glow effect
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    ancientColors.crystal.primary.copy(alpha = 0.3f),
-                                    ancientColors.crystal.primary.copy(alpha = 0.1f),
-                                    Color.Transparent
-                                ),
-                                radius = size.maxDimension * 0.8f
-                            )
-                        )
-                    }
-                } else Modifier
+            .crystalGlow(
+                enabled = glowEnabled,
+                glowColor = ancientColors.crystal.primary,
+                intensity = 0.2f // Subtle default
             )
     ) {
         AncientArchitectCard(
