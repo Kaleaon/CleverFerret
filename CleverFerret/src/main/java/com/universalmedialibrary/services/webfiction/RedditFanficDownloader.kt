@@ -156,7 +156,7 @@ class RedditFanficDownloader {
     ): String {
         val content = decodeSelftextHtml(selftextHtml)
             ?: convertMarkdownToHtml(selftext)
-            ?: downloadPostBody(url)
+            ?: downloadPostBody(url, author)
             ?: "<p>Failed to fetch content from ${Entities.escape(url)}.</p>"
 
         return wrapChapterHtml(url, author, createdUtc, content.ifBlank { "<p>No content available.</p>" })
@@ -187,7 +187,7 @@ class RedditFanficDownloader {
         return paragraphs.ifBlank { null }
     }
 
-    private fun downloadPostBody(originalUrl: String): String? {
+    private fun downloadPostBody(originalUrl: String, author: String): String? {
         val candidateUrls = mutableListOf<String>()
         if (originalUrl.contains("reddit.com") && !originalUrl.contains("old.reddit.com")) {
             candidateUrls.add(
@@ -206,13 +206,30 @@ class RedditFanficDownloader {
                     .timeout(REQUEST_TIMEOUT)
                     .get()
 
-                val content = doc.select(".usertext-body .md").first()?.html()
+                val postContent = doc.select(".usertext-body .md").first()?.html()
                     ?: doc.select("div[data-test-id=post-content] div[data-click-id=text]").first()?.html()
                     ?: doc.select("article").first()?.html()
                     ?: doc.body().html()
 
-                if (!content.isNullOrBlank()) {
-                    return content
+                // Extract comments by the author (likely continuations)
+                val commentsHtml = if (author.isNotBlank()) {
+                    val comments = doc.select(".commentarea .thing.comment[data-author=\"$author\"]")
+                    if (comments.isNotEmpty()) {
+                        buildString {
+                            append("<hr/><div class='author-comments'><h3>Author Comments</h3>")
+                            comments.forEach { comment ->
+                                val commentBody = comment.selectFirst(".usertext-body .md")?.html()
+                                if (!commentBody.isNullOrBlank()) {
+                                    append("<div class='comment'>$commentBody</div><hr/>")
+                                }
+                            }
+                            append("</div>")
+                        }
+                    } else ""
+                } else ""
+
+                if (!postContent.isNullOrBlank()) {
+                    return postContent + commentsHtml
                 }
             } catch (_: Exception) {
                 // Try the next option

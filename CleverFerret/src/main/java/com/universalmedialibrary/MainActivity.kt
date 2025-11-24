@@ -821,6 +821,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
         
+        composable("book_source_manager") {
+            com.universalmedialibrary.ui.books.BookSourceManagerScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("multi_room_audio") {
+            com.universalmedialibrary.ui.audio.MultiRoomAudioScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
         composable("metabods_tag_browser") {
             com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserScreen(
                 navController = navController
