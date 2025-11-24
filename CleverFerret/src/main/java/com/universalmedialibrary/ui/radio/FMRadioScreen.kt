@@ -14,11 +14,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.compose.AsyncImage
 import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.radio.FMStation
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,6 +44,7 @@ fun FMRadioScreen(
     val currentFrequency by viewModel.currentFrequency.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
     val rdsData by viewModel.rdsData.collectAsState()
+    val dnsMetadata by viewModel.dnsMetadata.collectAsState()
     val presets by viewModel.presets.collectAsState()
     val signalStrength by viewModel.signalStrength.collectAsState()
 
@@ -78,6 +82,20 @@ fun FMRadioScreen(
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // RadioDNS Logo
+                    dnsMetadata?.logoUrl?.let { url ->
+                        AsyncImage(
+                            model = url,
+                            contentDescription = "Station Logo",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surface),
+                            contentScale = ContentScale.Fit
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
                     Text(
                         text = viewModel.formatFrequency(currentFrequency),
                         style = MaterialTheme.typography.displayLarge,
@@ -258,6 +276,7 @@ class FMRadioViewModel @Inject constructor(
     val currentFrequency = fmRadioService.currentFrequency
     val isPlaying = fmRadioService.isPlaying
     val rdsData = fmRadioService.rdsData
+    val dnsMetadata = fmRadioService.dnsMetadata
     val signalStrength = fmRadioService.signalStrength
 
     private val _presets = MutableStateFlow<List<FMStation>>(emptyList())

@@ -44,3 +44,7 @@
 *   **Core**:
     *   Database schema updates (`lastModified` fields).
     *   Navigation graph updates.
+*   **Radio**:
+    *   Integrated RadioDNS for FM metadata (Logos/Names via SRV lookup).
+    *   Implemented Radio Browser Directory UI (Search & Add Stations).
+    *   Simulated FM radio tuning with PI code support.

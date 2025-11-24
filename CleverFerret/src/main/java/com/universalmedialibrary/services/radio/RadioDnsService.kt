@@ -4,9 +4,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.xbill.DNS.Lookup
-import org.xbill.DNS.SRVRecord
-import org.xbill.DNS.Type
+import org.json.JSONObject
+import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,11 +14,8 @@ import javax.inject.Singleton
  * 
  * How it works:
  * 1. Constructs FQDN from station parameters (PI Code, Frequency, GCC).
- * 2. Performs DNS SRV lookup to find the station's IP service endpoint.
+ * 2. Performs DNS SRV lookup (via Google Public DNS API) to find the station's IP service endpoint.
  * 3. Fetches Service Information (SI) to get logos and metadata.
- * 
- * Requires: 'dnsjava' dependency for SRV lookups.
- * If dependency is missing, this service will fail gracefully or use basic HTTP fallback.
  */
 @Singleton
 class RadioDnsService @Inject constructor(
@@ -48,30 +44,37 @@ class RadioDnsService @Inject constructor(
             val freqStr = String.format("%05d", (frequency * 100).toInt())
             val fqdn = "$freqStr.$piCode.$ecc.fm.radiodns.org".lowercase()
 
-            // 2. Perform SRV Lookup
+            // 2. Perform SRV Lookup using Google Public DNS API (DoH)
             // Target: _radioepg._tcp.<fqdn>
             val srvTarget = "_radioepg._tcp.$fqdn"
             
-            // Note: Since we can't easily add 'dnsjava' library in this environment without build.gradle modification,
-            // we will simulate the logic or use a standard Java DNS lookup if possible.
-            // Standard Java InetAddress doesn't support SRV records easily.
-            // We will assume a direct HTTP fallback if SRV fails or implementation is stubbed.
+            val dnsUrl = "https://dns.google/resolve?name=$srvTarget&type=SRV"
+            val request = Request.Builder().url(dnsUrl).build()
             
-            // For this implementation, we'll attempt a direct HTTP lookup on the FQDN 
-            // (some stations might host directly, though SRV is standard).
-            // If we had 'dnsjava':
-            // val lookup = Lookup(srvTarget, Type.SRV)
-            // val records = lookup.run()
-            // ... extract target host/port ...
+            val response = okHttpClient.newCall(request).execute()
+            if (!response.isSuccessful) return@withContext null
             
-            // Since we can't do full SRV without the library, we'll return null for now
-            // or implement a "best effort" guess if known endpoints exist.
-            // However, the user asked "Does this help?". The answer is yes.
-            // This code demonstrates WHERE the logic goes.
+            val jsonStr = response.body?.string() ?: return@withContext null
+            val json = JSONObject(jsonStr)
             
-            null 
+            if (!json.has("Answer")) return@withContext null
+            
+            val answers = json.getJSONArray("Answer")
+            if (answers.length() == 0) return@withContext null
+            
+            // Parse SRV record: priority weight port target
+            // Google DNS returns data as string: "0 100 80 radio.example.com."
+            val srvData = answers.getJSONObject(0).getString("data").split(" ")
+            if (srvData.size < 4) return@withContext null
+            
+            val port = srvData[2].toIntOrNull() ?: 80
+            val target = srvData[3].trimEnd('.') // Remove trailing dot
+            
+            // 3. Fetch Service Information (SI)
+            return@withContext fetchServiceInformation(target, port)
 
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -80,10 +83,46 @@ class RadioDnsService @Inject constructor(
      * Fetch Service Information (SI) XML from the resolved host.
      */
     private fun fetchServiceInformation(host: String, port: Int): StationMetadata? {
-        // Implementation would go here:
-        // 1. GET http://<host>:<port>/radiodns/spi/3.1/SI.xml
-        // 2. Parse XML
-        // 3. Extract <mediaDescription> -> <multimedia> -> url (Logo)
-        return null
+        try {
+            // RadioDNS SI endpoint: /radiodns/spi/3.1/SI.xml
+            val url = "http://$host:$port/radiodns/spi/3.1/SI.xml"
+            val request = Request.Builder().url(url).build()
+            
+            val response = okHttpClient.newCall(request).execute()
+            if (!response.isSuccessful) return null
+            
+            val xml = response.body?.string() ?: return null
+            
+            // Simple Regex parsing to avoid heavy XML setup for just a logo/name
+            // Look for <mediaDescription> block with <multimedia>
+            
+            // Find Name (ShortName or MediumName)
+            // <shortName>Station</shortName>
+            val nameMatcher = Pattern.compile("<mediumName[^>]*>([^<]+)</mediumName>").matcher(xml)
+            val name = if (nameMatcher.find()) nameMatcher.group(1) else {
+                val shortMatcher = Pattern.compile("<shortName[^>]*>([^<]+)</shortName>").matcher(xml)
+                if (shortMatcher.find()) shortMatcher.group(1) else "Unknown Station"
+            }
+            
+            // Find Logo
+            // <multimedia url="http://..." ...>
+            val logoMatcher = Pattern.compile("<multimedia[^>]*url=\"([^\"]+)\"[^>]*>").matcher(xml)
+            val logoUrl = if (logoMatcher.find()) logoMatcher.group(1) else null
+            
+            // Find Description
+            val descMatcher = Pattern.compile("<description[^>]*>([^<]+)</description>").matcher(xml)
+            val description = if (descMatcher.find()) descMatcher.group(1) else null
+            
+            return StationMetadata(
+                name = name,
+                shortName = name, // Simplify
+                logoUrl = logoUrl,
+                description = description
+            )
+            
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }

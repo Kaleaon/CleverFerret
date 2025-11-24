@@ -654,6 +654,13 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         
         composable("internet_radio") {
             com.universalmedialibrary.ui.radio.InternetRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToRadioBrowser = { navController.navigate("radio_browser") }
+            )
+        }
+        
+        composable("radio_browser") {
+            com.universalmedialibrary.ui.radio.RadioBrowserScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
         }

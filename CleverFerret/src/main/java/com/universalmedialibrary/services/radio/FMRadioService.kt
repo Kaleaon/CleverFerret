@@ -5,9 +5,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,9 +26,11 @@ import javax.inject.Singleton
  */
 @Singleton
 class FMRadioService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val radioDnsService: RadioDnsService
 ) {
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private val _isAvailable = MutableStateFlow(false)
@@ -38,6 +44,9 @@ class FMRadioService @Inject constructor(
 
     private val _rdsData = MutableStateFlow<RDSData?>(null)
     val rdsData: StateFlow<RDSData?> = _rdsData.asStateFlow()
+
+    private val _dnsMetadata = MutableStateFlow<RadioDnsService.StationMetadata?>(null)
+    val dnsMetadata: StateFlow<RadioDnsService.StationMetadata?> = _dnsMetadata.asStateFlow()
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
@@ -126,9 +135,20 @@ class FMRadioService @Inject constructor(
                     radioText = "Now Playing",
                     programType = "Music"
                 )
+                
+                // Lookup Metadata via RadioDNS
+                scope.launch {
+                    _dnsMetadata.value = null
+                    preset.piCode?.let { pi ->
+                        val mhz = frequencyKhz / 1000.0
+                        val metadata = radioDnsService.lookupFmStation(pi, mhz)
+                        _dnsMetadata.value = metadata
+                    }
+                }
             }
         } else {
             _rdsData.value = null
+            _dnsMetadata.value = null
         }
         
         return true
@@ -191,15 +211,16 @@ class FMRadioService @Inject constructor(
      */
     fun getPopularFrequencies(): List<FMStation> {
         // Common FM frequencies - can be customized based on location
+        // Added sample PI codes for RadioDNS testing
         return listOf(
-            FMStation("87.5 FM", 87500),
-            FMStation("88.1 FM", 88100),
-            FMStation("91.1 FM", 91100),
-            FMStation("95.5 FM", 95500),
-            FMStation("98.7 FM", 98700),
-            FMStation("101.1 FM", 101100),
-            FMStation("104.3 FM", 104300),
-            FMStation("107.9 FM", 107900)
+            FMStation("87.5 FM", 87500, "C875"),
+            FMStation("88.1 FM", 88100, "C881"),
+            FMStation("91.1 FM", 91100, "C911"),
+            FMStation("95.5 FM", 95500, "C955"),
+            FMStation("98.7 FM", 98700, "C987"),
+            FMStation("101.1 FM", 101100, "C101"),
+            FMStation("104.3 FM", 104300, "C104"),
+            FMStation("107.9 FM", 107900, "C107")
         )
     }
 
@@ -234,7 +255,8 @@ data class RDSData(
  */
 data class FMStation(
     val name: String,
-    val frequencyKhz: Int
+    val frequencyKhz: Int,
+    val piCode: String? = null
 ) {
     val displayFrequency: String
         get() = "%.1f FM".format(frequencyKhz / 1000.0)
