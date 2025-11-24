@@ -43,6 +43,9 @@ android {
         // Enable BuildConfig generation
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
+
+        val tasteDiveKey = project.properties["TASTEDIVE_API_KEY"] ?: "1062990-CleverFe-17BF9586"
+        buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
     }
 
     buildTypes {
