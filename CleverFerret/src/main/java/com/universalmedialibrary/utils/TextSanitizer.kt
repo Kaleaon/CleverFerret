@@ -1,6 +1,7 @@
 package com.universalmedialibrary.utils
 
 import com.universalmedialibrary.data.repository.DictionaryRepository
+import com.universalmedialibrary.services.dictionary.DictionaryService
 import java.util.regex.Pattern
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,10 +15,12 @@ import kotlinx.coroutines.runBlocking
  * - Common typo correction (safe list)
  * - Custom Dictionary support (Whitelists and Replacements)
  * - Whitespace cleanup
+ * - Verification against online dictionary
  */
 @Singleton
 class TextSanitizer @Inject constructor(
-    private val dictionaryRepository: DictionaryRepository
+    private val dictionaryRepository: DictionaryRepository,
+    private val dictionaryService: DictionaryService
 ) {
 
     // Base fictional terms (hardcoded fallback)
@@ -63,13 +66,8 @@ class TextSanitizer @Inject constructor(
         text = text.replace(Regex("\\s<"), "<") // Remove space before tag start
 
         // 3. Apply Custom Dictionary Replacements (Global + Book Specific)
-        // Note: runBlocking is used here because sanitization is typically run in background IO context
-        // If running on UI thread, this is bad, but downloaders run in IO.
         if (bookId != null) {
             val dictionary = runBlocking { dictionaryRepository.getApplicableDictionary(bookId) }
-            
-            // Sort replacements by length descending to avoid partial matches (e.g. replacing "cat" inside "catapult")
-            // Actually, we use word boundaries \b so length order is less critical but still good practice.
             val replacements = dictionary.filter { it.replacement != null }
             
             replacements.forEach { entry ->
@@ -77,10 +75,8 @@ class TextSanitizer @Inject constructor(
                 val matcher = pattern.matcher(text)
                 val sb = StringBuffer()
                 while (matcher.find()) {
-                    // Preserve capitalization of the replacement if source was capitalized
                     val found = matcher.group()
                     val replacement = entry.replacement!!
-                    
                     val finalReplacement = if (found[0].isUpperCase()) {
                         replacement.replaceFirstChar { it.uppercase() }
                     } else {
@@ -120,10 +116,6 @@ class TextSanitizer @Inject constructor(
 
         // Common Typo Correction
         commonTypos.forEach { (typo, correction) ->
-            // Skip if this typo is whitelisted in the custom dictionary
-            // (Optimization: Check whitelist once instead of per typo?)
-            // For now, we assume commonTypos are always errors unless overridden.
-            
             val pattern = Pattern.compile("\\b$typo\\b", Pattern.CASE_INSENSITIVE)
             val matcher = pattern.matcher(clean)
             val sb = StringBuffer()
@@ -168,7 +160,24 @@ class TextSanitizer @Inject constructor(
     }
     
     /**
-     * Helper to get default whitelist for initial setup
+     * Verify a word against online dictionary and local whitelist.
+     * Returns TRUE if word is valid (Real word OR Whitelisted).
      */
+    suspend fun verifyWord(word: String, bookId: Long? = null): Boolean {
+        // 1. Check basic fictional terms
+        if (baseFictionalTerms.contains(word)) return true
+        
+        // 2. Check custom dictionary
+        if (bookId != null) {
+            val dict = dictionaryRepository.getApplicableDictionary(bookId)
+            if (dict.any { it.word.equals(word, ignoreCase = true) && it.replacement == null }) {
+                return true
+            }
+        }
+        
+        // 3. Check online dictionary
+        return dictionaryService.isValidWord(word)
+    }
+    
     fun getBaseFictionalTerms(): Set<String> = baseFictionalTerms
 }
