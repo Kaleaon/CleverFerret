@@ -1,5 +1,8 @@
 package com.universalmedialibrary.ui.radio
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,8 +27,10 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import com.universalmedialibrary.data.local.entity.RadioStation
+import com.universalmedialibrary.services.music.MusicInfoService
 import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.radio.FMStation
+import com.universalmedialibrary.services.radio.RDSData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +49,7 @@ fun FMRadioScreen(
     onNavigateBack: () -> Unit,
     viewModel: FMRadioViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val currentFrequency by viewModel.currentFrequency.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
     val isAvailable by viewModel.isAvailable.collectAsState()
@@ -52,6 +58,7 @@ fun FMRadioScreen(
     val presets by viewModel.presets.collectAsState(initial = emptyList())
     val signalStrength by viewModel.signalStrength.collectAsState()
     val hasInternetStream by viewModel.hasInternetStream.collectAsState()
+    val songInfo by viewModel.songInfo.collectAsState()
 
     Scaffold(
         topBar = {
@@ -119,13 +126,15 @@ fun FMRadioScreen(
                             .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // RadioDNS Logo
-                        dnsMetadata?.logoUrl?.let { url ->
-                            AsyncImage(
-                                model = url,
-                                contentDescription = "Station Logo",
+                        // Station Logo / Song Cover
+                        val displayImage = songInfo?.coverUrl ?: dnsMetadata?.logoUrl
+                        
+                        if (displayImage != null) {
+                             AsyncImage(
+                                model = displayImage,
+                                contentDescription = "Station Logo / Album Art",
                                 modifier = Modifier
-                                    .size(120.dp)
+                                    .size(160.dp)
                                     .clip(RoundedCornerShape(16.dp))
                                     .background(MaterialTheme.colorScheme.surface),
                                 contentScale = ContentScale.Fit
@@ -142,19 +151,47 @@ fun FMRadioScreen(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // RDS Station Name
-                        rdsData?.let {
+                        // RDS Station Name / Song Info
+                        rdsData?.let { rds ->
                             Text(
-                                text = it.stationName,
+                                text = rds.stationName,
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
-                            if (it.radioText.isNotEmpty()) {
+                            
+                            if (songInfo != null) {
                                 Text(
-                                    text = it.radioText,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                    text = "${songInfo?.title} - ${songInfo?.artist}",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
+                                songInfo?.album?.let {
+                                    Text(
+                                        text = it,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                    )
+                                }
+                            } else if (rds.radioText.isNotEmpty()) {
+                                Text(
+                                    text = rds.radioText,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.9f)
+                                )
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                // Identify Button if song not recognized but text exists (or even if empty)
+                                OutlinedButton(
+                                    onClick = { viewModel.identifySong(context) },
+                                    modifier = Modifier.height(32.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                                ) {
+                                    Icon(Icons.Default.Search, null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Identify Song", style = MaterialTheme.typography.labelSmall)
+                                }
                             }
                         }
                         
@@ -328,7 +365,8 @@ fun FMRadioScreen(
 @HiltViewModel
 class FMRadioViewModel @Inject constructor(
     private val fmRadioService: FMRadioService,
-    private val radioStationDao: RadioStationDao
+    private val radioStationDao: RadioStationDao,
+    private val musicInfoService: MusicInfoService
 ) : ViewModel() {
 
     val currentFrequency = fmRadioService.currentFrequency
@@ -341,6 +379,9 @@ class FMRadioViewModel @Inject constructor(
     private val _hasInternetStream = MutableStateFlow(false)
     val hasInternetStream: StateFlow<Boolean> = _hasInternetStream.asStateFlow()
     
+    private val _songInfo = MutableStateFlow<MusicInfoService.SongInfo?>(null)
+    val songInfo: StateFlow<MusicInfoService.SongInfo?> = _songInfo.asStateFlow()
+    
     // Load favorites from DB where frequencyKhz is not null
     // Note: Logic here assumes we want to filter for FM stations.
     // RadioStation entity has isFavorite flag.
@@ -350,6 +391,56 @@ class FMRadioViewModel @Inject constructor(
         viewModelScope.launch {
             dnsMetadata.collect { metadata ->
                 _hasInternetStream.value = !metadata?.streamUrl.isNullOrEmpty()
+            }
+        }
+        
+        viewModelScope.launch {
+            rdsData.collect { rds ->
+                parseAndFetchSongInfo(rds)
+            }
+        }
+    }
+
+    private fun parseAndFetchSongInfo(rds: RDSData?) {
+        if (rds == null) {
+            _songInfo.value = null
+            return
+        }
+        
+        val text = rds.radioText
+        
+        // Heuristic to determine if text is likely a song
+        if (text.length > 5 && (text.contains(" - ") || text.contains(" by "))) {
+            viewModelScope.launch {
+                val info = musicInfoService.fetchSongInfo(text)
+                _songInfo.value = info
+            }
+        } else {
+             // If we can't parse it confidently, clear song info so we don't show wrong cover
+             _songInfo.value = null
+        }
+    }
+    
+    fun identifySong(context: Context) {
+        try {
+            // Use Android's built-in music search intent (often handled by Google Assistant / SoundHound / Shazam)
+            val intent = Intent("android.intent.action.MUSIC_SEARCH")
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            // Fallback to voice search if specific music search not available
+            try {
+                val intent = Intent(Intent.ACTION_MAIN)
+                intent.setClassName("com.google.android.googlequicksearchbox", "com.google.android.googlequicksearchbox.VoiceSearchActivity")
+                intent.putExtra("android.intent.extra.MUSIC_SEARCH", true)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+            } catch (e2: Exception) {
+                // Fallback to generic view intent for SoundHound/Shazam store page if needed,
+                // but simpler to just show a toast or ignore if no handler.
+                // For now, let's try generic web search for lyrics?
+                // Or maybe just log.
+                e2.printStackTrace()
             }
         }
     }
