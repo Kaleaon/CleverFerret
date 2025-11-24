@@ -10,14 +10,14 @@
     *   **Issue**: Lint reports flagged `android.permission.MANAGE_DOCUMENTS` as restricted to system apps.
     *   **Verification**: Confirmed it was already removed from `AndroidManifest.xml` in the current version.
 
-3.  **Compilation & Build Issues**
-    *   **Issue**: Build failed due to incorrect SDK path, missing imports, and API mismatches.
-    *   **Fixes**:
-        *   Corrected `sdk.dir` in `local.properties`.
-        *   Fixed imports in `ResponsiveNavigation.kt` and `AISettingsScreen.kt`.
-        *   Resolved property name mismatches in `MultiRoomAudioScreen.kt` and `MultiRoomAudioViewModel.kt`.
-        *   Fixed invalid regex escape sequence in `RedditFanficDownloader.kt`.
-        *   Stubbed `FMRadioService.kt` to allow compilation in the environment where `RadioManager` (System API) is unavailable, preventing a blocker for the "Internet Radio" feature.
+3.  **Compilation & Build Issues (Fixed)**
+    *   **FM Radio**: Stubbed `FMRadioService.kt` to resolve `RadioManager` (System API) dependency errors.
+    *   **Imports**: Fixed `AISettingsScreen.kt`, `ResponsiveNavigation.kt`, `HomeScreen.kt`, `HomeViewModel.kt` (imports and structure).
+    *   **Property Mismatches**: Resolved `id`/`sourceId`/`libraryId` mismatches in `BookSourceManagerScreen`, `BookSourceViewModel`, `MaintenanceScreen`, `MultiRoomAudioScreen`, `MultiRoomAudioViewModel`.
+    *   **Type Mismatches**: Fixed `String` vs `String?` issues in `InternetRadioScreen.kt` and `RadioViewModel.kt`.
+    *   **Syntax**: Fixed regex in `RedditFanficDownloader.kt`.
+    *   **Dependency Injection**: Updated `ServicesModule.kt` to provide `AIServiceManager` to `ReadingAnalyticsService`.
+    *   **Theme**: Temporarily disabled `AncientArchitectTheme` custom shapes to resolve internal constructor access error.
 
 ## Feature Implementation & Requests
 
@@ -35,4 +35,4 @@
 
 ## Notes
 *   `FMRadioService` is currently stubbed (disabled) to ensure the project builds. The "Internet Radio" switch logic is fully implemented in the UI layer.
-*   General TODOs regarding placeholders in `pwa-demo` remain as low-priority future work.
+*   `radio.apk` was not found in the workspace, so it could not be disassembled/inspected.
