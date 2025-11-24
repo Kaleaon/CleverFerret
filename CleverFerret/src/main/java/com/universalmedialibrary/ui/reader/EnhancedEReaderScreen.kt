@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import com.universalmedialibrary.data.local.entity.AnnotationExportConfig
 import com.universalmedialibrary.data.local.entity.ExportFormat
+import com.universalmedialibrary.data.local.entity.ReaderAIInsight
 import java.io.File
 
 /**
@@ -53,6 +54,7 @@ fun EnhancedEReaderScreen(
     var showBookmarks by remember { mutableStateOf(false) }
     var showTableOfContents by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
+    var showAIInsights by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
     // Reader settings
@@ -159,6 +161,9 @@ fun EnhancedEReaderScreen(
                     }
 
                     Row {
+                        IconButton(onClick = { showAIInsights = true }) {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = "AI Insights")
+                        }
                         IconButton(onClick = { showBookmarks = !showBookmarks }) {
                             Icon(
                                 Icons.Default.Bookmark,
@@ -469,6 +474,99 @@ fun EnhancedEReaderScreen(
                 brightness = brightness,
                 onBrightnessChange = { brightness = it },
                 onDismiss = { showSettings = false }
+            )
+        }
+
+        if (showAIInsights) {
+            AIInsightsSheet(
+                insights = uiState.aiInsights,
+                onDismiss = { showAIInsights = false }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AIInsightsSheet(
+    insights: List<ReaderAIInsight>,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "AI Insights",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            }
+
+            if (insights.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No insights available yet.\nContinue reading to generate insights.",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(insights) { insight ->
+                        insight.summary?.let {
+                            InsightCard("Summary", it)
+                        }
+                        insight.characterAnalysis?.let {
+                            InsightCard("Character Analysis", it)
+                        }
+                        insight.perspectiveAnalysis?.let {
+                            InsightCard("Perspective Analysis", it)
+                        }
+                        if (insight.keyThemes.isNotEmpty()) {
+                            InsightCard("Key Themes", insight.keyThemes.joinToString("\n• ", prefix = "• "))
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun InsightCard(title: String, content: String) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }

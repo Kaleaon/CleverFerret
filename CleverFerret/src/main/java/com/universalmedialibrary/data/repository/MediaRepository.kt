@@ -15,7 +15,8 @@ import javax.inject.Singleton
 @Singleton
 class MediaRepository @Inject constructor(
     private val mediaItemDao: MediaItemDao,
-    private val metadataDao: MetadataDao
+    private val metadataDao: MetadataDao,
+    private val extendedMetadataRepository: ExtendedMetadataRepository
 ) {
 
     // Media Item operations
@@ -128,4 +129,11 @@ class MediaRepository @Inject constructor(
         if (itemIds.isEmpty()) return emptyMap()
         return metadataDao.getMetadataCommonBatch(itemIds).associateBy { it.itemId }
     }
+
+    // Extended Metadata Proxy Methods
+    suspend fun setExtendedMetadata(itemId: Long, key: String, value: String, type: String = "STRING") {
+        extendedMetadataRepository.setMetadata(itemId, key, value, type)
+    }
+
+    fun getExtendedMetadata(itemId: Long) = extendedMetadataRepository.getMetadata(itemId)
 }

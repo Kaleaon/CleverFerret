@@ -256,6 +256,7 @@ val LocalAncientArchitectColors = compositionLocalOf { ancientBronzeColors() }
 val LocalEnableGeometricPatterns = compositionLocalOf { true }
 val LocalEnableMetallicShimmer = compositionLocalOf { true }
 val LocalEnableCrystalGlow = compositionLocalOf { true }
+val LocalIsAncientArchitect = compositionLocalOf { false }
 
 // ============================================================================
 // THEME COMPOSABLE
@@ -327,11 +328,19 @@ fun AncientArchitectTheme(
         LocalAncientArchitectColors provides ancientColors,
         LocalEnableGeometricPatterns provides enableGeometricPatterns,
         LocalEnableMetallicShimmer provides enableMetallicShimmer,
-        LocalEnableCrystalGlow provides enableCrystalGlow
+        LocalEnableCrystalGlow provides enableCrystalGlow,
+        LocalIsAncientArchitect provides true
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,
             typography = AncientArchitectTypography,
+            shapes = Shapes(
+                extraSmall = AncientArchitectShapes.beveledSmall,
+                small = AncientArchitectShapes.beveledMedium,
+                medium = AncientArchitectShapes.steppedMedium,
+                large = AncientArchitectShapes.steppedLarge,
+                extraLarge = AncientArchitectShapes.steppedLarge
+            ),
             content = content
         )
     }
