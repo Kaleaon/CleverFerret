@@ -74,7 +74,7 @@ fun BookSourceManagerScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.bookSources, key = { it.id }) { source ->
+                    items(uiState.bookSources, key = { it.sourceId }) { source ->
                         BookSourceItem(
                             source = source,
                             onToggle = { viewModel.toggleBookSource(source) },

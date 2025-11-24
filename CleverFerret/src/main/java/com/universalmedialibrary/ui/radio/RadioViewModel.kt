@@ -222,7 +222,7 @@ class RadioViewModel @Inject constructor(
 
             // Play new station via music player service
             musicPlayerService.playTrackFromUri(
-                uri = station.streamUrl,
+                uri = station.streamUrl ?: "",
                 title = station.name,
                 artist = "Internet Radio${station.genre?.let { " - $it" } ?: ""}",
                 album = station.description ?: station.country ?: "Radio Station",

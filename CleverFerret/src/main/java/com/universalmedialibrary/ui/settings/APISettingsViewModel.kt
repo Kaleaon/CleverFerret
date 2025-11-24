@@ -42,12 +42,47 @@ class APISettingsViewModel @Inject constructor(
 
                 val geminiKey = apiKeyRepository.getGeminiApiKey()
                 val comicVineKey = apiKeyRepository.getAPIKeyValue("comicvine")
+                val tastediveKey = apiKeyRepository.getAPIKeyValue("tastedive")
+                val tmdbKey = apiKeyRepository.getAPIKeyValue("tmdb")
+                val musicBrainzKey = apiKeyRepository.getAPIKeyValue("musicbrainz")
+                val googleBooksKey = apiKeyRepository.getAPIKeyValue("google_books")
+                val openLibraryKey = apiKeyRepository.getAPIKeyValue("open_library")
+                
+                // New keys
+                val goodreadsKey = apiKeyRepository.getAPIKeyValue("goodreads")
+                val nytKey = apiKeyRepository.getAPIKeyValue("nyt")
+                val tvdbKey = apiKeyRepository.getAPIKeyValue("tvdb")
+                val omdbKey = apiKeyRepository.getAPIKeyValue("omdb")
+                val discogsKey = apiKeyRepository.getAPIKeyValue("discogs_token")
+                
+                // Podcast
+                val podcastIndexKey = apiKeyRepository.getAPIKeyValue("podcast_index")
+                val itunesKey = apiKeyRepository.getAPIKeyValue("itunes")
+                val listenNotesKey = apiKeyRepository.getAPIKeyValue("listen_notes")
+
+                // TTS (if we migrate them to Repository, otherwise we might need TtsProviderManager injected here too)
+                // For now, assuming they might be migrated or we just support the ones in repo.
+                
                 val imageGeneratorType = apiKeyRepository.getImageGeneratorType()
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     geminiApiKey = geminiKey,
                     comicVineApiKey = comicVineKey,
+                    tastediveApiKey = tastediveKey,
+                    tmdbApiKey = tmdbKey,
+                    musicBrainzApiKey = musicBrainzKey,
+                    googleBooksApiKey = googleBooksKey,
+                    openLibraryApiKey = openLibraryKey,
+                    goodreadsApiKey = goodreadsKey,
+                    nytApiKey = nytKey,
+                    tvdbApiKey = tvdbKey,
+                    omdbApiKey = omdbKey,
+                    discogsApiKey = discogsKey,
+                    podcastIndexApiKey = podcastIndexKey,
+                    itunesApiKey = itunesKey,
+                    listenNotesApiKey = listenNotesKey,
+                    
                     imageGeneratorType = imageGeneratorType,
                     geminiEnabled = FeatureFlags.ENABLE_GEMINI,
                     exoPlayerEnabled = FeatureFlags.ENABLE_EXOPLAYER,
@@ -74,27 +109,53 @@ class APISettingsViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(statusMessage = "Lyrics API settings saved", hasError = false, lyricsApis = settings)
     }
 
-    fun saveComicVineApiKey(apiKey: String) {
+    fun saveApiKey(provider: String, apiKey: String, category: String, displayName: String) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 
-                apiKeyRepository.saveAPIKey("comicvine", apiKey, "COMICS_MANGA", true)
+                apiKeyRepository.saveAPIKey(provider, apiKey, category, false)
                 
+                // Update local state map or individual fields
+                _uiState.value = when(provider) {
+                    "comicvine" -> _uiState.value.copy(comicVineApiKey = apiKey)
+                    "tastedive" -> _uiState.value.copy(tastediveApiKey = apiKey)
+                    "tmdb" -> _uiState.value.copy(tmdbApiKey = apiKey)
+                    "musicbrainz" -> _uiState.value.copy(musicBrainzApiKey = apiKey)
+                    "google_books" -> _uiState.value.copy(googleBooksApiKey = apiKey)
+                    "open_library" -> _uiState.value.copy(openLibraryApiKey = apiKey)
+                    "goodreads" -> _uiState.value.copy(goodreadsApiKey = apiKey)
+                    "nyt" -> _uiState.value.copy(nytApiKey = apiKey)
+                    "tvdb" -> _uiState.value.copy(tvdbApiKey = apiKey)
+                    "omdb" -> _uiState.value.copy(omdbApiKey = apiKey)
+                    "discogs_token" -> _uiState.value.copy(discogsApiKey = apiKey)
+                    "podcast_index" -> _uiState.value.copy(podcastIndexApiKey = apiKey)
+                    "itunes" -> _uiState.value.copy(itunesApiKey = apiKey)
+                    "listen_notes" -> _uiState.value.copy(listenNotesApiKey = apiKey)
+                    else -> _uiState.value
+                }
+
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    comicVineApiKey = apiKey,
-                    statusMessage = "ComicVine API key saved successfully",
+                    statusMessage = "$displayName API key saved successfully",
                     hasError = false
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    statusMessage = "Error saving ComicVine key: ${e.message}",
+                    statusMessage = "Error saving $displayName key: ${e.message}",
                     hasError = true
                 )
             }
         }
+    }
+
+    fun saveComicVineApiKey(apiKey: String) {
+        saveApiKey("comicvine", apiKey, "COMICS_MANGA", "ComicVine")
+    }
+    
+    fun saveTasteDiveApiKey(apiKey: String) {
+        saveApiKey("tastedive", apiKey, "RECOMMENDATIONS", "TasteDive")
     }
 
     /**
@@ -259,6 +320,21 @@ data class APISettingsUiState(
     val isLoading: Boolean = false,
     val geminiApiKey: String? = null,
     val comicVineApiKey: String? = null,
+    val tastediveApiKey: String? = null,
+    val tmdbApiKey: String? = null,
+    val musicBrainzApiKey: String? = null,
+    val googleBooksApiKey: String? = null,
+    val openLibraryApiKey: String? = null,
+    val goodreadsApiKey: String? = null,
+    val nytApiKey: String? = null,
+    val tvdbApiKey: String? = null,
+    val omdbApiKey: String? = null,
+    val discogsApiKey: String? = null,
+    
+    val podcastIndexApiKey: String? = null,
+    val itunesApiKey: String? = null,
+    val listenNotesApiKey: String? = null,
+    
     val geminiTestResult: String? = null,
     val imageGeneratorType: ImageGeneratorType = ImageGeneratorType.IMAGEN,
     val geminiEnabled: Boolean = true,

@@ -14,6 +14,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
+import com.universalmedialibrary.services.reading.ReadingStats
+
 /**
  * ViewModel for Home Screen
  */
@@ -90,7 +92,7 @@ data class HomeUiState(
     val continueItems: List<MediaItemUiModel> = emptyList(),
     val recentItems: List<MediaItemUiModel> = emptyList(),
     val showcaseItem: MediaItemUiModel? = null,
-    val statistics: Statistics? = null,
+    val statistics: ReadingStats? = null,
     val isLoading: Boolean = false
 )
 

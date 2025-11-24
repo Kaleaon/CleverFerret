@@ -78,7 +78,7 @@ fun MaintenanceScreen(
             Spacer(Modifier.height(8.dp))
             
             // Actions Grid
-            val libraryId = selectedLibrary?.id ?: -1L
+            val libraryId = selectedLibrary?.libraryId ?: -1L
             val isLibrarySelected = libraryId != -1L
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

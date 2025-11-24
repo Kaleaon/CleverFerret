@@ -16,7 +16,7 @@ class TasteDiveService @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val json: Json
 ) {
-    private val apiKey = "1062990-CleverFe-17BF9586"
+    private val apiKey = com.universalmedialibrary.BuildConfig.TASTEDIVE_API_KEY
     private val baseUrl = "https://tastedive.com/api/similar"
 
     suspend fun getSimilarItems(

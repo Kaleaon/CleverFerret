@@ -37,7 +37,7 @@ class BookSourceViewModel @Inject constructor(
 
     fun toggleBookSource(source: BookSource) {
         viewModelScope.launch {
-            bookSourceService.toggleBookSource(source.id, !source.enabled)
+            bookSourceService.toggleBookSource(source.sourceId, !source.enabled)
         }
     }
 

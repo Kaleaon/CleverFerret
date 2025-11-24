@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -14,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.local.dao.APIKey
+import com.universalmedialibrary.data.local.entity.APIKey
 import com.universalmedialibrary.data.local.dao.APIKeyDao
 import com.universalmedialibrary.data.preferences.AISettingsPreferencesStore
 import dagger.hilt.android.lifecycle.HiltViewModel

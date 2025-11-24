@@ -264,7 +264,7 @@ class InternetRadioViewModel @Inject constructor(
             InternetRadioStation(
                 id = "db_${it.id}",
                 name = it.name,
-                url = it.streamUrl,
+                url = it.streamUrl ?: "",
                 genre = it.genre ?: "Unknown",
                 bitrate = it.bitrate?.let { br -> "$br kbps" } ?: "Unknown",
                 country = it.country ?: "",
@@ -1124,14 +1124,14 @@ InternetRadioStation("gh39", "Worldwide FM", "https://worldwidefm.out.airtime.pr
     }
     
     fun addCustomStation(name: String, url: String, genre: String) {
-        val newStation = InternetRadioStation(
-            id = (stations.value.size + 1).toString(),
-            name = name,
-            url = url,
-            genre = genre,
-            bitrate = "128 kbps"
-        )
-        _stations.value = _stations.value + newStation
+        viewModelScope.launch {
+            val newStation = com.universalmedialibrary.data.local.entity.RadioStation(
+                name = name,
+                streamUrl = url,
+                genre = genre
+            )
+            radioStationDao.insertStation(newStation)
+        }
     }
 }
 
