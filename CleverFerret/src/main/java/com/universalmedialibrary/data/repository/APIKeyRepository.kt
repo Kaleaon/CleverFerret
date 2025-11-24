@@ -105,8 +105,14 @@ class APIKeyRepository @Inject constructor(
             Triple("musixmatch", "LYRICS", false),
             Triple("genius", "LYRICS", false),
 
+            // Recommendation APIs
+            Triple("tastedive", "RECOMMENDATIONS", false),
+
             // AI Services - PRIMARY AI for all devices
-            Triple("gemini", "AI_SERVICES", false)
+            Triple("gemini", "AI_SERVICES", false),
+            Triple("openai", "AI_SERVICES", false),
+            Triple("elevenlabs", "AI_SERVICES", false),
+            Triple("google_cloud_tts", "AI_SERVICES", false)
         )
 
         defaultConfigs.forEach { (provider, category, isRequired) ->
@@ -146,7 +152,11 @@ class APIKeyRepository @Inject constructor(
             "cover_art_archive" -> "Cover Art Archive"
             "musixmatch" -> "Musixmatch API"
             "genius" -> "Genius API"
+            "tastedive" -> "TasteDive API"
             "gemini" -> "Google Gemini AI"
+            "openai" -> "OpenAI API"
+            "elevenlabs" -> "ElevenLabs API"
+            "google_cloud_tts" -> "Google Cloud TTS"
             else -> provider.replace("_", " ").split(" ").joinToString(" ") {
                 it.replaceFirstChar { char -> char.uppercaseChar() }
             }
