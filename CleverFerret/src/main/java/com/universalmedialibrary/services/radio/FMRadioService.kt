@@ -1,9 +1,15 @@
 package com.universalmedialibrary.services.radio
 
+import android.Manifest
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.media.AudioManager
+import android.content.pm.PackageManager
+import android.hardware.radio.ProgramSelector
+import android.hardware.radio.RadioManager
+import android.hardware.radio.RadioMetadata
+import android.hardware.radio.RadioTuner
+import android.os.Handler
+import android.os.Looper
+import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,13 +22,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Service for FM radio tuning (hardware-dependent)
- * 
- * Implements FM radio support for devices with hardware FM chips.
- * Based on RevampedFMRadio architecture for Qualcomm/MediaTek SoCs.
- * 
- * Hardware FM radio is available on some devices with Qualcomm/MediaTek chips.
- * This service detects availability and provides tuning functionality.
+ * Service for FM radio tuning using Android Hardware Radio API.
+ * Requires android.hardware.radio support and ACCESS_BROADCAST_RADIO permission.
  */
 @Singleton
 class FMRadioService @Inject constructor(
@@ -31,12 +32,15 @@ class FMRadioService @Inject constructor(
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    
+    private var radioManager: RadioManager? = null
+    private var radioTuner: RadioTuner? = null
+    private var fmModule: RadioManager.ModuleProperties? = null
 
     private val _isAvailable = MutableStateFlow(false)
     val isAvailable: StateFlow<Boolean> = _isAvailable.asStateFlow()
 
-    private val _currentFrequency = MutableStateFlow(88000) // Default: 88.0 MHz
+    private val _currentFrequency = MutableStateFlow(87500) // Default start of FM band
     val currentFrequency: StateFlow<Int> = _currentFrequency.asStateFlow()
 
     private val _signalStrength = MutableStateFlow(0)
@@ -55,204 +59,204 @@ class FMRadioService @Inject constructor(
         checkFMHardwareAvailability()
     }
 
-    /**
-     * Check if FM radio hardware is available
-     * Uses intent-based detection similar to RevampedFMRadio
-     */
     private fun checkFMHardwareAvailability() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BROADCAST_RADIO) 
+            != PackageManager.PERMISSION_GRANTED) {
+            _isAvailable.value = false
+            return
+        }
+
         try {
-            // Check for FM radio receiver via intent filter
-            val intent = Intent("com.android.fmradio.intent.action.FM")
-            val receivers = context.packageManager.queryBroadcastReceivers(intent, 0)
+            radioManager = context.getSystemService(Context.RADIO_SERVICE) as? RadioManager
+            val modules = ArrayList<RadioManager.ModuleProperties>()
+            val result = radioManager?.listModules(modules)
             
-            // Also check for common FM radio package names
-            val fmPackages = listOf(
-                "com.android.fmradio",
-                "com.caf.fmradio",
-                "com.qcom.fmradio",
-                "com.mediatek.fmradio"
-            )
-            
-            val hasFMPackage = fmPackages.any { packageName ->
-                try {
-                    context.packageManager.getPackageInfo(packageName, 0)
-                    true
-                } catch (e: Exception) {
-                    false
+            if (result != RadioManager.STATUS_OK) {
+                _isAvailable.value = false
+                return
+            }
+
+            // Find FM tuner module
+            fmModule = modules.firstOrNull { module ->
+                module.isImplementor("FM") || // Check for generic FM
+                module.bands.any { band -> 
+                    // Check if any band is FM
+                    // Note: We can't easily check band type directly on older APIs without casting,
+                    // but usually FM is around 87.5-108 MHz.
+                    // Simply picking the first one that supports FM frequency range is a heuristic.
+                    // But identifying by class is better if available.
+                    // RadioManager.ModuleProperties doesn't have a clean "isFM" check, 
+                    // but we can check band descriptors if we really want to be precise.
+                    // For now, we'll assume if we have a tuner, we can try to use it.
+                    true 
                 }
             }
+            // Better filter: look for classId if relevant, but ModuleProperties structure varies.
+            // Let's assume if listModules returns something, we might have a radio.
+            // Specifically we want a tuner, not an audio source if separated.
             
-            _isAvailable.value = receivers.isNotEmpty() || hasFMPackage
+            // Let's try to find a module that looks like a radio tuner.
+            fmModule = modules.firstOrNull()
+            
+            _isAvailable.value = fmModule != null
+
         } catch (e: Exception) {
+            e.printStackTrace()
             _isAvailable.value = false
         }
     }
 
-    /**
-     * Initialize FM radio
-     * Returns true if initialization successful
-     */
     fun initialize(): Boolean {
-        if (!_isAvailable.value) return false
-        
-        // Initialize FM radio hardware
-        // For devices without hardware FM, this simulates tuner for testing
-        _isPlaying.value = false
-        _currentFrequency.value = 88000
-        return true
-    }
+        if (!_isAvailable.value || fmModule == null) return false
+        if (radioTuner != null) return true // Already initialized
 
-    /**
-     * Tune to specific frequency (in kHz)
-     * Example: 101.1 FM = 101100 kHz
-     */
-    fun tune(frequencyKhz: Int): Boolean {
-        // Validate frequency range (FM band: 87.5 - 108.0 MHz)
-        if (frequencyKhz < 87500 || frequencyKhz > 108000) {
+        try {
+            radioTuner = radioManager?.openTuner(
+                fmModule!!.id,
+                null, // BandConfig, null uses default
+                true, // withAudio
+                object : RadioTuner.Callback() {
+                    override fun onProgramInfoChanged(info: RadioManager.ProgramInfo?) {
+                        info?.let { updateProgramInfo(it) }
+                    }
+
+                    override fun onSignalStrength(strength: Int) {
+                        // normalize strength to 0-100 if possible, or just pass it
+                        _signalStrength.value = strength
+                    }
+                    
+                    override fun onError(status: Int) {
+                        // Handle error
+                        if (status != RadioManager.STATUS_OK) {
+                             _isPlaying.value = false
+                        }
+                    }
+                },
+                Handler(Looper.getMainLooper())
+            )
+            
+            // Initial tune to a safe frequency or retrieve last used
+            tune(87500)
+            
+            return radioTuner != null
+        } catch (e: Exception) {
+            e.printStackTrace()
             return false
         }
+    }
+
+    fun tune(frequencyKhz: Int): Boolean {
+        val tuner = radioTuner ?: return false
         
-        _currentFrequency.value = frequencyKhz
-        
-        // Simulate signal strength based on how close we are to a preset
-        val presets = getPopularFrequencies()
-        val closestPreset = presets.minByOrNull { 
-            kotlin.math.abs(it.frequencyKhz - frequencyKhz) 
+        try {
+            // Create a ProgramSelector for FM frequency
+            // IdentifierType 1 is usually AM/FM Frequency in kHz
+            val selector = ProgramSelector.createAmFmSelector(RadioManager.BAND_FM, frequencyKhz)
+            tuner.tune(selector)
+            _currentFrequency.value = frequencyKhz
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
         }
-        
-        val distance = closestPreset?.let { 
-            kotlin.math.abs(it.frequencyKhz - frequencyKhz) 
-        } ?: 1000
-        
-        // Signal strength: 100 at exact match, drops with distance
-        _signalStrength.value = maxOf(0, 100 - (distance / 10))
-        
-        // Simulate RDS data for strong signals
-        if (_signalStrength.value > 50) {
-            closestPreset?.let { preset ->
-                _rdsData.value = RDSData(
-                    stationName = preset.name,
-                    radioText = "Now Playing",
-                    programType = "Music"
-                )
-                
-                // Lookup Metadata via RadioDNS
-                scope.launch {
-                    _dnsMetadata.value = null
-                    preset.piCode?.let { pi ->
-                        val mhz = frequencyKhz / 1000.0
-                        val metadata = radioDnsService.lookupFmStation(pi, mhz)
-                        _dnsMetadata.value = metadata
-                    }
-                }
+    }
+
+    fun play() {
+        if (radioTuner != null) {
+            val res = radioTuner?.setMute(false)
+            if (res == RadioManager.STATUS_OK) {
+                _isPlaying.value = true
             }
         } else {
-            _rdsData.value = null
-            _dnsMetadata.value = null
-        }
-        
-        return true
-    }
-
-    /**
-     * Start playing FM radio
-     */
-    fun play() {
-        if (_isAvailable.value) {
-            _isPlaying.value = true
-            // Platform-specific playback start
+            if (initialize()) {
+                play()
+            }
         }
     }
 
-    /**
-     * Stop playing FM radio
-     */
     fun stop() {
+        radioTuner?.setMute(true)
         _isPlaying.value = false
-        // Platform-specific playback stop
     }
 
-    /**
-     * Scan for next station
-     * Searches upward for the next available station with strong signal
-     */
     fun scanUp() {
-        val presets = getPopularFrequencies()
-        val currentFreq = _currentFrequency.value
-        
-        // Find next preset station above current frequency
-        val nextStation = presets
-            .filter { it.frequencyKhz > currentFreq }
-            .minByOrNull { it.frequencyKhz }
-            ?: presets.first() // Wrap around to first station
-        
-        tune(nextStation.frequencyKhz)
+        radioTuner?.scan(RadioTuner.DIRECTION_UP, true)
     }
 
-    /**
-     * Scan for previous station
-     * Searches downward for the previous available station with strong signal
-     */
     fun scanDown() {
-        val presets = getPopularFrequencies()
-        val currentFreq = _currentFrequency.value
-        
-        // Find previous preset station below current frequency
-        val prevStation = presets
-            .filter { it.frequencyKhz < currentFreq }
-            .maxByOrNull { it.frequencyKhz }
-            ?: presets.last() // Wrap around to last station
-        
-        tune(prevStation.frequencyKhz)
+        radioTuner?.scan(RadioTuner.DIRECTION_DOWN, true)
     }
 
     /**
-     * Get preset FM frequencies for region
+     * Returns available presets.
+     * Since we are not mocking, this should return stored presets or scan results.
+     * For now, returning empty to avoid mockups.
      */
     fun getPopularFrequencies(): List<FMStation> {
-        // Common FM frequencies - can be customized based on location
-        // Added sample PI codes for RadioDNS testing
-        return listOf(
-            FMStation("87.5 FM", 87500, "C875"),
-            FMStation("88.1 FM", 88100, "C881"),
-            FMStation("91.1 FM", 91100, "C911"),
-            FMStation("95.5 FM", 95500, "C955"),
-            FMStation("98.7 FM", 98700, "C987"),
-            FMStation("101.1 FM", 101100, "C101"),
-            FMStation("104.3 FM", 104300, "C104"),
-            FMStation("107.9 FM", 107900, "C107")
-        )
+        return emptyList()
     }
 
-    /**
-     * Release radio tuner resources
-     */
     fun release() {
         stop()
-        // Release platform-specific resources
+        radioTuner?.close()
+        radioTuner = null
     }
 
-    /**
-     * Format frequency for display
-     */
     fun formatFrequency(frequencyKhz: Int): String {
         val mhz = frequencyKhz / 1000.0
         return "%.1f FM".format(mhz)
     }
+
+    private fun updateProgramInfo(info: RadioManager.ProgramInfo) {
+        // Extract frequency
+        val freq = info.selector.primaryId.toInt()
+        _currentFrequency.value = freq
+        
+        // Extract RDS
+        val metadata = info.metadata
+        if (metadata != null) {
+            val stationName = metadata.getString(RadioMetadata.METADATA_KEY_RDS_PS) ?: ""
+            val radioText = metadata.getString(RadioMetadata.METADATA_KEY_RDS_RT) ?: ""
+            val pty = metadata.getInt(RadioMetadata.METADATA_KEY_RDS_PTY).toString()
+            
+            if (stationName.isNotEmpty() || radioText.isNotEmpty()) {
+                _rdsData.value = RDSData(stationName, radioText, pty)
+            }
+            
+            // RadioDNS lookup
+            // Check if we have PI code (RDS PI)
+            // METADATA_KEY_RDS_PI is mapped to 
+            // We might need to get PI from selector or metadata if available
+            // Usually PI is part of the unique ID of the station in the selector if it's a digital tuner,
+            // but for analog FM, it comes via RDS.
+            
+            // NOTE: RadioMetadata keys for PI might vary or be absent in standard API 
+            // depending on vendor implementation.
+            
+            // Attempt to get PI from metadata if available as an integer
+            if (metadata.containsKey(RadioMetadata.METADATA_KEY_RDS_PI)) {
+                val pi = metadata.getInt(RadioMetadata.METADATA_KEY_RDS_PI)
+                if (pi != 0) {
+                    val piHex = "%04X".format(pi)
+                     scope.launch {
+                        val mhz = freq / 1000.0
+                        _dnsMetadata.value = radioDnsService.lookupFmStation(piHex, mhz)
+                    }
+                }
+            }
+        }
+        
+        // Signal strength is also often in ProgramInfo
+        // info.signalStrength // if available in newer APIs
+    }
 }
 
-/**
- * RDS (Radio Data System) data
- */
 data class RDSData(
     val stationName: String,
-    val radioText: String, // Often contains song info
+    val radioText: String,
     val programType: String
 )
 
-/**
- * FM station preset
- */
 data class FMStation(
     val name: String,
     val frequencyKhz: Int,
