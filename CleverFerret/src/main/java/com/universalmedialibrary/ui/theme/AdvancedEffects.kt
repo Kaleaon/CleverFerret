@@ -72,7 +72,7 @@ fun Modifier.metallicShimmer(
                     start = Offset(shimmerX - shimmerWidth, shimmerY - shimmerWidth),
                     end = Offset(shimmerX + shimmerWidth, shimmerY + shimmerWidth)
                 ),
-                blendMode = BlendMode.Plus
+                blendMode = BlendMode.Screen
             )
         }
     }
@@ -254,19 +254,19 @@ fun Modifier.advancedLighting(
     val spotlightY = size.height * spotlightPosition.y
     val maxRadius = maxOf(size.width, size.height)
     
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(
-                spotlightColor,
-                Color.Transparent
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    spotlightColor,
+                    Color.Transparent
+                ),
+                center = Offset(spotlightX, spotlightY),
+                radius = maxRadius * 0.8f
             ),
             center = Offset(spotlightX, spotlightY),
-            radius = maxRadius * 0.8f
-        ),
-        center = Offset(spotlightX, spotlightY),
-        radius = maxRadius * 0.8f,
-        blendMode = BlendMode.Plus
-    )
+            radius = maxRadius * 0.8f,
+            blendMode = BlendMode.Screen
+        )
 }
 
 /**
