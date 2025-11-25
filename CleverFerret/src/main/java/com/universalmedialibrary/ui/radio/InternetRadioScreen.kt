@@ -1059,7 +1059,7 @@ InternetRadioStation("gh11", "BBC Radio 1Xtra", "http://as-hls-ww-live.akamaized
 InternetRadioStation("gh12", "BBC Radio 1Dance", "http://as-hls-ww-live.akamaized.net/pool_62063831/live/ww/bbc_radio_one_dance/bbc_radio_one_dance.isml/bbc_radio_one_dance-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
 InternetRadioStation("gh13", "BBC Radio 2", "http://as-hls-ww-live.akamaized.net/pool_74208725/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio%3d96000.norewind.m3u8", "Music", "96 kbps"),
 InternetRadioStation("gh14", "BBC Radio 6 Music", "http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d96000.norewind.m3u8", "Rock", "96 kbps"),
-InternetRadioStation("gh15", "BBC World Service", "http://stream.live.vc.bbcmedia.co.uk/bbc_world_service", "News", "128 kbps"),
+InternetRadioStation("gh15", "BBC World Service", "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_world_service.m3u8", "News", "128 kbps"),
 InternetRadioStation("gh16", "FIP", "http://direct.fipradio.fr/live/fip-midfi.mp3", "Music", "128 kbps"),
 InternetRadioStation("gh17", "FIP Jazz", "http://direct.fipradio.fr/live/fip-webradio2.mp3", "Jazz", "128 kbps"),
 InternetRadioStation("gh18", "FIP Groove", "http://direct.fipradio.fr/live/fip-webradio3.mp3", "Music", "128 kbps"),
