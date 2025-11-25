@@ -38,7 +38,7 @@ class AmbientSoundService @Inject constructor(
 
     init {
         serviceScope.launch(Dispatchers.IO) {
-            hydrateFreesoundUrls()
+            syncWithSoundLibrary()
         }
     }
 
@@ -52,8 +52,34 @@ class AmbientSoundService @Inject constructor(
      * 3. Sounds will automatically be included in initialization
      */
     suspend fun initializeDefaultSounds() {
-        val allSounds = SoundLibrary.getAllSounds()
-        ambientSoundDao.insertSounds(allSounds)
+        syncWithSoundLibrary()
+    }
+
+    /**
+     * Syncs the database with the SoundLibrary, adding any missing sounds.
+     * Does not overwrite existing sounds to preserve user preferences (volume, favorites).
+     */
+    suspend fun syncWithSoundLibrary() {
+        val librarySounds = SoundLibrary.getAllSounds()
+        val dbSounds = ambientSoundDao.getAllSoundsSync()
+        val dbSoundMap = dbSounds.associateBy { it.name }
+        
+        val newSounds = mutableListOf<AmbientSound>()
+        
+        librarySounds.forEach { libSound ->
+            val dbSound = dbSoundMap[libSound.name]
+            if (dbSound == null) {
+                newSounds.add(libSound)
+            } else if (dbSound.audioUrl.isNullOrBlank() && !libSound.audioUrl.isNullOrBlank()) {
+                // Update existing sound with URL if missing
+                ambientSoundDao.updateSound(dbSound.copy(audioUrl = libSound.audioUrl))
+            }
+        }
+        
+        if (newSounds.isNotEmpty()) {
+            ambientSoundDao.insertSounds(newSounds)
+        }
+        
         hydrateFreesoundUrls()
     }
 
@@ -169,6 +195,22 @@ class AmbientSoundService @Inject constructor(
 
         if (dataSource.isNullOrBlank()) {
             return@withContext
+        }
+        
+        // Trigger download if not local
+        if (sound.audioResourcePath.isNullOrBlank() && !sound.audioUrl.isNullOrBlank()) {
+             launch {
+                 try {
+                     val downloaded = ambientSoundDownloader.downloadSound(sound)
+                     if (downloaded) {
+                         // If download completes while playing, we could switch to local source,
+                         // but for now we just ensure it's saved for next time.
+                         // The downloadSound function updates the DB.
+                     }
+                 } catch (e: Exception) {
+                     e.printStackTrace()
+                 }
+             }
         }
 
         try {

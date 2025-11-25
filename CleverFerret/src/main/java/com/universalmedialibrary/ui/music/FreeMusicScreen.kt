@@ -118,6 +118,9 @@ fun FreeMusicScreen(
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(intent)
+                        },
+                        onTagClick = { tag ->
+                            viewModel.search(tag)
                         }
                     )
                 }
@@ -186,7 +189,8 @@ private fun SearchField(
 private fun TrackList(
     tracks: List<FreeMusicTrack>,
     onOpenLink: (String) -> Unit,
-    onStream: (String) -> Unit
+    onStream: (String) -> Unit,
+    onTagClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -197,7 +201,8 @@ private fun TrackList(
             TrackCard(
                 track = track,
                 onOpenLink = onOpenLink,
-                onStream = onStream
+                onStream = onStream,
+                onTagClick = onTagClick
             )
         }
     }
@@ -208,7 +213,8 @@ private fun TrackList(
 private fun TrackCard(
     track: FreeMusicTrack,
     onOpenLink: (String) -> Unit,
-    onStream: (String) -> Unit
+    onStream: (String) -> Unit,
+    onTagClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -257,7 +263,7 @@ private fun TrackCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 track.tags.take(8).forEach { tag ->
-                    AssistChip(onClick = {}, label = { Text(tag) })
+                    AssistChip(onClick = { onTagClick(tag) }, label = { Text(tag) })
                 }
             }
         }
