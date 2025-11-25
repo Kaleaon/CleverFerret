@@ -196,6 +196,22 @@ class AmbientSoundService @Inject constructor(
         if (dataSource.isNullOrBlank()) {
             return@withContext
         }
+        
+        // Trigger download if not local
+        if (sound.audioResourcePath.isNullOrBlank() && !sound.audioUrl.isNullOrBlank()) {
+             launch {
+                 try {
+                     val downloaded = ambientSoundDownloader.downloadSound(sound)
+                     if (downloaded) {
+                         // If download completes while playing, we could switch to local source,
+                         // but for now we just ensure it's saved for next time.
+                         // The downloadSound function updates the DB.
+                     }
+                 } catch (e: Exception) {
+                     e.printStackTrace()
+                 }
+             }
+        }
 
         try {
             val mediaPlayer = MediaPlayer().apply {
