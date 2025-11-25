@@ -1,6 +1,8 @@
 {
-  "buildCommand": "cd pwa-demo && npm install && npm run build",
+  "buildCommand": "cd pwa-demo && npm ci --legacy-peer-deps && npm run build",
   "outputDirectory": "pwa-demo/dist",
+  "framework": "vite",
+  "installCommand": "cd pwa-demo && npm install --legacy-peer-deps",
   "rewrites": [
     {
       "source": "/(.*)",
