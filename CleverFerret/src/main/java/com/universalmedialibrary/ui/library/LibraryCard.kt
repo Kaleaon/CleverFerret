@@ -70,11 +70,11 @@ fun LibraryCard(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E1E)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         border = BorderStroke(
             1.dp,
-            Color(0xFF333333)
+            MaterialTheme.colorScheme.outlineVariant
         )
     ) {
         Column {
@@ -83,7 +83,7 @@ fun LibraryCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
-                    .background(Color(0xFF2D2D2D)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 // Library type icon
@@ -91,7 +91,7 @@ fun LibraryCard(
                     imageVector = getLibraryIcon(library.type),
                     contentDescription = "${library.type} library",
                     modifier = Modifier.size(40.dp),
-                    tint = Color(0xFFCCCCCC)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 // Item count chip
@@ -100,7 +100,7 @@ fun LibraryCard(
                         .align(Alignment.TopEnd)
                         .padding(12.dp)
                         .background(
-                            Color.Black.copy(alpha = 0.5f),
+                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
                             RoundedCornerShape(4.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -108,7 +108,7 @@ fun LibraryCard(
                     Text(
                         text = "${library.itemCount} items",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -119,7 +119,7 @@ fun LibraryCard(
                             .align(Alignment.TopStart)
                             .padding(12.dp)
                             .size(8.dp)
-                            .background(Color(0xFF4CAF50), CircleShape)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
                     )
                 }
             }
@@ -134,7 +134,7 @@ fun LibraryCard(
                     text = library.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -142,7 +142,7 @@ fun LibraryCard(
                 Text(
                     text = "${library.type.name.lowercase().capitalize()} library",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFAAAAAA)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

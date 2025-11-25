@@ -64,9 +64,9 @@ fun MediaItem(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1E1E1E)
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        border = BorderStroke(1.dp, Color(0xFF333333))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
             // Poster/Image area
@@ -74,7 +74,7 @@ fun MediaItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
-                    .background(Color(0xFF2D2D2D)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 // Placeholder icon (no actual image loading in this demo)
@@ -89,7 +89,7 @@ fun MediaItem(
                     },
                     contentDescription = item.type.name,
                     modifier = Modifier.size(50.dp),
-                    tint = Color(0xFF666666)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 // Rating badge
@@ -98,7 +98,7 @@ fun MediaItem(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .background(
-                            Color.Black.copy(alpha = 0.8f),
+                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f),
                             RoundedCornerShape(4.dp)
                         )
                         .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -111,12 +111,12 @@ fun MediaItem(
                             imageVector = PhosphorIcons.Star,
                             contentDescription = "Rating",
                             modifier = Modifier.size(12.dp),
-                            tint = Color(0xFFE5A00D)
+                            tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = item.rating.toString(),
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFFE5A00D),
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -127,15 +127,15 @@ fun MediaItem(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.4f)),
+                            .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f)),
                         contentAlignment = Alignment.TopStart
                     ) {
                         Checkbox(
                             checked = isSelected,
                             onCheckedChange = { onSelectionToggle?.invoke() },
                             colors = CheckboxDefaults.colors(
-                                checkedColor = Color(0xFFE5A00D),
-                                uncheckedColor = Color.White.copy(alpha = 0.8f)
+                                checkedColor = MaterialTheme.colorScheme.primary,
+                                uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                             ),
                             modifier = Modifier.padding(4.dp)
                         )
@@ -153,7 +153,7 @@ fun MediaItem(
                     text = item.title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -163,7 +163,7 @@ fun MediaItem(
                 Text(
                     text = "${item.author} • ${item.year}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFAAAAAA),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -173,12 +173,12 @@ fun MediaItem(
                 // Genre chip
                 Surface(
                     modifier = Modifier.clip(RoundedCornerShape(4.dp)),
-                    color = Color(0xFF333333)
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
                 ) {
                     Text(
                         text = item.genre,
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFFCCCCCC),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                         fontSize = 10.sp
                     )
