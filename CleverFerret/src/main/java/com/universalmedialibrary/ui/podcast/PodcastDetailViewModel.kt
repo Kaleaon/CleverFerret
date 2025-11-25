@@ -17,7 +17,7 @@ class PodcastDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val podcastId: Long = savedStateHandle["podcastId"]?.toString()?.toLongOrNull() ?: -1L
+    private val podcastId: Long = savedStateHandle.get<Any>("podcastId")?.toString()?.toLongOrNull() ?: -1L
 
     private val _uiState = MutableStateFlow(PodcastDetailUiState())
     val uiState: StateFlow<PodcastDetailUiState> = _uiState.asStateFlow()
