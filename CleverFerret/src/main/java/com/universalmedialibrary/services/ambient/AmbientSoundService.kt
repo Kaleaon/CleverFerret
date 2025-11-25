@@ -38,7 +38,7 @@ class AmbientSoundService @Inject constructor(
 
     init {
         serviceScope.launch(Dispatchers.IO) {
-            hydrateFreesoundUrls()
+            syncWithSoundLibrary()
         }
     }
 
@@ -52,8 +52,24 @@ class AmbientSoundService @Inject constructor(
      * 3. Sounds will automatically be included in initialization
      */
     suspend fun initializeDefaultSounds() {
-        val allSounds = SoundLibrary.getAllSounds()
-        ambientSoundDao.insertSounds(allSounds)
+        syncWithSoundLibrary()
+    }
+
+    /**
+     * Syncs the database with the SoundLibrary, adding any missing sounds.
+     * Does not overwrite existing sounds to preserve user preferences (volume, favorites).
+     */
+    suspend fun syncWithSoundLibrary() {
+        val librarySounds = SoundLibrary.getAllSounds()
+        val dbSounds = ambientSoundDao.getAllSoundsSync()
+        val dbSoundNames = dbSounds.map { it.name }.toSet()
+        
+        val newSounds = librarySounds.filter { it.name !in dbSoundNames }
+        
+        if (newSounds.isNotEmpty()) {
+            ambientSoundDao.insertSounds(newSounds)
+        }
+        
         hydrateFreesoundUrls()
     }
 
