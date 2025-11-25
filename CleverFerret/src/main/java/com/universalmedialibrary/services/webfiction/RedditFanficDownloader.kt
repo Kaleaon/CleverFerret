@@ -166,7 +166,7 @@ class RedditFanficDownloader {
 
         // 1. Inject Arc Title if present in Post Title
         // Example: "OOCS, Into A Wider Galaxy, Part 514" -> "Into A Wider Galaxy"
-        val arcRegex = Regex("(?i)(?:OOCS|Out of Cruel Space)[^a-z0-9]*(.*?)[\s,:-]*(?:Part|Chapter|Ch)[^0-9]*([0-9]+)")
+        val arcRegex = Regex("(?i)(?:OOCS|Out of Cruel Space)[^a-z0-9]*(.*?)[\\s,:-]*(?:Part|Chapter|Ch)[^0-9]*([0-9]+)")
         val match = arcRegex.find(title)
         if (match != null) {
             val arcTitle = match.groupValues[1].trim()

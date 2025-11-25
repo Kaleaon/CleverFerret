@@ -37,7 +37,7 @@ fun MultiRoomAudioScreen(
                 },
                 actions = {
                     IconButton(onClick = { showAddServerDialog = true }) {
-                        Icon(Icons.Default.AddHost, "Add Server")
+                        Icon(Icons.Default.Add, "Add Server")
                     }
                 }
             )
@@ -56,14 +56,14 @@ fun MultiRoomAudioScreen(
             // Server Selector
             if (uiState.servers.isNotEmpty()) {
                 ScrollableTabRow(
-                    selectedTabIndex = uiState.servers.indexOfFirst { it.id == uiState.selectedServerId }.coerceAtLeast(0),
+                    selectedTabIndex = uiState.servers.indexOfFirst { it.serverId == uiState.selectedServerId }.coerceAtLeast(0),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     uiState.servers.forEach { server ->
                         Tab(
-                            selected = server.id == uiState.selectedServerId,
-                            onClick = { viewModel.selectServer(server.id) },
-                            text = { Text(server.name) }
+                            selected = server.serverId == uiState.selectedServerId,
+                            onClick = { viewModel.selectServer(server.serverId) },
+                            text = { Text(server.serverName) }
                         )
                     }
                 }
@@ -171,7 +171,7 @@ fun AudioGroupCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = group.name,
+                    text = group.groupName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -213,19 +213,19 @@ fun AudioClientCard(
             ) {
                 Column {
                     Text(
-                        text = client.name,
+                        text = client.clientName,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = if (client.isConnected) "Connected" else "Disconnected",
+                        text = if (client.connected) "Connected" else "Disconnected",
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (client.isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                        color = if (client.connected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
                 }
                 IconButton(onClick = onToggleMute) {
                     Icon(
-                        imageVector = if (client.isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                        imageVector = if (client.muted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
                         contentDescription = "Toggle Mute"
                     )
                 }
@@ -235,7 +235,7 @@ fun AudioClientCard(
                 Slider(
                     value = client.volume / 100f,
                     onValueChange = { onVolumeChange((it * 100).toInt()) },
-                    enabled = !client.isMuted,
+                    enabled = !client.muted,
                     modifier = Modifier.weight(1f)
                 )
                 Text("${client.volume}%")
@@ -330,7 +330,7 @@ fun CreateGroupDialog(
                                     else selectedClients.remove(client.id)
                                 }
                             )
-                            Text(client.name)
+                            Text(client.clientName)
                         }
                     }
                 }

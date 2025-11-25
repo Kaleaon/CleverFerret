@@ -145,6 +145,9 @@ export class CleverFerretDatabase extends Dexie {
   downloadedStories!: Table<DownloadedStory, string>;
   storyUpdates!: Table<StoryUpdate, number>;
 
+  // Comic management
+  downloadedComics!: Table<any, string>;
+
   // Miscellaneous
   sharedLinks!: Table<SharedLink, number>;
   maintenanceChanges!: Table<MaintenanceChange, number>;
@@ -227,6 +230,9 @@ export class CleverFerretDatabase extends Dexie {
       // Story management
       downloadedStories: 'id, site, siteStoryId, hasUpdates, lastChecked',
       storyUpdates: '++id, storyId, timestamp',
+
+      // Comic management
+      downloadedComics: 'id, site, url, title, lastUpdated',
 
       // Miscellaneous
       sharedLinks: '++id, token, [targetType+targetId]',

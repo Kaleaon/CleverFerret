@@ -40,7 +40,7 @@ class AIMetadataService @Inject constructor(
 
     private fun buildTagSuggestionPrompt(mediaItem: MediaItem, metadata: MetadataCommon?): String {
         val title = metadata?.title ?: mediaItem.fileName
-        val author = metadata?.author ?: "Unknown Author"
+        val author = "Unknown Author" // MetadataCommon does not support author field yet
         val summary = metadata?.summary ?: "No summary available"
         val type = mediaItem.mediaType
 

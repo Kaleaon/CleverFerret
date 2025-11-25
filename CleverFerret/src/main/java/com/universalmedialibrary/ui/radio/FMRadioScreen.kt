@@ -29,6 +29,7 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.local.dao.RadioStationDao
 import com.universalmedialibrary.data.local.entity.RadioStation
+import com.universalmedialibrary.services.audio.MusicPlaybackService
 import com.universalmedialibrary.services.music.MusicInfoService
 import com.universalmedialibrary.services.radio.FMRadioService
 import com.universalmedialibrary.services.radio.FMStation
@@ -223,7 +224,19 @@ fun FMRadioScreen(
                         if (hasInternetStream) {
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
-                                onClick = { /* TODO: Switch to internet radio */ },
+                                onClick = {
+                                    val streamUrl = dnsMetadata?.streamUrl
+                                    if (!streamUrl.isNullOrEmpty()) {
+                                        if (isPlaying) viewModel.togglePlayback()
+                                        val intent = Intent(context, MusicPlaybackService::class.java).apply {
+                                            action = MusicPlaybackService.ACTION_PLAY_URI
+                                            putExtra(MusicPlaybackService.EXTRA_URI, streamUrl)
+                                            putExtra(MusicPlaybackService.EXTRA_TITLE, dnsMetadata?.name ?: "Internet Radio")
+                                            putExtra(MusicPlaybackService.EXTRA_ARTIST, "Live Stream")
+                                        }
+                                        context.startService(intent)
+                                    }
+                                },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.tertiary
                                 )

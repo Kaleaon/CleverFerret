@@ -29,6 +29,10 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO" />
     
+    <!-- System Permissions for FM Radio (Protected) -->
+    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING" tools:ignore="ProtectedPermissions" />
+    
     <!-- Notification permissions for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     
@@ -190,9 +194,13 @@
         <service
             android:name=".services.media.MediaNotificationService"
             android:enabled="true"
-            android:exported="false"
+            android:exported="true"
             android:foregroundServiceType="mediaPlayback"
-            tools:ignore="ExportedService" />
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
         <service
             android:name=".services.MediaScannerService"
             android:exported="false"

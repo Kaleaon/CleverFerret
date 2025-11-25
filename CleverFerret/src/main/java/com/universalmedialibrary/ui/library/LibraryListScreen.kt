@@ -165,7 +165,9 @@ fun LibraryListScreen(
                         columns = GridCells.Adaptive(minSize = 300.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f)
                     ) {
                         items(uiState.libraries) { libraryWithCount ->
                             LibraryCard(

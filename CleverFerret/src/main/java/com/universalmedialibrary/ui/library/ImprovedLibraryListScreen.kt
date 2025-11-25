@@ -153,7 +153,9 @@ fun ImprovedLibraryListScreen(
                         // Library grid
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(minSize = 160.dp),
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
