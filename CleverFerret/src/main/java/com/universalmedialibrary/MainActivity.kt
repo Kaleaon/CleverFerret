@@ -401,6 +401,9 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                 onNavigateToLibrary = { navController.navigate("libraries") }
             )
         }
+        composable("search") {
+            com.universalmedialibrary.ui.search.EnhancedSearchScreen(navController = navController)
+        }
         composable("libraries") {
             com.universalmedialibrary.ui.library.LibraryListScreen(
                 onNavigateToLibrary = { id -> navController.navigate("library_details/$id") },
@@ -526,6 +529,12 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // Podcast routes
         composable("podcasts") {
             com.universalmedialibrary.ui.podcast.PodcastManagerScreen(navController = navController)
+        }
+        composable(
+            "podcast_detail/{podcastId}",
+            arguments = listOf(navArgument("podcastId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            com.universalmedialibrary.ui.podcast.PodcastDetailScreen(navController = navController)
         }
         composable("podcast_player/{episodeId}") { backStackEntry ->
             val episodeId = backStackEntry.arguments?.getString("episodeId")?.toLongOrNull() ?: -1L
@@ -1244,6 +1253,16 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 icon = { Icon(PhosphorIcons.MusicNote, contentDescription = "Music") },
                 selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") },
                 routeMatch = "music"
+            )
+        )
+
+        add(
+            NavigationItem(
+                route = "podcasts",
+                label = "Podcasts",
+                icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                selectedIcon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                routeMatch = "podcasts"
             )
         )
 
