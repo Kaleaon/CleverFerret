@@ -359,37 +359,19 @@ private fun EnhancedProgressBar(
             }
         }
 
-        // Custom slider with glow
-        Box {
-            // Glow effect
-            Slider(
-                value = sliderPosition,
-                onValueChange = {
-                    isSliding = true
-                    sliderPosition = it
-                },
-                onValueChangeFinished = {
-                    onSeek((sliderPosition * duration).toLong())
-                    isSliding = false
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .blur(8.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
-            )
-            
-            Slider(
-                value = sliderPosition,
-                onValueChange = {
-                    isSliding = true
-                    sliderPosition = it
-                },
-                onValueChangeFinished = {
-                    onSeek((sliderPosition * duration).toLong())
-                    isSliding = false
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        // Standard slider
+        Slider(
+            value = sliderPosition,
+            onValueChange = {
+                isSliding = true
+                sliderPosition = it
+            },
+            onValueChangeFinished = {
+                onSeek((sliderPosition * duration).toLong())
+                isSliding = false
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // Time labels
         Row(

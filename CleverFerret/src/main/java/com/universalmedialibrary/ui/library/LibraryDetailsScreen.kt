@@ -280,10 +280,12 @@ import com.universalmedialibrary.ui.selection.SelectedMediaItem
 
                     // Media items grid
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 250.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxSize()
+                        columns = GridCells.Adaptive(minSize = 160.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f)
                     ) {
                         items(uiState.mediaItems) { mediaItemWithMetadata ->
                             val mediaData = mediaItemWithMetadata.toMediaItemData()
