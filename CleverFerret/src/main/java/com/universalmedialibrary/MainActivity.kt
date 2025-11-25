@@ -394,7 +394,22 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             modifier = Modifier.padding(paddingValues)
         ) {
         composable("home") {
-            LibraryListScreen(navController = navController)
+            com.universalmedialibrary.ui.home.HomeScreen(
+                onNavigateToMedia = { type, id -> navController.navigate("open/$id") },
+                onNavigateToSearch = { navController.navigate("search") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onNavigateToLibrary = { navController.navigate("libraries") }
+            )
+        }
+        composable("search") {
+            com.universalmedialibrary.ui.search.EnhancedSearchScreen(navController = navController)
+        }
+        composable("libraries") {
+            com.universalmedialibrary.ui.library.LibraryListScreen(
+                onNavigateToLibrary = { id -> navController.navigate("library_details/$id") },
+                onNavigateToSettings = { navController.navigate("settings") },
+                onCreateLibrary = { /* Handle creation logic or dialog */ }
+            )
         }
         composable("library_details/{libraryId}") { backStackEntry ->
             val libraryId = backStackEntry.arguments?.getString("libraryId")?.toIntOrNull() ?: 0
@@ -456,6 +471,11 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings/opds") {
             OpdsSettingsScreen(onBack = { navController.navigateUp() })
         }
+        composable("opds_catalog") {
+            com.universalmedialibrary.ui.opds.OPDSCatalogBrowserScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
         composable("maintenance") {
             MaintenanceScreen(onBack = { navController.navigateUp() })
         }
@@ -509,6 +529,12 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // Podcast routes
         composable("podcasts") {
             com.universalmedialibrary.ui.podcast.PodcastManagerScreen(navController = navController)
+        }
+        composable(
+            "podcast_detail/{podcastId}",
+            arguments = listOf(navArgument("podcastId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            com.universalmedialibrary.ui.podcast.PodcastDetailScreen(navController = navController)
         }
         composable("podcast_player/{episodeId}") { backStackEntry ->
             val episodeId = backStackEntry.arguments?.getString("episodeId")?.toLongOrNull() ?: -1L
@@ -637,8 +663,58 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         
         composable("internet_radio") {
             com.universalmedialibrary.ui.radio.InternetRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToRadioBrowser = { navController.navigate("radio_browser") }
+            )
+        }
+        
+        composable("radio_browser") {
+            com.universalmedialibrary.ui.radio.RadioBrowserScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
+        }
+        
+        composable("old_time_radio") {
+            com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToSeries = { series -> 
+                    val encodedTitle = java.net.URLEncoder.encode(series, "UTF-8")
+                    navController.navigate("otr_series/$encodedTitle")
+                },
+                onNavigateToEpisode = { episodeId ->
+                    navController.navigate("otr_player/$episodeId")
+                }
+            )
+        }
+        
+        composable(
+            "otr_series/{seriesTitle}",
+            arguments = listOf(navArgument("seriesTitle") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val seriesTitle = backStackEntry.arguments?.getString("seriesTitle") ?: ""
+            val decodedTitle = java.net.URLDecoder.decode(seriesTitle, "UTF-8")
+            
+            com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioSeriesDetailScreen(
+                seriesTitle = decodedTitle,
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToPlayer = { episodeId ->
+                    navController.navigate("otr_player/$episodeId")
+                }
+            )
+        }
+        
+        composable(
+            "otr_player/{episodeId}",
+            arguments = listOf(navArgument("episodeId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val episodeId = backStackEntry.arguments?.getLong("episodeId") ?: -1L
+            
+            if (episodeId != -1L) {
+                com.universalmedialibrary.ui.oldtimeradio.OldTimeRadioPlayerLauncher(
+                    episodeId = episodeId,
+                    onNavigateBack = { navController.navigateUp() }
+                )
+            }
         }
         
         composable("fm_radio") {
@@ -676,6 +752,13 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
         
+        // API Settings route
+        composable("settings/api") {
+            com.universalmedialibrary.ui.settings.APISettingsScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
         // Import/Export route
         composable("settings/import_export") {
             com.universalmedialibrary.ui.settings.ImportExportScreen(
@@ -687,7 +770,8 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         composable("settings/audio_effects") {
             AudioEffectsSettingsScreen(
                 viewModel = hiltViewModel(),
-                onNavigateBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
+                onNavigateToShowcase = { navController.navigate("advanced_effects_showcase") }
             )
         }
 
@@ -796,6 +880,18 @@ fun AppNavigation(externalFileUri: Uri? = null) {
             )
         }
         
+        composable("book_source_manager") {
+            com.universalmedialibrary.ui.books.BookSourceManagerScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("multi_room_audio") {
+            com.universalmedialibrary.ui.audio.MultiRoomAudioScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+        
         composable("metabods_tag_browser") {
             com.universalmedialibrary.ui.webfiction.MetabodsTagBrowserScreen(
                 navController = navController
@@ -835,6 +931,22 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                     onBack = { navController.navigateUp() }
                 )
             }
+        }
+
+        composable("news_hub") {
+            com.universalmedialibrary.ui.news.NewsScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onOpenEpub = { path ->
+                    val encodedPath = java.net.URLEncoder.encode(path, "UTF-8")
+                    navController.navigate("reader_path/$encodedPath")
+                }
+            )
+        }
+        
+        composable("web_comic_downloader") {
+            com.universalmedialibrary.ui.comic.WebComicDownloaderScreen(
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
 
         composable("story_manager") {
@@ -904,6 +1016,10 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         // Theme preview for testing (old)
         composable("theme_preview") {
             com.universalmedialibrary.ui.theme.ThemePreviewScreen()
+        }
+        
+        composable("advanced_effects_showcase") {
+            com.universalmedialibrary.ui.screens.AdvancedEffectsShowcaseScreen()
         }
         
         // New unified theme showcase with all 15 themes
@@ -1114,25 +1230,16 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         )
 
-        sortedLibraries.forEach { library ->
-            val navConfig = libraryNavConfig(library.type)
-            val label = formatLibraryLabel(
-                name = library.name,
-                type = library.type,
-                canonicalLabel = navConfig?.canonicalLabel
+        // Libraries Tab
+        add(
+            NavigationItem(
+                route = "libraries",
+                label = "Libraries",
+                icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
+                selectedIcon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
+                routeMatch = "libraries"
             )
-            val iconVector = navConfig?.icon ?: iconForLibraryType(library.type)
-            val selectedIconVector = navConfig?.selectedIcon ?: iconVector
-            add(
-                NavigationItem(
-                    route = "library_details/${library.libraryId}",
-                    label = label,
-                    icon = { Icon(iconVector, contentDescription = label) },
-                    selectedIcon = { Icon(selectedIconVector, contentDescription = label) },
-                    routeMatch = "library_details/{libraryId}"
-                )
-            )
-        }
+        )
 
         val hasAudiobookLibrary = normalizedTypes.any { it in AUDIOBOOK_TYPE_TOKENS }
         val hasPodcastLibrary = normalizedTypes.any { it in PODCAST_TYPE_TOKENS }
@@ -1146,6 +1253,16 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 icon = { Icon(PhosphorIcons.MusicNote, contentDescription = "Music") },
                 selectedIcon = { Icon(PhosphorIcons.MusicNoteFill, contentDescription = "Music") },
                 routeMatch = "music"
+            )
+        )
+
+        add(
+            NavigationItem(
+                route = "podcasts",
+                label = "Podcasts",
+                icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                selectedIcon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                routeMatch = "podcasts"
             )
         )
 
@@ -1713,6 +1830,13 @@ fun LibraryListScreen(
                                     onClick = {
                                         showMenu = false
                                         navController.navigate("settings/opds")
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Newsstand") },
+                                    onClick = {
+                                        showMenu = false
+                                        navController.navigate("news_hub")
                                     }
                                 )
                                 DropdownMenuItem(

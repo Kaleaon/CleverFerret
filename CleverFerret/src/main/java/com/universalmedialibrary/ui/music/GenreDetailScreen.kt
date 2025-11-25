@@ -190,7 +190,7 @@ class GenreDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }
@@ -207,7 +207,7 @@ class GenreDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }
@@ -221,7 +221,7 @@ class GenreDetailViewModel @Inject constructor(
                 artist = track.artist,
                 album = track.album,
                 duration = track.duration,
-                albumArtUrl = null
+                albumArtUrl = track.albumArtUri?.toString()
             )
         }
     }

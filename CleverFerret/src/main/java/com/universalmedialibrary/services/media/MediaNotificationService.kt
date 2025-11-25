@@ -129,6 +129,7 @@ class MediaNotificationService : MediaSessionService() {
                 .setNotificationListener(notificationListener)
                 .build().apply {
                     setMediaSessionToken(session.platformToken)
+                    setUsePlayPauseActions(true)
                     setUseNextAction(true)
                     setUsePreviousAction(true)
                     setUseFastForwardAction(true)

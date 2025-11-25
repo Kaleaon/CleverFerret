@@ -273,14 +273,14 @@ class AlbumDetailViewModel @Inject constructor(
             val tracks = album.tracks
             if (tracks.isNotEmpty()) {
                 val trackToPlay = tracks.getOrNull(startIndex) ?: tracks.first()
-                musicPlayerService.playTrackFromUri(
-                    uri = trackToPlay.uri.toString(),
-                    title = trackToPlay.title ?: "Unknown",
-                    artist = trackToPlay.artist,
-                    album = trackToPlay.album,
-                    duration = trackToPlay.duration,
-                    albumArtUrl = null
-                )
+                    musicPlayerService.playTrackFromUri(
+                        uri = trackToPlay.uri.toString(),
+                        title = trackToPlay.title ?: "Unknown",
+                        artist = trackToPlay.artist,
+                        album = trackToPlay.album,
+                        duration = trackToPlay.duration,
+                        albumArtUrl = trackToPlay.albumArtUri?.toString()
+                    )
             }
         }
     }
@@ -290,14 +290,14 @@ class AlbumDetailViewModel @Inject constructor(
             val tracks = album.tracks.shuffled()
             if (tracks.isNotEmpty()) {
                 val firstTrack = tracks.first()
-                musicPlayerService.playTrackFromUri(
-                    uri = firstTrack.uri.toString(),
-                    title = firstTrack.title ?: "Unknown",
-                    artist = firstTrack.artist,
-                    album = firstTrack.album,
-                    duration = firstTrack.duration,
-                    albumArtUrl = null
-                )
+                    musicPlayerService.playTrackFromUri(
+                        uri = firstTrack.uri.toString(),
+                        title = firstTrack.title ?: "Unknown",
+                        artist = firstTrack.artist,
+                        album = firstTrack.album,
+                        duration = firstTrack.duration,
+                        albumArtUrl = firstTrack.albumArtUri?.toString()
+                    )
             }
         }
     }

@@ -409,11 +409,17 @@ fun CleverFerretTheme.isAncientArchitect(): Boolean {
 fun CleverFerretTheme.toThemePalette(): com.universalmedialibrary.ui.theme.ThemePalette {
     return when (this) {
         CleverFerretTheme.NAVY_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
+        CleverFerretTheme.EMERALD_SILVER -> com.universalmedialibrary.ui.theme.ThemePalette.EMERALD_SILVER
+        CleverFerretTheme.ROYAL_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.ROYAL_BRONZE
+        CleverFerretTheme.MIDNIGHT_AMBER -> com.universalmedialibrary.ui.theme.ThemePalette.MIDNIGHT_AMBER
+        CleverFerretTheme.OBSIDIAN_CRIMSON -> com.universalmedialibrary.ui.theme.ThemePalette.OBSIDIAN_CRIMSON
+        CleverFerretTheme.SLATE_CYAN -> com.universalmedialibrary.ui.theme.ThemePalette.SLATE_CYAN
         CleverFerretTheme.ROYAL_SILVER -> com.universalmedialibrary.ui.theme.ThemePalette.ROYAL_SILVER
         CleverFerretTheme.FOREST_COPPER -> com.universalmedialibrary.ui.theme.ThemePalette.FOREST_COPPER
         CleverFerretTheme.BURGUNDY_ROSE_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.BURGUNDY_ROSE_GOLD
         CleverFerretTheme.CHARCOAL_CHAMPAGNE -> com.universalmedialibrary.ui.theme.ThemePalette.CHARCOAL_CHAMPAGNE
         CleverFerretTheme.SLATE_GUNMETAL -> com.universalmedialibrary.ui.theme.ThemePalette.SLATE_GUNMETAL
+        CleverFerretTheme.DEEP_PURPLE_PLATINUM -> com.universalmedialibrary.ui.theme.ThemePalette.DEEP_PURPLE_PLATINUM
         CleverFerretTheme.COPPER_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.COPPER_BRONZE
         CleverFerretTheme.AMBER_GOLD -> com.universalmedialibrary.ui.theme.ThemePalette.AMBER_GOLD
         CleverFerretTheme.ROSE_BRASS -> com.universalmedialibrary.ui.theme.ThemePalette.ROSE_BRASS
@@ -423,13 +429,6 @@ fun CleverFerretTheme.toThemePalette(): com.universalmedialibrary.ui.theme.Theme
         CleverFerretTheme.ANCIENT_BRONZE -> com.universalmedialibrary.ui.theme.ThemePalette.ANCIENT_BRONZE
         CleverFerretTheme.SILVER_ARCHITECT -> com.universalmedialibrary.ui.theme.ThemePalette.SILVER_ARCHITECT
         CleverFerretTheme.OBSIDIAN_TECH -> com.universalmedialibrary.ui.theme.ThemePalette.OBSIDIAN_TECH
-        // Themes not in ThemePalette fall back to NAVY_GOLD
-        CleverFerretTheme.EMERALD_SILVER,
-        CleverFerretTheme.ROYAL_BRONZE,
-        CleverFerretTheme.MIDNIGHT_AMBER,
-        CleverFerretTheme.OBSIDIAN_CRIMSON,
-        CleverFerretTheme.SLATE_CYAN,
-        CleverFerretTheme.DEEP_PURPLE_PLATINUM -> com.universalmedialibrary.ui.theme.ThemePalette.NAVY_GOLD
     }
 }
 

@@ -46,6 +46,7 @@ fun WebFictionManagerScreen(
         val uiState by viewModel.uiState.collectAsState()
         val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
         var showAddDialog by remember { mutableStateOf(false) }
+        var showRedditDialog by remember { mutableStateOf(false) }
         var showSiteInfoDialog by remember { mutableStateOf(false) }
         var selectedSite by remember { mutableStateOf<WebFictionSite?>(null) }
 
@@ -70,9 +71,6 @@ fun WebFictionManagerScreen(
                         IconButton(onClick = { showSiteInfoDialog = true }) {
                             Icon(Icons.Default.Info, contentDescription = "Supported Sites")
                         }
-                        IconButton(onClick = { viewModel.downloadRedditSeriesAsEpub("Out of Cruel Space", "HFY") }) {
-                            Icon(Icons.Default.Download, contentDescription = "Download OOCS from Reddit")
-                        }
                         IconButton(onClick = { viewModel.checkAllForUpdates() }) {
                             Icon(Icons.Default.Refresh, contentDescription = "Check for Updates")
                         }
@@ -80,11 +78,23 @@ fun WebFictionManagerScreen(
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { showAddDialog = true },
-                    containerColor = MaterialTheme.colorScheme.primary
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Story")
+                    FloatingActionButton(
+                        onClick = { showAddDialog = true },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Icon(Icons.Default.Link, contentDescription = "Add from URL")
+                    }
+                    
+                    FloatingActionButton(
+                        onClick = { showRedditDialog = true },
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        Icon(Icons.Default.Forum, contentDescription = "Add Reddit Series")
+                    }
                 }
             }
         ) { paddingValues ->
@@ -272,6 +282,16 @@ fun WebFictionManagerScreen(
                     }
                 }
             }
+        }
+
+        if (showRedditDialog) {
+            AddRedditSeriesDialog(
+                onDismiss = { showRedditDialog = false },
+                onAdd = { subreddit, seriesName, author ->
+                    viewModel.downloadRedditSeriesAsEpub(seriesName, author, subreddit)
+                    showRedditDialog = false
+                }
+            )
         }
 
         // Add story dialog
@@ -472,6 +492,64 @@ fun WebFictionStoryCard(
             }
         }
     }
+}
+
+@Composable
+fun AddRedditSeriesDialog(
+    onDismiss: () -> Unit,
+    onAdd: (subreddit: String, seriesName: String, author: String) -> Unit
+) {
+    var subreddit by remember { mutableStateOf("HFY") }
+    var seriesName by remember { mutableStateOf("") }
+    var author by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Reddit Series") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = subreddit,
+                    onValueChange = { subreddit = it.trim() },
+                    label = { Text("Subreddit (e.g. HFY)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = seriesName,
+                    onValueChange = { seriesName = it },
+                    label = { Text("Series Name (Search Query)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = author,
+                    onValueChange = { author = it.trim() },
+                    label = { Text("Author (Optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Text(
+                    "Use exact series title for best results.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onAdd(subreddit, seriesName, author) },
+                enabled = subreddit.isNotBlank() && seriesName.isNotBlank()
+            ) {
+                Text("Download")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable

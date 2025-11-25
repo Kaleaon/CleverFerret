@@ -61,22 +61,22 @@ object FreeMusicCatalog {
             coverUrl = "https://usercontent.jamendo.com?type=album&id=187163&width=300"
         ),
         FreeMusicTrack(
-            id = "bbc_tropical_forest_birds",
-            title = "Tropical Forest Ambience with Birds",
-            artist = "BBC Sound Effects",
-            streamUrl = "https://bbcsfx.acropolis.org.uk/assets/07031428.wav",
-            downloadUrl = "https://sound-effects.bbcrewind.co.uk/search?q=07031428",
-            source = FreeMusicSource.BBC_SOUND_EFFECTS,
-            license = creativeCommonsAttribution,
+            id = "freesound_tropical_forest_birds",
+            title = "Toucans singing in the Amazonian Rainforest",
+            artist = "felix.blume",
+            streamUrl = "https://cdn.freesound.org/previews/404/404114_1661766-hq.mp3",
+            downloadUrl = "https://freesound.org/people/felix.blume/sounds/404114/",
+            source = FreeMusicSource.FREESOUND,
+            license = creativeCommons0,
             durationSeconds = 120,
-            tags = listOf("nature", "ambient", "forest"),
-            coverUrl = "https://sound-effects.bbcrewind.co.uk/static/img/favicons/android-chrome-512x512.png"
+            tags = listOf("nature", "ambient", "forest", "birds"),
+            coverUrl = "https://freesound.org/static/img/logo-square.png"
         ),
         FreeMusicTrack(
             id = "freesound_space_drone",
             title = "Space Drone",
             artist = "tyops",
-            streamUrl = "https://freesound.org/data/previews/415/415209_5121236-lq.mp3",
+            streamUrl = "https://cdn.freesound.org/previews/415/415209_5121236-hq.mp3",
             downloadUrl = "https://freesound.org/people/tyops/sounds/415209/",
             source = FreeMusicSource.FREESOUND,
             license = creativeCommons0,

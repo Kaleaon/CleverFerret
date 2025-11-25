@@ -49,9 +49,9 @@ class WebFictionViewModel @Inject constructor(
      * Download Reddit series with native EPUB generation and automatic library addition
      */
     fun downloadRedditSeriesAsEpub(
-        seriesName: String = "Out of Cruel Space",
-        author: String = "KyleKKent",
-        subreddit: String = "HFY"
+        seriesName: String,
+        author: String,
+        subreddit: String
     ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)

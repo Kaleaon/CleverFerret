@@ -11,15 +11,15 @@ object FreeAmbientCollections {
         registerFreesoundCollection()
     }
 
-    private fun registerBbcCollection() {
+    private fun registerNatureCollection() {
         val sounds = listOf(
             AmbientSound(
                 name = "Rainforest Downpour",
                 category = AmbientCategory.NATURE,
                 soundType = AmbientSoundType.RAIN,
-                audioUrl = "https://bbcsfx.acropolis.org.uk/assets/07067040.wav",
+                audioUrl = "https://cdn.freesound.org/previews/671/671409_14660805-hq.mp3",
                 iconType = "rain",
-                description = "Recorded by BBC engineers in the Monteverde Cloud Forest. Licensed under RemArc (CC BY).",
+                description = "Heavy rain in the forest (Freesound, CC0).",
                 keywords = listOf("rain", "forest", "nature", "downpour"),
                 volume = 0.6f
             ),
@@ -27,9 +27,9 @@ object FreeAmbientCollections {
                 name = "Coastal Waves",
                 category = AmbientCategory.WATER,
                 soundType = AmbientSoundType.OCEAN,
-                audioUrl = "https://bbcsfx.acropolis.org.uk/assets/07002050.wav",
+                audioUrl = "https://cdn.freesound.org/previews/803/803679_2520418-hq.mp3",
                 iconType = "wave",
-                description = "Atlantic surf breaking on a rocky beach. Licensed under RemArc (CC BY).",
+                description = "Ocean waves crashing on the coast (Freesound, CC0).",
                 keywords = listOf("ocean", "waves", "coast", "sea"),
                 volume = 0.6f
             ),
@@ -37,9 +37,9 @@ object FreeAmbientCollections {
                 name = "Highland Winds",
                 category = AmbientCategory.NATURE,
                 soundType = AmbientSoundType.WIND,
-                audioUrl = "https://bbcsfx.acropolis.org.uk/assets/07054060.wav",
+                audioUrl = "https://cdn.freesound.org/previews/478/478644_1481531-hq.mp3",
                 iconType = "wind",
-                description = "Strong wind through Scottish highlands. Licensed under RemArc (CC BY).",
+                description = "Strong wind ambience (Freesound, CC0).",
                 keywords = listOf("wind", "mountain", "highland"),
                 volume = 0.5f
             )
@@ -47,9 +47,9 @@ object FreeAmbientCollections {
 
         SoundLibrary.registerCollection(
             SoundLibrary.SoundCollection(
-                id = "bbc_soundscapes",
-                name = "BBC Soundscapes",
-                description = "Nature ambiences from the BBC Sound Effects library (RemArc CC BY).",
+                id = "nature_soundscapes",
+                name = "Nature Soundscapes",
+                description = "High quality nature ambiences from Freesound (CC0).",
                 theme = "nature",
                 sounds = sounds,
                 enabled = true
@@ -98,7 +98,7 @@ object FreeAmbientCollections {
                 description = "Community-contributed ambiences from Freesound.org. Check track licenses for attribution.",
                 theme = "ambient",
                 sounds = sounds,
-                enabled = false
+                enabled = true
             )
         )
     }

@@ -43,6 +43,18 @@ android {
         // Enable BuildConfig generation
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
+
+        val tasteDiveKey = project.properties["TASTEDIVE_API_KEY"] ?: "1062990-CleverFe-17BF9586"
+        buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
+
+        val nytApiKey = project.properties["NYT_API_KEY"] ?: ""
+        buildConfigField("String", "NYT_API_KEY", "\"$nytApiKey\"")
+
+        val nytApiSecret = project.properties["NYT_API_SECRET"] ?: ""
+        buildConfigField("String", "NYT_API_SECRET", "\"$nytApiSecret\"")
+
+        val nytAppId = project.properties["NYT_APP_ID"] ?: ""
+        buildConfigField("String", "NYT_APP_ID", "\"$nytAppId\"")
     }
 
     buildTypes {
@@ -100,7 +112,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 
     // Compose BOM and core components
-    implementation(platform(libs.androidx.compose.bom))
+    implementation(enforcedPlatform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
@@ -143,7 +155,6 @@ dependencies {
     // Image loading & UI utilities
     implementation(libs.coil.compose)
     implementation(libs.androidx.palette)
-    implementation(libs.compose.reorderable)
 
     // Media playback
     implementation(libs.androidx.media)
@@ -238,7 +249,7 @@ dependencies {
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(enforcedPlatform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.mockito.android)
     androidTestImplementation(libs.mockk.android)

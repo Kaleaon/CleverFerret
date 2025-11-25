@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.universalmedialibrary.services.ai.AIServiceManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,7 +19,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class ReadingAnalyticsService @Inject constructor(
-    private val analyticsDao: ReadingAnalyticsDao
+    private val analyticsDao: ReadingAnalyticsDao,
+    private val aiServiceManager: AIServiceManager
 ) {
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

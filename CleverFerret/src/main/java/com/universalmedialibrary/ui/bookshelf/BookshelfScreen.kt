@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material.icons.outlined.FavoriteBorder
 
@@ -148,6 +149,14 @@ fun EnhancedBookshelfScreen(
                     }
                 }
             )
+            },
+            floatingActionButton = {
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate("opds_catalog") },
+                    icon = { Icon(Icons.Default.CloudDownload, contentDescription = null) },
+                    text = { Text("Get Books") },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
             }
         ) { paddingValues ->
             Column(

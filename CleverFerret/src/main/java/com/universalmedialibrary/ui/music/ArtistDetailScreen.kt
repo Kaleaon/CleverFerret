@@ -451,7 +451,7 @@ class ArtistDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }
@@ -468,7 +468,7 @@ class ArtistDetailViewModel @Inject constructor(
                     artist = firstTrack.artist,
                     album = firstTrack.album,
                     duration = firstTrack.duration,
-                    albumArtUrl = null
+                    albumArtUrl = firstTrack.albumArtUri?.toString()
                 )
             }
         }

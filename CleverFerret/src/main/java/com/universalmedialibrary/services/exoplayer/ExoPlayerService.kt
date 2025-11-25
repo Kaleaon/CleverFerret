@@ -49,7 +49,9 @@ class ExoPlayerService @Inject constructor(
 
         runOnMainThread {
             if (exoPlayer == null) {
-                exoPlayer = ExoPlayer.Builder(context).build().apply {
+                exoPlayer = ExoPlayer.Builder(context)
+                    .setHandleAudioBecomingNoisy(true)
+                    .build().apply {
                     addListener(object : Player.Listener {
                         override fun onPlaybackStateChanged(playbackState: Int) {
                             val isPlaying = playbackState == Player.STATE_READY && playWhenReady

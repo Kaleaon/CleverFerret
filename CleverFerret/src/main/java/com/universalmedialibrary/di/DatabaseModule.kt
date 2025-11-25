@@ -208,6 +208,11 @@ object DatabaseModule {
         return database.maintenanceChangeDao()
     }
 
+    @Provides
+    fun provideExtendedMetadataDao(database: AppDatabase): ExtendedMetadataDao {
+        return database.extendedMetadataDao()
+    }
+
     // Metadata Fetch Repository
     @Provides
     @Singleton
@@ -356,6 +361,14 @@ object DatabaseModule {
     @Provides
     fun provideCollaborativeSessionDao(database: AppDatabase): CollaborativeSessionDao {
         return database.collaborativeSessionDao()
+    }
+
+    /**
+     * Provides the DAO for accessing dictionary entries.
+     */
+    @Provides
+    fun provideDictionaryDao(database: AppDatabase): DictionaryDao {
+        return database.dictionaryDao()
     }
 
 }

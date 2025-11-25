@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.services.visualizer.VisualizerState
 import kotlin.math.*
@@ -75,7 +76,151 @@ fun ProjectMVisualizer(
             VisualizerStyle.MATRIX_RAIN -> MatrixRainVisualizer(visualizerState, primaryColor)
             VisualizerStyle.DUAL_CHANNEL -> DualChannelVisualizer(visualizerState, primaryColor, secondaryColor)
             VisualizerStyle.CUBE_3D -> Cube3DVisualizer(visualizerState, rotation, primaryColor, secondaryColor, tertiaryColor)
+            VisualizerStyle.TUNNEL -> TunnelVisualizer(visualizerState, rotation, primaryColor, secondaryColor)
+            VisualizerStyle.STARFIELD -> StarfieldVisualizer(visualizerState, rotation, primaryColor)
+            VisualizerStyle.FLUID -> FluidVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
         }
+    }
+}
+
+/**
+ * Tunnel visualization
+ */
+@Composable
+private fun TunnelVisualizer(
+    state: VisualizerState,
+    rotation: Float,
+    primaryColor: Color,
+    secondaryColor: Color
+) {
+    val bass = state.frequencyBands.bass
+    val mid = state.frequencyBands.mid
+    
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val centerX = size.width / 2
+        val centerY = size.height / 2
+        val maxRadius = max(size.width, size.height)
+        
+        // Draw concentric squares creating tunnel effect
+        for (i in 0..10) {
+            val progress = (i + (rotation / 30f)) % 10f / 10f
+            val size = maxRadius * progress
+            val alpha = progress * (0.5f + bass * 0.5f)
+            val rotationOffset = progress * 90f
+            
+            rotate(rotation + rotationOffset, pivot = Offset(centerX, centerY)) {
+                drawRect(
+                    color = primaryColor.copy(alpha = alpha),
+                    topLeft = Offset(centerX - size / 2, centerY - size / 2),
+                    size = androidx.compose.ui.geometry.Size(size, size),
+                    style = Stroke(width = 5f + mid * 10f)
+                )
+                
+                // Connect corners to next square for depth illusion
+                if (i > 0) {
+                     val prevProgress = (i - 1 + (rotation / 30f)) % 10f / 10f
+                     val prevSize = maxRadius * prevProgress
+                     // Simple connecting lines could be added here
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Starfield visualization
+ */
+@Composable
+private fun StarfieldVisualizer(
+    state: VisualizerState,
+    rotation: Float,
+    starColor: Color
+) {
+    val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
+    val bass = state.frequencyBands.bass
+    
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val centerX = size.width / 2
+        val centerY = size.height / 2
+        
+        // Use spectrum to determine star brightness/size
+        spectrum.forEachIndexed { index, magnitude ->
+            // Random-ish position based on index
+            val angle = (index * 137.5f + rotation) * PI.toFloat() / 180f
+            val distance = (index * 10f + (state.timestamp % 1000)) % (min(size.width, size.height) / 2)
+            
+            val x = centerX + cos(angle) * distance
+            val y = centerY + sin(angle) * distance
+            
+            val size = 2f + magnitude * 10f + bass * 5f
+            
+            drawCircle(
+                color = starColor.copy(alpha = magnitude.coerceIn(0.2f, 1f)),
+                radius = size,
+                center = Offset(x, y)
+            )
+            
+            // Trailing effect for fast moving stars (bass kick)
+            if (bass > 0.5f) {
+                drawLine(
+                    color = starColor.copy(alpha = 0.3f),
+                    start = Offset(centerX, centerY),
+                    end = Offset(x, y),
+                    strokeWidth = 1f
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Fluid visualization
+ */
+@Composable
+private fun FluidVisualizer(
+    state: VisualizerState,
+    color1: Color,
+    color2: Color,
+    color3: Color
+) {
+    val waveform = state.waveform.ifEmpty { List(128) { 0f } }
+    
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val centerX = size.width / 2
+        val centerY = size.height / 2
+        val radius = min(size.width, size.height) * 0.4f
+        
+        val path = Path()
+        val points = waveform.size
+        
+        for (i in 0 until points) {
+            val angle = (i.toFloat() / points) * 2 * PI.toFloat()
+            val amplitude = waveform[i] * 100f
+            val r = radius + amplitude
+            
+            val x = centerX + cos(angle) * r
+            val y = centerY + sin(angle) * r
+            
+            if (i == 0) path.moveTo(x, y)
+            else path.lineTo(x, y)
+        }
+        path.close()
+        
+        // Draw filled fluid
+        drawPath(
+            path = path,
+            brush = Brush.radialGradient(
+                colors = listOf(color1, color2, color3),
+                center = Offset(centerX, centerY)
+            )
+        )
+        
+        // Draw outline
+        drawPath(
+            path = path,
+            color = color1.copy(alpha = 0.8f),
+            style = Stroke(width = 3f)
+        )
     }
 }
 
@@ -865,5 +1010,8 @@ enum class VisualizerStyle {
     FRACTAL,
     MATRIX_RAIN,
     DUAL_CHANNEL,
-    CUBE_3D
+    CUBE_3D,
+    TUNNEL,
+    STARFIELD,
+    FLUID
 }

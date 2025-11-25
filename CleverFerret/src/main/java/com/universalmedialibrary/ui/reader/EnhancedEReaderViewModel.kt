@@ -8,9 +8,11 @@ import androidx.lifecycle.viewModelScope
 import android.net.Uri
 import com.universalmedialibrary.data.local.entity.EnhancedAnnotation
 import com.universalmedialibrary.data.local.entity.AnnotationExportConfig
+import com.universalmedialibrary.data.local.entity.ReaderAIInsight
 import com.universalmedialibrary.services.reader.EnhancedUniversalReaderService
 import com.universalmedialibrary.services.reader.AnnotationService
 import com.universalmedialibrary.services.reading.AnnotationExportService
+import com.universalmedialibrary.services.reading.ReadingAnalyticsService
 import com.universalmedialibrary.services.reader.model.BookFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -31,6 +33,7 @@ data class EnhancedReaderUiState(
     val currentChapterIndex: Int = 0,
     val chapters: List<String> = emptyList(),
     val enhancedAnnotations: List<EnhancedAnnotation> = emptyList(),
+    val aiInsights: List<ReaderAIInsight> = emptyList(),
     val isBookmarked: Boolean = false,
     val isLoading: Boolean = false,
     val isLoaded: Boolean = false,
@@ -48,7 +51,8 @@ data class SimpleTtsState(
 class EnhancedEReaderViewModel @Inject constructor(
     private val readerService: EnhancedUniversalReaderService,
     private val annotationService: AnnotationService,
-    private val annotationExportService: AnnotationExportService
+    private val annotationExportService: AnnotationExportService,
+    private val readingAnalyticsService: ReadingAnalyticsService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EnhancedReaderUiState())
@@ -63,12 +67,14 @@ class EnhancedEReaderViewModel @Inject constructor(
     private var textToSpeech: TextToSpeech? = null
     private var currentBookId: Long = 0
     private var annotationsJob: Job? = null
+    private var insightsJob: Job? = null
 
     fun loadBook(bookFilePath: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
             annotationsJob?.cancel()
+            insightsJob?.cancel()
 
             val file = File(bookFilePath)
             if (!file.exists()) {
@@ -106,6 +112,13 @@ class EnhancedEReaderViewModel @Inject constructor(
                 annotationsJob = viewModelScope.launch {
                     annotationService.getEnhancedAnnotationsForBook(bookId).collect { annotations ->
                         _uiState.value = _uiState.value.copy(enhancedAnnotations = annotations)
+                    }
+                }
+
+                insightsJob?.cancel()
+                insightsJob = viewModelScope.launch {
+                    readingAnalyticsService.getAIInsights(bookId).collect { insights ->
+                        _uiState.value = _uiState.value.copy(aiInsights = insights)
                     }
                 }
             } else {
