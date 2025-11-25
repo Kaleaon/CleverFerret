@@ -1256,6 +1256,16 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         )
 
+        add(
+            NavigationItem(
+                route = "podcasts",
+                label = "Podcasts",
+                icon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                selectedIcon = { Icon(Icons.Default.Podcasts, contentDescription = "Podcasts") },
+                routeMatch = "podcasts"
+            )
+        )
+
         if (!hasAudiobookLibrary) {
             addIfMissing("audiobook_library") {
                 NavigationItem(
