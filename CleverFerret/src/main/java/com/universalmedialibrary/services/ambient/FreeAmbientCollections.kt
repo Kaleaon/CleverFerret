@@ -7,7 +7,7 @@ import com.universalmedialibrary.data.local.entity.AmbientSoundType
 object FreeAmbientCollections {
 
     fun registerAll() {
-        registerBbcCollection()
+        registerNatureCollection()
         registerFreesoundCollection()
     }
 
