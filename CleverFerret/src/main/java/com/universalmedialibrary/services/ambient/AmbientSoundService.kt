@@ -62,9 +62,19 @@ class AmbientSoundService @Inject constructor(
     suspend fun syncWithSoundLibrary() {
         val librarySounds = SoundLibrary.getAllSounds()
         val dbSounds = ambientSoundDao.getAllSoundsSync()
-        val dbSoundNames = dbSounds.map { it.name }.toSet()
+        val dbSoundMap = dbSounds.associateBy { it.name }
         
-        val newSounds = librarySounds.filter { it.name !in dbSoundNames }
+        val newSounds = mutableListOf<AmbientSound>()
+        
+        librarySounds.forEach { libSound ->
+            val dbSound = dbSoundMap[libSound.name]
+            if (dbSound == null) {
+                newSounds.add(libSound)
+            } else if (dbSound.audioUrl.isNullOrBlank() && !libSound.audioUrl.isNullOrBlank()) {
+                // Update existing sound with URL if missing
+                ambientSoundDao.updateSound(dbSound.copy(audioUrl = libSound.audioUrl))
+            }
+        }
         
         if (newSounds.isNotEmpty()) {
             ambientSoundDao.insertSounds(newSounds)
