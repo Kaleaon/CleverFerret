@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:orientation="horizontal" android:id="@id/headerLay" android:background="@color/options_background" android:layout_width="fill_parent" android:layout_height="@dimen/header_main_height"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView android:id="@id/exitB" android:background="?selectableItemBackground" android:padding="17.0dip" android:focusable="true" android:layout_width="56.0dip" android:layout_height="fill_parent" android:src="@drawable/arrow_back2" android:scaleType="fitCenter" android:layout_alignParentStart="true" app:tint="#ff212121" />
+    <TextView android:textSize="20.0sp" android:textStyle="normal" android:textColor="@color/dialog_main_text" android:gravity="center_vertical" android:id="@id/titleB" android:paddingLeft="0.0dip" android:paddingRight="0.0dip" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="" android:layout_weight="5.0" android:layout_toRightOf="@id/exitB" android:paddingHorizontal="0.0dip" />
+    <androidx.appcompat.widget.SearchView android:id="@id/phSearch" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_alignParentEnd="true" app:searchHintIcon="@null" />
+</RelativeLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:id="@id/fileLayout" android:paddingTop="16.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_gravity="center" android:id="@id/iv" android:layout_width="120.0dip" android:layout_height="220.0dip" android:src="@drawable/remove_ad_tip" android:scaleType="fitCenter" />
+    <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <TextView android:textSize="16.0sp" android:textColor="@color/material_grey_800" android:gravity="center" android:layout_gravity="center_horizontal" android:id="@id/tv" android:padding="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/rewarded_video_to_remove_ads" />
+        <CheckBox android:textSize="14.0sp" android:textColor="@color/material_grey_800" android:layout_gravity="bottom|center" android:id="@id/cb" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="20.0dip" android:checked="true" android:text="@string/do_not_ask_again" />
+    </FrameLayout>
+</LinearLayout>

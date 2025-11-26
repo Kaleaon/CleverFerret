@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/material_grey_50" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <HorizontalScrollView android:id="@id/horizontalScrollView1" android:paddingRight="6.0dip" android:scrollbars="none" android:fadingEdge="none" android:layout_width="fill_parent" android:layout_height="24.0sp">
+        <LinearLayout android:orientation="horizontal" android:id="@id/foldersLay" android:layout_width="wrap_content" android:layout_height="fill_parent" />
+    </HorizontalScrollView>
+    <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0">
+        <com.flyersoft.views.recyclerview.MyRecyclerView android:id="@id/mlocalList" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0" />
+        <View android:id="@id/barShadow" android:background="@drawable/hl_top_shadow" android:layout_width="fill_parent" android:layout_height="8.0dip" />
+    </FrameLayout>
+    <LinearLayout android:layout_gravity="bottom" android:id="@id/searchTypeBar" android:background="#ffebebeb" android:layout_width="fill_parent" android:layout_height="36.0dip">
+        <TextView android:textSize="12.0sp" android:textColor="#ff616161" android:gravity="center" android:id="@id/bytime" android:tag="1" android:background="?selectableItemBackground" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/sort_by_time" android:lines="1" android:layout_weight="5.0" />
+        <TextView android:textColor="#ff616161" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="|" />
+        <TextView android:textSize="12.0sp" android:textColor="#ff616161" android:gravity="center" android:id="@id/bystorage" android:tag="2" android:background="?selectableItemBackground" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/location" android:lines="1" android:layout_weight="5.0" />
+        <TextView android:textColor="#ff616161" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="|" />
+        <TextView android:textSize="12.0sp" android:textColor="#ff616161" android:gravity="center" android:id="@id/byfilename" android:tag="3" android:background="?selectableItemBackground" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/filename" android:lines="1" android:layout_weight="5.0" />
+        <View android:id="@id/empty" android:layout_width="64.0dip" android:layout_height="fill_parent" />
+    </LinearLayout>
+    <LinearLayout android:layout_gravity="bottom" android:id="@id/mPasteBar" android:background="#ffebebeb" android:layout_width="fill_parent" android:layout_height="36.0dip">
+        <TextView android:textSize="12.0sp" android:textStyle="bold" android:textColor="#ff616161" android:gravity="center" android:id="@id/ButtonPaste" android:background="@drawable/my_list_selector" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/paste" android:lines="1" android:layout_weight="5.0" />
+        <TextView android:textColor="#ff616161" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="|" />
+        <TextView android:textSize="12.0sp" android:textStyle="bold" android:textColor="#ff616161" android:gravity="center" android:id="@id/ButtonNewFolder2" android:background="@drawable/my_list_selector" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/new_folder" android:lines="1" android:layout_weight="4.0" />
+        <TextView android:textColor="#ff616161" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="|" />
+        <TextView android:textSize="12.0sp" android:textColor="#ff616161" android:gravity="center" android:id="@id/ButtonCancel2" android:background="@drawable/my_list_selector" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/cancel" android:lines="1" android:layout_weight="5.0" />
+        <View android:id="@id/empty" android:layout_width="64.0dip" android:layout_height="fill_parent" />
+    </LinearLayout>
+    <LinearLayout android:layout_gravity="bottom" android:id="@id/mSelectBar" android:background="#ffebebeb" android:layout_width="fill_parent" android:layout_height="36.0dip">
+        <TextView android:textSize="12.0sp" android:textStyle="bold" android:textColor="#ff616161" android:gravity="center" android:id="@id/ButtonCopy" android:background="@drawable/my_list_selector" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/copy" android:lines="1" android:layout_weight="5.0" />
+        <TextView android:textColor="#ff616161" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="|" />
+        <TextView android:textSize="12.0sp" android:textStyle="bold" android:textColor="#ff616161" android:gravity="center" android:id="@id/ButtonMove" android:background="@drawable/my_list_selector" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/move" android:lines="1" android:layout_weight="5.0" />
+        <TextView android:textColor="#ff616161" android:gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="|" />
+        <TextView android:textSize="12.0sp" android:textColor="#ff616161" android:gravity="center" android:id="@id/ButtonSelectAll" android:background="@drawable/my_list_selector" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@android:string/selectAll" android:lines="1" android:layout_weight="4.0" />
+        <View android:id="@id/empty" android:layout_width="64.0dip" android:layout_height="fill_parent" />
+    </LinearLayout>
+</LinearLayout>

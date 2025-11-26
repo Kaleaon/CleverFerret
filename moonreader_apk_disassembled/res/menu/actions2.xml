@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:icon="@null" android:id="@id/mmSearch" android:title="@string/button_search" app:actionViewClass="androidx.appcompat.widget.SearchView" app:showAsAction="always" />
+    <item android:id="@id/mmB1" app:showAsAction="always" />
+    <item android:id="@id/mmB2" app:showAsAction="always" />
+    <item android:icon="@drawable/a_remove" android:id="@id/mmDelete" android:title="@string/delete" app:showAsAction="always" />
+    <item android:icon="@null" android:id="@id/mmMenu" app:showAsAction="always" />
+</menu>

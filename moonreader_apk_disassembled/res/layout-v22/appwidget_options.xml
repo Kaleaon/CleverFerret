@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="#ff505050" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ScrollView android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginTop="6.0dip" android:layout_marginBottom="9.0dip" android:layout_weight="5.0">
+        <RadioGroup android:id="@id/radioGroup" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="12.0dip" />
+    </ScrollView>
+    <View android:background="#ffeeeeee" android:layout_width="fill_parent" style="@style/SplitterLight" />
+    <RadioGroup android:orientation="vertical" android:id="@id/typeGroup" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="18.0dip" android:layout_marginTop="14.0dip" android:layout_marginRight="18.0dip" android:layout_marginBottom="14.0dip" android:layout_marginHorizontal="18.0dip" android:layout_marginVertical="14.0dip">
+        <RadioButton android:textColor="#ffcccccc" android:id="@id/r0" android:layout_width="fill_parent" android:layout_height="wrap_content" android:checked="true" android:text="@string/day_theme" style="@style/MyRadio" />
+        <RadioButton android:textColor="#ffcccccc" android:id="@id/r1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/night_theme" style="@style/MyRadio" />
+        <RadioButton android:textColor="#ffcccccc" android:id="@id/r2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/transparent" style="@style/MyRadio" />
+        <RadioButton android:textColor="#ffcccccc" android:id="@id/r3" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/amoled_mode" style="@style/MyRadio" />
+    </RadioGroup>
+</LinearLayout>

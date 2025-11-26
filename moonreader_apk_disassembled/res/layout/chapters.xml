@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:id="@id/sv" android:background="@color/material_grey_200" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:orientation="horizontal" android:id="@id/topLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/exitB" android:background="?selectableItemBackground" android:padding="11.0dip" android:layout_width="40.0dip" android:layout_height="fill_parent" android:layout_marginRight="8.0dip" android:src="@drawable/top_back2" app:tint="#ff666666" />
+            <com.google.android.material.tabs.TabLayout android:id="@id/tab" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0" app:tabGravity="center" app:tabIndicatorColor="#ffff8c00" app:tabMaxWidth="130.0dip" app:tabMinWidth="40.0dip" app:tabMode="scrollable" />
+            <ImageView android:id="@id/deleteB" android:background="?selectableItemBackground" android:padding="7.0dip" android:layout_width="40.0dip" android:layout_height="fill_parent" android:src="@drawable/a_remove" android:scaleType="fitCenter" app:tint="#ff666666" />
+            <ImageView android:id="@id/sortB" android:background="?selectableItemBackground" android:padding="11.0dip" android:layout_width="40.0dip" android:layout_height="fill_parent" android:layout_marginRight="0.0dip" android:src="@drawable/reverse_sort" app:tint="#ff666666" />
+        </LinearLayout>
+        <View android:id="@id/view1" android:background="#ffcccccc" android:layout_width="fill_parent" android:layout_height="1.0dip" />
+        <com.flyersoft.views.MyViewPager android:id="@id/view_pager_main" android:layout_width="fill_parent" android:layout_height="fill_parent" app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </LinearLayout>
+</LinearLayout>

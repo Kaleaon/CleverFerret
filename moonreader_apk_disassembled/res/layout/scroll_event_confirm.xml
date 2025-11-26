@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:background="@color/small_options_background" android:paddingLeft="12.0dip" android:paddingRight="12.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+        <LinearLayout android:id="@id/modeLay" android:padding="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="16.0dip" android:layout_marginBottom="22.0dip">
+            <TextView android:textSize="14.0sp" android:textColor="#ffdddddd" android:gravity="center|left" android:focusable="true" android:layout_width="wrap_content" android:layout_height="fill_parent" android:minWidth="60.0dip" android:text="@string/scroll_mode" />
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <com.flyersoft.views.MySpinner android:entries="@array/auto_scroll_mode" android:id="@id/pmScrollMode" android:layout_width="fill_parent" android:layout_height="40.0dip" android:layout_marginRight="6.0dip" android:layout_weight="6.0" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:padding="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="4.0dip" android:layout_marginBottom="10.0dip">
+            <TextView android:textSize="13.0sp" android:textColor="#ffdddddd" android:gravity="center|left" android:focusable="true" android:layout_width="wrap_content" android:layout_height="fill_parent" android:minWidth="60.0dip" android:text="@string/scroll_speed" />
+            <SeekBar android:id="@id/pmScrollSpeed" android:paddingRight="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:max="100" />
+        </LinearLayout>
+        <TextView android:textSize="13.0sp" android:textColor="#ff333333" android:id="@id/gestureTv" android:background="#22888888" android:padding="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="0.0dip" android:layout_marginTop="20.0dip" android:layout_marginRight="0.0dip" android:foreground="?selectableItemBackground" android:text="@string/Control_gestures" />
+        <CheckBox android:textSize="13.0sp" android:textColor="#ffdddddd" android:layout_gravity="left" android:id="@id/ofNeverAskAgain" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:layout_marginTop="20.0dip" android:text="@string/do_not_ask_again" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,101 @@
+.class public final Landroidx/transition/R$id;
+.super Ljava/lang/Object;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Landroidx/transition/R;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x19
+    name = "id"
+.end annotation
+
+
+# static fields
+.field public static action_container:I = 0x7f090066
+
+.field public static action_divider:I = 0x7f090068
+
+.field public static action_image:I = 0x7f090069
+
+.field public static action_text:I = 0x7f09006f
+
+.field public static actions:I = 0x7f090070
+
+.field public static async:I = 0x7f090098
+
+.field public static blocking:I = 0x7f0900cc
+
+.field public static chronometer:I = 0x7f090177
+
+.field public static forever:I = 0x7f090287
+
+.field public static ghost_view:I = 0x7f09029a
+
+.field public static ghost_view_holder:I = 0x7f09029b
+
+.field public static icon:I = 0x7f0902cc
+
+.field public static icon_group:I = 0x7f0902cd
+
+.field public static info:I = 0x7f0902fd
+
+.field public static italic:I = 0x7f09030a
+
+.field public static line1:I = 0x7f09032f
+
+.field public static line3:I = 0x7f090331
+
+.field public static normal:I = 0x7f0903d5
+
+.field public static notification_background:I = 0x7f0903dd
+
+.field public static notification_main_column:I = 0x7f0903de
+
+.field public static notification_main_column_container:I = 0x7f0903df
+
+.field public static parent_matrix:I = 0x7f090413
+
+.field public static right_icon:I = 0x7f09051e
+
+.field public static right_side:I = 0x7f09051f
+
+.field public static save_non_transition_alpha:I = 0x7f09053d
+
+.field public static save_overlay_view:I = 0x7f09053e
+
+.field public static tag_transition_group:I = 0x7f09060d
+
+.field public static tag_unhandled_key_event_manager:I = 0x7f09060e
+
+.field public static tag_unhandled_key_listeners:I = 0x7f09060f
+
+.field public static text:I = 0x7f090614
+
+.field public static text2:I = 0x7f090615
+
+.field public static time:I = 0x7f09062a
+
+.field public static title:I = 0x7f090634
+
+.field public static transition_current_scene:I = 0x7f09064f
+
+.field public static transition_layout_save:I = 0x7f090650
+
+.field public static transition_position:I = 0x7f090651
+
+.field public static transition_scene_layoutid_cache:I = 0x7f090652
+
+.field public static transition_transform:I = 0x7f090653
+
+
+# direct methods
+.method private constructor <init>()V
+    .locals 0
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method

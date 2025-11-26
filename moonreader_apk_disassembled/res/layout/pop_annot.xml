@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal" android:background="@color/annot_menu_bg_color" android:layout_width="wrap_content" android:layout_height="@dimen/annot_menu_btn_size"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageButton android:id="@id/btn_annot_perform" android:background="@drawable/bg_btn_menu" android:layout_width="@dimen/annot_menu_btn_size" android:layout_height="fill_parent" android:src="@drawable/btn_perform" android:scaleType="fitXY" android:contentDescription="@string/annot_perform" />
+    <ImageButton android:id="@id/btn_annot_edit" android:background="@drawable/bg_btn_menu" android:layout_width="@dimen/annot_menu_btn_size" android:layout_height="fill_parent" android:src="@drawable/btn_annot_note" android:scaleType="fitXY" android:contentDescription="@string/annot_edit" />
+    <ImageButton android:id="@id/btn_annot_remove" android:background="@drawable/bg_btn_menu" android:layout_width="@dimen/annot_menu_btn_size" android:layout_height="fill_parent" android:src="@drawable/btn_remove" android:scaleType="fitXY" android:contentDescription="@string/annot_remove" />
+    <ImageButton android:id="@id/btn_annot_property" android:background="@drawable/bg_btn_menu" android:layout_width="@dimen/annot_menu_btn_size" android:layout_height="fill_parent" android:src="@drawable/btn_settings" android:scaleType="fitCenter" android:contentDescription="@string/annot_property" />
+</LinearLayout>

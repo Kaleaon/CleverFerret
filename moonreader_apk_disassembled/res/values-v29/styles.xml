@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyBaseTheme" parent="@style/Theme.Material3.Light.NoActionBar">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:checkboxStyle">@style/MyCheckBox</item>
+        <item name="android:editTextStyle">@style/MyEditText</item>
+        <item name="android:listViewStyle">@style/ListViewStyle</item>
+        <item name="android:seekBarStyle">@style/MySeekBar</item>
+        <item name="android:radioButtonStyle">@style/MyRadio</item>
+        <item name="android:spinnerStyle">@style/MySpinner</item>
+        <item name="android:spinnerDropDownItemStyle">@style/MyDropDownItem</item>
+        <item name="android:spinnerItemStyle">@style/MySpinnerItem</item>
+        <item name="android:textColor">@color/material_grey_900</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="checkboxStyle">@style/MyCheckBox</item>
+        <item name="colorPrimary">@color/base_color</item>
+        <item name="colorPrimaryDark">@color/material_blue_800</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="editTextStyle">@style/MyEditText</item>
+        <item name="materialButtonStyle">@style/MyButton</item>
+        <item name="materialSwitchStyle">@style/MySwitch</item>
+        <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
+        <item name="radioButtonStyle">@style/MyRadio</item>
+        <item name="seekBarStyle">@style/MySeekBar</item>
+    </style>
+</resources>

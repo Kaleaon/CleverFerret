@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout android:id="@id/bar_top" android:background="@drawable/bar_back" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <ImageView android:id="@id/btn_back" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_back" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" />
+        <ImageView android:id="@id/btn_ok" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_done" android:layout_toRightOf="@id/btn_back" android:layout_alignParentTop="true" />
+    </RelativeLayout>
+    <com.radaee.util.PDFPageGridView android:id="@id/vw_pages" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_below="@id/bar_top" />
+</RelativeLayout>

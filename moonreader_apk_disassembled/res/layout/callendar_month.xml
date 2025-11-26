@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.flyersoft.views.BookCalendar.MonthView android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.flyersoft.views.BookCalendar.CalendarGridView android:id="@id/calendar_grid" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <com.flyersoft.views.BookCalendar.CalendarRowView android:id="@id/day_names_header_row" android:paddingBottom="@dimen/calendar_day_headers_paddingbottom" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/CalendarCell.DayHeader" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/CalendarCell.DayHeader" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/CalendarCell.DayHeader" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/CalendarCell.DayHeader" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/CalendarCell.DayHeader" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/CalendarCell.DayHeader" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/CalendarCell.DayHeader" />
+        </com.flyersoft.views.BookCalendar.CalendarRowView>
+        <include layout="@layout/callendar_week" />
+        <include layout="@layout/callendar_week" />
+        <include layout="@layout/callendar_week" />
+        <include layout="@layout/callendar_week" />
+        <include layout="@layout/callendar_week" />
+        <include layout="@layout/callendar_week" />
+    </com.flyersoft.views.BookCalendar.CalendarGridView>
+</com.flyersoft.views.BookCalendar.MonthView>

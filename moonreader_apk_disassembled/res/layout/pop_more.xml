@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <View android:background="@drawable/bg_menu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignLeft="@id/actual_content" android:layout_alignTop="@id/actual_content" android:layout_alignRight="@id/actual_content" android:layout_alignBottom="@id/actual_content" />
+    <LinearLayout android:orientation="vertical" android:id="@id/actual_content" android:padding="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:id="@id/edit_pages" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/edit_pages_icon" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/btn_view_dual" />
+            <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:text="@string/pages_list" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/add_bookmark" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/add_bookmark_icon" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/btn_add_bookmark" />
+            <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:text="@string/bookmark_add" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/show_bookmarks" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/show_bookmarks_icon" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/btn_show_bookmarks" />
+            <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:text="@string/bookmark_show" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/save" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/save_icon" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/btn_save" />
+            <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:text="@string/save" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/print" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/print_icon" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/btn_print" />
+            <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:text="@string/print" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/share" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/share_icon" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/btn_share" />
+            <TextView android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:text="@string/share" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
