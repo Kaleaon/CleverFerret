@@ -52,14 +52,30 @@ data class FileItem(
 
 enum class FileType(val extensions: List<String>, val displayName: String) {
     EPUB(listOf("epub"), "EPUB"),
-    PDF(listOf("pdf", "djvu"), "PDF/DJVU"),
+    PDF(listOf("pdf"), "PDF"),
+    DJVU(listOf("djvu", "djv"), "DJVU"),
     FB2(listOf("fb2", "fb2.zip"), "FB2"),
-    MOBI(listOf("mobi", "azw3", "prc"), "MOBI/AZW3/PRC"),
-    CHM(listOf("chm", "umd"), "CHM/UMD"),
-    DOCX(listOf("docx", "odt", "rtf"), "DOCX/ODT/RTF"),
-    TXT(listOf("txt", "md"), "TXT/MD"),
-    HTML(listOf("html", "htm", "mhtml"), "HTML/MHTML"),
-    CBZ(listOf("cbz", "cbr"), "CBZ/CBR");
+    MOBI(listOf("mobi", "prc", "azw"), "MOBI/PRC/AZW"),
+    AZW3(listOf("azw3", "kfx"), "AZW3/KFX"),
+    CHM(listOf("chm"), "CHM"),
+    UMD(listOf("umd"), "UMD"),
+    DOCX(listOf("docx"), "DOCX"),
+    DOC(listOf("doc"), "DOC"),
+    ODT(listOf("odt"), "ODT"),
+    RTF(listOf("rtf"), "RTF"),
+    TXT(listOf("txt", "text"), "TXT"),
+    MD(listOf("md", "markdown"), "Markdown"),
+    HTML(listOf("html", "htm"), "HTML"),
+    XHTML(listOf("xhtml", "xht"), "XHTML"),
+    MHTML(listOf("mhtml", "mht"), "MHTML"),
+    CBZ(listOf("cbz"), "CBZ"),
+    CBR(listOf("cbr"), "CBR"),
+    CBT(listOf("cbt"), "CBT"),
+    CB7(listOf("cb7"), "CB7"),
+    LIT(listOf("lit"), "LIT"),
+    PDB(listOf("pdb"), "PDB"),
+    RB(listOf("rb"), "RB"),
+    SNB(listOf("snb"), "SNB");
     
     companion object {
         fun fromFile(file: File): FileType? {
@@ -67,8 +83,22 @@ enum class FileType(val extensions: List<String>, val displayName: String) {
             return values().find { it.extensions.contains(extension) }
         }
         
-        fun allBookTypes(): List<FileType> = listOf(
-            EPUB, PDF, FB2, MOBI, CHM, DOCX, TXT, HTML, CBZ
+        fun allBookTypes(): List<FileType> = values().toList()
+        
+        fun getEbookTypes(): List<FileType> = listOf(
+            EPUB, PDF, DJVU, FB2, MOBI, AZW3, CHM, UMD, LIT, PDB, RB, SNB
+        )
+        
+        fun getDocumentTypes(): List<FileType> = listOf(
+            DOCX, DOC, RTF, ODT, TXT, MD
+        )
+        
+        fun getWebTypes(): List<FileType> = listOf(
+            HTML, XHTML, MHTML
+        )
+        
+        fun getComicTypes(): List<FileType> = listOf(
+            CBZ, CBR, CBT, CB7
         )
     }
 }

@@ -2,9 +2,15 @@ package com.universalmedialibrary.services.reader.model
 
 /**
  * Supported book formats for the universal reader
+ * ALL formats from Moonreader are now supported
  */
 enum class BookFormat {
-    EPUB, PDF, CBZ, CBR, MOBI, AZW3, DJVU, FB2, TXT, RTF, CBT, CB7, HTML, UNKNOWN
+    EPUB, PDF, DJVU, FB2, MOBI, PRC, AZW, AZW3, KFX,
+    CHM, UMD, LIT, PDB, RB, SNB,
+    DOCX, DOC, ODT, RTF, TXT, MD,
+    HTML, HTM, XHTML, MHTML,
+    CBZ, CBR, CBT, CB7,
+    UNKNOWN
 }
 
 /**
