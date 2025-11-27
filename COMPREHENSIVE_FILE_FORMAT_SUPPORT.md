@@ -168,28 +168,52 @@ If a format cannot be fully parsed:
 
 ### Planned Library Integrations
 
-For formats currently using placeholders, consider integrating:
+**See `FILE_FORMAT_PARSER_INTEGRATION.md` for detailed integration guide.**
 
-1. **MOBI/AZW Parsing**
-   - Apache Tika
-   - KindleUnpack
-   - Calibre's conversion tools
+For formats currently using placeholders, the following libraries are recommended:
+
+1. **MOBI/AZW/AZW3 Parsing**
+   - **lib-mobi** (Pure Java/Kotlin) - Recommended
+   - Apache Tika (Alternative)
+   - Reference: FBReader, CoolReader implementations
 
 2. **CHM Extraction**
-   - chmlib
-   - 7-Zip (CHM is essentially a compressed archive)
+   - **Apache Tika** (Pure Java/Kotlin) - Recommended
+   - Reference: FBReader, CoolReader implementations
 
-3. **DOC Parsing**
-   - Apache POI
-   - Apache Tika
+3. **DOC/DOCX Parsing**
+   - **Apache POI** (Pure Java/Kotlin) - Recommended
+   - Apache Tika (Alternative)
 
-4. **DJVU Native Support**
-   - djvulibre
-   - Dedicated DJVU rendering library
+4. **RTF Parsing**
+   - **Apache Tika** (Pure Java/Kotlin) - Recommended
+   - Reference: FBReader implementation
 
-5. **Legacy Formats**
-   - Format conversion services
-   - Cloud-based format conversion APIs
+5. **ODT Parsing**
+   - **Apache Tika** (Pure Java/Kotlin) - Recommended
+
+6. **DJVU Native Support**
+   - **DjVuLibre** (C++ via JNI) - Recommended
+   - Reference: EBookDroid implementation
+
+7. **Legacy Formats (LIT/SNB/RB/PDB)**
+   - **libe-book** (C++ via JNI) - Recommended
+   - Reference: CoolReader implementation
+
+### Integration Priority
+
+1. **High Priority** (Most Common, Pure Java/Kotlin):
+   - MOBI/AZW3 (lib-mobi)
+   - DOCX/DOC (Apache POI)
+   - RTF (Apache Tika)
+   - ODT (Apache Tika)
+
+2. **Medium Priority** (Pure Java/Kotlin):
+   - CHM (Apache Tika)
+
+3. **Lower Priority** (Requires JNI):
+   - DJVU (DjVuLibre)
+   - LIT, SNB, RB, PDB (libe-book)
 
 ## Usage Examples
 
