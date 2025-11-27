@@ -103,7 +103,7 @@ class OpdsFeedGenerator @Inject constructor() {
             .replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
-            .replace("&quot;", "&quot;")
+            .replace("\"", "&quot;")
             .replace("'", "&apos;")
     }
     

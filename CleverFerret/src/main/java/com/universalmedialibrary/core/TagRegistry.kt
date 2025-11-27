@@ -62,6 +62,38 @@ class TagRegistry @Inject constructor(
     }
     
     /**
+     * Map TagType to TagSource
+     */
+    private fun mapTagTypeToSource(type: TagType): TagSource = when (type) {
+        TagType.USER_DEFINED -> TagSource.USER_DEFINED
+        TagType.AUTO_GENERATED -> TagSource.UNIFIED_TAG
+        TagType.IMPORTED_PLEX -> TagSource.PLEX
+        TagType.IMPORTED_CALIBRE -> TagSource.CALIBRE
+        TagType.IMPORTED_JELLYFIN -> TagSource.JELLYFIN
+    }
+    
+    /**
+     * Convert UnifiedTag to UnifiedTagInfo
+     */
+    private fun UnifiedTag.toUnifiedTagInfo(includeMetadata: Boolean = true): UnifiedTagInfo {
+        return UnifiedTagInfo(
+            id = tagId.toString(),
+            name = name,
+            displayName = name,
+            category = null,
+            type = mapTagTypeToSource(type),
+            description = description,
+            usageCount = usageCount,
+            color = color,
+            metadata = if (includeMetadata) mapOf(
+                "createdAt" to createdAt,
+                "lastUsed" to lastUsed,
+                "externalId" to (externalId ?: "")
+            ) else emptyMap()
+        )
+    }
+    
+    /**
      * Search tags across all sources
      * 
      * @param query Search query (searches name, description)
@@ -84,32 +116,10 @@ class TagRegistry @Inject constructor(
             tagRepository.searchTags(query).map { unifiedTags ->
                 unifiedTags
                     .filter { tag ->
-                        (source == null || source == TagSource.UNIFIED_TAG || source == TagSource.USER_DEFINED)
+                        source == null || mapTagTypeToSource(tag.type) == source
                     }
                     .take(limit)
-                    .map { tag ->
-                        UnifiedTagInfo(
-                            id = tag.tagId.toString(),
-                            name = tag.name,
-                            displayName = tag.name,
-                            category = null,
-                            type = when (tag.type) {
-                                TagType.USER_DEFINED -> TagSource.USER_DEFINED
-                                TagType.AUTO_GENERATED -> TagSource.UNIFIED_TAG
-                                TagType.IMPORTED_PLEX -> TagSource.PLEX
-                                TagType.IMPORTED_CALIBRE -> TagSource.CALIBRE
-                                TagType.IMPORTED_JELLYFIN -> TagSource.JELLYFIN
-                            },
-                            description = tag.description,
-                            usageCount = tag.usageCount,
-                            color = tag.color,
-                            metadata = mapOf(
-                                "createdAt" to tag.createdAt,
-                                "lastUsed" to tag.lastUsed,
-                                "externalId" to (tag.externalId ?: "")
-                            )
-                        )
-                    }
+                    .map { it.toUnifiedTagInfo() }
             }
         }
     }
@@ -125,39 +135,10 @@ class TagRegistry @Inject constructor(
         return tagRepository.getAllTags().map { tags ->
             tags
                 .filter { tag ->
-                    (source == null || when (tag.type) {
-                        TagType.USER_DEFINED -> source == TagSource.USER_DEFINED
-                        TagType.AUTO_GENERATED -> source == TagSource.UNIFIED_TAG
-                        TagType.IMPORTED_PLEX -> source == TagSource.PLEX
-                        TagType.IMPORTED_CALIBRE -> source == TagSource.CALIBRE
-                        TagType.IMPORTED_JELLYFIN -> source == TagSource.JELLYFIN
-                        else -> false
-                    })
+                    source == null || mapTagTypeToSource(tag.type) == source
                 }
                 .take(limit)
-                .map { tag ->
-                    UnifiedTagInfo(
-                        id = tag.tagId.toString(),
-                        name = tag.name,
-                        displayName = tag.name,
-                        category = null,
-                        type = when (tag.type) {
-                            TagType.USER_DEFINED -> TagSource.USER_DEFINED
-                            TagType.AUTO_GENERATED -> TagSource.UNIFIED_TAG
-                            TagType.IMPORTED_PLEX -> TagSource.PLEX
-                            TagType.IMPORTED_CALIBRE -> TagSource.CALIBRE
-                            TagType.IMPORTED_JELLYFIN -> TagSource.JELLYFIN
-                        },
-                        description = tag.description,
-                        usageCount = tag.usageCount,
-                        color = tag.color,
-                        metadata = mapOf(
-                            "createdAt" to tag.createdAt,
-                            "lastUsed" to tag.lastUsed,
-                            "externalId" to (tag.externalId ?: "")
-                        )
-                    )
-                }
+                .map { it.toUnifiedTagInfo() }
         }
     }
     
@@ -166,23 +147,7 @@ class TagRegistry @Inject constructor(
      */
     fun getPopularTags(limit: Int = 50): Flow<List<UnifiedTagInfo>> {
         return tagRepository.getPopularTags(limit).map { tags ->
-            tags.map { tag ->
-                UnifiedTagInfo(
-                    id = tag.tagId.toString(),
-                    name = tag.name,
-                    displayName = tag.name,
-                    type = when (tag.type) {
-                        TagType.USER_DEFINED -> TagSource.USER_DEFINED
-                        TagType.AUTO_GENERATED -> TagSource.UNIFIED_TAG
-                        TagType.IMPORTED_PLEX -> TagSource.PLEX
-                        TagType.IMPORTED_CALIBRE -> TagSource.CALIBRE
-                        TagType.IMPORTED_JELLYFIN -> TagSource.JELLYFIN
-                    },
-                    usageCount = tag.usageCount,
-                    color = tag.color,
-                    description = tag.description
-                )
-            }
+            tags.map { it.toUnifiedTagInfo(includeMetadata = false) }
         }
     }
     
@@ -191,23 +156,7 @@ class TagRegistry @Inject constructor(
      */
     fun getRecentTags(limit: Int = 20): Flow<List<UnifiedTagInfo>> {
         return tagRepository.getRecentTags(limit).map { tags ->
-            tags.map { tag ->
-                UnifiedTagInfo(
-                    id = tag.tagId.toString(),
-                    name = tag.name,
-                    displayName = tag.name,
-                    type = when (tag.type) {
-                        TagType.USER_DEFINED -> TagSource.USER_DEFINED
-                        TagType.AUTO_GENERATED -> TagSource.UNIFIED_TAG
-                        TagType.IMPORTED_PLEX -> TagSource.PLEX
-                        TagType.IMPORTED_CALIBRE -> TagSource.CALIBRE
-                        TagType.IMPORTED_JELLYFIN -> TagSource.JELLYFIN
-                    },
-                    usageCount = tag.usageCount,
-                    color = tag.color,
-                    description = tag.description
-                )
-            }
+            tags.map { it.toUnifiedTagInfo(includeMetadata = false) }
         }
     }
     
@@ -235,25 +184,6 @@ class TagRegistry @Inject constructor(
      * Convert UnifiedTag to UnifiedTagInfo
      */
     fun convertUnifiedTag(tag: UnifiedTag): UnifiedTagInfo {
-        return UnifiedTagInfo(
-            id = tag.tagId.toString(),
-            name = tag.name,
-            displayName = tag.name,
-            type = when (tag.type) {
-                TagType.USER_DEFINED -> TagSource.USER_DEFINED
-                TagType.AUTO_GENERATED -> TagSource.UNIFIED_TAG
-                TagType.IMPORTED_PLEX -> TagSource.PLEX
-                TagType.IMPORTED_CALIBRE -> TagSource.CALIBRE
-                TagType.IMPORTED_JELLYFIN -> TagSource.JELLYFIN
-            },
-            description = tag.description,
-            usageCount = tag.usageCount,
-            color = tag.color,
-            metadata = mapOf(
-                "createdAt" to tag.createdAt,
-                "lastUsed" to tag.lastUsed,
-                "externalId" to (tag.externalId ?: "")
-            )
-        )
+        return tag.toUnifiedTagInfo()
     }
 }

@@ -20,13 +20,13 @@ class UniversalSearchViewModel @Inject constructor(
     
     private val _selectedCategory = MutableStateFlow<FormatRegistry.FormatCategory?>(null)
     
-    private val formatResults = _query
+    private val formatResults = combine(_query, _selectedCategory) { query, category -> query to category }
         .debounce(300)
-        .flatMapLatest { query ->
+        .flatMapLatest { (query, category) ->
             if (query.isEmpty()) {
                 flowOf(emptyList())
             } else {
-                flowOf(universalSearchService.searchFormats(query, _selectedCategory.value))
+                flowOf(universalSearchService.searchFormats(query, category))
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -72,10 +72,6 @@ class UniversalSearchViewModel @Inject constructor(
     
     fun selectCategory(category: FormatRegistry.FormatCategory) {
         _selectedCategory.value = category
-        viewModelScope.launch {
-            val formats = universalSearchService.getFormatsByCategory(category)
-            // Update format results for selected category
-        }
     }
 }
 

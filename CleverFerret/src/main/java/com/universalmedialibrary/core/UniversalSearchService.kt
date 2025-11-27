@@ -3,7 +3,6 @@ package com.universalmedialibrary.core
 import com.universalmedialibrary.core.FormatRegistry.FormatInfo
 import com.universalmedialibrary.core.TagRegistry.UnifiedTagInfo
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,10 +47,12 @@ class UniversalSearchService @Inject constructor(
         tagSource: TagRegistry.TagSource? = null
     ): Flow<List<SearchResult>> {
         val formatResults = if (includeFormats) {
-            val formats = if (formatCategory != null) {
-                formatRegistry.getFormatsByCategory(formatCategory)
-            } else {
-                formatRegistry.searchFormats(query)
+            val formats = formatRegistry.searchFormats(query).let { results ->
+                if (formatCategory != null) {
+                    results.filter { it.category == formatCategory }
+                } else {
+                    results
+                }
             }
             formats.map { SearchResult.FormatResult(it) }
         } else {

@@ -159,7 +159,7 @@ class FormatRegistry @Inject constructor() {
             FormatInfo("avi", listOf("avi"), listOf("video/x-msvideo"), "AVI", "Audio Video Interleave", FormatCategory.VIDEO, readerService = "ExoPlayerService"),
             FormatInfo("webm", listOf("webm"), listOf("video/webm"), "WebM", "WebM Video", FormatCategory.VIDEO, readerService = "ExoPlayerService"),
             FormatInfo("mov", listOf("mov"), listOf("video/quicktime"), "MOV", "QuickTime Video", FormatCategory.VIDEO, readerService = "ExoPlayerService"),
-            FormatInfo("m4v", listOf("m4v"), listOf("video/mp4", "video/x-m4v"), "M4V", "MPEG-4 Video", FormatCategory.VIDEO, readerService = "ExoPlayerService")
+            FormatInfo("m4v", listOf("m4v"), listOf("video/x-m4v"), "M4V", "MPEG-4 Video", FormatCategory.VIDEO, readerService = "ExoPlayerService")
         )
         
         videoFormats.forEach { format ->

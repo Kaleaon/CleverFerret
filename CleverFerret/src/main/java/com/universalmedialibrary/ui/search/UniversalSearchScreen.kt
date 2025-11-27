@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.core.FormatRegistry
 import com.universalmedialibrary.core.TagRegistry
-import com.universalmedialibrary.core.UniversalSearchService
 
 /**
  * Universal search screen for discovering file formats and tags
@@ -86,7 +85,7 @@ private fun FormatCategoriesView(viewModel: UniversalSearchViewModel) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         
-        FormatRegistry.FormatCategory.values().forEach { category ->
+        FormatRegistry.FormatCategory.entries.forEach { category ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -279,12 +278,17 @@ private fun TagCard(tag: TagRegistry.UnifiedTagInfo) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            if (tag.color != null) {
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(tag.color)),
-                    modifier = Modifier.size(24.dp)
-                ) {}
+            tag.color?.takeIf { it.isNotBlank() }?.let { colorStr ->
+                val parsedColor = runCatching {
+                    android.graphics.Color.parseColor(colorStr.trim())
+                }.getOrNull()
+                if (parsedColor != null) {
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        color = androidx.compose.ui.graphics.Color(parsedColor),
+                        modifier = Modifier.size(24.dp)
+                    ) {}
+                }
             }
         }
     }

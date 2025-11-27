@@ -2,7 +2,7 @@
 
 ## Repository Overview
 
-The calibre-droid repository (https://github.com/kaleaon/calibre-droid) is a fork of Calibre with Android/Kotlin implementations. It provides useful patterns and implementations for CleverFerret.
+The [calibre-droid repository](https://github.com/kaleaon/calibre-droid) is a fork of Calibre with Android/Kotlin implementations. It provides useful patterns and implementations for CleverFerret.
 
 ## Useful Code Patterns Found
 
