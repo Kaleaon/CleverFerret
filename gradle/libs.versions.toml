@@ -66,6 +66,7 @@ okhttp = "5.2.1"
     # Document Parsing Libraries
     apache-poi = "5.2.5"
     apache-tika = "2.9.1"
+    lib-mobi = "1.0.3"
 
 # Readium Toolkit - Modern EPUB/PDF/Audiobook/OPDS library
 # ⚠️ Check for updates: https://github.com/readium/kotlin-toolkit/releases
@@ -215,6 +216,7 @@ androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core",
     apache-poi-scratchpad = { module = "org.apache.poi:poi-scratchpad", version.ref = "apache-poi" }
     apache-tika-core = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
     apache-tika-parsers = { module = "org.apache.tika:tika-parsers-standard-package", version.ref = "apache-tika" }
+    lib-mobi-core = { module = "de.m3y.libmobi:libmobi-core", version.ref = "lib-mobi" }
 
 [bundles]
 # Common bundle groups for easier dependency management

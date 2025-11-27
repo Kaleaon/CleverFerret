@@ -20,18 +20,22 @@ object ParserFactory {
     
     private val parsers: List<DocumentParser> by lazy {
         listOf(
+            // Pure Java/Kotlin parsers (fully implemented)
             DocxParser(),
             DocParser(),
             RtfParser(),
             ChmParser(),
-            OdtParser()
-            // JNI-based parsers will be added in Phase 5-7
-            // MobiParser(),
-            // DjvuParser(),
-            // LitParser(),
-            // SnbParser(),
-            // RbParser(),
-            // PdbParser()
+            OdtParser(),
+            MobiParser(),  // Pure Java using lib-mobi
+            
+            // Legacy format parsers (Apache Tika-based)
+            LitParser(),
+            SnbParser(),
+            RbParser(),
+            PdbParser(),
+            
+            // DJVU parser (limited support, requires native libs for full functionality)
+            DjvuParser()
         )
     }
     
