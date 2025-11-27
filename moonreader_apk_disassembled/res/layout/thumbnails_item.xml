@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:background="#11555555" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="4.0dip" android:foreground="?selectableItemBackground"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:id="@id/iv" android:layout_width="fill_parent" android:layout_height="fill_parent" android:scaleType="fitXY" />
+    <TextView android:textSize="14.0sp" android:textColor="#88888888" android:gravity="center" android:id="@id/tv" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="1" />
+</FrameLayout>

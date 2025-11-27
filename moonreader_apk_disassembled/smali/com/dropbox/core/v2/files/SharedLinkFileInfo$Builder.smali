@@ -1,0 +1,93 @@
+.class public Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;
+.super Ljava/lang/Object;
+.source "SharedLinkFileInfo.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/dropbox/core/v2/files/SharedLinkFileInfo;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x9
+    name = "Builder"
+.end annotation
+
+
+# instance fields
+.field protected password:Ljava/lang/String;
+
+.field protected path:Ljava/lang/String;
+
+.field protected final url:Ljava/lang/String;
+
+
+# direct methods
+.method protected constructor <init>(Ljava/lang/String;)V
+    .locals 1
+
+    .line 135
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    if-eqz p1, :cond_0
+
+    .line 139
+    iput-object p1, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->url:Ljava/lang/String;
+
+    const/4 p1, 0x0
+
+    .line 140
+    iput-object p1, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->path:Ljava/lang/String;
+
+    .line 141
+    iput-object p1, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->password:Ljava/lang/String;
+
+    return-void
+
+    .line 137
+    :cond_0
+    new-instance p1, Ljava/lang/IllegalArgumentException;
+
+    const-string v0, "Required value for \'url\' is null"
+
+    invoke-direct {p1, v0}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
+
+    throw p1
+.end method
+
+
+# virtual methods
+.method public build()Lcom/dropbox/core/v2/files/SharedLinkFileInfo;
+    .locals 4
+
+    .line 178
+    new-instance v0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo;
+
+    iget-object v1, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->url:Ljava/lang/String;
+
+    iget-object v2, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->path:Ljava/lang/String;
+
+    iget-object v3, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->password:Ljava/lang/String;
+
+    invoke-direct {v0, v1, v2, v3}, Lcom/dropbox/core/v2/files/SharedLinkFileInfo;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+
+    return-object v0
+.end method
+
+.method public withPassword(Ljava/lang/String;)Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;
+    .locals 0
+
+    .line 167
+    iput-object p1, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->password:Ljava/lang/String;
+
+    return-object p0
+.end method
+
+.method public withPath(Ljava/lang/String;)Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;
+    .locals 0
+
+    .line 153
+    iput-object p1, p0, Lcom/dropbox/core/v2/files/SharedLinkFileInfo$Builder;->path:Ljava/lang/String;
+
+    return-object p0
+.end method

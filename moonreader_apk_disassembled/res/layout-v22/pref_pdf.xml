@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <include android:id="@id/headerMain" layout="@layout/pref_header_main" />
+    <ScrollView android:id="@id/sv" android:background="@color/options_background" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="8.0">
+        <LinearLayout android:orientation="vertical" android:id="@id/pvTopLine" android:paddingTop="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:padding="24.0dip" style="@style/RoundLay">
+                <TextView android:paddingLeft="4.0dip" android:paddingBottom="12.0dip" android:text="@string/pdf_view_mode" style="@style/PrefControlTextView" />
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="80.0dip" android:layout_marginBottom="0.0dip">
+                    <FrameLayout android:background="#88888888" android:padding="1.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="4.0dip" android:layout_weight="5.0">
+                        <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/pdf_auto" android:scaleType="fitCenter" />
+                        <ImageView android:id="@id/flip0" android:tag="0" android:layout_width="fill_parent" android:layout_height="fill_parent" android:foreground="?selectableItemBackground" />
+                        <TextView android:textSize="15.0sp" android:textColor="#ff222222" android:gravity="center" android:id="@id/autoTv" android:tag="ignore" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="6.0dip" android:text="@string/auto" />
+                    </FrameLayout>
+                    <FrameLayout android:background="#88888888" android:padding="1.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="4.0dip" android:layout_weight="5.0">
+                        <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/pdf_hori" android:scaleType="fitCenter" />
+                        <ImageView android:id="@id/flip1" android:tag="1" android:layout_width="fill_parent" android:layout_height="fill_parent" android:foreground="?selectableItemBackground" />
+                    </FrameLayout>
+                    <FrameLayout android:background="#88888888" android:padding="1.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="4.0dip" android:layout_weight="5.0">
+                        <ImageView android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/pdf_vert" android:scaleType="fitCenter" />
+                        <ImageView android:id="@id/flip2" android:tag="2" android:layout_width="fill_parent" android:layout_height="fill_parent" android:foreground="?selectableItemBackground" />
+                    </FrameLayout>
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/fitPage" android:layout_marginTop="8.0dip" android:layout_marginRight="14.0dip" android:text="@string/pdf_unify_page_sizes" style="@style/MySwitchPreVisual" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/rtoLCb" android:layout_marginTop="0.0dip" android:layout_marginRight="14.0dip" android:text="@string/rtol" style="@style/MySwitchPreVisual" />
+            </LinearLayout>
+            <LinearLayout android:paddingLeft="24.0dip" android:paddingTop="20.0dip" android:paddingRight="24.0dip" android:paddingBottom="20.0dip" android:paddingHorizontal="24.0dip" android:paddingVertical="20.0dip" style="@style/RoundLay">
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="52.0dip">
+                    <TextView android:textColor="@color/dialog_main_text" android:text="@string/pdf_margin_color" style="@style/PrefVisualTextView" />
+                    <FrameLayout android:layout_gravity="center_vertical" android:background="@drawable/round_framelyout" android:padding="1.0px" android:layout_width="160.0dip" android:layout_height="34.0dip" android:layout_marginRight="14.0dip">
+                        <com.google.android.material.imageview.ShapeableImageView android:id="@id/bgColor" android:layout_width="fill_parent" android:layout_height="fill_parent" android:foreground="@drawable/my_list_selector" app:srcCompat="@color/material_grey_100" style="@style/Style.App.circleImageView" />
+                    </FrameLayout>
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:id="@id/renderLay" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginTop="10.0dip" android:layout_marginRight="4.0dip" android:layout_marginBottom="10.0dip">
+                    <TextView android:textColor="@color/dialog_main_text" android:text="@string/pdf_render_quality" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/pdf_render_quality_items" android:id="@id/render_sp" android:background="@drawable/spinner_background_holo_dark" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+                <com.flyersoft.views.CustomSeek android:id="@id/gap" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip" android:layout_marginBottom="4.0dip" app:text="@string/page_gap" app:textColor="@color/dialog_second_text" app:textGravity="right|center" app:textSize="16" app:textWidth="110.0dip" />
+            </LinearLayout>
+            <LinearLayout android:paddingLeft="24.0dip" android:paddingTop="24.0dip" android:paddingRight="24.0dip" android:paddingBottom="24.0dip" android:paddingHorizontal="24.0dip" android:paddingVertical="24.0dip" style="@style/RoundLay">
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/textReflowB" android:layout_marginTop="0.0dip" android:layout_marginRight="14.0dip" android:layout_marginBottom="8.0dip" android:text="@string/pdf_text_reflow_button" style="@style/MySwitchPreVisual" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/annotB" android:layout_marginRight="14.0dip" android:text="@string/show_annotation_button" style="@style/MySwitchPreVisual" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/thumbB" android:layout_marginTop="8.0dip" android:layout_marginRight="14.0dip" android:text="@string/pdf_thumbnail_list" style="@style/MySwitchPreVisual" />
+            </LinearLayout>
+            <LinearLayout android:id="@id/flipLayout" android:paddingTop="18.0dip" android:paddingBottom="18.0dip" android:layout_marginBottom="24.0dip" android:paddingVertical="18.0dip" style="@style/RoundLay">
+                <LinearLayout android:orientation="horizontal" android:paddingLeft="24.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginRight="4.0dip" android:paddingHorizontal="24.0dip">
+                    <TextView android:textColor="@color/dialog_main_text" android:text="@string/flip_animation" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/flip_animation_list" android:id="@id/pvFlipList" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+                <LinearLayout android:id="@id/flip_speed_lay" android:paddingLeft="4.0dip" android:paddingRight="26.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip" android:layout_marginBottom="8.0dip">
+                    <TextView android:textSize="16.0sp" android:textColor="@color/dialog_second_text" android:gravity="center|right" android:layout_gravity="center" android:focusable="true" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="4.0dip" android:text="@string/flip_speed" android:layout_weight="8.0" />
+                    <SeekBar android:id="@id/pvFlipSpeed" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="165.0dip" android:layout_height="wrap_content" android:layout_marginRight="6.0dip" android:max="100" />
+                </LinearLayout>
+                <LinearLayout android:id="@id/resetLay" android:paddingLeft="4.0dip" android:paddingRight="28.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="0.0dip" android:layout_marginBottom="6.0dip">
+                    <TextView android:textSize="14.0sp" android:gravity="center|right" android:focusable="true" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="6.0dip" android:text="@string/reset" android:layout_weight="8.0" />
+                    <ImageView android:id="@id/pvResetFlip" android:background="?selectableItemBackgroundBorderless" android:padding="8.0dip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginRight="10.0dip" android:src="@drawable/resetspace" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:id="@id/glLay" android:paddingLeft="24.0dip" android:paddingTop="24.0dip" android:paddingRight="24.0dip" android:paddingBottom="24.0dip" android:paddingHorizontal="24.0dip" android:paddingVertical="24.0dip" style="@style/RoundLay">
+                <TextView android:paddingLeft="4.0dip" android:paddingBottom="4.0dip" android:text="@string/rendering_engine" style="@style/PrefControlTextView" />
+                <RadioGroup android:layout_gravity="right" android:orientation="horizontal" android:id="@id/glGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:layout_marginRight="0.0dip" android:layout_marginBottom="4.0dip" android:layout_marginVertical="4.0dip">
+                    <RadioButton android:id="@id/glRadio" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="18.0dip" android:checked="true" android:text="OpenGL" android:layout_weight="5.0" style="@style/MyRadio" />
+                    <RadioButton android:id="@id/normalRadio" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="18.0dip" android:text="@string/normal_view" android:layout_weight="5.0" style="@style/MyRadio" />
+                </RadioGroup>
+            </LinearLayout>
+            <LinearLayout android:visibility="gone" android:layout_marginBottom="24.0dip" style="@style/RoundLay">
+                <TextView android:gravity="center" android:id="@id/pvLoadFromTheme" android:layout_height="58.0dip" android:text="@string/load_from_theme" style="@style/PrefMiscFillButton" />
+            </LinearLayout>
+            <LinearLayout android:layout_gravity="bottom" android:id="@id/footerMain" android:background="@color/options_background" android:paddingLeft="@dimen/button_margin" android:paddingRight="@dimen/button_margin" android:paddingBottom="@dimen/footer_button_bottom_margin" android:layout_width="fill_parent" android:layout_height="wrap_content" android:paddingHorizontal="@dimen/button_margin">
+                <Button android:id="@id/settingButton1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/control_options" android:layout_weight="5.0" style="@style/MyButton" />
+                <Button android:layout_gravity="center" android:id="@id/settingButton2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/miscellaneous" android:layout_weight="5.0" style="@style/MyButton" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

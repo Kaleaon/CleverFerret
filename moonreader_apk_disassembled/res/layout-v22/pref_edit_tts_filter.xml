@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/sv" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="horizontal" android:paddingLeft="0.0dip" android:paddingBottom="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <TextView android:textSize="17.0dip" android:textStyle="bold" android:textColor="#ff111111" android:paddingTop="4.0dip" android:paddingBottom="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/tts_filter" android:paddingVertical="4.0dip" />
+        <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <androidx.appcompat.widget.SearchView android:id="@id/phSearch" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_alignParentEnd="true" app:searchHintIcon="@null" />
+        </RelativeLayout>
+    </LinearLayout>
+    <ScrollView android:id="@id/sv" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0">
+        <LinearLayout android:orientation="vertical" android:id="@id/replaceLay" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+    </ScrollView>
+    <View android:background="#55555555" android:layout_width="fill_parent" android:layout_height="1.0px" android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip" android:layout_marginVertical="10.0dip" />
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <CheckBox android:textSize="13.0sp" android:layout_gravity="center_vertical" android:id="@id/cb" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/use_regular_expression" />
+        <ImageView android:layout_gravity="center_vertical" android:id="@id/tip" android:padding="10.0dip" android:layout_width="40.0dip" android:layout_height="36.0dip" android:foreground="?selectableItemBackgroundBorderless" android:src="@drawable/tip" />
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <TextView android:textSize="13.0sp" android:textColor="#ff6060e4" android:id="@id/importTv" android:background="?selectableItemBackground" android:paddingLeft="6.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/import_ebooks" />
+        <TextView android:textSize="13.0sp" android:textColor="#ff6060e4" android:id="@id/exportTv" android:background="?selectableItemBackground" android:paddingLeft="6.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/export" />
+        <TextView android:textSize="13.0sp" android:textColor="#ff6060e4" android:id="@id/clearTv" android:background="?selectableItemBackground" android:paddingLeft="6.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/clear_dict_history" />
+    </LinearLayout>
+</LinearLayout>

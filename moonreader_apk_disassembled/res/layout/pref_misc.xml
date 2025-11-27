@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <include android:id="@id/headerMain" layout="@layout/pref_header_main" />
+    <ScrollView android:id="@id/sv" android:background="@color/options_background" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:orientation="vertical" android:id="@id/pvTopLine" android:paddingTop="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmFullscreen" android:text="@string/full_screen_mode" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmFullscreenOp" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmKeepScreenAwake" android:text="@string/keep_screen_awake" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetScreenAwake" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmAdjustBrightness" android:text="@string/swpie_edge_brightness" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetLed" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmAdjustBFontSize" android:text="@string/adjust_fontsize_by_side" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetFontSize" style="@style/SwitchImageButton" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout style="@style/RoundLay">
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmKeepOneLine" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/keep_one_line" style="@style/MySwitch" />
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmOpenLastFile" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/open_lastfile" style="@style/MySwitch" />
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmStatusBar" android:text="@string/status_bar" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetBar" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmRemaningTime" android:text="@string/show_remaining_time" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetRemaining" style="@style/SwitchImageButton" />
+                </LinearLayout>
+            </LinearLayout>
+            <TextView android:text="@string/typesetting" style="@style/ShelfTipTitle" />
+            <LinearLayout style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmIndentParagraph" android:text="@string/indent_paragraph" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetIndent" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmTrimBlankSpaces" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/trimBlacnkSpace" style="@style/MySwitch" />
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmTrimTopSpaces" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/trimTopSpace" style="@style/MySwitch" />
+                <View android:id="@id/pmEpubPageSplit" style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmPageNum" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/epub3_page_numbers" style="@style/MySwitch" />
+                <View android:id="@id/pmTxtSplit2" style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmTxtSplit" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/txt_chapter_split" style="@style/MySwitch" />
+            </LinearLayout>
+            <TextView android:id="@id/ebookTv" android:text="Epub/Azw3/Mobi/Fb2" style="@style/ShelfTipTitle" />
+            <LinearLayout style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/cssFont" android:text="@string/epub_embedded_fonts" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetFont" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/disableCSS" android:text="@string/disable_css" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetCSS" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmOriginalView" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/preview_formattting" style="@style/MySwitch" />
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmFootnote" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/show_footnote" style="@style/MySwitch" />
+                <View android:id="@id/fb2Tv2" style="@style/SwitchSplitter" />
+                <TextView android:id="@id/fb2Tv" android:text="@string/fb2_user_style" style="@style/PrefMiscFillButton" />
+            </LinearLayout>
+            <TextView android:text="@string/keep_health_by" style="@style/ShelfTipTitle" />
+            <LinearLayout style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmRemind1" android:text="@string/remindlabel" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetRemind1" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmRemind2" android:text="@string/remind_me_at_time" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetRemind2" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/bluelight" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/bluelight_filter" style="@style/MySwitch" />
+                <View android:id="@id/bluelightLay2" style="@style/SwitchSplitter" />
+                <LinearLayout android:id="@id/bluelightLay" android:paddingLeft="24.0dip" android:paddingRight="12.0dip" android:layout_width="fill_parent" android:layout_height="@dimen/switch_lay_height">
+                    <TextView android:textSize="15.0dip" android:textColor="@color/dialog_second_text" android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginRight="8.0dip" android:text="@string/bluelight_filter_opacity" />
+                    <SeekBar android:layout_gravity="center_vertical" android:id="@id/bluelightOpacity" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="42.0dip" android:max="80" android:progress="30" android:indeterminate="false" android:layout_weight="5.0" />
+                </LinearLayout>
+            </LinearLayout>
+            <TextView android:id="@id/speakLay2" android:text="@string/tts_options" style="@style/ShelfTipTitle" />
+            <LinearLayout android:orientation="horizontal" android:id="@id/speakLay" android:paddingLeft="24.0dip" android:paddingRight="12.0dip" android:layout_height="@dimen/switch_lay_height" style="@style/RoundLay">
+                <TextView android:textSize="16.0sp" android:textColor="@color/dialog_second_text" android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/tts_divide" android:layout_weight="8.0" />
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0">
+                    <com.flyersoft.views.MySpinner android:entries="@array/tts_divides" android:layout_gravity="center_vertical" android:id="@id/pmTtsDivides" android:layout_width="fill_parent" android:layout_height="44.0dip" android:layout_weight="6.0" />
+                    <ImageView android:layout_gravity="center_vertical" android:id="@id/pmSpeakMore" android:background="?selectableItemBackgroundBorderless" android:paddingTop="2.0dip" android:paddingBottom="2.0dip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginLeft="8.0dip" android:layout_marginRight="0.0dip" android:src="@drawable/ic_menu_more2" />
+                    <ImageButton android:id="@id/pmSetTTS" style="@style/SwitchImageButton" />
+                </LinearLayout>
+            </LinearLayout>
+            <TextView android:text="@string/specialphone" style="@style/ShelfTipTitle" />
+            <LinearLayout android:id="@id/proLay" style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmTilt" android:text="@string/tilt_turn_page" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetTilt" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmMulti_touch" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/multi_touch" style="@style/MySwitch" />
+            </LinearLayout>
+            <LinearLayout style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmAllowHorizontal" android:text="@string/allow_scroll_horizontally" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetFling" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmDisablemove" android:paddingRight="42.0dip" android:layout_marginLeft="24.0dip" android:layout_marginRight="12.0dip" android:text="@string/disablemove" style="@style/MySwitch" />
+            </LinearLayout>
+            <LinearLayout style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pm2Page" android:text="@string/dual_page" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSet2Page" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmPageSound" android:text="@string/page_sound" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetSound" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmRuler" android:text="@string/reading_ruler" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetRuler" style="@style/SwitchImageButton" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pcEdge" android:text="@string/disable_edge_touch" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/setEdge" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmSaveConfirm" android:text="@string/save_file_confirm" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/setSaveFile" style="@style/SwitchImageButton" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:id="@id/bionicLay" android:visibility="gone" style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmBionic" android:text="@string/focused_reading" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmBionicTip" style="@style/SwitchImageButton" />
+                </LinearLayout>
+            </LinearLayout>
+            <TextView android:id="@id/synvTv" android:text="@string/sync_to_cloud" style="@style/ShelfTipTitle" />
+            <LinearLayout android:layout_marginBottom="12.0dip" style="@style/RoundLay">
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmSyncDropbox" android:text="@string/sync_via_cloud" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetDropbox" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View android:id="@id/gdriveSplit" style="@style/SwitchSplitter" />
+                <LinearLayout android:id="@id/gdriveLay" style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmSyncGdrive" android:text="@string/sync_via_cloud" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetGdrive" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmSyncWebDav" android:text="@string/sync_via_cloud" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetWebDav" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <View style="@style/SwitchSplitter" />
+                <LinearLayout style="@style/SwitchLinearLayout">
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/pmSyncFtp" android:text="@string/sync_via_cloud" style="@style/MySwitch" />
+                    <ImageButton android:id="@id/pmSetFtp" style="@style/SwitchImageButton" />
+                </LinearLayout>
+                <TextView android:textSize="14.5sp" android:layout_gravity="right" android:id="@id/gdriveTip" android:layout_width="wrap_content" android:layout_marginBottom="13.0dip" android:text="Google Drive?" style="@style/ShelfTipTitle" />
+            </LinearLayout>
+            <LinearLayout android:paddingTop="0.0dip" android:paddingRight="24.0dip" android:paddingBottom="0.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="12.0dip">
+                <TextView android:textSize="14.0sp" android:gravity="center|right" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="6.0dip" android:text="@string/reset" android:layout_weight="10.0" />
+                <ImageView android:id="@id/pcReset" android:background="?selectableItemBackgroundBorderless" android:padding="8.0dip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:src="@drawable/resetspace" />
+            </LinearLayout>
+            <TextView android:layout_marginTop="0.0dip" android:text="@string/more" style="@style/ShelfTipTitle" />
+            <LinearLayout android:layout_marginBottom="24.0dip" style="@style/RoundLay">
+                <TextView android:id="@id/nameReplace" android:text="@string/names_replacement" style="@style/PrefMiscFillButton" />
+                <View android:id="@id/nameReplace2" style="@style/SwitchSplitter" />
+                <TextView android:id="@id/autoScrollB" android:text="@string/button_autoscroll" style="@style/PrefMiscFillButton" />
+                <View style="@style/SwitchSplitter" />
+                <TextView android:id="@id/linkTv" android:text="@string/link_colors" style="@style/PrefMiscFillButton" />
+                <View style="@style/SwitchSplitter" />
+                <TextView android:id="@id/noteTv" android:text="@string/popup_note_color" style="@style/PrefMiscFillButton" />
+                <View style="@style/SwitchSplitter" />
+                <TextView android:id="@id/imageTv" android:text="@string/image_display_options" style="@style/PrefMiscFillButton" />
+            </LinearLayout>
+            <LinearLayout android:layout_marginBottom="42.0dip" style="@style/RoundLay">
+                <TextView android:id="@id/dictTv" android:text="@string/customize_dictionary" style="@style/PrefMiscFillButton" />
+                <View style="@style/SwitchSplitter" />
+                <TextView android:id="@id/bottomBarTv" android:text="@string/customize_bottom_bar1" style="@style/PrefMiscFillButton" />
+                <View style="@style/SwitchSplitter" />
+                <TextView android:id="@id/appOptions" android:text="@string/menu_options" style="@style/PrefMiscFillButton" />
+                <TextView android:id="@id/debugTv" android:text="load debug settings (developer only)" style="@style/PrefMiscFillButton" />
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical" android:id="@id/footerMain" android:background="@color/options_background" android:paddingLeft="@dimen/button_margin" android:paddingRight="@dimen/button_margin" android:paddingBottom="@dimen/footer_button_bottom_margin" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <LinearLayout android:layout_gravity="bottom" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="1.0dip" android:layout_marginBottom="4.0dip">
+                    <Button android:id="@id/backupB" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/backup" android:layout_weight="5.0" style="@style/MyButton" />
+                    <Button android:layout_gravity="center" android:id="@id/restoreB" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/restore" android:layout_weight="5.0" style="@style/MyButton" />
+                </LinearLayout>
+                <LinearLayout android:layout_gravity="bottom" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                    <Button android:id="@id/settingButton1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/visual_options" android:layout_weight="5.0" style="@style/MyButton" />
+                    <Button android:layout_gravity="center" android:id="@id/settingButton2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/control_options" android:layout_weight="5.0" style="@style/MyButton" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

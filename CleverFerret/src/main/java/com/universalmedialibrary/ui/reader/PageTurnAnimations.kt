@@ -18,10 +18,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.drawRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.graphicsLayer
 import java.util.Locale
 import kotlin.math.*
 
@@ -668,38 +670,66 @@ private fun CurlAnimation(
     progress: Float,
     settings: AnimationSettings
 ) {
-    // Simplified curl effect (full implementation would require custom drawing)
+    // Enhanced curl effect inspired by Moonreader's realistic page curl
+    val density = LocalDensity.current
     Box(modifier = Modifier.fillMaxSize()) {
         // Show next page as background
         nextPage()
 
-        // Show current page fading out as it curls
-        Box(modifier = Modifier.alpha(1f - progress)) {
+        // Current page with curl effect
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    // Create realistic curl by rotating and translating
+                    val curlProgress = progress.coerceIn(0f, 1f)
+                    val curlWidth = size.width * curlProgress * settings.curlIntensity
+                    
+                    // Perspective transformation for 3D curl effect
+                    val pivotX = size.width
+                    val pivotY = size.height / 2f
+                    
+                    // Rotate the page as it curls
+                    rotationY = -curlProgress * 90f
+                    transformOrigin = androidx.compose.ui.graphics.TransformOrigin(
+                        pivotFractionX = 1f,
+                        pivotFractionY = 0.5f
+                    )
+                    
+                    // Add shadow for depth
+                    shadowElevation = curlProgress * 8f
+                }
+                .alpha(1f - progress * 0.3f) // Slight fade as it curls
+        ) {
             currentPage()
         }
 
-        // Draw curl overlay
+        // Draw curl shadow gradient for realism
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
             val width = size.width
             val height = size.height
-            val curlAmount = width * progress * settings.curlIntensity
+            val curlProgress = progress.coerceIn(0f, 1f)
+            val curlWidth = width * curlProgress * settings.curlIntensity
 
-            drawIntoCanvas { canvas ->
-                val path = Path().apply {
-                    moveTo(width - curlAmount, 0f)
-                    lineTo(width, 0f)
-                    lineTo(width, height)
-                    lineTo(width - curlAmount, height)
-                    close()
-                }
+            if (curlProgress > 0f && curlWidth < width) {
+                // Draw gradient shadow on the curling edge
+                val shadowWidth = 20.dp.toPx()
+                val gradient = Brush.horizontalGradient(
+                    colors = listOf(
+                        Color.Black.copy(alpha = 0.3f * curlProgress),
+                        Color.Black.copy(alpha = 0.1f * curlProgress),
+                        Color.Transparent
+                    ),
+                    startX = width - curlWidth - shadowWidth,
+                    endX = width - curlWidth
+                )
 
-                canvas.drawPath(
-                    path,
-                    Paint().apply {
-                        color = Color.White.copy(alpha = 1f - progress)
-                    }
+                drawRect(
+                    brush = gradient,
+                    topLeft = Offset(width - curlWidth - shadowWidth, 0f),
+                    size = Size(shadowWidth, height)
                 )
             }
         }

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/options_background" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <include android:id="@id/headerMain" layout="@layout/pref_header_main" />
+    <ScrollView android:id="@id/sv" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="vertical" android:paddingTop="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:paddingTop="16.0dip" android:paddingBottom="16.0dip" style="@style/RoundLay">
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/ontop" android:text="@string/status_bar_on_top" style="@style/MySwitchPreVisual" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/undernotch" android:text="@string/status_under_notch" style="@style/MySwitchPreVisual" />
+                <View android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip" style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/showtime" android:text="@string/status_show_time" style="@style/MySwitchPreVisual" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/showprogress" android:text="@string/status_show_progress" style="@style/MySwitchPreVisual" />
+                <LinearLayout android:id="@id/pagesLay" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="32.0dip">
+                    <View android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0" />
+                    <CheckBox android:id="@id/totalPages" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/total_pages" />
+                    <CheckBox android:id="@id/chapterPages" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/chapter_pages" />
+                </LinearLayout>
+                <View android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip" style="@style/SwitchSplitter" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/showchapter" android:text="@string/status_show_chapter" style="@style/MySwitchPreVisual" />
+                <LinearLayout android:orientation="vertical" android:id="@id/chapterLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                    <RadioGroup android:layout_gravity="right" android:orientation="horizontal" android:id="@id/edgeGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:layout_marginRight="32.0dip" android:layout_marginBottom="4.0dip">
+                        <RadioButton android:id="@id/topRadio" android:tag="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="Top Edge" style="@style/MyRadio" />
+                        <RadioButton android:id="@id/bottomRadio" android:tag="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bottom Edge" style="@style/MyRadio" />
+                    </RadioGroup>
+                    <RadioGroup android:layout_gravity="right" android:orientation="horizontal" android:id="@id/alignGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:layout_marginRight="32.0dip" android:layout_marginBottom="4.0dip">
+                        <RadioButton android:id="@id/leftRadio" android:tag="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="@string/left" style="@style/MyRadio" />
+                        <RadioButton android:id="@id/centerRadio" android:tag="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/center" style="@style/MyRadio" />
+                        <RadioButton android:id="@id/rightRadio" android:tag="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/right" style="@style/MyRadio" />
+                    </RadioGroup>
+                    <com.flyersoft.views.CustomSeek android:id="@id/chapterMarginStatus" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="14.0dip" app:text="@string/statubar_margin" app:textColor="@color/dialog_second_text" app:textGravity="right|center" app:textSize="16" app:textWidth="110.0dip" />
+                    <com.flyersoft.views.CustomSeek android:id="@id/chapterMarginLeft" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="14.0dip" app:text="@string/left_margin" app:textColor="@color/dialog_second_text" app:textGravity="right|center" app:textSize="16" app:textWidth="110.0dip" />
+                    <com.flyersoft.views.CustomSeek android:id="@id/chapterMarginRight" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="14.0dip" app:text="@string/right_margin" app:textColor="@color/dialog_second_text" app:textGravity="right|center" app:textSize="16" app:textWidth="110.0dip" />
+                    <com.flyersoft.views.CustomSeek android:id="@id/chapterMarginTop" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="14.0dip" app:text="@string/top_margin" app:textColor="@color/dialog_second_text" app:textGravity="right|center" app:textSize="16" app:textWidth="110.0dip" />
+                </LinearLayout>
+            </LinearLayout>
+            <FrameLayout android:id="@id/previewLay" android:background="@drawable/grey_frame" android:layout_width="fill_parent" android:layout_height="80.0dip" android:layout_marginLeft="4.0dip" android:layout_marginRight="4.0dip" android:layout_marginBottom="24.0dip">
+                <TextView android:textSize="30.0sp" android:textColor="#ff888888" android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PREVIEW" android:alpha="0.1" android:rotation="-30.0" />
+                <TextView android:textSize="30.0sp" android:textColor="#ff888888" android:layout_gravity="center|right" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PREVIEW" android:alpha="0.1" android:rotation="-30.0" />
+                <TextView android:textSize="30.0sp" android:textColor="#ff888888" android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PREVIEW" android:alpha="0.1" android:rotation="-30.0" />
+                <TextView android:textSize="10.0sp" android:ellipsize="end" android:layout_gravity="center_horizontal" android:id="@id/aloneChapterTv" android:background="@null" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="xxxxxxxxxxxx" android:lines="1" />
+                <FrameLayout android:layout_gravity="bottom" android:id="@id/txtStatusLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                    <LinearLayout android:orientation="horizontal" android:id="@id/status2Page" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                        <TextView android:textSize="10.0sp" android:gravity="center_horizontal" android:id="@id/statusMiddle21" android:background="@drawable/my_list_selector" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="1/10" android:singleLine="true" android:layout_weight="3.0" />
+                        <TextView android:textSize="10.0sp" android:gravity="center_horizontal" android:id="@id/statusMiddle22" android:background="@drawable/my_list_selector" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="2/10" android:singleLine="true" android:layout_weight="3.0" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_gravity="center" android:orientation="horizontal" android:id="@id/txtStatusLayHori" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:layout_gravity="center_vertical" android:id="@id/statusLeftPanel" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                            <com.flyersoft.views.BatteryTextView android:textSize="10.0sp" android:textStyle="bold" android:id="@id/statusLeft" android:paddingLeft="5.0dip" android:paddingRight="3.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:text="100%" android:singleLine="true" />
+                            <TextView android:textSize="10.0sp" android:textStyle="bold" android:id="@id/statusLeft2" android:paddingLeft="3.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12:00AM" android:singleLine="true" />
+                        </LinearLayout>
+                        <TextView android:textSize="10.0sp" android:ellipsize="middle" android:gravity="center_horizontal" android:layout_gravity="center_vertical" android:id="@id/statusMiddle" android:tag="Chapter II Alice in Wonderland" android:background="@null" android:paddingLeft="20.0dip" android:paddingRight="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="xxxxxxxxxxxxxx" android:singleLine="true" android:layout_weight="3.0" />
+                        <TextView android:textSize="10.0sp" android:textStyle="bold" android:gravity="right" android:layout_gravity="center_vertical" android:id="@id/statusRight" android:paddingRight="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10%" android:singleLine="true" />
+                    </LinearLayout>
+                </FrameLayout>
+                <ImageView android:layout_gravity="right" android:id="@id/resetPreview" android:background="?selectableItemBackgroundBorderless" android:padding="8.0dip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="4.0dip" android:src="@drawable/resetspace" />
+            </FrameLayout>
+            <LinearLayout android:paddingTop="16.0dip" android:paddingBottom="16.0dip" style="@style/RoundLay">
+                <LinearLayout android:id="@id/backgroundColorLay" android:paddingLeft="28.0dip" android:paddingRight="28.0dip" android:layout_width="fill_parent" android:layout_height="52.0dip" android:layout_marginBottom="4.0dip">
+                    <TextView android:textColor="@color/dialog_main_text" android:text="@string/background_colorv" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.SlashBackgroundLinearLayout android:layout_gravity="center_vertical" android:background="@drawable/grey_frame_corner" android:padding="1.0px" android:layout_width="160.0dip" android:layout_height="34.0dip">
+                        <com.google.android.material.imageview.ShapeableImageView android:id="@id/BackgroundColor" android:layout_width="fill_parent" android:layout_height="fill_parent" android:foreground="@drawable/my_list_selector" app:srcCompat="@color/material_grey_100" style="@style/Style.App.circleImageView" />
+                    </com.flyersoft.views.SlashBackgroundLinearLayout>
+                </LinearLayout>
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/Use12Hour" android:text="@string/statubar_12hour" style="@style/MySwitchPreVisual" />
+            </LinearLayout>
+            <LinearLayout android:paddingTop="16.0dip" android:paddingBottom="16.0dip" style="@style/RoundLay">
+                <com.flyersoft.views.CustomSeek android:id="@id/marginStatus" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginLeft="10.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="14.0dip" app:text="@string/statubar_margin" app:textColor="@color/dialog_second_text" app:textGravity="right|center" app:textSize="16" app:textWidth="110.0dip" />
+                <com.flyersoft.views.CustomSeek android:id="@id/fontSize" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginLeft="10.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="14.0dip" app:text="@string/font_size" app:textColor="@color/dialog_second_text" app:textGravity="right|center" app:textSize="16" app:textWidth="110.0dip" />
+                <com.google.android.material.materialswitch.MaterialSwitch android:id="@id/UseThemeFont" android:text="@string/statubar_font" style="@style/MySwitchPreVisual" />
+                <LinearLayout android:id="@id/fontColorLay" android:paddingLeft="28.0dip" android:paddingRight="28.0dip" android:layout_width="fill_parent" android:layout_height="52.0dip" android:layout_marginTop="6.0dip">
+                    <TextView android:textColor="@color/dialog_main_text" android:text="@string/font_colorv" style="@style/PrefVisualTextView" />
+                    <FrameLayout android:layout_gravity="center_vertical" android:background="@drawable/round_framelyout" android:padding="1.0px" android:layout_width="160.0dip" android:layout_height="34.0dip">
+                        <com.google.android.material.imageview.ShapeableImageView android:id="@id/FontColor" android:layout_width="fill_parent" android:layout_height="fill_parent" android:foreground="@drawable/my_list_selector" app:srcCompat="@color/material_grey_100" style="@style/Style.App.circleImageView" />
+                    </FrameLayout>
+                </LinearLayout>
+                <LinearLayout android:id="@id/fontLay" android:paddingLeft="28.0dip" android:paddingTop="12.0dip" android:paddingRight="28.0dip" android:paddingBottom="12.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:minHeight="52.0dip">
+                    <TextView android:text="@string/font_name" style="@style/PrefVisualTextView" />
+                    <FrameLayout android:layout_gravity="center_vertical" android:background="@drawable/round_framelyout" android:padding="1.0px" android:layout_width="160.0dip" android:layout_height="wrap_content" android:foreground="@drawable/my_list_selector" android:minHeight="34.0dip">
+                        <TextView android:textSize="15.0sp" android:textColor="#ff000000" android:ellipsize="end" android:gravity="center" android:id="@id/FontTextView" android:paddingLeft="8.0dip" android:paddingTop="4.0dip" android:paddingRight="8.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:minHeight="32.0dip" android:text="San-Serif" android:maxLines="2" />
+                    </FrameLayout>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:paddingTop="14.0dip" android:paddingBottom="24.0dip" style="@style/RoundLay">
+                <LinearLayout android:orientation="horizontal" android:paddingLeft="24.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="48.0dip">
+                    <TextView android:text="@string/statubar_click_left" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/ClickLeft" android:background="@drawable/spinner_background_holo_dark" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:paddingLeft="24.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip">
+                    <TextView android:text="@string/statubar_click_middle" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/ClickMiddle" android:background="@drawable/spinner_background_holo_dark" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:paddingLeft="24.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="48.0dip">
+                    <TextView android:text="@string/statubar_click_right" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/ClickRight" android:background="@drawable/spinner_background_holo_dark" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:paddingTop="14.0dip" android:paddingBottom="24.0dip" android:layout_marginBottom="18.0dip" style="@style/RoundLay">
+                <LinearLayout android:orientation="horizontal" android:paddingLeft="24.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="48.0dip">
+                    <TextView android:text="@string/statubar_long_tap_left" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/ClickLeft2" android:background="@drawable/spinner_background_holo_dark" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:paddingLeft="24.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="48.0dip" android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip">
+                    <TextView android:text="@string/statubar_long_tap_middle" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/ClickMiddle2" android:background="@drawable/spinner_background_holo_dark" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:paddingLeft="24.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="48.0dip">
+                    <TextView android:text="@string/statubar_long_tap_right" style="@style/PrefVisualTextView" />
+                    <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/ClickRight2" android:background="@drawable/spinner_background_holo_dark" android:layout_width="160.0dip" android:layout_marginRight="10.0dip" android:layout_weight="0.0" style="@style/PrefControlSpinner" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:paddingLeft="4.0dip" android:paddingRight="24.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="24.0dip">
+                <TextView android:textSize="14.0sp" android:textColor="@color/dialog_second_text" android:gravity="center|right" android:focusable="true" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginRight="6.0dip" android:text="@string/reset" android:layout_weight="8.0" />
+                <ImageView android:id="@id/pvReset" android:background="?selectableItemBackgroundBorderless" android:padding="8.0dip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginRight="10.0dip" android:src="@drawable/resetspace" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

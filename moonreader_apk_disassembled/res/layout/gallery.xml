@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:orientation="vertical" android:id="@id/base" android:layout_width="fill_parent" android:layout_height="fill_parent" android:transitionName="@string/transitions_name"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.flyersoft.views.MyViewPager android:id="@id/mainPager" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    <LinearLayout android:layout_gravity="bottom|center" android:orientation="horizontal" android:id="@id/gif" android:background="#88888888" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="40.0dip" android:foreground="?selectableItemBackground">
+        <TextView android:textSize="20.0dip" android:textStyle="bold" android:textColor="#ffffffff" android:layout_gravity="center_vertical" android:paddingLeft="16.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GIF" />
+        <ImageView android:layout_gravity="center_vertical" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/play" />
+    </LinearLayout>
+    <LinearLayout android:layout_gravity="bottom" android:orientation="horizontal" android:id="@id/txtStatusLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:id="@id/statusLeftPanel" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <com.flyersoft.views.BatteryTextView android:textSize="10.0sp" android:textStyle="bold" android:textColor="#ff888888" android:id="@id/statusLeft" android:paddingLeft="5.0dip" android:paddingRight="3.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:singleLine="true" android:shadowColor="#ff000000" android:shadowDx="1.0" android:shadowDy="2.0" android:shadowRadius="1.0" />
+            <TextView android:textSize="10.0sp" android:textStyle="bold" android:textColor="#ff999999" android:id="@id/statusLeft2" android:paddingLeft="3.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:shadowColor="#ff000000" android:shadowDx="1.0" android:shadowDy="2.0" android:shadowRadius="1.0" />
+        </LinearLayout>
+        <TextView android:textSize="10.0sp" android:textColor="#ff999999" android:ellipsize="middle" android:gravity="center_horizontal" android:id="@id/statusMiddle" android:paddingLeft="30.0dip" android:paddingRight="30.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:shadowColor="#ff000000" android:shadowDx="1.0" android:shadowDy="2.0" android:shadowRadius="1.0" android:layout_weight="3.0" />
+        <TextView android:textSize="10.0sp" android:textStyle="bold" android:textColor="#ff999999" android:gravity="right" android:id="@id/statusRight" android:paddingRight="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:shadowColor="#ff000000" android:shadowDx="1.0" android:shadowDy="2.0" android:shadowRadius="1.0" />
+    </LinearLayout>
+    <Gallery android:layout_gravity="bottom" android:id="@id/gallery1" android:layout_width="fill_parent" android:layout_height="90.0dip" />
+    <FrameLayout android:id="@id/topLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:paddingLeft="12.0dip" android:paddingTop="1.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <ImageView android:id="@id/daynightIv" android:background="@drawable/my_blue_selector" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginLeft="0.0dip" android:src="@drawable/daynight2" android:tint="#04444444" />
+            <ImageView android:id="@id/playIv" android:background="@drawable/my_blue_selector" android:padding="2.0dip" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginLeft="0.0dip" android:src="@drawable/play" android:tint="#04444444" />
+            <ImageView android:id="@id/optionIv" android:background="@drawable/my_blue_selector" android:padding="7.0dip" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/options_dark" android:tint="#04444444" />
+            <ImageView android:id="@id/shareIv" android:background="@drawable/my_blue_selector" android:padding="10.0dip" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginRight="0.0dip" android:src="@drawable/ic_menu_share_v" android:tint="#04444444" />
+        </LinearLayout>
+        <TextView android:textColor="#ffcccccc" android:layout_gravity="center" android:id="@id/titleTv" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="18.0dip" android:text="TextView" android:shadowColor="#ff111111" android:shadowDx="1.0" android:shadowDy="2.0" android:shadowRadius="1.0" />
+    </FrameLayout>
+    <ImageView android:layout_gravity="right" android:id="@id/closeIv" android:background="@drawable/my_blue_selector" android:padding="10.0dip" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginRight="0.0dip" android:src="@drawable/close_dark2" />
+</FrameLayout>

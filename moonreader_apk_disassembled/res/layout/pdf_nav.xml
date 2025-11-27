@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditText android:enabled="false" android:id="@id/txt_path" android:focusable="false" android:focusableInTouchMode="false" android:clickable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:ems="10" android:inputType="none" android:imeOptions="actionNone">
+        <requestFocus />
+    </EditText>
+    <com.radaee.util.PDFGridView android:id="@id/pdf_nav" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+</LinearLayout>

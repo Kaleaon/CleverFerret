@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/sv" android:background="@color/material_grey_50" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <include android:id="@id/headerSub" layout="@layout/pref_header_sub" />
+    <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:minHeight="200.0dip" android:layout_weight="5.0">
+        <WebView android:id="@id/webView" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="0.0dip" android:layout_weight="5.0" />
+        <ProgressBar android:layout_gravity="center" android:id="@id/progressBar2" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    </FrameLayout>
+    <LinearLayout android:orientation="horizontal" android:background="@color/material_grey_300" android:layout_width="fill_parent" android:layout_height="90.0dip" android:layout_margin="0.0dip">
+        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginLeft="8.0dip" android:layout_marginRight="8.0dip" android:layout_weight="7.0">
+            <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0">
+                <ImageView android:layout_gravity="center" android:id="@id/google" android:background="@drawable/my_list_selector" android:paddingLeft="16.0dip" android:paddingTop="12.0dip" android:paddingRight="4.0dip" android:paddingBottom="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/search_google" android:layout_weight="5.0" />
+                <ImageView android:layout_gravity="center" android:id="@id/bing" android:background="@drawable/my_list_selector" android:paddingLeft="16.0dip" android:paddingTop="4.0dip" android:paddingRight="4.0dip" android:paddingBottom="12.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/search_bing" android:layout_weight="5.0" />
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0">
+                <ImageView android:layout_gravity="center" android:id="@id/yahoo" android:background="@drawable/my_list_selector" android:paddingLeft="4.0dip" android:paddingTop="12.0dip" android:paddingRight="16.0dip" android:paddingBottom="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/search_yahoo" android:layout_weight="5.0" />
+                <ImageView android:layout_gravity="center" android:id="@id/baidu" android:background="@drawable/my_list_selector" android:paddingLeft="4.0dip" android:paddingTop="4.0dip" android:paddingRight="16.0dip" android:paddingBottom="12.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/search_sogou" android:layout_weight="5.0" />
+            </LinearLayout>
+        </LinearLayout>
+        <FrameLayout android:id="@id/coverLay" android:background="@color/material_grey_500" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="0.0dip" android:layout_weight="5.0">
+            <ImageView android:id="@id/imageView1" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="0.0dip" android:scaleType="fitCenter" />
+            <TextView android:textSize="15.0dip" android:textColor="#ffffffff" android:gravity="center_horizontal" android:layout_gravity="center" android:id="@id/tipTv" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="8.0dip" android:text="@string/long_tap_select_image_in_browser" />
+        </FrameLayout>
+    </LinearLayout>
+    <include android:id="@id/footerMain" android:layout_width="fill_parent" android:layout_height="wrap_content" layout="@layout/pref_bottom" />
+</LinearLayout>

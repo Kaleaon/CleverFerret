@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:background="#ffffffff" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.flyersoft.views.ScrollView2 android:id="@id/sv" android:scrollbars="none" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0">
+        <com.flyersoft.staticlayout.MRTextView android:id="@id/mr" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+    </com.flyersoft.views.ScrollView2>
+    <com.flyersoft.views.recyclerview.MyRecyclerView android:id="@id/rv" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    <ImageView android:layout_gravity="right" android:id="@id/closeIv" android:background="@drawable/my_blue_selector" android:padding="10.0dip" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_marginRight="0.0dip" android:src="@drawable/close_dark2" />
+</FrameLayout>

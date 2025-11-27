@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@id/lay" android:background="@color/material_grey_200" android:paddingLeft="@dimen/button_rect_margin" android:paddingTop="1.0dip" android:paddingRight="@dimen/button_rect_margin" android:layout_width="fill_parent" android:layout_height="wrap_content" android:paddingHorizontal="@dimen/button_rect_margin"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button android:layout_gravity="center" android:id="@id/thirdB" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:layout_weight="5.0" style="@style/MyButtonConfirm" />
+    <Button android:layout_gravity="center" android:id="@id/cancelB" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@android:string/cancel" android:layout_weight="5.0" style="@style/MyButtonConfirm" />
+    <Button android:id="@id/okB" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@android:string/ok" android:layout_weight="5.0" style="@style/MyButtonConfirm" />
+</LinearLayout>

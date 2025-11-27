@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:paddingTop="10.0dip" android:paddingBottom="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:paddingVertical="10.0dip"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_gravity="center_horizontal" android:id="@id/about" android:background="?selectableItemBackgroundBorderless" android:layout_width="140.0dip" android:layout_height="50.0dip" android:src="@drawable/readwise" />
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
+        <TextView android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Token: " />
+        <EditText android:id="@id/et" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0" />
+        <ImageButton android:layout_gravity="center|right" android:id="@id/about2" android:background="?selectableItemBackgroundBorderless" android:padding="10.0dip" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:src="@drawable/tip" android:scaleType="fitCenter" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip">
+        <TextView android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Url: " />
+        <EditText android:textColor="#ff888888" android:id="@id/urlEt" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="https://readwise.io/api/v2/highlights/" />
+    </LinearLayout>
+</LinearLayout>

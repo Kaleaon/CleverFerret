@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/small_options_background" android:padding="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="20.0sp" android:textColor="#ffffffff" android:paddingLeft="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/username" />
+            <EditText android:id="@id/iUserEdit" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:layout_marginBottom="6.0dip" android:singleLine="true" style="@style/MyEditText" />
+            <TextView android:textSize="20.0sp" android:textColor="#ffffffff" android:id="@id/TextView02" android:paddingLeft="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/password" />
+            <EditText android:id="@id/iPassEdit" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:layout_marginBottom="6.0dip" android:password="true" android:singleLine="true" style="@style/MyEditText" />
+            <CheckBox android:textColor="#ffffffff" android:id="@id/iRememberMe" android:layout_width="fill_parent" android:layout_height="wrap_content" android:checked="true" android:text="@string/rememberme" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

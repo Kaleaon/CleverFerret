@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider android:minWidth="100.0dip" android:minHeight="100.0dip" android:updatePeriodMillis="0" android:initialLayout="@layout/appwidget_history" android:configure="com.flyersoft.components.WidgetOptionActivity" android:previewImage="@drawable/widget_preview" android:autoAdvanceViewId="@id/mrhistory" android:resizeMode="horizontal|vertical" android:widgetCategory="home_screen|keyguard"
+  xmlns:android="http://schemas.android.com/apk/res/android" />

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/small_options_background" android:padding="0.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textSize="18.0sp" android:textStyle="bold" android:id="@id/title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="12.0dip" android:text="@string/my_files_favorites_list" />
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="4.0dip">
+        <ImageView android:layout_gravity="center" android:layout_width="32.0dip" android:layout_height="32.0dip" android:src="@drawable/dropbox" />
+        <CheckBox android:id="@id/dropbox" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="[Dropbox]" android:layout_weight="5.0" />
+        <ImageView android:layout_gravity="center|right" android:id="@id/setDropbox" android:tag="force" android:paddingTop="2.0dip" android:paddingBottom="6.0dip" android:clickable="true" android:layout_width="32.0dip" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:layout_marginRight="6.0dip" android:foreground="?selectableItemBackground" android:src="@drawable/options_dark" android:scaleType="fitCenter" />
+    </LinearLayout>
+    <LinearLayout android:id="@id/gdriveLay" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="4.0dip">
+        <ImageView android:layout_gravity="center" android:layout_width="32.0dip" android:layout_height="32.0dip" android:src="@drawable/gdrive" />
+        <CheckBox android:id="@id/gdrive" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="[Gdrive]" android:layout_weight="5.0" />
+        <ImageView android:layout_gravity="center|right" android:id="@id/setGdrive" android:tag="force" android:paddingTop="2.0dip" android:paddingBottom="6.0dip" android:clickable="true" android:layout_width="32.0dip" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:layout_marginRight="6.0dip" android:foreground="?selectableItemBackground" android:src="@drawable/options_dark" android:scaleType="fitCenter" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="6.0dip">
+        <ImageView android:layout_gravity="center" android:layout_width="32.0dip" android:layout_height="32.0dip" android:src="@drawable/webdav" />
+        <CheckBox android:id="@id/webdav" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="[WebDav]" android:layout_weight="5.0" />
+        <ImageView android:layout_gravity="center|right" android:id="@id/setWebDav" android:tag="force" android:paddingTop="2.0dip" android:paddingBottom="6.0dip" android:clickable="true" android:layout_width="32.0dip" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:layout_marginRight="6.0dip" android:foreground="?selectableItemBackground" android:src="@drawable/options_dark" android:scaleType="fitCenter" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="6.0dip">
+        <ImageView android:layout_gravity="center" android:layout_width="32.0dip" android:layout_height="32.0dip" android:src="@drawable/ftp" />
+        <CheckBox android:id="@id/ftp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="[FTP]" android:layout_weight="5.0" />
+        <ImageView android:layout_gravity="center|right" android:id="@id/setFtp" android:tag="force" android:paddingTop="2.0dip" android:paddingBottom="6.0dip" android:clickable="true" android:layout_width="32.0dip" android:layout_height="32.0dip" android:layout_marginLeft="4.0dip" android:layout_marginRight="6.0dip" android:foreground="?selectableItemBackground" android:src="@drawable/options_dark" android:scaleType="fitCenter" />
+    </LinearLayout>
+    <ListView android:id="@id/list" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0" />
+</LinearLayout>

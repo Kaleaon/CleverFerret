@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:orientation="vertical" android:background="@color/material_grey_300" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ScrollView android:id="@id/sv" android:paddingLeft="24.0dip" android:paddingTop="20.0dip" android:paddingRight="16.0dip" android:paddingBottom="20.0dip" android:scrollbars="none" android:layout_width="fill_parent" android:layout_height="fill_parent" android:paddingVertical="20.0dip">
+        <LinearLayout android:orientation="vertical" android:paddingTop="14.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0">
+                    <TextView android:textSize="16.0sp" android:textColor="@color/material_grey_900" android:gravity="left" android:layout_gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="8.0dip" android:text="@string/shelf_sort" android:layout_weight="8.0" />
+                    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="8.0">
+                        <RadioGroup android:id="@id/radioGroup2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                            <RadioButton android:id="@id/radio20" android:tag="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="RadioButton" style="@style/MyRadio" />
+                            <RadioButton android:id="@id/radio21" android:tag="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RadioButton" style="@style/MyRadio" />
+                            <RadioButton android:id="@id/radio22" android:tag="2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RadioButton" style="@style/MyRadio" />
+                            <RadioButton android:id="@id/radio23" android:tag="3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RadioButton" style="@style/MyRadio" />
+                            <RadioButton android:id="@id/radio24" android:tag="4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RadioButton" style="@style/MyRadio" />
+                        </RadioGroup>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:layout_weight="5.0">
+                    <TextView android:textSize="16.0sp" android:textColor="@color/material_grey_900" android:gravity="left" android:layout_gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="8.0dip" android:text="@string/shelf_reading_state_filter" android:layout_weight="5.0" />
+                    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="8.0">
+                        <CheckBox android:id="@id/unread" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="unread" />
+                        <CheckBox android:id="@id/reading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="reading" />
+                        <CheckBox android:id="@id/finished" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="finished" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+            <TextView android:textSize="12.0sp" android:textColor="#ff888888" android:id="@id/clearArbitrary" android:tag="ignore" android:background="?selectableItemBackground" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:layout_marginTop="12.0dip" android:layout_marginRight="8.0dip" android:text="@string/clear_arbitrary_sort" android:layout_marginHorizontal="8.0dip" />
+            <LinearLayout android:paddingRight="0.0dip" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginTop="16.0dip" android:layout_marginBottom="16.0dip" android:layout_weight="5.0" android:layout_marginVertical="16.0dip">
+                <TextView android:textSize="15.0sp" android:textColor="@color/material_grey_900" android:gravity="center_vertical" android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginRight="14.0dip" android:text="@string/layout" />
+                <com.google.android.material.button.MaterialButtonToggleGroup android:id="@id/shelfStyleGroup" android:layout_width="wrap_content" android:layout_height="44.0dip" app:selectionRequired="true" app:singleSelection="true">
+                    <Button android:id="@id/style0" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="@dimen/mtrl_min_touch_target_size" app:icon="@drawable/shelf_list" app:iconPadding="0.0dip" style="?materialButtonOutlinedStyle" />
+                    <Button android:id="@id/style1" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="@dimen/mtrl_min_touch_target_size" app:icon="@drawable/shelf_grid" app:iconPadding="0.0dip" style="?materialButtonOutlinedStyle" />
+                    <Button android:id="@id/style2" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="@dimen/mtrl_min_touch_target_size" app:icon="@drawable/shelf_coverflow" app:iconPadding="0.0dip" style="?materialButtonOutlinedStyle" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0">
+                <LinearLayout android:paddingRight="4.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginBottom="6.0dip" android:layout_weight="5.0">
+                    <TextView android:textSize="15.0sp" android:textColor="@color/material_grey_900" android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="20.0dip" android:text="@string/file_type" />
+                    <CheckBox android:textColor="@color/material_grey_900" android:id="@id/all" android:paddingRight="8.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/file_typ_all" style="@style/MyCheckBox" />
+                </LinearLayout>
+                <LinearLayout android:orientation="vertical" android:id="@id/moreLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/epub" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="EPUB" android:layout_weight="52.0" style="@style/MyCheckBox" />
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/pdf" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="PDF/DJVU" android:layout_weight="47.0" style="@style/MyCheckBox" />
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/mobi" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="MOBI/AZW3/PRC" android:layout_weight="35.0" style="@style/MyCheckBox" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/fb2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="FB2" android:layout_weight="52.0" style="@style/MyCheckBox" />
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/chm" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="CHM/UMD" android:layout_weight="47.0" style="@style/MyCheckBox" />
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/umd" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="DOCX/ODT/RTF" android:layout_weight="35.0" style="@style/MyCheckBox" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/txt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="TXT/MD" android:layout_weight="52.0" style="@style/MyCheckBox" />
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/cbz" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="CBZ/CBR" android:layout_weight="47.0" style="@style/MyCheckBox" />
+                        <CheckBox android:textSize="10.0sp" android:textColor="@color/material_grey_800" android:id="@id/html" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="HTML/MHTML" android:layout_weight="35.0" style="@style/MyCheckBox" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <ImageView android:layout_gravity="center|right|top" android:id="@id/closeIv" android:background="?selectableItemBackgroundBorderless" android:paddingLeft="10.0dip" android:paddingTop="6.0dip" android:paddingRight="6.0dip" android:paddingBottom="10.0dip" android:visibility="gone" android:layout_width="48.0dip" android:layout_height="48.0dip" android:src="@drawable/close_dark" />
+    <ImageView android:layout_gravity="center|right|top" android:id="@id/optionIv" android:tag="force" android:background="?selectableItemBackgroundBorderless" android:paddingLeft="6.0dip" android:paddingTop="15.0dip" android:paddingRight="14.0dip" android:paddingBottom="9.0dip" android:layout_width="48.0dip" android:layout_height="48.0dip" android:src="@drawable/options_dark" />
+</FrameLayout>

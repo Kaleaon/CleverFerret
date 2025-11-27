@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:paddingLeft="24.0dip" android:paddingTop="18.0dip" android:paddingRight="24.0dip" android:paddingBottom="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textSize="20.0sp" android:textColor="#ff000000" android:gravity="center" android:id="@id/tv" android:paddingTop="10.0dip" android:layout_width="fill_parent" android:layout_height="120.0dip" android:text="0" />
+    <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/sp" android:layout_width="fill_parent" android:layout_height="44.0dip" android:layout_weight="6.0" />
+</LinearLayout>

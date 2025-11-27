@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:background="#ff808080" android:layout_width="fill_parent" android:layout_height="fill_parent" android:paddingStart="5.0dip"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textAppearance="?android:textAppearanceMedium" android:ellipsize="end" android:gravity="center_vertical" android:id="@id/txt_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Medium Text" android:maxLines="2" android:layout_toLeftOf="@id/btn_goto" android:layout_alignBottom="@id/btn_goto" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_goto" android:layout_width="50.0dip" android:layout_height="50.0dip" android:src="@drawable/btn_right" android:layout_alignParentTop="true" android:layout_alignParentRight="true" />
+</RelativeLayout>
