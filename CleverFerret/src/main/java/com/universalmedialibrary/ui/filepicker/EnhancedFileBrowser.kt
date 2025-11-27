@@ -21,6 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -135,21 +138,41 @@ fun EnhancedFileBrowser(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    
     var currentPath by remember {
-        mutableStateOf(initialPath ?: context.getExternalFilesDir(null)?.absolutePath ?: "/")
+        mutableStateOf(
+            initialPath ?: context.getExternalFilesDir(null)?.absolutePath 
+                ?: context.filesDir.absolutePath
+        )
     }
     var settings by remember { mutableStateOf(FileBrowserSettings()) }
     var selectedFiles by remember { mutableStateOf<Set<File>>(emptySet()) }
     var showSettings by remember { mutableStateOf(false) }
     var showFavoriteFolders by remember { mutableStateOf(false) }
     var favoriteFolders by remember { mutableStateOf<List<String>>(emptyList()) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var fileItems by remember { mutableStateOf<List<FileItem>>(emptyList()) }
+    var loadingError by remember { mutableStateOf<String?>(null) }
     
     val currentDirectory = remember(currentPath) {
         File(currentPath)
     }
     
-    val fileItems = remember(currentDirectory, settings) {
-        loadFileItems(currentDirectory, settings)
+    // Load file items asynchronously
+    LaunchedEffect(currentDirectory, settings) {
+        loadingError = null
+        try {
+            fileItems = withContext(Dispatchers.IO) {
+                loadFileItems(currentDirectory, settings)
+            }
+        } catch (e: SecurityException) {
+            loadingError = "Permission denied: ${e.message}"
+            fileItems = emptyList()
+        } catch (e: Exception) {
+            loadingError = "Error loading files: ${e.message}"
+            fileItems = emptyList()
+        }
     }
     
     Column(modifier = modifier.fillMaxSize()) {
@@ -157,7 +180,12 @@ fun EnhancedFileBrowser(
         TopAppBar(
             title = { Text("File Browser") },
             navigationIcon = {
-                IconButton(onClick = { /* Navigate back */ }) {
+                IconButton(onClick = { 
+                    val parent = File(currentPath).parent
+                    if (parent != null && parent != currentPath) {
+                        currentPath = parent
+                    }
+                }) {
                     Icon(Icons.Default.ArrowBack, "Back")
                 }
             },
@@ -250,14 +278,71 @@ fun EnhancedFileBrowser(
         if (selectedFiles.isNotEmpty()) {
             SelectionBar(
                 selectedCount = selectedFiles.size,
-                onCopy = { /* Copy files */ },
-                onMove = { /* Move files */ },
+                onCopy = { 
+                    // TODO: Implement copy functionality
+                },
+                onMove = { 
+                    // TODO: Implement move functionality
+                },
                 onDelete = { 
-                    selectedFiles.forEach { it.delete() }
-                    selectedFiles = emptySet()
+                    showDeleteConfirmation = true
                 },
                 onCancel = { selectedFiles = emptySet() }
             )
+        }
+        
+        // Delete confirmation dialog
+        if (showDeleteConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirmation = false },
+                title = { Text("Delete ${selectedFiles.size} file(s)?") },
+                text = { Text("This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            scope.launch(Dispatchers.IO) {
+                                selectedFiles.forEach { file ->
+                                    try {
+                                        file.delete()
+                                    } catch (e: Exception) {
+                                        // Log error but continue with other files
+                                        android.util.Log.e("FileBrowser", "Failed to delete ${file.name}: ${e.message}")
+                                    }
+                                }
+                                withContext(Dispatchers.Main) {
+                                    selectedFiles = emptySet()
+                                    showDeleteConfirmation = false
+                                    // Reload file list
+                                    fileItems = withContext(Dispatchers.IO) {
+                                        loadFileItems(currentDirectory, settings)
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteConfirmation = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
+        // Error display
+        loadingError?.let { error ->
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.errorContainer
+            ) {
+                Text(
+                    text = error,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
         }
     }
     
@@ -313,8 +398,16 @@ private fun BreadcrumbNavigation(
                         label = "Downloads",
                         icon = Icons.Default.Download,
                         onClick = {
-                            val downloads = context.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS)
-                            downloads?.absolutePath?.let { onQuickAccessClick(it) }
+                            try {
+                                val downloads = android.os.Environment.getExternalStoragePublicDirectory(
+                                    android.os.Environment.DIRECTORY_DOWNLOADS
+                                )
+                                if (downloads.exists() || downloads.mkdirs()) {
+                                    onQuickAccessClick(downloads.absolutePath)
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("FileBrowser", "Failed to access Downloads: ${e.message}")
+                            }
                         }
                     )
                 }
@@ -323,8 +416,14 @@ private fun BreadcrumbNavigation(
                         label = "SD Card",
                         icon = Icons.Default.Storage,
                         onClick = {
-                            val sdCard = context.getExternalFilesDir(null)?.parent
-                            sdCard?.let { onQuickAccessClick(it) }
+                            try {
+                                val sdCard = android.os.Environment.getExternalStorageDirectory()
+                                if (sdCard.exists()) {
+                                    onQuickAccessClick(sdCard.absolutePath)
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("FileBrowser", "Failed to access SD Card: ${e.message}")
+                            }
                         }
                     )
                 }
@@ -333,8 +432,16 @@ private fun BreadcrumbNavigation(
                         label = "Documents",
                         icon = Icons.Default.Folder,
                         onClick = {
-                            val documents = context.getExternalFilesDir(android.os.Environment.DIRECTORY_DOCUMENTS)
-                            documents?.absolutePath?.let { onQuickAccessClick(it) }
+                            try {
+                                val documents = android.os.Environment.getExternalStoragePublicDirectory(
+                                    android.os.Environment.DIRECTORY_DOCUMENTS
+                                )
+                                if (documents.exists() || documents.mkdirs()) {
+                                    onQuickAccessClick(documents.absolutePath)
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("FileBrowser", "Failed to access Documents: ${e.message}")
+                            }
                         }
                     )
                 }
@@ -808,35 +915,38 @@ private fun FavoriteFoldersDialog(
 }
 
 private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<FileItem> {
-    if (!directory.exists() || !directory.isDirectory) {
-        return emptyList()
-    }
-    
-    val files = directory.listFiles()?.filter { file ->
-        if (!settings.showHidden && file.name.startsWith(".")) {
-            return@filter false
+    return try {
+        if (!directory.exists() || !directory.isDirectory) {
+            return emptyList()
         }
         
-        if (file.isDirectory) {
-            true
-        } else {
-            val fileType = FileType.fromFile(file)
-            val sizeKB = file.length() / 1024
+        val files = directory.listFiles() ?: return emptyList()
+        
+        val filteredFiles = files.filter { file ->
+            if (!settings.showHidden && file.name.startsWith(".")) {
+                return@filter false
+            }
             
-            fileType in settings.selectedFileTypes &&
-            sizeKB >= settings.minFileSizeKB &&
-            sizeKB <= settings.maxFileSizeKB
+            if (file.isDirectory) {
+                true
+            } else {
+                val fileType = FileType.fromFile(file)
+                val sizeKB = file.length() / 1024
+                
+                fileType in settings.selectedFileTypes &&
+                sizeKB >= settings.minFileSizeKB &&
+                sizeKB <= settings.maxFileSizeKB
+            }
         }
-    } ?: return emptyList()
     
-    val sortedFiles = when (settings.sortMode) {
-        SortMode.BY_TIME -> files.sortedByDescending { it.lastModified() }
-        SortMode.BY_FILENAME -> files.sortedBy { it.name.lowercase() }
-        SortMode.BY_SIZE -> files.sortedByDescending { it.length() }
-        SortMode.BY_LOCATION -> files.sortedBy { it.absolutePath }
-    }
-    
-    return sortedFiles.map { file ->
+        val sortedFiles = when (settings.sortMode) {
+            SortMode.BY_TIME -> filteredFiles.sortedByDescending { it.lastModified() }
+            SortMode.BY_FILENAME -> filteredFiles.sortedBy { it.name.lowercase() }
+            SortMode.BY_SIZE -> filteredFiles.sortedByDescending { it.length() }
+            SortMode.BY_LOCATION -> filteredFiles.sortedBy { it.absolutePath }
+        }
+        
+        return sortedFiles.map { file ->
         FileItem(
             file = file,
             name = file.name,
@@ -845,6 +955,10 @@ private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<
             modifiedDate = file.lastModified(),
             fileType = FileType.fromFile(file)
         )
+    } catch (e: SecurityException) {
+        throw SecurityException("Permission denied: ${e.message}", e)
+    } catch (e: Exception) {
+        throw Exception("Error loading files: ${e.message}", e)
     }
 }
 
