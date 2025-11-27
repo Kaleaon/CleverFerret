@@ -359,13 +359,13 @@ class WebFictionService @Inject constructor(
         val storyInfo = doc.select("span.xgray").text()
 
         // Parse story info (Rating, Language, Chapters, etc.)
-        val chapterCount = Regex("Chapters: (\\d+)").find(storyInfo)?.groupValues?.get(1)?.toIntOrNull() ?: 1
+        val chapterCount = Regex("Chapters: (\\d+)").find(storyInfo)?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 1
         val statusText = if ("Complete" in storyInfo) "Complete" else "In-Progress"
-        val language = Regex("Language: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
-        val wordCountText = Regex("Words: ([0-9,]+)").find(storyInfo)?.groupValues?.get(1)?.replace(",", "")
+        val language = Regex("Language: ([^-]+)").find(storyInfo)?.groupValues?.getOrNull(1)?.trim()
+        val wordCountText = Regex("Words: ([0-9,]+)").find(storyInfo)?.groupValues?.getOrNull(1)?.replace(",", "")
         val wordCount = wordCountText?.toLongOrNull()
-        val rating = Regex("Rated: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
-        val genre = Regex("Genre: ([^-]+)").find(storyInfo)?.groupValues?.get(1)?.trim()
+        val rating = Regex("Rated: ([^-]+)").find(storyInfo)?.groupValues?.getOrNull(1)?.trim()
+        val genre = Regex("Genre: ([^-]+)").find(storyInfo)?.groupValues?.getOrNull(1)?.trim()
 
         val storyId = extractFFNId(url)
 
@@ -719,31 +719,31 @@ class WebFictionService @Inject constructor(
 
     // Helper methods to extract IDs from URLs
     private fun extractAO3Id(url: String): String {
-        return Regex("works/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+        return Regex("works/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
     }
 
     private fun extractFFNId(url: String): String {
-        return Regex("s/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+        return Regex("s/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
     }
 
     private fun extractRoyalRoadId(url: String): String {
-        return Regex("fiction/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+        return Regex("fiction/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
     }
 
     private fun extractWebnovelId(url: String): String {
-        return Regex("book/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+        return Regex("book/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
     }
 
     private fun extractWattpadId(url: String): String {
-        return Regex("story/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+        return Regex("story/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
     }
 
     private fun extractScribbleHubId(url: String): String {
-        return Regex("series/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+        return Regex("series/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
     }
 
     private fun extractFimFictionId(url: String): String {
-        return Regex("story/(\\d+)").find(url)?.groupValues?.get(1) ?: url.hashCode().toString()
+        return Regex("story/(\\d+)").find(url)?.groupValues?.getOrNull(1) ?: url.hashCode().toString()
     }
 
     // Metabods scraper - Adult transformation fiction site

@@ -12,7 +12,7 @@ import javax.inject.Singleton
  * of electronic publications.
  */
 @Singleton
-class OpdsService @Inject constructor() {
+class OpdsFeedGenerator @Inject constructor() {
     
     /**
      * Generate root catalog feed

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <TextView android:id="@id/txt_filter" android:layout_width="fill_parent" android:layout_height="wrap_content" />
-    <com.radaee.util.FileBrowserView android:id="@id/fb_view" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_below="@id/txt_filter" />
-</RelativeLayout>

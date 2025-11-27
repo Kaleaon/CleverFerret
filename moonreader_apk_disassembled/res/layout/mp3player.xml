@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_gravity="center_horizontal" android:background="@drawable/player" android:padding="0.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <ImageView android:id="@id/imageView1" android:paddingLeft="8.0dip" android:paddingTop="2.0dip" android:paddingRight="5.0dip" android:paddingBottom="2.0dip" android:layout_width="40.0dip" android:layout_height="fill_parent" android:src="@drawable/tts_play" android:scaleType="centerInside" />
-    <TextView android:textSize="12.0sp" android:textColor="#ffeeeeee" android:gravity="center_vertical" android:id="@id/time1" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="00:00" />
-    <SeekBar android:layout_gravity="center_vertical" android:id="@id/seekBar1" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginTop="1.0dip" android:layout_weight="1.0" />
-    <TextView android:textSize="12.0sp" android:textColor="#ffeeeeee" android:gravity="center_vertical" android:id="@id/time2" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="00:00" />
-    <ImageView android:id="@id/imageView2" android:paddingLeft="5.0dip" android:paddingTop="2.0dip" android:paddingRight="7.0dip" android:paddingBottom="2.0dip" android:layout_width="40.0dip" android:layout_height="fill_parent" android:src="@drawable/tts_stop" android:scaleType="centerInside" />
-</LinearLayout>
