@@ -62,6 +62,10 @@ okhttp = "5.2.1"
  truth = "1.4.4"
  mockk = "1.13.13"
  robolectric = "4.14.1"
+    
+    # Document Parsing Libraries
+    apache-poi = "5.2.5"
+    apache-tika = "2.9.1"
 
 # Readium Toolkit - Modern EPUB/PDF/Audiobook/OPDS library
 # ⚠️ Check for updates: https://github.com/readium/kotlin-toolkit/releases
@@ -205,6 +209,12 @@ androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core",
  mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
  mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
  robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+    
+    # Document Parsing Libraries
+    apache-poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "apache-poi" }
+    apache-poi-scratchpad = { module = "org.apache.poi:poi-scratchpad", version.ref = "apache-poi" }
+    apache-tika-core = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
+    apache-tika-parsers = { module = "org.apache.tika:tika-parsers-standard-package", version.ref = "apache-tika" }
 
 [bundles]
 # Common bundle groups for easier dependency management
