@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
-<map>
-    <boolean name="pUseBackgroundImage" value="true" />
-    <string name="pBackgroundImage">readbg_11</string>
-    <int name="pFontColor" value="-15132391" />
-    <int name="flip_curl_color" value="-3750486" />
-</map>

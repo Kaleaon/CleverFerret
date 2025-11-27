@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import com.universalmedialibrary.services.audiobook.AudiobookService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import com.universalmedialibrary.utils.FileNameSanitizer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +26,8 @@ import kotlinx.coroutines.launch
 @Singleton
 class FreeAudiobookDownloadService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val audiobookService: AudiobookService
+    private val audiobookService: AudiobookService,
+    private val fileNameSanitizer: FileNameSanitizer
 ) {
 
     private val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -92,64 +94,66 @@ class FreeAudiobookDownloadService @Inject constructor(
             val query = DownloadManager.Query().setFilterById(downloadId)
             val cursor = downloadManager.query(query)
 
-            if (!cursor.moveToFirst()) {
-                cursor.close()
-                _events.emit(
-                    DownloadEvent.Failed(
-                        audiobookId = request.audiobook.id,
-                        title = request.audiobook.title,
-                        message = "Download failed"
-                    )
-                )
-                return@launch
-            }
-
-            val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-            val status = cursor.getInt(statusIndex)
-            val localUriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-            val localUri = cursor.getString(localUriIndex)
-            cursor.close()
-
-            if (status != DownloadManager.STATUS_SUCCESSFUL) {
-                _events.emit(
-                    DownloadEvent.Failed(
-                        audiobookId = request.audiobook.id,
-                        title = request.audiobook.title,
-                        message = "Download failed"
-                    )
-                )
-                return@launch
-            }
-
-            val path = localUri?.let { Uri.parse(it).path }
-            if (path != null && (path.endsWith(".mp3", true) || path.endsWith(".m4b", true))) {
-                val result = audiobookService.importAudiobook(path)
-                if (result.isSuccess) {
+            try {
+                if (!cursor.moveToFirst()) {
                     _events.emit(
-                        DownloadEvent.Imported(
+                        DownloadEvent.Failed(
                             audiobookId = request.audiobook.id,
-                            title = request.audiobook.title
+                            title = request.audiobook.title,
+                            message = "Download failed"
                         )
                     )
+                    return@launch
+                }
+
+                val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                val status = cursor.getInt(statusIndex)
+                val localUriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                val localUri = cursor.getString(localUriIndex)
+
+                if (status != DownloadManager.STATUS_SUCCESSFUL) {
+                    _events.emit(
+                        DownloadEvent.Failed(
+                            audiobookId = request.audiobook.id,
+                            title = request.audiobook.title,
+                            message = "Download failed"
+                        )
+                    )
+                    return@launch
+                }
+
+                val path = localUri?.let { Uri.parse(it).path }
+                if (path != null && (path.endsWith(".mp3", true) || path.endsWith(".m4b", true))) {
+                    val result = audiobookService.importAudiobook(path)
+                    if (result.isSuccess) {
+                        _events.emit(
+                            DownloadEvent.Imported(
+                                audiobookId = request.audiobook.id,
+                                title = request.audiobook.title
+                            )
+                        )
+                    } else {
+                        _events.emit(
+                            DownloadEvent.Saved(
+                                audiobookId = request.audiobook.id,
+                                title = request.audiobook.title,
+                                filePath = path,
+                                message = "Saved to $path. Import manually."
+                            )
+                        )
+                    }
                 } else {
                     _events.emit(
                         DownloadEvent.Saved(
                             audiobookId = request.audiobook.id,
                             title = request.audiobook.title,
                             filePath = path,
-                            message = "Saved to $path. Import manually."
+                            message = "Saved to ${path ?: "download folder"}. Import manually."
                         )
                     )
                 }
-            } else {
-                _events.emit(
-                    DownloadEvent.Saved(
-                        audiobookId = request.audiobook.id,
-                        title = request.audiobook.title,
-                        filePath = path,
-                        message = "Saved to ${path ?: "download folder"}. Import manually."
-                    )
-                )
+            } finally {
+                cursor.close()
             }
         }
     }
@@ -164,7 +168,7 @@ class FreeAudiobookDownloadService @Inject constructor(
     }
 
     private fun sanitize(input: String): String {
-        return input.replace(Regex("[^a-zA-Z0-9._-]+"), "_").trim('_')
+        return fileNameSanitizer.sanitizeFileName(input)
     }
 
     private data class DownloadRequest(

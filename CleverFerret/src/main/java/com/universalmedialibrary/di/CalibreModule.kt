@@ -22,7 +22,7 @@ import com.universalmedialibrary.services.metadata.covers.GoogleBooksCoverSource
 import com.universalmedialibrary.services.metadata.sources.GoodreadsMetadataSource
 import com.universalmedialibrary.services.metadata.sources.MetadataSource
 import com.universalmedialibrary.services.metadata.sources.OpenLibraryMetadataSource
-import com.universalmedialibrary.services.organization.DuplicateDetectionService
+import com.universalmedialibrary.services.organization.SimilarityBasedDuplicateDetectionService
 import com.universalmedialibrary.services.organization.SeriesManagementService
 import dagger.Binds
 import dagger.Module
@@ -144,8 +144,8 @@ object CalibreModule {
     
     @Provides
     @Singleton
-    fun provideDuplicateDetectionService(): DuplicateDetectionService {
-        return DuplicateDetectionService()
+    fun provideSimilarityBasedDuplicateDetectionService(): SimilarityBasedDuplicateDetectionService {
+        return SimilarityBasedDuplicateDetectionService()
     }
     
     @Provides

@@ -133,7 +133,7 @@ class FanfictionDownloaderViewModel @Inject constructor(
 
     private fun extractStoryId(url: String): String? {
         val pattern = "/s/(\\d+)".toRegex()
-        return pattern.find(url)?.groupValues?.get(1)
+        return pattern.find(url)?.groupValues?.getOrNull(1)
     }
 
     fun openEpub() {

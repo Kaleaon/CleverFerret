@@ -494,7 +494,7 @@ private fun SearchDialog(
 @HiltViewModel
 class OPDSCatalogBrowserViewModel @Inject constructor(
     private val catalogDao: OPDSCatalogDao,
-    private val opdsService: OPDSService,
+    private val opdsCatalogService: OPDSCatalogService,
     private val downloadService: OPDSDownloadService
 ) : ViewModel() {
 
@@ -515,7 +515,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            opdsService.ensureDefaultCatalogs()
+            opdsCatalogService.ensureDefaultCatalogs()
         }
     }
 
@@ -535,7 +535,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null // Show loading
-            _currentFeed.value = opdsService.browseCatalog(catalog)
+            _currentFeed.value = opdsCatalogService.browseCatalog(catalog)
         }
     }
 
@@ -545,7 +545,7 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
         
         viewModelScope.launch {
             _currentFeed.value = null
-            _currentFeed.value = opdsService.searchCatalog(catalog, query)
+            _currentFeed.value = opdsCatalogService.searchCatalog(catalog, query)
         }
     }
 
@@ -563,13 +563,13 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
                 isDefault = false,
                 isEnabled = true
             )
-            opdsService.addCatalog(catalog)
+            opdsCatalogService.addCatalog(catalog)
         }
     }
 
     fun removeCatalog(catalog: OPDSCatalog) {
         viewModelScope.launch {
-            opdsService.deleteCatalog(catalog)
+            opdsCatalogService.deleteCatalog(catalog)
         }
     }
 }

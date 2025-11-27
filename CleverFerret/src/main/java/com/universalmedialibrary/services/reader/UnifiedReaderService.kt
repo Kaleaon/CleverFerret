@@ -3,6 +3,7 @@ package com.universalmedialibrary.services.reader
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import com.universalmedialibrary.core.FormatRegistry
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.epub.ReadiumAudiobookService
 import com.universalmedialibrary.services.epub.ReadiumEpubService
@@ -43,7 +44,8 @@ class UnifiedReaderService @Inject constructor(
     private val readiumPdfService: ReadiumPdfService,
     private val readiumAudiobookService: ReadiumAudiobookService,
     private val geminiComicService: GeminiComicService,
-    private val audioPlaybackManager: AudioPlaybackManager
+    private val audioPlaybackManager: AudioPlaybackManager,
+    private val formatRegistry: FormatRegistry
 ) {
     private val TAG = "UnifiedReaderService"
 
@@ -65,30 +67,24 @@ class UnifiedReaderService @Inject constructor(
             when (extension) {
                 // Use Readium for EPUB (professional support)
                 "epub" -> {
-                    val publication = readiumEpubService.extractMetadata(filePath)
-                    if (publication != null) {
+                    readiumEpubService.extractMetadata(filePath)?.let { publication ->
                         ReaderType.Epub(
                             filePath = filePath,
                             metadata = publication,
                             service = readiumEpubService
                         )
-                    } else {
-                        ReaderType.Error("Failed to open EPUB: $filePath")
-                    }
+                    } ?: ReaderType.Error("Failed to open EPUB: $filePath")
                 }
                 
                 // Use Readium for PDF (better than basic PdfRenderer)
                 "pdf" -> {
-                    val publication = readiumPdfService.extractMetadata(filePath)
-                    if (publication != null) {
+                    readiumPdfService.extractMetadata(filePath)?.let { publication ->
                         ReaderType.Pdf(
                             filePath = filePath,
                             metadata = publication,
                             service = readiumPdfService
                         )
-                    } else {
-                        ReaderType.Error("Failed to open PDF: $filePath")
-                    }
+                    } ?: ReaderType.Error("Failed to open PDF: $filePath")
                 }
                 
                 // DJVU format
@@ -272,16 +268,13 @@ class UnifiedReaderService @Inject constructor(
                 
                 // Use Readium for Readium Audiobook format
                 "audiobook", "lcpa", "lcpdf" -> {
-                    val publication = readiumAudiobookService.extractMetadata(filePath)
-                    if (publication != null) {
+                    readiumAudiobookService.extractMetadata(filePath)?.let { publication ->
                         ReaderType.Audiobook(
                             filePath = filePath,
                             metadata = publication,
                             service = readiumAudiobookService
                         )
-                    } else {
-                        ReaderType.Error("Failed to open audiobook: $filePath")
-                    }
+                    } ?: ReaderType.Error("Failed to open audiobook: $filePath")
                 }
                 
                 // Use our Gemini AI for comics (superior to Readium's partial CBZ)
@@ -385,6 +378,11 @@ class UnifiedReaderService @Inject constructor(
     /**
      * Get supported file extensions - ALL formats from Moonreader
      */
+    /**
+     * @deprecated Use FormatRegistry or UniversalSearchService instead
+     * This method is kept for backward compatibility
+     */
+    @Deprecated("Use FormatRegistry or UniversalSearchService for format information")
     fun getSupportedExtensions(): SupportedFormats {
         return SupportedFormats(
             ebooks = listOf(
@@ -426,10 +424,6 @@ class UnifiedReaderService @Inject constructor(
         // Recommended: Use lib-mobi (pure Java/Kotlin library)
         // Reference: https://github.com/readium/lib-mobi
         // Alternative: Apache Tika for basic extraction
-        // 
-        // Example implementation:
-        // val mobiFile = MobiFile(File(filePath))
-        // return mobiFile.extractText()
         
         val file = File(filePath)
         return try {
@@ -448,10 +442,6 @@ class UnifiedReaderService @Inject constructor(
         // Recommended: Use Apache Tika (supports CHM via chmlib wrapper)
         // Reference: https://tika.apache.org/
         // Alternative: Reference FBReader or CoolReader implementations
-        //
-        // Example implementation:
-        // val tika = Tika()
-        // return tika.parseToString(File(filePath))
         
         return try {
             "CHM file detected. CHM extraction requires Apache Tika library.\n" +
@@ -476,29 +466,16 @@ class UnifiedReaderService @Inject constructor(
         // TODO: Integrate Apache POI for proper DOCX extraction
         // Recommended: Use Apache POI XWPFWordExtractor
         // Reference: https://poi.apache.org/
-        //
-        // Example implementation:
-        // FileInputStream(filePath).use { fis ->
-        //     XWPFDocument(fis).use { document ->
-        //         XWPFWordExtractor(document).use { extractor ->
-        //             return extractor.text
-        //         }
-        //     }
-        // }
         
         // Fallback: Basic XML extraction (current implementation)
         return try {
             ZipFile(filePath).use { zipFile ->
-                val documentEntry = zipFile.getEntry("word/document.xml")
-                if (documentEntry != null) {
-                    val content = zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                    // Extract text from XML, removing tags
-                    content.replace(Regex("<[^>]+>"), " ")
+                zipFile.getEntry("word/document.xml")?.let { documentEntry ->
+                    zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
+                        .replace(Regex("<[^>]+>"), " ")
                         .replace(Regex("\\s+"), " ")
                         .trim()
-                } else {
-                    "Could not extract content from DOCX file. Consider using Apache POI for better extraction."
-                }
+                } ?: "Could not extract content from DOCX file. Consider using Apache POI for better extraction."
             }
         } catch (e: Exception) {
             throw Exception("Failed to extract DOCX content: ${e.message}. Consider using Apache POI.")
@@ -509,15 +486,6 @@ class UnifiedReaderService @Inject constructor(
         // TODO: Integrate Apache POI for DOC (legacy) extraction
         // Recommended: Use Apache POI HWPFWordExtractor
         // Reference: https://poi.apache.org/
-        //
-        // Example implementation:
-        // FileInputStream(filePath).use { fis ->
-        //     HWPFDocument(fis).use { document ->
-        //         WordExtractor(document).use { extractor ->
-        //             return extractor.text
-        //         }
-        //     }
-        // }
         
         return try {
             "DOC file detected. DOC extraction requires Apache POI library.\n" +
@@ -532,24 +500,16 @@ class UnifiedReaderService @Inject constructor(
         // TODO: Integrate Apache Tika for proper ODT extraction
         // Recommended: Use Apache Tika (better ODT parsing)
         // Reference: https://tika.apache.org/
-        //
-        // Example implementation:
-        // val tika = Tika()
-        // return tika.parseToString(File(filePath))
         
         // Fallback: Basic XML extraction (current implementation)
         return try {
             ZipFile(filePath).use { zipFile ->
-                val documentEntry = zipFile.getEntry("content.xml")
-                if (documentEntry != null) {
-                    val content = zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                    // Extract text from XML
-                    content.replace(Regex("<[^>]+>"), " ")
+                zipFile.getEntry("content.xml")?.let { documentEntry ->
+                    zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
+                        .replace(Regex("<[^>]+>"), " ")
                         .replace(Regex("\\s+"), " ")
                         .trim()
-                } else {
-                    "Could not extract content from ODT file. Consider using Apache Tika for better extraction."
-                }
+                } ?: "Could not extract content from ODT file. Consider using Apache Tika for better extraction."
             }
         } catch (e: Exception) {
             throw Exception("Failed to extract ODT content: ${e.message}. Consider using Apache Tika.")
@@ -561,10 +521,6 @@ class UnifiedReaderService @Inject constructor(
         // Recommended: Use Apache Tika (better RTF parsing)
         // Reference: https://tika.apache.org/
         // Alternative: Reference FBReader's RTF implementation
-        //
-        // Example implementation:
-        // val tika = Tika()
-        // return tika.parseToString(File(filePath))
         
         // Fallback: Basic RTF control code removal (current implementation)
         return try {
@@ -586,7 +542,7 @@ class UnifiedReaderService @Inject constructor(
             // Extract HTML content from MIME boundaries
             val htmlPattern = Regex("Content-Type: text/html[\\s\\S]*?\\n\\n([\\s\\S]*?)(?=------|$)")
             val match = htmlPattern.find(content)
-            match?.groupValues?.get(1) ?: content
+            match?.groupValues?.getOrNull(1) ?: content
         } catch (e: Exception) {
             throw Exception("Failed to extract MHTML content: ${e.message}")
         }
