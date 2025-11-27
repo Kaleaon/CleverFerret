@@ -97,22 +97,7 @@ class UnifiedReaderService @Inject constructor(
                     // Recommended: Use DjVuLibre (C++) via JNI
                     // Reference: EBookDroid implementation
                     // See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide
-                    //
-                    // For now, attempt to use PDF reader as fallback (may not work)
-                    try {
-                        val publication = readiumPdfService.extractMetadata(filePath)
-                        if (publication != null) {
-                            ReaderType.Pdf(
-                                filePath = filePath,
-                                metadata = publication,
-                                service = readiumPdfService
-                            )
-                        } else {
-                            ReaderType.Error("DJVU format requires DjVuLibre library. See FILE_FORMAT_PARSER_INTEGRATION.md")
-                        }
-                    } catch (e: Exception) {
-                        ReaderType.Error("DJVU format requires DjVuLibre library. Error: ${e.message}")
-                    }
+                    ReaderType.Error("DJVU format requires DjVuLibre library. See FILE_FORMAT_PARSER_INTEGRATION.md")
                 }
                 
                 // FB2 format
@@ -365,16 +350,7 @@ class UnifiedReaderService @Inject constructor(
                 }
                 
                 else -> {
-                    // Try to read as text as fallback
-                    try {
-                        val content = file.readText(Charsets.UTF_8)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Unsupported file format: $extension. Error: ${e.message}")
-                    }
+                    ReaderType.Error("Unsupported file format: $extension")
                 }
             }
         } catch (e: Exception) {
@@ -512,16 +488,17 @@ class UnifiedReaderService @Inject constructor(
         
         // Fallback: Basic XML extraction (current implementation)
         return try {
-            val zipFile = ZipFile(filePath)
-            val documentEntry = zipFile.getEntry("word/document.xml")
-            if (documentEntry != null) {
-                val content = zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                // Extract text from XML, removing tags
-                content.replace(Regex("<[^>]+>"), " ")
-                    .replace(Regex("\\s+"), " ")
-                    .trim()
-            } else {
-                "Could not extract content from DOCX file. Consider using Apache POI for better extraction."
+            ZipFile(filePath).use { zipFile ->
+                val documentEntry = zipFile.getEntry("word/document.xml")
+                if (documentEntry != null) {
+                    val content = zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
+                    // Extract text from XML, removing tags
+                    content.replace(Regex("<[^>]+>"), " ")
+                        .replace(Regex("\\s+"), " ")
+                        .trim()
+                } else {
+                    "Could not extract content from DOCX file. Consider using Apache POI for better extraction."
+                }
             }
         } catch (e: Exception) {
             throw Exception("Failed to extract DOCX content: ${e.message}. Consider using Apache POI.")
@@ -562,16 +539,17 @@ class UnifiedReaderService @Inject constructor(
         
         // Fallback: Basic XML extraction (current implementation)
         return try {
-            val zipFile = ZipFile(filePath)
-            val documentEntry = zipFile.getEntry("content.xml")
-            if (documentEntry != null) {
-                val content = zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                // Extract text from XML
-                content.replace(Regex("<[^>]+>"), " ")
-                    .replace(Regex("\\s+"), " ")
-                    .trim()
-            } else {
-                "Could not extract content from ODT file. Consider using Apache Tika for better extraction."
+            ZipFile(filePath).use { zipFile ->
+                val documentEntry = zipFile.getEntry("content.xml")
+                if (documentEntry != null) {
+                    val content = zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
+                    // Extract text from XML
+                    content.replace(Regex("<[^>]+>"), " ")
+                        .replace(Regex("\\s+"), " ")
+                        .trim()
+                } else {
+                    "Could not extract content from ODT file. Consider using Apache Tika for better extraction."
+                }
             }
         } catch (e: Exception) {
             throw Exception("Failed to extract ODT content: ${e.message}. Consider using Apache Tika.")

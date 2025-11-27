@@ -9,10 +9,16 @@ This document outlines the recommended approach for implementing full parsing su
 ### Pure Java/Kotlin Libraries (Preferred)
 
 #### MOBI/AZW/AZW3 Formats
-- **lib-mobi**: Pure Java library for MOBI format parsing
-  - GitHub: `https://github.com/readium/lib-mobi`
+- **Note**: Readium does not provide a MOBI parser. Readium toolkits are EPUB-focused.
+- **libmobi** (C library): Reference implementation for MOBI format
+  - GitHub: `https://github.com/bfabiszewski/libmobi`
   - Supports: MOBI, PRC, AZW, AZW3
-  - No JNI required, easy integration
+  - Requires JNI wrapper for Android
+  - Reference: CoolReader and FBReader implementations
+- **Alternative Approach**: Convert MOBI to EPUB using Calibre
+  - Use `ebook-convert` command-line tool
+  - Convert MOBI→EPUB, then use Readium for EPUB
+  - Example: `ebook-convert book.mobi book.epub`
 
 #### Microsoft Office Formats
 - **Apache POI**: Java library for Microsoft Office documents
@@ -80,8 +86,8 @@ This document outlines the recommended approach for implementing full parsing su
 1. **Add Dependencies** (build.gradle.kts):
 ```kotlin
 dependencies {
-    // MOBI support
-    implementation("com.github.readium:lib-mobi:0.1.0") // Check latest version
+    // Note: MOBI support requires libmobi (C) via JNI or conversion workflow
+    // See Phase 2 for JNI-based formats
     
     // Microsoft Office
     implementation("org.apache.poi:poi-ooxml:5.2.5")
@@ -94,10 +100,10 @@ dependencies {
 ```
 
 2. **Update UnifiedReaderService.kt**:
-   - Replace placeholder MOBI extraction with lib-mobi
    - Replace DOCX/DOC extraction with Apache POI
    - Replace RTF extraction with Apache Tika
    - Replace CHM extraction with Apache Tika
+   - For MOBI: Use libmobi via JNI (Phase 2) or implement conversion workflow
 
 ### Phase 2: JNI-Based Formats (More Complex)
 
@@ -113,29 +119,31 @@ dependencies {
 
 ## Code Examples
 
-### MOBI with lib-mobi
+### MOBI with libmobi (C library via JNI)
 
+**Note**: libmobi is a C library requiring JNI integration. Reference CoolReader or FBReader implementations.
+
+**Alternative**: Use Calibre conversion workflow:
 ```kotlin
-import org.readium.mobi.MobiFile
-
-private fun extractMobiContent(filePath: String): String {
-    return try {
-        val mobiFile = MobiFile(File(filePath))
-        val textContent = StringBuilder()
-        
-        // Extract text from all sections
-        for (i in 0 until mobiFile.numSections) {
-            val section = mobiFile.getSection(i)
-            textContent.append(section.text)
-            textContent.append("\n\n")
+// Convert MOBI to EPUB using Calibre's ebook-convert
+// Then use Readium EPUB service
+private suspend fun convertMobiToEpub(mobiPath: String, epubPath: String): Boolean {
+    return withContext(Dispatchers.IO) {
+        try {
+            val process = ProcessBuilder(
+                "ebook-convert",
+                mobiPath,
+                epubPath
+            ).start()
+            process.waitFor() == 0
+        } catch (e: Exception) {
+            false
         }
-        
-        textContent.toString()
-    } catch (e: Exception) {
-        throw Exception("Failed to extract MOBI content: ${e.message}", e)
     }
 }
 ```
+
+**For direct MOBI parsing**: Implement JNI wrapper around libmobi C library (see Phase 2).
 
 ### DOCX with Apache POI
 
@@ -277,18 +285,18 @@ Ensure all extraction functions have proper error handling and user feedback.
 
 ## Priority Order
 
-1. **High Priority** (Most Common):
-   - MOBI/AZW3 (lib-mobi)
+1. **High Priority** (Most Common, Pure Java/Kotlin):
    - DOCX/DOC (Apache POI)
    - RTF (Apache Tika)
    - ODT (Apache Tika)
 
-2. **Medium Priority**:
+2. **Medium Priority** (Pure Java/Kotlin):
    - CHM (Apache Tika)
-   - DJVU (DjVuLibre via JNI)
 
-3. **Low Priority** (Rare Formats):
-   - LIT, SNB, RB, PDB (libe-book via JNI)
+3. **Lower Priority** (Requires JNI):
+   - MOBI/AZW3 (libmobi C library via JNI, or use conversion workflow)
+   - DJVU (DjVuLibre)
+   - LIT, SNB, RB, PDB (libe-book)
 
 ## Notes
 
