@@ -176,6 +176,14 @@ dependencies {
     implementation(libs.commons.compress)
     implementation(libs.xz)
 
+
+    // Document parsing libraries
+    implementation(libs.apache.poi.ooxml)
+    implementation(libs.apache.poi.scratchpad)
+    implementation(libs.apache.tika.core)
+    implementation(libs.apache.tika.parsers)
+    implementation(libs.lib.mobi.core)
+
     // Parsing & data utilities
     implementation(libs.jsoup)
     implementation(libs.kotlin.csv)
