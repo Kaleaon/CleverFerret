@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/options_background" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <include android:id="@id/headerSub" layout="@layout/pref_header_sub" />
+    <ScrollView android:id="@id/sv" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0">
+        <LinearLayout android:orientation="vertical" android:id="@id/base" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="vertical" android:id="@id/topLay" android:background="@color/material_grey_350" android:paddingTop="8.0dip" android:paddingBottom="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                    <LinearLayout android:orientation="vertical" android:padding="1.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:layout_marginTop="10.0dip" android:layout_marginRight="4.0dip">
+                        <com.flyersoft.views.RoundButton android:textSize="10.0dip" android:gravity="center" android:id="@id/deleteButton" android:layout_width="fill_parent" android:layout_height="26.0dip" android:layout_marginLeft="3.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="6.0dip" android:text="@string/restore" android:layout_marginHorizontal="3.0dip" app:btnCornerRadius="4.0dip" style="@style/RoundButton" />
+                        <FrameLayout android:id="@id/coverLay" android:layout_width="106.0dip" android:layout_height="146.0dip">
+                            <ImageView android:id="@id/coverImage" android:background="@drawable/w_book_bottom" android:fadingEdgeLength="4.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:scaleType="fitXY" />
+                            <TextView android:textSize="14.0sp" android:textStyle="bold" android:textColor="@color/dialog_second_text" android:gravity="center" android:id="@id/coverTv" android:background="@drawable/my_list_selector" android:paddingLeft="12.0dip" android:paddingRight="8.0dip" android:paddingBottom="20.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+                        </FrameLayout>
+                    </LinearLayout>
+                    <LinearLayout android:orientation="vertical" android:paddingTop="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="4.0dip">
+                        <TextView android:textSize="10.0sp" android:textColor="@color/dialog_second_text" android:paddingLeft="4.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/book_title" />
+                        <EditText android:textSize="20.0sp" android:textColor="#ff212121" android:id="@id/titleEt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Alice in wonderland" style="@style/MyEditText" />
+                        <TextView android:textSize="10.0sp" android:textColor="@color/dialog_second_text" android:paddingLeft="4.0dip" android:paddingTop="6.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/book_author" />
+                        <FrameLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                            <EditText android:textSize="16.0dip" android:textColor="#ff212121" android:id="@id/authorEt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Vernus Chou" style="@style/MyEditText" />
+                            <ImageView android:gravity="center" android:layout_gravity="center|right" android:id="@id/searchAuthor" android:background="?selectableItemBackground" android:padding="12.0dip" android:layout_width="48.0dip" android:layout_height="fill_parent" android:layout_marginBottom="12.0dip" android:src="@null" android:scaleType="fitCenter" app:tint="#ff888888" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip">
+                    <com.flyersoft.views.ClearableEditText android:textSize="10.0dip" android:id="@id/coverEt" android:layout_width="122.0dip" android:layout_height="wrap_content" android:hint="@string/change_cover_hint" android:singleLine="true" />
+                    <com.flyersoft.views.RoundButton android:textSize="10.0dip" android:gravity="center" android:id="@id/coverButton" android:layout_width="wrap_content" android:layout_height="26.0dip" android:layout_marginLeft="4.0dip" android:layout_marginRight="4.0dip" android:text="@string/change_cover" android:layout_weight="5.0" android:layout_marginHorizontal="4.0dip" app:btnCornerRadius="4.0dip" style="@style/RoundButton" />
+                    <com.flyersoft.views.RoundButton android:textSize="10.0dip" android:gravity="center" android:id="@id/downloadcover" android:layout_width="wrap_content" android:layout_height="26.0dip" android:layout_marginLeft="4.0dip" android:layout_marginRight="6.0dip" android:text="Download..." android:layout_weight="5.0" app:btnCornerRadius="4.0dip" style="@style/RoundButton" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical" android:id="@id/infoLay" android:paddingLeft="24.0dip" android:paddingTop="6.0dip" android:paddingRight="24.0dip" android:paddingBottom="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <RatingBar android:theme="@style/RatingBar_CustomColor" android:layout_gravity="center_horizontal" android:id="@id/ratingBar" android:clickable="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="48.0dip" android:layout_marginTop="22.0dip" android:layout_marginBottom="2.0dip" android:maxHeight="42.0dip" android:minHeight="42.0dip" android:numStars="5" android:rating="0.0" android:stepSize="0.01" android:isIndicator="false" android:transformPivotX="0.0dip" android:transformPivotY="0.0dip" android:scaleX="0.6" android:scaleY="0.6" />
+                <TextView android:textSize="12.0sp" android:textColor="@color/dialog_second_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="12.0dip" android:layout_marginTop="0.0dip" android:text="@string/book_description" />
+                <EditText android:textSize="14.0sp" android:textColor="#ff212121" android:id="@id/descriptionEt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="12.0dip" android:layout_marginTop="0.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="8.0dip" android:text="Where Alice com from?" style="@style/MyEditText" />
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="8.0dip">
+                    <CheckBox android:textSize="12.0sp" android:textStyle="bold" android:id="@id/favCb" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="0.0dip" android:layout_marginRight="0.0dip" android:text="@string/book_favorite" android:layout_weight="95.0" style="@style/MyCheckBox" />
+                    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="50.0">
+                        <EditText android:textSize="14.0sp" android:textColor="#ff212121" android:id="@id/favEt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="@string/book_favorite_hint" android:singleLine="true" android:layout_weight="50.0" style="@style/MyEditText" />
+                        <ImageView android:layout_gravity="center_vertical" android:id="@id/favIb" android:background="?selectableItemBackground" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginLeft="8.0dip" android:src="@drawable/ic_menu_more2" android:scaleType="fitCenter" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="8.0dip">
+                    <TextView android:textSize="12.0sp" android:textColor="@color/dialog_second_text" android:layout_gravity="center" android:id="@id/series" android:paddingLeft="6.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/series" android:layout_weight="95.0" />
+                    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="50.0">
+                        <EditText android:textSize="14.0sp" android:textColor="#ff212121" android:id="@id/sEt1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:layout_weight="50.0" style="@style/MyEditText" />
+                        <EditText android:textSize="14.0sp" android:textColor="#ff212121" android:gravity="center_horizontal" android:id="@id/sEt2" android:layout_width="44.0dip" android:layout_height="wrap_content" android:inputType="numberDecimal" style="@style/MyEditText" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="4.0dip">
+                    <TextView android:textSize="12.0sp" android:textColor="@color/dialog_second_text" android:layout_gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip" android:text="@string/book_tags" android:layout_weight="95.0" />
+                    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="50.0">
+                        <EditText android:textSize="14.0sp" android:textColor="#ff212121" android:id="@id/tagsEt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Travel" android:layout_weight="50.0" style="@style/MyEditText" />
+                        <ImageView android:layout_gravity="center_vertical" android:id="@id/tagsIb" android:background="?selectableItemBackground" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginLeft="8.0dip" android:src="@drawable/ic_menu_more2" android:scaleType="fitCenter" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="6.0dip" android:layout_marginTop="6.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="14.0dip">
+                    <TextView android:textSize="12.0sp" android:textColor="@color/dialog_second_text" android:layout_gravity="center" android:id="@id/filterTv" android:paddingLeft="6.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/shelf_reading_state_filter" android:layout_weight="95.0" />
+                    <com.flyersoft.views.MySpinner android:spinnerDropDownItemStyle="@style/MyDropDownItem" android:spinnerItemStyle="@style/MySpinnerItem" android:textSize="12.0sp" android:id="@id/filterSp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="50.0" style="@style/MySpinner" />
+                </LinearLayout>
+                <TextView android:textSize="12.0sp" android:textColor="@color/dialog_second_text" android:id="@id/filenameTv" android:background="?selectableItemBackground" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="12.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="12.0dip" android:text="/sdcard/" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout android:id="@id/footerMain" android:background="@color/material_grey_200" android:paddingLeft="@dimen/button_rect_margin" android:paddingTop="1.0dip" android:paddingRight="@dimen/button_rect_margin" android:layout_width="fill_parent" android:layout_height="wrap_content" android:paddingHorizontal="@dimen/button_rect_margin"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+        <Button android:layout_gravity="center" android:id="@id/cancelB" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@android:string/cancel" android:layout_weight="5.0" style="@style/MyButtonConfirm" />
+        <Button android:id="@id/okB" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@android:string/ok" android:layout_weight="5.0" style="@style/MyButtonConfirm" />
+    </LinearLayout>
+</LinearLayout>

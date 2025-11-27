@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="pBackgroundImage">readbg_05</string>
+    <boolean name="pUseBackgroundImage" value="true" />
+    <int name="pFontColor" value="-3355444" />
+    <int name="pBackgroundColor" value="-16777216" />
+</map>

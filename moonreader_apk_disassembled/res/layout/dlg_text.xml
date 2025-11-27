@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/dlg_show_note" android:padding="10.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <RadioGroup android:id="@id/rad_group" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <RadioButton android:id="@id/rad_copy" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="@string/copy_text_to_clipboard" />
+        <RadioButton android:id="@id/rad_highlight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/highlight_texts" />
+        <RadioButton android:id="@id/rad_underline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/underline" />
+        <RadioButton android:id="@id/rad_strikeout" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/strikeout" />
+        <RadioButton android:id="@id/rad_squiggly" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/squiggly" />
+    </RadioGroup>
+</LinearLayout>

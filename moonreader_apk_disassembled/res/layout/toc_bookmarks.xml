@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="8.0">
+        <com.flyersoft.views.recyclerview.MyRecyclerView android:id="@id/bmListView01" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="8.0" />
+        <ImageView android:layout_gravity="center" android:id="@id/tipIv" android:layout_width="140.0dip" android:layout_height="140.0dip" android:layout_marginBottom="80.0dip" android:src="@drawable/no_content" android:scaleType="fitCenter" />
+        <TextView android:textSize="12.0sp" android:textColor="#ff888888" android:gravity="center" android:id="@id/tipTv" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginTop="160.0dip" android:text="@string/no_bookmark_tip" android:layout_weight="6.0" android:lineSpacingMultiplier="1.0" />
+    </FrameLayout>
+    <LinearLayout android:layout_gravity="bottom" android:orientation="horizontal" android:id="@id/toolbar" android:background="#ffeeeeee" android:paddingRight="2.0dip" android:layout_width="fill_parent" android:layout_height="36.0dip">
+        <View android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0" />
+        <LinearLayout android:id="@id/bookmarkLay" android:background="@drawable/my_list_selector" android:clickable="true" android:layout_width="wrap_content" android:layout_height="fill_parent">
+            <ImageView android:id="@id/bookmarkIv" android:layout_width="20.0dip" android:layout_height="fill_parent" android:src="@drawable/bmtag" android:scaleType="fitCenter" app:tint="#ff777777" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/material_grey_700" android:gravity="center" android:id="@id/bookmarkTv" android:paddingLeft="4.0dip" android:paddingRight="8.0dip" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="@string/bookmark" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/noteLay" android:background="@drawable/my_list_selector" android:clickable="true" android:layout_width="wrap_content" android:layout_height="fill_parent">
+            <ImageView android:id="@id/noteIv" android:layout_width="20.0dip" android:layout_height="fill_parent" android:src="@drawable/bmnote" android:scaleType="fitCenter" app:tint="#ff777777" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/material_grey_700" android:gravity="center" android:id="@id/noteTv" android:paddingLeft="8.0dip" android:paddingRight="8.0dip" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="@string/annotation" />
+        </LinearLayout>
+        <LinearLayout android:id="@id/highlightLay" android:background="@drawable/my_list_selector" android:clickable="true" android:layout_width="wrap_content" android:layout_height="fill_parent">
+            <ImageView android:id="@id/highlightIv" android:layout_width="20.0dip" android:layout_height="fill_parent" android:src="@drawable/bmhighlight" android:scaleType="fitCenter" app:tint="#ff777777" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/material_grey_700" android:gravity="center" android:id="@id/highlightTv" android:paddingLeft="6.0dip" android:paddingRight="4.0dip" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="@string/highlight" />
+        </LinearLayout>
+        <TextView android:textSize="12.0sp" android:textColor="@color/material_grey_700" android:gravity="center" android:id="@id/colorTv" android:background="@drawable/my_list_selector" android:paddingLeft="6.0dip" android:paddingRight="8.0dip" android:clickable="true" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text=">>" />
+    </LinearLayout>
+    <LinearLayout android:layout_gravity="bottom" android:orientation="horizontal" android:id="@id/footerSub" android:background="#ffebebeb" android:layout_width="fill_parent" android:layout_height="40.0dip">
+        <RelativeLayout android:layout_gravity="bottom" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="3.0">
+            <ImageView android:layout_gravity="center_vertical" android:id="@id/exportLay" android:padding="11.0dip" android:layout_width="40.0dip" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:foreground="?selectableItemBackground" android:src="@drawable/ic_menu_share_v" android:scaleType="fitCenter" app:tint="#ff777777" />
+            <Button android:textSize="12.0sp" android:id="@id/bmAddButton" android:background="@drawable/btn_default_holo2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="40.0dip" android:minHeight="32.0dip" android:text="@string/add_new_bookmark" android:lines="1" android:layout_toLeftOf="@id/phSearch" android:layout_alignParentBottom="true" style="?android:buttonStyleSmall" />
+            <androidx.appcompat.widget.SearchView android:id="@id/phSearch" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_alignParentRight="true" app:searchHintIcon="@null" />
+        </RelativeLayout>
+        <ImageView android:id="@id/bookmarkOption" android:padding="5.0dip" android:focusable="true" android:layout_width="40.0dip" android:layout_height="fill_parent" android:layout_marginBottom="1.0dip" android:foreground="?selectableItemBackgroundBorderless" android:src="@drawable/options_light" android:scaleType="fitCenter" app:tint="#ff777777" />
+    </LinearLayout>
+</LinearLayout>

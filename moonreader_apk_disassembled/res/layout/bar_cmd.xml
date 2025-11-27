@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:orientation="vertical" android:background="@drawable/bg_background" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:id="@id/btn_view" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_view" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_find" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_search" android:layout_toRightOf="@id/btn_view" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_annot" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_annots" android:layout_toRightOf="@id/btn_find" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_select" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_select" android:layout_toRightOf="@id/btn_annot" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_outline" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_outline" android:layout_toRightOf="@id/btn_select" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_undo" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_undo" android:layout_toRightOf="@id/btn_outline" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_redo" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_redo" android:layout_toRightOf="@id/btn_undo" android:layout_alignParentTop="true" />
+    <ImageView android:id="@id/btn_more" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_more" android:layout_alignParentTop="true" android:layout_alignParentRight="true" android:layout_alignParentEnd="true" />
+</RelativeLayout>

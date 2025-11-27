@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:background="@color/small_options_background" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:id="@id/lay1" android:background="#ffcccccc" android:layout_width="fill_parent" android:layout_height="124.0dip" android:layout_marginLeft="4.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="4.0dip">
+            <ImageView android:id="@id/ImageView01" android:background="#ffaaaaaa" android:paddingLeft="20.0dip" android:paddingTop="8.0dip" android:paddingBottom="8.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/tilt_down" android:layout_weight="11.0" />
+            <LinearLayout android:orientation="vertical" android:paddingLeft="8.0dip" android:paddingTop="4.0dip" android:paddingRight="8.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="4.0">
+                <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/forwardSp" android:layout_width="fill_parent" android:layout_height="44.0dip" />
+                <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="16.0dip">
+                    <TextView android:textColor="#ffeeeeee" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="11.0dip" android:text="@string/tilt_sensitive" />
+                    <SeekBar android:id="@id/forwardSb" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:id="@id/lay2" android:background="#ffcccccc" android:layout_width="fill_parent" android:layout_height="124.0dip" android:layout_marginLeft="4.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="4.0dip" android:layout_marginBottom="4.0dip">
+            <ImageView android:id="@id/ImageView01" android:background="#ffaaaaaa" android:paddingTop="8.0dip" android:paddingRight="24.0dip" android:paddingBottom="8.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/tilt_up" android:layout_weight="11.0" />
+            <LinearLayout android:orientation="vertical" android:paddingLeft="8.0dip" android:paddingTop="4.0dip" android:paddingRight="8.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="4.0">
+                <com.flyersoft.views.MySpinner android:entries="@array/controls" android:id="@id/backwordSp" android:layout_width="fill_parent" android:layout_height="44.0dip" />
+                <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="16.0dip">
+                    <TextView android:textColor="#ffeeeeee" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="11.0dip" android:text="@string/tilt_sensitive" />
+                    <SeekBar android:id="@id/backwordSb" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <CheckBox android:id="@id/ofNeverAskAgain" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="6.0dip" android:text="@string/show_confirmation_dialog" />
+    </LinearLayout>
+</ScrollView>

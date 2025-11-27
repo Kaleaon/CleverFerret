@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:background="@color/small_options_background" android:layout_width="fill_parent" android:layout_height="fill_parent"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+        <TextView android:textSize="14.0sp" android:textColor="#ffdddddd" android:gravity="center|left" android:focusable="false" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginTop="10.0dip" android:text="@string/tts_divide" android:layout_weight="5.0" />
+        <LinearLayout android:id="@id/top_lay" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="8.0dip">
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:layout_marginBottom="2.0dip" android:layout_weight="3.0">
+                <com.flyersoft.views.MySpinner android:entries="@array/tts_divides" android:id="@id/pmTtsDivides" android:layout_width="fill_parent" android:layout_height="44.0dip" android:layout_weight="3.0" />
+                <ImageButton android:layout_gravity="center|right" android:id="@id/pmSetTTS" android:tag="force" android:background="?selectableItemBackground" android:paddingLeft="10.0dip" android:paddingTop="8.0dip" android:paddingBottom="8.0dip" android:clickable="true" android:layout_width="44.0dip" android:layout_height="44.0dip" android:src="@drawable/options_dark" android:scaleType="fitCenter" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
+            <CheckBox android:textSize="14.0sp" android:textColor="#ffdddddd" android:id="@id/tts_stop_check" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/tts_stop_time1" android:layout_weight="5.0" />
+            <EditText android:textSize="14.0sp" android:layout_gravity="center" android:id="@id/tts_stop_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" android:layout_weight="5.0" android:inputType="number">
+                <requestFocus />
+            </EditText>
+            <TextView android:textSize="13.0sp" android:textColor="#ffdddddd" android:gravity="center|left" android:id="@id/TextView02" android:focusable="true" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:text="@string/tts_stop_time2" android:layout_weight="5.0" />
+        </LinearLayout>
+        <CheckBox android:textSize="14.0sp" android:textColor="#ffdddddd" android:id="@id/ofNeverAskAgain" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/do_not_ask_again" />
+    </LinearLayout>
+</ScrollView>

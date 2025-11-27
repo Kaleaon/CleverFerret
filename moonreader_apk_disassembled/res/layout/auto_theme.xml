@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textSize="16.0sp" android:id="@id/dayTv" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:layout_marginTop="12.0dip" android:layout_marginRight="2.0dip" android:text="@string/auto_theme_tip1" />
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
+        <CheckBox android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/auto_day" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:text="@string/auto_theme_option1" />
+        <EditText android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/dayTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="11:30" android:editable="false" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <CheckBox android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/dayBrightCb" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:text="@string/auto_theme_option2" />
+        <EditText android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/dayBrightness" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" android:inputType="numberSigned" />
+        <TextView android:textSize="16.0dip" android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="%" />
+    </LinearLayout>
+    <View android:layout_width="fill_parent" android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip" style="@style/SplitterLight" />
+    <TextView android:textSize="16.0sp" android:id="@id/nightTv" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:layout_marginRight="2.0dip" android:text="@string/auto_theme_tip2" />
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip">
+        <CheckBox android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/auto_night" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:text="@string/auto_theme_option1" />
+        <EditText android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/nightTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="11:30" android:editable="false" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="0.0dip">
+        <CheckBox android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/nightBrightCb" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip" android:text="@string/auto_theme_option2" />
+        <EditText android:textSize="16.0dip" android:layout_gravity="center_vertical" android:id="@id/nightBrightness" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10" android:inputType="numberSigned" />
+        <TextView android:textSize="16.0dip" android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="%" />
+    </LinearLayout>
+    <TextView android:textSize="13.0sp" android:textColor="@color/base_color" android:layout_gravity="left" android:id="@id/tip" android:tag="ignore" android:background="?selectableItemBackground" android:layout_width="wrap_content" android:layout_marginLeft="0.0dip" android:layout_marginTop="20.0dip" android:layout_marginRight="0.0dip" android:text="@string/follow_sys_dark" style="@style/ShelfTipTitle" />
+</LinearLayout>

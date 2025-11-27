@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="horizontal" android:id="@id/topLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <com.google.android.material.tabs.TabLayout android:id="@id/tab" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0" app:tabGravity="center" app:tabIndicatorColor="#ffff8c00" app:tabMaxWidth="130.0dip" app:tabMinWidth="40.0dip" app:tabMode="scrollable" />
+    </LinearLayout>
+    <View android:id="@id/view1" android:background="#ffcccccc" android:layout_width="fill_parent" android:layout_height="1.0dip" />
+    <com.flyersoft.views.MyViewPager android:id="@id/view_pager_main" android:layout_width="fill_parent" android:layout_height="fill_parent" app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</LinearLayout>

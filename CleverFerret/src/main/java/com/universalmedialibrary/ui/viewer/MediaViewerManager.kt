@@ -65,11 +65,15 @@ class MediaViewerManager @Inject constructor() {
     }
 
     enum class DocumentFormat {
-        PDF, EPUB, MOBI, AZW, TXT, HTML, RTF, DOC, DOCX, UNSUPPORTED
+        PDF, EPUB, DJVU, FB2, MOBI, PRC, AZW, AZW3, KFX,
+        CHM, UMD, LIT, PDB, RB, SNB,
+        DOCX, DOC, ODT, RTF, TXT, MD,
+        HTML, HTM, XHTML, MHTML,
+        UNSUPPORTED
     }
 
     enum class ComicFormat {
-        CBZ, CBR, PDF_COMIC, IMAGE_FOLDER, UNSUPPORTED
+        CBZ, CBR, CBT, CB7, PDF_COMIC, IMAGE_FOLDER, UNSUPPORTED
     }
 
     data class MediaInfo(
@@ -212,13 +216,29 @@ class MediaViewerManager @Inject constructor() {
         return when (extension) {
             "pdf" -> DocumentFormat.PDF
             "epub" -> DocumentFormat.EPUB
+            "djvu", "djv" -> DocumentFormat.DJVU
+            "fb2" -> DocumentFormat.FB2
             "mobi" -> DocumentFormat.MOBI
-            "azw", "azw3" -> DocumentFormat.AZW
-            "txt" -> DocumentFormat.TXT
-            "html", "htm" -> DocumentFormat.HTML
-            "rtf" -> DocumentFormat.RTF
-            "doc" -> DocumentFormat.DOC
+            "prc" -> DocumentFormat.PRC
+            "azw" -> DocumentFormat.AZW
+            "azw3" -> DocumentFormat.AZW3
+            "kfx" -> DocumentFormat.KFX
+            "chm" -> DocumentFormat.CHM
+            "umd" -> DocumentFormat.UMD
+            "lit" -> DocumentFormat.LIT
+            "pdb" -> DocumentFormat.PDB
+            "rb" -> DocumentFormat.RB
+            "snb" -> DocumentFormat.SNB
             "docx" -> DocumentFormat.DOCX
+            "doc" -> DocumentFormat.DOC
+            "odt" -> DocumentFormat.ODT
+            "rtf" -> DocumentFormat.RTF
+            "txt", "text" -> DocumentFormat.TXT
+            "md", "markdown" -> DocumentFormat.MD
+            "html" -> DocumentFormat.HTML
+            "htm" -> DocumentFormat.HTM
+            "xhtml", "xht" -> DocumentFormat.XHTML
+            "mhtml", "mht" -> DocumentFormat.MHTML
             else -> DocumentFormat.UNSUPPORTED
         }
     }
@@ -227,6 +247,8 @@ class MediaViewerManager @Inject constructor() {
         return when (extension) {
             "cbz" -> ComicFormat.CBZ
             "cbr" -> ComicFormat.CBR
+            "cbt" -> ComicFormat.CBT
+            "cb7" -> ComicFormat.CB7
             "pdf" -> ComicFormat.PDF_COMIC
             else -> ComicFormat.UNSUPPORTED
         }

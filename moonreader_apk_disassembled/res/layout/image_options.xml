@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/small_options_background" android:padding="0.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:paddingTop="12.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <CheckBox android:id="@id/cb0" android:paddingBottom="2.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/reduce_image_brightness" android:layout_weight="5.0" />
+                <ImageButton android:layout_gravity="center|right" android:id="@id/cb0option" android:tag="force" android:background="?selectableItemBackgroundBorderless" android:paddingLeft="6.0dip" android:paddingRight="6.0dip" android:clickable="true" android:layout_width="36.0dip" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:layout_marginRight="6.0dip" android:src="@drawable/options_dark" android:scaleType="fitCenter" />
+            </LinearLayout>
+            <View android:layout_width="fill_parent" android:layout_marginTop="14.0dip" android:layout_marginBottom="14.0dip" style="@style/SplitterLight" />
+            <CheckBox android:id="@id/cb3" android:layout_width="fill_parent" android:layout_height="wrap_content" android:checked="true" android:text="@string/long_tap_full_screen" />
+            <CheckBox android:id="@id/cb4" android:layout_width="fill_parent" android:layout_height="wrap_content" android:checked="true" android:text="@string/white_background_full_screen" />
+            <View android:layout_width="fill_parent" android:layout_marginTop="14.0dip" android:layout_marginBottom="14.0dip" style="@style/SplitterLight" />
+            <CheckBox android:id="@id/cb1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:checked="true" android:text="@string/white_transparent" />
+            <CheckBox android:id="@id/cb2" android:layout_width="fill_parent" android:layout_height="wrap_content" android:checked="true" android:text="@string/fit_all_to_screen" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

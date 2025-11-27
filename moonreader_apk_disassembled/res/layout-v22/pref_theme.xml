@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:id="@id/sv" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <include android:id="@id/headerMain" layout="@layout/pref_header_export_import" />
+    <GridView android:scrollbarThumbVertical="@color/darker_gray" android:id="@id/gridSv" android:background="@color/options_background" android:paddingLeft="1.0dip" android:paddingTop="1.0dip" android:paddingRight="1.0dip" android:paddingBottom="2.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:horizontalSpacing="0.0dip" android:verticalSpacing="0.0dip" android:stretchMode="columnWidth" android:columnWidth="140.0dip" android:numColumns="auto_fit" android:layout_weight="7.0" />
+    <LinearLayout android:layout_gravity="bottom" android:orientation="vertical" android:id="@id/toolbar" android:background="@color/small_options_footer" android:paddingLeft="8.0dip" android:paddingTop="6.0dip" android:paddingBottom="6.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="0.0" android:paddingVertical="6.0dip">
+        <CheckBox android:textStyle="bold" android:textColor="#ffffffff" android:id="@id/ptColorOnly" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/font_color_only" />
+        <CheckBox android:textColor="#ffffffff" android:id="@id/pmAmoled" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="1.0dip" android:text="@string/amoled_mode" />
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="fill_parent">
+            <CheckBox android:textColor="#ffffffff" android:id="@id/autoTheme" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/auto_theme" android:layout_weight="5.0" />
+            <ImageButton android:layout_gravity="center|right" android:id="@id/autoThemeOption" android:background="?selectableItemBackgroundBorderless" android:paddingTop="6.0dip" android:paddingBottom="6.0dip" android:clickable="true" android:layout_width="36.0dip" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:layout_marginRight="6.0dip" android:src="@drawable/options_light" android:scaleType="fitCenter" android:paddingVertical="6.0dip" />
+        </LinearLayout>
+        <CheckBox android:textColor="#ffffffff" android:id="@id/pmDynamic" android:tag="ignore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="1.0dip" android:text="@string/use_dynamic_color" />
+    </LinearLayout>
+    <LinearLayout android:layout_gravity="bottom" android:id="@id/footerSub" android:background="@color/small_options_footer" android:paddingLeft="4.0dip" android:paddingTop="4.0dip" android:paddingRight="4.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="0.0" android:paddingHorizontal="4.0dip">
+        <com.flyersoft.views.ClearableEditText android:textSize="16.0sp" android:textColor="#ffffffff" android:gravity="center_vertical" android:layout_gravity="center_vertical" android:id="@id/ptEdit" android:tag="ignore" android:background="#00000000" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginLeft="8.0dip" android:text="theme" android:singleLine="true" android:layout_weight="9.0" />
+        <ImageButton android:layout_gravity="center|right" android:id="@id/ptSave" android:background="?selectableItemBackgroundBorderless" android:padding="4.0dip" android:layout_width="36.0dip" android:layout_height="36.0dip" android:layout_marginLeft="10.0dip" android:layout_marginRight="4.0dip" android:src="@drawable/save_theme" android:scaleType="fitXY" />
+    </LinearLayout>
+    <View android:id="@id/bLine" android:background="#ee888888" android:layout_width="fill_parent" android:layout_height="1.0dip" />
+</LinearLayout>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:background="#ffffffff" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0"
+      xmlns:android="http://schemas.android.com/apk/res/android">
+        <LinearLayout android:orientation="vertical" android:id="@id/cnChapterNumLay" android:background="@drawable/round_framelyout_light" android:paddingTop="12.0dip" android:paddingBottom="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="8.0dip">
+            <TextView android:textSize="14.0sp" android:textColor="@color/material_grey_900" android:gravity="left" android:layout_gravity="center_vertical" android:id="@id/titleTv" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" android:text="在章节列表里简化中文数字格式的章节数, 比如: \n\n第一千二百四十二章【我们的前景】\n\n简化为: " android:layout_weight="8.0" />
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="8.0">
+                <RadioGroup android:id="@id/radioGroup" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <RadioButton android:id="@id/radio1" android:tag="1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="第1242章【我们的前景】" style="@style/MyRadio" />
+                    <RadioButton android:id="@id/radio2" android:tag="2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1242【我们的前景】" style="@style/MyRadio" />
+                    <RadioButton android:id="@id/radio3" android:tag="3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1242 我们的前景" style="@style/MyRadio" />
+                    <RadioButton android:id="@id/radio0" android:tag="0" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="不简化" style="@style/MyRadio" />
+                </RadioGroup>
+            </LinearLayout>
+        </LinearLayout>
+        <CheckBox android:id="@id/chapterListAuto" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:text="@string/show_chapters_auto" />
+        <TextView android:textSize="12.0sp" android:textColor="@color/base_color" android:id="@id/tip" android:tag="ignore" android:background="?selectableItemBackground" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="0.0dip" android:layout_marginTop="16.0dip" android:layout_marginRight="0.0dip" android:text="@string/list_chapter_pageno" android:layout_marginHorizontal="0.0dip" android:paddingHorizontal="10.0dip" />
+    </LinearLayout>
+</ScrollView>

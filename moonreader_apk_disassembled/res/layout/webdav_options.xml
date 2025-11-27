@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:id="@id/transparentLay" android:background="#ffffffff" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:paddingTop="4.0dip" android:paddingBottom="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <include layout="@layout/sync_lay" />
+        <Button android:id="@id/button1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" android:text="@string/unlink_dropbox" style="@style/MyButton" />
+        <TextView android:textSize="12.0sp" android:textColor="@color/dialog_second_text" android:layout_gravity="center" android:id="@id/tip" android:background="#22555555" android:padding="8.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="8.0dip" android:text="Url References\n[JIANGUO]https://dav.jianguoyun.com/dav\n[OwnCloud]http://a.com/remote.php/webdav" />
+        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="5.0">
+                <TextView android:textSize="14.0sp" android:textColor="@color/dialog_second_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Url:" />
+                <com.flyersoft.views.ClearableEditText android:textColor="@color/dialog_edit_text" android:id="@id/url" android:layout_width="fill_parent" android:layout_height="wrap_content" android:lines="1" />
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical" android:id="@id/portLay" android:layout_width="50.0dip" android:layout_height="wrap_content">
+                <TextView android:textSize="14.0sp" android:textColor="@color/dialog_second_text" android:id="@id/portTv" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Port:" />
+                <EditText android:textColor="@color/dialog_edit_text" android:id="@id/portEt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="21" android:lines="1" android:inputType="number" />
+            </LinearLayout>
+        </LinearLayout>
+        <TextView android:textSize="14.0sp" android:textColor="@color/dialog_second_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/username" />
+        <EditText android:textColor="@color/dialog_edit_text" android:id="@id/username" android:layout_width="fill_parent" android:layout_height="wrap_content" android:lines="1" />
+        <TextView android:textSize="14.0sp" android:textColor="@color/dialog_second_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/password" />
+        <EditText android:textColor="@color/dialog_edit_text" android:id="@id/password" android:layout_width="fill_parent" android:layout_height="wrap_content" android:lines="1" android:password="true" />
+        <LinearLayout android:orientation="vertical" android:id="@id/moreLay" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="14.0sp" android:textColor="@color/dialog_second_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/select_path" />
+            <EditText android:enabled="true" android:textColor="@color/dialog_edit_text" android:id="@id/path" android:layout_width="fill_parent" android:layout_height="wrap_content" android:lines="1" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

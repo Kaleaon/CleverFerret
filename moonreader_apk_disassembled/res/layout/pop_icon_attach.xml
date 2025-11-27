@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@drawable/bg_menu" android:padding="4.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:id="@id/view_00" android:clickable="true" android:layout_width="fill_parent" android:layout_height="24.0dip">
+        <ImageView android:id="@id/img_00" android:layout_width="24.0dip" android:layout_height="24.0dip" android:src="@drawable/btn_view_vert" />
+        <TextView android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="PushPin" />
+    </LinearLayout>
+    <LinearLayout android:id="@id/view_01" android:clickable="true" android:layout_width="fill_parent" android:layout_height="24.0dip">
+        <ImageView android:id="@id/img_01" android:layout_width="24.0dip" android:layout_height="24.0dip" android:src="@drawable/btn_view_horz" />
+        <TextView android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="Graph" />
+    </LinearLayout>
+    <LinearLayout android:id="@id/view_02" android:clickable="true" android:layout_width="fill_parent" android:layout_height="24.0dip">
+        <ImageView android:id="@id/img_02" android:layout_width="24.0dip" android:layout_height="24.0dip" android:src="@drawable/btn_view_single" />
+        <TextView android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="Paperclip" />
+    </LinearLayout>
+    <LinearLayout android:id="@id/view_03" android:clickable="true" android:layout_width="fill_parent" android:layout_height="24.0dip">
+        <ImageView android:id="@id/img_03" android:layout_width="24.0dip" android:layout_height="24.0dip" android:src="@drawable/btn_view_dual" />
+        <TextView android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="Tag" />
+    </LinearLayout>
+</LinearLayout>
