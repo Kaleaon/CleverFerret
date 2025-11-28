@@ -9,6 +9,7 @@ import com.universalmedialibrary.services.metadata.RealMetadataService
 import com.universalmedialibrary.services.thumbnails.ThumbnailService
 import com.universalmedialibrary.services.maintenance.FileChangeScanner
 import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.data.repository.LibraryRepository
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.universalmedialibrary.data.local.entity.Library
 
 @HiltViewModel
 class MaintenanceViewModel @Inject constructor(
@@ -24,10 +26,14 @@ class MaintenanceViewModel @Inject constructor(
     private val metadataService: RealMetadataService,
     private val thumbnailService: ThumbnailService,
     private val fileChangeScanner: FileChangeScanner,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val libraryRepository: LibraryRepository
 ) : ViewModel() {
 
     val pending: StateFlow<List<MaintenanceChange>> = repository.getPending()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val libraries: StateFlow<List<Library>> = libraryRepository.getAllActiveLibraries()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun detectDuplicates(libraryId: Long) {

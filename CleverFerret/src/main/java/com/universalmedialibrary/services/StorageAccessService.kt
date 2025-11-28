@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * Service for handling Storage Access Framework (SAF) operations
@@ -65,7 +66,7 @@ class StorageAccessService @Inject constructor(
             uris.add(uri.toString())
             prefs.edit().putStringSet("uris", uris).apply()
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("StorageAccessService", "Error persisting URI permission", e)
         }
     }
 
@@ -109,7 +110,7 @@ class StorageAccessService @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("StorageAccessService", "Error organizing directory", e)
         }
         moved
     }
@@ -141,6 +142,7 @@ class StorageAccessService @Inject constructor(
                 if (copied) src.delete() else false
             }
         } catch (e: Exception) {
+            ErrorLogger.logWarning("StorageAccessService", "Error moving document file", e)
             false
         }
     }
@@ -198,7 +200,7 @@ class StorageAccessService @Inject constructor(
             itemsFound = scanDocumentFile(context, documentFile, rootName, rootPath, progressCallback)
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("StorageAccessService", "Error scanning directory", e)
         }
 
         itemsFound
@@ -298,7 +300,7 @@ class StorageAccessService @Inject constructor(
             metadataDao.insertCommonMetadata(metadata)
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("StorageAccessService", "Error processing media file", e)
         }
     }
 
@@ -342,7 +344,7 @@ class StorageAccessService @Inject constructor(
                 null
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("StorageAccessService", "Error opening media file", e)
             null
         }
     }
@@ -382,7 +384,7 @@ class StorageAccessService @Inject constructor(
             uris.remove(uri.toString())
             prefs.edit().putStringSet("uris", uris).apply()
         } catch (e: Exception) {
-            e.printStackTrace()
+            ErrorLogger.logError("StorageAccessService", "Error releasing URI permission", e)
         }
     }
 }

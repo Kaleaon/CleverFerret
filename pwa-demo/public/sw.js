@@ -45,6 +45,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Handle file opening via File System Access API
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'FILE_OPEN') {
+    // Forward file opening to client
+    event.waitUntil(
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'FILE_OPEN',
+            file: event.data.file,
+          });
+        });
+      }),
+    );
+  }
+});
+
 // Fetch event - serve cached content when offline
 self.addEventListener('fetch', (event) => {
   const { request } = event;

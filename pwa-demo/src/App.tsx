@@ -14,6 +14,7 @@ import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
 import {
   LibraryListScreen,
   LibraryDetailsScreen,
+  LibraryManagementScreen,
   MediaItemDetailScreen,
   EReaderScreen,
   PDFReaderScreen,
@@ -46,7 +47,20 @@ import {
   MaintenanceScreen,
   VisualizerScreen,
   SearchScreen,
+  DownloadsManagerScreen,
+  WebFictionManagerScreen,
+  StorageBrowserScreen,
+  OPDSCatalogBrowserScreen,
+  OpdsSettingsScreen,
+  ReadingStatisticsScreen,
+  StorageOrganizerScreen,
+  NetworkStorageSettingsScreen,
+  TtsProviderSettingsScreen,
+  MediaOpenScreen,
+  DocumentEditorScreen,
+  DocumentReaderScreen,
 } from './ui';
+import { NotFoundScreen } from './ui/NotFoundScreen';
 
 // Import existing screens
 import { MediaViewerScreen } from './components/MediaViewerScreen';
@@ -54,6 +68,7 @@ import { MetadataEditorScreen } from './components/MetadataEditorScreen';
 import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ThemePreviewScreen } from './components/ThemePreviewScreen';
+import { WebComicManagerScreen } from './components/WebComicManagerScreen';
 
 // Import responsive navigation
 import { ResponsiveNavigation } from './components/ResponsiveNavigation';
@@ -63,6 +78,7 @@ import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { initializeDatabase } from './services/database-complete';
 import { useAppStore } from './store/app-store';
 import { getAllUnifiedThemes } from './themes/unified-themes';
+import { processFileHandle, checkForFileLaunch } from './services/fileHandler';
 
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
@@ -72,6 +88,37 @@ const AppContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showSearchBar, setShowSearchBar] = React.useState(true);
   const [lastScrollY, setLastScrollY] = React.useState(0);
+
+  // Handle file opening on app launch
+  React.useEffect(() => {
+    // Check for file launch
+    const fileHandle = checkForFileLaunch();
+    if (fileHandle) {
+      navigate('/open', { state: { file: fileHandle } });
+    }
+
+    // Listen for file opening events (when app is already open)
+    const handleFileOpen = (event: Event) => {
+      // This would be triggered by the File System Access API or file handlers
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail?.files) {
+        const file = customEvent.detail.files[0];
+        if (file) {
+          const result = processFileHandle(file);
+          if (result.success && result.file && result.route) {
+            navigate(result.route, { state: { file: result.file } });
+          } else {
+            navigate('/open', { state: { file: result.file, error: result.error } });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('fileopen', handleFileOpen as EventListener);
+    return () => {
+      window.removeEventListener('fileopen', handleFileOpen as EventListener);
+    };
+  }, [navigate]);
 
   // Hide search bar on scroll down, show on scroll up (mobile only)
   React.useEffect(() => {
@@ -150,6 +197,7 @@ const AppContent: React.FC = () => {
           
           {/* Library */}
           <Route path="/library/:libraryId" element={<LibraryDetailsScreen />} />
+          <Route path="/library/:libraryId/management" element={<LibraryManagementScreen />} />
           
           {/* Media Detail */}
           <Route path="/detail/:itemId" element={<MediaItemDetailScreen />} />
@@ -194,6 +242,11 @@ const AppContent: React.FC = () => {
           {/* Search */}
           <Route path="/search" element={<SearchScreen />} />
           
+          {/* Downloads */}
+          <Route path="/downloads" element={<DownloadsManagerScreen />} />
+          <Route path="/downloads/webfiction" element={<WebFictionManagerScreen />} />
+          <Route path="/downloads/comics" element={<WebComicManagerScreen />} />
+          
           {/* Settings */}
           <Route path="/settings" element={<SettingsMainScreen />} />
           <Route path="/settings/reader" element={<ReaderSettingsScreen />} />
@@ -216,6 +269,28 @@ const AppContent: React.FC = () => {
           {/* Visualizer */}
           <Route path="/visualizer" element={<VisualizerScreen />} />
           
+          {/* Storage & Files */}
+          <Route path="/storage" element={<StorageBrowserScreen />} />
+          <Route path="/storage/organizer" element={<StorageOrganizerScreen />} />
+          <Route path="/storage/network" element={<NetworkStorageSettingsScreen />} />
+          
+          {/* OPDS */}
+          <Route path="/opds" element={<OPDSCatalogBrowserScreen />} />
+          <Route path="/settings/opds" element={<OpdsSettingsScreen />} />
+          
+          {/* Statistics */}
+          <Route path="/statistics" element={<ReadingStatisticsScreen />} />
+          
+          {/* TTS */}
+          <Route path="/settings/tts" element={<TtsProviderSettingsScreen />} />
+          
+          {/* Media Open */}
+          <Route path="/open" element={<MediaOpenScreen />} />
+          
+          {/* Documents */}
+          <Route path="/document/edit/:docId?" element={<DocumentEditorScreen />} />
+          <Route path="/document/:docId" element={<DocumentReaderScreen />} />
+          
           {/* Metadata */}
           <Route path="/metadata/:itemId" element={<MetadataEditorScreen />} />
           
@@ -223,7 +298,7 @@ const AppContent: React.FC = () => {
           <Route path="/theme_preview" element={<ThemePreviewScreen />} />
           
           {/* Fallback */}
-          <Route path="*" element={<div style={{ padding: 20 }}>Page Not Found</div>} />
+          <Route path="*" element={<NotFoundScreen />} />
         </Routes>
 
         {/* Global Now Playing Bar */}

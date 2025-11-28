@@ -26,6 +26,7 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -58,6 +59,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
   const [results, setResults] = useState<PodcastSearchResult[]>([]);
   const [trendingPodcasts, setTrendingPodcasts] = useState<PodcastSearchResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '' });
 
   useEffect(() => {
     if (tabValue === 1) {
@@ -94,7 +96,8 @@ export const PodcastDiscoveryScreen: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to search podcasts. Please try again.');
-      console.error('Podcast search error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('PodcastDiscovery', 'Podcast search error', undefined, err as Error);
     } finally {
       setSearching(false);
     }
@@ -137,7 +140,8 @@ export const PodcastDiscoveryScreen: React.FC = () => {
                 category: item.category?.attributes?.label,
               };
             } catch (err) {
-              console.error('Error fetching podcast details:', err);
+              const { logger } = await import('../../services/logging');
+              logger.warn('PodcastDiscovery', 'Error fetching podcast details', undefined, err as Error);
               // Return podcast without feedUrl if detail fetch fails
               return {
                 id: item.id.attributes['im:id'],
@@ -157,7 +161,8 @@ export const PodcastDiscoveryScreen: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to load trending podcasts. Please try again.');
-      console.error('Trending podcasts error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('PodcastDiscovery', 'Trending podcasts error', undefined, err as Error);
     } finally {
       setSearching(false);
     }
@@ -199,7 +204,8 @@ export const PodcastDiscoveryScreen: React.FC = () => {
                 category: item.category?.attributes?.label,
               };
             } catch (err) {
-              console.error('Error fetching podcast details:', err);
+              const { logger } = await import('../../services/logging');
+              logger.warn('PodcastDiscovery', 'Error fetching podcast details', undefined, err as Error);
               // Return podcast without feedUrl if detail fetch fails
               return {
                 id: item.id.attributes['im:id'],
@@ -219,7 +225,8 @@ export const PodcastDiscoveryScreen: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to load top podcasts. Please try again.');
-      console.error('Top podcasts error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('PodcastDiscovery', 'Top podcasts error', undefined, err as Error);
     } finally {
       setSearching(false);
     }
@@ -227,7 +234,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
 
   const handleSubscribe = async (podcast: PodcastSearchResult) => {
     if (!podcast.feedUrl) {
-      alert('Feed URL not available for this podcast');
+      setSnackbar({ open: true, message: 'Feed URL not available for this podcast', severity: 'warning' });
       return;
     }
 
@@ -239,7 +246,7 @@ export const PodcastDiscoveryScreen: React.FC = () => {
         .first();
       
       if (existing) {
-        alert('Already subscribed to this podcast!');
+        setSnackbar({ open: true, message: 'Already subscribed to this podcast!', severity: 'info' });
         return;
       }
 
@@ -263,10 +270,11 @@ export const PodcastDiscoveryScreen: React.FC = () => {
         playbackSpeed: 1.0,
       } as any);
 
-      alert('Subscribed successfully!');
+      setSnackbar({ open: true, message: 'Subscribed successfully!', severity: 'success' });
     } catch (err) {
-      console.error('Subscribe error:', err);
-      alert(`Failed to subscribe: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`);
+      const { logger } = await import('../../services/logging');
+      logger.error('PodcastDiscovery', 'Subscribe error', undefined, err as Error);
+      setSnackbar({ open: true, message: `Failed to subscribe: ${err instanceof Error ? err.message : 'Unknown error'}. Please try again.`, severity: 'error' });
     }
   };
 
@@ -422,6 +430,17 @@ export const PodcastDiscoveryScreen: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

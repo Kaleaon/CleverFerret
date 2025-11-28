@@ -30,6 +30,7 @@ import {
   Link,
   CircularProgress,
   Alert,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -40,6 +41,7 @@ import {
   Refresh,
   Settings,
 } from '@mui/icons-material';
+import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 interface OPDSEntry {
   id: string;
@@ -60,6 +62,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [entries, setEntries] = useState<OPDSEntry[]>([]);
   const [breadcrumbs, setBreadcrumbs] = useState<Array<{ label: string; url: string }>>([]);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
   const [error, setError] = useState<string | null>(null);
 
   // Mock OPDS catalog data
@@ -79,7 +82,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
       title: 'The Great Gatsby',
       author: 'F. Scott Fitzgerald',
       summary: 'A classic American novel set in the Jazz Age.',
-      coverUrl: '/placeholder-book.png',
+      coverUrl: undefined,
       downloadUrl: 'https://example.com/gatsby.epub',
       type: 'book',
     },
@@ -88,7 +91,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
       title: '1984',
       author: 'George Orwell',
       summary: 'A dystopian social science fiction novel.',
-      coverUrl: '/placeholder-book.png',
+      coverUrl: undefined,
       downloadUrl: 'https://example.com/1984.epub',
       type: 'book',
     },
@@ -97,7 +100,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
       title: 'To Kill a Mockingbird',
       author: 'Harper Lee',
       summary: 'A novel about racial injustice in the American South.',
-      coverUrl: '/placeholder-book.png',
+      coverUrl: undefined,
       downloadUrl: 'https://example.com/mockingbird.epub',
       type: 'book',
     },
@@ -112,19 +115,27 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
     setError(null);
     
     try {
-      // TODO: Implement actual OPDS parsing
-      // const response = await fetch(url);
-      // const xml = await response.text();
-      // const parsed = parseOPDS(xml);
+      const { opdsParser } = await import('../../services/opds/OPDSParser');
+      const feed = await opdsParser.parseFeed(url);
       
-      // Using mock data for now
-      setTimeout(() => {
-        setEntries(mockCatalog);
-        setLoading(false);
-      }, 500);
-    } catch (err) {
-      setError('Failed to load OPDS catalog');
+      // Convert OPDS entries to our format
+      const convertedEntries: OPDSEntry[] = feed.entries.map(entry => ({
+        id: entry.id,
+        title: entry.title,
+        author: entry.author,
+        summary: entry.summary,
+        coverUrl: entry.coverUrl,
+        downloadUrl: entry.downloadUrl,
+        type: entry.downloadUrl ? 'book' : 'folder',
+      }));
+      
+      setEntries(convertedEntries);
       setLoading(false);
+    } catch (err) {
+      setError(`Failed to load OPDS catalog: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setLoading(false);
+      // Fallback to mock data on error
+      setEntries(mockCatalog);
     }
   };
 
@@ -141,9 +152,63 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
   const handleDownload = async (entry: OPDSEntry) => {
     if (!entry.downloadUrl) return;
     
-    // TODO: Implement actual download
-    // Download the book and import into library
-    alert(`Downloading: ${entry.title}`);
+    try {
+      setLoading(true);
+      setSnackbar({ open: true, message: `Downloading: ${entry.title}...`, severity: 'info' });
+      
+      // Download the file
+      const response = await fetch(entry.downloadUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      const file = new File([blob], `${entry.title}.epub`, { type: blob.type });
+      
+      // Get default library or first available library
+      const { db } = await import('../../services/database-complete');
+      const libraries = await db.libraries.where('isActive').equals(1).toArray();
+      
+      if (libraries.length === 0) {
+        setSnackbar({ open: true, message: 'No active library found. Please create a library first.', severity: 'warning' });
+        return;
+      }
+      
+      const library = libraries[0];
+      
+      // Read file as ArrayBuffer for storage
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Add to media items
+      const itemId = await db.mediaItems.add({
+        libraryId: library.libraryId,
+        fileName: file.name,
+        filePath: undefined,
+        fileHash: undefined,
+        fileData: new Uint8Array(arrayBuffer),
+        mediaType: 'BOOK',
+        dateAdded: Date.now(),
+        lastScanned: Date.now(),
+        thumbnailPath: entry.coverUrl,
+      });
+      
+      // Add metadata
+      await db.metadataCommon.add({
+        itemId,
+        title: entry.title,
+        authors: entry.author ? [entry.author] : [],
+        description: entry.summary,
+        thumbnailPath: entry.coverUrl,
+        isFavorite: false,
+        isDownloaded: true,
+      });
+      
+      setSnackbar({ open: true, message: `Downloaded and added to library: ${entry.title}`, severity: 'success' });
+    } catch (error) {
+      setSnackbar({ open: true, message: `Failed to download: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = () => {
@@ -268,7 +333,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
                       <CardMedia
                         component="img"
                         height="200"
-                        image={entry.coverUrl || '/placeholder-book.png'}
+                        image={getImageUrlWithFallback(entry.coverUrl, 'BOOK', entry.title)}
                         alt={entry.title}
                         sx={{ objectFit: 'cover' }}
                       />
@@ -329,6 +394,17 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
           </>
         )}
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

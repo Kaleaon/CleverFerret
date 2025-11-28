@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.universalmedialibrary.utils.ErrorLogger
 
 @HiltViewModel
 class BookshelfViewModel @Inject constructor(
@@ -217,7 +218,7 @@ class BookshelfViewModel @Inject constructor(
             } catch (e: Exception) {
                 // Handle error - in a real implementation, you'd show a snackbar or toast
                 // For now, just log it
-                e.printStackTrace()
+                ErrorLogger.logError("BookshelfViewModel", "Error toggling favorite", e)
             }
         }
     }

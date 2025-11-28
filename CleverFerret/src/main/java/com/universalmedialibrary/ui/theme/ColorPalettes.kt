@@ -417,12 +417,20 @@ object SlateGunmetalPalette {
 
 // Theme palette enum for selection
 enum class ThemePalette {
+    // Unified cross-platform themes
     NAVY_GOLD,
+    EMERALD_SILVER,
+    ROYAL_BRONZE,
+    MIDNIGHT_AMBER,
+    OBSIDIAN_CRIMSON,
+    SLATE_CYAN,
     ROYAL_SILVER,
     FOREST_COPPER,
     BURGUNDY_ROSE_GOLD,
     CHARCOAL_CHAMPAGNE,
     SLATE_GUNMETAL,
+    DEEP_PURPLE_PLATINUM,
+    PAPER_INK,
     // Warm Metallic Themes
     COPPER_BRONZE,
     AMBER_GOLD,
@@ -440,11 +448,18 @@ enum class ThemePalette {
     fun toCleverFerretTheme(): com.universalmedialibrary.ui.theme.CleverFerretTheme {
         return when (this) {
             NAVY_GOLD -> com.universalmedialibrary.ui.theme.CleverFerretTheme.NAVY_GOLD
+            EMERALD_SILVER -> com.universalmedialibrary.ui.theme.CleverFerretTheme.EMERALD_SILVER
+            ROYAL_BRONZE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.ROYAL_BRONZE
+            MIDNIGHT_AMBER -> com.universalmedialibrary.ui.theme.CleverFerretTheme.MIDNIGHT_AMBER
+            OBSIDIAN_CRIMSON -> com.universalmedialibrary.ui.theme.CleverFerretTheme.OBSIDIAN_CRIMSON
+            SLATE_CYAN -> com.universalmedialibrary.ui.theme.CleverFerretTheme.SLATE_CYAN
             ROYAL_SILVER -> com.universalmedialibrary.ui.theme.CleverFerretTheme.ROYAL_SILVER
             FOREST_COPPER -> com.universalmedialibrary.ui.theme.CleverFerretTheme.FOREST_COPPER
             BURGUNDY_ROSE_GOLD -> com.universalmedialibrary.ui.theme.CleverFerretTheme.BURGUNDY_ROSE_GOLD
             CHARCOAL_CHAMPAGNE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.CHARCOAL_CHAMPAGNE
             SLATE_GUNMETAL -> com.universalmedialibrary.ui.theme.CleverFerretTheme.SLATE_GUNMETAL
+            DEEP_PURPLE_PLATINUM -> com.universalmedialibrary.ui.theme.CleverFerretTheme.DEEP_PURPLE_PLATINUM
+            PAPER_INK -> com.universalmedialibrary.ui.theme.CleverFerretTheme.PAPER_INK
             COPPER_BRONZE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.COPPER_BRONZE
             AMBER_GOLD -> com.universalmedialibrary.ui.theme.CleverFerretTheme.AMBER_GOLD
             ROSE_BRASS -> com.universalmedialibrary.ui.theme.CleverFerretTheme.ROSE_BRASS

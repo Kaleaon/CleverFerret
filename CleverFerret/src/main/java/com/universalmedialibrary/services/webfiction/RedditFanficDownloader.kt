@@ -104,6 +104,7 @@ class RedditFanficDownloader {
                 ?: 0
 
             val html = buildChapterHtml(
+                title = title, // Pass title for Arc extraction
                 url = url,
                 author = postAuthor,
                 createdUtc = createdUtc,
@@ -148,6 +149,7 @@ class RedditFanficDownloader {
     }
 
     private fun buildChapterHtml(
+        title: String,
         url: String,
         author: String,
         createdUtc: Long,
@@ -156,10 +158,76 @@ class RedditFanficDownloader {
     ): String {
         val content = decodeSelftextHtml(selftextHtml)
             ?: convertMarkdownToHtml(selftext)
-            ?: downloadPostBody(url)
-            ?: "<p>Failed to fetch content from ${Entities.escape(url)}.</p>"
+            ?: downloadPostBody(url, author)
+            ?: "<p class=\"ps2\">Failed to fetch content from ${Entities.escape(url)}.</p>"
 
-        return wrapChapterHtml(url, author, createdUtc, content.ifBlank { "<p>No content available.</p>" })
+        var processedContent = content.replace("<p>", "<p class=\"ps2\">")
+        val doc = Jsoup.parseBodyFragment(processedContent)
+
+        // 1. Inject Arc Title if present in Post Title
+        // Example: "OOCS, Into A Wider Galaxy, Part 514" -> "Into A Wider Galaxy"
+        val arcRegex = Regex("(?i)(?:OOCS|Out of Cruel Space)[^a-z0-9]*(.*?)[\\s,:-]*(?:Part|Chapter|Ch)[^0-9]*([0-9]+)")
+        val match = arcRegex.find(title)
+        if (match != null) {
+            val arcTitle = match.groupValues[1].trim()
+            if (arcTitle.isNotEmpty() && !arcTitle.equals("Part", ignoreCase = true)) {
+                // Inject Arc Title as H2 at the very top
+                doc.body().prepend("<h2 class=\"ps1\">$arcTitle</h2>")
+            }
+        }
+
+        // 2. Find Chapter Title in Body (skipping navigation links)
+        // Look for first non-link paragraph that is short and title-like
+        val paragraphs = doc.select("p.ps2")
+        val navKeywords = listOf("First", "Previous", "Next", "Last", "Wiki", "Patreon", "Ko-fi")
+
+        for (p in paragraphs.take(5)) { // Check first 5 paragraphs
+            val text = p.text().trim()
+            
+            // Skip if it's a navigation link (contains First/Next/Prev/Last/Wiki)
+            if (p.select("a").isNotEmpty() && isNavigationParagraph(p, navKeywords)) {
+                continue
+            }
+            
+            // Skip empty lines
+            if (text.isBlank()) continue
+
+            // Candidate check: Short (< 100 chars), no starting quote
+            if (text.length < 100 && !text.startsWith("\"") && !text.startsWith("“")) {
+                // Convert to Title
+                p.tagName("h1").attr("class", "ps1").text(text)
+                // Stop after finding the first title
+                break 
+            }
+        }
+
+        // 3. Remove Navigation Links (Top and Bottom)
+        // Top Cleaning
+        for (p in paragraphs.take(3)) {
+             if (isNavigationParagraph(p, navKeywords)) {
+                 p.remove()
+             }
+        }
+        
+        // Bottom Cleaning
+        // Re-select because we removed some and structure might have changed
+        val remainingParagraphs = doc.select("p.ps2")
+        for (p in remainingParagraphs.takeLast(3)) {
+             if (isNavigationParagraph(p, navKeywords)) {
+                 p.remove()
+             }
+        }
+        
+        processedContent = doc.body().html()
+
+        return wrapChapterHtml(url, author, createdUtc, processedContent)
+    }
+
+    private fun isNavigationParagraph(p: org.jsoup.nodes.Element, keywords: List<String>): Boolean {
+        val text = p.text()
+        val links = p.select("a")
+        // Must contain at least one link AND one of the keywords
+        return links.isNotEmpty() && keywords.any { text.contains(it, ignoreCase = true) }
     }
 
     private fun decodeSelftextHtml(raw: String?): String? {
@@ -181,13 +249,13 @@ class RedditFanficDownloader {
             .split("\n\n")
             .filter { it.isNotBlank() }
             .joinToString(separator = "") { paragraph ->
-                "<p>${paragraph.replace("\n", "<br/>")}</p>"
+                "<p class=\"ps2\">${paragraph.replace("\n", "<br/>")}</p>"
             }
 
         return paragraphs.ifBlank { null }
     }
 
-    private fun downloadPostBody(originalUrl: String): String? {
+    private fun downloadPostBody(originalUrl: String, author: String): String? {
         val candidateUrls = mutableListOf<String>()
         if (originalUrl.contains("reddit.com") && !originalUrl.contains("old.reddit.com")) {
             candidateUrls.add(
@@ -206,13 +274,48 @@ class RedditFanficDownloader {
                     .timeout(REQUEST_TIMEOUT)
                     .get()
 
-                val content = doc.select(".usertext-body .md").first()?.html()
+                var postContent = doc.select(".usertext-body .md").first()?.html()
                     ?: doc.select("div[data-test-id=post-content] div[data-click-id=text]").first()?.html()
                     ?: doc.select("article").first()?.html()
                     ?: doc.body().html()
 
-                if (!content.isNullOrBlank()) {
-                    return content
+                // Extract comments by the author (likely continuations or TITLES)
+                val commentsHtml = if (author.isNotBlank()) {
+                    val comments = doc.select(".commentarea .thing.comment[data-author=\"$author\"]")
+                    if (comments.isNotEmpty()) {
+                        buildString {
+                            var isFirstComment = true
+                            comments.forEach { comment ->
+                                val commentBody = comment.selectFirst(".usertext-body .md")?.html()
+                                if (!commentBody.isNullOrBlank()) {
+                                    val cleanComment = commentBody.trim()
+                                    // Check if this is a title (short text, first comment)
+                                    if (isFirstComment && cleanComment.length < 100 && !cleanComment.contains("http")) {
+                                        // Inject as title
+                                        append("<h1 class='ps1'>${Jsoup.parse(cleanComment).text()}</h1>")
+                                    } else {
+                                        // Regular continuation
+                                        append("<hr/><div class='author-comments'><h3>Author Continuation</h3>")
+                                        append("<div class='comment'>$commentBody</div><hr/>")
+                                        append("</div>")
+                                    }
+                                }
+                                isFirstComment = false
+                            }
+                        }
+                    } else ""
+                } else ""
+
+                if (!postContent.isNullOrBlank()) {
+                    // If commentsHtml starts with <h1 class='ps1'>, put that BEFORE postContent.
+                    if (commentsHtml.startsWith("<h1 class='ps1'>")) {
+                        val endOfTitle = commentsHtml.indexOf("</h1>") + 5
+                        val titlePart = commentsHtml.substring(0, endOfTitle)
+                        val restOfComments = commentsHtml.substring(endOfTitle)
+                        return titlePart + postContent + restOfComments
+                    }
+                    
+                    return postContent + commentsHtml
                 }
             } catch (_: Exception) {
                 // Try the next option
@@ -223,27 +326,7 @@ class RedditFanficDownloader {
     }
 
     private fun wrapChapterHtml(url: String, author: String, createdUtc: Long, content: String): String {
-        val safeUrl = Entities.escape(url)
-        val metaBuilder = buildString {
-            append("""<p><strong>Source:</strong> <a href="$safeUrl">$safeUrl</a></p>""")
-            if (author.isNotBlank()) {
-                append("""<p><strong>Author:</strong> ${Entities.escape(author)}</p>""")
-            }
-            formatTimestamp(createdUtc)?.let { formatted ->
-                append("""<p><strong>Posted:</strong> $formatted</p>""")
-            }
-        }
-
-        return """
-        <article class="reddit-chapter">
-          <div class="chapter-meta">
-            $metaBuilder
-          </div>
-          <div class="chapter-content">
-            $content
-          </div>
-        </article>
-        """.trimIndent()
+        return content // Content is already styled
     }
 
     private fun formatTimestamp(createdUtc: Long): String? {

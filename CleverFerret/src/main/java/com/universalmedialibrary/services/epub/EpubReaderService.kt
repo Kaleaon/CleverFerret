@@ -50,7 +50,7 @@ class EpubReaderService @Inject constructor(
             updateReaderState(isLoading = true)
 
             val file = when (uri.scheme) {
-                "file" -> File(uri.path!!)
+                "file" -> File(uri.path ?: "")
                 "content" -> {
                     // For content URIs, we need to copy to temp file
                     val tempFile = File(context.cacheDir, "temp_epub_${System.currentTimeMillis()}.epub")

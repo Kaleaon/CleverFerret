@@ -15,7 +15,7 @@ import javax.inject.Singleton
  * Default catalogs are seeded on first use to give new installations immediate access to free books.
  */
 @Singleton
-class OPDSService @Inject constructor(
+class OPDSCatalogService @Inject constructor(
     private val catalogDao: OPDSCatalogDao,
     private val opdsClient: OPDSClient
 ) {

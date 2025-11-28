@@ -101,8 +101,22 @@ class StorageBrowserViewModel @Inject constructor() : ViewModel() {
             files
         }
 
+        // Filter known media types or directories
+        // This ensures we show files the app can actually handle
+        val supportedExtensions = setOf(
+            "epub", "pdf", "mobi", "azw", "azw3", "fb2", "txt", "rtf", "doc", "docx", "djvu", "html", "htm", // Books
+            "cbz", "cbr", "cbt", "cb7", // Comics
+            "mp3", "m4a", "m4b", "aac", "ogg", "opus", "flac", "wav", "wma", // Audio
+            "mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "m4v", "mpg", "mpeg", // Video
+            "jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "tiff" // Images
+        )
+
+        val finalFiltered = filtered.filter { file ->
+            file.isDirectory || file.extension.lowercase() in supportedExtensions
+        }
+
         // Sort: directories first, then files, both alphabetically
-        filtered.sortedWith(
+        finalFiltered.sortedWith(
             compareBy<File> { !it.isDirectory }
                 .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
         )

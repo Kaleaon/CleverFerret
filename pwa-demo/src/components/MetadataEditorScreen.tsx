@@ -113,7 +113,8 @@ export const MetadataEditorScreen: React.FC = () => {
       setSeries(mockMetadata.series);
     } catch (err) {
       setError('Failed to load metadata');
-      console.error('Error loading metadata:', err);
+      const { logger } = await import('../services/logging');
+      logger.error('MetadataEditor', 'Error loading metadata', undefined, err as Error);
     } finally {
       setLoading(false);
     }
@@ -132,7 +133,8 @@ export const MetadataEditorScreen: React.FC = () => {
       setSearchResults(results);
       setShowSearchDialog(true);
     } catch (err) {
-      console.error('Search error:', err);
+      const { logger } = await import('../services/logging');
+      logger.error('MetadataEditor', 'Search error', undefined, err as Error);
       setError('Failed to search metadata');
     } finally {
       setIsSearching(false);
