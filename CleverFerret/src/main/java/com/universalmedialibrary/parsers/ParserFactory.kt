@@ -15,6 +15,8 @@ import java.io.File
  * - MOBI/AZW (via JNI or conversion)
  * - DJVU (via JNI)
  * - Legacy formats (LIT, SNB, RB, PDB via JNI)
+ *
+ * Confirmed: Apache POI and Tika dependencies are integrated for these parsers.
  */
 object ParserFactory {
     

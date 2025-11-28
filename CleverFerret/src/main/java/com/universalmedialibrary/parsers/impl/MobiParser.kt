@@ -79,21 +79,32 @@ class MobiParser : DocumentParser {
     private fun extractMetadata(header: MobiHeader, fileName: String): DocumentMetadata {
         val exthHeader = header.exthHeader
         
+        // MOBI EXTH record type codes (from MOBI format specification)
+        val EXTH_TITLE = 503
+        val EXTH_AUTHOR = 100
+        val EXTH_CREATOR = 108  // Contributor (other creators)
+        val EXTH_SUBJECT = 105
+        val EXTH_DESCRIPTION = 103
+        val EXTH_KEYWORDS = 106
+        val EXTH_LANGUAGE = 524
+        val EXTH_ISBN = 104
+        val EXTH_PUBLISHER = 101
+        
         // Extract title from Palm Database Header or EXTH
         val title = header.palmDatabaseHeader?.name 
-            ?: exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.TITLE)?.data
+            ?: exthHeader?.getRecordByTypeCode(EXTH_TITLE)?.data
             ?: fileName.substringBeforeLast(".")
         
         // Extract author
-        val author = exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.AUTHOR)?.data
-            ?: exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.CREATOR)?.data
+        val author = exthHeader?.getRecordByTypeCode(EXTH_AUTHOR)?.data
+            ?: exthHeader?.getRecordByTypeCode(EXTH_CREATOR)?.data
         
         // Extract subject/description
-        val subject = exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.SUBJECT)?.data
-            ?: exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.DESCRIPTION)?.data
+        val subject = exthHeader?.getRecordByTypeCode(EXTH_SUBJECT)?.data
+            ?: exthHeader?.getRecordByTypeCode(EXTH_DESCRIPTION)?.data
         
         // Extract keywords
-        val keywords = exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.KEYWORDS)?.data
+        val keywords = exthHeader?.getRecordByTypeCode(EXTH_KEYWORDS)?.data
             ?.split(",")
             ?.map { it.trim() }
             ?: emptyList()
@@ -103,13 +114,13 @@ class MobiParser : DocumentParser {
         val modificationDate = header.palmDatabaseHeader?.modificationDate?.toString()
         
         // Extract language
-        val language = exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.LANGUAGE)?.data
+        val language = exthHeader?.getRecordByTypeCode(EXTH_LANGUAGE)?.data
         
         // Extract ISBN
-        val isbn = exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.ISBN)?.data
+        val isbn = exthHeader?.getRecordByTypeCode(EXTH_ISBN)?.data
         
         // Extract publisher
-        val publisher = exthHeader?.getRecordByTypeCode(MobiHeader.Exth.RecordType.PUBLISHER)?.data
+        val publisher = exthHeader?.getRecordByTypeCode(EXTH_PUBLISHER)?.data
         
         // Build custom properties
         val customProperties = mutableMapOf<String, String>()
@@ -118,9 +129,9 @@ class MobiParser : DocumentParser {
         publisher?.let { customProperties["publisher"] = it }
         
         // Add MOBI-specific metadata
-        customProperties["mobiType"] = header.mobiType?.name ?: "UNKNOWN"
-        customProperties["encoding"] = header.encoding?.name ?: "UNKNOWN"
-        customProperties["compression"] = header.compression?.name ?: "UNKNOWN"
+        customProperties["mobiType"] = header.mobiType?.toString() ?: "UNKNOWN"
+        customProperties["encoding"] = header.encoding?.toString() ?: "UNKNOWN"
+        customProperties["compression"] = header.compression?.toString() ?: "UNKNOWN"
         customProperties["hasExth"] = header.hasExth.toString()
         
         // Add encryption info
@@ -157,8 +168,8 @@ class MobiParser : DocumentParser {
         }
         
         info.appendLine("Format: ${determineFormat(filePath ?: "", header)}")
-        info.appendLine("MOBI Type: ${header.mobiType?.name ?: "UNKNOWN"}")
-        info.appendLine("Encoding: ${header.encoding?.name ?: "UNKNOWN"}")
+        info.appendLine("MOBI Type: ${header.mobiType?.toString() ?: "UNKNOWN"}")
+        info.appendLine("Encoding: ${header.encoding?.toString() ?: "UNKNOWN"}")
         info.appendLine("Text Length: ${header.textLength} bytes")
         info.appendLine("Record Count: ${header.recordCount}")
         

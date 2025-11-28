@@ -29,6 +29,8 @@ class ReaderEngineFactory @Inject constructor(
             BookFormat.PDF, BookFormat.DJVU -> pdfReaderEngine
             BookFormat.CBZ, BookFormat.CBR, BookFormat.CBT, BookFormat.CB7 -> comicReaderEngine
             BookFormat.MOBI, BookFormat.AZW3, BookFormat.FB2, BookFormat.TXT, BookFormat.RTF, BookFormat.HTML -> epubReaderEngine // Use Epub engine as fallback/converter for reflowable formats
+            BookFormat.PRC, BookFormat.AZW, BookFormat.KFX, BookFormat.CHM, BookFormat.UMD, BookFormat.LIT, BookFormat.PDB, BookFormat.RB, BookFormat.SNB,
+            BookFormat.DOCX, BookFormat.DOC, BookFormat.ODT, BookFormat.MD, BookFormat.HTM, BookFormat.XHTML, BookFormat.MHTML -> epubReaderEngine // Use Epub engine as fallback for legacy formats
             BookFormat.UNKNOWN -> throw IllegalArgumentException("Cannot create reader for unknown format")
         }
     }
@@ -52,7 +54,23 @@ class ReaderEngineFactory @Inject constructor(
             "rtf" -> BookFormat.RTF
             "cbt" -> BookFormat.CBT
             "cb7" -> BookFormat.CB7
-            "html", "htm" -> BookFormat.HTML
+            "html" -> BookFormat.HTML
+            "htm" -> BookFormat.HTM
+            "prc" -> BookFormat.PRC
+            "azw" -> BookFormat.AZW
+            "kfx" -> BookFormat.KFX
+            "chm" -> BookFormat.CHM
+            "umd" -> BookFormat.UMD
+            "lit" -> BookFormat.LIT
+            "pdb" -> BookFormat.PDB
+            "rb" -> BookFormat.RB
+            "snb" -> BookFormat.SNB
+            "docx" -> BookFormat.DOCX
+            "doc" -> BookFormat.DOC
+            "odt" -> BookFormat.ODT
+            "md" -> BookFormat.MD
+            "xhtml" -> BookFormat.XHTML
+            "mhtml" -> BookFormat.MHTML
             else -> BookFormat.UNKNOWN
         }
     }
@@ -64,7 +82,10 @@ class ReaderEngineFactory @Inject constructor(
         return when (format) {
             BookFormat.EPUB, BookFormat.PDF, BookFormat.CBZ, BookFormat.CBR,
             BookFormat.MOBI, BookFormat.AZW3, BookFormat.DJVU, BookFormat.FB2,
-            BookFormat.TXT, BookFormat.RTF, BookFormat.CBT, BookFormat.CB7, BookFormat.HTML -> true
+            BookFormat.TXT, BookFormat.RTF, BookFormat.CBT, BookFormat.CB7, BookFormat.HTML,
+            BookFormat.PRC, BookFormat.AZW, BookFormat.KFX, BookFormat.CHM, BookFormat.UMD,
+            BookFormat.LIT, BookFormat.PDB, BookFormat.RB, BookFormat.SNB,
+            BookFormat.DOCX, BookFormat.DOC, BookFormat.ODT, BookFormat.MD, BookFormat.HTM, BookFormat.XHTML, BookFormat.MHTML -> true
             BookFormat.UNKNOWN -> false
         }
     }
@@ -73,7 +94,20 @@ class ReaderEngineFactory @Inject constructor(
      * Get supported file extensions
      */
     fun getSupportedExtensions(): Set<String> {
-        return setOf("epub", "pdf", "cbz", "cbr", "mobi", "azw3", "djvu", "fb2", "txt", "rtf", "cbt", "cb7", "html", "htm")
+        return setOf(
+            "epub", "pdf",
+            "cbz", "cbr", "cbt", "cb7",
+            "mobi", "azw3",
+            "djvu", "fb2",
+            "txt", "rtf",
+            "html", "htm",
+            "prc", "azw", "kfx",
+            "chm", "umd", "lit",
+            "pdb", "rb", "snb",
+            "docx", "doc", "odt",
+            "md",
+            "xhtml", "mhtml"
+        )
     }
 
     /**
@@ -94,6 +128,22 @@ class ReaderEngineFactory @Inject constructor(
             BookFormat.CBT -> "Comic Book Archive (CBT)"
             BookFormat.CB7 -> "Comic Book Archive (CB7)"
             BookFormat.HTML -> "HTML Document"
+            BookFormat.PRC -> "Palm Resource (PRC)"
+            BookFormat.AZW -> "Kindle eBook (AZW)"
+            BookFormat.KFX -> "Kindle Format (KFX)"
+            BookFormat.CHM -> "Compiled HTML Help (CHM)"
+            BookFormat.UMD -> "Universal Media Disc (UMD)"
+            BookFormat.LIT -> "Microsoft Reader (LIT)"
+            BookFormat.PDB -> "Palm Database (PDB)"
+            BookFormat.RB -> "Rocket eBook (RB)"
+            BookFormat.SNB -> "SNB eBook"
+            BookFormat.DOCX -> "Word Document (DOCX)"
+            BookFormat.DOC -> "Word Document (DOC)"
+            BookFormat.ODT -> "OpenDocument Text"
+            BookFormat.MD -> "Markdown"
+            BookFormat.HTM -> "HTML Document"
+            BookFormat.XHTML -> "XHTML Document"
+            BookFormat.MHTML -> "MHTML Document"
             BookFormat.UNKNOWN -> "Unknown Format"
         }
     }

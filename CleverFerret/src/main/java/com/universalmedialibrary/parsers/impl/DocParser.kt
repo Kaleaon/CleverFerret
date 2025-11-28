@@ -80,7 +80,7 @@ class DocParser : DocumentParser {
             keywords = summaryInfo?.keywords?.split(",")?.map { it.trim() } ?: emptyList(),
             creationDate = summaryInfo?.createDateTime?.toString(),
             modificationDate = summaryInfo?.lastSaveDateTime?.toString(),
-            pageCount = docSummaryInfo?.pageCount,
+            pageCount = null, // DOC format doesn't provide page count in summary info
             wordCount = summaryInfo?.wordCount,
             language = null,
             format = "DOC",

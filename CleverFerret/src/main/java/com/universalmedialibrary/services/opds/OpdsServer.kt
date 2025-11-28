@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.opds
 
 import android.util.Log
+import com.universalmedialibrary.core.FormatRegistry
 import com.universalmedialibrary.data.repository.MediaRepository
 import com.universalmedialibrary.data.repository.LibraryRepository
 import com.universalmedialibrary.data.repository.SharingRepository
@@ -15,7 +16,8 @@ class OpdsServer @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val libraryRepository: LibraryRepository,
     private val sharingRepository: SharingRepository,
-    private val opdsService: OpdsService
+    private val opdsFeedGenerator: OpdsFeedGenerator,
+    private val formatRegistry: FormatRegistry
 ) : NanoHTTPD("127.0.0.1", 8088) {
 
     @Volatile
@@ -47,7 +49,7 @@ class OpdsServer @Inject constructor(
 
         return try {
             when {
-                session.uri == "/opds" -> newFixedLengthResponse(Response.Status.OK, MIME_XML, opdsService.generateCatalogFeed())
+                session.uri == "/opds" -> newFixedLengthResponse(Response.Status.OK, MIME_XML, opdsFeedGenerator.generateCatalogFeed())
                 session.uri.startsWith("/opds/libraries") -> serveLibraries(session)
                 session.uri.startsWith("/opds/library/") -> serveLibraryItems(session)
                 session.uri.startsWith("/opds/download/") -> serveDownload(session)
@@ -67,15 +69,15 @@ class OpdsServer @Inject constructor(
 
         val xml = runBlocking {
             val lib = libraryRepository.getLibraryById(link.targetId)
-            val entries = if (lib != null) {
+            val entries = lib?.let {
                 """
                 <entry>
-                  <title>${lib.name}</title>
-                  <id>urn:lib:${lib.libraryId}</id>
-                  <link rel=\"subsection\" href=\"/opds/library/${lib.libraryId}?token=$token\" />
+                  <title>${it.name}</title>
+                  <id>urn:lib:${it.libraryId}</id>
+                  <link rel=\"subsection\" href=\"/opds/library/${it.libraryId}?token=$token\" />
                 </entry>
                 """.trimIndent()
-            } else ""
+            } ?: ""
             """
             <?xml version=\"1.0\" encoding=\"utf-8\"?>
             <feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:opds=\"http://opds-spec.org/2010/catalog\">
@@ -147,16 +149,18 @@ class OpdsServer @Inject constructor(
         return try {
             val file = java.io.File(media.filePath)
             if (!file.exists()) return newFixedLengthResponse(Response.Status.NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, "File missing")
-            val mime = when (media.fileExtension.lowercase()) {
-                "epub" -> "application/epub+zip"
-                "pdf" -> "application/pdf"
-                "cbz" -> "application/x-cbz"
-                "cbr" -> "application/x-cbr"
-                else -> "application/octet-stream"
-            }
-            // FileInputStream will be closed by NanoHTTPD after response is sent
+            val mime = formatRegistry.getFormatByExtension(media.fileExtension)?.mimeTypes?.firstOrNull()
+                ?: "application/octet-stream"
+            // Use FileInputStream with proper resource management
+            // NanoHTTPD will close the stream after response is sent, but we ensure it's created safely
             val fis = java.io.FileInputStream(file)
-            newFixedLengthResponse(Response.Status.OK, mime, fis, file.length())
+            try {
+                newFixedLengthResponse(Response.Status.OK, mime, fis, file.length())
+            } catch (e: Exception) {
+                // If response creation fails, close the stream to prevent leak
+                fis.close()
+                throw e
+            }
         } catch (e: Exception) {
             newFixedLengthResponse(Response.Status.INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT, "Error: ${e.message}")
         }

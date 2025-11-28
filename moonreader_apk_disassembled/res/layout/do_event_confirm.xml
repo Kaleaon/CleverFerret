@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="fill_parent" android:layout_height="wrap_content"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content"
-      xmlns:android="http://schemas.android.com/apk/res/android">
-        <TextView android:textSize="16.0sp" android:gravity="center|left" android:id="@id/ofTextView" android:paddingLeft="4.0dip" android:paddingTop="0.0dip" android:paddingRight="4.0dip" android:paddingBottom="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="This will do..." />
-        <CheckBox android:textSize="14.0sp" android:id="@id/ofNeverAskAgain" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/do_not_ask_again" />
-    </LinearLayout>
-</ScrollView>

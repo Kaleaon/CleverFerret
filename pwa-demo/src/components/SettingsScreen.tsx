@@ -100,7 +100,8 @@ export const SettingsScreen: React.FC = () => {
         });
       }
     } catch (e) {
-      console.warn('Notification permission request failed', e);
+      const { logger } = await import('../services/logging');
+      logger.warn('Settings', 'Notification permission request failed', undefined, e as Error);
     }
   };
 

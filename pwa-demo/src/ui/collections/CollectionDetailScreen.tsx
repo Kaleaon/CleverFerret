@@ -21,6 +21,13 @@ import {
   Button,
   Menu,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -41,6 +48,8 @@ export const CollectionDetailScreen: React.FC = () => {
   const [collection, setCollection] = useState<UnifiedCollection | null>(null);
   const [items, setItems] = useState<MediaItem[]>([]);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   useEffect(() => {
     if (collectionId) {
@@ -60,10 +69,20 @@ export const CollectionDetailScreen: React.FC = () => {
 
   const handleDeleteCollection = async () => {
     if (!collectionId) return;
+    setShowDeleteDialog(true);
+  };
 
-    if (confirm('Delete this collection?')) {
+  const confirmDeleteCollection = async () => {
+    if (!collectionId) return;
+    setShowDeleteDialog(false);
+    try {
       await collectionRepository.deleteCollection(parseInt(collectionId));
-      navigate(-1);
+      setSnackbar({ open: true, message: 'Collection deleted successfully', severity: 'success' });
+      setTimeout(() => navigate(-1), 1000);
+    } catch (error) {
+      const { logger } = await import('../../services/logging');
+      logger.error('Collection', 'Failed to delete collection', undefined, error as Error);
+      setSnackbar({ open: true, message: 'Failed to delete collection', severity: 'error' });
     }
   };
 
@@ -155,6 +174,32 @@ export const CollectionDetailScreen: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+        <DialogTitle>Delete Collection</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this collection? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
+          <Button onClick={confirmDeleteCollection} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

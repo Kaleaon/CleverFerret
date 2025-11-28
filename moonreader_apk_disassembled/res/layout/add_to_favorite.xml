@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:paddingTop="8.0dip" android:paddingBottom="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBox android:textSize="15.0sp" android:id="@id/favCb" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="8.0dip" android:text="@string/book_favorite" style="@style/MyCheckBox" />
-    <EditText android:textSize="15.0sp" android:id="@id/favEt" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="@string/book_favorite_hint" android:singleLine="true" android:layout_weight="5.0" style="@style/MyEditText" />
-    <ImageButton android:layout_gravity="center_vertical" android:id="@id/favIb" android:background="@drawable/ic_menu_more2" android:focusable="true" android:layout_width="36.0dip" android:layout_height="36.0dip" android:foreground="?selectableItemBackgroundBorderless" />
-</LinearLayout>

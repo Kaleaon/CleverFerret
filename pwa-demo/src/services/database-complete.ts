@@ -6,6 +6,7 @@
  */
 
 import Dexie, { Table } from 'dexie';
+import type { LogEntry } from './logging';
 
 // Import all entity types
 import type {
@@ -152,6 +153,7 @@ export class CleverFerretDatabase extends Dexie {
   sharedLinks!: Table<SharedLink, number>;
   maintenanceChanges!: Table<MaintenanceChange, number>;
   apiKeys!: Table<APIKey, number>;
+  logs!: Table<LogEntry, number>;
 
   constructor() {
     super('CleverFerretDB');
@@ -238,6 +240,7 @@ export class CleverFerretDatabase extends Dexie {
       sharedLinks: '++id, token, [targetType+targetId]',
       maintenanceChanges: '++changeId, itemId, status, createdAt',
       apiKeys: '++keyId, provider, isActive',
+      logs: '++id, timestamp, level, category',
     });
   }
 

@@ -783,7 +783,8 @@ export const MediaViewerScreen: React.FC = () => {
       setMetadata(mockMetadata);
     } catch (err) {
       setError('Failed to load media item');
-      console.error('Error loading media:', err);
+      const { logger } = await import('../services/logging');
+      logger.error('MediaViewer', 'Error loading media', undefined, err as Error);
     } finally {
       setLoading(false);
     }

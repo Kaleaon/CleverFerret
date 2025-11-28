@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layer-list
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:height="@dimen/myswitch_track_size" android:width="@dimen/myswitch_track_width" android:drawable="@drawable/mtrl_switch_track" android:viewportWidth="@integer/myswitch_viewport_width" android:viewportHeight="@integer/myswitch_viewport_size" />
-</layer-list>

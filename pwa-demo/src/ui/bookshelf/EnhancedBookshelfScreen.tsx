@@ -29,6 +29,7 @@ import {
   Search,
   FilterList,
 } from '@mui/icons-material';
+import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 import { db } from '../../services/database-complete';
 
@@ -84,7 +85,12 @@ export const EnhancedBookshelfScreen: React.FC = () => {
           {books.map((book) => (
             <Grid item xs={viewMode === 'grid' ? 6 : 12} sm={viewMode === 'grid' ? 4 : 12} md={viewMode === 'grid' ? 3 : 12} key={book.itemId}>
               <Card onClick={() => navigate(`/book/${book.itemId}`)}>
-                <CardMedia component="img" height={viewMode === 'grid' ? 200 : 120} image={book.thumbnailPath || '/placeholder-book.png'} alt={book.fileName} />
+                <CardMedia 
+                  component="img" 
+                  height={viewMode === 'grid' ? 200 : 120} 
+                  image={getImageUrlWithFallback(book.thumbnailPath, book.mediaType, book.fileName)} 
+                  alt={book.fileName} 
+                />
                 <CardContent>
                   <Typography variant="subtitle2" noWrap>{book.fileName}</Typography>
                   <Stack direction="row" spacing={1} sx={{ mt: 1 }}>

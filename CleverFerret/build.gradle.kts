@@ -85,6 +85,14 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/LICENSE*"
+            excludes += "/META-INF/NOTICE*"
+            excludes += "/META-INF/*.md"
+            excludes += "/META-INF/*.txt"
+            // Note: Excluding *.properties may remove some library metadata, but is needed to resolve
+            // packaging conflicts. If runtime issues occur, consider being more specific.
+            excludes += "/META-INF/*.properties"
         }
     }
     
@@ -178,10 +186,18 @@ dependencies {
 
 
     // Document parsing libraries
-    implementation(libs.apache.poi.ooxml)
-    implementation(libs.apache.poi.scratchpad)
-    implementation(libs.apache.tika.core)
-    implementation(libs.apache.tika.parsers)
+    implementation(libs.apache.poi.ooxml) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.poi.scratchpad) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.tika.core) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.tika.parsers) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
     implementation(libs.lib.mobi.core)
 
     // Parsing & data utilities

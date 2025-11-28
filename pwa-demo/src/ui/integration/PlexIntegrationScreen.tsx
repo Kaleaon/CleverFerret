@@ -27,9 +27,11 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   Chip,
   FormControlLabel,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -49,6 +51,8 @@ export const PlexIntegrationScreen: React.FC = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [deleteServerId, setDeleteServerId] = useState<number | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   // Form state
   const [serverName, setServerName] = useState('');
@@ -112,9 +116,22 @@ export const PlexIntegrationScreen: React.FC = () => {
   };
 
   const handleDeleteServer = async (serverId: number) => {
-    if (confirm('Delete this Plex server?')) {
-      await db.plexServers.delete(serverId);
+    setDeleteServerId(serverId);
+  };
+
+  const confirmDeleteServer = async () => {
+    if (deleteServerId === null) return;
+    
+    try {
+      await db.plexServers.delete(deleteServerId);
       loadServers();
+      setSnackbar({ open: true, message: 'Server deleted successfully', severity: 'success' });
+    } catch (error) {
+      const { logger } = await import('../../services/logging');
+      logger.error('PlexIntegration', 'Failed to delete server', undefined, error as Error);
+      setSnackbar({ open: true, message: 'Failed to delete server', severity: 'error' });
+    } finally {
+      setDeleteServerId(null);
     }
   };
 
@@ -280,6 +297,32 @@ export const PlexIntegrationScreen: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={deleteServerId !== null} onClose={() => setDeleteServerId(null)}>
+        <DialogTitle>Delete Plex Server</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this Plex server? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteServerId(null)}>Cancel</Button>
+          <Button onClick={confirmDeleteServer} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

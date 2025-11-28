@@ -21,6 +21,13 @@ import {
   Card,
   CardContent,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -35,6 +42,8 @@ export const BookmarkScreen: React.FC = () => {
   const { itemId } = useParams<{ itemId: string }>();
   const navigate = useNavigate();
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [deleteBookmarkId, setDeleteBookmarkId] = useState<number | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   useEffect(() => {
     if (itemId) {
@@ -48,11 +57,24 @@ export const BookmarkScreen: React.FC = () => {
   };
 
   const handleDeleteBookmark = async (bookmarkId: number) => {
-    if (confirm('Delete this bookmark?')) {
-      await bookmarkRepository.deleteBookmark(bookmarkId);
+    setDeleteBookmarkId(bookmarkId);
+  };
+
+  const confirmDeleteBookmark = async () => {
+    if (deleteBookmarkId === null) return;
+    
+    try {
+      await bookmarkRepository.deleteBookmark(deleteBookmarkId);
       if (itemId) {
         loadBookmarks(parseInt(itemId));
       }
+      setSnackbar({ open: true, message: 'Bookmark deleted successfully', severity: 'success' });
+    } catch (error) {
+      const { logger } = await import('../../services/logging');
+      logger.error('Bookmark', 'Failed to delete bookmark', undefined, error as Error);
+      setSnackbar({ open: true, message: 'Failed to delete bookmark', severity: 'error' });
+    } finally {
+      setDeleteBookmarkId(null);
     }
   };
 
@@ -154,6 +176,32 @@ export const BookmarkScreen: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      <Dialog open={deleteBookmarkId !== null} onClose={() => setDeleteBookmarkId(null)}>
+        <DialogTitle>Delete Bookmark</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this bookmark?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteBookmarkId(null)}>Cancel</Button>
+          <Button onClick={confirmDeleteBookmark} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

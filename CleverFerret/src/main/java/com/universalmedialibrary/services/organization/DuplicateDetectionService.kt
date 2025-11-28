@@ -7,10 +7,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Service for detecting duplicate media items (books, audiobooks, etc.)
+ * Service for detecting duplicate media items using similarity-based matching.
+ * 
+ * This service uses metadata similarity (title, filename, size, duration) to find duplicates.
+ * For content-based fingerprinting, see services.duplicates.DuplicateDetectionService.
  */
 @Singleton
-class DuplicateDetectionService @Inject constructor() {
+class SimilarityBasedDuplicateDetectionService @Inject constructor() {
     
     /**
      * Find potential duplicates in a list of media items

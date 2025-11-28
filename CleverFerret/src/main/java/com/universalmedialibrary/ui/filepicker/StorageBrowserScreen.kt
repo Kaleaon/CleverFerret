@@ -435,6 +435,4 @@ private fun formatDate(timestamp: Long): String {
     return sdf.format(Date(timestamp))
 }
 
-enum class ViewMode {
-    LIST, GRID
-}
+// ViewMode enum is defined in EnhancedFileBrowser.kt to avoid duplication

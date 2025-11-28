@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <com.flyersoft.views.recyclerview.MyRecyclerView android:id="@id/shelfCollectionList" android:background="@color/material_grey_50" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0" />
-    <com.flyersoft.views.BookShelfView android:id="@id/shelfBookList" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="5.0" />
-    <ViewStub android:id="@id/stub_coverflow" android:layout="@layout/main_coverflow" android:layout_width="fill_parent" android:layout_height="fill_parent" />
-</FrameLayout>

@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 import java.util.Locale
+import com.universalmedialibrary.utils.FileNameSanitizer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +20,8 @@ class UniversalTagService @Inject constructor(
     private val metabodsTagService: MetabodsTagService,
     private val webFictionService: WebFictionService,
     private val parentalControlsSettings: ParentalControlsSettings,
-    private val contentFilterHelper: ContentFilterHelper
+    private val contentFilterHelper: ContentFilterHelper,
+    private val fileNameSanitizer: FileNameSanitizer
 ) {
 
     companion object {
@@ -200,8 +202,8 @@ class UniversalTagService @Inject constructor(
                 val warnings = work.select("span.warnings").text()
                 
                 val stats = work.select("dl.stats dd").text()
-                val wordCount = Regex("Words:\\s*([0-9,]+)").find(stats)?.groupValues?.get(1)?.replace(",", "")?.toLongOrNull()
-                val chapters = Regex("(\\d+)/(\\d+|\\?)").find(stats)?.groupValues?.get(1)?.toIntOrNull()
+                val wordCount = Regex("Words:\\s*([0-9,]+)").find(stats)?.groupValues?.getOrNull(1)?.replace(",", "")?.toLongOrNull()
+                val chapters = Regex("(\\d+)/(\\d+|\\?)").find(stats)?.groupValues?.getOrNull(1)?.toIntOrNull()
                 
                 stories.add(
                     WebFictionStory(
@@ -387,7 +389,7 @@ class UniversalTagService @Inject constructor(
 
     private fun extractRoyalRoadDisplayNameAndCount(raw: String): Pair<String, Int> {
         val countMatch = royalRoadCountRegex.find(raw)
-        val count = countMatch?.groupValues?.get(1)?.replace(",", "")?.toIntOrNull() ?: 0
+        val count = countMatch?.groupValues?.getOrNull(1)?.replace(",", "")?.toIntOrNull() ?: 0
         val displayName = raw.replace(royalRoadCountRegex, "").trim()
         return displayName to count
     }
@@ -418,10 +420,7 @@ class UniversalTagService @Inject constructor(
     }
 
     private fun sanitizeTagId(value: String): String {
-        val normalized = value.lowercase(Locale.US)
-            .replace(Regex("[^a-z0-9]+"), "-")
-            .trim('-')
-        return normalized.ifBlank { "tag-${value.hashCode() and 0xffff}" }
+        return fileNameSanitizer.sanitizeTagId(value)
     }
 
     private fun categorizeRoyalRoadTag(tagName: String): TagCategory {

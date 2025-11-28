@@ -30,6 +30,7 @@ import {
 
 import { db } from '../../services/database-complete';
 import type { MediaItem } from '../../data/local/entity';
+import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 export const BookDetailsScreen: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
@@ -62,7 +63,11 @@ export const BookDetailsScreen: React.FC = () => {
       <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
           <Card sx={{ width: { xs: '100%', md: 300 } }}>
-            <CardMedia component="img" image={book.thumbnailPath || '/placeholder-book.png'} alt={book.fileName} />
+            <CardMedia 
+              component="img" 
+              image={getImageUrlWithFallback(book.thumbnailPath, book.mediaType, book.fileName)} 
+              alt={book.fileName} 
+            />
           </Card>
 
           <Box sx={{ flex: 1 }}>

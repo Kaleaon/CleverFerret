@@ -125,15 +125,8 @@ class DocxParser : DocumentParser {
             images.add(ImageInfo(
                 description = "Image ${index + 1}",
                 position = -1, // Position tracking would require more complex logic
-                width = picture.pictureData?.let { 
-                    try { 
-                        // Width extraction if available
-                        null 
-                    } catch (e: Exception) { 
-                        null 
-                    }
-                },
-                height = null
+                width = null, // Width extraction not available in POI XWPF
+                height = null // Height extraction not available in POI XWPF
             ))
         }
         

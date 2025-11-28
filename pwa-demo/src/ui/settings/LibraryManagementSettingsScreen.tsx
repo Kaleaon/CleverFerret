@@ -21,6 +21,7 @@ import {
   Button,
   Divider,
   Alert,
+  Snackbar,
 } from '@mui/material';
 import { ArrowBack, Refresh, FolderOpen } from '@mui/icons-material';
 
@@ -31,13 +32,19 @@ export const LibraryManagementSettingsScreen: React.FC = () => {
   const [autoMetadata, setAutoMetadata] = React.useState(true);
   const [groupSeries, setGroupSeries] = React.useState(true);
   const [scanning, setScanning] = React.useState(false);
+  const [snackbar, setSnackbar] = React.useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
-  const handleScanAll = () => {
+  const handleScanAll = async () => {
     setScanning(true);
-    setTimeout(() => {
+    try {
+      // Simulate scan
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSnackbar({ open: true, message: 'Library scan completed', severity: 'success' });
+    } catch (error) {
+      setSnackbar({ open: true, message: `Scan failed: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+    } finally {
       setScanning(false);
-      alert('Library scan completed');
-    }, 2000);
+    }
   };
 
   return (
@@ -158,6 +165,17 @@ export const LibraryManagementSettingsScreen: React.FC = () => {
           Configure how libraries are scanned and organized. Changes take effect on next scan.
         </Alert>
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

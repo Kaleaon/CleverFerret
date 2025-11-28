@@ -9,6 +9,7 @@ import com.universalmedialibrary.data.local.dao.PodcastSubscriptionDao
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.utils.FileNameSanitizer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -65,14 +66,16 @@ object PodcastModule {
      *
      * @param context The application Context used for file and system access.
      * @param episodeDao DAO for accessing and updating podcast episode data needed by the download manager.
+     * @param fileNameSanitizer Utility for producing safe on-disk file names for downloaded episodes.
      * @return A configured PodcastDownloadManager instance.
      */
     @Provides
     @Singleton
     fun providePodcastDownloadManager(
         @ApplicationContext context: Context,
-        episodeDao: PodcastEpisodeDao
+        episodeDao: PodcastEpisodeDao,
+        fileNameSanitizer: FileNameSanitizer
     ): PodcastDownloadManager {
-        return PodcastDownloadManager(context, episodeDao)
+        return PodcastDownloadManager(context, episodeDao, fileNameSanitizer)
     }
 }

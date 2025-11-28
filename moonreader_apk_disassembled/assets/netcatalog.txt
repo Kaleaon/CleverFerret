@@ -1,4 +1,0 @@
-gutenberg.org.xml
-feedbooks.com.xml
-mobileread.com.xml
-moonreader.com.xml

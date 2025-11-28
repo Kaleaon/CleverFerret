@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:background="@drawable/bg_background" android:layout_width="fill_parent" android:layout_height="fill_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <ImageView android:id="@id/btn_back" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_back" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" />
-    <ImageView android:id="@id/btn_edit" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_annot_note" android:layout_toRightOf="@id/btn_back" android:layout_alignParentTop="true" />
-    <ImageView android:id="@id/btn_perform" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_perform" android:layout_toRightOf="@id/btn_edit" android:layout_alignParentTop="true" />
-    <ImageView android:id="@id/btn_remove" android:clickable="true" android:layout_width="40.0dip" android:layout_height="40.0dip" android:layout_margin="2.0dip" android:src="@drawable/btn_remove" android:layout_toRightOf="@id/btn_perform" android:layout_alignParentTop="true" />
-</RelativeLayout>
