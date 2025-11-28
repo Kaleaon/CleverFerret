@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
@@ -39,6 +40,12 @@ private fun getMetallicEffectForTheme(palette: ThemePalette): MetallicGradient {
         ThemePalette.CHARCOAL_CHAMPAGNE -> MetallicEffects.Champagne
         ThemePalette.SLATE_GUNMETAL -> MetallicEffects.Gunmetal
         ThemePalette.DEEP_PURPLE_PLATINUM -> MetallicEffects.Silver
+        ThemePalette.PAPER_INK -> MetallicGradient(
+            base = Color(0xFF2C2C2C),
+            highlight = Color(0xFF454545),
+            shadow = Color(0xFF1A1A1A),
+            shimmer = Color(0xFFF0F0EB)
+        )
         ThemePalette.COPPER_BRONZE -> MetallicEffects.Copper
         ThemePalette.AMBER_GOLD -> MetallicEffects.Gold
         ThemePalette.ROSE_BRASS -> MetallicEffects.RoseGold
@@ -72,6 +79,7 @@ fun CleverFerretTheme(
         ThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
         ThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
         ThemePalette.DEEP_PURPLE_PLATINUM -> CleverFerretTheme.DEEP_PURPLE_PLATINUM
+        ThemePalette.PAPER_INK -> CleverFerretTheme.PAPER_INK
         ThemePalette.COPPER_BRONZE -> CleverFerretTheme.COPPER_BRONZE
         ThemePalette.AMBER_GOLD -> CleverFerretTheme.AMBER_GOLD
         ThemePalette.ROSE_BRASS -> CleverFerretTheme.ROSE_BRASS
@@ -110,6 +118,7 @@ fun CleverFerretUnifiedTheme(
         UnifiedThemePalette.CHARCOAL_CHAMPAGNE -> CharcoalChampagneUnified.darkScheme
         UnifiedThemePalette.SLATE_GUNMETAL -> SlateGunmetalUnified.darkScheme
         UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> DeepPurplePlatinumUnified.darkScheme
+        UnifiedThemePalette.PAPER_INK -> PaperInkUnified.lightScheme
     }
 
     val metallicColors = getMetallicEffectForTheme(palette)

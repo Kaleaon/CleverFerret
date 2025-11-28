@@ -23,6 +23,7 @@ fun ThemePalette.toCleverFerretTheme(): CleverFerretTheme {
         ThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
         ThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
         ThemePalette.DEEP_PURPLE_PLATINUM -> CleverFerretTheme.DEEP_PURPLE_PLATINUM
+        ThemePalette.PAPER_INK -> CleverFerretTheme.PAPER_INK
         ThemePalette.COPPER_BRONZE -> CleverFerretTheme.COPPER_BRONZE
         ThemePalette.AMBER_GOLD -> CleverFerretTheme.AMBER_GOLD
         ThemePalette.ROSE_BRASS -> CleverFerretTheme.ROSE_BRASS
@@ -52,6 +53,7 @@ fun UnifiedThemePalette.toCleverFerretTheme(): CleverFerretTheme {
         UnifiedThemePalette.CHARCOAL_CHAMPAGNE -> CleverFerretTheme.CHARCOAL_CHAMPAGNE
         UnifiedThemePalette.SLATE_GUNMETAL -> CleverFerretTheme.SLATE_GUNMETAL
         UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> CleverFerretTheme.DEEP_PURPLE_PLATINUM
+        UnifiedThemePalette.PAPER_INK -> CleverFerretTheme.PAPER_INK
     }
 }
 

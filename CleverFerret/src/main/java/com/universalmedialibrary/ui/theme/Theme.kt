@@ -172,6 +172,7 @@ fun UnifiedThemePalette.toMetallicVariant(): MetallicThemeVariant {
         UnifiedThemePalette.CHARCOAL_CHAMPAGNE -> MetallicThemeVariant.GOLD
         UnifiedThemePalette.SLATE_GUNMETAL -> MetallicThemeVariant.TITANIUM
         UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> MetallicThemeVariant.PLATINUM
+        UnifiedThemePalette.PAPER_INK -> MetallicThemeVariant.TITANIUM
     }
 }
 
@@ -192,5 +193,6 @@ fun UnifiedThemePalette.getColorScheme(darkTheme: Boolean = true): ColorScheme {
         UnifiedThemePalette.CHARCOAL_CHAMPAGNE -> CharcoalChampagneUnified.darkScheme
         UnifiedThemePalette.SLATE_GUNMETAL -> SlateGunmetalUnified.darkScheme
         UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> DeepPurplePlatinumUnified.darkScheme
+        UnifiedThemePalette.PAPER_INK -> PaperInkUnified.lightScheme
     }
 }

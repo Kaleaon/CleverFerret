@@ -430,6 +430,7 @@ enum class ThemePalette {
     CHARCOAL_CHAMPAGNE,
     SLATE_GUNMETAL,
     DEEP_PURPLE_PLATINUM,
+    PAPER_INK,
     // Warm Metallic Themes
     COPPER_BRONZE,
     AMBER_GOLD,
@@ -458,6 +459,7 @@ enum class ThemePalette {
             CHARCOAL_CHAMPAGNE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.CHARCOAL_CHAMPAGNE
             SLATE_GUNMETAL -> com.universalmedialibrary.ui.theme.CleverFerretTheme.SLATE_GUNMETAL
             DEEP_PURPLE_PLATINUM -> com.universalmedialibrary.ui.theme.CleverFerretTheme.DEEP_PURPLE_PLATINUM
+            PAPER_INK -> com.universalmedialibrary.ui.theme.CleverFerretTheme.PAPER_INK
             COPPER_BRONZE -> com.universalmedialibrary.ui.theme.CleverFerretTheme.COPPER_BRONZE
             AMBER_GOLD -> com.universalmedialibrary.ui.theme.CleverFerretTheme.AMBER_GOLD
             ROSE_BRASS -> com.universalmedialibrary.ui.theme.CleverFerretTheme.ROSE_BRASS
