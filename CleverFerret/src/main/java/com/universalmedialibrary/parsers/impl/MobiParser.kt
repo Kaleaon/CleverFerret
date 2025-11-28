@@ -82,7 +82,7 @@ class MobiParser : DocumentParser {
         // MOBI EXTH record type codes (from MOBI format specification)
         val EXTH_TITLE = 503
         val EXTH_AUTHOR = 100
-        val EXTH_CREATOR = 101
+        val EXTH_CREATOR = 108  // Contributor (other creators)
         val EXTH_SUBJECT = 105
         val EXTH_DESCRIPTION = 103
         val EXTH_KEYWORDS = 106

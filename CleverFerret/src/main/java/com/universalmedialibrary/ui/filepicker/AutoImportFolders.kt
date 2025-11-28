@@ -85,7 +85,7 @@ fun AutoImportFoldersScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(folders) { folder: AutoImportFolder ->
+                items(folders) { folder ->
                     AutoImportFolderItem(
                         folder = folder,
                         onToggle = { onToggleFolder(folder.path, !folder.enabled) },

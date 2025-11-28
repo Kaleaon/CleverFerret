@@ -66,6 +66,7 @@ object PodcastModule {
      *
      * @param context The application Context used for file and system access.
      * @param episodeDao DAO for accessing and updating podcast episode data needed by the download manager.
+     * @param fileNameSanitizer Utility for producing safe on-disk file names for downloaded episodes.
      * @return A configured PodcastDownloadManager instance.
      */
     @Provides

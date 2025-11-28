@@ -86,14 +86,9 @@ class PageTurnController(
     
     init {
         if (enableSound) {
-            try {
-                // Load page turn sound (would be in res/raw/page_turn.mp3)
-                // For now, we'll create a simple sound effect
-                // Note: android.R.raw.notification doesn't exist, using system default sound
-                mediaPlayer = null // Sound disabled - add custom sound file to res/raw if needed
-            } catch (e: Exception) {
-                // Sound file not found, continue without sound
-            }
+            // Sound disabled - add custom sound file to res/raw if needed
+            // Example: mediaPlayer = MediaPlayer.create(context, R.raw.page_turn)
+            mediaPlayer = null
         }
         
         if (enableHaptic) {
@@ -251,13 +246,9 @@ fun Modifier.pageTurnGestures(
                 onDragStart = { },
                 onDragEnd = { controller.endDrag(scope) },
                 onDragCancel = { scope.launch { controller.cancelTurn() } },
-                onHorizontalDrag = { change, dragAmount ->
-                    // Note: change.previous doesn't exist in newer API, using change.id instead
-                    if (true) { // Always process drag
-                        controller.startDrag(dragAmount)
-                    } else {
-                        controller.updateDrag(dragAmount)
-                    }
+                onHorizontalDrag = { _, dragAmount ->
+                    // Note: Simplified since change.previous doesn't exist in newer Compose API
+                    controller.updateDrag(dragAmount)
                 }
             )
         }

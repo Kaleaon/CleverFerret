@@ -90,6 +90,8 @@ android {
             excludes += "/META-INF/NOTICE*"
             excludes += "/META-INF/*.md"
             excludes += "/META-INF/*.txt"
+            // Note: Excluding *.properties may remove some library metadata, but is needed to resolve
+            // packaging conflicts. If runtime issues occur, consider being more specific.
             excludes += "/META-INF/*.properties"
         }
     }

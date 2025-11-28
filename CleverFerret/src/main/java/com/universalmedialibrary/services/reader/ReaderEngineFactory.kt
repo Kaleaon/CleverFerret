@@ -54,7 +54,23 @@ class ReaderEngineFactory @Inject constructor(
             "rtf" -> BookFormat.RTF
             "cbt" -> BookFormat.CBT
             "cb7" -> BookFormat.CB7
-            "html", "htm" -> BookFormat.HTML
+            "html" -> BookFormat.HTML
+            "htm" -> BookFormat.HTM
+            "prc" -> BookFormat.PRC
+            "azw" -> BookFormat.AZW
+            "kfx" -> BookFormat.KFX
+            "chm" -> BookFormat.CHM
+            "umd" -> BookFormat.UMD
+            "lit" -> BookFormat.LIT
+            "pdb" -> BookFormat.PDB
+            "rb" -> BookFormat.RB
+            "snb" -> BookFormat.SNB
+            "docx" -> BookFormat.DOCX
+            "doc" -> BookFormat.DOC
+            "odt" -> BookFormat.ODT
+            "md" -> BookFormat.MD
+            "xhtml" -> BookFormat.XHTML
+            "mhtml" -> BookFormat.MHTML
             else -> BookFormat.UNKNOWN
         }
     }
@@ -78,7 +94,20 @@ class ReaderEngineFactory @Inject constructor(
      * Get supported file extensions
      */
     fun getSupportedExtensions(): Set<String> {
-        return setOf("epub", "pdf", "cbz", "cbr", "mobi", "azw3", "djvu", "fb2", "txt", "rtf", "cbt", "cb7", "html", "htm")
+        return setOf(
+            "epub", "pdf",
+            "cbz", "cbr", "cbt", "cb7",
+            "mobi", "azw3",
+            "djvu", "fb2",
+            "txt", "rtf",
+            "html", "htm",
+            "prc", "azw", "kfx",
+            "chm", "umd", "lit",
+            "pdb", "rb", "snb",
+            "docx", "doc", "odt",
+            "md",
+            "xhtml", "mhtml"
+        )
     }
 
     /**

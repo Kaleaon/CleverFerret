@@ -988,7 +988,7 @@ private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<
             SortMode.BY_LOCATION -> filteredFiles.sortedBy { it.absolutePath }
         }
         
-        sortedFiles.map { file ->
+        return sortedFiles.map { file ->
             FileItem(
                 file = file,
                 name = file.name,
@@ -1001,7 +1001,7 @@ private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<
     } catch (e: SecurityException) {
         throw SecurityException("Permission denied: ${e.message}", e)
     } catch (e: Exception) {
-        throw Exception("Error loading files: ${e.message}", e)
+        throw Exception("Error loading files", e)
     }
 }
 
