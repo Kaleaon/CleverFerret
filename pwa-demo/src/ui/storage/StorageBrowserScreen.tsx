@@ -66,10 +66,17 @@ export const StorageBrowserScreen: React.FC = () => {
         <Button
           variant="contained"
           disabled={!selectedPath}
-          onClick={() => {
+          onClick={async () => {
             if (selectedPath) {
-              setSnackbar({ open: true, message: `Selected: ${selectedPath}`, severity: 'success' });
-              // TODO: Process selected file
+              try {
+                // In a real implementation, this would use File System Access API
+                // For now, show a message
+                setSnackbar({ open: true, message: `Selected: ${selectedPath}`, severity: 'success' });
+                // File processing would happen here
+                // navigate('/open', { state: { filePath: selectedPath } });
+              } catch (error) {
+                setSnackbar({ open: true, message: `Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+              }
             }
           }}
         >

@@ -83,7 +83,8 @@ export const PDFReaderScreen: React.FC = () => {
       await renderPage(1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load PDF');
-      console.error('Load PDF error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('PDFReader', 'Failed to load PDF', undefined, err as Error);
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +108,15 @@ export const PDFReaderScreen: React.FC = () => {
     if (pdfDocument && currentPage) {
       renderPage(currentPage);
     }
-  }, [zoom, pdfDocument]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoom]);
+  
+  useEffect(() => {
+    if (pdfDocument) {
+      renderPage(currentPage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pdfDocument, currentPage]);
 
   const handleZoomIn = () => setZoom(Math.min(zoom + 25, 300));
   const handleZoomOut = () => setZoom(Math.max(zoom - 25, 50));

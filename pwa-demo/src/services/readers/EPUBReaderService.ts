@@ -11,8 +11,8 @@ export interface EPUBBook {
   title: string;
   author: string;
   coverUrl?: string;
-  spine: any[];
-  toc: any[];
+  spine: ePub.SpineItem[];
+  toc: ePub.NavigationItem[];
 }
 
 export interface EPUBChapter {
@@ -42,8 +42,8 @@ export class EPUBReaderService {
         title: metadata.title || 'Unknown Title',
         author: metadata.creator || 'Unknown Author',
         coverUrl,
-        spine: book.spine.spineItems,
-        toc: book.navigation.toc,
+        spine: book.spine.spineItems || [],
+        toc: book.navigation?.toc || [],
       };
       
       this.currentBook = epubBook;
@@ -70,15 +70,51 @@ export class EPUBReaderService {
    */
   async renderChapter(book: EPUBBook, spineIndex: number): Promise<string> {
     try {
+      if (spineIndex < 0 || spineIndex >= book.spine.length) {
+        throw new Error('Chapter index out of range');
+      }
+      
       const spineItem = book.spine[spineIndex];
       if (!spineItem) {
         throw new Error('Chapter not found');
       }
       
-      const section = await book.book.load(spineItem.id);
-      const content = await section.load(book.book.load.bind(book.book));
+      // Load the section using epub.js API
+      const section = await book.book.load(spineItem.idref || spineItem.id);
       
-      return content;
+      // Get the HTML content from the section
+      // epub.js sections return content directly or via get()
+      let content: any;
+      try {
+        if (typeof section.get === 'function') {
+          content = await section.get(book.book.load.bind(book.book));
+        } else {
+          content = await section.load(book.book.load.bind(book.book));
+        }
+      } catch {
+        // Try alternative method
+        content = section;
+      }
+      
+      // Handle different content types
+      if (content && typeof content === 'object') {
+        if ('documentElement' in content) {
+          return (content as Document).documentElement.outerHTML;
+        }
+        if ('innerHTML' in content) {
+          return (content as HTMLElement).innerHTML;
+        }
+        if ('textContent' in content) {
+          return (content as HTMLElement).innerHTML || (content as HTMLElement).textContent || '';
+        }
+        // If it's a Section object, try to extract HTML
+        if ((content as any).html) {
+          return (content as any).html;
+        }
+      }
+      
+      // Fallback: try to get as string
+      return typeof content === 'string' ? content : String(content || '');
     } catch (error) {
       throw new Error(`Failed to render chapter: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -93,12 +129,24 @@ export class EPUBReaderService {
     }
     
     const spineItem = book.spine[index];
-    const tocItem = book.toc.find((item: any) => item.href === spineItem.href);
+    
+    // Try to find matching TOC item
+    let tocItem: ePub.NavigationItem | undefined;
+    try {
+      tocItem = book.toc.find((item: ePub.NavigationItem) => {
+        const itemHref = item.href || (item as any).id;
+        const spineHref = (spineItem as any).href || spineItem.idref || spineItem.id;
+        if (!itemHref || !spineHref) return false;
+        return itemHref === spineHref || itemHref.includes(spineHref) || spineHref.includes(itemHref);
+      });
+    } catch {
+      // If TOC matching fails, continue without it
+    }
     
     return {
-      id: spineItem.id,
-      title: tocItem?.label || `Chapter ${index + 1}`,
-      href: spineItem.href,
+      id: spineItem.id || spineItem.idref || `spine-${index}`,
+      title: tocItem?.label || (tocItem as any)?.title || `Chapter ${index + 1}`,
+      href: (spineItem as any).href || spineItem.idref || '',
     };
   }
 
@@ -113,8 +161,8 @@ export class EPUBReaderService {
    * Get table of contents
    */
   getTableOfContents(book: EPUBBook): EPUBChapter[] {
-    return book.toc.map((item: any, index: number) => ({
-      id: item.id || `toc-${index}`,
+    return book.toc.map((item: ePub.NavigationItem, index: number) => ({
+      id: (item as any).id || `toc-${index}`,
       title: item.label,
       href: item.href,
     }));
@@ -123,12 +171,13 @@ export class EPUBReaderService {
   /**
    * Search within the book
    */
-  async search(book: EPUBBook, query: string): Promise<any[]> {
+  async search(book: EPUBBook, query: string): Promise<unknown[]> {
     try {
       const results = await book.book.search(query);
-      return results;
+      return results as unknown[];
     } catch (error) {
-      console.error('Search error:', error);
+      const { logger } = await import('../logging');
+      logger.warn('EPUBReader', 'Search error', undefined, error as Error);
       return [];
     }
   }

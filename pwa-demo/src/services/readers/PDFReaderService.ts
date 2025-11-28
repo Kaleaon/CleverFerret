@@ -22,7 +22,7 @@ export interface PDFPage {
   pageNumber: number;
   width: number;
   height: number;
-  render: (options: any) => Promise<HTMLCanvasElement>;
+  render: (options?: { scale?: number; canvas?: HTMLCanvasElement }) => Promise<HTMLCanvasElement>;
 }
 
 export class PDFReaderService {
@@ -77,9 +77,9 @@ export class PDFReaderService {
       pageNumber,
       width: viewport.width,
       height: viewport.height,
-      render: async (options: { scale?: number; canvas?: HTMLCanvasElement }) => {
+      render: async (options: { scale?: number; canvas?: HTMLCanvasElement } = {}) => {
         const scale = options.scale || 1.5;
-        const viewport = page.getViewport({ scale });
+        const scaledViewport = page.getViewport({ scale });
         
         const canvas = options.canvas || document.createElement('canvas');
         const context = canvas.getContext('2d');
@@ -88,15 +88,16 @@ export class PDFReaderService {
           throw new Error('Could not get canvas context');
         }
         
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+        canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
         
         const renderContext = {
           canvasContext: context,
-          viewport: viewport,
+          viewport: scaledViewport,
         };
         
-        await page.render(renderContext).promise;
+        const renderTask = page.render(renderContext);
+        await renderTask.promise;
         return canvas;
       },
     };

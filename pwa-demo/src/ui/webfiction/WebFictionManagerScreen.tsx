@@ -126,7 +126,8 @@ export const WebFictionManagerScreen: React.FC = () => {
           downloaded++;
           setSnackbar({ open: true, message: `Downloading: ${story.title}... (${downloaded}/${Math.min(10, storyInfo.chapters.length)})`, severity: 'info' });
         } catch (err) {
-          console.error(`Failed to download chapter ${chapter.number}:`, err);
+          const { logger } = await import('../../services/logging');
+          logger.warn('WebFiction', `Failed to download chapter ${chapter.number}`, undefined, err as Error);
         }
       }
       
@@ -148,11 +149,37 @@ export const WebFictionManagerScreen: React.FC = () => {
   const handleUpdateStory = async (story: Story) => {
     setLoading(true);
     try {
-      // TODO: Check for new chapters
       setSnackbar({ open: true, message: `Checking for updates: ${story.title}...`, severity: 'info' });
-      // Simulate update check
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setSnackbar({ open: true, message: 'No new chapters available', severity: 'info' });
+      
+      const { webFictionParser } = await import('../../services/webfiction/WebFictionParser');
+      const { db } = await import('../../services/database-complete');
+      
+      // Parse story to get current chapter count
+      const storyInfo = await webFictionParser.parseStory(story.url);
+      
+      const downloadedStory = await db.downloadedStories.get(story.url);
+      if (!downloadedStory) {
+        setSnackbar({ open: true, message: 'Story not found in database', severity: 'error' });
+        return;
+      }
+      
+      const newChapters = storyInfo.chapterCount - (downloadedStory.lastKnownChapters || 0);
+      
+      if (newChapters > 0) {
+        await db.downloadedStories.update(story.url, {
+          hasUpdates: true,
+          lastChecked: Date.now(),
+          totalChapters: storyInfo.chapterCount,
+        });
+        setSnackbar({ open: true, message: `Found ${newChapters} new chapter(s)!`, severity: 'success' });
+      } else {
+        await db.downloadedStories.update(story.url, {
+          hasUpdates: false,
+          lastChecked: Date.now(),
+        });
+        setSnackbar({ open: true, message: 'No new chapters available', severity: 'info' });
+      }
+      
       loadStories();
     } catch (error) {
       setSnackbar({ open: true, message: `Failed to check updates: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });

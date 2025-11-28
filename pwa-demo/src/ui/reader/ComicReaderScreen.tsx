@@ -85,7 +85,8 @@ export const ComicReaderScreen: React.FC = () => {
       setCurrentPage(1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load comic');
-      console.error('Load comic error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('ComicReader', 'Failed to load comic', undefined, err as Error);
     } finally {
       setIsLoading(false);
     }

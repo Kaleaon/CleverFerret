@@ -74,10 +74,42 @@ export const MediaOpenScreen: React.FC = () => {
     navigate('/storage');
   };
 
-  const handleOpenUrl = () => {
-    if (url.trim()) {
-      // TODO: Implement URL opening
-      setError('URL opening not yet implemented');
+  const handleOpenUrl = async () => {
+    if (!url.trim()) return;
+    
+    setProcessing(true);
+    setError(null);
+    
+    try {
+      // Try to fetch the URL
+      const response = await fetch(url, { method: 'HEAD' });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type') || '';
+      
+      // If it's a direct file URL, download it
+      if (contentType.includes('epub') || contentType.includes('pdf') || contentType.includes('application')) {
+        const fileResponse = await fetch(url);
+        const blob = await fileResponse.blob();
+        const fileName = url.split('/').pop() || 'download';
+        const file = new File([blob], fileName, { type: contentType });
+        
+        const result = processFileHandle(file);
+        if (result.success && result.file && result.route) {
+          navigate(result.route, { state: { file: result.file } });
+        } else {
+          setError(result.error || 'Failed to process file');
+        }
+      } else {
+        setError('URL does not point to a supported media file');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to open URL');
+    } finally {
+      setProcessing(false);
     }
   };
 

@@ -165,10 +165,45 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
       const blob = await response.blob();
       const file = new File([blob], `${entry.title}.epub`, { type: blob.type });
       
-      // Import into library (would need library selection)
-      setSnackbar({ open: true, message: `Downloaded: ${entry.title}`, severity: 'success' });
+      // Get default library or first available library
+      const { db } = await import('../../services/database-complete');
+      const libraries = await db.libraries.where('isActive').equals(1).toArray();
       
-      // TODO: Add to library
+      if (libraries.length === 0) {
+        setSnackbar({ open: true, message: 'No active library found. Please create a library first.', severity: 'warning' });
+        return;
+      }
+      
+      const library = libraries[0];
+      
+      // Read file as ArrayBuffer for storage
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Add to media items
+      const itemId = await db.mediaItems.add({
+        libraryId: library.libraryId,
+        fileName: file.name,
+        filePath: undefined,
+        fileHash: undefined,
+        fileData: new Uint8Array(arrayBuffer),
+        mediaType: 'BOOK',
+        dateAdded: Date.now(),
+        lastScanned: Date.now(),
+        thumbnailPath: entry.coverUrl,
+      });
+      
+      // Add metadata
+      await db.metadataCommon.add({
+        itemId,
+        title: entry.title,
+        authors: entry.author ? [entry.author] : [],
+        description: entry.summary,
+        thumbnailPath: entry.coverUrl,
+        isFavorite: false,
+        isDownloaded: true,
+      });
+      
+      setSnackbar({ open: true, message: `Downloaded and added to library: ${entry.title}`, severity: 'success' });
     } catch (error) {
       setSnackbar({ open: true, message: `Failed to download: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
     } finally {

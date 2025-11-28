@@ -129,7 +129,8 @@ export const EReaderScreen: React.FC = () => {
       await loadChapter(0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load book');
-      console.error('Load book error:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('EReader', 'Failed to load book', undefined, err as Error);
     } finally {
       setIsLoading(false);
     }

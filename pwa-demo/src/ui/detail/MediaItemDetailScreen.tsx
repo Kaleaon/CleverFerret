@@ -127,8 +127,13 @@ export const MediaItemDetailScreen: React.FC = () => {
         if (mediaItem.mediaType === 'BOOK') {
           await db.metadataBook.put({
             itemId: parseInt(itemId),
-            ...fetchedMetadata,
+            isbn: fetchedMetadata.isbn,
+            publishedDate: fetchedMetadata.publishedDate,
+            publisher: fetchedMetadata.publisher,
+            pageCount: fetchedMetadata.pageCount,
+            language: fetchedMetadata.language,
             isRead: false,
+            series: undefined,
           });
         }
         
@@ -138,8 +143,8 @@ export const MediaItemDetailScreen: React.FC = () => {
           authors: fetchedMetadata.authors,
           description: fetchedMetadata.description,
           thumbnailPath: fetchedMetadata.thumbnailUrl,
-          isFavorite: false,
-          isDownloaded: false,
+          isFavorite: metadata?.isFavorite || false,
+          isDownloaded: metadata?.isDownloaded || false,
         });
 
         // Reload media item
@@ -149,7 +154,8 @@ export const MediaItemDetailScreen: React.FC = () => {
         setSnackbar({ open: true, message: 'No metadata found', severity: 'warning' });
       }
     } catch (err) {
-      console.error('Failed to fetch metadata:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('MediaItemDetail', 'Failed to fetch metadata', undefined, err as Error);
       setSnackbar({ open: true, message: `Failed to fetch metadata: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
     } finally {
       setFetchingMetadata(false);
@@ -162,9 +168,11 @@ export const MediaItemDetailScreen: React.FC = () => {
     try {
       await collectionRepository.addItem(collectionId, parseInt(itemId));
       setShowCollectionDialog(false);
-      alert('Added to collection successfully');
+      setSnackbar({ open: true, message: 'Added to collection successfully', severity: 'success' });
     } catch (err) {
-      console.error('Failed to add to collection:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('MediaItemDetail', 'Failed to add to collection', undefined, err as Error);
+      setSnackbar({ open: true, message: `Failed to add to collection: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
     }
   };
 

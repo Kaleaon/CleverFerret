@@ -114,8 +114,9 @@ export const ModernAudioPlayerScreen: React.FC = () => {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().catch(error => {
-        console.error('Playback failed:', error);
+      audioRef.current.play().catch(async (error) => {
+        const { logger } = await import('../../services/logging');
+        logger.error('AudioPlayer', 'Playback failed', undefined, error as Error);
       });
       setIsPlaying(true);
     }

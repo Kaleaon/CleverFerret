@@ -135,11 +135,64 @@ export const LibraryManagementScreen: React.FC = () => {
 
   const handleRefreshMetadata = async () => {
     if (!library) return;
+    
     setSnackbar({ open: true, message: 'Metadata refresh started...' });
-    // TODO: Implement actual metadata refresh
-    setTimeout(() => {
-      setSnackbar({ open: true, message: 'Metadata refresh completed' });
-    }, 2000);
+    
+    try {
+      const { metadataService } = await import('../../services/metadata/MetadataService');
+      const { db } = await import('../../services/database-complete');
+      
+      // Get all media items in this library
+      const items = await db.mediaItems
+        .where('libraryId')
+        .equals(library.libraryId)
+        .toArray();
+      
+      if (items.length === 0) {
+        setSnackbar({ open: true, message: 'No items to refresh' });
+        return;
+      }
+      
+      let refreshed = 0;
+      for (const item of items) {
+        try {
+          const metadata = await metadataService.fetchMetadata(item.fileName);
+          if (metadata) {
+            await db.metadataCommon.put({
+              itemId: item.itemId,
+              title: metadata.title,
+              authors: metadata.authors,
+              description: metadata.description,
+              thumbnailPath: metadata.thumbnailUrl,
+              isFavorite: false,
+              isDownloaded: false,
+            });
+            
+            if (item.mediaType === 'BOOK') {
+              await db.metadataBook.put({
+                itemId: item.itemId,
+                isbn: metadata.isbn,
+                publishedDate: metadata.publishedDate,
+                publisher: metadata.publisher,
+                pageCount: metadata.pageCount,
+                language: metadata.language,
+                isRead: false,
+                series: undefined,
+              });
+            }
+            
+            refreshed++;
+          }
+          } catch (err) {
+          const { logger } = await import('../../services/logging');
+          logger.warn('LibraryManagement', `Failed to refresh metadata for ${item.fileName}`, undefined, err as Error);
+        }
+      }
+      
+      setSnackbar({ open: true, message: `Metadata refresh completed: ${refreshed}/${items.length} items updated` });
+    } catch (error) {
+      setSnackbar({ open: true, message: `Error refreshing metadata: ${error instanceof Error ? error.message : 'Unknown error'}` });
+    }
   };
 
   const handleDeleteLibrary = async () => {

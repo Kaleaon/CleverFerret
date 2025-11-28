@@ -24,6 +24,8 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -51,6 +53,7 @@ export const ComicReaderScreen: React.FC = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [showDownloadDialog, setShowDownloadDialog] = useState(false);
   const [downloadRange, setDownloadRange] = useState({ start: 1, end: 10 });
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   useEffect(() => {
     loadComic();
@@ -70,7 +73,8 @@ export const ComicReaderScreen: React.FC = () => {
       // For now, this is a placeholder
       setLoading(false);
     } catch (error) {
-      console.error('Error loading comic:', error);
+      const { logger } = await import('../services/logging');
+      logger.error('ComicReader', 'Error loading comic', undefined, error as Error);
       setLoading(false);
     }
   };
@@ -126,11 +130,12 @@ export const ComicReaderScreen: React.FC = () => {
       );
       setDownloading(false);
       setShowDownloadDialog(false);
-      alert('Download complete!');
+      setSnackbar({ open: true, message: 'Download complete!', severity: 'success' });
     } catch (error) {
-      console.error('Error downloading strips:', error);
+      const { logger } = await import('../services/logging');
+      logger.error('ComicReader', 'Error downloading strips', undefined, error as Error);
       setDownloading(false);
-      alert('Download failed. Please try again.');
+      setSnackbar({ open: true, message: 'Download failed. Please try again.', severity: 'error' });
     }
   };
 
@@ -143,7 +148,8 @@ export const ComicReaderScreen: React.FC = () => {
         url: currentStrip.url,
       });
     } catch (error) {
-      console.error('Error sharing:', error);
+      const { logger } = await import('../services/logging');
+      logger.error('ComicReader', 'Error sharing', undefined, error as Error);
     }
   };
 
@@ -342,6 +348,17 @@ export const ComicReaderScreen: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
