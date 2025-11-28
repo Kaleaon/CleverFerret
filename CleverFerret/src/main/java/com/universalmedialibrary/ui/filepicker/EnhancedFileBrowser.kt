@@ -989,18 +989,19 @@ private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<
         }
         
         return sortedFiles.map { file ->
-        FileItem(
-            file = file,
-            name = file.name,
-            isDirectory = file.isDirectory,
-            size = file.length(),
-            modifiedDate = file.lastModified(),
-            fileType = FileType.fromFile(file)
-        )
+            FileItem(
+                file = file,
+                name = file.name,
+                isDirectory = file.isDirectory,
+                size = file.length(),
+                modifiedDate = file.lastModified(),
+                fileType = FileType.fromFile(file)
+            )
+        }
     } catch (e: SecurityException) {
         throw SecurityException("Permission denied: ${e.message}", e)
     } catch (e: Exception) {
-        throw Exception("Error loading files: ${e.message}", e)
+        throw Exception("Error loading files", e)
     }
 }
 

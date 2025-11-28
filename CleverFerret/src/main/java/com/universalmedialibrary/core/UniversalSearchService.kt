@@ -3,6 +3,8 @@ package com.universalmedialibrary.core
 import com.universalmedialibrary.core.FormatRegistry.FormatInfo
 import com.universalmedialibrary.core.TagRegistry.UnifiedTagInfo
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -70,7 +72,7 @@ class UniversalSearchService @Inject constructor(
                 }
             }
         } else {
-            kotlinx.coroutines.flow.flowOf(formatResults)
+            flowOf(formatResults)
         }
     }
     
