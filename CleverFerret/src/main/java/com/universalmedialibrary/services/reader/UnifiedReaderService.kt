@@ -210,17 +210,7 @@ class UnifiedReaderService @Inject constructor(
 
                     // KFX format (not supported by ParserFactory currently)
                     "kfx" -> {
-                        try {
-                            // KFX usually encrypted or requires specific parser.
-                            // Reusing old logic or error message.
-                            val content = extractMobiContent(filePath)
-                            ReaderType.Text(
-                                filePath = filePath,
-                                content = content
-                            )
-                        } catch (e: Exception) {
-                            ReaderType.Error("Failed to open KFX: ${e.message}")
-                        }
+                         ReaderType.Error("KFX format not currently supported")
                     }
 
                     else -> {
@@ -300,40 +290,7 @@ class UnifiedReaderService @Inject constructor(
             content.replace(Regex("<[^>]+>"), " ").replace(Regex("\\s+"), " ").trim()
         }
     }
-    
-    private fun extractMobiContent(filePath: String): String {
-        // TODO: Integrate lib-mobi for proper MOBI/AZW/AZW3 parsing
-        // Recommended: Use lib-mobi (pure Java/Kotlin library)
-        // Reference: https://github.com/readium/lib-mobi
-        // Alternative: Apache Tika for basic extraction
-        
-        val file = File(filePath)
-        return try {
-            // Placeholder - replace with lib-mobi implementation
-            "MOBI file detected. Full MOBI parsing requires lib-mobi library.\n" +
-            "File: ${file.name}\n" +
-            "Size: ${file.length()} bytes\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract MOBI content: ${e.message}")
-        }
-    }
-    
-    private fun extractCHMContent(filePath: String): String {
-        // TODO: Integrate Apache Tika for CHM extraction
-        // Recommended: Use Apache Tika (supports CHM via chmlib wrapper)
-        // Reference: https://tika.apache.org/
-        // Alternative: Reference FBReader or CoolReader implementations
-        
-        return try {
-            "CHM file detected. CHM extraction requires Apache Tika library.\n" +
-            "File: ${File(filePath).name}\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract CHM content: ${e.message}")
-        }
-    }
-    
+
     private fun extractUMDContent(filePath: String): String {
         // UMD is a proprietary format
         return try {
@@ -343,80 +300,7 @@ class UnifiedReaderService @Inject constructor(
             throw Exception("Failed to extract UMD content: ${e.message}")
         }
     }
-    
-    private fun extractDocxContent(filePath: String): String {
-        // TODO: Integrate Apache POI for proper DOCX extraction
-        // Recommended: Use Apache POI XWPFWordExtractor
-        // Reference: https://poi.apache.org/
-        
-        // Fallback: Basic XML extraction (current implementation)
-        return try {
-            ZipFile(filePath).use { zipFile ->
-                zipFile.getEntry("word/document.xml")?.let { documentEntry ->
-                    zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                        .replace(Regex("<[^>]+>"), " ")
-                        .replace(Regex("\\s+"), " ")
-                        .trim()
-                } ?: "Could not extract content from DOCX file. Consider using Apache POI for better extraction."
-            }
-        } catch (e: Exception) {
-            throw Exception("Failed to extract DOCX content: ${e.message}. Consider using Apache POI.")
-        }
-    }
-    
-    private fun extractDocContent(filePath: String): String {
-        // TODO: Integrate Apache POI for DOC (legacy) extraction
-        // Recommended: Use Apache POI HWPFWordExtractor
-        // Reference: https://poi.apache.org/
-        
-        return try {
-            "DOC file detected. DOC extraction requires Apache POI library.\n" +
-            "File: ${File(filePath).name}\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract DOC content: ${e.message}")
-        }
-    }
-    
-    private fun extractOdtContent(filePath: String): String {
-        // TODO: Integrate Apache Tika for proper ODT extraction
-        // Recommended: Use Apache Tika (better ODT parsing)
-        // Reference: https://tika.apache.org/
-        
-        // Fallback: Basic XML extraction (current implementation)
-        return try {
-            ZipFile(filePath).use { zipFile ->
-                zipFile.getEntry("content.xml")?.let { documentEntry ->
-                    zipFile.getInputStream(documentEntry).bufferedReader().use { it.readText() }
-                        .replace(Regex("<[^>]+>"), " ")
-                        .replace(Regex("\\s+"), " ")
-                        .trim()
-                } ?: "Could not extract content from ODT file. Consider using Apache Tika for better extraction."
-            }
-        } catch (e: Exception) {
-            throw Exception("Failed to extract ODT content: ${e.message}. Consider using Apache Tika.")
-        }
-    }
-    
-    private fun extractRtfContent(filePath: String): String {
-        // TODO: Integrate Apache Tika for proper RTF extraction
-        // Recommended: Use Apache Tika (better RTF parsing)
-        // Reference: https://tika.apache.org/
-        // Alternative: Reference FBReader's RTF implementation
-        
-        // Fallback: Basic RTF control code removal (current implementation)
-        return try {
-            val content = File(filePath).readText()
-            // Remove RTF control codes (basic approach)
-            content.replace(Regex("\\\\[a-z]+\\d*"), " ")
-                .replace(Regex("\\{[^}]*\\}"), " ")
-                .replace(Regex("\\s+"), " ")
-                .trim()
-        } catch (e: Exception) {
-            throw Exception("Failed to extract RTF content: ${e.message}. Consider using Apache Tika.")
-        }
-    }
-    
+
     private fun extractMhtmlContent(filePath: String): String {
         // MHTML is MIME-encoded HTML
         return try {
@@ -427,66 +311,6 @@ class UnifiedReaderService @Inject constructor(
             match?.groupValues?.getOrNull(1) ?: content
         } catch (e: Exception) {
             throw Exception("Failed to extract MHTML content: ${e.message}")
-        }
-    }
-    
-    private fun extractLitContent(filePath: String): String {
-        // TODO: Integrate libe-book via JNI for LIT extraction
-        // Recommended: Use libe-book (C++) via JNI
-        // Reference: CoolReader implementation
-        // See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide
-        
-        return try {
-            "LIT file detected. LIT extraction requires libe-book library (C++ via JNI).\n" +
-            "File: ${File(filePath).name}\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract LIT content: ${e.message}")
-        }
-    }
-    
-    private fun extractPdbContent(filePath: String): String {
-        // TODO: Integrate libe-book via JNI for PDB extraction
-        // Recommended: Use libe-book (C++) via JNI
-        // Reference: CoolReader implementation
-        // See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide
-        
-        return try {
-            "PDB file detected. PDB extraction requires libe-book library (C++ via JNI).\n" +
-            "File: ${File(filePath).name}\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract PDB content: ${e.message}")
-        }
-    }
-    
-    private fun extractRbContent(filePath: String): String {
-        // TODO: Integrate libe-book via JNI for RB extraction
-        // Recommended: Use libe-book (C++) via JNI
-        // Reference: CoolReader implementation
-        // See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide
-        
-        return try {
-            "RB file detected. RB extraction requires libe-book library (C++ via JNI).\n" +
-            "File: ${File(filePath).name}\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract RB content: ${e.message}")
-        }
-    }
-    
-    private fun extractSnbContent(filePath: String): String {
-        // TODO: Integrate libe-book via JNI for SNB extraction
-        // Recommended: Use libe-book (C++) via JNI
-        // Reference: CoolReader implementation
-        // See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide
-        
-        return try {
-            "SNB file detected. SNB extraction requires libe-book library (C++ via JNI).\n" +
-            "File: ${File(filePath).name}\n" +
-            "See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide."
-        } catch (e: Exception) {
-            throw Exception("Failed to extract SNB content: ${e.message}")
         }
     }
 

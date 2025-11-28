@@ -750,6 +750,25 @@ private fun ReadingSettingsSheet(
                         onClick = { onBackgroundChange(Color.White, Color.Black) }
                     )
                 }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ThemeButton(
+                        name = "Paper",
+                        backgroundColor = Color(0xFFF5F5DC), // Beige/Cream
+                        textColor = Color(0xFF2C2C2C),
+                        isSelected = backgroundColor == Color(0xFFF5F5DC),
+                        onClick = { onBackgroundChange(Color(0xFFF5F5DC), Color(0xFF2C2C2C)) }
+                    )
+                    ThemeButton(
+                        name = "OLED",
+                        backgroundColor = Color.Black,
+                        textColor = Color(0xFFB0B0B0),
+                        isSelected = backgroundColor == Color.Black,
+                        onClick = { onBackgroundChange(Color.Black, Color(0xFFB0B0B0)) }
+                    )
+                }
             }
 
             // Brightness
