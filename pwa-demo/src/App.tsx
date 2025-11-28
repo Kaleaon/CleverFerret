@@ -77,6 +77,7 @@ import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { initializeDatabase } from './services/database-complete';
 import { useAppStore } from './store/app-store';
 import { getAllUnifiedThemes } from './themes/unified-themes';
+import { processFileHandle, checkForFileLaunch } from './services/fileHandler';
 
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
@@ -86,6 +87,37 @@ const AppContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showSearchBar, setShowSearchBar] = React.useState(true);
   const [lastScrollY, setLastScrollY] = React.useState(0);
+
+  // Handle file opening on app launch
+  React.useEffect(() => {
+    // Check for file launch
+    const fileHandle = checkForFileLaunch();
+    if (fileHandle) {
+      navigate('/open', { state: { file: fileHandle } });
+    }
+
+    // Listen for file opening events (when app is already open)
+    const handleFileOpen = (event: Event) => {
+      // This would be triggered by the File System Access API or file handlers
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail?.files) {
+        const file = customEvent.detail.files[0];
+        if (file) {
+          const result = processFileHandle(file);
+          if (result.success && result.file && result.route) {
+            navigate(result.route, { state: { file: result.file } });
+          } else {
+            navigate('/open', { state: { file: result.file, error: result.error } });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('fileopen', handleFileOpen as EventListener);
+    return () => {
+      window.removeEventListener('fileopen', handleFileOpen as EventListener);
+    };
+  }, [navigate]);
 
   // Hide search bar on scroll down, show on scroll up (mobile only)
   React.useEffect(() => {
