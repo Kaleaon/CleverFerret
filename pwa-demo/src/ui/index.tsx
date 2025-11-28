@@ -135,3 +135,6 @@ export { default as UniversalMediaLibraryScreen } from './universal/UniversalMed
 // Video
 export { default as UniversalVideoPlayerScreen } from './video/UniversalVideoPlayerScreen';
 export { default as VideoLibraryScreen } from './video/VideoLibraryScreen';
+
+// Error Pages
+export { default as NotFoundScreen } from './NotFoundScreen';

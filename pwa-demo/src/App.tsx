@@ -60,6 +60,7 @@ import {
   DocumentEditorScreen,
   DocumentReaderScreen,
 } from './ui';
+import { NotFoundScreen } from './ui/NotFoundScreen';
 
 // Import existing screens
 import { MediaViewerScreen } from './components/MediaViewerScreen';
@@ -297,7 +298,7 @@ const AppContent: React.FC = () => {
           <Route path="/theme_preview" element={<ThemePreviewScreen />} />
           
           {/* Fallback */}
-          <Route path="*" element={<div style={{ padding: 20 }}>Page Not Found</div>} />
+          <Route path="*" element={<NotFoundScreen />} />
         </Routes>
 
         {/* Global Now Playing Bar */}
