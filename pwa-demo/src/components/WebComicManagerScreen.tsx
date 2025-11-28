@@ -8,8 +8,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  AppBar,
-  Toolbar,
   IconButton,
   Typography,
   TextField,
@@ -139,19 +137,18 @@ export const WebComicManagerScreen: React.FC = () => {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Web Comic Manager
-          </Typography>
-          <IconButton color="inherit" onClick={() => setShowExamples(true)}>
-            <Public />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <IconButton onClick={() => navigate('/downloads')} sx={{ mr: 1 }}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
+          Web Comic Manager
+        </Typography>
+        <IconButton onClick={() => setShowExamples(true)}>
+          <Public />
+        </IconButton>
+      </Box>
 
       <Box sx={{ p: 2 }}>
         {error && (

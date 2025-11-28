@@ -47,6 +47,8 @@ import {
   MaintenanceScreen,
   VisualizerScreen,
   SearchScreen,
+  DownloadsManagerScreen,
+  WebFictionManagerScreen,
 } from './ui';
 
 // Import existing screens
@@ -55,6 +57,7 @@ import { MetadataEditorScreen } from './components/MetadataEditorScreen';
 import { ServerIntegrationScreen } from './components/ServerIntegrationScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ThemePreviewScreen } from './components/ThemePreviewScreen';
+import { WebComicManagerScreen } from './components/WebComicManagerScreen';
 
 // Import responsive navigation
 import { ResponsiveNavigation } from './components/ResponsiveNavigation';
@@ -195,6 +198,11 @@ const AppContent: React.FC = () => {
           
           {/* Search */}
           <Route path="/search" element={<SearchScreen />} />
+          
+          {/* Downloads */}
+          <Route path="/downloads" element={<DownloadsManagerScreen />} />
+          <Route path="/downloads/webfiction" element={<WebFictionManagerScreen />} />
+          <Route path="/downloads/comics" element={<WebComicManagerScreen />} />
           
           {/* Settings */}
           <Route path="/settings" element={<SettingsMainScreen />} />
