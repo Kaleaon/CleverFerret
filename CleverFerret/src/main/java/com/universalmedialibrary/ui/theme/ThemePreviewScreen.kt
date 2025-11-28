@@ -373,6 +373,7 @@ private fun getThemeDescription(palette: ThemePalette): String = when (palette) 
     ThemePalette.CHARCOAL_CHAMPAGNE -> "Charcoal + Champagne • Sophisticated"
     ThemePalette.SLATE_GUNMETAL -> "Slate + Gunmetal • Modern"
     ThemePalette.DEEP_PURPLE_PLATINUM -> "Deep Purple + Platinum • Premium"
+    ThemePalette.PAPER_INK -> "Paper White + Ink Black • Minimalist Reader"
     ThemePalette.COPPER_BRONZE -> "Copper + Bronze • Warm & Rich"
     ThemePalette.AMBER_GOLD -> "Amber + Gold • Luminous"
     ThemePalette.ROSE_BRASS -> "Rose + Brass • Romantic"
