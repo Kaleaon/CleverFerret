@@ -9,8 +9,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  AppBar,
-  Toolbar,
   IconButton,
   Typography,
   List,
@@ -54,23 +52,22 @@ export const StorageBrowserScreen: React.FC = () => {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Browse Storage
-          </Typography>
-          <Button
-            color="inherit"
-            disabled={!selectedPath}
-            onClick={() => selectedPath && alert(`Selected: ${selectedPath}`)}
-          >
-            Select
-          </Button>
-        </Toolbar>
-      </AppBar>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
+          File Browser
+        </Typography>
+        <Button
+          variant="contained"
+          disabled={!selectedPath}
+          onClick={() => selectedPath && alert(`Selected: ${selectedPath}`)}
+        >
+          Select
+        </Button>
+      </Box>
 
       <Box sx={{ p: 2, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Breadcrumbs>

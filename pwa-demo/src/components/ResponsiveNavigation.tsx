@@ -46,6 +46,8 @@ import {
   Tv as TvIcon,
   Folder as FolderIcon,
   Download as DownloadIcon,
+  Storage as StorageIcon,
+  BarChart as StatisticsIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { libraryRepository } from '../data/repository';
@@ -72,6 +74,9 @@ const navItems: NavItem[] = [
   { id: 'documents', label: 'Documents', icon: <DocumentsIcon />, path: '/library/7', showInBottom: false },
   { id: 'collections', label: 'Collections', icon: <CollectionsIcon />, path: '/collections', showInBottom: false },
   { id: 'downloads', label: 'Downloads', icon: <DownloadIcon />, path: '/downloads', showInBottom: false },
+  { id: 'storage', label: 'Storage', icon: <StorageIcon />, path: '/storage', showInBottom: false },
+  { id: 'opds', label: 'OPDS', icon: <BooksIcon />, path: '/opds', showInBottom: false },
+  { id: 'statistics', label: 'Statistics', icon: <StatisticsIcon />, path: '/statistics', showInBottom: false },
   { id: 'search', label: 'Search', icon: <SearchIcon />, path: '/search', showInBottom: false },
   { id: 'settings', label: 'Settings', icon: <SettingsIcon />, path: '/settings', showInBottom: false },
 ];

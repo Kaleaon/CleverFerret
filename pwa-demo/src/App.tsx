@@ -49,6 +49,16 @@ import {
   SearchScreen,
   DownloadsManagerScreen,
   WebFictionManagerScreen,
+  StorageBrowserScreen,
+  OPDSCatalogBrowserScreen,
+  OpdsSettingsScreen,
+  ReadingStatisticsScreen,
+  StorageOrganizerScreen,
+  NetworkStorageSettingsScreen,
+  TtsProviderSettingsScreen,
+  MediaOpenScreen,
+  DocumentEditorScreen,
+  DocumentReaderScreen,
 } from './ui';
 
 // Import existing screens
@@ -225,6 +235,28 @@ const AppContent: React.FC = () => {
           
           {/* Visualizer */}
           <Route path="/visualizer" element={<VisualizerScreen />} />
+          
+          {/* Storage & Files */}
+          <Route path="/storage" element={<StorageBrowserScreen />} />
+          <Route path="/storage/organizer" element={<StorageOrganizerScreen />} />
+          <Route path="/storage/network" element={<NetworkStorageSettingsScreen />} />
+          
+          {/* OPDS */}
+          <Route path="/opds" element={<OPDSCatalogBrowserScreen />} />
+          <Route path="/settings/opds" element={<OpdsSettingsScreen />} />
+          
+          {/* Statistics */}
+          <Route path="/statistics" element={<ReadingStatisticsScreen />} />
+          
+          {/* TTS */}
+          <Route path="/settings/tts" element={<TtsProviderSettingsScreen />} />
+          
+          {/* Media Open */}
+          <Route path="/open" element={<MediaOpenScreen />} />
+          
+          {/* Documents */}
+          <Route path="/document/edit/:docId?" element={<DocumentEditorScreen />} />
+          <Route path="/document/:docId" element={<DocumentReaderScreen />} />
           
           {/* Metadata */}
           <Route path="/metadata/:itemId" element={<MetadataEditorScreen />} />
