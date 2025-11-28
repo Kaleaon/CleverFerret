@@ -7,7 +7,7 @@
  * - Mobile (<960px): Bottom navigation + drawer
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Box,
@@ -25,6 +25,8 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -42,8 +44,11 @@ import {
   Search as SearchIcon,
   GraphicEq as VisualizerIcon,
   Tv as TvIcon,
+  Folder as FolderIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { libraryRepository } from '../data/repository';
+import type { Library } from '../data/local/entity';
 
 interface NavItem {
   id: string;
@@ -80,11 +85,31 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
   const navigate = useNavigate();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [libraries, setLibraries] = useState<Library[]>([]);
+  const [libraryTabValue, setLibraryTabValue] = useState(0);
   
   // Responsive breakpoints
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.between('md', 'lg'));
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
+
+  // Load libraries for bottom navigation
+  useEffect(() => {
+    const loadLibraries = async () => {
+      const libs = await libraryRepository.getAllActiveLibraries();
+      setLibraries(libs);
+      
+      // Set current library tab if on a library page
+      if (location.pathname.startsWith('/library/')) {
+        const libraryId = parseInt(location.pathname.split('/library/')[1]?.split('/')[0] || '0');
+        const index = libs.findIndex(lib => lib.libraryId === libraryId);
+        if (index >= 0) {
+          setLibraryTabValue(index);
+        }
+      }
+    };
+    loadLibraries();
+  }, [location.pathname]);
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -93,9 +118,33 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
     }
   };
 
+  const handleLibraryTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setLibraryTabValue(newValue);
+    if (libraries[newValue]) {
+      navigate(`/library/${libraries[newValue].libraryId}`);
+    }
+  };
+
   const getCurrentBottomNav = () => {
     const currentItem = bottomNavItems.find(item => item.path === location.pathname);
     return currentItem ? currentItem.id : 'home';
+  };
+
+  const getLibraryIcon = (type: string) => {
+    switch (type.toUpperCase()) {
+      case 'BOOK':
+        return <BooksIcon />;
+      case 'MOVIE':
+        return <MoviesIcon />;
+      case 'MUSIC':
+        return <MusicIcon />;
+      case 'AUDIOBOOK':
+        return <AudioIcon />;
+      case 'TV_SHOW':
+        return <TvIcon />;
+      default:
+        return <FolderIcon />;
+    }
   };
 
   // Desktop Sidebar (always visible)
@@ -247,6 +296,61 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
         </Box>
       </SwipeableDrawer>
 
+      {/* Scrollable Library Tabs */}
+      {libraries.length > 0 && (
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 56,
+            left: 0,
+            right: 0,
+            zIndex: 1099,
+            bgcolor: 'background.paper',
+            borderTop: 1,
+            borderBottom: 1,
+            borderColor: 'divider',
+            overflowX: 'auto',
+            '&::-webkit-scrollbar': {
+              height: 4,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              borderRadius: 2,
+            },
+          }}
+        >
+          <Tabs
+            value={libraryTabValue}
+            onChange={handleLibraryTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              minHeight: 48,
+              '& .MuiTab-root': {
+                minHeight: 48,
+                textTransform: 'none',
+                fontSize: '0.75rem',
+                px: 1.5,
+              },
+            }}
+          >
+            {libraries.map((library, index) => (
+              <Tab
+                key={library.libraryId}
+                icon={getLibraryIcon(library.type)}
+                iconPosition="start"
+                label={library.name}
+                value={index}
+                sx={{
+                  minWidth: 120,
+                  textTransform: 'none',
+                }}
+              />
+            ))}
+          </Tabs>
+        </Box>
+      )}
+
       {/* Bottom Navigation */}
       <BottomNavigation
         value={getCurrentBottomNav()}
@@ -299,7 +403,7 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
           ml: isDesktop ? '80px' : 0,
           pl: isTablet && drawerOpen ? '240px' : 0,
           pt: isMobile || isTablet ? '64px' : 0,
-          pb: isMobile ? '56px' : 0,
+          pb: isMobile ? (libraries.length > 0 ? '104px' : '56px') : 0,
           transition: theme.transitions.create(['margin', 'padding'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,

@@ -144,7 +144,14 @@ export const LibraryListScreen: React.FC = () => {
         <Grid container spacing={3}>
           {libraries.map((library) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={library.libraryId}>
-              <Card>
+              <Card
+                sx={{
+                  position: 'relative',
+                  '&:hover': {
+                    boxShadow: 6,
+                  },
+                }}
+              >
                 <CardActionArea onClick={() => navigate(`/library/${library.libraryId}`)}>
                   <Box
                     sx={{
@@ -167,6 +174,23 @@ export const LibraryListScreen: React.FC = () => {
                     </Typography>
                   </CardContent>
                 </CardActionArea>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/library/${library.libraryId}/management`);
+                  }}
+                  sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    bgcolor: 'background.paper',
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                >
+                  <SettingsIcon />
+                </IconButton>
               </Card>
             </Grid>
           ))}

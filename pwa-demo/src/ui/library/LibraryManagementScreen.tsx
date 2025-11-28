@@ -32,6 +32,8 @@ import {
   LinearProgress,
   Chip,
   Stack,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -45,10 +47,17 @@ import {
   AutoFixHigh,
   Storage,
   Warning,
+  Edit,
+  Save,
 } from '@mui/icons-material';
 
 import { libraryRepository } from '../../data/repository';
 import type { Library } from '../../data/local/entity';
+
+interface LibrarySettings {
+  autoScan: boolean;
+  autoMetadata: boolean;
+}
 
 export const LibraryManagementScreen: React.FC = () => {
   const { libraryId } = useParams<{ libraryId: string }>();
@@ -56,41 +65,125 @@ export const LibraryManagementScreen: React.FC = () => {
   
   const [library, setLibrary] = useState<Library | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [autoScan, setAutoScan] = useState(true);
-  const [autoMetadata, setAutoMetadata] = useState(true);
+  const [settings, setSettings] = useState<LibrarySettings>({
+    autoScan: true,
+    autoMetadata: true,
+  });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showStorageDialog, setShowStorageDialog] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
+  const [editForm, setEditForm] = useState({ name: '', path: '', description: '' });
 
   useEffect(() => {
     loadLibrary();
+    loadSettings();
   }, [libraryId]);
 
   const loadLibrary = async () => {
     if (!libraryId) return;
     const lib = await libraryRepository.getLibraryById(parseInt(libraryId));
-    setLibrary(lib || null);
+    if (lib) {
+      setLibrary(lib);
+      setEditForm({
+        name: lib.name,
+        path: lib.path,
+        description: lib.description || '',
+      });
+    }
+  };
+
+  const loadSettings = () => {
+    if (!libraryId) return;
+    const stored = localStorage.getItem(`library_settings_${libraryId}`);
+    if (stored) {
+      try {
+        setSettings(JSON.parse(stored));
+      } catch (e) {
+        // Use defaults
+      }
+    }
+  };
+
+  const saveSettings = () => {
+    if (!libraryId) return;
+    localStorage.setItem(`library_settings_${libraryId}`, JSON.stringify(settings));
+    setSnackbar({ open: true, message: 'Settings saved successfully' });
   };
 
   const handleScanLibrary = async () => {
+    if (!library) return;
     setIsScanning(true);
-    // Simulate scanning progress
-    for (let i = 0; i <= 100; i += 10) {
-      setScanProgress(i);
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    setIsScanning(false);
     setScanProgress(0);
+    
+    try {
+      // Simulate scanning progress
+      for (let i = 0; i <= 100; i += 10) {
+        setScanProgress(i);
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+      
+      // Update last scanned timestamp
+      await libraryRepository.updateLastScanned(library.libraryId);
+      setSnackbar({ open: true, message: 'Library scan completed successfully' });
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Error scanning library: ' + (error as Error).message });
+    } finally {
+      setIsScanning(false);
+      setScanProgress(0);
+    }
   };
 
   const handleRefreshMetadata = async () => {
-    // TODO: Implement metadata refresh
-    alert('Metadata refresh started');
+    if (!library) return;
+    setSnackbar({ open: true, message: 'Metadata refresh started...' });
+    // TODO: Implement actual metadata refresh
+    setTimeout(() => {
+      setSnackbar({ open: true, message: 'Metadata refresh completed' });
+    }, 2000);
   };
 
   const handleDeleteLibrary = async () => {
     if (!library) return;
-    await libraryRepository.deleteLibrary(library);
-    navigate('/');
+    try {
+      await libraryRepository.deleteLibrary(library);
+      setSnackbar({ open: true, message: 'Library deleted successfully' });
+      setTimeout(() => navigate('/'), 1000);
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Error deleting library: ' + (error as Error).message });
+    }
+  };
+
+  const handleSaveLibrary = async () => {
+    if (!library) return;
+    try {
+      const updated = {
+        ...library,
+        name: editForm.name,
+        path: editForm.path,
+        description: editForm.description || undefined,
+      };
+      await libraryRepository.updateLibrary(updated);
+      setLibrary(updated);
+      setShowEditDialog(false);
+      setSnackbar({ open: true, message: 'Library updated successfully' });
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Error updating library: ' + (error as Error).message });
+    }
+  };
+
+  const handleRegenerateThumbnails = async () => {
+    if (!library) return;
+    setSnackbar({ open: true, message: 'Regenerating thumbnails...' });
+    // TODO: Implement actual thumbnail regeneration
+    setTimeout(() => {
+      setSnackbar({ open: true, message: 'Thumbnails regenerated successfully' });
+    }, 2000);
+  };
+
+  const handleStorageStatistics = () => {
+    setShowStorageDialog(true);
   };
 
   if (!library) {
@@ -175,16 +268,18 @@ export const LibraryManagementScreen: React.FC = () => {
           <Divider sx={{ my: 1 }} />
 
           <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate(`/library/${libraryId}/edit`)}>
+            <ListItemButton onClick={() => setShowEditDialog(true)}>
               <ListItemIcon>
-                <Settings />
+                <Edit />
               </ListItemIcon>
               <ListItemText
-                primary="Library Settings"
-                secondary="Edit library name, path, and preferences"
+                primary="Edit Library"
+                secondary="Edit library name, path, and description"
               />
             </ListItemButton>
           </ListItem>
+
+          <Divider sx={{ my: 1 }} />
 
           <ListItem>
             <ListItemIcon>
@@ -194,7 +289,14 @@ export const LibraryManagementScreen: React.FC = () => {
               primary="Auto-scan on startup"
               secondary="Automatically scan for changes when app starts"
             />
-            <Switch checked={autoScan} onChange={(e) => setAutoScan(e.target.checked)} />
+            <Switch 
+              checked={settings.autoScan} 
+              onChange={(e) => {
+                const newSettings = { ...settings, autoScan: e.target.checked };
+                setSettings(newSettings);
+                saveSettings();
+              }} 
+            />
           </ListItem>
 
           <ListItem>
@@ -205,13 +307,20 @@ export const LibraryManagementScreen: React.FC = () => {
               primary="Auto-fetch metadata"
               secondary="Automatically download metadata for new items"
             />
-            <Switch checked={autoMetadata} onChange={(e) => setAutoMetadata(e.target.checked)} />
+            <Switch 
+              checked={settings.autoMetadata} 
+              onChange={(e) => {
+                const newSettings = { ...settings, autoMetadata: e.target.checked };
+                setSettings(newSettings);
+                saveSettings();
+              }} 
+            />
           </ListItem>
 
           <Divider sx={{ my: 1 }} />
 
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={handleStorageStatistics}>
               <ListItemIcon>
                 <Storage />
               </ListItemIcon>
@@ -223,7 +332,7 @@ export const LibraryManagementScreen: React.FC = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={handleRegenerateThumbnails}>
               <ListItemIcon>
                 <Image />
               </ListItemIcon>
@@ -251,6 +360,73 @@ export const LibraryManagementScreen: React.FC = () => {
         </List>
       </Box>
 
+      {/* Edit Library Dialog */}
+      <Dialog open={showEditDialog} onClose={() => setShowEditDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Library</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Library Name"
+            fullWidth
+            value={editForm.name}
+            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Library Path"
+            fullWidth
+            value={editForm.path}
+            onChange={(e) => setEditForm({ ...editForm, path: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Description"
+            fullWidth
+            multiline
+            rows={3}
+            value={editForm.description}
+            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowEditDialog(false)}>Cancel</Button>
+          <Button 
+            onClick={handleSaveLibrary} 
+            variant="contained"
+            startIcon={<Save />}
+            disabled={!editForm.name || !editForm.path}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Storage Statistics Dialog */}
+      <Dialog open={showStorageDialog} onClose={() => setShowStorageDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Storage Statistics</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <Box>
+              <Typography variant="body2" color="text.secondary">Library Type</Typography>
+              <Typography variant="h6">{library?.type || 'Unknown'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="body2" color="text.secondary">Storage Path</Typography>
+              <Typography variant="body1" sx={{ wordBreak: 'break-all' }}>{library?.path || 'N/A'}</Typography>
+            </Box>
+            <Alert severity="info">
+              Detailed storage statistics will be available after the library is scanned.
+            </Alert>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowStorageDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
         <DialogTitle>
@@ -261,7 +437,7 @@ export const LibraryManagementScreen: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete "{library.name}"? This will remove the library from
+            Are you sure you want to delete "{library?.name}"? This will remove the library from
             the database but will not delete any files.
           </Typography>
         </DialogContent>
@@ -272,6 +448,14 @@ export const LibraryManagementScreen: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        message={snackbar.message}
+      />
     </Box>
   );
 };

@@ -14,6 +14,7 @@ import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
 import {
   LibraryListScreen,
   LibraryDetailsScreen,
+  LibraryManagementScreen,
   MediaItemDetailScreen,
   EReaderScreen,
   PDFReaderScreen,
@@ -150,6 +151,7 @@ const AppContent: React.FC = () => {
           
           {/* Library */}
           <Route path="/library/:libraryId" element={<LibraryDetailsScreen />} />
+          <Route path="/library/:libraryId/management" element={<LibraryManagementScreen />} />
           
           {/* Media Detail */}
           <Route path="/detail/:itemId" element={<MediaItemDetailScreen />} />
