@@ -26,6 +26,10 @@ import {
   Height,
   CropFree,
 } from '@mui/icons-material';
+import { comicReaderService, type ComicArchive } from '../../services/readers/ComicReaderService';
+import { db } from '../../services/database-complete';
+import type { MediaItem } from '../../data/local/entity';
+import { CircularProgress, Alert, Button } from '@mui/material';
 
 export const ComicReaderScreen: React.FC = () => {
   const { itemId } = useParams<{ itemId: string }>();
@@ -35,14 +39,75 @@ export const ComicReaderScreen: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [fitMode, setFitMode] = useState<'width' | 'height' | 'both'>('width');
   const [showControls, setShowControls] = useState(true);
-
-  // Sample pages (in production, extract from CBZ/CBR file)
-  const [pages, setPages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [comicArchive, setComicArchive] = useState<ComicArchive | null>(null);
+  const [currentPageUrl, setCurrentPageUrl] = useState<string | null>(null);
+  const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
 
   useEffect(() => {
-    // TODO: Load comic file and extract pages
-    setTotalPages(20);
+    loadComic();
   }, [itemId]);
+
+  useEffect(() => {
+    if (comicArchive && mediaItem) {
+      loadPage(currentPage - 1);
+    }
+  }, [currentPage, comicArchive]);
+
+  const loadComic = async () => {
+    if (!itemId) {
+      setError('No comic ID provided');
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const item = await db.mediaItems.get(parseInt(itemId));
+      if (!item) {
+        throw new Error('Comic not found');
+      }
+      setMediaItem(item);
+
+      let file: File | Blob;
+      if (item.fileData) {
+        file = new Blob([item.fileData], { type: 'application/zip' });
+      } else {
+        throw new Error('No file data available');
+      }
+
+      const archive = await comicReaderService.loadComic(file);
+      setComicArchive(archive);
+      setTotalPages(archive.pages.length);
+      setCurrentPage(1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load comic');
+      console.error('Load comic error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadPage = async (pageIndex: number) => {
+    if (!comicArchive || !mediaItem) return;
+
+    try {
+      let file: File | Blob;
+      if (mediaItem.fileData) {
+        file = new Blob([mediaItem.fileData], { type: 'application/zip' });
+      } else {
+        throw new Error('No file data available');
+      }
+
+      const dataUrl = await comicReaderService.loadComicPage(file, pageIndex);
+      setCurrentPageUrl(dataUrl);
+    } catch (err) {
+      setError(`Failed to load page: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -101,47 +166,46 @@ export const ComicReaderScreen: React.FC = () => {
         </AppBar>
       )}
 
-      {/* Comic Page Viewer */}
-      <Box
-        onClick={handleTap}
-        sx={{
-          flex: 1,
-          bgcolor: 'black',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          cursor: 'pointer',
-        }}
-      >
-        <Paper
-          elevation={8}
+      {isLoading ? (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+          <CircularProgress />
+          <Typography>Loading comic...</Typography>
+        </Box>
+      ) : error ? (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2, p: 3 }}>
+          <Alert severity="error">{error}</Alert>
+          <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
+        </Box>
+      ) : (
+        <Box
+          onClick={handleTap}
           sx={{
-            maxWidth: fitMode === 'width' ? '100%' : 'auto',
-            maxHeight: fitMode === 'height' ? '100%' : 'auto',
-            width: fitMode === 'both' ? '100%' : 'auto',
-            height: fitMode === 'both' ? '100%' : 'auto',
+            flex: 1,
+            bgcolor: 'black',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            cursor: 'pointer',
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: 600,
-              bgcolor: 'white',
-              p: 2,
-            }}
-          >
-            <Typography variant="h3" color="text.secondary">
-              Page {currentPage}
-            </Typography>
-            <Typography variant="body2" sx={{ mt: 2, display: 'block' }}>
-              Comic image would be displayed here
-            </Typography>
-          </Box>
-        </Paper>
-      </Box>
+          {currentPageUrl ? (
+            <img
+              src={currentPageUrl}
+              alt={`Page ${currentPage}`}
+              style={{
+                maxWidth: fitMode === 'width' || fitMode === 'both' ? '100%' : 'auto',
+                maxHeight: fitMode === 'height' || fitMode === 'both' ? '100%' : 'auto',
+                width: fitMode === 'both' ? '100%' : 'auto',
+                height: fitMode === 'both' ? '100%' : 'auto',
+                objectFit: fitMode === 'both' ? 'contain' : 'scale-down',
+              }}
+            />
+          ) : (
+            <CircularProgress />
+          )}
+        </Box>
+      )}
 
       {/* Page Navigation */}
       {showControls && (

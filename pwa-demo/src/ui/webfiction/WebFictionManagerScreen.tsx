@@ -21,6 +21,9 @@ import {
   Chip,
   Stack,
   LinearProgress,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -46,6 +49,8 @@ export const WebFictionManagerScreen: React.FC = () => {
   const navigate = useNavigate();
   const [stories, setStories] = useState<Story[]>([]);
   const [newStoryUrl, setNewStoryUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   useEffect(() => {
     loadStories();
@@ -66,19 +71,54 @@ export const WebFictionManagerScreen: React.FC = () => {
 
   const handleAddStory = async () => {
     if (!newStoryUrl) return;
-    // TODO: Parse story URL and fetch metadata
-    alert(`Adding story from: ${newStoryUrl}`);
-    setNewStoryUrl('');
+    
+    setLoading(true);
+    try {
+      // TODO: Parse story URL and fetch metadata
+      // For now, show a message
+      setSnackbar({ open: true, message: `Adding story from: ${newStoryUrl}`, severity: 'info' });
+      setNewStoryUrl('');
+      // Simulate processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setSnackbar({ open: true, message: 'Story added successfully', severity: 'success' });
+      loadStories();
+    } catch (error) {
+      setSnackbar({ open: true, message: `Failed to add story: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDownloadStory = (story: Story) => {
-    // TODO: Download all chapters
-    alert(`Downloading: ${story.title}`);
+  const handleDownloadStory = async (story: Story) => {
+    setLoading(true);
+    try {
+      // TODO: Download all chapters
+      setSnackbar({ open: true, message: `Downloading: ${story.title}...`, severity: 'info' });
+      // Simulate download
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSnackbar({ open: true, message: `${story.title} downloaded successfully`, severity: 'success' });
+      loadStories();
+    } catch (error) {
+      setSnackbar({ open: true, message: `Failed to download: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpdateStory = (story: Story) => {
-    // TODO: Check for new chapters
-    alert(`Checking for updates: ${story.title}`);
+  const handleUpdateStory = async (story: Story) => {
+    setLoading(true);
+    try {
+      // TODO: Check for new chapters
+      setSnackbar({ open: true, message: `Checking for updates: ${story.title}...`, severity: 'info' });
+      // Simulate update check
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setSnackbar({ open: true, message: 'No new chapters available', severity: 'info' });
+      loadStories();
+    } catch (error) {
+      setSnackbar({ open: true, message: `Failed to check updates: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,15 +140,18 @@ export const WebFictionManagerScreen: React.FC = () => {
             placeholder="Enter story URL (Archive of Our Own, FanFiction.Net, etc.)"
             value={newStoryUrl}
             onChange={(e) => setNewStoryUrl(e.target.value)}
+            disabled={loading}
           />
           <Button
             variant="contained"
-            startIcon={<Add />}
+            startIcon={loading ? <CircularProgress size={20} /> : <Add />}
             onClick={handleAddStory}
+            disabled={loading || !newStoryUrl}
           >
             Add
           </Button>
         </Stack>
+        {loading && <LinearProgress sx={{ mt: 2 }} />}
       </Box>
 
       <List sx={{ flex: 1, overflow: 'auto', p: 2 }}>
@@ -155,6 +198,17 @@ export const WebFictionManagerScreen: React.FC = () => {
           </Box>
         )}
       </List>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

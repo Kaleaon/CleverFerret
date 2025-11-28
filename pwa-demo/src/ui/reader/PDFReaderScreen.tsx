@@ -5,7 +5,7 @@
  * Uses PDF.js library.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -29,6 +29,10 @@ import {
   Search,
   Download,
 } from '@mui/icons-material';
+import { pdfReaderService, type PDFDocument } from '../../services/readers/PDFReaderService';
+import { db } from '../../services/database-complete';
+import type { MediaItem } from '../../data/local/entity';
+import { CircularProgress, Alert, Button } from '@mui/material';
 
 export const PDFReaderScreen: React.FC = () => {
   const { itemId } = useParams<{ itemId: string }>();
@@ -38,19 +42,86 @@ export const PDFReaderScreen: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pdfDocument, setPdfDocument] = useState<PDFDocument | null>(null);
+  const [pageCanvas, setPageCanvas] = useState<HTMLCanvasElement | null>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
-  // TODO: Implement PDF.js integration
   useEffect(() => {
-    // Load PDF using PDF.js
-    // This is a placeholder
-    setTotalPages(50);
+    loadPDF();
   }, [itemId]);
+
+  const loadPDF = async () => {
+    if (!itemId) {
+      setError('No PDF ID provided');
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const item = await db.mediaItems.get(parseInt(itemId));
+      if (!item) {
+        throw new Error('PDF not found');
+      }
+
+      let file: File | Blob | ArrayBuffer | string;
+      if (item.filePath) {
+        file = item.filePath;
+      } else if (item.fileData) {
+        file = new Blob([item.fileData], { type: 'application/pdf' });
+      } else {
+        throw new Error('No file data available');
+      }
+
+      const doc = await pdfReaderService.loadPDF(file);
+      setPdfDocument(doc);
+      setTotalPages(doc.numPages);
+      await renderPage(1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load PDF');
+      console.error('Load PDF error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderPage = async (pageNumber: number) => {
+    if (!pdfDocument) return;
+
+    try {
+      const page = await pdfReaderService.getPage(pdfDocument, pageNumber);
+      const canvas = canvasRef.current || document.createElement('canvas');
+      const renderedCanvas = await page.render({ scale: zoom / 100, canvas });
+      setPageCanvas(renderedCanvas);
+      setCurrentPage(pageNumber);
+    } catch (err) {
+      setError(`Failed to render page: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
+  useEffect(() => {
+    if (pdfDocument && currentPage) {
+      renderPage(currentPage);
+    }
+  }, [zoom, pdfDocument]);
 
   const handleZoomIn = () => setZoom(Math.min(zoom + 25, 300));
   const handleZoomOut = () => setZoom(Math.max(zoom - 25, 50));
   const handleRotate = () => setRotation((rotation + 90) % 360);
-  const handlePrevPage = () => setCurrentPage(Math.max(1, currentPage - 1));
-  const handleNextPage = () => setCurrentPage(Math.min(totalPages, currentPage + 1));
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      renderPage(currentPage - 1);
+    }
+  };
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      renderPage(currentPage + 1);
+    }
+  };
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -71,30 +142,37 @@ export const PDFReaderScreen: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      {/* PDF Viewer Area */}
-      <Box sx={{ flex: 1, overflow: 'auto', bgcolor: '#525252', p: 2 }}>
-        <Paper
-          elevation={4}
-          sx={{
-            maxWidth: 800,
-            mx: 'auto',
-            p: 2,
-            transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
-            transformOrigin: 'top center',
-            transition: 'transform 0.3s',
-          }}
-        >
-          <Typography variant="body1" sx={{ minHeight: 600 }}>
-            [PDF Content - Page {currentPage}]
-            <br />
-            <br />
-            PDF.js integration would render the actual PDF content here.
-            <br />
-            <br />
-            This is a placeholder showing the structure of the PDF reader.
-          </Typography>
-        </Paper>
-      </Box>
+      {isLoading ? (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+          <CircularProgress />
+          <Typography>Loading PDF...</Typography>
+        </Box>
+      ) : error ? (
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 2, p: 3 }}>
+          <Alert severity="error">{error}</Alert>
+          <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
+        </Box>
+      ) : (
+        <Box sx={{ flex: 1, overflow: 'auto', bgcolor: '#525252', p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Paper
+            elevation={4}
+            sx={{
+              transform: `rotate(${rotation}deg)`,
+              transformOrigin: 'center',
+              transition: 'transform 0.3s',
+            }}
+          >
+            <canvas
+              ref={canvasRef}
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+                display: 'block',
+              }}
+            />
+          </Paper>
+        </Box>
+      )}
 
       {/* Controls */}
       <Paper elevation={3} sx={{ p: 2 }}>
@@ -122,7 +200,10 @@ export const PDFReaderScreen: React.FC = () => {
               min={50}
               max={300}
               step={25}
-              onChange={(_, value) => setZoom(value as number)}
+              onChange={(_, value) => {
+                setZoom(value as number);
+                // Page will re-render via useEffect
+              }}
               sx={{ flex: 1 }}
             />
             <IconButton size="small" onClick={handleZoomIn}>

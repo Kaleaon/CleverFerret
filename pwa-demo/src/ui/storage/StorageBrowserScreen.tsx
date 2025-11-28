@@ -19,6 +19,8 @@ import {
   Breadcrumbs,
   Link,
   Button,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -39,6 +41,7 @@ export const StorageBrowserScreen: React.FC = () => {
   const navigate = useNavigate();
   const [currentPath, setCurrentPath] = useState('/');
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   // Mock file entries
   const entries: FileEntry[] = [
@@ -63,7 +66,12 @@ export const StorageBrowserScreen: React.FC = () => {
         <Button
           variant="contained"
           disabled={!selectedPath}
-          onClick={() => selectedPath && alert(`Selected: ${selectedPath}`)}
+          onClick={() => {
+            if (selectedPath) {
+              setSnackbar({ open: true, message: `Selected: ${selectedPath}`, severity: 'success' });
+              // TODO: Process selected file
+            }
+          }}
         >
           Select
         </Button>
@@ -122,6 +130,17 @@ export const StorageBrowserScreen: React.FC = () => {
           </ListItem>
         ))}
       </List>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

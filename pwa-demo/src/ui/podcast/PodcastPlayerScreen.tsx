@@ -27,6 +27,7 @@ import {
   Replay30,
   Speed,
 } from '@mui/icons-material';
+import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 export const PodcastPlayerScreen: React.FC = () => {
   const { episodeId } = useParams<{ episodeId: string }>();
@@ -47,7 +48,11 @@ export const PodcastPlayerScreen: React.FC = () => {
 
       <Box sx={{ flex: 1, p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <Card sx={{ width: 250, height: 250, mb: 3 }}>
-          <CardMedia component="img" image="/placeholder-podcast.png" alt="Podcast" />
+          <CardMedia 
+            component="img" 
+            image={getImageUrlWithFallback(undefined, 'PODCAST', 'Podcast')} 
+            alt="Podcast" 
+          />
         </Card>
 
         <Typography variant="h5" gutterBottom textAlign="center">Episode Title</Typography>

@@ -169,7 +169,7 @@ export const RadioScreen: React.FC = () => {
         : (audioRef.current as any).mozCaptureStream?.();
 
       if (!stream) {
-        alert('Recording not supported in this browser');
+        setErrorMessage('Recording not supported in this browser');
         return;
       }
 
@@ -195,9 +195,10 @@ export const RadioScreen: React.FC = () => {
 
       mediaRecorder.start();
       setIsRecording(true);
+      setErrorMessage(null);
     } catch (error) {
       console.error('Failed to start recording:', error);
-      alert('Failed to start recording. This feature requires browser support.');
+      setErrorMessage('Failed to start recording. This feature requires browser support.');
     }
   };
 

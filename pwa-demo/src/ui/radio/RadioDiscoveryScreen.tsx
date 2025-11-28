@@ -85,6 +85,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [playingStationId, setPlayingStationId] = useState<string | null>(null);
   const [playError, setPlayError] = useState<string | null>(null);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
   const audioRef = React.useRef<HTMLAudioElement>(null);
 
   // Popular tags/genres from Radio-Browser
@@ -256,7 +257,7 @@ export const RadioDiscoveryScreen: React.FC = () => {
         .first();
       
       if (existing) {
-        alert('Station is already in your library!');
+        setSnackbar({ open: true, message: 'Station is already in your library!', severity: 'info' });
         return;
       }
 
@@ -279,10 +280,10 @@ export const RadioDiscoveryScreen: React.FC = () => {
         playCount: 0,
       } as any);
 
-      alert('Station added successfully!');
+      setSnackbar({ open: true, message: 'Station added successfully!', severity: 'success' });
     } catch (err) {
       console.error('Add station error:', err);
-      alert(`Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setSnackbar({ open: true, message: `Failed to add station: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
     }
   };
 
@@ -487,6 +488,18 @@ export const RadioDiscoveryScreen: React.FC = () => {
           </Box>
         )}
       </Box>
+
+      {/* General Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       {/* Play Error Snackbar */}
       <Snackbar

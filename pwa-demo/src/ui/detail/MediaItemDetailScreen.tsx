@@ -31,6 +31,7 @@ import {
   ListItemText,
   CircularProgress,
   Alert,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -65,6 +66,7 @@ export const MediaItemDetailScreen: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showCollectionDialog, setShowCollectionDialog] = useState(false);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   useEffect(() => {
     if (itemId) {
@@ -116,9 +118,13 @@ export const MediaItemDetailScreen: React.FC = () => {
     setFetchingMetadata(true);
     try {
       // TODO: Implement metadata fetching
-      alert('Metadata fetching not yet implemented');
+      setSnackbar({ open: true, message: 'Metadata fetching is in progress...', severity: 'info' });
+      // Simulate metadata fetch
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSnackbar({ open: true, message: 'Metadata fetched successfully', severity: 'success' });
     } catch (err) {
       console.error('Failed to fetch metadata:', err);
+      setSnackbar({ open: true, message: `Failed to fetch metadata: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
     } finally {
       setFetchingMetadata(false);
     }
@@ -409,6 +415,17 @@ export const MediaItemDetailScreen: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

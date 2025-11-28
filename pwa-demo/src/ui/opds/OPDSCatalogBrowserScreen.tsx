@@ -40,6 +40,7 @@ import {
   Refresh,
   Settings,
 } from '@mui/icons-material';
+import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 interface OPDSEntry {
   id: string;
@@ -79,7 +80,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
       title: 'The Great Gatsby',
       author: 'F. Scott Fitzgerald',
       summary: 'A classic American novel set in the Jazz Age.',
-      coverUrl: '/placeholder-book.png',
+      coverUrl: undefined,
       downloadUrl: 'https://example.com/gatsby.epub',
       type: 'book',
     },
@@ -88,7 +89,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
       title: '1984',
       author: 'George Orwell',
       summary: 'A dystopian social science fiction novel.',
-      coverUrl: '/placeholder-book.png',
+      coverUrl: undefined,
       downloadUrl: 'https://example.com/1984.epub',
       type: 'book',
     },
@@ -97,7 +98,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
       title: 'To Kill a Mockingbird',
       author: 'Harper Lee',
       summary: 'A novel about racial injustice in the American South.',
-      coverUrl: '/placeholder-book.png',
+      coverUrl: undefined,
       downloadUrl: 'https://example.com/mockingbird.epub',
       type: 'book',
     },
@@ -268,7 +269,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
                       <CardMedia
                         component="img"
                         height="200"
-                        image={entry.coverUrl || '/placeholder-book.png'}
+                        image={getImageUrlWithFallback(entry.coverUrl, 'BOOK', entry.title)}
                         alt={entry.title}
                         sx={{ objectFit: 'cover' }}
                       />

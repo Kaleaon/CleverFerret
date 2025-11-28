@@ -37,6 +37,7 @@ import {
 
 import { db } from '../../services/database-complete';
 import type { MediaItem } from '../../data/local/entity';
+import { getImageUrlWithFallback } from '../../utils/imageUtils';
 
 export const ModernAudioPlayerScreen: React.FC = () => {
   const { audioId } = useParams<{ audioId: string }>();
@@ -160,7 +161,7 @@ export const ModernAudioPlayerScreen: React.FC = () => {
         }}>
           <CardMedia
             component="img"
-            image={mediaItem?.thumbnailPath || '/placeholder-album.png'}
+            image={getImageUrlWithFallback(mediaItem?.thumbnailPath, mediaItem?.mediaType || 'MUSIC', mediaItem?.fileName)}
             alt="Album art"
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
