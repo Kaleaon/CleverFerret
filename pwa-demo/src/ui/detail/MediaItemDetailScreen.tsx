@@ -113,15 +113,41 @@ export const MediaItemDetailScreen: React.FC = () => {
   };
 
   const handleFetchMetadata = async () => {
-    if (!itemId) return;
+    if (!itemId || !mediaItem) return;
 
     setFetchingMetadata(true);
     try {
-      // TODO: Implement metadata fetching
-      setSnackbar({ open: true, message: 'Metadata fetching is in progress...', severity: 'info' });
-      // Simulate metadata fetch
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setSnackbar({ open: true, message: 'Metadata fetched successfully', severity: 'success' });
+      setSnackbar({ open: true, message: 'Fetching metadata...', severity: 'info' });
+      
+      const { metadataService } = await import('../../services/metadata/MetadataService');
+      const fetchedMetadata = await metadataService.fetchMetadata(mediaItem.fileName);
+      
+      if (fetchedMetadata) {
+        // Update metadata in database
+        if (mediaItem.mediaType === 'BOOK') {
+          await db.metadataBook.put({
+            itemId: parseInt(itemId),
+            ...fetchedMetadata,
+            isRead: false,
+          });
+        }
+        
+        await db.metadataCommon.put({
+          itemId: parseInt(itemId),
+          title: fetchedMetadata.title,
+          authors: fetchedMetadata.authors,
+          description: fetchedMetadata.description,
+          thumbnailPath: fetchedMetadata.thumbnailUrl,
+          isFavorite: false,
+          isDownloaded: false,
+        });
+
+        // Reload media item
+        await loadMediaItem(parseInt(itemId));
+        setSnackbar({ open: true, message: 'Metadata fetched successfully', severity: 'success' });
+      } else {
+        setSnackbar({ open: true, message: 'No metadata found', severity: 'warning' });
+      }
     } catch (err) {
       console.error('Failed to fetch metadata:', err);
       setSnackbar({ open: true, message: `Failed to fetch metadata: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });

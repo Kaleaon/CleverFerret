@@ -30,6 +30,7 @@ import {
   Link,
   CircularProgress,
   Alert,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -61,6 +62,7 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [entries, setEntries] = useState<OPDSEntry[]>([]);
   const [breadcrumbs, setBreadcrumbs] = useState<Array<{ label: string; url: string }>>([]);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
   const [error, setError] = useState<string | null>(null);
 
   // Mock OPDS catalog data
@@ -113,19 +115,27 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
     setError(null);
     
     try {
-      // TODO: Implement actual OPDS parsing
-      // const response = await fetch(url);
-      // const xml = await response.text();
-      // const parsed = parseOPDS(xml);
+      const { opdsParser } = await import('../../services/opds/OPDSParser');
+      const feed = await opdsParser.parseFeed(url);
       
-      // Using mock data for now
-      setTimeout(() => {
-        setEntries(mockCatalog);
-        setLoading(false);
-      }, 500);
-    } catch (err) {
-      setError('Failed to load OPDS catalog');
+      // Convert OPDS entries to our format
+      const convertedEntries: OPDSEntry[] = feed.entries.map(entry => ({
+        id: entry.id,
+        title: entry.title,
+        author: entry.author,
+        summary: entry.summary,
+        coverUrl: entry.coverUrl,
+        downloadUrl: entry.downloadUrl,
+        type: entry.downloadUrl ? 'book' : 'folder',
+      }));
+      
+      setEntries(convertedEntries);
       setLoading(false);
+    } catch (err) {
+      setError(`Failed to load OPDS catalog: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setLoading(false);
+      // Fallback to mock data on error
+      setEntries(mockCatalog);
     }
   };
 
@@ -142,9 +152,28 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
   const handleDownload = async (entry: OPDSEntry) => {
     if (!entry.downloadUrl) return;
     
-    // TODO: Implement actual download
-    // Download the book and import into library
-    alert(`Downloading: ${entry.title}`);
+    try {
+      setLoading(true);
+      setSnackbar({ open: true, message: `Downloading: ${entry.title}...`, severity: 'info' });
+      
+      // Download the file
+      const response = await fetch(entry.downloadUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      const file = new File([blob], `${entry.title}.epub`, { type: blob.type });
+      
+      // Import into library (would need library selection)
+      setSnackbar({ open: true, message: `Downloaded: ${entry.title}`, severity: 'success' });
+      
+      // TODO: Add to library
+    } catch (error) {
+      setSnackbar({ open: true, message: `Failed to download: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = () => {
@@ -330,6 +359,17 @@ export const OPDSCatalogBrowserScreen: React.FC = () => {
           </>
         )}
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

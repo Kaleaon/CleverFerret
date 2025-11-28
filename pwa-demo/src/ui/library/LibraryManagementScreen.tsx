@@ -173,11 +173,43 @@ export const LibraryManagementScreen: React.FC = () => {
 
   const handleRegenerateThumbnails = async () => {
     if (!library) return;
+    
     setSnackbar({ open: true, message: 'Regenerating thumbnails...' });
-    // TODO: Implement actual thumbnail regeneration
-    setTimeout(() => {
-      setSnackbar({ open: true, message: 'Thumbnails regenerated successfully' });
-    }, 2000);
+    
+    try {
+      const { thumbnailService } = await import('../../services/thumbnail/ThumbnailService');
+      const { db } = await import('../../services/database-complete');
+      
+      // Get all media items in this library
+      const items = await db.mediaItems
+        .where('libraryId')
+        .equals(library.libraryId)
+        .toArray();
+      
+      if (items.length === 0) {
+        setSnackbar({ open: true, message: 'No items to regenerate' });
+        return;
+      }
+      
+      let completed = 0;
+      const results = await thumbnailService.regenerateThumbnails(
+        items,
+        { width: 300, height: 450 },
+        (current, total) => {
+          completed = current;
+          setSnackbar({ open: true, message: `Regenerating thumbnails... ${current}/${total}` });
+        }
+      );
+      
+      // Update thumbnails in database
+      for (const [itemId, thumbnail] of results.entries()) {
+        await db.mediaItems.update(itemId, { thumbnailPath: thumbnail });
+      }
+      
+      setSnackbar({ open: true, message: `Successfully regenerated ${results.size} thumbnails` });
+    } catch (error) {
+      setSnackbar({ open: true, message: `Error regenerating thumbnails: ${error instanceof Error ? error.message : 'Unknown error'}` });
+    }
   };
 
   const handleStorageStatistics = () => {

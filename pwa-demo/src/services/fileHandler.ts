@@ -105,6 +105,12 @@ export function checkForFileLaunch(): FileHandle | null {
     // This would need to be handled by the service worker or launch handler
     return null;
   }
+
+  // Check for File System Access API file launch
+  if ('launchQueue' in window && 'files' in (window as any).launchQueue) {
+    // File handlers API - handled by service worker
+    return null;
+  }
   
   return null;
 }

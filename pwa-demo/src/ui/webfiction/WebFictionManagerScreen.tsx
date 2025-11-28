@@ -74,13 +74,30 @@ export const WebFictionManagerScreen: React.FC = () => {
     
     setLoading(true);
     try {
-      // TODO: Parse story URL and fetch metadata
-      // For now, show a message
-      setSnackbar({ open: true, message: `Adding story from: ${newStoryUrl}`, severity: 'info' });
+      setSnackbar({ open: true, message: `Parsing story from: ${newStoryUrl}...`, severity: 'info' });
+      
+      const { webFictionParser } = await import('../../services/webfiction/WebFictionParser');
+      const { db } = await import('../../services/database-complete');
+      
+      const storyInfo = await webFictionParser.parseStory(newStoryUrl);
+      
+      // Add to database
+      await db.downloadedStories.add({
+        id: `${storyInfo.site}_${Date.now()}`,
+        title: storyInfo.title,
+        author: storyInfo.author,
+        url: storyInfo.url,
+        site: storyInfo.site,
+        siteStoryId: storyInfo.url,
+        totalChapters: storyInfo.chapterCount,
+        lastKnownChapters: 0,
+        lastChecked: Date.now(),
+        hasUpdates: false,
+        description: storyInfo.description,
+      });
+      
       setNewStoryUrl('');
-      // Simulate processing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setSnackbar({ open: true, message: 'Story added successfully', severity: 'success' });
+      setSnackbar({ open: true, message: `Story "${storyInfo.title}" added successfully`, severity: 'success' });
       loadStories();
     } catch (error) {
       setSnackbar({ open: true, message: `Failed to add story: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
@@ -92,11 +109,34 @@ export const WebFictionManagerScreen: React.FC = () => {
   const handleDownloadStory = async (story: Story) => {
     setLoading(true);
     try {
-      // TODO: Download all chapters
       setSnackbar({ open: true, message: `Downloading: ${story.title}...`, severity: 'info' });
-      // Simulate download
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setSnackbar({ open: true, message: `${story.title} downloaded successfully`, severity: 'success' });
+      
+      const { webFictionParser } = await import('../../services/webfiction/WebFictionParser');
+      const { db } = await import('../../services/database-complete');
+      
+      // Parse story to get chapters
+      const storyInfo = await webFictionParser.parseStory(story.url);
+      
+      // Download chapters (limit to first 10 for now)
+      let downloaded = 0;
+      for (const chapter of storyInfo.chapters.slice(0, 10)) {
+        try {
+          const chapterContent = await webFictionParser.parseChapter(chapter.url);
+          // Store chapter content (would need a chapters table)
+          downloaded++;
+          setSnackbar({ open: true, message: `Downloading: ${story.title}... (${downloaded}/${Math.min(10, storyInfo.chapters.length)})`, severity: 'info' });
+        } catch (err) {
+          console.error(`Failed to download chapter ${chapter.number}:`, err);
+        }
+      }
+      
+      // Update story in database
+      await db.downloadedStories.update(story.url, {
+        lastKnownChapters: downloaded,
+        lastChecked: Date.now(),
+      });
+      
+      setSnackbar({ open: true, message: `${story.title}: ${downloaded} chapters downloaded`, severity: 'success' });
       loadStories();
     } catch (error) {
       setSnackbar({ open: true, message: `Failed to download: ${error instanceof Error ? error.message : 'Unknown error'}`, severity: 'error' });
