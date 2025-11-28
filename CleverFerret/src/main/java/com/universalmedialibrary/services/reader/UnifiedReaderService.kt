@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import com.universalmedialibrary.core.FormatRegistry
+import com.universalmedialibrary.parsers.ParserFactory
 import com.universalmedialibrary.services.audio.AudioPlaybackManager
 import com.universalmedialibrary.services.epub.ReadiumAudiobookService
 import com.universalmedialibrary.services.epub.ReadiumEpubService
@@ -64,10 +65,11 @@ class UnifiedReaderService @Inject constructor(
 
             val extension = file.extension.lowercase()
             
+            // 1. Specialized Readers (Readium, ExoPlayer, Gemini)
             when (extension) {
                 // Use Readium for EPUB (professional support)
                 "epub" -> {
-                    readiumEpubService.extractMetadata(filePath)?.let { publication ->
+                    return@withContext readiumEpubService.extractMetadata(filePath)?.let { publication ->
                         ReaderType.Epub(
                             filePath = filePath,
                             metadata = publication,
@@ -78,7 +80,7 @@ class UnifiedReaderService @Inject constructor(
                 
                 // Use Readium for PDF (better than basic PdfRenderer)
                 "pdf" -> {
-                    readiumPdfService.extractMetadata(filePath)?.let { publication ->
+                    return@withContext readiumPdfService.extractMetadata(filePath)?.let { publication ->
                         ReaderType.Pdf(
                             filePath = filePath,
                             metadata = publication,
@@ -87,188 +89,9 @@ class UnifiedReaderService @Inject constructor(
                     } ?: ReaderType.Error("Failed to open PDF: $filePath")
                 }
                 
-                // DJVU format
-                "djvu", "djv" -> {
-                    // TODO: Integrate DjVuLibre via JNI for proper DJVU support
-                    // Recommended: Use DjVuLibre (C++) via JNI
-                    // Reference: EBookDroid implementation
-                    // See FILE_FORMAT_PARSER_INTEGRATION.md for integration guide
-                    ReaderType.Error("DJVU format requires DjVuLibre library. See FILE_FORMAT_PARSER_INTEGRATION.md")
-                }
-                
-                // FB2 format
-                "fb2", "fb2.zip" -> {
-                    // FB2 is XML-based, can be parsed and converted to text/HTML
-                    try {
-                        val content = file.readText()
-                        // Parse FB2 XML and extract text content
-                        val textContent = extractFB2Content(content)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = textContent
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open FB2: ${e.message}")
-                    }
-                }
-                
-                // MOBI/PRC/AZW formats
-                "mobi", "prc", "azw" -> {
-                    // MOBI format - can use text extraction or dedicated MOBI library
-                    try {
-                        val content = extractMobiContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open MOBI: ${e.message}")
-                    }
-                }
-                
-                // AZW3/KFX formats
-                "azw3", "kfx" -> {
-                    // AZW3 format - similar to MOBI but newer
-                    try {
-                        val content = extractMobiContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open AZW3: ${e.message}")
-                    }
-                }
-                
-                // CHM format
-                "chm" -> {
-                    // CHM is a compiled HTML help file - extract HTML content
-                    try {
-                        val content = extractCHMContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open CHM: ${e.message}")
-                    }
-                }
-                
-                // UMD format
-                "umd" -> {
-                    // UMD is a proprietary format - extract text content
-                    try {
-                        val content = extractUMDContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open UMD: ${e.message}")
-                    }
-                }
-                
-                // Microsoft Word formats
-                "docx" -> {
-                    try {
-                        val content = extractDocxContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open DOCX: ${e.message}")
-                    }
-                }
-                
-                "doc" -> {
-                    try {
-                        val content = extractDocContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open DOC: ${e.message}")
-                    }
-                }
-                
-                // OpenDocument format
-                "odt" -> {
-                    try {
-                        val content = extractOdtContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open ODT: ${e.message}")
-                    }
-                }
-                
-                // RTF format
-                "rtf" -> {
-                    try {
-                        val content = extractRtfContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open RTF: ${e.message}")
-                    }
-                }
-                
-                // Text formats
-                "txt", "text" -> {
-                    val content = file.readText()
-                    ReaderType.Text(
-                        filePath = filePath,
-                        content = content
-                    )
-                }
-                
-                "md", "markdown" -> {
-                    val content = file.readText()
-                    ReaderType.Text(
-                        filePath = filePath,
-                        content = content
-                    )
-                }
-                
-                // HTML formats
-                "html", "htm" -> {
-                    val content = file.readText()
-                    // Keep HTML for better rendering
-                    ReaderType.Text(
-                        filePath = filePath,
-                        content = content
-                    )
-                }
-                
-                "xhtml", "xht" -> {
-                    val content = file.readText()
-                    ReaderType.Text(
-                        filePath = filePath,
-                        content = content
-                    )
-                }
-                
-                "mhtml", "mht" -> {
-                    try {
-                        val content = extractMhtmlContent(filePath)
-                        ReaderType.Text(
-                            filePath = filePath,
-                            content = content
-                        )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open MHTML: ${e.message}")
-                    }
-                }
-                
                 // Use Readium for Readium Audiobook format
                 "audiobook", "lcpa", "lcpdf" -> {
-                    readiumAudiobookService.extractMetadata(filePath)?.let { publication ->
+                    return@withContext readiumAudiobookService.extractMetadata(filePath)?.let { publication ->
                         ReaderType.Audiobook(
                             filePath = filePath,
                             metadata = publication,
@@ -279,7 +102,7 @@ class UnifiedReaderService @Inject constructor(
                 
                 // Use our Gemini AI for comics (superior to Readium's partial CBZ)
                 "cbz", "cbr", "cbt", "cb7" -> {
-                    ReaderType.Comic(
+                    return@withContext ReaderType.Comic(
                         filePath = filePath,
                         service = geminiComicService
                     )
@@ -287,63 +110,122 @@ class UnifiedReaderService @Inject constructor(
                 
                 // Use ExoPlayer for standalone audio files
                 "mp3", "m4a", "m4b", "flac", "ogg", "wav", "aac" -> {
-                    ReaderType.Audio(
+                    return@withContext ReaderType.Audio(
                         filePath = filePath,
                         manager = audioPlaybackManager
                     )
                 }
-                
-                // Additional legacy formats
-                "lit" -> {
-                    try {
-                        val content = extractLitContent(filePath)
+            }
+
+            // 2. Document Parsers via ParserFactory
+            if (ParserFactory.isSupported(file.name)) {
+                try {
+                    val parser = ParserFactory.getParser(filePath)
+                    val parsedDoc = parser.parse(filePath)
+                    return@withContext ReaderType.Text(
+                        filePath = filePath,
+                        content = parsedDoc.content
+                    )
+                } catch (e: Exception) {
+                    return@withContext ReaderType.Error("Failed to parse with ParserFactory: ${e.message}")
+                }
+            } else {
+                // 3. Fallback / Other Formats
+                when (extension) {
+                    // FB2 format
+                    "fb2", "fb2.zip" -> {
+                        // FB2 is XML-based, can be parsed and converted to text/HTML
+                        try {
+                            val content = file.readText()
+                            // Parse FB2 XML and extract text content
+                            val textContent = extractFB2Content(content)
+                            ReaderType.Text(
+                                filePath = filePath,
+                                content = textContent
+                            )
+                        } catch (e: Exception) {
+                            ReaderType.Error("Failed to open FB2: ${e.message}")
+                        }
+                    }
+
+                    // Text formats
+                    "txt", "text" -> {
+                        val content = file.readText()
                         ReaderType.Text(
                             filePath = filePath,
                             content = content
                         )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open LIT: ${e.message}")
                     }
-                }
-                
-                "pdb" -> {
-                    try {
-                        val content = extractPdbContent(filePath)
+
+                    "md", "markdown" -> {
+                        val content = file.readText()
                         ReaderType.Text(
                             filePath = filePath,
                             content = content
                         )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open PDB: ${e.message}")
                     }
-                }
-                
-                "rb" -> {
-                    try {
-                        val content = extractRbContent(filePath)
+
+                    // HTML formats
+                    "html", "htm" -> {
+                        val content = file.readText()
+                        // Keep HTML for better rendering
                         ReaderType.Text(
                             filePath = filePath,
                             content = content
                         )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open RB: ${e.message}")
                     }
-                }
-                
-                "snb" -> {
-                    try {
-                        val content = extractSnbContent(filePath)
+
+                    "xhtml", "xht" -> {
+                        val content = file.readText()
                         ReaderType.Text(
                             filePath = filePath,
                             content = content
                         )
-                    } catch (e: Exception) {
-                        ReaderType.Error("Failed to open SNB: ${e.message}")
                     }
-                }
-                
-                else -> {
-                    ReaderType.Error("Unsupported file format: $extension")
+
+                    "mhtml", "mht" -> {
+                        try {
+                            val content = extractMhtmlContent(filePath)
+                            ReaderType.Text(
+                                filePath = filePath,
+                                content = content
+                            )
+                        } catch (e: Exception) {
+                            ReaderType.Error("Failed to open MHTML: ${e.message}")
+                        }
+                    }
+
+                    // UMD format (if not supported by ParserFactory)
+                    "umd" -> {
+                        try {
+                            val content = extractUMDContent(filePath)
+                            ReaderType.Text(
+                                filePath = filePath,
+                                content = content
+                            )
+                        } catch (e: Exception) {
+                            ReaderType.Error("Failed to open UMD: ${e.message}")
+                        }
+                    }
+
+                    // KFX format (not supported by ParserFactory currently)
+                    "kfx" -> {
+                        try {
+                            // KFX usually encrypted or requires specific parser.
+                            // Reusing old logic or error message.
+                            val content = extractMobiContent(filePath)
+                            ReaderType.Text(
+                                filePath = filePath,
+                                content = content
+                            )
+                        } catch (e: Exception) {
+                            ReaderType.Error("Failed to open KFX: ${e.message}")
+                        }
+                    }
+
+                    else -> {
+                        ReaderType.Error("Unsupported file format: $extension")
+                    }
                 }
             }
         } catch (e: Exception) {
