@@ -10,8 +10,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
-  AppBar,
-  Toolbar,
   IconButton,
   Typography,
   List,
@@ -196,18 +194,16 @@ export const LibraryManagementScreen: React.FC = () => {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
+      <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+        {/* Header with back button */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
             <ArrowBack />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography variant="h5" component="h1">
             Library Management
           </Typography>
-        </Toolbar>
-      </AppBar>
-
-      <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+        </Box>
         {/* Library Info Card */}
         <Card sx={{ mb: 2 }}>
           <CardContent>
