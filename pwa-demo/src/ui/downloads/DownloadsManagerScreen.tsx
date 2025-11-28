@@ -36,18 +36,16 @@ export const DownloadsManagerScreen: React.FC = () => {
       id: 'webfiction',
       title: 'Web Fiction',
       description: 'Download and manage fanfiction and web novels from Archive of Our Own, FanFiction.Net, and more',
-      icon: <AutoStories sx={{ fontSize: 48 }} />,
+      icon: <AutoStories />,
       path: '/downloads/webfiction',
-      color: '#9C27B0',
       features: ['Multi-site support', 'Auto-updates', 'EPUB export'],
     },
     {
       id: 'comics',
       title: 'Web Comics',
       description: 'Download and read web comics with offline support and automatic updates',
-      icon: <MenuBook sx={{ fontSize: 48 }} />,
+      icon: <MenuBook />,
       path: '/downloads/comics',
-      color: '#FF9800',
       features: ['RSS feed support', 'Offline reading', 'Panel navigation'],
     },
   ];
@@ -94,15 +92,40 @@ export const DownloadsManagerScreen: React.FC = () => {
                 >
                   <Box
                     sx={{
-                      bgcolor: section.color,
-                      color: 'white',
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       py: 4,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        bgcolor: 'action.hover',
+                        opacity: 0.1,
+                      },
                     }}
                   >
-                    {section.icon}
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        zIndex: 1,
+                        p: 2,
+                        borderRadius: '50%',
+                        bgcolor: 'rgba(255, 255, 255, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {React.cloneElement(section.icon, { sx: { fontSize: 64, color: 'inherit' } })}
+                    </Box>
                   </Box>
                   <CardContent sx={{ flex: 1 }}>
                     <Typography variant="h5" gutterBottom>
@@ -133,7 +156,6 @@ export const DownloadsManagerScreen: React.FC = () => {
                       e.stopPropagation();
                       navigate(section.path);
                     }}
-                    sx={{ bgcolor: section.color, '&:hover': { bgcolor: section.color, opacity: 0.9 } }}
                   >
                     Open {section.title}
                   </Button>
