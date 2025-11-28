@@ -31,6 +31,7 @@ import {
   ListItemText,
   CircularProgress,
   Alert,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -65,6 +66,7 @@ export const MediaItemDetailScreen: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showCollectionDialog, setShowCollectionDialog] = useState(false);
   const [fetchingMetadata, setFetchingMetadata] = useState(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   useEffect(() => {
     if (itemId) {
@@ -111,14 +113,50 @@ export const MediaItemDetailScreen: React.FC = () => {
   };
 
   const handleFetchMetadata = async () => {
-    if (!itemId) return;
+    if (!itemId || !mediaItem) return;
 
     setFetchingMetadata(true);
     try {
-      // TODO: Implement metadata fetching
-      alert('Metadata fetching not yet implemented');
+      setSnackbar({ open: true, message: 'Fetching metadata...', severity: 'info' });
+      
+      const { metadataService } = await import('../../services/metadata/MetadataService');
+      const fetchedMetadata = await metadataService.fetchMetadata(mediaItem.fileName);
+      
+      if (fetchedMetadata) {
+        // Update metadata in database
+        if (mediaItem.mediaType === 'BOOK') {
+          await db.metadataBook.put({
+            itemId: parseInt(itemId),
+            isbn: fetchedMetadata.isbn,
+            publishedDate: fetchedMetadata.publishedDate,
+            publisher: fetchedMetadata.publisher,
+            pageCount: fetchedMetadata.pageCount,
+            language: fetchedMetadata.language,
+            isRead: false,
+            series: undefined,
+          });
+        }
+        
+        await db.metadataCommon.put({
+          itemId: parseInt(itemId),
+          title: fetchedMetadata.title,
+          authors: fetchedMetadata.authors,
+          description: fetchedMetadata.description,
+          thumbnailPath: fetchedMetadata.thumbnailUrl,
+          isFavorite: metadata?.isFavorite || false,
+          isDownloaded: metadata?.isDownloaded || false,
+        });
+
+        // Reload media item
+        await loadMediaItem(parseInt(itemId));
+        setSnackbar({ open: true, message: 'Metadata fetched successfully', severity: 'success' });
+      } else {
+        setSnackbar({ open: true, message: 'No metadata found', severity: 'warning' });
+      }
     } catch (err) {
-      console.error('Failed to fetch metadata:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('MediaItemDetail', 'Failed to fetch metadata', undefined, err as Error);
+      setSnackbar({ open: true, message: `Failed to fetch metadata: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
     } finally {
       setFetchingMetadata(false);
     }
@@ -130,9 +168,11 @@ export const MediaItemDetailScreen: React.FC = () => {
     try {
       await collectionRepository.addItem(collectionId, parseInt(itemId));
       setShowCollectionDialog(false);
-      alert('Added to collection successfully');
+      setSnackbar({ open: true, message: 'Added to collection successfully', severity: 'success' });
     } catch (err) {
-      console.error('Failed to add to collection:', err);
+      const { logger } = await import('../../services/logging');
+      logger.error('MediaItemDetail', 'Failed to add to collection', undefined, err as Error);
+      setSnackbar({ open: true, message: `Failed to add to collection: ${err instanceof Error ? err.message : 'Unknown error'}`, severity: 'error' });
     }
   };
 
@@ -409,6 +449,17 @@ export const MediaItemDetailScreen: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

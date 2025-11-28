@@ -65,6 +65,8 @@ export const SettingsMainScreen: React.FC = () => {
         { icon: <CloudSync />, label: 'Server Integration', path: '/servers' },
         { icon: <Key />, label: 'API Keys', path: '/settings/api-keys' },
         { icon: <ImportExport />, label: 'Import/Export', path: '/settings/import_export' },
+        { icon: <LibraryBooks />, label: 'OPDS Catalogs', path: '/opds' },
+        { icon: <LibraryBooks />, label: 'OPDS Settings', path: '/settings/opds' },
       ],
     },
     {
@@ -74,11 +76,20 @@ export const SettingsMainScreen: React.FC = () => {
       ],
     },
     {
+      title: 'Storage & Files',
+      items: [
+        { icon: <Storage />, label: 'File Browser', path: '/storage' },
+        { icon: <Storage />, label: 'Storage Organizer', path: '/storage/organizer' },
+        { icon: <Storage />, label: 'Network Storage', path: '/storage/network' },
+        { icon: <Storage />, label: 'Storage & Cache', path: '/maintenance' },
+      ],
+    },
+    {
       title: 'Advanced',
       items: [
-        { icon: <Storage />, label: 'Storage & Cache', path: '/maintenance' },
         { icon: <Security />, label: 'Security', path: '/settings/security' },
         { icon: <Notifications />, label: 'Notifications', path: '/settings/notifications' },
+        { icon: <CloudSync />, label: 'TTS Settings', path: '/settings/tts' },
       ],
     },
     {

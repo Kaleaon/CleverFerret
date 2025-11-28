@@ -8,8 +8,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  AppBar,
-  Toolbar,
   IconButton,
   Typography,
   TextField,
@@ -27,7 +25,9 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
+  Snackbar,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -49,6 +49,8 @@ export const WebComicManagerScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showExamples, setShowExamples] = useState(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
+  const [deleteComicId, setDeleteComicId] = useState<string | null>(null);
 
   useEffect(() => {
     loadComics();
@@ -59,7 +61,8 @@ export const WebComicManagerScreen: React.FC = () => {
       const savedComics = await db.downloadedComics?.toArray() || [];
       setComics(savedComics as any);
     } catch (error) {
-      console.error('Error loading comics:', error);
+      const { logger } = await import('../services/logging');
+      logger.error('WebComic', 'Error loading comics', undefined, error as Error);
     }
   };
 
@@ -82,7 +85,8 @@ export const WebComicManagerScreen: React.FC = () => {
       setNewComicUrl('');
       setLoading(false);
     } catch (error) {
-      console.error('Error adding comic:', error);
+      const { logger } = await import('../services/logging');
+      logger.error('WebComic', 'Error adding comic', undefined, error as Error);
       setError('Failed to add comic. Please check the URL and try again.');
       setLoading(false);
     }
@@ -92,28 +96,38 @@ export const WebComicManagerScreen: React.FC = () => {
     try {
       const newStrips = await webComicService.checkForUpdates(comic);
       if (newStrips > 0) {
-        alert(`${newStrips} new strips available!`);
+        setSnackbar({ open: true, message: `${newStrips} new strips available!`, severity: 'success' });
         // Refresh the comic
         const updatedComic = await webComicService.fetchComic(comic.url);
         await db.downloadedComics?.update(comic.id, updatedComic as any);
         loadComics();
       } else {
-        alert('No new strips available.');
+        setSnackbar({ open: true, message: 'No new strips available.', severity: 'info' });
       }
     } catch (error) {
-      console.error('Error updating comic:', error);
-      alert('Failed to check for updates.');
+      const { logger } = await import('../services/logging');
+      logger.error('WebComic', 'Error updating comic', undefined, error as Error);
+      setSnackbar({ open: true, message: 'Failed to check for updates.', severity: 'error' });
     }
   };
 
   const handleDeleteComic = async (comicId: string) => {
-    if (confirm('Are you sure you want to remove this comic?')) {
-      try {
-        await db.downloadedComics?.delete(comicId);
-        setComics(comics.filter(c => c.id !== comicId));
-      } catch (error) {
-        console.error('Error deleting comic:', error);
-      }
+    setDeleteComicId(comicId);
+  };
+
+  const confirmDeleteComic = async () => {
+    if (!deleteComicId) return;
+    
+    try {
+      await db.downloadedComics?.delete(deleteComicId);
+      setComics(comics.filter(c => c.id !== deleteComicId));
+      setSnackbar({ open: true, message: 'Comic removed successfully', severity: 'success' });
+    } catch (error) {
+      const { logger } = await import('../services/logging');
+      logger.error('WebComic', 'Error deleting comic', undefined, error as Error);
+      setSnackbar({ open: true, message: 'Failed to remove comic', severity: 'error' });
+    } finally {
+      setDeleteComicId(null);
     }
   };
 
@@ -139,19 +153,18 @@ export const WebComicManagerScreen: React.FC = () => {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => navigate(-1)}>
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Web Comic Manager
-          </Typography>
-          <IconButton color="inherit" onClick={() => setShowExamples(true)}>
-            <Public />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', p: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <IconButton onClick={() => navigate('/downloads')} sx={{ mr: 1 }}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
+          Web Comic Manager
+        </Typography>
+        <IconButton onClick={() => setShowExamples(true)}>
+          <Public />
+        </IconButton>
+      </Box>
 
       <Box sx={{ p: 2 }}>
         {error && (
@@ -296,6 +309,32 @@ export const WebComicManagerScreen: React.FC = () => {
           <Button onClick={() => setShowExamples(false)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={!!deleteComicId} onClose={() => setDeleteComicId(null)}>
+        <DialogTitle>Remove Comic</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to remove this comic? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteComicId(null)}>Cancel</Button>
+          <Button onClick={confirmDeleteComic} color="error" variant="contained">
+            Remove
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

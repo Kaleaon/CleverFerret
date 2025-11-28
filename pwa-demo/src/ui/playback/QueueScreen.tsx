@@ -19,6 +19,13 @@ import {
   ListItemText,
   Avatar,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -35,6 +42,8 @@ export const QueueScreen: React.FC = () => {
   const navigate = useNavigate();
   const [queue, setQueue] = useState<AudioTrack[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity?: 'success' | 'error' | 'info' }>({ open: false, message: '' });
 
   useEffect(() => {
     loadQueue();
@@ -53,9 +62,19 @@ export const QueueScreen: React.FC = () => {
   };
 
   const handleClearQueue = () => {
-    if (confirm('Clear the entire queue?')) {
+    setShowClearDialog(true);
+  };
+
+  const confirmClearQueue = async () => {
+    setShowClearDialog(false);
+    try {
       audioPlayerService.loadPlaylist([], 0);
       loadQueue();
+      setSnackbar({ open: true, message: 'Queue cleared successfully', severity: 'success' });
+    } catch (error) {
+      const { logger } = await import('../../services/logging');
+      logger.error('Queue', 'Failed to clear queue', undefined, error as Error);
+      setSnackbar({ open: true, message: 'Failed to clear queue', severity: 'error' });
     }
   };
 
@@ -116,6 +135,32 @@ export const QueueScreen: React.FC = () => {
           </Typography>
         </Box>
       )}
+
+      <Dialog open={showClearDialog} onClose={() => setShowClearDialog(false)}>
+        <DialogTitle>Clear Queue</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to clear the entire queue?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowClearDialog(false)}>Cancel</Button>
+          <Button onClick={confirmClearQueue} color="error" variant="contained">
+            Clear
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity || 'info'} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -21,8 +21,9 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  async componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    const { logger } = await import('../services/logging');
+    logger.error('ErrorBoundary', 'Caught an error', { errorInfo }, error);
   }
 
   handleReset = () => {

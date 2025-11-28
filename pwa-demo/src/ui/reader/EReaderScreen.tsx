@@ -35,6 +35,7 @@ import {
   InputLabel,
   Select,
   CircularProgress,
+  Button,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -48,6 +49,9 @@ import {
   Palette,
   MenuBook,
 } from '@mui/icons-material';
+import { epubReaderService, type EPUBBook, type EPUBChapter } from '../../services/readers/EPUBReaderService';
+import { db } from '../../services/database-complete';
+import type { MediaItem } from '../../data/local/entity';
 
 export const EReaderScreen: React.FC = () => {
   const { itemId } = useParams<{ itemId: string }>();
@@ -63,9 +67,11 @@ export const EReaderScreen: React.FC = () => {
 
   // Reading state
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(100);
+  const [totalPages, setTotalPages] = useState(0);
   const [currentChapter, setCurrentChapter] = useState(0);
-  const [chapters, setChapters] = useState<string[]>(['Chapter 1', 'Chapter 2', 'Chapter 3']);
+  const [chapters, setChapters] = useState<EPUBChapter[]>([]);
+  const [book, setBook] = useState<EPUBBook | null>(null);
+  const [mediaItem, setMediaItem] = useState<MediaItem | null>(null);
 
   // Reader settings
   const [fontSize, setFontSize] = useState(18);
@@ -74,37 +80,84 @@ export const EReaderScreen: React.FC = () => {
   const [brightness, setBrightness] = useState(100);
   const [lineHeight, setLineHeight] = useState(1.6);
 
-  // Sample content (in production, this would be loaded from file)
-  const [content, setContent] = useState(
-    '<p>This is sample reading content. In production, this would load from the actual ebook file using epub.js or a custom reader engine.</p>'
-  );
+  // Content
+  const [content, setContent] = useState('<p>Loading...</p>');
 
   useEffect(() => {
     loadBook();
   }, [itemId]);
 
   const loadBook = async () => {
+    if (!itemId) {
+      setError('No book ID provided');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
+    setError(null);
+    
     try {
-      // TODO: Implement actual book loading with epub.js
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
+      // Load media item from database
+      const item = await db.mediaItems.get(parseInt(itemId));
+      if (!item) {
+        throw new Error('Book not found');
+      }
+      setMediaItem(item);
+
+      // Load EPUB file
+      let file: File | Blob | string;
+      if (item.filePath) {
+        // Try to load from file path
+        file = item.filePath;
+      } else if (item.fileData) {
+        // Use stored file data
+        file = new Blob([item.fileData], { type: 'application/epub+zip' });
+      } else {
+        throw new Error('No file data available');
+      }
+
+      const epubBook = await epubReaderService.loadEPUB(file);
+      setBook(epubBook);
+      setTotalPages(epubBook.spine.length);
+      
+      // Load table of contents
+      const toc = epubReaderService.getTableOfContents(epubBook);
+      setChapters(toc);
+
+      // Load first chapter
+      await loadChapter(0);
     } catch (err) {
-      setError('Failed to load book');
+      setError(err instanceof Error ? err.message : 'Failed to load book');
+      const { logger } = await import('../../services/logging');
+      logger.error('EReader', 'Failed to load book', undefined, err as Error);
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
+  const loadChapter = async (chapterIndex: number) => {
+    if (!book) return;
+    
+    try {
+      const chapterContent = await epubReaderService.renderChapter(book, chapterIndex);
+      setContent(chapterContent);
+      setCurrentPage(chapterIndex);
+      setCurrentChapter(chapterIndex);
+    } catch (err) {
+      setError(`Failed to load chapter: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
-  const handlePrevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
+  const handleNextPage = async () => {
+    if (currentPage < totalPages - 1 && book) {
+      await loadChapter(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = async () => {
+    if (currentPage > 0 && book) {
+      await loadChapter(currentPage - 1);
     }
   };
 
@@ -139,8 +192,18 @@ export const EReaderScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: 2 }}>
         <CircularProgress />
+        <Typography>Loading book...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: 2, p: 3 }}>
+        <Typography variant="h6" color="error">{error}</Typography>
+        <Button variant="contained" onClick={() => navigate(-1)}>Go Back</Button>
       </Box>
     );
   }
@@ -155,7 +218,7 @@ export const EReaderScreen: React.FC = () => {
               <ArrowBack />
             </IconButton>
             <Typography variant="h6" sx={{ flexGrow: 1 }} noWrap>
-              Reading
+              {book?.title || 'Reading'}
             </Typography>
             <IconButton onClick={() => setShowChapterList(true)}>
               <ListIcon />
@@ -200,8 +263,13 @@ export const EReaderScreen: React.FC = () => {
             <Slider
               value={currentPage}
               min={0}
-              max={totalPages - 1}
-              onChange={(_, value) => setCurrentPage(value as number)}
+              max={Math.max(0, totalPages - 1)}
+              onChange={async (_, value) => {
+                const pageNum = value as number;
+                if (book) {
+                  await loadChapter(pageNum);
+                }
+              }}
               sx={{ flex: 1 }}
             />
             <IconButton size="small" onClick={handleNextPage}>
@@ -303,22 +371,28 @@ export const EReaderScreen: React.FC = () => {
             <Typography variant="h6">Chapters</Typography>
           </Box>
           <List>
-            {chapters.map((chapter, index) => (
-              <ListItem key={index} disablePadding>
-                <ListItemButton
-                  selected={index === currentChapter}
-                  onClick={() => {
-                    setCurrentChapter(index);
-                    setShowChapterList(false);
-                  }}
-                >
-                  <ListItemText
-                    primary={chapter}
-                    secondary={index === currentChapter ? 'Current' : ''}
-                  />
-                </ListItemButton>
+            {chapters.length > 0 ? (
+              chapters.map((chapter, index) => (
+                <ListItem key={chapter.id || index} disablePadding>
+                  <ListItemButton
+                    selected={index === currentChapter}
+                    onClick={async () => {
+                      await loadChapter(index);
+                      setShowChapterList(false);
+                    }}
+                  >
+                    <ListItemText
+                      primary={chapter.title}
+                      secondary={index === currentChapter ? 'Current' : ''}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))
+            ) : (
+              <ListItem>
+                <ListItemText primary="No chapters available" />
               </ListItem>
-            ))}
+            )}
           </List>
         </Box>
       </Drawer>
