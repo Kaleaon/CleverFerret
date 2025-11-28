@@ -988,15 +988,16 @@ private fun loadFileItems(directory: File, settings: FileBrowserSettings): List<
             SortMode.BY_LOCATION -> filteredFiles.sortedBy { it.absolutePath }
         }
         
-        return sortedFiles.map { file ->
-        FileItem(
-            file = file,
-            name = file.name,
-            isDirectory = file.isDirectory,
-            size = file.length(),
-            modifiedDate = file.lastModified(),
-            fileType = FileType.fromFile(file)
-        )
+        sortedFiles.map { file ->
+            FileItem(
+                file = file,
+                name = file.name,
+                isDirectory = file.isDirectory,
+                size = file.length(),
+                modifiedDate = file.lastModified(),
+                fileType = FileType.fromFile(file)
+            )
+        }
     } catch (e: SecurityException) {
         throw SecurityException("Permission denied: ${e.message}", e)
     } catch (e: Exception) {

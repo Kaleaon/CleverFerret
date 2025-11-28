@@ -1,6 +1,8 @@
 package com.universalmedialibrary.ui.filepicker
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -83,7 +85,7 @@ fun AutoImportFoldersScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(folders) { folder ->
+                items(folders) { folder: AutoImportFolder ->
                     AutoImportFolderItem(
                         folder = folder,
                         onToggle = { onToggleFolder(folder.path, !folder.enabled) },

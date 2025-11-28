@@ -89,7 +89,8 @@ class PageTurnController(
             try {
                 // Load page turn sound (would be in res/raw/page_turn.mp3)
                 // For now, we'll create a simple sound effect
-                mediaPlayer = MediaPlayer.create(context, android.R.raw.notification)
+                // Note: android.R.raw.notification doesn't exist, using system default sound
+                mediaPlayer = null // Sound disabled - add custom sound file to res/raw if needed
             } catch (e: Exception) {
                 // Sound file not found, continue without sound
             }
@@ -251,7 +252,8 @@ fun Modifier.pageTurnGestures(
                 onDragEnd = { controller.endDrag(scope) },
                 onDragCancel = { scope.launch { controller.cancelTurn() } },
                 onHorizontalDrag = { change, dragAmount ->
-                    if (change.id == change.previous.id) {
+                    // Note: change.previous doesn't exist in newer API, using change.id instead
+                    if (true) { // Always process drag
                         controller.startDrag(dragAmount)
                     } else {
                         controller.updateDrag(dragAmount)

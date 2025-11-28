@@ -9,6 +9,7 @@ import com.universalmedialibrary.data.local.dao.PodcastSubscriptionDao
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import com.universalmedialibrary.services.podcast.PodcastService
+import com.universalmedialibrary.utils.FileNameSanitizer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -71,8 +72,9 @@ object PodcastModule {
     @Singleton
     fun providePodcastDownloadManager(
         @ApplicationContext context: Context,
-        episodeDao: PodcastEpisodeDao
+        episodeDao: PodcastEpisodeDao,
+        fileNameSanitizer: FileNameSanitizer
     ): PodcastDownloadManager {
-        return PodcastDownloadManager(context, episodeDao)
+        return PodcastDownloadManager(context, episodeDao, fileNameSanitizer)
     }
 }

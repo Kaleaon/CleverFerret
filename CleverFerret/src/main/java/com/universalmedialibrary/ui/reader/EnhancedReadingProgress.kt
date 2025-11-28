@@ -168,12 +168,7 @@ fun ReadingTimeRemainingIndicator(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                imageVector = androidx.compose.material.icons.Icons.Default.AccessTime,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            // Icon removed - using text only for time display
             Text(
                 text = "$formattedTime remaining",
                 style = MaterialTheme.typography.bodyMedium,
