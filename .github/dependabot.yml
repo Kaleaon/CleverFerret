@@ -1,12 +1,19 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    directory: "/pwa-demo"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "*"
-        versions: ["<2.0.0"]
-    update-types:
-      - "all"
-    open-pull-requests-limit: 20
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
