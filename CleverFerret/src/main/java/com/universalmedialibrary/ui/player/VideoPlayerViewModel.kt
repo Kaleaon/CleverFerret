@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import java.io.File
+import com.universalmedialibrary.utils.ErrorLogger
 
 /**
  * ViewModel for the video player
@@ -29,6 +30,13 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<VideoPlayerUiState> = _uiState.asStateFlow()
 
     private var exoPlayer: ExoPlayer? = null
+
+    private val exceptionHandler = ErrorLogger.createCoroutineExceptionHandler("VideoPlayerViewModel") {
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            error = "Unexpected error: ${it.message}"
+        )
+    }
 
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -55,6 +63,7 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
 
         override fun onPlayerErrorChanged(error: PlaybackException?) {
             error?.let {
+                ErrorLogger.logExoPlayerError("Video playback error", it)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Video playback error: ${it.message}"
@@ -67,7 +76,7 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
      * Load a video file for playback
      */
     fun loadVideo(context: Context, filePath: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
@@ -102,6 +111,7 @@ class VideoPlayerViewModel @Inject constructor() : ViewModel() {
                 )
 
             } catch (e: Exception) {
+                ErrorLogger.logError("VideoPlayerViewModel", "Failed to load video", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = "Failed to load video: ${e.message}"

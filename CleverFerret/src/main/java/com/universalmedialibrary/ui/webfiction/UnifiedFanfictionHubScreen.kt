@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -21,14 +23,18 @@ import com.universalmedialibrary.ui.components.PinAccessDialog
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import java.util.Locale
+import com.universalmedialibrary.ui.fanfiction.FanfictionViewModel
+import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
+import com.universalmedialibrary.ui.fanfiction.FilterType
+import com.universalmedialibrary.ui.icons.PhosphorIcons
 
 /**
- * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery and download
+ * Unified Fanfiction Hub - All-in-one interface for fanfiction discovery, download, and management.
  * 
  * Streamlined experience combining:
- * - Site selection
- * - Tag-based browsing  
+ * - Site selection & Tag-based browsing
  * - Direct story download
+ * - Library management (My Library)
  * - Update checker
  * 
  * No more jumping between screens! Reading is handled by the separate eReader.
@@ -38,51 +44,77 @@ import java.util.Locale
 fun UnifiedFanfictionHubScreen(
     navController: NavController,
     viewModel: UniversalTagBrowserViewModel = hiltViewModel(),
-    downloadViewModel: FanfictionDownloaderViewModel = hiltViewModel()
+    downloadViewModel: FanfictionDownloaderViewModel = hiltViewModel(),
+    libraryViewModel: FanfictionViewModel = hiltViewModel()
 ) {
     CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
         val uiState by viewModel.uiState.collectAsState()
         val downloadState by downloadViewModel.uiState.collectAsState()
         val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
         
+        var selectedTab by remember { mutableIntStateOf(0) }
+        val tabs = listOf("Discover", "My Library")
+        
         var showQuickDownloadDialog by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            "Fanfiction Hub",
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    actions = {
-                        // Quick download button
-                        IconButton(onClick = { showQuickDownloadDialog = true }) {
-                            Icon(Icons.Default.Download, contentDescription = "Quick Download")
-                        }
-                        
-                        // Refresh tags
-                        if (uiState.selectedSite != null) {
-                            IconButton(onClick = { viewModel.refreshTags() }) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                Column {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                "Fanfiction Hub",
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { navController.navigateUp() }) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                             }
-                        }
-                        
-                        // Library link
-                        IconButton(onClick = { navController.navigate("fanfiction_library") }) {
-                            Icon(Icons.Default.Book, contentDescription = "My Library")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                        },
+                        actions = {
+                            // Quick download button
+                            IconButton(onClick = { showQuickDownloadDialog = true }) {
+                                Icon(Icons.Default.Download, contentDescription = "Quick Download")
+                            }
+                            
+                            if (selectedTab == 0 && uiState.selectedSite != null) {
+                                // Refresh tags (Discover tab)
+                                IconButton(onClick = { viewModel.refreshTags() }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Refresh Tags")
+                                }
+                            } else if (selectedTab == 1) {
+                                // Check updates (Library tab)
+                                IconButton(onClick = { libraryViewModel.checkForUpdates() }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Check Updates")
+                                }
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     )
-                )
+                    
+                    TabRow(
+                        selectedTabIndex = selectedTab,
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                text = { Text(title) },
+                                icon = {
+                                    Icon(
+                                        if (index == 0) Icons.Default.Explore else Icons.Default.LibraryBooks,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
             }
         ) { paddingValues ->
             Column(
@@ -106,19 +138,29 @@ fun UnifiedFanfictionHubScreen(
                     }
                 }
                 
-                // Tag loading indicator
-                if (uiState.isLoadingTags) {
+                // Tag loading indicator (only for Discover tab)
+                if (selectedTab == 0 && uiState.isLoadingTags) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
                 
-                // Main content
-                UnifiedContent(
-                    uiState = uiState,
-                    downloadState = downloadState,
-                    viewModel = viewModel,
-                    downloadViewModel = downloadViewModel,
-                    adultSitesEnabled = adultSitesEnabled
-                )
+                // Content
+                when (selectedTab) {
+                    0 -> UnifiedContent(
+                        uiState = uiState,
+                        downloadState = downloadState,
+                        viewModel = viewModel,
+                        downloadViewModel = downloadViewModel,
+                        adultSitesEnabled = adultSitesEnabled
+                    )
+                    1 -> FanfictionLibraryTab(
+                        viewModel = libraryViewModel,
+                        onStoryClick = { story -> 
+                            // Navigate to reader or details
+                            // Assuming a reader route exists or details route
+                            // For now, maybe just show a toast or log
+                        }
+                    )
+                }
             }
         }
 
@@ -155,6 +197,251 @@ fun UnifiedFanfictionHubScreen(
         }
     }
 }
+
+@Composable
+fun FanfictionLibraryTab(
+    viewModel: FanfictionViewModel,
+    onStoryClick: (FanfictionStoryEntity) -> Unit
+) {
+    val stories by viewModel.allStories.collectAsState()
+    val selectedFilter by viewModel.selectedFilter.collectAsState()
+    val updateStatus by viewModel.updateStatus.collectAsState()
+    
+    var showFilterMenu by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    
+    val filteredStories = remember(stories, selectedFilter, searchQuery) {
+        stories.filter { story ->
+            val matchesSearch = searchQuery.isBlank() ||
+                story.title.contains(searchQuery, ignoreCase = true) ||
+                story.author.contains(searchQuery, ignoreCase = true) ||
+                story.summary.contains(searchQuery, ignoreCase = true)
+            
+            val matchesFilter = when (selectedFilter) {
+                FilterType.ALL -> true
+                FilterType.IN_PROGRESS -> story.status == "IN_PROGRESS"
+                FilterType.COMPLETE -> story.status == "COMPLETE"
+                FilterType.AO3 -> story.sourceSite == "Archive of Our Own"
+                FilterType.FFN -> story.sourceSite == "FanFiction.Net"
+                FilterType.ROYAL_ROAD -> story.sourceSite == "Royal Road"
+            }
+            
+            matchesSearch && matchesFilter
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Filter and Search Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search library...") },
+                leadingIcon = { Icon(Icons.Default.Search, "Search") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
+                singleLine = true
+            )
+            
+            IconButton(onClick = { showFilterMenu = true }) {
+                Icon(Icons.Default.FilterList, "Filter")
+            }
+            
+            DropdownMenu(
+                expanded = showFilterMenu,
+                onDismissRequest = { showFilterMenu = false }
+            ) {
+                FilterType.values().forEach { filter ->
+                    DropdownMenuItem(
+                        text = { Text(filter.name.replace("_", " ")) },
+                        onClick = {
+                            viewModel.setFilter(filter)
+                            showFilterMenu = false
+                        },
+                        leadingIcon = {
+                            if (filter == selectedFilter) {
+                                Icon(Icons.Default.Check, null)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        
+        // Update status banner
+        updateStatus?.let { status ->
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        status,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { viewModel.clearUpdateStatus() }) {
+                        Icon(Icons.Default.Close, "Dismiss")
+                    }
+                }
+            }
+        }
+
+        if (filteredStories.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    if (stories.isNotEmpty()) "No stories match your filter" else "Your library is empty. Go to 'Discover' to find stories!",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(32.dp)
+                )
+            }
+        } else {
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(
+                    items = filteredStories,
+                    key = { it.id }
+                ) { story ->
+                    LibraryStoryCard(
+                        story = story,
+                        onClick = { onStoryClick(story) },
+                        onUpdateClick = { viewModel.updateStory(story.id) },
+                        onDeleteClick = { viewModel.deleteStory(story) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LibraryStoryCard(
+    story: FanfictionStoryEntity,
+    onClick: () -> Unit,
+    onUpdateClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+    
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Title and menu
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    story.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                
+                Box {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, "Menu")
+                    }
+                    
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        if (story.status == "IN_PROGRESS") {
+                            DropdownMenuItem(
+                                text = { Text("Check for Updates") },
+                                onClick = {
+                                    onUpdateClick()
+                                    showMenu = false
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Refresh, null)
+                                }
+                            )
+                        }
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                onDeleteClick()
+                                showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Delete, null)
+                            }
+                        )
+                    }
+                }
+            }
+            
+            // Author
+            Text(
+                "by ${story.author}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Spacer(Modifier.height(8.dp))
+            
+            // Summary
+            Text(
+                story.summary,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Spacer(Modifier.height(12.dp))
+            
+            // Stats
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    "${story.chapterCount} ch",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    formatNumber(story.wordCount),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    story.sourceSite,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

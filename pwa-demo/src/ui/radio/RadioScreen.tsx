@@ -133,7 +133,8 @@ export const RadioScreen: React.FC = () => {
             });
           }
         } catch (err) {
-          console.error('Failed to play station:', err);
+          const { logger } = await import('../../services/logging');
+          logger.error('Radio', 'Failed to play station', undefined, err as Error);
           const errorMsg = err instanceof Error && err.name === 'NotAllowedError'
             ? `Cannot play automatically. Please click the Play button again to start playback.`
             : `Failed to play stream: ${station.name}. The stream may not be available or blocked by your browser.`;
@@ -169,7 +170,7 @@ export const RadioScreen: React.FC = () => {
         : (audioRef.current as any).mozCaptureStream?.();
 
       if (!stream) {
-        alert('Recording not supported in this browser');
+        setErrorMessage('Recording not supported in this browser');
         return;
       }
 
@@ -195,9 +196,11 @@ export const RadioScreen: React.FC = () => {
 
       mediaRecorder.start();
       setIsRecording(true);
+      setErrorMessage(null);
     } catch (error) {
-      console.error('Failed to start recording:', error);
-      alert('Failed to start recording. This feature requires browser support.');
+      const { logger } = await import('../../services/logging');
+      logger.error('Radio', 'Failed to start recording', undefined, error as Error);
+      setErrorMessage('Failed to start recording. This feature requires browser support.');
     }
   };
 
@@ -240,7 +243,8 @@ export const RadioScreen: React.FC = () => {
 
   const handleToggleFavorite = async (station: RadioStation) => {
     if (!station.id) {
-      console.error('Station ID is undefined');
+      const { logger } = await import('../../services/logging');
+      logger.error('Radio', 'Station ID is undefined');
       return;
     }
     try {
@@ -249,7 +253,8 @@ export const RadioScreen: React.FC = () => {
       });
       loadStations();
     } catch (error) {
-      console.error('Failed to update favorite status:', error);
+      const { logger } = await import('../../services/logging');
+      logger.error('Radio', 'Failed to update favorite status', undefined, error as Error);
     }
   };
 

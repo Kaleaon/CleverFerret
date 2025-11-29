@@ -48,7 +48,7 @@ class PdfReaderEngine @Inject constructor() : ReaderEngine {
                 val file = when (source) {
                     is BookSource.File -> {
                         when (source.uri.scheme) {
-                            "file" -> File(source.uri.path!!)
+                            "file" -> File(source.uri.path ?: "")
                             "content" -> {
                                 // Copy content URI to temp file
                                 val tempFile = File(

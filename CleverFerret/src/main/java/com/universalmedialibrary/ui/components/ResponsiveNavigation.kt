@@ -80,6 +80,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.ui.icons.PhosphorIcons
+import com.universalmedialibrary.ui.theme.LocalIsAncientArchitect
 
 /**
  * Represents a navigation item for bottom navigation, navigation rail, and drawer destinations.
@@ -267,24 +268,47 @@ fun BottomNavigationBar(navController: NavController) {
 fun NavigationRailBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val isAncientArchitect = LocalIsAncientArchitect.current
 
-    NavigationRail(modifier = Modifier.fillMaxHeight()) {
-        NavigationItems.items.forEach { item ->
-            val selected = currentDestination.isDestinationSelected(item)
-            NavigationRailItem(
-                icon = { if (selected) item.selectedIcon() else item.icon() },
-                label = { Text(item.label) },
-                selected = selected,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
+    if (isAncientArchitect) {
+        AncientArchitectNavigationRail(modifier = Modifier.fillMaxHeight()) {
+            NavigationItems.items.forEach { item ->
+                val selected = currentDestination.isDestinationSelected(item)
+                AncientArchitectNavigationRailItem(
+                    selected = selected,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
+                    },
+                    icon = { if (selected) item.selectedIcon() else item.icon() },
+                    label = { Text(item.label) }
+                )
+            }
+        }
+    } else {
+        NavigationRail(modifier = Modifier.fillMaxHeight()) {
+            NavigationItems.items.forEach { item ->
+                val selected = currentDestination.isDestinationSelected(item)
+                NavigationRailItem(
+                    icon = { if (selected) item.selectedIcon() else item.icon() },
+                    label = { Text(item.label) },
+                    selected = selected,
+                    onClick = {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

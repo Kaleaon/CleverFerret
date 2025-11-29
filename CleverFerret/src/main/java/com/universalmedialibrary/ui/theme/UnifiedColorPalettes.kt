@@ -24,7 +24,35 @@ enum class UnifiedThemePalette {
     BURGUNDY_ROSE_GOLD,
     CHARCOAL_CHAMPAGNE,
     SLATE_GUNMETAL,
-    DEEP_PURPLE_PLATINUM
+    DEEP_PURPLE_PLATINUM,
+    PAPER_INK
+}
+
+// Theme 13: Paper & Ink (Minimalist Reader)
+object PaperInkUnified {
+    private val Ink = Color(0xFF2C2C2C)
+    private val InkLight = Color(0xFF454545)
+    private val InkDark = Color(0xFF1A1A1A)
+    private val PaperDeep = Color(0xFFF0F0EB)
+    private val PaperSheet = Color(0xFFFAF9F6)
+
+    val lightScheme = androidx.compose.material3.lightColorScheme(
+        primary = Ink,
+        onPrimary = PaperSheet,
+        primaryContainer = InkLight,
+        onPrimaryContainer = PaperSheet,
+        secondary = Color(0xFF595959),
+        onSecondary = PaperSheet,
+        background = PaperDeep,
+        onBackground = Ink,
+        surface = PaperSheet,
+        onSurface = Ink,
+        surfaceVariant = Color(0xFFEBEAE4),
+        onSurfaceVariant = Color(0xFF454545)
+    )
+
+    // For compatibility with the existing system which defaults to dark schemes
+    val darkScheme = lightScheme
 }
 
 // Theme 1: Navy & Gold (Classic Plex-inspired)
@@ -329,6 +357,7 @@ object UnifiedMetallicEffects {
     val Champagne = listOf(Color(0xFFF7E7CE), Color(0xFFEDD5B7), Color(0xFFE3C39D))
     val Gunmetal = listOf(Color(0xFF8F9CA8), Color(0xFF78909C), Color(0xFF607D8B))
     val Platinum = listOf(Color(0xFFE5E4E2), Color(0xFFF5F5F5), Color(0xFFEEEEEE))
+    val Ink = listOf(Color(0xFF2C2C2C), Color(0xFF454545), Color(0xFF1A1A1A))
 }
 
 // Helper function to get metallic effect by theme
@@ -346,5 +375,6 @@ fun getMetallicEffectForTheme(palette: UnifiedThemePalette): List<Color> {
         UnifiedThemePalette.CHARCOAL_CHAMPAGNE -> UnifiedMetallicEffects.Champagne
         UnifiedThemePalette.SLATE_GUNMETAL -> UnifiedMetallicEffects.Gunmetal
         UnifiedThemePalette.DEEP_PURPLE_PLATINUM -> UnifiedMetallicEffects.Platinum
+        UnifiedThemePalette.PAPER_INK -> UnifiedMetallicEffects.Ink
     }
 }

@@ -43,6 +43,18 @@ android {
         // Enable BuildConfig generation
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
         buildConfigField("int", "VERSION_CODE", "${versionCode}")
+
+        val tasteDiveKey = project.properties["TASTEDIVE_API_KEY"] ?: "1062990-CleverFe-17BF9586"
+        buildConfigField("String", "TASTEDIVE_API_KEY", "\"$tasteDiveKey\"")
+
+        val nytApiKey = project.properties["NYT_API_KEY"] ?: ""
+        buildConfigField("String", "NYT_API_KEY", "\"$nytApiKey\"")
+
+        val nytApiSecret = project.properties["NYT_API_SECRET"] ?: ""
+        buildConfigField("String", "NYT_API_SECRET", "\"$nytApiSecret\"")
+
+        val nytAppId = project.properties["NYT_APP_ID"] ?: ""
+        buildConfigField("String", "NYT_APP_ID", "\"$nytAppId\"")
     }
 
     buildTypes {
@@ -73,6 +85,14 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/LICENSE*"
+            excludes += "/META-INF/NOTICE*"
+            excludes += "/META-INF/*.md"
+            excludes += "/META-INF/*.txt"
+            // Note: Excluding *.properties may remove some library metadata, but is needed to resolve
+            // packaging conflicts. If runtime issues occur, consider being more specific.
+            excludes += "/META-INF/*.properties"
         }
     }
     
@@ -163,6 +183,22 @@ dependencies {
     implementation(libs.junrar)
     implementation(libs.commons.compress)
     implementation(libs.xz)
+
+
+    // Document parsing libraries
+    implementation(libs.apache.poi.ooxml) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.poi.scratchpad) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.tika.core) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.apache.tika.parsers) {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation(libs.lib.mobi.core)
 
     // Parsing & data utilities
     implementation(libs.jsoup)

@@ -636,7 +636,8 @@ export const LibraryDetailsScreen: React.FC = () => {
       const demoItems = generateDemoMediaItems(selectedType, 24);
       setItems(demoItems);
     } catch (error) {
-      console.error('Failed to load items:', error);
+      const { logger } = await import('../services/logging');
+      logger.error('LibraryDetails', 'Failed to load items', undefined, error as Error);
     } finally {
       setIsLoading(false);
     }

@@ -72,13 +72,17 @@ import java.util.Locale
                 CurrentPlayingItem(
                     item = item,
                     playbackState = playbackState,
+                    shuffleEnabled = currentQueue?.shuffleEnabled ?: false,
+                    repeatMode = currentQueue?.repeatMode ?: "NONE",
                     onPlayPause = viewModel::togglePlayPause,
                     onSkipNext = viewModel::skipToNext,
                     onSkipPrevious = viewModel::skipToPrevious,
                     onSeek = viewModel::seekTo,
                     onSpeedChange = viewModel::setPlaybackSpeed,
                     onThumbsUp = { viewModel.likeCurrentTrack() },
-                    onAddToPlaylist = { showPlaylistDialog = true }
+                    onAddToPlaylist = { showPlaylistDialog = true },
+                    onToggleShuffle = viewModel::toggleShuffle,
+                    onToggleRepeat = viewModel::toggleRepeatMode
                 )
             }
 
@@ -115,13 +119,17 @@ import java.util.Locale
 private fun CurrentPlayingItem(
     item: QueueItem,
     playbackState: UnifiedPlaybackState,
+    shuffleEnabled: Boolean,
+    repeatMode: String,
     onPlayPause: () -> Unit,
     onSkipNext: () -> Unit,
     onSkipPrevious: () -> Unit,
     onSeek: (Long) -> Unit,
     onSpeedChange: (Float) -> Unit,
     onThumbsUp: () -> Unit,
-    onAddToPlaylist: () -> Unit
+    onAddToPlaylist: () -> Unit,
+    onToggleShuffle: () -> Unit,
+    onToggleRepeat: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -196,21 +204,12 @@ private fun CurrentPlayingItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Playback controls
+            // Primary Controls (Play, Pause, Skip)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onThumbsUp) {
-                    Icon(
-                        Icons.Default.ThumbUp,
-                        contentDescription = "Like",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                // Shuffle/Repeat would need to be added to viewModel interface
-                
                 IconButton(onClick = onSkipPrevious) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Previous")
                 }
@@ -228,6 +227,43 @@ private fun CurrentPlayingItem(
                 IconButton(onClick = onSkipNext) {
                     Icon(Icons.Default.ArrowForward, contentDescription = "Next")
                 }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Secondary Controls (Shuffle, Repeat, Like, Playlist)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                 IconButton(onClick = onToggleShuffle) {
+                    Icon(
+                        Icons.Default.Shuffle,
+                        contentDescription = "Shuffle",
+                        tint = if (shuffleEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(onClick = onToggleRepeat) {
+                    Icon(
+                        when (repeatMode) {
+                            "ONE" -> Icons.Default.RepeatOne
+                            else -> Icons.Default.Repeat
+                        },
+                        contentDescription = "Repeat",
+                        tint = if (repeatMode != "NONE") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                IconButton(onClick = onThumbsUp) {
+                    Icon(
+                        Icons.Default.ThumbUp,
+                        contentDescription = "Like",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
                 IconButton(onClick = onAddToPlaylist) {
                     Icon(
                         Icons.Default.PlaylistAdd,

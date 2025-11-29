@@ -49,6 +49,7 @@ import javax.inject.Inject
 fun AudioEffectsSettingsScreen(
     viewModel: AudioEffectsViewModel,
     onNavigateBack: () -> Unit = {},
+    onNavigateToShowcase: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
@@ -63,6 +64,9 @@ fun AudioEffectsSettingsScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onNavigateToShowcase) {
+                        Icon(Icons.Default.Science, "Advanced Showcase")
+                    }
                     IconButton(onClick = { viewModel.resetToDefaults() }) {
                         Icon(Icons.Default.RestartAlt, "Reset to defaults")
                     }

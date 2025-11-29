@@ -4,13 +4,17 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * Enhanced color schemes for reading modes
- * Inspired by LibreraReader's day/night/sepia modes
+ * Inspired by Moonreader and LibreraReader's day/night/sepia modes
+ * Supports background images for enhanced reading experience
  */
 sealed class ReaderColorScheme(
     val backgroundColor: Color,
     val textColor: Color,
     val linkColor: Color,
-    val name: String
+    val name: String,
+    val backgroundImageName: String? = null, // Optional background image resource name
+    val useBackgroundImage: Boolean = false,
+    val isAMOLED: Boolean = false // True black for AMOLED displays
 ) {
     // Day modes
     object ClassicDay : ReaderColorScheme(
@@ -32,6 +36,25 @@ sealed class ReaderColorScheme(
         textColor = Color(0xFF1A1A1A),
         linkColor = Color(0xFF4169E1), // Royal Blue
         name = "Paper Day"
+    )
+    
+    // Moonreader-inspired day themes with background images
+    object NatureDay : ReaderColorScheme(
+        backgroundColor = Color(0xFFF5F5DC), // Beige
+        textColor = Color(0xFF2C2C2C),
+        linkColor = Color(0xFF228B22), // Forest Green
+        name = "Nature Day",
+        backgroundImageName = "readbg_11", // Paper texture
+        useBackgroundImage = true
+    )
+    
+    object ProDay1 : ReaderColorScheme(
+        backgroundColor = Color(0xFFFFFEF7), // Off-white
+        textColor = Color(0xFF1A1A1A),
+        linkColor = Color(0xFF4169E1),
+        name = "Pro Day 1",
+        backgroundImageName = "readbg_12",
+        useBackgroundImage = true
     )
 
     // Sepia modes
@@ -68,7 +91,52 @@ sealed class ReaderColorScheme(
         backgroundColor = Color(0xFF000000),
         textColor = Color(0xFFFFFFFF),
         linkColor = Color(0xFF7494B2),
-        name = "OLED Black"
+        name = "OLED Black",
+        isAMOLED = true
+    )
+    
+    // Moonreader-inspired AMOLED modes
+    object AMOLEDBlack : ReaderColorScheme(
+        backgroundColor = Color(0xFF000000), // True black
+        textColor = Color(0xFFFFFFFF),
+        linkColor = Color(0xFF90CAF9),
+        name = "AMOLED Black",
+        isAMOLED = true
+    )
+    
+    object AMOLEDBlack2 : ReaderColorScheme(
+        backgroundColor = Color(0xFF141414), // Slightly lighter for contrast
+        textColor = Color(0xFFEEEEEE),
+        linkColor = Color(0xFF90CAF9),
+        name = "AMOLED Black 2",
+        isAMOLED = true
+    )
+    
+    object AMOLEDBlack3 : ReaderColorScheme(
+        backgroundColor = Color(0xFF171717),
+        textColor = Color(0xFFEEEEEE),
+        linkColor = Color(0xFF90CAF9),
+        name = "AMOLED Black 3",
+        isAMOLED = true
+    )
+    
+    // Moonreader-inspired night themes with background images
+    object NatureNight : ReaderColorScheme(
+        backgroundColor = Color(0xFF1A1A1A),
+        textColor = Color(0xFFE0E0E0),
+        linkColor = Color(0xFF81C784),
+        name = "Nature Night",
+        backgroundImageName = "readbg_05",
+        useBackgroundImage = true
+    )
+    
+    object ProNight1 : ReaderColorScheme(
+        backgroundColor = Color(0xFF0A0A0A),
+        textColor = Color(0xFFE8E8E8),
+        linkColor = Color(0xFF90CAF9),
+        name = "Pro Night 1",
+        backgroundImageName = "readbg_06",
+        useBackgroundImage = true
     )
     
     object MidnightBlue : ReaderColorScheme(
@@ -113,6 +181,8 @@ sealed class ReaderColorScheme(
             ClassicDay,
             WarmDay,
             PaperDay,
+            NatureDay,
+            ProDay1,
             
             // Sepia modes
             Sepia,
@@ -122,9 +192,14 @@ sealed class ReaderColorScheme(
             ClassicNight,
             DarkGray,
             OLED,
+            AMOLEDBlack,
+            AMOLEDBlack2,
+            AMOLEDBlack3,
             MidnightBlue,
             DarkGreen,
             Amber,
+            NatureNight,
+            ProNight1,
             
             // High contrast
             HighContrastDay,
@@ -135,6 +210,8 @@ sealed class ReaderColorScheme(
             ClassicDay,
             WarmDay,
             PaperDay,
+            NatureDay,
+            ProDay1,
             HighContrastDay
         )
         
@@ -147,10 +224,29 @@ sealed class ReaderColorScheme(
             ClassicNight,
             DarkGray,
             OLED,
+            AMOLEDBlack,
+            AMOLEDBlack2,
+            AMOLEDBlack3,
             MidnightBlue,
             DarkGreen,
             Amber,
+            NatureNight,
+            ProNight1,
             HighContrastNight
+        )
+        
+        fun amoledSchemes(): List<ReaderColorScheme> = listOf(
+            AMOLEDBlack,
+            AMOLEDBlack2,
+            AMOLEDBlack3,
+            OLED
+        )
+        
+        fun schemesWithBackgroundImages(): List<ReaderColorScheme> = listOf(
+            NatureDay,
+            ProDay1,
+            NatureNight,
+            ProNight1
         )
         
         fun fromName(name: String): ReaderColorScheme {

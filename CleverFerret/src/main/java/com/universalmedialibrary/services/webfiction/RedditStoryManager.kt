@@ -64,6 +64,9 @@ class RedditStoryManager @Inject constructor(
 
     private val downloader = RedditFanficDownloader()
     private val epubCreator = SimpleEpubCreator()
+    
+    @Inject
+    lateinit var textSanitizer: com.universalmedialibrary.utils.TextSanitizer
 
     /**
      * Download a Reddit series and add it to the library
@@ -98,6 +101,14 @@ class RedditStoryManager @Inject constructor(
                     errorMessage = "No chapters found for ${config.seriesName}"
                 )
             }
+
+            // Refine chapters if necessary (e.g. fetch titles from comments)
+            // Note: This is a potential bottleneck, but necessary for "Out of Cruel Space" quality
+            // We rely on downloader's internal logic which now uses heuristics or deeper fetching if needed.
+            // But fetchSeries only gets the list. The CONTENT is in `html`.
+            // If `html` was built from `selftext` in `fetchSeries`, `downloadPostBody` was NOT called.
+            // If we suspect titles are missing (e.g. generic "Chapter X"), we could force a re-fetch here.
+            // However, for now we trust `fetchSeries`'s heuristic logic.
 
             // Generate EPUB
             val epubResult = generateEpub(series, config)
@@ -355,20 +366,23 @@ class RedditStoryManager @Inject constructor(
             val outputFile = File(outputDir, "${safeFileName}_$timestamp.epub")
 
             val chapters = series.chapters.mapIndexed { index, ch ->
+                // Sanitize content
+                val cleanContent = textSanitizer.sanitize(ch.html)
+                
                 SimpleEpubCreator.Chapter(
                     title = if (ch.number > 0) {
-                        "Chapter ${ch.number}: ${ch.title}"
+                        "Chapter ${ch.number}" // Clean title for TOC
                     } else {
                         ch.title
                     },
-                    content = ch.html,
+                    content = cleanContent,
                     id = "chapter_${ch.number}_${index}"
                 )
             }
 
             val metadata = SimpleEpubCreator.EpubMetadata(
                 title = config.seriesName,
-                author = config.author.ifEmpty { "Reddit /r/${config.subreddit}" },
+                author = config.author ?: config.subreddit,
                 description = "Reddit series from r/${config.subreddit} - ${chapters.size} chapters",
                 publisher = "CleverFerret - Reddit Stories"
             )
