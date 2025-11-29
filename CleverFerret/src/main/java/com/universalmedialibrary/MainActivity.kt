@@ -42,12 +42,14 @@ import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Collections
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.GraphicEq
@@ -66,6 +68,7 @@ import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Radio
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -1424,6 +1427,43 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
                 routeMatch = "ambient"
             )
         )
+        
+        // Additional items from PWA - can be toggled on/off for bottom bar
+        addIfMissing("fanfiction_download") {
+            NavigationItem(
+                route = "fanfiction_download",
+                label = "Downloads",
+                icon = { Icon(Icons.Default.Download, contentDescription = "Downloads") },
+                routeMatch = "fanfiction_download"
+            )
+        }
+        
+        addIfMissing("storage_browser") {
+            NavigationItem(
+                route = "storage_browser",
+                label = "Storage",
+                icon = { Icon(Icons.Default.Storage, contentDescription = "Storage") },
+                routeMatch = "storage_browser"
+            )
+        }
+        
+        addIfMissing("opds_catalog") {
+            NavigationItem(
+                route = "opds_catalog",
+                label = "OPDS",
+                icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "OPDS") },
+                routeMatch = "opds_catalog"
+            )
+        }
+        
+        addIfMissing("reading_statistics") {
+            NavigationItem(
+                route = "reading_statistics",
+                label = "Statistics",
+                icon = { Icon(Icons.Default.BarChart, contentDescription = "Statistics") },
+                routeMatch = "reading_statistics"
+            )
+        }
     }
 }
 
