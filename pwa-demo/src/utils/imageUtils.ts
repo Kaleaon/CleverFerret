@@ -4,7 +4,7 @@
  * Provides fallback images and cover generation
  */
 
-import { generateCoverArt } from './coverGenerator';
+import { generateCover } from './coverGenerator';
 
 /**
  * Get a fallback image URL for a media item
@@ -12,7 +12,7 @@ import { generateCoverArt } from './coverGenerator';
 export function getFallbackImage(type: string, title?: string, author?: string): string {
   // Use cover generator for books
   if (type === 'BOOK' || type === 'AUDIOBOOK') {
-    return generateCoverArt(title || 'Book', author || 'Unknown Author');
+    return generateCover(title || 'Book', 'BOOK', author || 'Unknown Author');
   }
   
   // For other types, return data URI with icon
