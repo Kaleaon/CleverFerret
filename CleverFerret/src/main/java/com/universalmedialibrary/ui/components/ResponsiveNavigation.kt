@@ -42,7 +42,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -385,7 +384,6 @@ fun ResponsiveNavigationScaffold(
             NavigationDrawerContent(
                 navController = navController,
                 navigationItems = NavigationItems.drawerItems,
-                settingsItem = settingsItem,
                 onItemClick = {
                     scope.launch { drawerState.close() }
                 }
@@ -715,7 +713,6 @@ private fun ScrollableNavigationBarEntry(
 fun NavigationDrawerContent(
     navController: NavController,
     navigationItems: List<NavigationItem>,
-    settingsItem: NavigationItem = NavigationItems.settingsItem,
     onItemClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
