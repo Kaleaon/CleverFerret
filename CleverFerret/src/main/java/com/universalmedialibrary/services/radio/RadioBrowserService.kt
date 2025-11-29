@@ -5,8 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
@@ -88,11 +88,7 @@ class RadioBrowserService @Inject constructor(
         for (base in baseUrls) {
             val url = buildUrl(base, path, emptyMap()) ?: continue
             try {
-                val responseBody = execute(url)
-                val parsed = json.decodeFromString(
-                    ListSerializer(RadioBrowserStationDto.serializer()),
-                    responseBody
-                )
+                val parsed = executeWithStreaming(url)
                 stations += parsed.mapNotNull(::dtoToStation)
                 if (stations.isNotEmpty()) {
                     return stations.distinctBy { it.streamUrl }
@@ -108,11 +104,7 @@ class RadioBrowserService @Inject constructor(
                 .firstNotNullOfOrNull { base -> buildUrl(base, fallbackPath, fallbackQuery) }
                 ?: return@runCatching emptyList()
 
-            val responseBody = execute(fallbackUrl)
-            json.decodeFromString(
-                ListSerializer(RadioBrowserStationDto.serializer()),
-                responseBody
-            ).mapNotNull(::dtoToStation)
+            executeWithStreaming(fallbackUrl).mapNotNull(::dtoToStation)
         }.getOrElse {
             lastError = it as? Exception
             emptyList()
@@ -142,7 +134,11 @@ class RadioBrowserService @Inject constructor(
         return builder.build()
     }
 
-    private fun execute(url: HttpUrl): String {
+    /**
+     * Executes an HTTP request and parses the response using streaming to avoid
+     * loading the entire response into memory, preventing OutOfMemoryError for large responses.
+     */
+    private fun executeWithStreaming(url: HttpUrl): List<RadioBrowserStationDto> {
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", USER_AGENT)
@@ -153,7 +149,10 @@ class RadioBrowserService @Inject constructor(
             if (!response.isSuccessful) {
                 throw IOException("HTTP ${response.code} ${response.message}")
             }
-            return response.body?.string() ?: throw IOException("Empty response body")
+            val body = response.body ?: throw IOException("Empty response body")
+            return body.byteStream().use { inputStream ->
+                json.decodeFromStream<List<RadioBrowserStationDto>>(inputStream)
+            }
         }
     }
 
