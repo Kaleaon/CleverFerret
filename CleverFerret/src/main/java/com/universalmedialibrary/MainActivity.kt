@@ -1190,6 +1190,15 @@ fun AppNavigation(externalFileUri: Uri? = null) {
                    navController = navController
                )
            }
+           
+           // Reading Statistics route
+           composable("reading_statistics") {
+               com.universalmedialibrary.ui.books.EnhancedReadingStatisticsScreen(
+                   libraryId = 1L, // Default to books library
+                   onNavigateBack = { navController.navigateUp() }
+               )
+           }
+           
            composable("collaborative_sessions") {
                com.universalmedialibrary.ui.collaborative.CollaborativeSessionScreen(
                    onNavigateBack = { navController.navigateUp() }
