@@ -65,7 +65,7 @@ okhttp = "5.2.1"
     
     # Document Parsing Libraries
     apache-poi = "5.5.0"
-    apache-tika = "2.9.1"
+    apache-tika = "3.2.3"
     lib-mobi = "1.0.3"
 
 # Readium Toolkit - Modern EPUB/PDF/Audiobook/OPDS library
