@@ -41,29 +41,35 @@ class ReadingProgressTracker @Inject constructor(
         currentChapter: Int = 1,
         percentage: Float = 0f
     ) {
-        // Get existing progress or create new
-        val existing = progressDao.getProgress(mediaItemId).first()
-        
-        val timestamp = System.currentTimeMillis()
-        val progress = existing?.copy(
-            currentPosition = currentPosition,
-            currentPage = currentPage,
-            currentChapter = currentChapter,
-            percentage = percentage,
-            lastUpdate = timestamp,
-            lastModified = timestamp
-        ) ?: ReadingProgress(
-            itemId = mediaItemId,
-            currentPosition = currentPosition,
-            currentPage = currentPage,
-            currentChapter = currentChapter,
-            percentage = percentage,
-            startedDate = timestamp,
-            lastUpdate = timestamp,
-            lastModified = timestamp
-        )
-        
-        progressDao.upsert(progress)
+        try {
+            // Get existing progress or create new
+            val existing = progressDao.getProgress(mediaItemId).first()
+            
+            val timestamp = System.currentTimeMillis()
+            val progress = existing?.copy(
+                currentPosition = currentPosition,
+                currentPage = currentPage,
+                currentChapter = currentChapter,
+                percentage = percentage,
+                lastUpdate = timestamp,
+                lastModified = timestamp
+            ) ?: ReadingProgress(
+                itemId = mediaItemId,
+                currentPosition = currentPosition,
+                currentPage = currentPage,
+                currentChapter = currentChapter,
+                percentage = percentage,
+                startedDate = timestamp,
+                lastUpdate = timestamp,
+                lastModified = timestamp
+            )
+            
+            progressDao.upsert(progress)
+        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // This can happen when opening files directly without adding to library
+            // Silently ignore to allow file viewing without persistence
+        }
     }
     
     /**

@@ -280,6 +280,10 @@ class EnhancedUniversalReaderService @Inject constructor(
             readingProgressDao.upsert(progress)
 
             return progressPercentage
+        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // This can happen when opening files directly without adding to library
+            return null
         } catch (e: Exception) {
             // Failed to save progress, continue reading
             return null

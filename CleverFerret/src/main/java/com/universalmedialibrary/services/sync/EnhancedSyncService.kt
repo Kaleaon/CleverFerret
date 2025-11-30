@@ -369,7 +369,12 @@ class EnhancedSyncService @Inject constructor(
                     if (progress != null) {
                         when (change.operation) {
                             ChangeOperation.CREATE, ChangeOperation.MODIFY -> {
-                                readingProgressDao.insertProgress(progress)
+                                try {
+                                    readingProgressDao.insertProgress(progress)
+                                } catch (e: android.database.sqlite.SQLiteConstraintException) {
+                                    // Foreign key constraint failed - media item doesn't exist in database
+                                    // Skip this progress entry during sync
+                                }
                             }
                             ChangeOperation.DELETE -> {
                                 readingProgressDao.deleteProgressByItemId(progress.itemId)
@@ -383,7 +388,12 @@ class EnhancedSyncService @Inject constructor(
                     if (bookmark != null) {
                         when (change.operation) {
                             ChangeOperation.CREATE, ChangeOperation.MODIFY -> {
-                                bookmarkDao.insertBookmark(bookmark)
+                                try {
+                                    bookmarkDao.insertBookmark(bookmark)
+                                } catch (e: android.database.sqlite.SQLiteConstraintException) {
+                                    // Foreign key constraint failed - media item doesn't exist in database
+                                    // Skip this bookmark during sync
+                                }
                             }
                             ChangeOperation.DELETE -> {
                                 bookmarkDao.deleteBookmark(bookmark.bookmarkId)
