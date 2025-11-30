@@ -9,6 +9,7 @@ import okhttp3.Response
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStream
+import java.io.StringReader
 import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,10 +52,15 @@ class OPDSClient @Inject constructor(
     }
 
     private fun parseFeed(stream: InputStream, requestUrl: String): OPDSFeed {
+        // Read and sanitize XML content to handle malformed entity references
+        // (e.g., unescaped & characters in Internet Archive feeds)
+        val rawContent = stream.bufferedReader().use { it.readText() }
+        val sanitizedContent = sanitizeXmlEntities(rawContent)
+        
         val parser = XmlPullParserFactory.newInstance().apply {
             isNamespaceAware = true
         }.newPullParser().apply {
-            setInput(stream, null)
+            setInput(StringReader(sanitizedContent))
         }
 
         val baseUrl = requestUrl.toHttpUrlOrNull()
@@ -225,5 +231,25 @@ class OPDSClient @Inject constructor(
 
     companion object {
         private const val USER_AGENT = "CleverFerret/1.0 (OPDSClient)"
+        
+        /**
+         * Regex to match ampersands that are NOT part of valid XML entity references.
+         * Valid entities are: &amp; &lt; &gt; &quot; &apos; or numeric refs like &#123; or &#x1F;
+         * This matches bare '&' followed by something that doesn't look like a valid entity.
+         */
+        private val INVALID_AMPERSAND_REGEX = Regex(
+            "&(?!(amp|lt|gt|quot|apos|#\\d+|#x[0-9a-fA-F]+);)"
+        )
+    }
+    
+    /**
+     * Sanitizes XML content by escaping unescaped ampersands and other problematic characters.
+     * 
+     * Some OPDS feeds (notably Internet Archive) contain malformed XML with unescaped
+     * ampersands in URLs or text content, causing "unterminated entity reference" errors.
+     * This function replaces bare '&' characters (not part of valid entities) with '&amp;'.
+     */
+    private fun sanitizeXmlEntities(xmlContent: String): String {
+        return xmlContent.replace(INVALID_AMPERSAND_REGEX, "&amp;")
     }
 }
