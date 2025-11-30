@@ -13,7 +13,7 @@ export default defineConfig({
       
       // Enhanced manifest configuration
       manifest: {
-        name: 'CleverFerret - Universal Media Manager',
+        name: 'CleverFerret',
         short_name: 'CleverFerret',
         description: 'A comprehensive PWA for managing books, movies, music, and more with AI-powered features',
         theme_color: '#ffc300',
