@@ -119,6 +119,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
 import com.universalmedialibrary.ui.collections.CollectionsScreen
@@ -206,6 +207,10 @@ class MainActivity : ComponentActivity() {
     lateinit var screenTimeoutManager: com.universalmedialibrary.utils.ScreenTimeoutManager
         private set
 
+    // Debug bug report service (injected via Hilt)
+    @javax.inject.Inject
+    lateinit var debugBugReportService: com.universalmedialibrary.services.debug.DebugBugReportService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -227,11 +232,24 @@ class MainActivity : ComponentActivity() {
             val darkMode by mainViewModel.darkMode.collectAsState(true)
 
             CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AppNavigation(externalFileUri = externalFileUri)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        AppNavigation(externalFileUri = externalFileUri)
+                    }
+                    
+                    // Debug bug report button (only shown in debug builds)
+                    if (BuildConfig.DEBUG) {
+                        com.universalmedialibrary.ui.debug.DebugBugReportButton(
+                            activity = this@MainActivity,
+                            bugReportService = debugBugReportService,
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 16.dp, bottom = 80.dp)
+                        )
+                    }
                 }
             }
         }
