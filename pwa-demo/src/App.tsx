@@ -157,7 +157,7 @@ const AppContent: React.FC = () => {
         <Box
           sx={{
             position: 'sticky',
-            top: isMobile ? 56 : 0,
+            top: isMobile ? { xs: 56, sm: 64 } : 0,
             zIndex: 1000,
             bgcolor: 'background.paper',
             borderBottom: 1,

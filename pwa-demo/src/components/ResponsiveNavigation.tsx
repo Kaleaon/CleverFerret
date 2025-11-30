@@ -409,7 +409,7 @@ export const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({ chil
           flexGrow: 1,
           ml: isDesktop ? '80px' : 0,
           pl: isTablet && drawerOpen ? '240px' : 0,
-          pt: isMobile || isTablet ? '64px' : 0,
+          pt: isMobile || isTablet ? { xs: '56px', sm: '64px' } : 0,
           pb: isMobile ? (libraries.length > 0 ? '104px' : '56px') : 0,
           transition: theme.transitions.create(['margin', 'padding'], {
             easing: theme.transitions.easing.sharp,
