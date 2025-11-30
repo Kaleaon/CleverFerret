@@ -119,6 +119,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.maintenance.MaintenanceScreen
 import com.universalmedialibrary.ui.collections.CollectionsScreen
@@ -206,6 +207,10 @@ class MainActivity : ComponentActivity() {
     lateinit var screenTimeoutManager: com.universalmedialibrary.utils.ScreenTimeoutManager
         private set
 
+    // Debug bug report service (injected via Hilt)
+    @javax.inject.Inject
+    lateinit var debugBugReportService: com.universalmedialibrary.services.debug.DebugBugReportService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -231,7 +236,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(externalFileUri = externalFileUri)
+                    AppNavigation(
+                        externalFileUri = externalFileUri,
+                        activity = this@MainActivity,
+                        debugBugReportService = debugBugReportService
+                    )
                 }
             }
         }
@@ -284,7 +293,11 @@ class MainActivity : ComponentActivity() {
  * Now with responsive navigation that adapts to screen size.
  */
 @Composable
-fun AppNavigation(externalFileUri: Uri? = null) {
+fun AppNavigation(
+    externalFileUri: Uri? = null,
+    activity: android.app.Activity? = null,
+    debugBugReportService: com.universalmedialibrary.services.debug.DebugBugReportService? = null
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val mainViewModel: MainViewModel = hiltViewModel()
@@ -296,6 +309,7 @@ fun AppNavigation(externalFileUri: Uri? = null) {
     val currentTrack by musicPlayerViewModel.currentTrack.collectAsStateWithLifecycle()
     val playbackState by musicPlayerViewModel.playbackState.collectAsStateWithLifecycle()
     val miniPlayerBackgroundMode by mainViewModel.miniPlayerBackgroundMode.collectAsState(MiniPlayerBackgroundMode.THEME)
+    val showDebugBugButton by mainViewModel.showDebugBugButton.collectAsState(true)
 
     LaunchedEffect(
         currentTrack?.id,
@@ -378,6 +392,14 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         floatingActionButton = {
             // FAB can be shown on specific screens
         },
+        debugButton = if (BuildConfig.DEBUG && showDebugBugButton && activity != null && debugBugReportService != null) {
+            {
+                com.universalmedialibrary.ui.debug.DebugBugReportBottomBarButton(
+                    activity = activity,
+                    bugReportService = debugBugReportService
+                )
+            }
+        } else null,
         mediaControlsState = mediaControlsState,
         miniPlayerBackgroundMode = miniPlayerBackgroundMode,
         mediaControlActions = MediaControlActions(

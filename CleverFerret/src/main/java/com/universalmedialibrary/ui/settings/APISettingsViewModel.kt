@@ -1,5 +1,6 @@
 package com.universalmedialibrary.ui.settings
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.core.FeatureFlags
@@ -9,6 +10,7 @@ import com.universalmedialibrary.data.settings.ArtworkApiSettings
 import com.universalmedialibrary.data.settings.LyricsApiSettings
 import com.universalmedialibrary.services.gemini.GeminiService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +27,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class APISettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val apiKeyRepository: APIKeyRepository,
     private val geminiService: GeminiService
 ) : ViewModel() {
@@ -59,6 +62,9 @@ class APISettingsViewModel @Inject constructor(
                 val podcastIndexKey = apiKeyRepository.getAPIKeyValue("podcast_index")
                 val itunesKey = apiKeyRepository.getAPIKeyValue("itunes")
                 val listenNotesKey = apiKeyRepository.getAPIKeyValue("listen_notes")
+                
+                // Debug/Development
+                val githubKey = apiKeyRepository.getAPIKeyValue("github_token")
 
                 // TTS (if we migrate them to Repository, otherwise we might need TtsProviderManager injected here too)
                 // For now, assuming they might be migrated or we just support the ones in repo.
@@ -82,6 +88,7 @@ class APISettingsViewModel @Inject constructor(
                     podcastIndexApiKey = podcastIndexKey,
                     itunesApiKey = itunesKey,
                     listenNotesApiKey = listenNotesKey,
+                    githubApiKey = githubKey,
                     
                     imageGeneratorType = imageGeneratorType,
                     geminiEnabled = FeatureFlags.ENABLE_GEMINI,
@@ -284,6 +291,41 @@ class APISettingsViewModel @Inject constructor(
     }
 
     /**
+     * Save GitHub API token for debug bug reporting
+     * Stores both in database (via Repository) and SharedPreferences (for DebugBugReportUI access)
+     */
+    fun saveGitHubApiKey(apiKey: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                // Save to database via repository
+                apiKeyRepository.saveAPIKey("github_token", apiKey, "DEVELOPMENT", false)
+                
+                // Also save to SharedPreferences for DebugBugReportUI access
+                // (since the UI reads synchronously without suspend function)
+                context.getSharedPreferences("api_settings", Context.MODE_PRIVATE)
+                    .edit()
+                    .putString("github_token", apiKey)
+                    .apply()
+                
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    githubApiKey = apiKey,
+                    statusMessage = "GitHub API token saved successfully",
+                    hasError = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    statusMessage = "Error saving GitHub token: ${e.message}",
+                    hasError = true
+                )
+            }
+        }
+    }
+
+    /**
      * Update image generator type selection
      */
     fun updateImageGeneratorType(type: ImageGeneratorType) {
@@ -334,6 +376,8 @@ data class APISettingsUiState(
     val podcastIndexApiKey: String? = null,
     val itunesApiKey: String? = null,
     val listenNotesApiKey: String? = null,
+    
+    val githubApiKey: String? = null,  // GitHub token for debug bug reports
     
     val geminiTestResult: String? = null,
     val imageGeneratorType: ImageGeneratorType = ImageGeneratorType.IMAGEN,
