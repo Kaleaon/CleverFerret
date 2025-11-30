@@ -32,7 +32,7 @@ import {
 import { pdfReaderService, type PDFDocument } from '../../services/readers/PDFReaderService';
 import { db } from '../../services/database-complete';
 import type { MediaItem } from '../../data/local/entity';
-import { CircularProgress, Alert, Button } from '@mui/material';
+import { CircularProgress, Alert } from '@mui/material';
 
 export const PDFReaderScreen: React.FC = () => {
   const { itemId } = useParams<{ itemId: string }>();
