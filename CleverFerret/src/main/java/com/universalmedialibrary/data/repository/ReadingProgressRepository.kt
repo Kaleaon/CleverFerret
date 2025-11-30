@@ -1,5 +1,6 @@
 package com.universalmedialibrary.data.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.data.local.entity.ReadingProgress
 import kotlinx.coroutines.flow.Flow
@@ -27,26 +28,36 @@ class ReadingProgressRepository @Inject constructor(
         currentPosition: Long = 0,
         currentChapter: Int = 1
     ) {
-        val existing = readingProgressDao.getProgress(itemId).first()
-        val isCompleted = percentage >= 100f
-        val timestamp = System.currentTimeMillis()
-        val updated = (existing ?: ReadingProgress(
-            itemId = itemId
-        )).copy(
-            currentPage = currentPage,
-            currentChapter = currentChapter,
-            currentPosition = currentPosition,
-            percentage = percentage,
-            isCompleted = isCompleted,
-            lastUpdate = timestamp,
-            lastModified = timestamp,
-            completedDate = if (isCompleted) timestamp else null
-        )
-        readingProgressDao.upsert(updated)
+        try {
+            val existing = readingProgressDao.getProgress(itemId).first()
+            val isCompleted = percentage >= 100f
+            val timestamp = System.currentTimeMillis()
+            val updated = (existing ?: ReadingProgress(
+                itemId = itemId
+            )).copy(
+                currentPage = currentPage,
+                currentChapter = currentChapter,
+                currentPosition = currentPosition,
+                percentage = percentage,
+                isCompleted = isCompleted,
+                lastUpdate = timestamp,
+                lastModified = timestamp,
+                completedDate = if (isCompleted) timestamp else null
+            )
+            readingProgressDao.upsert(updated)
+        } catch (e: SQLiteConstraintException) {
+            // Foreign key constraint failed - media item doesn't exist in database
+            // This can happen when opening files directly without adding to library
+            // Silently ignore to allow file viewing without persistence
+        }
     }
 
     suspend fun markAsRead(itemId: Long) {
-        readingProgressDao.markAsCompleted(itemId, true)
+        try {
+            readingProgressDao.markAsCompleted(itemId, true)
+        } catch (e: SQLiteConstraintException) {
+            // Ignore foreign key constraint errors
+        }
     }
 
     suspend fun markAsUnread(itemId: Long) {
