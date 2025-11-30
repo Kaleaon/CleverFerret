@@ -232,24 +232,15 @@ class MainActivity : ComponentActivity() {
             val darkMode by mainViewModel.darkMode.collectAsState(true)
 
             CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        AppNavigation(externalFileUri = externalFileUri)
-                    }
-                    
-                    // Debug bug report button (only shown in debug builds)
-                    if (BuildConfig.DEBUG) {
-                        com.universalmedialibrary.ui.debug.DebugBugReportButton(
-                            activity = this@MainActivity,
-                            bugReportService = debugBugReportService,
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(start = 16.dp, bottom = 80.dp)
-                        )
-                    }
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AppNavigation(
+                        externalFileUri = externalFileUri,
+                        activity = this@MainActivity,
+                        debugBugReportService = debugBugReportService
+                    )
                 }
             }
         }
@@ -302,7 +293,11 @@ class MainActivity : ComponentActivity() {
  * Now with responsive navigation that adapts to screen size.
  */
 @Composable
-fun AppNavigation(externalFileUri: Uri? = null) {
+fun AppNavigation(
+    externalFileUri: Uri? = null,
+    activity: android.app.Activity? = null,
+    debugBugReportService: com.universalmedialibrary.services.debug.DebugBugReportService? = null
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val mainViewModel: MainViewModel = hiltViewModel()
@@ -314,6 +309,7 @@ fun AppNavigation(externalFileUri: Uri? = null) {
     val currentTrack by musicPlayerViewModel.currentTrack.collectAsStateWithLifecycle()
     val playbackState by musicPlayerViewModel.playbackState.collectAsStateWithLifecycle()
     val miniPlayerBackgroundMode by mainViewModel.miniPlayerBackgroundMode.collectAsState(MiniPlayerBackgroundMode.THEME)
+    val showDebugBugButton by mainViewModel.showDebugBugButton.collectAsState(true)
 
     LaunchedEffect(
         currentTrack?.id,
@@ -396,6 +392,14 @@ fun AppNavigation(externalFileUri: Uri? = null) {
         floatingActionButton = {
             // FAB can be shown on specific screens
         },
+        debugButton = if (BuildConfig.DEBUG && showDebugBugButton && activity != null && debugBugReportService != null) {
+            {
+                com.universalmedialibrary.ui.debug.DebugBugReportBottomBarButton(
+                    activity = activity,
+                    bugReportService = debugBugReportService
+                )
+            }
+        } else null,
         mediaControlsState = mediaControlsState,
         miniPlayerBackgroundMode = miniPlayerBackgroundMode,
         mediaControlActions = MediaControlActions(

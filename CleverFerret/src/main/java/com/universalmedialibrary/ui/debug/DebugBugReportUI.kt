@@ -165,6 +165,77 @@ fun DebugBugReportButton(
 }
 
 /**
+ * Compact debug bug report button for the bottom navigation bar
+ * 
+ * Only visible in debug builds. Shows a small icon button that,
+ * when tapped, captures a screenshot and opens the bug report dialog.
+ */
+@Composable
+fun DebugBugReportBottomBarButton(
+    activity: Activity,
+    bugReportService: DebugBugReportService,
+    modifier: Modifier = Modifier
+) {
+    // Only show in debug builds
+    if (!BuildConfig.DEBUG) return
+
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var screenshot by remember { mutableStateOf<Bitmap?>(null) }
+    var isCapturing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    Surface(
+        modifier = modifier.size(48.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f),
+        tonalElevation = 2.dp
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(enabled = !isCapturing) {
+                    scope.launch {
+                        isCapturing = true
+                        // Capture screenshot before showing dialog
+                        val result = bugReportService.captureScreenshot(activity)
+                        screenshot = result.getOrNull()
+                        isCapturing = false
+                        showDialog = true
+                    }
+                }
+        ) {
+            if (isCapturing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.BugReport,
+                    contentDescription = "Report Bug",
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+        }
+    }
+
+    if (showDialog) {
+        BugReportDialog(
+            activity = activity,
+            bugReportService = bugReportService,
+            initialScreenshot = screenshot,
+            onDismiss = { 
+                showDialog = false
+                screenshot = null
+            }
+        )
+    }
+}
+
+/**
  * Bug report dialog for collecting user input and submitting reports
  */
 @Composable

@@ -319,6 +319,39 @@ fun SettingsScreen(
                         )
                     }
 
+                    // Debug Bug Report Button toggle (only in debug builds)
+                    if (com.universalmedialibrary.BuildConfig.DEBUG) {
+                        item {
+                            val showBugButton by viewModel.showDebugBugButton.collectAsState()
+                            MetallicCard {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Debug Bug Report Button",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = "Show bug report button in bottom bar for quick bug reporting",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Switch(
+                                        checked = showBugButton,
+                                        onCheckedChange = { viewModel.setShowDebugBugButton(it) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                 // API & Integrations Section
                 item {
                     MetallicText(

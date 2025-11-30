@@ -58,6 +58,9 @@ class SettingsViewModel @Inject constructor(
     private val _generalSettings = MutableStateFlow(GeneralSettings())
     val generalSettings: StateFlow<GeneralSettings> = _generalSettings.asStateFlow()
 
+    private val _showDebugBugButton = MutableStateFlow(true)
+    val showDebugBugButton: StateFlow<Boolean> = _showDebugBugButton.asStateFlow()
+
     init {
         // Load settings from repository
         viewModelScope.launch {
@@ -81,6 +84,13 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.apiSettingsFlow.collect { settings ->
                 _apiSettings.value = settings
+            }
+        }
+
+        // Load debug bug button setting
+        viewModelScope.launch {
+            settingsRepository.showDebugBugButtonFlow.collect { enabled ->
+                _showDebugBugButton.value = enabled
             }
         }
     }
@@ -124,6 +134,12 @@ class SettingsViewModel @Inject constructor(
     fun setMiniPlayerBackgroundMode(mode: MiniPlayerBackgroundMode) {
         viewModelScope.launch {
             settingsRepository.setMiniPlayerBackgroundMode(mode)
+        }
+    }
+
+    fun setShowDebugBugButton(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setShowDebugBugButton(enabled)
         }
     }
 

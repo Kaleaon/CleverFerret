@@ -368,6 +368,7 @@ fun ResponsiveNavigationScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
+    debugButton: @Composable (() -> Unit)? = null,
     mediaControlsState: MediaControlsState? = null,
     miniPlayerBackgroundMode: MiniPlayerBackgroundMode = MiniPlayerBackgroundMode.THEME,
     mediaControlActions: MediaControlActions = MediaControlActions(),
@@ -410,7 +411,8 @@ fun ResponsiveNavigationScaffold(
                             currentDestination = currentDestination,
                             mediaControlsState = mediaControlsState,
                             miniPlayerBackgroundMode = miniPlayerBackgroundMode,
-                            mediaControlActions = mediaControlActions
+                            mediaControlActions = mediaControlActions,
+                            debugButton = debugButton
                         )
                     }
                 },
@@ -453,7 +455,8 @@ private fun BottomBarWithMediaControls(
     currentDestination: NavDestination?,
     mediaControlsState: MediaControlsState?,
     miniPlayerBackgroundMode: MiniPlayerBackgroundMode,
-    mediaControlActions: MediaControlActions
+    mediaControlActions: MediaControlActions,
+    debugButton: @Composable (() -> Unit)? = null
 ) {
     var controlsExpanded by rememberSaveable { mutableStateOf(false) }
     val controlsAvailable = mediaControlsState?.isVisible == true
@@ -551,6 +554,7 @@ private fun BottomBarWithMediaControls(
             settingsItem = settingsItem,
             gearPosition = gearPosition,
             currentDestination = currentDestination,
+            debugButton = debugButton,
             modifier = bottomBarModifier
         )
     }
@@ -563,6 +567,7 @@ private fun ScrollableBottomBar(
     settingsItem: NavigationItem,
     gearPosition: BottomGearPosition,
     currentDestination: NavDestination?,
+    debugButton: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -581,6 +586,9 @@ private fun ScrollableBottomBar(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Debug button on the left side (if provided)
+            debugButton?.invoke()
+            
             if (gearPosition == BottomGearPosition.LEFT) {
                 ScrollableNavigationBarEntry(
                     navController = navController,

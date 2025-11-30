@@ -38,6 +38,7 @@ class SettingsRepository @Inject constructor(
         val BOTTOM_GEAR_POSITION = stringPreferencesKey("bottom_gear_position")
         val MINI_PLAYER_BACKGROUND = stringPreferencesKey("mini_player_background")
         val BOTTOM_BAR_CONFIG = stringPreferencesKey("bottom_bar_config")
+        val SHOW_DEBUG_BUG_BUTTON = booleanPreferencesKey("show_debug_bug_button")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -109,6 +110,10 @@ class SettingsRepository @Inject constructor(
         }
     }
 
+    val showDebugBugButtonFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_DEBUG_BUG_BUTTON] ?: true // Default to shown in debug builds
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -176,6 +181,12 @@ class SettingsRepository @Inject constructor(
             } else {
                 preferences[PreferencesKeys.BOTTOM_BAR_CONFIG] = json.encodeToString(preferencesValue)
             }
+        }
+    }
+
+    suspend fun setShowDebugBugButton(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_DEBUG_BUG_BUTTON] = enabled
         }
     }
 }

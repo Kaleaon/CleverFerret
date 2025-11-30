@@ -89,6 +89,20 @@ class MainViewModel @Inject constructor(
                 initialValue = BottomBarPreferences.Default
             )
 
+    val showDebugBugButton: StateFlow<Boolean> =
+        settingsRepository.showDebugBugButtonFlow
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = true
+            )
+
+    fun setShowDebugBugButton(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setShowDebugBugButton(enabled)
+        }
+    }
+
     fun addLibrary(name: String, type: String, path: String) {
         viewModelScope.launch {
             val newLibrary = Library(name = name, type = type, path = path)
