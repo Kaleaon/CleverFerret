@@ -39,6 +39,14 @@ import com.universalmedialibrary.ui.icons.PhosphorIcons
  * 
  * No more jumping between screens! Reading is handled by the separate eReader.
  */
+
+// Tab indices for the unified fanfiction hub
+private object HubTabs {
+    const val DISCOVER = 0
+    const val LIBRARY = 1
+    const val DOWNLOAD = 2
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun UnifiedFanfictionHubScreen(
@@ -52,7 +60,7 @@ fun UnifiedFanfictionHubScreen(
         val downloadState by downloadViewModel.uiState.collectAsState()
         val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
         
-        var selectedTab by remember { mutableIntStateOf(0) }
+        var selectedTab by remember { mutableIntStateOf(HubTabs.DISCOVER) }
         val tabs = listOf("Discover", "Library", "Download")
         
         var showQuickDownloadDialog by remember { mutableStateOf(false) }
@@ -78,17 +86,17 @@ fun UnifiedFanfictionHubScreen(
                                 Icon(Icons.Default.Download, contentDescription = "Quick Download")
                             }
                             
-                            if (selectedTab == 0 && uiState.selectedSite != null) {
+                            if (selectedTab == HubTabs.DISCOVER && uiState.selectedSite != null) {
                                 // Refresh tags (Discover tab)
                                 IconButton(onClick = { viewModel.refreshTags() }) {
                                     Icon(Icons.Default.Refresh, contentDescription = "Refresh Tags")
                                 }
-                            } else if (selectedTab == 1) {
+                            } else if (selectedTab == HubTabs.LIBRARY) {
                                 // Check updates (Library tab)
                                 IconButton(onClick = { libraryViewModel.checkForUpdates() }) {
                                     Icon(Icons.Default.Refresh, contentDescription = "Check Updates")
                                 }
-                            } else if (selectedTab == 2) {
+                            } else if (selectedTab == HubTabs.DOWNLOAD) {
                                 // Clear completed downloads (Download tab)
                                 IconButton(onClick = { downloadViewModel.clearResult() }) {
                                     Icon(Icons.Default.Clear, contentDescription = "Clear Completed")
@@ -113,8 +121,8 @@ fun UnifiedFanfictionHubScreen(
                                 icon = {
                                     Icon(
                                         when (index) {
-                                            0 -> Icons.Default.Explore
-                                            1 -> Icons.Default.LibraryBooks
+                                            HubTabs.DISCOVER -> Icons.Default.Explore
+                                            HubTabs.LIBRARY -> Icons.Default.LibraryBooks
                                             else -> Icons.Default.Download
                                         },
                                         contentDescription = null
@@ -148,20 +156,20 @@ fun UnifiedFanfictionHubScreen(
                 }
                 
                 // Tag loading indicator (only for Discover tab)
-                if (selectedTab == 0 && uiState.isLoadingTags) {
+                if (selectedTab == HubTabs.DISCOVER && uiState.isLoadingTags) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
                 
                 // Content
                 when (selectedTab) {
-                    0 -> UnifiedContent(
+                    HubTabs.DISCOVER -> UnifiedContent(
                         uiState = uiState,
                         downloadState = downloadState,
                         viewModel = viewModel,
                         downloadViewModel = downloadViewModel,
                         adultSitesEnabled = adultSitesEnabled
                     )
-                    1 -> FanfictionLibraryTab(
+                    HubTabs.LIBRARY -> FanfictionLibraryTab(
                         viewModel = libraryViewModel,
                         onStoryClick = { story -> 
                             // Navigate to reader or details
@@ -169,7 +177,7 @@ fun UnifiedFanfictionHubScreen(
                             // For now, maybe just show a toast or log
                         }
                     )
-                    2 -> DownloadTab(
+                    HubTabs.DOWNLOAD -> DownloadTab(
                         downloadState = downloadState,
                         downloadViewModel = downloadViewModel,
                         adultSitesEnabled = adultSitesEnabled
