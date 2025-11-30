@@ -266,6 +266,17 @@ class FanfictionDownloaderViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Clear download result and error state
+     */
+    fun clearResult() {
+        _uiState.value = _uiState.value.copy(
+            result = null,
+            error = null,
+            progressMessage = null
+        )
+    }
 }
 
 data class FanfictionDownloaderUiState(

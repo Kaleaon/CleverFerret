@@ -432,6 +432,37 @@ fun SettingsScreen(
                     }
                 }
 
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("fanfiction_hub") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Fanfiction & Web Fiction Hub",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Discover, download, and manage fanfiction stories",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.MenuBook,
+                                contentDescription = "Fanfiction Hub"
+                            )
+                        }
+                    }
+                }
+
                 // Reading & Audio Section
                 item {
                     MetallicText(

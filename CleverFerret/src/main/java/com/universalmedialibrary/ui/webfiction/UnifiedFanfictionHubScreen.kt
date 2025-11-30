@@ -53,7 +53,7 @@ fun UnifiedFanfictionHubScreen(
         val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
         
         var selectedTab by remember { mutableIntStateOf(0) }
-        val tabs = listOf("Discover", "My Library")
+        val tabs = listOf("Discover", "Library", "Download")
         
         var showQuickDownloadDialog by remember { mutableStateOf(false) }
 
@@ -88,6 +88,11 @@ fun UnifiedFanfictionHubScreen(
                                 IconButton(onClick = { libraryViewModel.checkForUpdates() }) {
                                     Icon(Icons.Default.Refresh, contentDescription = "Check Updates")
                                 }
+                            } else if (selectedTab == 2) {
+                                // Clear completed downloads (Download tab)
+                                IconButton(onClick = { downloadViewModel.clearResult() }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear Completed")
+                                }
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
@@ -107,7 +112,11 @@ fun UnifiedFanfictionHubScreen(
                                 text = { Text(title) },
                                 icon = {
                                     Icon(
-                                        if (index == 0) Icons.Default.Explore else Icons.Default.LibraryBooks,
+                                        when (index) {
+                                            0 -> Icons.Default.Explore
+                                            1 -> Icons.Default.LibraryBooks
+                                            else -> Icons.Default.Download
+                                        },
                                         contentDescription = null
                                     )
                                 }
@@ -159,6 +168,11 @@ fun UnifiedFanfictionHubScreen(
                             // Assuming a reader route exists or details route
                             // For now, maybe just show a toast or log
                         }
+                    )
+                    2 -> DownloadTab(
+                        downloadState = downloadState,
+                        downloadViewModel = downloadViewModel,
+                        adultSitesEnabled = adultSitesEnabled
                     )
                 }
             }
@@ -897,6 +911,353 @@ private fun QuickDownloadDialog(
             }
         }
     )
+}
+
+/**
+ * Download Tab - Direct URL download interface with supported sites info
+ */
+@Composable
+private fun DownloadTab(
+    downloadState: FanfictionDownloaderUiState,
+    downloadViewModel: FanfictionDownloaderViewModel,
+    adultSitesEnabled: Boolean
+) {
+    var url by remember { mutableStateOf("") }
+    
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // URL Input Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Download,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "Download Story",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Paste a story URL to download as EPUB",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                    
+                    OutlinedTextField(
+                        value = url,
+                        onValueChange = { url = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Story URL") },
+                        placeholder = { Text("https://archiveofourown.org/works/...") },
+                        leadingIcon = {
+                            Icon(Icons.Default.Link, contentDescription = null)
+                        },
+                        singleLine = true,
+                        enabled = !downloadState.isLoading
+                    )
+                    
+                    Button(
+                        onClick = {
+                            if (url.isNotBlank()) {
+                                downloadViewModel.downloadFromUrl(url)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = url.isNotBlank() && !downloadState.isLoading
+                    ) {
+                        if (downloadState.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Downloading...")
+                        } else {
+                            Icon(Icons.Default.Download, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Download as EPUB")
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Progress Info
+        if (downloadState.isLoading) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        Text(
+                            text = downloadState.progressMessage ?: "Fetching story...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Success Result
+        downloadState.result?.let { result ->
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = "Download Complete!",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        }
+                        
+                        HorizontalDivider()
+                        
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            DownloadInfoRow("Title", result.title)
+                            DownloadInfoRow("Author", result.author)
+                            DownloadInfoRow("Chapters", result.chapters.toString())
+                        }
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = { downloadViewModel.openEpub() },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.Book, contentDescription = null)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Read")
+                            }
+                            Button(
+                                onClick = { downloadViewModel.shareEpub() },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.Share, contentDescription = null)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Share")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Error Display
+        downloadState.error?.let { error ->
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Download Failed",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                            Text(
+                                text = error,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Supported Sites Card
+        item {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Language,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Supported Sites",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SupportedSiteRow("Archive of Our Own", "archiveofourown.org", "✓ Full support")
+                        SupportedSiteRow("FanFiction.Net", "fanfiction.net", "✓ Multi-chapter")
+                        SupportedSiteRow("Royal Road", "royalroad.com", "✓ Web fiction")
+                        SupportedSiteRow("Wattpad", "wattpad.com", "✓ Basic support")
+                        if (adultSitesEnabled) {
+                            SupportedSiteRow("Metabods", "metabods.com", "✓ Adult content")
+                            SupportedSiteRow("Literotica", "literotica.com", "✓ Adult content")
+                        }
+                        SupportedSiteRow("Other Sites", "Generic", "Limited support")
+                    }
+                }
+            }
+        }
+        
+        // Tips Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Lightbulb,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Tips",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    Text(
+                        text = "• Use the Discover tab to browse stories by tags\n" +
+                               "• Downloaded stories appear in Library tab\n" +
+                               "• EPUBs are saved to your device for offline reading\n" +
+                               "• Large stories with many chapters may take longer",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DownloadInfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "$label:",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+    }
+}
+
+@Composable
+private fun SupportedSiteRow(name: String, domain: String, status: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = domain,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = status,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
 }
 
 private fun formatNumber(number: Int): String {
