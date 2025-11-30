@@ -520,7 +520,7 @@ private fun SubmittingContent() {
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
-            text = "Creating GitHub issue and assigning to Copilot",
+            text = "Creating GitHub issue with bug details",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -564,7 +564,7 @@ private fun SubmissionResultContent(
                 )
                 
                 Text(
-                    text = "Issue created and assigned to GitHub Copilot for analysis.",
+                    text = "Issue created and labeled for automated fix consideration.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

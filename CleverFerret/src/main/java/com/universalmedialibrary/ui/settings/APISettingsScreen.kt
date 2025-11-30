@@ -1064,7 +1064,7 @@ private fun GitHubTokenSection(
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Text(
-                            text = "Tap the bug button in the bottom-left corner to capture screenshots, logs, and create GitHub issues automatically assigned to Copilot.",
+                            text = "Tap the bug button in the bottom-left corner to capture screenshots, logs, and create GitHub issues for automated bug tracking.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
