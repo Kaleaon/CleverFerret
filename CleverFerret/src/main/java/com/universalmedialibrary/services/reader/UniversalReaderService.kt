@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.reader
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import android.net.Uri
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.data.local.entity.ReadingProgress
@@ -280,7 +281,7 @@ class EnhancedUniversalReaderService @Inject constructor(
             readingProgressDao.upsert(progress)
 
             return progressPercentage
-        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+        } catch (e: SQLiteConstraintException) {
             // Foreign key constraint failed - media item doesn't exist in database
             // This can happen when opening files directly without adding to library
             return null

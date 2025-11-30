@@ -1,5 +1,6 @@
 package com.universalmedialibrary.data.repository
 
+import android.database.sqlite.SQLiteConstraintException
 import com.universalmedialibrary.data.local.dao.ReadingProgressDao
 import com.universalmedialibrary.data.local.entity.ReadingProgress
 import kotlinx.coroutines.flow.Flow
@@ -44,7 +45,7 @@ class ReadingProgressRepository @Inject constructor(
                 completedDate = if (isCompleted) timestamp else null
             )
             readingProgressDao.upsert(updated)
-        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+        } catch (e: SQLiteConstraintException) {
             // Foreign key constraint failed - media item doesn't exist in database
             // This can happen when opening files directly without adding to library
             // Silently ignore to allow file viewing without persistence
@@ -54,7 +55,7 @@ class ReadingProgressRepository @Inject constructor(
     suspend fun markAsRead(itemId: Long) {
         try {
             readingProgressDao.markAsCompleted(itemId, true)
-        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+        } catch (e: SQLiteConstraintException) {
             // Ignore foreign key constraint errors
         }
     }

@@ -1,6 +1,7 @@
 package com.universalmedialibrary.services.sync
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import com.universalmedialibrary.data.local.AppDatabase
 import com.universalmedialibrary.data.local.entity.MediaItem
 import com.universalmedialibrary.data.local.entity.ReadingProgress
@@ -371,7 +372,7 @@ class EnhancedSyncService @Inject constructor(
                             ChangeOperation.CREATE, ChangeOperation.MODIFY -> {
                                 try {
                                     readingProgressDao.insertProgress(progress)
-                                } catch (e: android.database.sqlite.SQLiteConstraintException) {
+                                } catch (e: SQLiteConstraintException) {
                                     // Foreign key constraint failed - media item doesn't exist in database
                                     // Skip this progress entry during sync
                                 }
@@ -390,7 +391,7 @@ class EnhancedSyncService @Inject constructor(
                             ChangeOperation.CREATE, ChangeOperation.MODIFY -> {
                                 try {
                                     bookmarkDao.insertBookmark(bookmark)
-                                } catch (e: android.database.sqlite.SQLiteConstraintException) {
+                                } catch (e: SQLiteConstraintException) {
                                     // Foreign key constraint failed - media item doesn't exist in database
                                     // Skip this bookmark during sync
                                 }
