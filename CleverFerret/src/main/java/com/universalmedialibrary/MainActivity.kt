@@ -1311,11 +1311,11 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             }
         }
 
-        addIfMissing("fanfiction_library") {
+        addIfMissing("fanfiction_hub") {
             NavigationItem(
-                route = "fanfiction_library",
-                label = "Fanfiction",
-                icon = { Icon(PhosphorIcons.Bookmark, contentDescription = "Fanfiction") },
+                route = "fanfiction_hub",
+                label = "Fiction Hub",
+                icon = { Icon(PhosphorIcons.Bookmark, contentDescription = "Fiction Hub") },
                 routeMatch = "fanfiction"
             )
         }
@@ -1340,23 +1340,8 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             )
         }
 
-        addIfMissing("webfiction_manager") {
-            NavigationItem(
-                route = "webfiction_manager",
-                label = "Web Fiction",
-                icon = { Icon(Icons.Filled.Language, contentDescription = "Web Fiction") },
-                routeMatch = "webfiction"
-            )
-        }
-
-        addIfMissing("story_manager") {
-            NavigationItem(
-                route = "story_manager",
-                label = "Story Manager",
-                icon = { Icon(Icons.Filled.List, contentDescription = "Story Manager") },
-                routeMatch = "story_manager"
-            )
-        }
+        // Note: webfiction_manager and story_manager kept for backward compatibility
+        // but fanfiction_hub is now the consolidated primary entry point
 
         if (!hasPodcastLibrary) {
             addIfMissing("podcasts") {
@@ -1451,14 +1436,7 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
         )
         
         // Additional items from PWA - can be toggled on/off for bottom bar
-        addIfMissing("fanfiction_download") {
-            NavigationItem(
-                route = "fanfiction_download",
-                label = "Downloads",
-                icon = { Icon(Icons.Default.Download, contentDescription = "Downloads") },
-                routeMatch = "fanfiction_download"
-            )
-        }
+        // Note: fanfiction_download now redirects users to fanfiction_hub's Download tab
         
         addIfMissing("storage_browser") {
             NavigationItem(

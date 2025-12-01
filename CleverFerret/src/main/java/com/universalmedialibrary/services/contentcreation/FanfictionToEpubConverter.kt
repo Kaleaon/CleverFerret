@@ -143,6 +143,7 @@ class FanfictionToEpubConverter @Inject constructor(
                 url.contains("archiveofourown.org") -> convertAO3Story(url)
                 url.contains("fanfiction.net") -> convertFFNetStory(url)
                 url.contains("wattpad.com") -> convertWattpadStory(url)
+                url.contains("royalroad.com") -> convertRoyalRoadStory(url)
                 else -> convertGenericStory(url)
             }
         } catch (e: Exception) {
@@ -276,6 +277,105 @@ class FanfictionToEpubConverter @Inject constructor(
 
         } catch (e: Exception) {
             ConversionResult(false, errorMessage = "Failed to convert Wattpad story: ${e.message}")
+        }
+    }
+
+    /**
+     * Convert Royal Road story
+     */
+    private suspend fun convertRoyalRoadStory(url: String): ConversionResult = withContext(Dispatchers.IO) {
+        try {
+            val document = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .timeout(15000)
+                .get()
+
+            val title = document.select("h1.font-white").first()?.text()
+                ?: document.select(".fic-title h1").first()?.text()
+                ?: "Unknown Title"
+            val author = document.select(".fic-title h4 a").first()?.text()
+                ?: document.select("h4.font-white a").first()?.text()
+                ?: "Unknown Author"
+            val summary = document.select(".description .hidden-content").first()?.text()
+                ?: document.select(".fiction-info .description").first()?.text()
+                ?: ""
+
+            // Get chapter links from table of contents
+            val chapterLinks = document.select("#chapters tbody tr td:first-child a")
+            val chapters = mutableListOf<Chapter>()
+
+            if (chapterLinks.isEmpty()) {
+                // Try alternate selector
+                val altLinks = document.select(".chapter-row a[href*='/fiction/']")
+                altLinks.forEachIndexed { index, link ->
+                    val chapterUrl = if (link.attr("href").startsWith("http")) {
+                        link.attr("href")
+                    } else {
+                        "https://www.royalroad.com${link.attr("href")}"
+                    }
+                    val chapter = fetchRoyalRoadChapter(chapterUrl, index + 1)
+                    if (chapter != null) {
+                        chapters.add(chapter)
+                    }
+                }
+            } else {
+                chapterLinks.forEachIndexed { index, link ->
+                    val chapterUrl = if (link.attr("href").startsWith("http")) {
+                        link.attr("href")
+                    } else {
+                        "https://www.royalroad.com${link.attr("href")}"
+                    }
+                    val chapter = fetchRoyalRoadChapter(chapterUrl, index + 1)
+                    if (chapter != null) {
+                        chapters.add(chapter)
+                    }
+                }
+            }
+
+            // Fallback to current chapter content
+            if (chapters.isEmpty()) {
+                val content = document.select(".chapter-content").first()?.html() ?: ""
+                if (content.isNotEmpty()) {
+                    chapters.add(Chapter("Chapter 1", content, 1))
+                }
+            }
+
+            if (chapters.isEmpty()) {
+                return@withContext ConversionResult(false, errorMessage = "No chapters found")
+            }
+
+            val epubPath = createFanfictionEpub(title, author, chapters, summary, "Royal Road", url)
+
+            ConversionResult(
+                success = true,
+                filePath = epubPath,
+                title = title,
+                author = author,
+                chapters = chapters.size
+            )
+
+        } catch (e: Exception) {
+            ConversionResult(false, errorMessage = "Failed to convert Royal Road story: ${e.message}")
+        }
+    }
+
+    private fun fetchRoyalRoadChapter(url: String, chapterNumber: Int): Chapter? {
+        return try {
+            val doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .timeout(15000)
+                .get()
+
+            val chapterTitle = doc.select("h1.font-white").first()?.text()
+                ?: doc.select(".chapter-title").first()?.text()
+                ?: "Chapter $chapterNumber"
+            val content = doc.select(".chapter-content").first()?.html() ?: ""
+
+            if (content.isEmpty()) return null
+
+            Chapter(chapterTitle, content, chapterNumber)
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -432,6 +532,10 @@ class FanfictionToEpubConverter @Inject constructor(
                 val storyId = Regex("story/(\\d+)").find(url)?.groupValues?.get(1)
                     ?: url.substringAfterLast("/").substringBefore("-")
                 "wattpad" to storyId
+            }
+            url.contains("royalroad.com") -> {
+                val fictionId = Regex("fiction/(\\d+)").find(url)?.groupValues?.get(1) ?: "unknown"
+                "royalroad" to fictionId
             }
             else -> {
                 val domain = try {

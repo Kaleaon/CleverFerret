@@ -37,6 +37,7 @@ class FanfictionToEpubConverterBasic @Inject constructor(
                 url.contains("archiveofourown.org") -> convertAO3Story(url)
                 url.contains("fanfiction.net") -> convertFFNetStory(url)
                 url.contains("wattpad.com") -> convertWattpadStory(url)
+                url.contains("royalroad.com") -> convertRoyalRoadStory(url)
                 else -> convertGenericStory(url)
             }
         } catch (e: Exception) {
@@ -169,6 +170,71 @@ class FanfictionToEpubConverterBasic @Inject constructor(
             val epubPath = createFanfictionEpub(title, author, chapters, summary, "Wattpad", url)
             ConversionResult(success = true, filePath = epubPath, title = title, author = author, chapters = chapters.size)
         } catch (e: Exception) { ConversionResult(false, errorMessage = "Failed to convert Wattpad story: ${e.message}") }
+    }
+
+    private suspend fun convertRoyalRoadStory(url: String): ConversionResult = withContext(Dispatchers.IO) {
+        try {
+            val document = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .timeout(15000)
+                .get()
+
+            val title = document.select("h1.font-white").first()?.text()
+                ?: document.select(".fic-title h1").first()?.text()
+                ?: "Unknown Title"
+            val author = document.select(".fic-title h4 a").first()?.text()
+                ?: document.select("h4.font-white a").first()?.text()
+                ?: "Unknown Author"
+            val summary = document.select(".description .hidden-content").first()?.text()
+                ?: document.select(".fiction-info .description").first()?.text()
+                ?: ""
+
+            val chapterLinks = document.select("#chapters tbody tr td:first-child a")
+            val chapters = mutableListOf<Chapter>()
+
+            if (chapterLinks.isEmpty()) {
+                val altLinks = document.select(".chapter-row a[href*='/fiction/']")
+                altLinks.forEachIndexed { index, link ->
+                    val chapterUrl = if (link.attr("href").startsWith("http")) link.attr("href")
+                        else "https://www.royalroad.com${link.attr("href")}"
+                    val chapter = fetchRoyalRoadChapterBasic(chapterUrl, index + 1)
+                    if (chapter != null) chapters.add(chapter)
+                }
+            } else {
+                chapterLinks.forEachIndexed { index, link ->
+                    val chapterUrl = if (link.attr("href").startsWith("http")) link.attr("href")
+                        else "https://www.royalroad.com${link.attr("href")}"
+                    val chapter = fetchRoyalRoadChapterBasic(chapterUrl, index + 1)
+                    if (chapter != null) chapters.add(chapter)
+                }
+            }
+
+            if (chapters.isEmpty()) {
+                val content = document.select(".chapter-content").first()?.html() ?: ""
+                if (content.isNotEmpty()) chapters.add(Chapter("Chapter 1", content, 1))
+            }
+
+            if (chapters.isEmpty()) {
+                return@withContext ConversionResult(false, errorMessage = "No chapters found")
+            }
+
+            val epubPath = createFanfictionEpub(title, author, chapters, summary, "Royal Road", url)
+            ConversionResult(success = true, filePath = epubPath, title = title, author = author, chapters = chapters.size)
+        } catch (e: Exception) { ConversionResult(false, errorMessage = "Failed to convert Royal Road story: ${e.message}") }
+    }
+
+    private fun fetchRoyalRoadChapterBasic(url: String, chapterNumber: Int): Chapter? {
+        return try {
+            val doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .timeout(15000)
+                .get()
+            val chapterTitle = doc.select("h1.font-white").first()?.text()
+                ?: doc.select(".chapter-title").first()?.text()
+                ?: "Chapter $chapterNumber"
+            val content = doc.select(".chapter-content").first()?.html() ?: ""
+            if (content.isEmpty()) null else Chapter(chapterTitle, content, chapterNumber)
+        } catch (e: Exception) { null }
     }
 
     private suspend fun convertGenericStory(url: String): ConversionResult = withContext(Dispatchers.IO) {

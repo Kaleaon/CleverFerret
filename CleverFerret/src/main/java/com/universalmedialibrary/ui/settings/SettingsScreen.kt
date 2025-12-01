@@ -403,7 +403,7 @@ fun SettingsScreen(
 
                 item {
                     MetallicCard(
-                        onClick = { navController.navigate("web_comic_downloader") }
+                        onClick = { navController.navigate("fanfiction_hub") }
                     ) {
                         Row(
                             modifier = Modifier
@@ -414,19 +414,19 @@ fun SettingsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Web Comic Downloader",
+                                    text = "Fanfiction & Web Fiction Hub",
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    text = "Search ComicVine and download web comics",
+                                    text = "Discover, download, and manage fanfiction, web comics, and stories",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             Icon(
-                                imageVector = Icons.Default.CloudDownload,
-                                contentDescription = "Web Comic Downloader"
+                                imageVector = Icons.Default.MenuBook,
+                                contentDescription = "Fanfiction Hub"
                             )
                         }
                     }

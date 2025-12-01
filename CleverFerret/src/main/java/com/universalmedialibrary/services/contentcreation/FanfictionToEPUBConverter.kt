@@ -51,7 +51,8 @@ class FanfictionToEPUBConverter @Inject constructor(
     enum class FanfictionSite(val domain: String) {
         FANFICTION_NET("fanfiction.net"),
         ARCHIVE_OF_OUR_OWN("archiveofourown.org"),
-        WATTPAD("wattpad.com");
+        WATTPAD("wattpad.com"),
+        ROYAL_ROAD("royalroad.com");
 
         companion object {
             fun fromUrl(url: String): FanfictionSite? {
@@ -85,6 +86,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 FanfictionSite.FANFICTION_NET -> fetchFFNetStory(storyUrl)
                 FanfictionSite.ARCHIVE_OF_OUR_OWN -> fetchAO3Story(storyUrl)
                 FanfictionSite.WATTPAD -> fetchWattpadStory(storyUrl)
+                FanfictionSite.ROYAL_ROAD -> fetchRoyalRoadStory(storyUrl)
             }
 
             if (story == null) {
@@ -120,6 +122,7 @@ class FanfictionToEPUBConverter @Inject constructor(
                 FanfictionSite.FANFICTION_NET -> fetchFFNetStory(storyUrl)
                 FanfictionSite.ARCHIVE_OF_OUR_OWN -> fetchAO3Story(storyUrl)
                 FanfictionSite.WATTPAD -> fetchWattpadStory(storyUrl)
+                FanfictionSite.ROYAL_ROAD -> fetchRoyalRoadStory(storyUrl)
             }
 
             if (story == null) {
@@ -341,6 +344,131 @@ class FanfictionToEPUBConverter @Inject constructor(
             )
         } catch (e: Exception) {
             ErrorLogger.logWarning("FanfictionToEPUBConverter", "Error fetching Wattpad chapter $chapterNumber", e)
+            null
+        }
+    }
+
+    /**
+     * Fetch story from Royal Road
+     */
+    private suspend fun fetchRoyalRoadStory(url: String): Story? = withContext(Dispatchers.IO) {
+        try {
+            val doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .timeout(15000)
+                .get()
+
+            // Extract story info from Royal Road
+            val title = doc.select("h1.font-white").first()?.text() 
+                ?: doc.select(".fic-title h1").first()?.text()
+                ?: "Unknown Title"
+            val author = doc.select(".fic-title h4 a").first()?.text()
+                ?: doc.select("h4.font-white a").first()?.text()
+                ?: "Unknown Author"
+            val summary = doc.select(".description .hidden-content").first()?.text()
+                ?: doc.select(".fiction-info .description").first()?.text()
+                ?: ""
+
+            // Get chapter links from the table of contents
+            val chapterLinks = doc.select("#chapters tbody tr td:first-child a")
+            val chapters = mutableListOf<Chapter>()
+
+            if (chapterLinks.isEmpty()) {
+                // Try alternate selector for chapter list
+                val altChapterLinks = doc.select(".chapter-row a[href*='/fiction/']")
+                altChapterLinks.forEachIndexed { index, link ->
+                    val chapterUrl = if (link.attr("href").startsWith("http")) {
+                        link.attr("href")
+                    } else {
+                        "https://www.royalroad.com${link.attr("href")}"
+                    }
+                    val chapter = fetchRoyalRoadChapter(chapterUrl, index + 1)
+                    if (chapter != null) {
+                        chapters.add(chapter)
+                    }
+                }
+            } else {
+                chapterLinks.forEachIndexed { index, link ->
+                    val chapterUrl = if (link.attr("href").startsWith("http")) {
+                        link.attr("href")
+                    } else {
+                        "https://www.royalroad.com${link.attr("href")}"
+                    }
+                    val chapter = fetchRoyalRoadChapter(chapterUrl, index + 1)
+                    if (chapter != null) {
+                        chapters.add(chapter)
+                    }
+                }
+            }
+
+            // If we couldn't get chapters from ToC, try getting current chapter
+            if (chapters.isEmpty()) {
+                val content = doc.select(".chapter-content").first()?.html() ?: ""
+                if (content.isNotEmpty()) {
+                    chapters.add(Chapter(
+                        number = 1,
+                        title = title,
+                        content = cleanHtml(content)
+                    ))
+                }
+            }
+
+            if (chapters.isEmpty()) {
+                return@withContext null
+            }
+
+            // Extract metadata
+            val tags = doc.select(".fiction-info .tags a").map { it.text() }
+            val statsText = doc.select(".fiction-info .stats").text()
+            val wordCount = Regex("([\\d,]+)\\s*(?:Total )?Words").find(statsText)
+                ?.groupValues?.get(1)
+                ?.replace(",", "")
+                ?.toIntOrNull() ?: 0
+
+            Story(
+                title = title,
+                author = author,
+                summary = summary,
+                chapters = chapters,
+                metadata = StoryMetadata(
+                    fandom = "Royal Road",
+                    characters = tags.take(5), // Use tags as "characters" placeholder
+                    wordCount = wordCount,
+                    status = if (statsText.contains("COMPLETE", ignoreCase = true)) "Complete" else "Ongoing"
+                )
+            )
+        } catch (e: Exception) {
+            ErrorLogger.logError("FanfictionToEPUBConverter", "Error fetching Royal Road story", e)
+            null
+        }
+    }
+
+    /**
+     * Fetch a single chapter from Royal Road
+     */
+    private fun fetchRoyalRoadChapter(url: String, chapterNumber: Int): Chapter? {
+        return try {
+            val doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .timeout(15000)
+                .get()
+
+            val chapterTitle = doc.select("h1.font-white").first()?.text()
+                ?: doc.select(".chapter-title").first()?.text()
+                ?: "Chapter $chapterNumber"
+            val content = doc.select(".chapter-content").first()?.html() ?: ""
+
+            if (content.isEmpty()) {
+                return null
+            }
+
+            Chapter(
+                number = chapterNumber,
+                title = chapterTitle,
+                content = cleanHtml(content)
+            )
+        } catch (e: Exception) {
+            ErrorLogger.logWarning("FanfictionToEPUBConverter", "Error fetching Royal Road chapter $chapterNumber", e)
             null
         }
     }
