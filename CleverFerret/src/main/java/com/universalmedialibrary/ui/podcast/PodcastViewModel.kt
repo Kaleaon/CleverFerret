@@ -62,6 +62,15 @@ class PodcastViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
+            // Validate feedUrl before attempting to subscribe
+            if (searchResult.feedUrl.isBlank()) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Cannot subscribe: Feed URL is missing for this podcast"
+                )
+                return@launch
+            }
+
             try {
                 when (val result = repository.subscribeToPodcast(searchResult.feedUrl)) {
                     is PodcastOperationResult.Success -> {
@@ -78,6 +87,8 @@ class PodcastViewModel @Inject constructor(
                         )
                     }
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
