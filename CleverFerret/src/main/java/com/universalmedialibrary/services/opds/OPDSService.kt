@@ -118,6 +118,10 @@ class OPDSCatalogService @Inject constructor(
         }
     }
 
+    suspend fun fetchUrl(url: String): OPDSFeed = withContext(Dispatchers.IO) {
+        opdsClient.fetchFeed(url)
+    }
+
     fun getAllCatalogs(): Flow<List<OPDSCatalog>> {
         return catalogDao.getAllCatalogs()
     }
