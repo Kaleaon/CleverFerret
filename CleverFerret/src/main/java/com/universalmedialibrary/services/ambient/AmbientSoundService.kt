@@ -176,11 +176,19 @@ class AmbientSoundService @Inject constructor(
     }
 
     /**
+     * Result of sound playback attempt
+     */
+    sealed class PlayResult {
+        object Success : PlayResult()
+        data class Error(val message: String) : PlayResult()
+    }
+
+    /**
      * Start playing an ambient sound
      */
-    suspend fun playSound(sound: AmbientSound) = withContext(Dispatchers.IO) {
+    suspend fun playSound(sound: AmbientSound): PlayResult = withContext(Dispatchers.IO) {
         if (mediaPlayers.containsKey(sound.id)) {
-            return@withContext // Already playing
+            return@withContext PlayResult.Success // Already playing
         }
         
         var dataSource = sound.audioUrl
@@ -194,7 +202,7 @@ class AmbientSoundService @Inject constructor(
         }
 
         if (dataSource.isNullOrBlank()) {
-            return@withContext
+            return@withContext PlayResult.Error("No audio source available for this sound")
         }
         
         // Trigger download if not local
@@ -228,8 +236,13 @@ class AmbientSoundService @Inject constructor(
                 start()
             }
             mediaPlayers[sound.id] = mediaPlayer
+            return@withContext PlayResult.Success
+        } catch (e: java.io.IOException) {
+            e.printStackTrace()
+            return@withContext PlayResult.Error("Unable to play sound: file not found or network error")
         } catch (e: Exception) {
             e.printStackTrace()
+            return@withContext PlayResult.Error("Error playing sound: ${e.message}")
         }
     }
 

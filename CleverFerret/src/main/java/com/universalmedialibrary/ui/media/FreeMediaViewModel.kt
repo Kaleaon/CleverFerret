@@ -80,6 +80,9 @@ class FreeMediaViewModel @Inject constructor(
                     isLoading = false,
                     results = results
                 )
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // Job was cancelled (e.g., by user switching tabs), don't update state
+                throw e
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
