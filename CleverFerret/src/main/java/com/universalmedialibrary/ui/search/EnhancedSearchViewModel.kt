@@ -220,6 +220,9 @@ class EnhancedSearchViewModel @Inject constructor(
                     error = null
                 )
                 loadSearchHistory()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                // Search was cancelled (e.g., user typed new query), don't update state
+                throw e
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isSearching = false,

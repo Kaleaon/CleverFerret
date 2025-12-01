@@ -556,7 +556,7 @@ private fun UnifiedContent(
                             onDownload = { 
                                 story.url?.let { downloadViewModel.downloadFromUrl(it) }
                             },
-                            isDownloading = downloadState.isLoading
+                            isDownloading = downloadState.isLoading && downloadState.url == story.url
                         )
                     }
                 } else if (!uiState.isLoadingStories) {

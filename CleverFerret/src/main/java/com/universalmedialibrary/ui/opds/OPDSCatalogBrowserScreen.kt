@@ -126,8 +126,12 @@ fun OPDSCatalogBrowserScreen(
                             val feed = result.getOrNull()!!
                             PublicationListView(
                                 entries = feed.entries,
+                                navigationLinks = feed.navigation,
                                 onPublicationClick = { entry ->
                                     viewModel.downloadPublication(selectedCatalog!!.id, entry)
+                                },
+                                onNavigationClick = { url ->
+                                    viewModel.navigateToUrl(url)
                                 }
                             )
                         }
@@ -266,18 +270,90 @@ private fun CatalogCard(
 @Composable
 private fun PublicationListView(
     entries: List<OPDSEntry>,
-    onPublicationClick: (OPDSEntry) -> Unit
+    navigationLinks: List<OPDSLink> = emptyList(),
+    onPublicationClick: (OPDSEntry) -> Unit,
+    onNavigationClick: (String) -> Unit = {}
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(entries) { entry ->
-            PublicationCard(
-                entry = entry,
-                onClick = { onPublicationClick(entry) }
-            )
+    // Find next and previous links
+    val nextLink = navigationLinks.find { link -> 
+        link.rel.any { it.contains("next") }
+    }
+    val prevLink = navigationLinks.find { link ->
+        link.rel.any { it.contains("previous") || it.contains("prev") }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Navigation buttons at top
+        if (prevLink != null || nextLink != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (prevLink != null) {
+                    OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Previous")
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+                
+                if (nextLink != null) {
+                    Button(onClick = { onNavigationClick(nextLink.href) }) {
+                        Text("Next")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.Default.ArrowForward, contentDescription = null)
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(entries) { entry ->
+                PublicationCard(
+                    entry = entry,
+                    onClick = { onPublicationClick(entry) }
+                )
+            }
+        }
+
+        // Navigation buttons at bottom
+        if (prevLink != null || nextLink != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (prevLink != null) {
+                    OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Previous")
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+                
+                if (nextLink != null) {
+                    Button(onClick = { onNavigationClick(nextLink.href) }) {
+                        Text("Next")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.Default.ArrowForward, contentDescription = null)
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(1.dp))
+                }
+            }
         }
     }
 }
@@ -552,6 +628,18 @@ class OPDSCatalogBrowserViewModel @Inject constructor(
     fun downloadPublication(catalogId: Long, entry: OPDSEntry) {
         viewModelScope.launch {
             downloadService.queueDownload(catalogId, entry)
+        }
+    }
+
+    fun navigateToUrl(url: String) {
+        viewModelScope.launch {
+            _currentFeed.value = null // Show loading
+            try {
+                val feed = opdsCatalogService.fetchUrl(url)
+                _currentFeed.value = Result.success(feed)
+            } catch (e: Exception) {
+                _currentFeed.value = Result.failure(e)
+            }
         }
     }
 

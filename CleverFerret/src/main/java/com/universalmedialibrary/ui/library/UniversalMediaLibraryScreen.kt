@@ -63,19 +63,25 @@ fun UniversalMediaLibraryScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Top App Bar
+        // Top App Bar - simplified, no title for clean look
         TopAppBar(
-            title = {
-                Text(
-                    "Universal Media Library",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+            title = { /* Empty - cleaner look */ },
+            navigationIcon = {
+                IconButton(onClick = { /* Open drawer/menu */ }) {
+                    Icon(Icons.Default.Menu, contentDescription = "Menu")
+                }
             },
             actions = {
-                // Search
-                IconButton(onClick = { /* Open search */ }) {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
+                // Centered Search - takes up space
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = { /* Open search */ }) {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    }
                 }
 
                 // View Mode Toggle
