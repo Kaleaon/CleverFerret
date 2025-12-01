@@ -180,7 +180,8 @@ fun UnifiedFanfictionHubScreen(
                     HubTabs.DOWNLOAD -> DownloadTab(
                         downloadState = downloadState,
                         downloadViewModel = downloadViewModel,
-                        adultSitesEnabled = adultSitesEnabled
+                        adultSitesEnabled = adultSitesEnabled,
+                        navController = navController
                     )
                 }
             }
@@ -928,7 +929,8 @@ private fun QuickDownloadDialog(
 private fun DownloadTab(
     downloadState: FanfictionDownloaderUiState,
     downloadViewModel: FanfictionDownloaderViewModel,
-    adultSitesEnabled: Boolean
+    adultSitesEnabled: Boolean,
+    navController: NavController
 ) {
     var url by remember { mutableStateOf("") }
     
@@ -1212,6 +1214,49 @@ private fun DownloadTab(
                                "• Large stories with many chapters may take longer",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        
+        // Web Comics Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                onClick = { navController.navigate("web_comic_downloader") }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.PhotoLibrary,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Web Comic Downloader",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Search ComicVine and download web comics",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                    Icon(
+                        Icons.Default.ArrowForward,
+                        contentDescription = "Open",
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
