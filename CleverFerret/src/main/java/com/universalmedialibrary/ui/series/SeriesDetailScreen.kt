@@ -62,7 +62,7 @@ fun SeriesDetailScreen(
             items(uiItems.size) { index ->
                 val item = uiItems[index]
                 ListItem(headlineContent = { Text(item.fileName) })
-                Divider()
+                HorizontalDivider()
             }
         }
     }

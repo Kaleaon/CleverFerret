@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,7 +53,7 @@ import java.util.Locale
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -211,7 +213,7 @@ private fun CurrentPlayingItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onSkipPrevious) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Previous")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous")
                 }
 
                 FloatingActionButton(
@@ -225,7 +227,7 @@ private fun CurrentPlayingItem(
                 }
 
                 IconButton(onClick = onSkipNext) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "Next")
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next")
                 }
             }
             

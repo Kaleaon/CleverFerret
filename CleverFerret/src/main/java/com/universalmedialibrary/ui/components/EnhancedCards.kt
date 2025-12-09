@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -238,7 +240,7 @@ fun AnimatedInfoCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        if (trendUp) Icons.Default.TrendingUp else Icons.Default.TrendingDown,
+                        if (trendUp) Icons.AutoMirrored.Filled.TrendingUp else Icons.Default.TrendingDown,
                         contentDescription = null,
                         tint = if (trendUp) Color(0xFF4CAF50) else Color(0xFFF44336),
                         modifier = Modifier.size(16.dp)
@@ -351,7 +353,7 @@ fun FeatureCard(
  */
 private fun getMediaTypeIcon(mediaType: String): ImageVector {
     return when (mediaType.uppercase()) {
-        "BOOK", "EBOOK" -> Icons.Default.MenuBook
+        "BOOK", "EBOOK" -> Icons.AutoMirrored.Filled.MenuBook
         "AUDIO", "MUSIC" -> Icons.Default.MusicNote
         "VIDEO", "MOVIE" -> Icons.Default.Movie
         "PODCAST" -> Icons.Default.Podcasts

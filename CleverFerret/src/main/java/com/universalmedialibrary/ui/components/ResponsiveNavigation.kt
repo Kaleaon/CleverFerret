@@ -30,13 +30,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.LibraryBooks
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Public
@@ -198,7 +198,7 @@ object NavigationItems {
         NavigationItem(
             route = "story_manager",
             label = "Story Manager",
-            icon = { Icon(Icons.Filled.List, contentDescription = "Story Manager") },
+            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Story Manager") },
             showInBottomNav = false
         ),
         NavigationItem(
@@ -234,7 +234,7 @@ object NavigationItems {
         NavigationItem(
             route = "opds_catalog",
             label = "OPDS",
-            icon = { Icon(Icons.Filled.LibraryBooks, contentDescription = "OPDS") },
+            icon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "OPDS") },
             showInBottomNav = false
         ),
         NavigationItem(

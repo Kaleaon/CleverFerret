@@ -10,8 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.NavigateNext
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -213,7 +213,7 @@ private fun PdfReaderView(uri: Uri) {
                     }
                 },
                 enabled = currentPageIndex > 0
-            ) { Icon(Icons.Default.NavigateBefore, contentDescription = "Prev page") }
+            ) { Icon(Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Prev page") }
 
             Text("${currentPageIndex + 1} / ${pageCount}")
 
@@ -225,7 +225,7 @@ private fun PdfReaderView(uri: Uri) {
                     }
                 },
                 enabled = currentPageIndex < pageCount - 1
-            ) { Icon(Icons.Default.NavigateNext, contentDescription = "Next page") }
+            ) { Icon(Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Next page") }
         }
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

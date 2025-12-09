@@ -12,6 +12,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
+import androidx.compose.material.icons.automirrored.filled.Note
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -93,7 +97,7 @@ fun EnhancedPDFReaderScreen(
                             Icon(
                                 when (selectedAnnotationTool) {
                                     AnnotationTool.HIGHLIGHT -> Icons.Default.FormatColorFill
-                                    AnnotationTool.NOTE -> Icons.Default.Note
+                                    AnnotationTool.NOTE -> Icons.AutoMirrored.Filled.Note
                                     AnnotationTool.DRAW -> Icons.Default.Draw
                                     AnnotationTool.STRIKETHROUGH -> Icons.Default.FormatStrikethrough
                                 },
@@ -127,7 +131,7 @@ fun EnhancedPDFReaderScreen(
 
                     // Page navigation
                     IconButton(onClick = { showPageMenu = true }) {
-                        Icon(Icons.Default.MenuBook, contentDescription = "Page Navigation")
+                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Page Navigation")
                     }
 
                     DropdownMenu(
@@ -200,7 +204,7 @@ fun EnhancedPDFReaderScreen(
                                 onClick = { viewModel.previousPage() },
                                 enabled = uiState.currentPage > 1
                             ) {
-                                Icon(Icons.Default.NavigateBefore, contentDescription = "Previous Page")
+                                Icon(Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Previous Page")
                             }
 
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -221,7 +225,7 @@ fun EnhancedPDFReaderScreen(
                                 onClick = { viewModel.nextPage() },
                                 enabled = uiState.currentPage < uiState.totalPages
                             ) {
-                                Icon(Icons.Default.NavigateNext, contentDescription = "Next Page")
+                                Icon(Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Next Page")
                             }
                         }
                     }
@@ -507,7 +511,7 @@ fun FloatingAnnotationPanel(
                     Icon(
                         when (annotation.type) {
                             AnnotationType.HIGHLIGHT -> Icons.Default.FormatColorFill
-                            AnnotationType.NOTE -> Icons.Default.Note
+                            AnnotationType.NOTE -> Icons.AutoMirrored.Filled.Note
                             AnnotationType.DRAWING -> Icons.Default.Draw
                             AnnotationType.STRIKETHROUGH -> Icons.Default.FormatStrikethrough
                         },
@@ -542,7 +546,7 @@ fun FloatingAnnotationPanel(
 // Data classes and enums for PDF reader
 enum class AnnotationTool(val displayName: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     HIGHLIGHT("Highlight", Icons.Default.FormatColorFill),
-    NOTE("Note", Icons.Default.Note),
+    NOTE("Note", Icons.AutoMirrored.Filled.Note),
     DRAW("Draw", Icons.Default.Draw),
     STRIKETHROUGH("Strikethrough", Icons.Default.FormatStrikethrough)
 }

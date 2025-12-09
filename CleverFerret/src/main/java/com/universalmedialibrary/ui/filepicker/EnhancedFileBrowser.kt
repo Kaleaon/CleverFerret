@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -186,7 +188,7 @@ fun EnhancedFileBrowser(
                         currentPath = parent
                     }
                 }) {
-                    Icon(Icons.Default.ArrowBack, "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                 }
             },
             actions = {
@@ -202,7 +204,7 @@ fun EnhancedFileBrowser(
                     )
                 }) {
                     Icon(
-                        if (settings.viewMode == ViewMode.LIST) Icons.Default.GridView else Icons.Default.List,
+                        if (settings.viewMode == ViewMode.LIST) Icons.Default.GridView else Icons.AutoMirrored.Filled.List,
                         "Toggle View"
                     )
                 }
@@ -787,7 +789,7 @@ private fun FileBrowserSettingsDialog(
                     onTypesChange = { onSettingsChange(settings.copy(selectedFileTypes = it)) }
                 )
                 
-                Divider()
+                HorizontalDivider()
                 
                 // File size filter
                 Text("File Size (KB)", style = MaterialTheme.typography.titleSmall)
@@ -813,7 +815,7 @@ private fun FileBrowserSettingsDialog(
                     )
                 }
                 
-                Divider()
+                HorizontalDivider()
                 
                 // Show hidden files
                 Row(

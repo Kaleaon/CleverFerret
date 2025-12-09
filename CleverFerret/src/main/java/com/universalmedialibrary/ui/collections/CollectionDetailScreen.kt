@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -52,7 +54,7 @@ fun CollectionDetailScreen(
                 title = { Text(uiState.collection?.name ?: "Collection") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -220,7 +222,7 @@ private fun CollectionHeader(
                         imageVector = when (it.type) {
                             CollectionType.PLAYLIST -> Icons.Default.PlaylistPlay
                             CollectionType.SERIES -> Icons.Default.ViewList
-                            CollectionType.READING_LIST -> Icons.Default.MenuBook
+                            CollectionType.READING_LIST -> Icons.AutoMirrored.Filled.MenuBook
                             CollectionType.WATCH_LIST -> Icons.Default.Visibility
                             CollectionType.USER_DEFINED -> Icons.Default.Folder
                             CollectionType.SMART -> Icons.Default.AutoAwesome

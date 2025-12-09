@@ -126,7 +126,7 @@ fun FanfictionDownloadScreen(
             
             // Example URLs
             if (downloadState is DownloadState.Idle) {
-                Divider()
+                HorizontalDivider()
                 
                 Text(
                     "Example URLs",
