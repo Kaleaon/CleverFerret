@@ -170,7 +170,7 @@ private fun OPDSTopBar(
                     Icon(
                         imageVector = Icons.Default.LibraryBooks,
                         contentDescription = null,
-                        tint = PlexColors.MediaBook,
+                        tint = PlexColors.MediaTypes.Book,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(PlexSpacing.SM))
@@ -715,7 +715,7 @@ data class OPDSCatalog(
     val url: String,
     val description: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.LibraryBooks,
-    val color: Color = PlexColors.MediaBook,
+    val color: Color = PlexColors.MediaTypes.Book,
     val isBuiltIn: Boolean = false
 )
 

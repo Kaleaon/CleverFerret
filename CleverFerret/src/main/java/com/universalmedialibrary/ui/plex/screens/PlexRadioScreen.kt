@@ -168,7 +168,7 @@ private fun RadioTopBar(
                 Icon(
                     imageVector = Icons.Default.Radio,
                     contentDescription = null,
-                    tint = PlexColors.MediaPodcast,
+                    tint = PlexColors.MediaTypes.Podcast,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(PlexSpacing.SM))
@@ -909,7 +909,7 @@ data class RadioStation(
     val logoUrl: String?,
     val streamUrl: String,
     val genre: String,
-    val genreColor: Color = PlexColors.MediaPodcast,
+    val genreColor: Color = PlexColors.MediaTypes.Podcast,
     val country: String? = null,
     val bitrate: Int? = null,
     val isFavorite: Boolean = false,

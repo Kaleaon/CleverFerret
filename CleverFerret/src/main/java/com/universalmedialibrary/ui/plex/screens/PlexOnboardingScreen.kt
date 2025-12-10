@@ -330,7 +330,7 @@ private fun StoragePage() {
 private fun AccountsPage() {
     OnboardingPageContent(
         icon = Icons.Default.AccountCircle,
-        iconColor = PlexColors.MediaMovie,
+        iconColor = PlexColors.MediaTypes.Movie,
         title = "Connect Your Accounts",
         description = "Optional: Connect services for enhanced features"
     ) {
@@ -369,7 +369,7 @@ private fun ThemePage() {
     
     OnboardingPageContent(
         icon = Icons.Default.Palette,
-        iconColor = PlexColors.MediaMusic,
+        iconColor = PlexColors.MediaTypes.Music,
         title = "Choose Your Style",
         description = "Customize the app appearance"
     ) {

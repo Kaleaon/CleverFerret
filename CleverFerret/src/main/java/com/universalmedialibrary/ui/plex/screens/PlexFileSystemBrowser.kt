@@ -1055,9 +1055,9 @@ enum class FileTypeFilter(val displayName: String, val icon: ImageVector) {
 
 enum class FileType(val icon: ImageVector, val color: Color) {
     FOLDER(Icons.Default.Folder, Color(0xFFFFB74D)),
-    BOOK(Icons.Default.Book, PlexColors.MediaBooks),
-    AUDIO(Icons.Default.MusicNote, PlexColors.MediaMusic),
-    VIDEO(Icons.Default.Movie, PlexColors.MediaMovies),
+    BOOK(Icons.Default.Book, PlexColors.MediaTypes.Book),
+    AUDIO(Icons.Default.MusicNote, PlexColors.MediaTypes.Music),
+    VIDEO(Icons.Default.Movie, PlexColors.MediaTypes.Movie),
     IMAGE(Icons.Default.Image, Color(0xFF7986CB)),
     DOCUMENT(Icons.Default.Description, Color(0xFF4FC3F7)),
     ARCHIVE(Icons.Default.Archive, Color(0xFF81C784)),
@@ -1069,14 +1069,14 @@ enum class LibraryType(
     val icon: ImageVector,
     val color: Color
 ) {
-    BOOKS("Books", Icons.Default.Book, PlexColors.MediaBooks),
-    AUDIOBOOKS("Audiobooks", Icons.Default.Headphones, PlexColors.MediaAudiobooks),
-    COMICS("Comics", Icons.Default.CollectionsBookmark, PlexColors.MediaComics),
-    MUSIC("Music", Icons.Default.MusicNote, PlexColors.MediaMusic),
-    MOVIES("Movies", Icons.Default.Movie, PlexColors.MediaMovies),
-    TV_SHOWS("TV Shows", Icons.Default.Tv, PlexColors.MediaTVShows),
-    PODCASTS("Podcasts", Icons.Default.Podcasts, PlexColors.MediaPodcasts),
-    DOCUMENTS("Documents", Icons.Default.Description, PlexColors.MediaDocuments)
+    BOOKS("Books", Icons.Default.Book, PlexColors.MediaTypes.Book),
+    AUDIOBOOKS("Audiobooks", Icons.Default.Headphones, PlexColors.MediaTypes.Audiobook),
+    COMICS("Comics", Icons.Default.CollectionsBookmark, PlexColors.MediaTypes.Comic),
+    MUSIC("Music", Icons.Default.MusicNote, PlexColors.MediaTypes.Music),
+    MOVIES("Movies", Icons.Default.Movie, PlexColors.MediaTypes.Movie),
+    TV_SHOWS("TV Shows", Icons.Default.Tv, PlexColors.MediaTypes.TvShow),
+    PODCASTS("Podcasts", Icons.Default.Podcasts, PlexColors.MediaTypes.Podcast),
+    DOCUMENTS("Documents", Icons.Default.Description, PlexColors.MediaTypes.Document)
 }
 
 private fun defaultQuickAccessItems() = listOf(
@@ -1102,12 +1102,12 @@ private fun defaultQuickAccessItems() = listOf(
         name = "Music",
         path = "/storage/emulated/0/Music",
         icon = Icons.Default.MusicNote,
-        color = PlexColors.MediaMusic
+        color = PlexColors.MediaTypes.Music
     ),
     QuickAccessItem(
         name = "Movies",
         path = "/storage/emulated/0/Movies",
         icon = Icons.Default.Movie,
-        color = PlexColors.MediaMovies
+        color = PlexColors.MediaTypes.Movie
     )
 )

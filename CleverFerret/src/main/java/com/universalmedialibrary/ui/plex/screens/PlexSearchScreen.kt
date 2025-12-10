@@ -698,13 +698,13 @@ enum class SearchCategory(
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val color: Color
 ) {
-    BOOKS("Books", Icons.Default.Book, PlexColors.MediaBook),
-    AUDIOBOOKS("Audiobooks", Icons.Default.Headphones, PlexColors.MediaAudiobook),
-    COMICS("Comics", Icons.Default.PhotoLibrary, PlexColors.MediaComic),
-    MUSIC("Music", Icons.Default.MusicNote, PlexColors.MediaMusic),
-    PODCASTS("Podcasts", Icons.Default.Podcasts, PlexColors.MediaPodcast),
-    MOVIES("Movies", Icons.Default.Movie, PlexColors.MediaMovie),
-    TV_SHOWS("TV Shows", Icons.Default.Tv, PlexColors.MediaTVShow),
-    WEB_FICTION("Web Fiction", Icons.Default.Article, PlexColors.MediaDocument),
-    DOCUMENTS("Documents", Icons.Default.Description, PlexColors.MediaDocument)
+    BOOKS("Books", Icons.Default.Book, PlexColors.MediaTypes.Book),
+    AUDIOBOOKS("Audiobooks", Icons.Default.Headphones, PlexColors.MediaTypes.Audiobook),
+    COMICS("Comics", Icons.Default.PhotoLibrary, PlexColors.MediaTypes.Comic),
+    MUSIC("Music", Icons.Default.MusicNote, PlexColors.MediaTypes.Music),
+    PODCASTS("Podcasts", Icons.Default.Podcasts, PlexColors.MediaTypes.Podcast),
+    MOVIES("Movies", Icons.Default.Movie, PlexColors.MediaTypes.Movie),
+    TV_SHOWS("TV Shows", Icons.Default.Tv, PlexColors.MediaTypes.TvShow),
+    WEB_FICTION("Web Fiction", Icons.Default.Article, PlexColors.MediaTypes.Document),
+    DOCUMENTS("Documents", Icons.Default.Description, PlexColors.MediaTypes.Document)
 }

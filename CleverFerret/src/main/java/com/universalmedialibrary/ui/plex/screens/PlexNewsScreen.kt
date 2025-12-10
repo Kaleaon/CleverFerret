@@ -139,7 +139,7 @@ private fun NewsTopBar(
                 Icon(
                     imageVector = Icons.Default.Newspaper,
                     contentDescription = null,
-                    tint = PlexColors.MediaDocument,
+                    tint = PlexColors.MediaTypes.Document,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(PlexSpacing.SM))

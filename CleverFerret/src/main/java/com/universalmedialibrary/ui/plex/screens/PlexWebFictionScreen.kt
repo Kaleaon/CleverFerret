@@ -162,7 +162,7 @@ private fun WebFictionTopBar(
                 Icon(
                     imageVector = Icons.Default.Article,
                     contentDescription = null,
-                    tint = PlexColors.MediaDocument,
+                    tint = PlexColors.MediaTypes.Document,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(PlexSpacing.SM))

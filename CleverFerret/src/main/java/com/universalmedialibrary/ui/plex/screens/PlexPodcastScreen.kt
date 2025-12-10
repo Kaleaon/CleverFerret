@@ -203,7 +203,7 @@ private fun PodcastTopBar(
                 Icon(
                     imageVector = Icons.Default.Podcasts,
                     contentDescription = null,
-                    tint = PlexColors.MediaPodcast,
+                    tint = PlexColors.MediaTypes.Podcast,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(PlexSpacing.SM))
@@ -316,7 +316,7 @@ private fun PodcastShowCard(
                     Icon(
                         imageVector = Icons.Default.Podcasts,
                         contentDescription = null,
-                        tint = PlexColors.MediaPodcast.copy(alpha = 0.5f),
+                        tint = PlexColors.MediaTypes.Podcast.copy(alpha = 0.5f),
                         modifier = Modifier
                             .padding(PlexSpacing.XL)
                             .fillMaxSize()
@@ -449,7 +449,7 @@ private fun PodcastEpisodeCard(
                     Text(
                         text = episode.showTitle,
                         style = PlexTypography.LabelSmall,
-                        color = PlexColors.MediaPodcast,
+                        color = PlexColors.MediaTypes.Podcast,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

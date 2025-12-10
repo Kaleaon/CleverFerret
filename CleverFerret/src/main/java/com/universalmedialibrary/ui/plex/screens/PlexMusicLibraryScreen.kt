@@ -188,7 +188,7 @@ private fun MusicLibraryTopBar(
                 Icon(
                     imageVector = Icons.Default.MusicNote,
                     contentDescription = null,
-                    tint = PlexColors.MediaMusic,
+                    tint = PlexColors.MediaTypes.Music,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(PlexSpacing.SM))
@@ -290,7 +290,7 @@ private fun AlbumCard(
                     Icon(
                         imageVector = Icons.Default.Album,
                         contentDescription = null,
-                        tint = PlexColors.MediaMusic.copy(alpha = 0.5f),
+                        tint = PlexColors.MediaTypes.Music.copy(alpha = 0.5f),
                         modifier = Modifier
                             .padding(PlexSpacing.XL)
                             .fillMaxSize()
@@ -434,7 +434,7 @@ private fun ArtistCard(
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        tint = PlexColors.MediaMusic.copy(alpha = 0.5f),
+                        tint = PlexColors.MediaTypes.Music.copy(alpha = 0.5f),
                         modifier = Modifier
                             .padding(PlexSpacing.LG)
                             .fillMaxSize()
@@ -553,7 +553,7 @@ private fun TrackListItem(
                 Icon(
                     imageVector = Icons.Default.MusicNote,
                     contentDescription = null,
-                    tint = PlexColors.MediaMusic.copy(alpha = 0.5f),
+                    tint = PlexColors.MediaTypes.Music.copy(alpha = 0.5f),
                     modifier = Modifier.padding(PlexSpacing.SM)
                 )
             }
@@ -717,7 +717,7 @@ private fun PlaylistCard(
                         Icon(
                             imageVector = Icons.Default.QueueMusic,
                             contentDescription = null,
-                            tint = PlexColors.MediaMusic.copy(alpha = 0.5f),
+                            tint = PlexColors.MediaTypes.Music.copy(alpha = 0.5f),
                             modifier = Modifier.size(48.dp)
                         )
                     }
