@@ -1327,7 +1327,7 @@ data class AnnotationInfo(
     val highlightId: String? = null
 )
 
-private data class ReaderSearchResult(
+data class ReaderSearchResult(
     val pageNumber: Int,
     val excerpt: String,
     val startOffset: Int

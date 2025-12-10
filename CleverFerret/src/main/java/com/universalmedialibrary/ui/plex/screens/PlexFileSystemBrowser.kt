@@ -459,8 +459,8 @@ private fun BreadcrumbChip(
 
 @Composable
 private fun QuickAccessSection(
-    quickAccessItems: List<QuickAccessItem>,
-    onItemClick: (QuickAccessItem) -> Unit
+    quickAccessItems: List<FileQuickAccessItem>,
+    onItemClick: (FileQuickAccessItem) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -489,7 +489,7 @@ private fun QuickAccessSection(
 
 @Composable
 private fun QuickAccessCard(
-    item: QuickAccessItem,
+    item: FileQuickAccessItem,
     onClick: () -> Unit
 ) {
     Surface(
@@ -1002,7 +1002,7 @@ private fun formatSize(bytes: Long): String {
 data class FileSystemBrowserState(
     val currentPath: String = "/storage/emulated/0",
     val items: List<FileItem> = emptyList(),
-    val quickAccessItems: List<QuickAccessItem> = defaultQuickAccessItems(),
+    val quickAccessItems: List<FileQuickAccessItem> = defaultQuickAccessItems(),
     val sortOption: FileSortOption = FileSortOption.NAME,
     val typeFilter: FileTypeFilter = FileTypeFilter.ALL,
     val selectionMode: SelectionMode = SelectionMode.FILES_AND_FOLDERS,
@@ -1024,7 +1024,7 @@ data class FileItem(
     val fileType: FileType
 )
 
-data class QuickAccessItem(
+data class FileQuickAccessItem(
     val name: String,
     val path: String,
     val icon: ImageVector,
@@ -1080,31 +1080,31 @@ enum class LibraryType(
 }
 
 private fun defaultQuickAccessItems() = listOf(
-    QuickAccessItem(
+    FileQuickAccessItem(
         name = "Internal",
         path = "/storage/emulated/0",
         icon = Icons.Default.PhoneAndroid,
         color = PlexColors.AccentPrimary
     ),
-    QuickAccessItem(
+    FileQuickAccessItem(
         name = "Downloads",
         path = "/storage/emulated/0/Download",
         icon = Icons.Default.Download,
         color = Color(0xFF66BB6A)
     ),
-    QuickAccessItem(
+    FileQuickAccessItem(
         name = "Documents",
         path = "/storage/emulated/0/Documents",
         icon = Icons.Default.Description,
         color = Color(0xFF42A5F5)
     ),
-    QuickAccessItem(
+    FileQuickAccessItem(
         name = "Music",
         path = "/storage/emulated/0/Music",
         icon = Icons.Default.MusicNote,
         color = PlexColors.MediaTypes.Music
     ),
-    QuickAccessItem(
+    FileQuickAccessItem(
         name = "Movies",
         path = "/storage/emulated/0/Movies",
         icon = Icons.Default.Movie,

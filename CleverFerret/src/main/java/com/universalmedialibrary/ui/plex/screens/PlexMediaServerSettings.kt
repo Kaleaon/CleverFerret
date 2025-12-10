@@ -569,7 +569,7 @@ private fun AddServerDialog(
                                 Spacer(Modifier.height(PlexSpacing.MD))
                                 Text(
                                     pinCode!!,
-                                    style = PlexTypography.DisplayMedium,
+                                    style = PlexTypography.TitleLarge,
                                     color = PlexColors.AccentPrimary,
                                     fontWeight = FontWeight.Bold
                                 )

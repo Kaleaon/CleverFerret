@@ -87,7 +87,24 @@ enum class PlexMediaType(val color: Color, val icon: ImageVector) {
     DOCUMENT(PlexColors.MediaTypes.Document, Icons.Default.Description),
     FANFICTION(PlexColors.MediaTypes.Fanfiction, Icons.Default.Edit),
     NEWS(PlexColors.MediaTypes.News, Icons.Default.Newspaper),
-    UNKNOWN(PlexColors.TextTertiary, Icons.Default.QuestionMark)
+    UNKNOWN(PlexColors.TextTertiary, Icons.Default.QuestionMark);
+    
+    companion object {
+        fun fromRouteName(routeName: String): PlexMediaType = when (routeName) {
+            "book" -> BOOK
+            "audiobook" -> AUDIOBOOK
+            "comic" -> COMIC
+            "music" -> MUSIC
+            "podcast" -> PODCAST
+            "movie" -> MOVIE
+            "tv_show" -> TV_SHOW
+            "radio" -> RADIO
+            "document" -> DOCUMENT
+            "webfiction" -> FANFICTION
+            "news" -> NEWS
+            else -> UNKNOWN
+        }
+    }
 }
 
 data class PlexBadge(

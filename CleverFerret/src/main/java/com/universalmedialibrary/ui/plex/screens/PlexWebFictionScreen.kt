@@ -83,10 +83,16 @@ fun PlexWebFictionScreen(
                 containerColor = Color.Transparent,
                 contentColor = PlexColors.TextPrimary,
                 indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        color = PlexColors.AccentPrimary
-                    )
+                    if (tabPositions.isNotEmpty() && selectedTab < tabPositions.size) {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.BottomStart)
+                                .offset(x = tabPositions[selectedTab].left)
+                                .width(tabPositions[selectedTab].width),
+                            color = PlexColors.AccentPrimary
+                        )
+                    }
                 },
                 divider = {}
             ) {

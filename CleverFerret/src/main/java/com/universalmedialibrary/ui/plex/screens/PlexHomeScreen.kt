@@ -552,7 +552,10 @@ private fun QuickAccessGrid(
             modifier = Modifier.height(280.dp),
             userScrollEnabled = false
         ) {
-            items(categories) { item ->
+            items(
+                items = categories,
+                key = { it.id }
+            ) { item: QuickAccessItem ->
                 QuickAccessCard(
                     item = item,
                     onClick = { onCategoryClick(item.id) }

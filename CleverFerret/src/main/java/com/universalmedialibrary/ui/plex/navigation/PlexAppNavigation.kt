@@ -123,19 +123,39 @@ fun PlexAppNavHost(
         composable(PlexRoutes.HOME) {
             val viewModel: PlexHomeViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
-            val isRefreshing by viewModel.isRefreshing.collectAsState()
             
             PlexHomeScreen(
                 state = state,
-                isRefreshing = isRefreshing,
                 onItemClick = { item ->
                     navController.navigate(PlexRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                },
+                onPlayClick = { item ->
+                    when (item.mediaType) {
+                        PlexMediaType.BOOK, PlexMediaType.COMIC, PlexMediaType.DOCUMENT, PlexMediaType.FANFICTION -> {
+                            navController.navigate(PlexRoutes.readerRoute(item.mediaType.routeName, item.id))
+                        }
+                        PlexMediaType.AUDIOBOOK -> {
+                            navController.navigate(PlexRoutes.audioPlayerRoute("audiobook"))
+                        }
+                        PlexMediaType.MUSIC -> {
+                            navController.navigate(PlexRoutes.audioPlayerRoute("music"))
+                        }
+                        PlexMediaType.PODCAST -> {
+                            navController.navigate(PlexRoutes.audioPlayerRoute("podcast"))
+                        }
+                        PlexMediaType.MOVIE, PlexMediaType.TV_SHOW -> {
+                            navController.navigate(PlexRoutes.videoPlayerRoute(item.id))
+                        }
+                        else -> {
+                            navController.navigate(PlexRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
+                        }
+                    }
                 },
                 onSeeAllClick = { section ->
                     navController.navigate(PlexRoutes.libraryRoute(section))
                 },
-                onRefresh = { viewModel.refresh() },
-                onSearchClick = { navController.navigate(PlexRoutes.SEARCH) }
+                onSearchClick = { navController.navigate(PlexRoutes.SEARCH) },
+                onNotificationClick = { /* TODO: Show notifications */ }
             )
         }
         
@@ -291,10 +311,22 @@ fun PlexAppNavHost(
             val mediaType = backStackEntry.arguments?.getString("mediaType") ?: "book"
             val mediaId = backStackEntry.arguments?.getString("mediaId") ?: ""
             val viewModel: PlexMediaDetailViewModel = hiltViewModel()
-            val state by viewModel.uiState.collectAsState()
+            val vmState by viewModel.uiState.collectAsState()
+            
+            // Create screen state from viewmodel state
+            val screenState = MediaDetailState(
+                item = MediaDetailItem(
+                    id = mediaId,
+                    title = vmState.title,
+                    description = vmState.description,
+                    imageUrl = vmState.imageUrl,
+                    mediaType = PlexMediaType.fromRouteName(mediaType)
+                ),
+                isLoading = vmState.isLoading
+            )
             
             PlexMediaDetailScreen(
-                state = state,
+                state = screenState,
                 onBackClick = { navController.popBackStack() },
                 onPlayClick = {
                     when (mediaType) {
@@ -322,9 +354,9 @@ fun PlexAppNavHost(
                 onRelatedItemClick = { item ->
                     navController.navigate(PlexRoutes.mediaDetailRoute(item.mediaType.routeName, item.id))
                 },
-                onAddToCollection = { /* Show add to collection dialog */ },
-                onShare = { /* Share media */ },
-                onDownload = { viewModel.download() }
+                onAddToCollectionClick = { /* Show add to collection dialog */ },
+                onShareClick = { /* Share media */ },
+                onDownloadClick = { viewModel.download() }
             )
         }
         
@@ -569,4 +601,6 @@ private val PlexMediaType.routeName: String
         PlexMediaType.FANFICTION -> "webfiction"
         PlexMediaType.DOCUMENT -> "document"
         PlexMediaType.RADIO -> "radio"
+        PlexMediaType.NEWS -> "news"
+        PlexMediaType.UNKNOWN -> "unknown"
     }

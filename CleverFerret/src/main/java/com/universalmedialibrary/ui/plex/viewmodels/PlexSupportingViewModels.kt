@@ -624,8 +624,8 @@ class PlexMediaDetailViewModel @Inject constructor(
     private val mediaType: String = savedStateHandle.get<String>("mediaType") ?: ""
     private val mediaId: String = savedStateHandle.get<String>("mediaId") ?: ""
     
-    private val _uiState = MutableStateFlow(MediaDetailState())
-    val uiState: StateFlow<MediaDetailState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(MediaDetailViewState())
+    val uiState: StateFlow<MediaDetailViewState> = _uiState.asStateFlow()
     
     init {
         loadMediaDetail()
@@ -664,7 +664,7 @@ interface ImportExportRepository {
     suspend fun export(type: ImportExportType)
 }
 
-data class MediaDetailState(
+data class MediaDetailViewState(
     val isLoading: Boolean = false,
     val title: String = "",
     val subtitle: String? = null,

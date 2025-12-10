@@ -414,9 +414,9 @@ object PlexAnimations {
     val EaseOut = FastOutSlowInEasing
     val EaseIn = FastOutLinearInEasing
     val EaseInOut = LinearOutSlowInEasing
-    val Spring = spring<Float>(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessLow
+    val SpringSpec: SpringSpec<Float> = spring(
+        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+        stiffness = androidx.compose.animation.core.Spring.StiffnessLow
     )
     
     // Transition specs
@@ -430,9 +430,9 @@ object PlexAnimations {
         easing = EaseOut
     )
     
-    val scaleSpec = spring<Float>(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessMediumLow
+    val scaleSpec: SpringSpec<Float> = spring(
+        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+        stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow
     )
 }
 

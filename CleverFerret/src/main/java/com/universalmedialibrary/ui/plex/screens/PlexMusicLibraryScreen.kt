@@ -100,10 +100,16 @@ fun PlexMusicLibraryScreen(
                 contentColor = PlexColors.TextPrimary,
                 edgePadding = PlexSpacing.MD,
                 indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                        color = PlexColors.AccentPrimary
-                    )
+                    if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.BottomStart)
+                                .offset(x = tabPositions[pagerState.currentPage].left)
+                                .width(tabPositions[pagerState.currentPage].width),
+                            color = PlexColors.AccentPrimary
+                        )
+                    }
                 },
                 divider = {}
             ) {

@@ -503,7 +503,7 @@ fun PlexTheme(
 /**
  * Access current theme colors
  */
-object PlexThemeColors {
+object PlexThemeProvider {
     val current: PlexThemeColors
         @Composable
         @ReadOnlyComposable
