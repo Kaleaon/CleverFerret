@@ -55,6 +55,10 @@ fun PlexPodcastScreen(
     onImportOPML: () -> Unit,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onOpenNowPlaying: () -> Unit = {},
+    onPlayPause: () -> Unit = {},
+    onSeekForward: () -> Unit = {},
+    onSeekBackward: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val tabs = listOf("Shows", "Episodes", "Queue", "Downloads")
@@ -76,7 +80,10 @@ fun PlexPodcastScreen(
             if (state.nowPlaying != null) {
                 PodcastMiniPlayer(
                     episode = state.nowPlaying,
-                    onTap = { /* Navigate to player */ }
+                    onTap = onOpenNowPlaying,
+                    onPlayPause = onPlayPause,
+                    onSeekForward = onSeekForward,
+                    onSeekBackward = onSeekBackward
                 )
             }
         }
@@ -838,7 +845,10 @@ private fun DownloadedEpisodeItem(
 @Composable
 private fun PodcastMiniPlayer(
     episode: PodcastEpisode,
-    onTap: () -> Unit
+    onTap: () -> Unit,
+    onPlayPause: () -> Unit,
+    onSeekForward: () -> Unit,
+    onSeekBackward: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -913,7 +923,7 @@ private fun PodcastMiniPlayer(
                     )
                 }
                 
-                IconButton(onClick = { /* Rewind 30s */ }) {
+                IconButton(onClick = onSeekBackward) {
                     Icon(
                         imageVector = Icons.Default.Replay30,
                         contentDescription = "Rewind 30 seconds",
@@ -921,7 +931,7 @@ private fun PodcastMiniPlayer(
                     )
                 }
                 
-                IconButton(onClick = { /* Play/Pause */ }) {
+                IconButton(onClick = onPlayPause) {
                     Surface(
                         shape = CircleShape,
                         color = PlexColors.AccentPrimary,
@@ -936,7 +946,7 @@ private fun PodcastMiniPlayer(
                     }
                 }
                 
-                IconButton(onClick = { /* Forward 30s */ }) {
+                IconButton(onClick = onSeekForward) {
                     Icon(
                         imageVector = Icons.Default.Forward30,
                         contentDescription = "Forward 30 seconds",

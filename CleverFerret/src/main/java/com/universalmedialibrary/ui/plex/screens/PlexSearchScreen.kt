@@ -388,7 +388,10 @@ private fun SearchResultsList(
                 if (categoryResults.size > 5) {
                     item {
                         TextButton(
-                            onClick = { /* Show all in category */ },
+                            onClick = { 
+                                // TODO: Navigate to category-filtered results screen
+                                // onNavigateToCategoryResults(category, query)
+                            },
                             modifier = Modifier.padding(
                                 horizontal = PlexSpacing.MD,
                                 vertical = PlexSpacing.SM

@@ -56,6 +56,10 @@ fun PlexMusicLibraryScreen(
     onShuffleAll: () -> Unit,
     onBackClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onPlayPause: () -> Unit = {},
+    onSkipPrevious: () -> Unit = {},
+    onSkipNext: () -> Unit = {},
+    onOpenNowPlaying: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val tabs = listOf("Albums", "Artists", "Tracks", "Playlists", "Genres")
@@ -76,7 +80,10 @@ fun PlexMusicLibraryScreen(
             if (state.nowPlaying != null) {
                 NowPlayingMiniBar(
                     track = state.nowPlaying,
-                    onTap = { /* Navigate to now playing */ }
+                    onTap = onOpenNowPlaying,
+                    onPlayPauseClick = onPlayPause,
+                    onPreviousClick = onSkipPrevious,
+                    onNextClick = onSkipNext
                 )
             }
         }
@@ -122,33 +129,42 @@ fun PlexMusicLibraryScreen(
                 }
             }
             
-            // Content pager
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                when (page) {
-                    0 -> AlbumsPage(
-                        albums = state.albums,
-                        onAlbumClick = onAlbumClick
-                    )
-                    1 -> ArtistsPage(
-                        artists = state.artists,
-                        onArtistClick = onArtistClick
-                    )
-                    2 -> TracksPage(
-                        tracks = state.tracks,
-                        onTrackClick = onTrackClick,
-                        currentTrack = state.nowPlaying
-                    )
-                    3 -> PlaylistsPage(
-                        playlists = state.playlists,
-                        onPlaylistClick = onPlaylistClick
-                    )
-                    4 -> GenresPage(
-                        genres = state.genres,
-                        onGenreClick = { /* Navigate to genre */ }
-                    )
+            // Content pager - show loading state if needed
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = PlexColors.AccentPrimary)
+                }
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    when (page) {
+                        0 -> AlbumsPage(
+                            albums = state.albums,
+                            onAlbumClick = onAlbumClick
+                        )
+                        1 -> ArtistsPage(
+                            artists = state.artists,
+                            onArtistClick = onArtistClick
+                        )
+                        2 -> TracksPage(
+                            tracks = state.tracks,
+                            onTrackClick = onTrackClick,
+                            currentTrack = state.nowPlaying
+                        )
+                        3 -> PlaylistsPage(
+                            playlists = state.playlists,
+                            onPlaylistClick = onPlaylistClick
+                        )
+                        4 -> GenresPage(
+                            genres = state.genres,
+                            onGenreClick = { /* Navigate to genre */ }
+                        )
+                    }
                 }
             }
         }
@@ -235,7 +251,7 @@ private fun AlbumsPage(
         verticalArrangement = Arrangement.spacedBy(PlexSpacing.LG),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(albums) { album ->
+        items(items = albums, key = { it.id }) { album ->
             AlbumCard(
                 album = album,
                 onClick = { onAlbumClick(album) }
@@ -378,7 +394,7 @@ private fun ArtistsPage(
         verticalArrangement = Arrangement.spacedBy(PlexSpacing.LG),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(artists) { artist ->
+        items(items = artists, key = { it.id }) { artist ->
             ArtistCard(
                 artist = artist,
                 onClick = { onArtistClick(artist) }
@@ -799,7 +815,10 @@ private fun GenreCard(
 @Composable
 private fun NowPlayingMiniBar(
     track: MusicTrack,
-    onTap: () -> Unit
+    onTap: () -> Unit,
+    onPlayPauseClick: () -> Unit,
+    onPreviousClick: () -> Unit,
+    onNextClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -864,7 +883,7 @@ private fun NowPlayingMiniBar(
                 }
                 
                 // Playback controls
-                IconButton(onClick = { /* Previous */ }) {
+                IconButton(onClick = onPreviousClick) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
@@ -872,7 +891,7 @@ private fun NowPlayingMiniBar(
                     )
                 }
                 
-                IconButton(onClick = { /* Play/Pause */ }) {
+                IconButton(onClick = onPlayPauseClick) {
                     Surface(
                         shape = CircleShape,
                         color = PlexColors.AccentPrimary,
@@ -887,7 +906,7 @@ private fun NowPlayingMiniBar(
                     }
                 }
                 
-                IconButton(onClick = { /* Next */ }) {
+                IconButton(onClick = onNextClick) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = "Next",

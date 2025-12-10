@@ -236,7 +236,7 @@ private fun FollowingStoriesPage(
         verticalArrangement = Arrangement.spacedBy(PlexSpacing.MD),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(stories) { story ->
+        items(items = stories, key = { it.id }) { story ->
             WebFictionStoryCard(
                 story = story,
                 onClick = { onStoryClick(story) }
@@ -520,7 +520,7 @@ private fun RecentUpdatesPage(
         contentPadding = PaddingValues(vertical = PlexSpacing.SM),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(updates) { update ->
+        items(items = updates, key = { it.chapter.id }) { update ->
             UpdateItem(
                 update = update,
                 onClick = { onChapterClick(update.chapter) }
@@ -640,12 +640,21 @@ private fun BrowseSourcesPage(
     sources: List<WebFictionSource>,
     onSourceClick: (WebFictionSource) -> Unit
 ) {
+    if (sources.isEmpty()) {
+        WebFictionEmptyState(
+            icon = Icons.Outlined.Explore,
+            title = "No sources available",
+            subtitle = "Sources will appear here when configured"
+        )
+        return
+    }
+    
     LazyColumn(
         contentPadding = PaddingValues(PlexSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(PlexSpacing.MD),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(sources) { source ->
+        items(items = sources, key = { it.id }) { source ->
             SourceCard(
                 source = source,
                 onClick = { onSourceClick(source) }

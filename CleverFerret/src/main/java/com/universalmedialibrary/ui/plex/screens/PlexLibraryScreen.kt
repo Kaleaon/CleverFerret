@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.plex.screens
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.CircleShape
@@ -17,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.universalmedialibrary.ui.plex.components.*
 import com.universalmedialibrary.ui.plex.theme.*
 
@@ -515,11 +518,11 @@ private fun LibraryListItem(
             color = PlexColors.BackgroundSurface
         ) {
             if (item.imageUrl != null) {
-                coil.compose.AsyncImage(
+                AsyncImage(
                     model = item.imageUrl,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    contentScale = ContentScale.Crop
                 )
             } else {
                 Box(
@@ -810,7 +813,7 @@ private fun FilterBottomSheet(
                     modifier = Modifier.padding(vertical = PlexSpacing.SM)
                 )
                 
-                FlowRow(
+                FlowRowWrapper(
                     horizontalArrangement = Arrangement.spacedBy(PlexSpacing.SM),
                     verticalArrangement = Arrangement.spacedBy(PlexSpacing.SM)
                 ) {
@@ -833,16 +836,18 @@ private fun FilterBottomSheet(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FlowRow(
+private fun FlowRowWrapper(
     horizontalArrangement: Arrangement.Horizontal,
     verticalArrangement: Arrangement.Vertical,
     content: @Composable () -> Unit
 ) {
-    // Simple implementation - in production use accompanist FlowRow
-    Row(
+    // Use official Material3 FlowRow for proper wrapping behavior
+    androidx.compose.foundation.layout.FlowRow(
         horizontalArrangement = horizontalArrangement,
-        modifier = Modifier.horizontalScroll(rememberScrollState())
+        verticalArrangement = verticalArrangement,
+        modifier = Modifier.fillMaxWidth()
     ) {
         content()
     }
