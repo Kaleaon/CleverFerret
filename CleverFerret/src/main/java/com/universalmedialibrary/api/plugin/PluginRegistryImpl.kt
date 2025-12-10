@@ -22,7 +22,7 @@ class PluginRegistryImpl @Inject constructor() : PluginRegistry {
     
     private val plugins = ConcurrentHashMap<String, Plugin>()
     private val pluginConfigs = ConcurrentHashMap<String, MutableMap<String, Any>>()
-    private val lifecycleCallbacks = mutableListOf<PluginLifecycleCallback>()
+    private val lifecycleCallbacks = java.util.concurrent.CopyOnWriteArrayList<PluginLifecycleCallback>()
     
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     

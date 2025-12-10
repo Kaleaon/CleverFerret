@@ -2,7 +2,6 @@ package com.universalmedialibrary.di
 
 import android.content.Context
 import com.universalmedialibrary.debug.DebugReportingService
-import com.universalmedialibrary.debug.FeatureFlagManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,6 +11,9 @@ import javax.inject.Singleton
 
 /**
  * Hilt module providing debug-related dependencies
+ * 
+ * Note: FeatureFlagManager is not provided here because it has an @Inject constructor
+ * with @Singleton scope, allowing Dagger to construct it automatically.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,13 +25,5 @@ object DebugModule {
         @ApplicationContext context: Context
     ): DebugReportingService {
         return DebugReportingService(context)
-    }
-    
-    @Provides
-    @Singleton
-    fun provideFeatureFlagManager(
-        @ApplicationContext context: Context
-    ): FeatureFlagManager {
-        return FeatureFlagManager(context)
     }
 }

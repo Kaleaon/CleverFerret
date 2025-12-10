@@ -365,14 +365,27 @@ fun PlexAppNavHost(
         // =====================================================================
         
         composable(
-            route = PlexRoutes.READER,
+            route = "${PlexRoutes.READER}?chapter={chapter}",
             arguments = listOf(
                 navArgument("mediaType") { type = NavType.StringType },
-                navArgument("mediaId") { type = NavType.StringType }
+                navArgument("mediaId") { type = NavType.StringType },
+                navArgument("chapter") { 
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
             )
         ) { backStackEntry ->
             val viewModel: PlexReaderViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
+            
+            // Handle chapter parameter if provided (expects chapter index as string)
+            val chapterParam = backStackEntry.arguments?.getString("chapter")
+            LaunchedEffect(chapterParam) {
+                chapterParam?.toIntOrNull()?.let { chapterIndex ->
+                    viewModel.goToChapter(chapterIndex)
+                }
+            }
             
             PlexReaderScreen(
                 state = state,

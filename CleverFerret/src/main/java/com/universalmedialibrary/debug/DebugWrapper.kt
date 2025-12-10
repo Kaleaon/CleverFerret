@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.debug.ui.DebugOverlay
 import com.universalmedialibrary.debug.ui.DebugQuickBar
@@ -45,9 +47,11 @@ fun DebugWrapper(
     
     val crashCount by debugReportingService.crashReports.collectAsState()
     val errorCount by debugReportingService.errorLogs.collectAsState()
-    val showPerformanceOverlay by remember { 
-        derivedStateOf { featureFlagManager.isEnabled(FeatureFlag.SHOW_PERFORMANCE_OVERLAY) }
-    }
+    
+    // Collect flags StateFlow to react to runtime changes
+    val flags by featureFlagManager.flags.collectAsState()
+    val showPerformanceOverlay = flags[FeatureFlag.SHOW_PERFORMANCE_OVERLAY.key] 
+        ?: FeatureFlag.SHOW_PERFORMANCE_OVERLAY.defaultValue
     
     Box(modifier = modifier.fillMaxSize()) {
         // Main content
@@ -75,30 +79,46 @@ fun DebugWrapper(
 }
 
 /**
- * Debug-aware error boundary
+ * Debug-aware error boundary (Placeholder)
  * 
- * Catches errors in composables and logs them to the debug reporting service.
- * In debug builds, shows error details; in release builds, shows a generic error message.
+ * NOTE: This is currently a placeholder implementation. Jetpack Compose does not
+ * have a built-in error boundary mechanism like React. Exceptions thrown during
+ * composition will propagate normally and crash the app.
+ * 
+ * For production use, consider:
+ * - Using try-catch in event handlers and coroutines
+ * - Implementing custom error handling via CompositionLocal
+ * - Using a crash reporting library (Firebase Crashlytics, Sentry, etc.)
+ * 
+ * This wrapper provides a consistent API for future error boundary implementation
+ * and logs errors when they are manually reported.
  */
 @Composable
 fun DebugErrorBoundary(
     debugReportingService: DebugReportingService?,
     tag: String = "ErrorBoundary",
-    fallback: @Composable (Throwable?) -> Unit = {},
+    onError: ((Throwable) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    var error by remember { mutableStateOf<Throwable?>(null) }
+    // Provide a way for child composables to report errors manually
+    val reportError: (Throwable) -> Unit = { throwable ->
+        debugReportingService?.logError(tag, "Error reported: ${throwable.message}", throwable)
+        onError?.invoke(throwable)
+    }
     
-    if (error != null) {
-        // Log to debug service
-        debugReportingService?.logError(tag, "Composable error caught", error)
-        fallback(error)
-    } else {
-        // Try to render content
-        // Note: In real implementation, you'd use ErrorHandler or similar
+    // Render content - errors during composition will propagate normally
+    // This is a limitation of Jetpack Compose's architecture
+    CompositionLocalProvider(
+        LocalErrorReporter provides reportError
+    ) {
         content()
     }
 }
+
+/**
+ * CompositionLocal for manual error reporting within DebugErrorBoundary
+ */
+val LocalErrorReporter = compositionLocalOf<(Throwable) -> Unit> { {} }
 
 /**
  * Utility for logging debug events conditionally

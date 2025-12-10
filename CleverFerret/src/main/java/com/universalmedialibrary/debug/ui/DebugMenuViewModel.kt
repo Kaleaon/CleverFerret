@@ -2,6 +2,7 @@ package com.universalmedialibrary.debug.ui
 
 import android.content.Context
 import android.content.Intent
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.debug.*
@@ -93,10 +94,16 @@ class DebugMenuViewModel @Inject constructor(
     
     fun exportLogs(): Intent {
         val file = debugReportingService.exportAllLogs()
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
         return Intent(Intent.ACTION_SEND).apply {
             type = "application/json"
             putExtra(Intent.EXTRA_SUBJECT, "CleverFerret Debug Logs Export")
             putExtra(Intent.EXTRA_TEXT, "Debug logs exported from CleverFerret")
+            putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }

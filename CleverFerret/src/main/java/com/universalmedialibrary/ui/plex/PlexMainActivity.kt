@@ -15,9 +15,6 @@ import com.universalmedialibrary.ui.plex.components.PlexMiniPlayer
 import com.universalmedialibrary.ui.plex.navigation.*
 import com.universalmedialibrary.ui.plex.theme.PlexTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -70,6 +67,7 @@ fun PlexMainScreen(
     
     // Snackbar state for global messages
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -109,8 +107,8 @@ fun PlexMainScreen(
             PlexAppNavHost(
                 navController = navController,
                 onShowSnackbar = { message ->
-                    // Show snackbar
-                    CoroutineScope(Dispatchers.Main + Job()).launch {
+                    // Show snackbar using composition-scoped coroutine
+                    scope.launch {
                         snackbarHostState.showSnackbar(message)
                     }
                 },

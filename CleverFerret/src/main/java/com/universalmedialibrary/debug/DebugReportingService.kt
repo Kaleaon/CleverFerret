@@ -323,21 +323,28 @@ class DebugReportingService @Inject constructor(
     
     /**
      * Export all logs to a file
+     * 
+     * @throws IOException if writing to file fails
      */
     fun exportAllLogs(): File {
         val timestamp = System.currentTimeMillis()
         val file = File(logDir, "full_log_export_$timestamp.json")
         
-        val export = LogExport(
-            timestamp = timestamp,
-            deviceInfo = getDeviceInfo(),
-            appInfo = getAppInfo(),
-            crashes = _crashReports.value,
-            errors = _errorLogs.value,
-            performance = _performanceMetrics.value
-        )
-        
-        file.writeText(json.encodeToString(export))
+        try {
+            val export = LogExport(
+                timestamp = timestamp,
+                deviceInfo = getDeviceInfo(),
+                appInfo = getAppInfo(),
+                crashes = _crashReports.value,
+                errors = _errorLogs.value,
+                performance = _performanceMetrics.value
+            )
+            
+            file.writeText(json.encodeToString(export))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error exporting logs to file", e)
+            throw e
+        }
         return file
     }
     
