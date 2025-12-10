@@ -188,6 +188,13 @@ fun PlexAppNavHost(
             )
         }
         
+        // API Settings sub-screen
+        composable(PlexRoutes.SETTINGS_API) {
+            com.universalmedialibrary.ui.settings.APISettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
         // =====================================================================
         // LIBRARY SCREENS
         // =====================================================================
