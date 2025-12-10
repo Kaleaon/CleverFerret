@@ -77,6 +77,8 @@ object PlexRoutes {
     const val SETTINGS_STORAGE = "settings/storage"
     const val SETTINGS_SECURITY = "settings/security"
     const val SETTINGS_ABOUT = "settings/about"
+    const val SETTINGS_MEDIA_SERVERS = "settings/media-servers"
+    const val FILE_BROWSER = "file-browser"
     
     // Onboarding
     const val ONBOARDING = "onboarding"
