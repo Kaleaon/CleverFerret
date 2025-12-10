@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.*
 import com.universalmedialibrary.services.radio.RadioBrowserService
 import com.universalmedialibrary.services.webfiction.WebFictionService
-import com.universalmedialibrary.services.opds.OPDSService
+import com.universalmedialibrary.services.opds.OPDSCatalogService
 import com.universalmedialibrary.services.ambient.AmbientSoundService
 import com.universalmedialibrary.services.news.NewsManager
 import com.universalmedialibrary.ui.plex.screens.*
@@ -176,7 +176,7 @@ class PlexWebFictionViewModel @Inject constructor(
  */
 @HiltViewModel
 class PlexOPDSViewModel @Inject constructor(
-    private val opdsService: OPDSService
+    private val opdsService: OPDSCatalogService
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(OPDSScreenState())

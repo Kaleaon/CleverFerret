@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.debug.*
-import com.universalmedialibrary.ui.plex.theme.*
+import com.universalmedialibrary.ui.plex.theme.PlexColors
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -105,7 +105,7 @@ fun DebugMenuScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PlexColors.Surface,
+                    containerColor = PlexColors.BackgroundSurface,
                     titleContentColor = PlexColors.TextPrimary
                 )
             )
@@ -127,7 +127,7 @@ fun DebugMenuScreen(
             // Tab row
             ScrollableTabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = PlexColors.Surface,
+                containerColor = PlexColors.BackgroundSurface,
                 contentColor = PlexColors.TextPrimary,
                 edgePadding = 16.dp
             ) {
@@ -238,7 +238,7 @@ private fun PerformanceSummaryCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = PlexColors.Surface),
+        colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -518,7 +518,7 @@ private fun PerformanceTab(metrics: PerformanceMetrics) {
     ) {
         item {
             Card(
-                colors = CardDefaults.cardColors(containerColor = PlexColors.Surface),
+                colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -540,7 +540,7 @@ private fun PerformanceTab(metrics: PerformanceMetrics) {
                             metrics.memoryPercentUsed > 60 -> PlexColors.Warning
                             else -> PlexColors.Success
                         },
-                        trackColor = PlexColors.SurfaceVariant
+                        trackColor = PlexColors.BackgroundElevated
                     )
                     
                     Spacer(Modifier.height(8.dp))
@@ -594,7 +594,7 @@ private fun FlagsTab(
         
         items(flags.entries.toList()) { (key, value) ->
             Card(
-                colors = CardDefaults.cardColors(containerColor = PlexColors.Surface),
+                colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Row(
@@ -696,7 +696,7 @@ private fun ToolsTab(
         
         item {
             Card(
-                colors = CardDefaults.cardColors(containerColor = PlexColors.Surface),
+                colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -709,7 +709,7 @@ private fun ToolsTab(
                     
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 12.dp),
-                        color = PlexColors.SurfaceVariant
+                        color = PlexColors.BackgroundElevated
                     )
                     
                     ToolButton(
@@ -867,7 +867,7 @@ private fun BugReportDialog(
                 Text("Cancel")
             }
         },
-        containerColor = PlexColors.Surface
+        containerColor = PlexColors.BackgroundSurface
     )
 }
 
@@ -941,7 +941,7 @@ private fun CrashDetailsDialog(
                 Text("Close")
             }
         },
-        containerColor = PlexColors.Surface
+        containerColor = PlexColors.BackgroundSurface
     )
 }
 
@@ -1015,7 +1015,7 @@ private fun ErrorDetailsDialog(
                 Text("Close")
             }
         },
-        containerColor = PlexColors.Surface
+        containerColor = PlexColors.BackgroundSurface
     )
 }
 

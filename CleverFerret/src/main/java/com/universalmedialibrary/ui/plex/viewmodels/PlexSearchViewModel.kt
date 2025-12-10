@@ -3,8 +3,9 @@ package com.universalmedialibrary.ui.plex.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.*
+import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.services.search.EnhancedSearchService
-import com.universalmedialibrary.services.opds.OPDSService
+import com.universalmedialibrary.services.opds.OPDSCatalogService
 import com.universalmedialibrary.ui.plex.components.PlexMediaType
 import com.universalmedialibrary.ui.plex.screens.SearchCategory
 import com.universalmedialibrary.ui.plex.screens.SearchResult
@@ -36,7 +37,7 @@ class PlexSearchViewModel @Inject constructor(
     private val comicRepository: ComicRepository,
     private val videoRepository: VideoRepository,
     private val webFictionRepository: WebFictionRepository,
-    private val opdsService: OPDSService,
+    private val opdsService: OPDSCatalogService,
     private val searchHistoryRepository: SearchHistoryRepository
 ) : ViewModel() {
     
