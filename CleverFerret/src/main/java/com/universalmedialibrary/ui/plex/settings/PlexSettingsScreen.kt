@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.api.plugin.*
 import com.universalmedialibrary.ui.plex.theme.*
 
@@ -34,6 +35,73 @@ import com.universalmedialibrary.ui.plex.theme.*
  * - Manage parental controls
  * - View storage and cache
  */
+
+/**
+ * Overloaded PlexSettingsScreen that handles navigation via route strings
+ * and provides default state. Used by navigation system.
+ */
+@Composable
+fun PlexSettingsScreen(
+    onNavigateToSubScreen: (String) -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Use default state - in production this would come from a ViewModel
+    val state = remember {
+        SettingsState(
+            configuredProviders = 0,
+            libraryFolders = 0,
+            currentTheme = "Plex Dark",
+            textSize = "Medium",
+            ttsProvider = "System Default",
+            appLockEnabled = false,
+            parentalControlsEnabled = false,
+            storageUsed = "0 MB",
+            cacheSize = "0 MB",
+            appVersion = BuildConfig.VERSION_NAME
+        )
+    }
+    
+    PlexSettingsScreen(
+        state = state,
+        onNavigateToSection = { section ->
+            onNavigateToSubScreen(section.toRoute())
+        },
+        onBackClick = onBackClick,
+        modifier = modifier
+    )
+}
+
+/**
+ * Convert SettingsSection to navigation route
+ */
+private fun SettingsSection.toRoute(): String {
+    return when (this) {
+        SettingsSection.API_PROVIDERS -> "settings/api"
+        SettingsSection.MEDIA_SERVERS -> "settings/media-servers"
+        SettingsSection.CLOUD_STORAGE -> "settings/cloud"
+        SettingsSection.SOCIAL -> "settings/social"
+        SettingsSection.LIBRARY_FOLDERS -> "file-browser"
+        SettingsSection.AUTO_SCAN -> "settings/auto-scan"
+        SettingsSection.METADATA -> "settings/metadata"
+        SettingsSection.THEME -> "settings/appearance"
+        SettingsSection.DISPLAY -> "settings/display"
+        SettingsSection.TEXT_SIZE -> "settings/text-size"
+        SettingsSection.AUDIO -> "settings/playback"
+        SettingsSection.TTS -> "settings/tts"
+        SettingsSection.READER -> "settings/reader"
+        SettingsSection.CASTING -> "settings/casting"
+        SettingsSection.APP_LOCK -> "settings/security"
+        SettingsSection.PARENTAL_CONTROLS -> "settings/parental"
+        SettingsSection.PRIVACY -> "settings/privacy"
+        SettingsSection.STORAGE -> "settings/storage"
+        SettingsSection.CACHE -> "settings/cache"
+        SettingsSection.DOWNLOADS -> "settings/downloads"
+        SettingsSection.ABOUT -> "settings/about"
+        SettingsSection.FEEDBACK -> "settings/feedback"
+        SettingsSection.DEBUG_MENU -> "debug"
+    }
+}
 
 @Composable
 fun PlexSettingsScreen(
@@ -301,6 +369,58 @@ fun PlexSettingsScreen(
                         subtitle = "Send feedback or bug reports",
                         onClick = { onNavigateToSection(SettingsSection.FEEDBACK) }
                     )
+                }
+            }
+            
+            // Debug Section (only visible in debug builds)
+            if (BuildConfig.SHOW_DEBUG_MENU) {
+                item {
+                    Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                    SettingsSectionHeader(title = "Developer")
+                }
+                
+                item {
+                    SettingsCard {
+                        SettingsItem(
+                            icon = Icons.Outlined.Code,
+                            iconColor = Color(0xFF4CAF50),
+                            title = "Debug Menu",
+                            subtitle = "Crash reports, logs, feature flags",
+                            onClick = { onNavigateToSection(SettingsSection.DEBUG_MENU) }
+                        )
+                        SettingsDivider()
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(PlexSpacing.MD),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Build Info",
+                                    style = PlexTypography.BodySmall,
+                                    color = PlexColors.TextSecondary
+                                )
+                                Text(
+                                    text = "Git: ${BuildConfig.GIT_COMMIT}",
+                                    style = PlexTypography.LabelSmall,
+                                    color = PlexColors.TextTertiary
+                                )
+                            }
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = Color(0xFF4CAF50).copy(alpha = 0.2f)
+                            ) {
+                                Text(
+                                    text = "DEBUG",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    style = PlexTypography.LabelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF4CAF50)
+                                )
+                            }
+                        }
+                    }
                 }
             }
             
@@ -924,7 +1044,8 @@ enum class SettingsSection {
     CACHE,
     DOWNLOADS,
     ABOUT,
-    FEEDBACK
+    FEEDBACK,
+    DEBUG_MENU
 }
 
 data class SettingsState(

@@ -163,7 +163,12 @@ jobs:
         
     - name: Build debug APK
       id: build-debug
-      run: ./gradlew assembleDebug --continue --stacktrace --info
+      run: |
+        echo "Building debug APK with debug reporting enabled..."
+        ./gradlew assembleDebug --continue --stacktrace --info \
+          -PDEBUG_REPORTING_ENABLED=true \
+          -PCRASH_REPORTING_ENABLED=true \
+          -PSHOW_DEBUG_MENU=true
       continue-on-error: true
       
     - name: Report build status
@@ -173,6 +178,12 @@ jobs:
           echo "::error::Debug APK build failed. Check build logs for compilation errors."
         else
           echo "::notice::Debug APK built successfully!"
+          echo "Debug APK includes:"
+          echo "  - Automated crash reporting"
+          echo "  - Error logging"
+          echo "  - Performance monitoring"
+          echo "  - Debug menu access via Settings"
+          echo "  - Feature flags"
         fi
       
     - name: Build release APK (unsigned)

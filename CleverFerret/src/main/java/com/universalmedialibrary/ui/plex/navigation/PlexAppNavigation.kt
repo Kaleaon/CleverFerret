@@ -8,11 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
+import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.ui.plex.components.PlexMediaType
 import com.universalmedialibrary.ui.plex.player.*
 import com.universalmedialibrary.ui.plex.screens.*
 import com.universalmedialibrary.ui.plex.settings.PlexSettingsScreen
 import com.universalmedialibrary.ui.plex.viewmodels.*
+import com.universalmedialibrary.debug.ui.DebugMenuScreen
 
 /**
  * Main Navigation Routes for Plex-style CleverFerret
@@ -82,6 +84,9 @@ object PlexRoutes {
     
     // Onboarding
     const val ONBOARDING = "onboarding"
+    
+    // Debug (only in debug builds)
+    const val DEBUG_MENU = "debug"
     
     // Helper functions for navigation
     fun libraryRoute(mediaType: String) = "library/$mediaType"
@@ -535,6 +540,18 @@ fun PlexAppNavHost(
                     }
                 }
             )
+        }
+        
+        // =====================================================================
+        // DEBUG MENU (only available in debug builds)
+        // =====================================================================
+        
+        if (BuildConfig.SHOW_DEBUG_MENU) {
+            composable(PlexRoutes.DEBUG_MENU) {
+                DebugMenuScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

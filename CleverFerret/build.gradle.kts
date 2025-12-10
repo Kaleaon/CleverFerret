@@ -58,12 +58,32 @@ android {
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true
+            isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            
+            // Debug-specific BuildConfig fields
+            buildConfigField("boolean", "DEBUG_REPORTING_ENABLED", "true")
+            buildConfigField("boolean", "CRASH_REPORTING_ENABLED", "true")
+            buildConfigField("boolean", "SHOW_DEBUG_MENU", "true")
+            buildConfigField("String", "BUILD_TIME", "\"${System.currentTimeMillis()}\"")
+            buildConfigField("String", "GIT_COMMIT", "\"${getGitCommitHash()}\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            
+            // Release-specific BuildConfig fields
+            buildConfigField("boolean", "DEBUG_REPORTING_ENABLED", "false")
+            buildConfigField("boolean", "CRASH_REPORTING_ENABLED", "false")
+            buildConfigField("boolean", "SHOW_DEBUG_MENU", "false")
+            buildConfigField("String", "BUILD_TIME", "\"${System.currentTimeMillis()}\"")
+            buildConfigField("String", "GIT_COMMIT", "\"${getGitCommitHash()}\"")
         }
     }
     
@@ -106,6 +126,17 @@ android {
         htmlOutput = file("build/reports/lint-results-debug.html")
         xmlOutput = file("build/reports/lint-results-debug.xml")
         textOutput = file("build/reports/lint-results-debug.txt")
+    }
+}
+
+fun getGitCommitHash(): String {
+    return try {
+        val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+            .redirectErrorStream(true)
+            .start()
+        process.inputStream.bufferedReader().readText().trim()
+    } catch (e: Exception) {
+        "unknown"
     }
 }
 
