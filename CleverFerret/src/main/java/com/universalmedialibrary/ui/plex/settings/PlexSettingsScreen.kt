@@ -1,0 +1,946 @@
+package com.universalmedialibrary.ui.plex.settings
+
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.api.plugin.*
+import com.universalmedialibrary.ui.plex.theme.*
+
+/**
+ * Plex-Style Settings Screen
+ * 
+ * A beautiful, modular settings interface that allows users to:
+ * - Configure API providers and their capabilities
+ * - Manage integrations (Plex, Jellyfin, Calibre, etc.)
+ * - Customize appearance and themes
+ * - Configure playback preferences
+ * - Manage parental controls
+ * - View storage and cache
+ */
+
+@Composable
+fun PlexSettingsScreen(
+    state: SettingsState,
+    onNavigateToSection: (SettingsSection) -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(PlexColors.Background)
+    ) {
+        // Top Bar
+        SettingsTopBar(
+            title = "Settings",
+            onBackClick = onBackClick
+        )
+        
+        // Settings sections
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(PlexSpacing.ScreenHorizontal),
+            verticalArrangement = Arrangement.spacedBy(PlexSpacing.MD)
+        ) {
+            // API & Integrations Section
+            item {
+                SettingsSectionHeader(title = "API & Integrations")
+            }
+            
+            item {
+                SettingsCard {
+                    SettingsItem(
+                        icon = Icons.Outlined.Api,
+                        iconColor = PlexColors.AccentPrimary,
+                        title = "API Providers",
+                        subtitle = "${state.configuredProviders} providers configured",
+                        onClick = { onNavigateToSection(SettingsSection.API_PROVIDERS) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.Dns,
+                        iconColor = PlexColors.MediaTypes.Movie,
+                        title = "Media Servers",
+                        subtitle = "Plex, Jellyfin, Emby, Calibre",
+                        onClick = { onNavigateToSection(SettingsSection.MEDIA_SERVERS) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.Cloud,
+                        iconColor = PlexColors.MediaTypes.Music,
+                        title = "Cloud Storage",
+                        subtitle = "Google Drive, Dropbox, OneDrive",
+                        onClick = { onNavigateToSection(SettingsSection.CLOUD_STORAGE) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.Share,
+                        iconColor = PlexColors.MediaTypes.Book,
+                        title = "Social Integrations",
+                        subtitle = "Goodreads, Last.fm, Trakt",
+                        onClick = { onNavigateToSection(SettingsSection.SOCIAL) }
+                    )
+                }
+            }
+            
+            // Library Section
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                SettingsSectionHeader(title = "Library")
+            }
+            
+            item {
+                SettingsCard {
+                    SettingsItem(
+                        icon = Icons.Outlined.Folder,
+                        iconColor = PlexColors.AccentSecondary,
+                        title = "Library Folders",
+                        subtitle = "${state.libraryFolders} folders configured",
+                        onClick = { onNavigateToSection(SettingsSection.LIBRARY_FOLDERS) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.Refresh,
+                        iconColor = PlexColors.Info,
+                        title = "Auto-Scan Settings",
+                        subtitle = "Scan interval, file types",
+                        onClick = { onNavigateToSection(SettingsSection.AUTO_SCAN) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.Tag,
+                        iconColor = PlexColors.Warning,
+                        title = "Metadata Preferences",
+                        subtitle = "Auto-fetch, preferred sources",
+                        onClick = { onNavigateToSection(SettingsSection.METADATA) }
+                    )
+                }
+            }
+            
+            // Appearance Section
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                SettingsSectionHeader(title = "Appearance")
+            }
+            
+            item {
+                SettingsCard {
+                    SettingsItem(
+                        icon = Icons.Outlined.Palette,
+                        iconColor = PlexColors.AccentPrimary,
+                        title = "Theme",
+                        subtitle = state.currentTheme,
+                        onClick = { onNavigateToSection(SettingsSection.THEME) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.GridView,
+                        iconColor = PlexColors.AccentSecondary,
+                        title = "Display Options",
+                        subtitle = "Grid size, card style",
+                        onClick = { onNavigateToSection(SettingsSection.DISPLAY) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.TextFields,
+                        iconColor = PlexColors.AccentTertiary,
+                        title = "Text Size",
+                        subtitle = state.textSize,
+                        onClick = { onNavigateToSection(SettingsSection.TEXT_SIZE) }
+                    )
+                }
+            }
+            
+            // Playback Section
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                SettingsSectionHeader(title = "Playback")
+            }
+            
+            item {
+                SettingsCard {
+                    SettingsItem(
+                        icon = Icons.Outlined.Headphones,
+                        iconColor = PlexColors.MediaTypes.Audiobook,
+                        title = "Audio Settings",
+                        subtitle = "Equalizer, effects, ReplayGain",
+                        onClick = { onNavigateToSection(SettingsSection.AUDIO) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.RecordVoiceOver,
+                        iconColor = PlexColors.MediaTypes.Podcast,
+                        title = "Text-to-Speech",
+                        subtitle = state.ttsProvider,
+                        onClick = { onNavigateToSection(SettingsSection.TTS) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.MenuBook,
+                        iconColor = PlexColors.MediaTypes.Book,
+                        title = "Reader Settings",
+                        subtitle = "Font, margins, brightness",
+                        onClick = { onNavigateToSection(SettingsSection.READER) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.Cast,
+                        iconColor = PlexColors.MediaTypes.Movie,
+                        title = "Casting",
+                        subtitle = "Chromecast, DLNA settings",
+                        onClick = { onNavigateToSection(SettingsSection.CASTING) }
+                    )
+                }
+            }
+            
+            // Privacy & Security Section
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                SettingsSectionHeader(title = "Privacy & Security")
+            }
+            
+            item {
+                SettingsCard {
+                    SettingsItem(
+                        icon = Icons.Outlined.Lock,
+                        iconColor = PlexColors.Error,
+                        title = "App Lock",
+                        subtitle = if (state.appLockEnabled) "Enabled" else "Disabled",
+                        onClick = { onNavigateToSection(SettingsSection.APP_LOCK) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.ChildCare,
+                        iconColor = PlexColors.Warning,
+                        title = "Parental Controls",
+                        subtitle = if (state.parentalControlsEnabled) "Enabled" else "Disabled",
+                        onClick = { onNavigateToSection(SettingsSection.PARENTAL_CONTROLS) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.History,
+                        iconColor = PlexColors.TextSecondary,
+                        title = "Privacy",
+                        subtitle = "History, analytics, data",
+                        onClick = { onNavigateToSection(SettingsSection.PRIVACY) }
+                    )
+                }
+            }
+            
+            // Storage Section
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                SettingsSectionHeader(title = "Storage")
+            }
+            
+            item {
+                SettingsCard {
+                    SettingsItem(
+                        icon = Icons.Outlined.Storage,
+                        iconColor = PlexColors.Info,
+                        title = "Storage Usage",
+                        subtitle = state.storageUsed,
+                        onClick = { onNavigateToSection(SettingsSection.STORAGE) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.DeleteSweep,
+                        iconColor = PlexColors.Error,
+                        title = "Clear Cache",
+                        subtitle = state.cacheSize,
+                        onClick = { onNavigateToSection(SettingsSection.CACHE) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.Download,
+                        iconColor = PlexColors.Success,
+                        title = "Download Settings",
+                        subtitle = "Download location, quality",
+                        onClick = { onNavigateToSection(SettingsSection.DOWNLOADS) }
+                    )
+                }
+            }
+            
+            // About Section
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                SettingsSectionHeader(title = "About")
+            }
+            
+            item {
+                SettingsCard {
+                    SettingsItem(
+                        icon = Icons.Outlined.Info,
+                        iconColor = PlexColors.AccentPrimary,
+                        title = "About CleverFerret",
+                        subtitle = "Version ${state.appVersion}",
+                        onClick = { onNavigateToSection(SettingsSection.ABOUT) }
+                    )
+                    SettingsDivider()
+                    SettingsItem(
+                        icon = Icons.Outlined.BugReport,
+                        iconColor = PlexColors.Warning,
+                        title = "Report an Issue",
+                        subtitle = "Send feedback or bug reports",
+                        onClick = { onNavigateToSection(SettingsSection.FEEDBACK) }
+                    )
+                }
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.Huge))
+            }
+        }
+    }
+}
+
+// =============================================================================
+// API PROVIDERS SETTINGS
+// =============================================================================
+
+@Composable
+fun ApiProvidersSettingsScreen(
+    state: ApiProvidersState,
+    onProviderClick: (ApiProvider) -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(PlexColors.Background)
+    ) {
+        SettingsTopBar(
+            title = "API Providers",
+            onBackClick = onBackClick
+        )
+        
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(PlexSpacing.ScreenHorizontal),
+            verticalArrangement = Arrangement.spacedBy(PlexSpacing.MD)
+        ) {
+            // Group providers by category
+            val providersByCategory = state.allProviders.groupBy { provider ->
+                when {
+                    provider.supportedCapabilities.any { 
+                        it in listOf(ApiCapability.BOOK_METADATA, ApiCapability.AUDIOBOOK_METADATA) 
+                    } -> "Books & Audiobooks"
+                    provider.supportedCapabilities.any { 
+                        it in listOf(ApiCapability.MOVIE_METADATA, ApiCapability.TV_METADATA) 
+                    } -> "Movies & TV"
+                    provider.supportedCapabilities.any { 
+                        it in listOf(ApiCapability.MUSIC_METADATA, ApiCapability.SCROBBLING) 
+                    } -> "Music"
+                    provider.supportedCapabilities.any { 
+                        it == ApiCapability.PODCAST_METADATA 
+                    } -> "Podcasts"
+                    provider.supportedCapabilities.any { 
+                        it in listOf(ApiCapability.LIBRARY_SYNC, ApiCapability.VIDEO_STREAM) 
+                    } -> "Media Servers"
+                    provider.supportedCapabilities.any { 
+                        it in listOf(ApiCapability.TTS, ApiCapability.TRANSLATION) 
+                    } -> "AI & Cloud Services"
+                    else -> "Other"
+                }
+            }
+            
+            providersByCategory.forEach { (category, providers) ->
+                item {
+                    SettingsSectionHeader(title = category)
+                }
+                
+                item {
+                    SettingsCard {
+                        providers.forEachIndexed { index, provider ->
+                            val isConfigured = provider.id in state.configuredProviderIds
+                            
+                            ApiProviderItem(
+                                provider = provider,
+                                isConfigured = isConfigured,
+                                onClick = { onProviderClick(provider) }
+                            )
+                            
+                            if (index < providers.size - 1) {
+                                SettingsDivider()
+                            }
+                        }
+                    }
+                }
+                
+                item {
+                    Spacer(modifier = Modifier.height(PlexSpacing.MD))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ApiProviderItem(
+    provider: ApiProvider,
+    isConfigured: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(PlexSpacing.MD),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Provider icon placeholder
+        Surface(
+            shape = RoundedCornerShape(PlexCorners.SM),
+            color = if (isConfigured) PlexColors.Success.copy(alpha = 0.15f) 
+                   else PlexColors.BackgroundSurface,
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(
+                imageVector = if (isConfigured) Icons.Filled.CheckCircle else Icons.Outlined.Api,
+                contentDescription = null,
+                modifier = Modifier.padding(PlexSpacing.SM),
+                tint = if (isConfigured) PlexColors.Success else PlexColors.TextSecondary
+            )
+        }
+        
+        Spacer(modifier = Modifier.width(PlexSpacing.MD))
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = provider.name,
+                    style = PlexTypography.BodyLarge,
+                    color = PlexColors.TextPrimary,
+                    fontWeight = FontWeight.Medium
+                )
+                
+                if (provider.requiresApiKey || provider.requiresOAuth) {
+                    Spacer(modifier = Modifier.width(PlexSpacing.SM))
+                    Surface(
+                        shape = RoundedCornerShape(PlexCorners.XS),
+                        color = PlexColors.Warning.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = if (provider.requiresOAuth) "OAuth" else "API Key",
+                            style = PlexTypography.LabelSmall,
+                            color = PlexColors.Warning,
+                            modifier = Modifier.padding(horizontal = PlexSpacing.XS, vertical = 2.dp)
+                        )
+                    }
+                }
+                
+                if (!provider.isFree) {
+                    Spacer(modifier = Modifier.width(PlexSpacing.XS))
+                    Surface(
+                        shape = RoundedCornerShape(PlexCorners.XS),
+                        color = PlexColors.AccentPrimary.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = "Premium",
+                            style = PlexTypography.LabelSmall,
+                            color = PlexColors.AccentPrimary,
+                            modifier = Modifier.padding(horizontal = PlexSpacing.XS, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            
+            Text(
+                text = provider.description,
+                style = PlexTypography.BodySmall,
+                color = PlexColors.TextSecondary
+            )
+            
+            // Show capabilities count
+            Text(
+                text = "${provider.supportedCapabilities.size} capabilities",
+                style = PlexTypography.LabelSmall,
+                color = PlexColors.TextTertiary
+            )
+        }
+        
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = PlexColors.TextTertiary
+        )
+    }
+}
+
+// =============================================================================
+// PROVIDER CONFIGURATION SCREEN
+// =============================================================================
+
+@Composable
+fun ProviderConfigurationScreen(
+    provider: ApiProvider,
+    configuration: ApiConfiguration?,
+    onSave: (ApiConfiguration) -> Unit,
+    onDelete: () -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var apiKey by remember { mutableStateOf(configuration?.apiKey ?: "") }
+    var serverUrl by remember { mutableStateOf(configuration?.serverUrl ?: "") }
+    var enabledCapabilities by remember { 
+        mutableStateOf(configuration?.enabledCapabilities ?: provider.supportedCapabilities) 
+    }
+    var isEnabled by remember { mutableStateOf(configuration?.isEnabled ?: true) }
+    var showApiKey by remember { mutableStateOf(false) }
+    
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(PlexColors.Background)
+    ) {
+        SettingsTopBar(
+            title = provider.name,
+            onBackClick = onBackClick,
+            actions = {
+                if (configuration != null) {
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = PlexColors.Error
+                        )
+                    }
+                }
+            }
+        )
+        
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(PlexSpacing.ScreenHorizontal),
+            verticalArrangement = Arrangement.spacedBy(PlexSpacing.MD)
+        ) {
+            // Provider info
+            item {
+                Surface(
+                    shape = RoundedCornerShape(PlexCorners.Card),
+                    color = PlexColors.BackgroundElevated
+                ) {
+                    Column(
+                        modifier = Modifier.padding(PlexSpacing.MD)
+                    ) {
+                        Text(
+                            text = provider.description,
+                            style = PlexTypography.BodyMedium,
+                            color = PlexColors.TextSecondary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(PlexSpacing.SM))
+                        
+                        Text(
+                            text = provider.website,
+                            style = PlexTypography.BodySmall,
+                            color = PlexColors.AccentPrimary
+                        )
+                    }
+                }
+            }
+            
+            // Enable/Disable toggle
+            item {
+                SettingsCard {
+                    SettingsToggleItem(
+                        title = "Enable ${provider.name}",
+                        subtitle = "Use this provider for configured capabilities",
+                        isChecked = isEnabled,
+                        onCheckedChange = { isEnabled = it }
+                    )
+                }
+            }
+            
+            // Credentials section
+            if (provider.requiresApiKey || provider.requiresOAuth || provider.id in listOf("plex", "jellyfin", "emby", "calibre")) {
+                item {
+                    Spacer(modifier = Modifier.height(PlexSpacing.MD))
+                    SettingsSectionHeader(title = "Credentials")
+                }
+                
+                item {
+                    SettingsCard {
+                        if (provider.requiresApiKey) {
+                            Column(modifier = Modifier.padding(PlexSpacing.MD)) {
+                                Text(
+                                    text = "API Key",
+                                    style = PlexTypography.LabelMedium,
+                                    color = PlexColors.TextSecondary
+                                )
+                                
+                                Spacer(modifier = Modifier.height(PlexSpacing.SM))
+                                
+                                OutlinedTextField(
+                                    value = apiKey,
+                                    onValueChange = { apiKey = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    placeholder = { Text("Enter your API key") },
+                                    visualTransformation = if (showApiKey) 
+                                        VisualTransformation.None 
+                                    else 
+                                        PasswordVisualTransformation(),
+                                    trailingIcon = {
+                                        IconButton(onClick = { showApiKey = !showApiKey }) {
+                                            Icon(
+                                                imageVector = if (showApiKey) 
+                                                    Icons.Default.VisibilityOff 
+                                                else 
+                                                    Icons.Default.Visibility,
+                                                contentDescription = null
+                                            )
+                                        }
+                                    },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = PlexColors.AccentPrimary,
+                                        unfocusedBorderColor = PlexColors.Border
+                                    ),
+                                    shape = RoundedCornerShape(PlexCorners.SM)
+                                )
+                            }
+                        }
+                        
+                        if (provider.id in listOf("plex", "jellyfin", "emby", "calibre")) {
+                            if (provider.requiresApiKey) {
+                                SettingsDivider()
+                            }
+                            
+                            Column(modifier = Modifier.padding(PlexSpacing.MD)) {
+                                Text(
+                                    text = "Server URL",
+                                    style = PlexTypography.LabelMedium,
+                                    color = PlexColors.TextSecondary
+                                )
+                                
+                                Spacer(modifier = Modifier.height(PlexSpacing.SM))
+                                
+                                OutlinedTextField(
+                                    value = serverUrl,
+                                    onValueChange = { serverUrl = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    placeholder = { Text("https://your-server.com") },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = PlexColors.AccentPrimary,
+                                        unfocusedBorderColor = PlexColors.Border
+                                    ),
+                                    shape = RoundedCornerShape(PlexCorners.SM)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Capabilities section
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.MD))
+                SettingsSectionHeader(title = "Capabilities")
+                
+                Text(
+                    text = "Select which features to use from ${provider.name}",
+                    style = PlexTypography.BodySmall,
+                    color = PlexColors.TextTertiary,
+                    modifier = Modifier.padding(top = PlexSpacing.XS)
+                )
+            }
+            
+            // Group capabilities by category
+            val capabilitiesByCategory = provider.supportedCapabilities.groupBy { it.category }
+            
+            capabilitiesByCategory.forEach { (category, capabilities) ->
+                item {
+                    Text(
+                        text = category.displayName,
+                        style = PlexTypography.LabelMedium,
+                        color = PlexColors.TextSecondary,
+                        modifier = Modifier.padding(top = PlexSpacing.MD, bottom = PlexSpacing.XS)
+                    )
+                }
+                
+                item {
+                    SettingsCard {
+                        capabilities.forEachIndexed { index, capability ->
+                            SettingsToggleItem(
+                                title = capability.displayName,
+                                subtitle = capability.description,
+                                isChecked = capability in enabledCapabilities,
+                                onCheckedChange = { checked ->
+                                    enabledCapabilities = if (checked) {
+                                        enabledCapabilities + capability
+                                    } else {
+                                        enabledCapabilities - capability
+                                    }
+                                }
+                            )
+                            
+                            if (index < capabilities.size - 1) {
+                                SettingsDivider()
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Save button
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.LG))
+                
+                Button(
+                    onClick = {
+                        onSave(
+                            ApiConfiguration(
+                                providerId = provider.id,
+                                apiKey = apiKey.takeIf { it.isNotBlank() },
+                                serverUrl = serverUrl.takeIf { it.isNotBlank() },
+                                enabledCapabilities = enabledCapabilities,
+                                isEnabled = isEnabled
+                            )
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PlexColors.AccentPrimary
+                    ),
+                    shape = RoundedCornerShape(PlexCorners.Button)
+                ) {
+                    Text(
+                        text = "Save Configuration",
+                        style = PlexTypography.LabelLarge,
+                        modifier = Modifier.padding(vertical = PlexSpacing.SM)
+                    )
+                }
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(PlexSpacing.Huge))
+            }
+        }
+    }
+}
+
+// =============================================================================
+// SETTINGS COMPONENTS
+// =============================================================================
+
+@Composable
+private fun SettingsTopBar(
+    title: String,
+    onBackClick: () -> Unit,
+    actions: @Composable RowScope.() -> Unit = {}
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = PlexColors.BackgroundElevated
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = PlexSpacing.SM, vertical = PlexSpacing.SM),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = PlexColors.TextPrimary
+                )
+            }
+            
+            Text(
+                text = title,
+                style = PlexTypography.TitleMedium,
+                color = PlexColors.TextPrimary,
+                modifier = Modifier.weight(1f)
+            )
+            
+            actions()
+        }
+    }
+}
+
+@Composable
+private fun SettingsSectionHeader(title: String) {
+    Text(
+        text = title.uppercase(),
+        style = PlexTypography.LabelSmall,
+        color = PlexColors.TextTertiary,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = PlexTypography.LabelSmall.letterSpacing * 1.5f,
+        modifier = Modifier.padding(start = PlexSpacing.SM, top = PlexSpacing.MD)
+    )
+}
+
+@Composable
+private fun SettingsCard(
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(PlexCorners.Card),
+        color = PlexColors.BackgroundElevated
+    ) {
+        Column(content = content)
+    }
+}
+
+@Composable
+private fun SettingsItem(
+    icon: ImageVector,
+    iconColor: Color,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(PlexSpacing.MD),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = iconColor.copy(alpha = 0.15f),
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.padding(PlexSpacing.SM),
+                tint = iconColor
+            )
+        }
+        
+        Spacer(modifier = Modifier.width(PlexSpacing.MD))
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = PlexTypography.BodyLarge,
+                color = PlexColors.TextPrimary
+            )
+            Text(
+                text = subtitle,
+                style = PlexTypography.BodySmall,
+                color = PlexColors.TextSecondary
+            )
+        }
+        
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = PlexColors.TextTertiary
+        )
+    }
+}
+
+@Composable
+private fun SettingsToggleItem(
+    title: String,
+    subtitle: String,
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!isChecked) }
+            .padding(PlexSpacing.MD),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = PlexTypography.BodyLarge,
+                color = PlexColors.TextPrimary
+            )
+            Text(
+                text = subtitle,
+                style = PlexTypography.BodySmall,
+                color = PlexColors.TextSecondary
+            )
+        }
+        
+        Switch(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = PlexColors.AccentPrimary,
+                checkedTrackColor = PlexColors.AccentPrimary.copy(alpha = 0.5f)
+            )
+        )
+    }
+}
+
+@Composable
+private fun SettingsDivider() {
+    HorizontalDivider(
+        color = PlexColors.Divider,
+        modifier = Modifier.padding(start = 72.dp)
+    )
+}
+
+// =============================================================================
+// STATE MODELS
+// =============================================================================
+
+enum class SettingsSection {
+    API_PROVIDERS,
+    MEDIA_SERVERS,
+    CLOUD_STORAGE,
+    SOCIAL,
+    LIBRARY_FOLDERS,
+    AUTO_SCAN,
+    METADATA,
+    THEME,
+    DISPLAY,
+    TEXT_SIZE,
+    AUDIO,
+    TTS,
+    READER,
+    CASTING,
+    APP_LOCK,
+    PARENTAL_CONTROLS,
+    PRIVACY,
+    STORAGE,
+    CACHE,
+    DOWNLOADS,
+    ABOUT,
+    FEEDBACK
+}
+
+data class SettingsState(
+    val configuredProviders: Int = 0,
+    val libraryFolders: Int = 0,
+    val currentTheme: String = "Plex Dark",
+    val textSize: String = "Medium",
+    val ttsProvider: String = "System Default",
+    val appLockEnabled: Boolean = false,
+    val parentalControlsEnabled: Boolean = false,
+    val storageUsed: String = "0 MB",
+    val cacheSize: String = "0 MB",
+    val appVersion: String = "1.0.0"
+)
+
+data class ApiProvidersState(
+    val allProviders: List<ApiProvider> = ApiProviderRegistry.allProviders,
+    val configuredProviderIds: Set<String> = emptySet()
+)
