@@ -2,6 +2,7 @@ package com.universalmedialibrary.api.plugin
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
@@ -168,9 +169,9 @@ sealed class ConfigurationOption {
         override val label: String,
         override val description: String,
         override val required: Boolean = false,
-        override val defaultValue: kotlin.Number? = null,
-        val min: kotlin.Number? = null,
-        val max: kotlin.Number? = null
+        @Contextual override val defaultValue: kotlin.Number? = null,
+        @Contextual val min: kotlin.Number? = null,
+        @Contextual val max: kotlin.Number? = null
     ) : ConfigurationOption()
     
     @Serializable
@@ -334,7 +335,7 @@ data class MediaMetadata(
     val additionalImages: List<String> = emptyList(),
     val externalLinks: Map<String, String> = emptyMap(),
     val mediaType: MediaType,
-    val additionalMetadata: Map<String, Any> = emptyMap()
+    val additionalMetadata: Map<String, @Contextual Any> = emptyMap()
 )
 
 @Serializable

@@ -472,7 +472,7 @@ fun PlexSecondaryButton(
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = PlexColors.TextPrimary
         ),
-        border = BorderStroke(1.dp, PlexColors.BorderPrimary),
+        border = BorderStroke(1.dp, PlexColors.Border),
         shape = RoundedCornerShape(PlexCorners.SM)
     ) {
         if (icon != null) {
@@ -624,7 +624,7 @@ fun PlexDivider(
 ) {
     HorizontalDivider(
         modifier = modifier,
-        color = PlexColors.BorderPrimary
+        color = PlexColors.Border
     )
 }
 
@@ -641,7 +641,7 @@ fun PlexSectionDivider(
     ) {
         HorizontalDivider(
             modifier = Modifier.weight(1f),
-            color = PlexColors.BorderPrimary
+            color = PlexColors.Border
         )
         
         Text(
@@ -653,7 +653,7 @@ fun PlexSectionDivider(
         
         HorizontalDivider(
             modifier = Modifier.weight(1f),
-            color = PlexColors.BorderPrimary
+            color = PlexColors.Border
         )
     }
 }

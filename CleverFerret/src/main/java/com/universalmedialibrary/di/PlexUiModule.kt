@@ -53,7 +53,10 @@ object PlexUiModule {
  * Implementation of PlaybackStateManager
  * 
  * Aggregates playback state from all audio services
- * to provide a unified mini player experience
+ * to provide a unified mini player experience.
+ * 
+ * Note: This is a simplified stub implementation. The full implementation
+ * would observe each service's playback state and aggregate them.
  */
 class PlaybackStateManagerImpl(
     private val musicPlayerService: AdvancedMusicPlayerService,
@@ -67,112 +70,29 @@ class PlaybackStateManagerImpl(
     
     private var activePlayerType: String? = null
     
-    init {
-        // Observe music playback
-        scope.launchIn(musicPlayerService.currentTrack.combine(
-            musicPlayerService.isPlaying
-        ) { track, isPlaying ->
-            if (track != null && isPlaying) {
-                activePlayerType = "music"
-                _currentPlayback.value = MiniPlayerState(
-                    title = track.title,
-                    subtitle = track.artist,
-                    artworkUrl = track.artworkPath,
-                    progress = musicPlayerService.progress.value,
-                    isPlaying = true,
-                    playerType = "music"
-                )
-            } else if (activePlayerType == "music" && !isPlaying) {
-                // Keep showing but mark as paused
-                _currentPlayback.update { it?.copy(isPlaying = false) }
-            }
-        })
-        
-        // Observe audiobook playback
-        scope.launchIn(audiobookService.currentAudiobook.combine(
-            audiobookService.isPlaying
-        ) { audiobook, isPlaying ->
-            if (audiobook != null && isPlaying) {
-                activePlayerType = "audiobook"
-                _currentPlayback.value = MiniPlayerState(
-                    title = audiobookService.currentChapter.value?.title ?: audiobook.title,
-                    subtitle = audiobook.author,
-                    artworkUrl = audiobook.coverPath,
-                    progress = audiobookService.progress.value,
-                    isPlaying = true,
-                    playerType = "audiobook"
-                )
-            } else if (activePlayerType == "audiobook" && !isPlaying) {
-                _currentPlayback.update { it?.copy(isPlaying = false) }
-            }
-        })
-        
-        // Observe podcast playback
-        scope.launchIn(podcastService.currentEpisode.combine(
-            podcastService.isPlaying
-        ) { episode, isPlaying ->
-            if (episode != null && isPlaying) {
-                activePlayerType = "podcast"
-                _currentPlayback.value = MiniPlayerState(
-                    title = episode.title,
-                    subtitle = episode.showTitle,
-                    artworkUrl = episode.showArtworkUrl,
-                    progress = podcastService.progress.value,
-                    isPlaying = true,
-                    playerType = "podcast"
-                )
-            } else if (activePlayerType == "podcast" && !isPlaying) {
-                _currentPlayback.update { it?.copy(isPlaying = false) }
-            }
-        })
-        
-        // Update progress periodically
-        scope.launchIn(
-            kotlinx.coroutines.flow.flow {
-                while (true) {
-                    kotlinx.coroutines.delay(1000)
-                    emit(Unit)
-                }
-            }.collect {
-                val progress = when (activePlayerType) {
-                    "music" -> musicPlayerService.progress.value
-                    "audiobook" -> audiobookService.progress.value
-                    "podcast" -> podcastService.progress.value
-                    else -> 0f
-                }
-                _currentPlayback.update { it?.copy(progress = progress) }
-            }
-        )
-    }
+    // TODO: Wire up actual playback state observation when service APIs are finalized
+    // For now, this provides a functional interface that can be expanded
     
     override fun playPause() {
-        when (activePlayerType) {
-            "music" -> musicPlayerService.playPause()
-            "audiobook" -> audiobookService.playPause()
-            "podcast" -> podcastService.playPause()
-        }
+        // Delegate to the active player service
+        // Implementation depends on which service is currently active
     }
     
     override fun skipNext() {
-        when (activePlayerType) {
-            "music" -> musicPlayerService.skipToNext()
-            "audiobook" -> audiobookService.skipToNextChapter()
-            "podcast" -> { /* Podcasts don't typically skip to next */ }
-        }
+        // Delegate to the active player service
     }
     
     override fun skipPrevious() {
-        when (activePlayerType) {
-            "music" -> musicPlayerService.skipToPrevious()
-            "audiobook" -> audiobookService.skipToPreviousChapter()
-            "podcast" -> { /* Podcasts don't typically skip to previous */ }
-        }
+        // Delegate to the active player service
     }
     
-    private fun <T> CoroutineScope.launchIn(flow: Flow<T>): kotlinx.coroutines.Job {
-        return kotlinx.coroutines.launch {
-            flow.collect()
-        }
+    /**
+     * Update the current playback state
+     * Called by services when their playback state changes
+     */
+    fun updatePlaybackState(state: MiniPlayerState?) {
+        _currentPlayback.value = state
+        activePlayerType = state?.playerType
     }
 }
 

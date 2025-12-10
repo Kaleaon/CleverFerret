@@ -15,6 +15,10 @@ import com.universalmedialibrary.ui.plex.components.PlexMiniPlayer
 import com.universalmedialibrary.ui.plex.navigation.*
 import com.universalmedialibrary.ui.plex.theme.PlexTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -98,18 +102,19 @@ fun PlexMainScreen(
         }
     ) { paddingValues ->
         PlexNavigationScaffold(
-            navController = navController,
-            showNavigation = showNavigation,
+            currentRoute = currentRoute ?: PlexRoutes.HOME,
+            onNavigate = { route -> navController.navigate(route) },
             modifier = Modifier.padding(paddingValues)
-        ) {
+        ) { innerPadding ->
             PlexAppNavHost(
                 navController = navController,
                 onShowSnackbar = { message ->
                     // Show snackbar
-                    kotlinx.coroutines.MainScope().launch {
+                    CoroutineScope(Dispatchers.Main + Job()).launch {
                         snackbarHostState.showSnackbar(message)
                     }
-                }
+                },
+                modifier = Modifier.padding(innerPadding)
             )
         }
     }
@@ -132,8 +137,4 @@ data class MiniPlayerState(
     val progress: Float,
     val isPlaying: Boolean,
     val playerType: String
-)
-
-private fun kotlinx.coroutines.MainScope() = kotlinx.coroutines.CoroutineScope(
-    kotlinx.coroutines.Dispatchers.Main + kotlinx.coroutines.Job()
 )

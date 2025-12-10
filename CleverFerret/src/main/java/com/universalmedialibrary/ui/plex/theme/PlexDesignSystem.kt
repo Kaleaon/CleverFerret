@@ -585,10 +585,13 @@ fun getAccentColors(theme: PlexAccentTheme, customColor: Color? = null): PlexAcc
 }
 
 /**
- * Main Plex Theme composable
+ * Plex Theme composable with accent customization
+ * 
+ * Note: Use PlexTheme from PlexThemes.kt for full theme preset support.
+ * This function provides accent color customization on top of the base dark theme.
  */
 @Composable
-fun PlexTheme(
+fun PlexAccentTheme(
     accentTheme: PlexAccentTheme = PlexAccentTheme.PLEX_GOLD,
     customAccent: Color? = null,
     content: @Composable () -> Unit
