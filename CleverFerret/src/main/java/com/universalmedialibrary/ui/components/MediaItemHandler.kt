@@ -1,6 +1,7 @@
 package com.universalmedialibrary.ui.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.*
 import androidx.navigation.NavController
 import com.universalmedialibrary.data.local.entity.MediaItem
@@ -63,7 +64,7 @@ object MediaItemHandler {
             MediaType.AUDIOBOOK, MediaType.PODCAST, MediaType.PODCAST_EPISODE -> Icons.Default.Headset
             MediaType.MOVIE, MediaType.TV_SHOW, MediaType.DOCUMENTARY -> Icons.Default.Movie
             MediaType.COMIC, MediaType.MANGA -> Icons.Default.Book
-            MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.Default.Article
+            MediaType.MAGAZINE, MediaType.NEWSPAPER -> Icons.AutoMirrored.Filled.Article
             MediaType.DOCUMENT, MediaType.REPORT, MediaType.PRESENTATION -> Icons.Default.Description
             MediaType.ACADEMIC_PAPER, MediaType.JOURNAL -> Icons.Default.School
             MediaType.WEB_FICTION, MediaType.NEWS_ARTICLE -> Icons.Default.Public

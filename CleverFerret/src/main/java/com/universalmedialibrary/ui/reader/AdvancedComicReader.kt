@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -528,7 +530,7 @@ private fun PanelNavigationHints(
                     shape = RoundedCornerShape(20.dp)
                 ) {
                     Icon(
-                        Icons.Default.ArrowForward,
+                        Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "Next panel",
                         tint = Color.White,
                         modifier = Modifier
@@ -664,7 +666,7 @@ private fun TopComicControls(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -716,7 +718,7 @@ private fun BottomComicControls(
             ) {
                 IconButton(onClick = if (panelByPanelMode) onPreviousPanel else onPreviousPage, enabled = canGoPrevious) {
                     Icon(
-                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.Default.ArrowForward else Icons.Default.ArrowBack,
+                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.AutoMirrored.Filled.ArrowForward else Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Previous",
                         tint = if (canGoPrevious) Color.White else Color.Gray
                     )
@@ -724,7 +726,7 @@ private fun BottomComicControls(
                 Text("$currentPage / $totalPages", color = Color.White)
                 IconButton(onClick = if (panelByPanelMode) onNextPanel else onNextPage, enabled = canGoNext) {
                     Icon(
-                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.Default.ArrowBack else Icons.Default.ArrowForward,
+                        if (readingDirection == ReadingDirection.RIGHT_TO_LEFT) Icons.AutoMirrored.Filled.ArrowBack else Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "Next",
                         tint = if (canGoNext) Color.White else Color.Gray
                     )

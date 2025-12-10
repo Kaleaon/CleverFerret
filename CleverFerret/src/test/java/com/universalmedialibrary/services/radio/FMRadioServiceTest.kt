@@ -22,6 +22,7 @@ class FMRadioServiceTest {
     private lateinit var context: Context
     private lateinit var audioManager: AudioManager
     private lateinit var packageManager: PackageManager
+    private lateinit var radioDnsService: RadioDnsService
     private lateinit var fmRadioService: FMRadioService
 
     @Before
@@ -29,11 +30,12 @@ class FMRadioServiceTest {
         context = mockk(relaxed = true)
         audioManager = mockk(relaxed = true)
         packageManager = mockk(relaxed = true)
+        radioDnsService = mockk(relaxed = true)
         
         every { context.getSystemService(Context.AUDIO_SERVICE) } returns audioManager
         every { context.packageManager } returns packageManager
         
-        fmRadioService = FMRadioService(context)
+        fmRadioService = FMRadioService(context, radioDnsService)
     }
 
     @Test

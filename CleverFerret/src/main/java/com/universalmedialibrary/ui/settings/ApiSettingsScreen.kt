@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Settings
@@ -44,7 +44,7 @@ fun ApiSettingsScreen(
                 title = { Text("API Keys & Services") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -108,7 +108,7 @@ fun ApiSettingsScreen(
                 docsUrl = "https://ai.google.dev/gemini-api/docs/text-generation"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // OpenAI
             ApiKeySection(
@@ -121,7 +121,7 @@ fun ApiSettingsScreen(
                 docsUrl = "https://platform.openai.com/docs/guides/text-to-speech"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // ElevenLabs
             ApiKeySection(
@@ -134,7 +134,7 @@ fun ApiSettingsScreen(
                 docsUrl = "https://elevenlabs.io/docs/api-reference/text-to-speech"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Google Cloud TTS
             ApiKeySection(
@@ -166,7 +166,7 @@ fun ApiSettingsScreen(
                 docsUrl = "https://developers.themoviedb.org/3"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // MusicBrainz
             ApiKeySection(
@@ -180,7 +180,7 @@ fun ApiSettingsScreen(
                 note = "Optional: Improves rate limits"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Google Books
             ApiKeySection(
@@ -193,7 +193,7 @@ fun ApiSettingsScreen(
                 docsUrl = "https://developers.google.com/books/docs/v1/using"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Open Library
             ApiKeySection(
@@ -228,7 +228,7 @@ fun ApiSettingsScreen(
                 placeholder = "apiKey:apiSecret"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // iTunes/Apple Podcasts
             ApiKeySection(
@@ -242,7 +242,7 @@ fun ApiSettingsScreen(
                 note = "No API key required (rate-limited)"
             )
 
-            Divider()
+            HorizontalDivider()
 
             // ListenNotes
             ApiKeySection(

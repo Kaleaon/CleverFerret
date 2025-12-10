@@ -274,6 +274,20 @@ class EnhancedEReaderViewModel @Inject constructor(
         "pdf" -> BookFormat.PDF
         "cbz" -> BookFormat.CBZ
         "cbr" -> BookFormat.CBR
+        "cbt" -> BookFormat.CBT
+        "cb7" -> BookFormat.CB7
+        "mobi" -> BookFormat.MOBI
+        "azw", "azw3" -> BookFormat.AZW3
+        "djvu" -> BookFormat.DJVU
+        "fb2" -> BookFormat.FB2
+        "txt" -> BookFormat.TXT
+        "rtf" -> BookFormat.RTF
+        "html", "htm" -> BookFormat.HTML
+        "xhtml" -> BookFormat.XHTML
+        "doc" -> BookFormat.DOC
+        "docx" -> BookFormat.DOCX
+        "odt" -> BookFormat.ODT
+        "md" -> BookFormat.MD
         else -> BookFormat.UNKNOWN
     }
 }

@@ -7,6 +7,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -58,7 +60,7 @@ fun ParentalControlsScreen(
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -390,7 +392,7 @@ private fun ContentRestrictionsCard(
                 icon = Icons.Default.Warning
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Block Mature
             SwitchSettingItem(
@@ -401,7 +403,7 @@ private fun ContentRestrictionsCard(
                 icon = Icons.Default.WarningAmber
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Hide Adult Content
             SwitchSettingItem(
@@ -412,7 +414,7 @@ private fun ContentRestrictionsCard(
                 icon = Icons.Default.VisibilityOff
             )
 
-            Divider()
+            HorizontalDivider()
 
             // Adult Content Sources toggle
             val adultDescription = if (canToggleAdultSources) {
@@ -437,7 +439,7 @@ private fun ContentRestrictionsCard(
                 )
             }
 
-            Divider()
+            HorizontalDivider()
 
             // Require PIN for Adult
             SwitchSettingItem(
@@ -536,7 +538,7 @@ private fun MediaRatingsCard(
             )
 
             RatingLimitSelector<ParentalControlsSettings.BookRatingLevel>(
-                icon = Icons.Default.MenuBook,
+                icon = Icons.AutoMirrored.Filled.MenuBook,
                 title = "Books & Stories",
                 subtitle = "Control access to Mature or Explicit fiction.",
                 options = ParentalControlsSettings.BookRatingLevel.values(),
@@ -662,7 +664,7 @@ private fun TagBlockingCard(
                 }
             }
 
-            Divider()
+            HorizontalDivider()
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(

@@ -41,7 +41,8 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Build
@@ -55,7 +56,6 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
@@ -822,16 +822,21 @@ fun AppNavigation(
                     // Determine file type and navigate to appropriate player/reader
                     val encodedPath = URLEncoder.encode(file.absolutePath, StandardCharsets.UTF_8.toString())
                     when (file.extension.lowercase()) {
-                        "epub", "pdf", "mobi", "azw", "azw3" -> {
+                        // eBooks and documents
+                        "epub", "pdf", "mobi", "azw", "azw3", "djvu", "fb2", 
+                        "txt", "rtf", "html", "htm", "xhtml", "doc", "docx", "odt", "md" -> {
                             navController.navigate("reader_path/$encodedPath")
                         }
-                        "mp3", "m4a", "flac", "wav", "ogg" -> {
+                        // Audio files
+                        "mp3", "m4a", "m4b", "flac", "wav", "ogg", "opus", "aac", "wma" -> {
                             navController.navigate("audio_player/$encodedPath")
                         }
-                        "mp4", "mkv", "avi", "mov", "webm" -> {
+                        // Video files
+                        "mp4", "mkv", "avi", "mov", "webm", "wmv", "flv", "m4v" -> {
                             navController.navigate("video_player_path/$encodedPath")
                         }
-                        "cbz", "cbr" -> {
+                        // Comic book archives
+                        "cbz", "cbr", "cbt", "cb7" -> {
                             navController.navigate("reader_path/$encodedPath")
                         }
                     }
@@ -1269,8 +1274,8 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             NavigationItem(
                 route = "libraries",
                 label = "Libraries",
-                icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
-                selectedIcon = { Icon(Icons.Default.LibraryBooks, contentDescription = "Libraries") },
+                icon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Libraries") },
+                selectedIcon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Libraries") },
                 routeMatch = "libraries"
             )
         )
@@ -1451,7 +1456,7 @@ private fun buildBottomNavItems(libraries: List<Library>): List<NavigationItem> 
             NavigationItem(
                 route = "opds_catalog",
                 label = "OPDS",
-                icon = { Icon(Icons.Default.LibraryBooks, contentDescription = "OPDS") },
+                icon = { Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "OPDS") },
                 routeMatch = "opds_catalog"
             )
         }
@@ -1940,7 +1945,7 @@ fun LibraryListScreen(
                       onClick = { showCreateDialog = true },
                       containerColor = MaterialTheme.colorScheme.primary
                   ) {
-                      Icon(Icons.Default.LibraryBooks, contentDescription = "Add Library")
+                      Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = "Add Library")
                   }
               }
           ) { paddingValues ->
@@ -1973,7 +1978,7 @@ fun LibraryListScreen(
                         TextButton(onClick = { navController.navigate("recommendations") }) {
                             Text("See All")
                             Icon(
-                                Icons.Default.ArrowForward,
+                                Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp)
                             )
