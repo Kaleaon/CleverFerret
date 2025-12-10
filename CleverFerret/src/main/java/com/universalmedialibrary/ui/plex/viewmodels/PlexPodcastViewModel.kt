@@ -2,196 +2,144 @@ package com.universalmedialibrary.ui.plex.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.repository.*
-import com.universalmedialibrary.data.repository.podcast.PodcastRepository
-import com.universalmedialibrary.services.podcast.PodcastService
-import com.universalmedialibrary.services.podcast.PodcastDownloadManager
 import com.universalmedialibrary.ui.plex.screens.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * ViewModel for Plex-style Podcast Screen
+ * 
+ * Note: This is a simplified implementation with placeholder data.
+ * Full service integration will be added when podcast services
+ * are finalized.
  */
 @HiltViewModel
-class PlexPodcastViewModel @Inject constructor(
-    private val podcastService: PodcastService,
-    private val podcastRepository: PodcastRepository,
-    private val downloadManager: PodcastDownloadManager
-) : ViewModel() {
+class PlexPodcastViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(PodcastScreenState())
     val uiState: StateFlow<PodcastScreenState> = _uiState.asStateFlow()
     
     init {
         loadPodcastData()
-        observeNowPlaying()
     }
     
     private fun loadPodcastData() {
         viewModelScope.launch {
-            combine(
-                loadSubscribedShows(),
-                loadLatestEpisodes(),
-                loadQueuedEpisodes(),
-                loadDownloadedEpisodes()
-            ) { shows, latest, queued, downloaded ->
+            _uiState.update { it.copy(isLoading = true) }
+            
+            // Simulate loading delay
+            delay(300)
+            
+            _uiState.update {
                 PodcastScreenState(
-                    subscribedShows = shows,
-                    latestEpisodes = latest,
-                    queuedEpisodes = queued,
-                    downloadedEpisodes = downloaded,
+                    subscribedShows = generateSampleShows(),
+                    latestEpisodes = generateSampleEpisodes(),
+                    queuedEpisodes = emptyList(),
+                    downloadedEpisodes = emptyList(),
                     isLoading = false
                 )
-            }.collect { state ->
-                _uiState.value = state.copy(nowPlaying = _uiState.value.nowPlaying)
             }
         }
     }
     
-    private fun observeNowPlaying() {
-        viewModelScope.launch {
-            podcastService.currentEpisode.collect { episode ->
-                val podcastEpisode = episode?.let {
-                    PodcastEpisode(
-                        id = it.id.toString(),
-                        showId = it.showId.toString(),
-                        showTitle = it.showTitle,
-                        showArtworkUrl = it.showArtworkUrl,
-                        title = it.title,
-                        description = it.description,
-                        publishedDate = formatDate(it.publishedDate),
-                        duration = formatDuration(it.duration),
-                        progress = podcastService.progress.value,
-                        remainingTime = formatDuration(it.duration - (it.duration * podcastService.progress.value).toLong()),
-                        isNew = false,
-                        isDownloaded = it.isDownloaded,
-                        isPlaying = podcastService.isPlaying.value,
-                        playbackSpeed = podcastService.playbackSpeed.value
-                    )
-                }
-                _uiState.update { it.copy(nowPlaying = podcastEpisode) }
-            }
+    private fun generateSampleShows(): List<PodcastShow> {
+        return (1..5).map { index ->
+            PodcastShow(
+                id = "show_$index",
+                title = "Sample Podcast $index",
+                author = "Podcast Author $index",
+                artworkUrl = null,
+                description = "This is a sample podcast description.",
+                episodeCount = 10 + index * 5,
+                unplayedCount = index,
+                lastUpdated = "Dec ${index}, 2024"
+            )
         }
     }
     
-    private fun loadSubscribedShows(): Flow<List<PodcastShow>> =
-        podcastRepository.getSubscribedShows().map { shows ->
-            shows.map { show ->
-                PodcastShow(
-                    id = show.id.toString(),
-                    title = show.title,
-                    author = show.author,
-                    artworkUrl = show.artworkUrl,
-                    description = show.description,
-                    episodeCount = show.episodeCount,
-                    unplayedCount = show.unplayedCount,
-                    lastUpdated = show.lastUpdated?.let { formatDate(it) }
-                )
-            }
+    private fun generateSampleEpisodes(): List<PodcastEpisode> {
+        return (1..10).map { index ->
+            PodcastEpisode(
+                id = "episode_$index",
+                showId = "show_${(index % 5) + 1}",
+                showTitle = "Sample Podcast ${(index % 5) + 1}",
+                showArtworkUrl = null,
+                title = "Episode $index: Sample Episode Title",
+                description = "This is a sample episode description with some content.",
+                publishedDate = "Dec ${10 - index}, 2024",
+                duration = "${30 + index * 5}:00",
+                progress = if (index % 3 == 0) 0.5f else 0f,
+                remainingTime = if (index % 3 == 0) "${15 + index * 2}:00" else null,
+                isNew = index <= 3,
+                isDownloaded = index % 4 == 0,
+                isPlaying = false
+            )
         }
-    
-    private fun loadLatestEpisodes(): Flow<List<PodcastEpisode>> =
-        podcastRepository.getLatestEpisodes(limit = 50).map { episodes ->
-            episodes.map { it.toPodcastEpisode() }
-        }
-    
-    private fun loadQueuedEpisodes(): Flow<List<PodcastEpisode>> =
-        podcastRepository.getQueuedEpisodes().map { episodes ->
-            episodes.map { it.toPodcastEpisode() }
-        }
-    
-    private fun loadDownloadedEpisodes(): Flow<List<PodcastEpisode>> =
-        podcastRepository.getDownloadedEpisodes().map { episodes ->
-            episodes.map { it.toPodcastEpisode() }
-        }
+    }
     
     fun playEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
-            podcastService.playEpisode(episode.id.toLong())
+            _uiState.update { 
+                it.copy(nowPlaying = episode.copy(isPlaying = true))
+            }
         }
     }
     
     fun downloadEpisode(episode: PodcastEpisode) {
         viewModelScope.launch {
-            downloadManager.downloadEpisode(episode.id.toLong())
+            // Simulate download
+            val downloaded = _uiState.value.downloadedEpisodes + episode.copy(isDownloaded = true)
+            _uiState.update { it.copy(downloadedEpisodes = downloaded) }
         }
     }
     
     fun addToQueue(episode: PodcastEpisode) {
         viewModelScope.launch {
-            podcastRepository.addToQueue(episode.id.toLong())
-            loadPodcastData()
+            val queued = _uiState.value.queuedEpisodes + episode
+            _uiState.update { it.copy(queuedEpisodes = queued) }
         }
     }
     
     fun removeFromQueue(episode: PodcastEpisode) {
         viewModelScope.launch {
-            podcastRepository.removeFromQueue(episode.id.toLong())
-            loadPodcastData()
+            val queued = _uiState.value.queuedEpisodes.filter { it.id != episode.id }
+            _uiState.update { it.copy(queuedEpisodes = queued) }
         }
     }
     
     fun markAsPlayed(episode: PodcastEpisode) {
         viewModelScope.launch {
-            podcastRepository.markAsPlayed(episode.id.toLong())
-            loadPodcastData()
+            val latest = _uiState.value.latestEpisodes.map {
+                if (it.id == episode.id) it.copy(isNew = false, progress = 1f) else it
+            }
+            _uiState.update { it.copy(latestEpisodes = latest) }
         }
     }
     
     fun refreshFeeds() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            podcastService.refreshAllFeeds()
+            delay(1000) // Simulate refresh
             loadPodcastData()
         }
     }
     
     fun importOpml(opmlContent: String) {
         viewModelScope.launch {
-            podcastService.importOpml(opmlContent)
+            // Placeholder for OPML import
             loadPodcastData()
         }
     }
     
     fun exportOpml(): String {
-        return podcastService.exportOpml()
-    }
-    
-    private fun Any.toPodcastEpisode(): PodcastEpisode {
-        // This would use actual model properties
-        return PodcastEpisode(
-            id = hashCode().toString(),
-            showId = "0",
-            showTitle = "",
-            showArtworkUrl = null,
-            title = toString(),
-            description = null,
-            publishedDate = "",
-            duration = "",
-            progress = 0f,
-            remainingTime = null,
-            isNew = false,
-            isDownloaded = false,
-            isPlaying = false
-        )
-    }
-    
-    private fun formatDuration(ms: Long): String {
-        val seconds = (ms / 1000) % 60
-        val minutes = (ms / (1000 * 60)) % 60
-        val hours = ms / (1000 * 60 * 60)
-        return if (hours > 0) {
-            "%d:%02d:%02d".format(hours, minutes, seconds)
-        } else {
-            "%d:%02d".format(minutes, seconds)
-        }
-    }
-    
-    private fun formatDate(timestamp: Long): String {
-        val sdf = java.text.SimpleDateFormat("MMM d, yyyy", java.util.Locale.getDefault())
-        return sdf.format(java.util.Date(timestamp))
+        // Placeholder for OPML export
+        return """<?xml version="1.0" encoding="UTF-8"?>
+            |<opml version="1.0">
+            |  <head><title>Podcast Subscriptions</title></head>
+            |  <body></body>
+            |</opml>""".trimMargin()
     }
 }

@@ -2,10 +2,6 @@ package com.universalmedialibrary.ui.plex.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.repository.*
-import com.universalmedialibrary.data.repository.podcast.PodcastRepository
-import com.universalmedialibrary.services.search.EnhancedSearchService
-import com.universalmedialibrary.services.opds.OPDSCatalogService
 import com.universalmedialibrary.ui.plex.components.PlexMediaType
 import com.universalmedialibrary.ui.plex.screens.SearchCategory
 import com.universalmedialibrary.ui.plex.screens.SearchResult
@@ -26,36 +22,27 @@ import javax.inject.Inject
  * - External metadata providers
  * - Podcast directories
  * - Web fiction sources
+ * 
+ * Note: This is a simplified implementation with placeholder data.
+ * Full repository and service integration will be added when the
+ * search services are finalized.
  */
 @HiltViewModel
-class PlexSearchViewModel @Inject constructor(
-    private val enhancedSearchService: EnhancedSearchService,
-    private val bookRepository: BookRepository,
-    private val audiobookRepository: AudiobookRepository,
-    private val musicRepository: MusicRepository,
-    private val podcastRepository: PodcastRepository,
-    private val comicRepository: ComicRepository,
-    private val videoRepository: VideoRepository,
-    private val webFictionRepository: WebFictionRepository,
-    private val opdsService: OPDSCatalogService,
-    private val searchHistoryRepository: SearchHistoryRepository
-) : ViewModel() {
+class PlexSearchViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(SearchScreenState())
     val uiState: StateFlow<SearchScreenState> = _uiState.asStateFlow()
     
     private var searchJob: Job? = null
     
+    private val _searchHistory = mutableListOf("Recent search 1", "Recent search 2", "Recent search 3")
+    
     init {
         loadRecentSearches()
     }
     
     private fun loadRecentSearches() {
-        viewModelScope.launch {
-            searchHistoryRepository.getRecentSearches(limit = 10).collect { searches ->
-                _uiState.update { it.copy(recentSearches = searches) }
-            }
-        }
+        _uiState.update { it.copy(recentSearches = _searchHistory) }
     }
     
     fun updateQuery(query: String) {
@@ -77,8 +64,12 @@ class PlexSearchViewModel @Inject constructor(
         if (query.isBlank()) return
         
         // Save to history
-        viewModelScope.launch {
-            searchHistoryRepository.addSearch(query)
+        if (!_searchHistory.contains(query)) {
+            _searchHistory.add(0, query)
+            if (_searchHistory.size > 10) {
+                _searchHistory.removeAt(_searchHistory.lastIndex)
+            }
+            loadRecentSearches()
         }
         
         performSearch(query)
@@ -98,10 +89,8 @@ class PlexSearchViewModel @Inject constructor(
     }
     
     fun clearRecentSearches() {
-        viewModelScope.launch {
-            searchHistoryRepository.clearHistory()
-            _uiState.update { it.copy(recentSearches = emptyList()) }
-        }
+        _searchHistory.clear()
+        _uiState.update { it.copy(recentSearches = emptyList()) }
     }
     
     fun useRecentSearch(query: String) {
@@ -113,34 +102,16 @@ class PlexSearchViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSearching = true) }
             
-            val allResults = mutableListOf<SearchResult>()
+            // Simulate search delay
+            delay(500)
             
-            // Search local library in parallel
-            val localResults = searchLocalLibrary(query)
-            allResults.addAll(localResults)
-            
-            // Search external sources (based on selected category or all)
-            val selectedCategory = _uiState.value.selectedCategory
-            
-            if (selectedCategory == null || selectedCategory == SearchCategory.BOOKS) {
-                val opdsResults = searchOpds(query)
-                allResults.addAll(opdsResults)
-            }
-            
-            if (selectedCategory == null || selectedCategory == SearchCategory.PODCASTS) {
-                val podcastResults = searchPodcastDirectories(query)
-                allResults.addAll(podcastResults)
-            }
-            
-            if (selectedCategory == null || selectedCategory == SearchCategory.WEB_FICTION) {
-                val webFictionResults = searchWebFictionSources(query)
-                allResults.addAll(webFictionResults)
-            }
+            val allResults = generateSampleResults(query)
             
             // Group results by category
             val groupedResults = allResults.groupBy { it.category }
             
             // Filter if category selected
+            val selectedCategory = _uiState.value.selectedCategory
             val filteredResults = if (selectedCategory != null) {
                 allResults.filter { it.category == selectedCategory }
             } else {
@@ -157,192 +128,96 @@ class PlexSearchViewModel @Inject constructor(
         }
     }
     
-    private suspend fun searchLocalLibrary(query: String): List<SearchResult> {
+    private fun generateSampleResults(query: String): List<SearchResult> {
         val results = mutableListOf<SearchResult>()
         
-        // Search books
-        bookRepository.search(query).first().forEach { book ->
-            results.add(SearchResult(
-                id = "book_${book.id}",
-                title = book.title,
-                subtitle = book.author,
-                imageUrl = book.coverPath,
-                category = SearchCategory.BOOKS,
-                source = "Local",
-                mediaType = PlexMediaType.BOOK
-            ))
-        }
+        // Books
+        results.add(SearchResult(
+            id = "book_1",
+            title = "$query: A Novel",
+            subtitle = "Sample Author",
+            imageUrl = null,
+            category = SearchCategory.BOOKS,
+            source = "Local",
+            mediaType = PlexMediaType.BOOK
+        ))
         
-        // Search audiobooks
-        audiobookRepository.search(query).first().forEach { audiobook ->
-            results.add(SearchResult(
-                id = "audiobook_${audiobook.id}",
-                title = audiobook.title,
-                subtitle = audiobook.author,
-                imageUrl = audiobook.coverPath,
-                category = SearchCategory.AUDIOBOOKS,
-                source = "Local",
-                mediaType = PlexMediaType.AUDIOBOOK
-            ))
-        }
+        // Audiobooks
+        results.add(SearchResult(
+            id = "audiobook_1",
+            title = "$query Audiobook",
+            subtitle = "Narrated by Sample Narrator",
+            imageUrl = null,
+            category = SearchCategory.AUDIOBOOKS,
+            source = "Local",
+            mediaType = PlexMediaType.AUDIOBOOK
+        ))
         
-        // Search comics
-        comicRepository.search(query).first().forEach { comic ->
-            results.add(SearchResult(
-                id = "comic_${comic.id}",
-                title = comic.title,
-                subtitle = comic.series,
-                imageUrl = comic.coverPath,
-                category = SearchCategory.COMICS,
-                source = "Local",
-                mediaType = PlexMediaType.COMIC
-            ))
-        }
+        // Music
+        results.add(SearchResult(
+            id = "album_1",
+            title = "$query Album",
+            subtitle = "Sample Artist",
+            imageUrl = null,
+            category = SearchCategory.MUSIC,
+            source = "Local",
+            mediaType = PlexMediaType.MUSIC
+        ))
         
-        // Search music
-        musicRepository.searchAlbums(query).first().forEach { album ->
-            results.add(SearchResult(
-                id = "album_${album.id}",
-                title = album.title,
-                subtitle = album.artist,
-                imageUrl = album.artworkPath,
-                category = SearchCategory.MUSIC,
-                source = "Local",
-                mediaType = PlexMediaType.MUSIC
-            ))
-        }
+        // Podcasts
+        results.add(SearchResult(
+            id = "podcast_1",
+            title = "The $query Podcast",
+            subtitle = "Sample Host",
+            imageUrl = null,
+            category = SearchCategory.PODCASTS,
+            source = "Local",
+            mediaType = PlexMediaType.PODCAST
+        ))
         
-        musicRepository.searchArtists(query).first().forEach { artist ->
-            results.add(SearchResult(
-                id = "artist_${artist.id}",
-                title = artist.name,
-                subtitle = "${artist.albumCount} albums",
-                imageUrl = artist.imageUrl,
-                category = SearchCategory.MUSIC,
-                source = "Local",
-                mediaType = PlexMediaType.MUSIC
-            ))
-        }
+        // Movies
+        results.add(SearchResult(
+            id = "movie_1",
+            title = "$query: The Movie",
+            subtitle = "2024",
+            imageUrl = null,
+            category = SearchCategory.MOVIES,
+            source = "Local",
+            mediaType = PlexMediaType.MOVIE
+        ))
         
-        // Search podcasts
-        podcastRepository.searchShows(query).first().forEach { show ->
-            results.add(SearchResult(
-                id = "podcast_${show.id}",
-                title = show.title,
-                subtitle = show.author,
-                imageUrl = show.artworkUrl,
-                category = SearchCategory.PODCASTS,
-                source = "Local",
-                mediaType = PlexMediaType.PODCAST
-            ))
-        }
+        // TV Shows
+        results.add(SearchResult(
+            id = "tvshow_1",
+            title = "The $query Show",
+            subtitle = "3 seasons",
+            imageUrl = null,
+            category = SearchCategory.TV_SHOWS,
+            source = "Local",
+            mediaType = PlexMediaType.TV_SHOW
+        ))
         
-        // Search movies
-        videoRepository.searchMovies(query).first().forEach { movie ->
-            results.add(SearchResult(
-                id = "movie_${movie.id}",
-                title = movie.title,
-                subtitle = movie.year?.toString(),
-                imageUrl = movie.posterPath,
-                category = SearchCategory.MOVIES,
-                source = "Local",
-                mediaType = PlexMediaType.MOVIE
-            ))
-        }
+        // Comics
+        results.add(SearchResult(
+            id = "comic_1",
+            title = "$query Comics",
+            subtitle = "Issue #1",
+            imageUrl = null,
+            category = SearchCategory.COMICS,
+            source = "Local",
+            mediaType = PlexMediaType.COMIC
+        ))
         
-        // Search TV shows
-        videoRepository.searchTVShows(query).first().forEach { show ->
-            results.add(SearchResult(
-                id = "tvshow_${show.id}",
-                title = show.title,
-                subtitle = "${show.seasonCount} seasons",
-                imageUrl = show.posterPath,
-                category = SearchCategory.TV_SHOWS,
-                source = "Local",
-                mediaType = PlexMediaType.TV_SHOW
-            ))
-        }
-        
-        // Search web fiction
-        webFictionRepository.search(query).first().forEach { story ->
-            results.add(SearchResult(
-                id = "webfiction_${story.id}",
-                title = story.title,
-                subtitle = story.author,
-                imageUrl = story.coverUrl,
-                category = SearchCategory.WEB_FICTION,
-                source = "Local",
-                mediaType = PlexMediaType.FANFICTION
-            ))
-        }
-        
-        return results
-    }
-    
-    private suspend fun searchOpds(query: String): List<SearchResult> {
-        val results = mutableListOf<SearchResult>()
-        
-        try {
-            opdsService.searchCatalogs(query).collect { entries ->
-                entries.forEach { entry ->
-                    results.add(SearchResult(
-                        id = "opds_${entry.id}",
-                        title = entry.title,
-                        subtitle = entry.author,
-                        imageUrl = entry.coverUrl,
-                        category = SearchCategory.BOOKS,
-                        source = entry.catalogName,
-                        mediaType = PlexMediaType.BOOK
-                    ))
-                }
-            }
-        } catch (e: Exception) {
-            // Log error but don't fail the entire search
-        }
-        
-        return results
-    }
-    
-    private suspend fun searchPodcastDirectories(query: String): List<SearchResult> {
-        val results = mutableListOf<SearchResult>()
-        
-        try {
-            podcastRepository.searchDirectories(query).first().forEach { podcast ->
-                results.add(SearchResult(
-                    id = "podcast_ext_${podcast.id}",
-                    title = podcast.title,
-                    subtitle = podcast.author,
-                    imageUrl = podcast.artworkUrl,
-                    category = SearchCategory.PODCASTS,
-                    source = podcast.directory,
-                    mediaType = PlexMediaType.PODCAST
-                ))
-            }
-        } catch (e: Exception) {
-            // Log error
-        }
-        
-        return results
-    }
-    
-    private suspend fun searchWebFictionSources(query: String): List<SearchResult> {
-        val results = mutableListOf<SearchResult>()
-        
-        try {
-            webFictionRepository.searchExternalSources(query).first().forEach { story ->
-                results.add(SearchResult(
-                    id = "webfiction_ext_${story.id}",
-                    title = story.title,
-                    subtitle = story.author,
-                    imageUrl = story.coverUrl,
-                    category = SearchCategory.WEB_FICTION,
-                    source = story.source,
-                    mediaType = PlexMediaType.FANFICTION
-                ))
-            }
-        } catch (e: Exception) {
-            // Log error
-        }
+        // Web Fiction
+        results.add(SearchResult(
+            id = "webfic_1",
+            title = "$query Fantasy Story",
+            subtitle = "Sample Author • 100 chapters",
+            imageUrl = null,
+            category = SearchCategory.WEB_FICTION,
+            source = "Local",
+            mediaType = PlexMediaType.FANFICTION
+        ))
         
         return results
     }

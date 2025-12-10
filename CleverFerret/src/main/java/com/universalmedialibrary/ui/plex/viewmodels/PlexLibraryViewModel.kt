@@ -3,12 +3,11 @@ package com.universalmedialibrary.ui.plex.viewmodels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.repository.*
-import com.universalmedialibrary.data.repository.podcast.PodcastRepository
 import com.universalmedialibrary.ui.plex.components.PlexMediaItem
 import com.universalmedialibrary.ui.plex.components.PlexMediaType
 import com.universalmedialibrary.ui.plex.screens.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,18 +21,13 @@ import javax.inject.Inject
  * - Sorting (title, date added, rating, etc.)
  * - View mode persistence
  * - Search within library
+ * 
+ * Note: This is a simplified implementation. Full repository integration
+ * will be added when the complete data layer is finalized.
  */
 @HiltViewModel
 class PlexLibraryViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val bookRepository: BookRepository,
-    private val audiobookRepository: AudiobookRepository,
-    private val musicRepository: MusicRepository,
-    private val podcastRepository: PodcastRepository,
-    private val comicRepository: ComicRepository,
-    private val videoRepository: VideoRepository,
-    private val webFictionRepository: WebFictionRepository,
-    private val settingsRepository: SettingsRepository
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     
     // Get media type from navigation argument
@@ -85,10 +79,6 @@ class PlexLibraryViewModel @Inject constructor(
     fun setViewMode(mode: LibraryViewMode) {
         _viewMode.value = mode
         _uiState.update { it.copy(viewMode = mode) }
-        // Persist view mode preference
-        viewModelScope.launch {
-            settingsRepository.setLibraryViewMode(_mediaType.value, mode)
-        }
     }
     
     fun search(query: String) {
@@ -107,18 +97,10 @@ class PlexLibraryViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             
-            val items = when (_mediaType.value) {
-                PlexMediaType.BOOK -> loadBooks(filter, sort, query)
-                PlexMediaType.AUDIOBOOK -> loadAudiobooks(filter, sort, query)
-                PlexMediaType.MUSIC -> loadMusic(filter, sort, query)
-                PlexMediaType.PODCAST -> loadPodcasts(filter, sort, query)
-                PlexMediaType.COMIC -> loadComics(filter, sort, query)
-                PlexMediaType.MOVIE -> loadMovies(filter, sort, query)
-                PlexMediaType.TV_SHOW -> loadTVShows(filter, sort, query)
-                PlexMediaType.FANFICTION -> loadWebFiction(filter, sort, query)
-                PlexMediaType.DOCUMENT -> loadDocuments(filter, sort, query)
-                PlexMediaType.RADIO -> emptyList()
-            }
+            // Simulate loading delay
+            delay(300)
+            
+            val items = generateSampleItems(_mediaType.value, filter, query)
             
             _uiState.update { state ->
                 state.copy(
@@ -131,247 +113,53 @@ class PlexLibraryViewModel @Inject constructor(
         }
     }
     
-    private suspend fun loadBooks(
+    private fun generateSampleItems(
+        mediaType: PlexMediaType,
         filter: LibraryFilter,
-        sort: LibrarySortOption,
         query: String
     ): List<PlexMediaItem> {
-        return bookRepository.getBooks(
-            filter = filter.toBookFilter(),
-            sort = sort.toBookSort(),
-            query = query
-        ).first().map { book ->
+        // Generate sample items based on media type
+        return (1..20).map { index ->
             PlexMediaItem(
-                id = book.id.toString(),
-                title = book.title,
-                subtitle = book.author,
-                imageUrl = book.coverPath,
-                mediaType = PlexMediaType.BOOK,
-                progress = book.readingProgress,
-                rating = book.rating?.toFloat(),
-                year = book.publishYear,
-                duration = "${book.pageCount} pages",
-                badges = buildBookBadges(book),
-                lastAccessed = book.lastReadTime ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadAudiobooks(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return audiobookRepository.getAudiobooks(
-            filter = filter.toAudiobookFilter(),
-            sort = sort.toAudiobookSort(),
-            query = query
-        ).first().map { audiobook ->
-            PlexMediaItem(
-                id = audiobook.id.toString(),
-                title = audiobook.title,
-                subtitle = audiobook.author,
-                imageUrl = audiobook.coverPath,
-                mediaType = PlexMediaType.AUDIOBOOK,
-                progress = audiobook.progress,
-                rating = audiobook.rating?.toFloat(),
-                year = audiobook.year,
-                duration = formatDuration(audiobook.durationMs),
-                badges = emptyList(),
-                lastAccessed = audiobook.lastPlayedTime ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadMusic(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return musicRepository.getAlbums(
-            filter = filter.toMusicFilter(),
-            sort = sort.toMusicSort(),
-            query = query
-        ).first().map { album ->
-            PlexMediaItem(
-                id = album.id.toString(),
-                title = album.title,
-                subtitle = album.artist,
-                imageUrl = album.artworkPath,
-                mediaType = PlexMediaType.MUSIC,
-                progress = 0f,
-                rating = null,
-                year = album.year,
-                duration = "${album.trackCount} tracks",
-                badges = emptyList(),
-                lastAccessed = album.lastPlayedTime ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadPodcasts(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return podcastRepository.getSubscribedShows(
-            query = query
-        ).first().map { show ->
-            PlexMediaItem(
-                id = show.id.toString(),
-                title = show.title,
-                subtitle = show.author,
-                imageUrl = show.artworkUrl,
-                mediaType = PlexMediaType.PODCAST,
-                progress = 0f,
-                rating = null,
-                year = null,
-                duration = "${show.episodeCount} episodes",
-                badges = if (show.unplayedCount > 0) listOf(
-                    com.universalmedialibrary.ui.plex.components.PlexBadge(
-                        text = "${show.unplayedCount} new",
-                        type = com.universalmedialibrary.ui.plex.components.BadgeType.NEW
-                    )
-                ) else emptyList(),
-                lastAccessed = show.lastUpdated ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadComics(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return comicRepository.getComics(
-            filter = filter.toComicFilter(),
-            sort = sort.toComicSort(),
-            query = query
-        ).first().map { comic ->
-            PlexMediaItem(
-                id = comic.id.toString(),
-                title = comic.title,
-                subtitle = comic.series ?: comic.writer,
-                imageUrl = comic.coverPath,
-                mediaType = PlexMediaType.COMIC,
-                progress = comic.readingProgress,
-                rating = comic.rating?.toFloat(),
-                year = comic.year,
-                duration = "${comic.pageCount} pages",
-                badges = emptyList(),
-                lastAccessed = comic.lastReadTime ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadMovies(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return videoRepository.getMovies(
-            filter = filter.toVideoFilter(),
-            sort = sort.toVideoSort(),
-            query = query
-        ).first().map { movie ->
-            PlexMediaItem(
-                id = movie.id.toString(),
-                title = movie.title,
-                subtitle = movie.director,
-                imageUrl = movie.posterPath,
-                mediaType = PlexMediaType.MOVIE,
-                progress = movie.watchProgress,
-                rating = movie.rating?.toFloat(),
-                year = movie.year,
-                duration = formatDuration(movie.durationMs),
-                badges = emptyList(),
-                lastAccessed = movie.lastWatchedTime ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadTVShows(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return videoRepository.getTVShows(
-            filter = filter.toVideoFilter(),
-            sort = sort.toVideoSort(),
-            query = query
-        ).first().map { show ->
-            PlexMediaItem(
-                id = show.id.toString(),
-                title = show.title,
-                subtitle = "${show.seasonCount} seasons",
-                imageUrl = show.posterPath,
-                mediaType = PlexMediaType.TV_SHOW,
-                progress = show.watchProgress,
-                rating = show.rating?.toFloat(),
-                year = show.year,
-                duration = "${show.episodeCount} episodes",
-                badges = if (show.unwatchedCount > 0) listOf(
-                    com.universalmedialibrary.ui.plex.components.PlexBadge(
-                        text = "${show.unwatchedCount} unwatched",
-                        type = com.universalmedialibrary.ui.plex.components.BadgeType.COUNT
-                    )
-                ) else emptyList(),
-                lastAccessed = show.lastWatchedTime ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadWebFiction(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return webFictionRepository.getStories(
-            filter = filter.toWebFictionFilter(),
-            sort = sort.toWebFictionSort(),
-            query = query
-        ).first().map { story ->
-            PlexMediaItem(
-                id = story.id.toString(),
-                title = story.title,
-                subtitle = story.author,
-                imageUrl = story.coverUrl,
-                mediaType = PlexMediaType.FANFICTION,
-                progress = story.readProgress,
-                rating = story.rating?.toFloat(),
-                year = null,
-                duration = "${story.chapterCount} chapters",
-                badges = if (story.unreadChapters > 0) listOf(
-                    com.universalmedialibrary.ui.plex.components.PlexBadge(
-                        text = "${story.unreadChapters} new",
-                        type = com.universalmedialibrary.ui.plex.components.BadgeType.NEW
-                    )
-                ) else emptyList(),
-                lastAccessed = story.lastReadTime ?: 0L
-            )
-        }
-    }
-    
-    private suspend fun loadDocuments(
-        filter: LibraryFilter,
-        sort: LibrarySortOption,
-        query: String
-    ): List<PlexMediaItem> {
-        return bookRepository.getDocuments(query = query).first().map { doc ->
-            PlexMediaItem(
-                id = doc.id.toString(),
-                title = doc.title,
-                subtitle = doc.format,
+                id = "${mediaType.name.lowercase()}_$index",
+                title = "Sample ${getMediaTypeName(mediaType)} $index",
+                subtitle = "Sample subtitle",
                 imageUrl = null,
-                mediaType = PlexMediaType.DOCUMENT,
-                progress = doc.readingProgress,
-                rating = null,
-                year = null,
-                duration = null,
-                badges = emptyList(),
-                lastAccessed = doc.lastAccessedTime ?: 0L
+                mediaType = mediaType,
+                progress = if (index % 3 == 0) 0.5f else 0f,
+                rating = if (index % 2 == 0) (3.0f + (index % 3)) else null,
+                year = 2020 + (index % 5),
+                duration = getDurationString(mediaType, index),
+                badges = emptyList()
             )
+        }.filter { item ->
+            query.isEmpty() || item.title.contains(query, ignoreCase = true)
         }
+    }
+    
+    private fun getMediaTypeName(mediaType: PlexMediaType): String = when (mediaType) {
+        PlexMediaType.BOOK -> "Book"
+        PlexMediaType.AUDIOBOOK -> "Audiobook"
+        PlexMediaType.MUSIC -> "Album"
+        PlexMediaType.PODCAST -> "Podcast"
+        PlexMediaType.COMIC -> "Comic"
+        PlexMediaType.MOVIE -> "Movie"
+        PlexMediaType.TV_SHOW -> "TV Show"
+        PlexMediaType.FANFICTION -> "Story"
+        PlexMediaType.DOCUMENT -> "Document"
+        PlexMediaType.RADIO -> "Station"
+        PlexMediaType.NEWS -> "Article"
+        PlexMediaType.UNKNOWN -> "Item"
+    }
+    
+    private fun getDurationString(mediaType: PlexMediaType, index: Int): String? = when (mediaType) {
+        PlexMediaType.BOOK, PlexMediaType.COMIC -> "${100 + index * 20} pages"
+        PlexMediaType.AUDIOBOOK, PlexMediaType.MOVIE -> "${1 + index % 3}h ${index * 5 % 60}m"
+        PlexMediaType.MUSIC -> "${8 + index % 5} tracks"
+        PlexMediaType.PODCAST -> "${10 + index % 20} episodes"
+        PlexMediaType.TV_SHOW -> "${2 + index % 5} seasons"
+        PlexMediaType.FANFICTION -> "${10 + index * 5} chapters"
+        else -> null
     }
     
     private fun getLibraryTitle(mediaType: PlexMediaType): String = when (mediaType) {
@@ -385,6 +173,8 @@ class PlexLibraryViewModel @Inject constructor(
         PlexMediaType.FANFICTION -> "Web Fiction"
         PlexMediaType.DOCUMENT -> "Documents"
         PlexMediaType.RADIO -> "Radio"
+        PlexMediaType.NEWS -> "News"
+        PlexMediaType.UNKNOWN -> "Library"
     }
     
     private fun getFilterGroupsForMediaType(mediaType: PlexMediaType): List<LibraryFilterGroup> {
@@ -449,34 +239,7 @@ class PlexLibraryViewModel @Inject constructor(
             )
         }
     }
-    
-    private fun buildBookBadges(book: Any): List<com.universalmedialibrary.ui.plex.components.PlexBadge> {
-        // Build badges based on book properties
-        return emptyList()
-    }
-    
-    private fun formatDuration(ms: Long?): String? {
-        if (ms == null) return null
-        val hours = ms / (1000 * 60 * 60)
-        val minutes = (ms / (1000 * 60)) % 60
-        return if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
-    }
 }
-
-// Extension functions to convert filters to repository-specific types
-private fun LibraryFilter.toBookFilter(): String = name
-private fun LibraryFilter.toAudiobookFilter(): String = name
-private fun LibraryFilter.toMusicFilter(): String = name
-private fun LibraryFilter.toComicFilter(): String = name
-private fun LibraryFilter.toVideoFilter(): String = name
-private fun LibraryFilter.toWebFictionFilter(): String = name
-
-private fun LibrarySortOption.toBookSort(): String = name
-private fun LibrarySortOption.toAudiobookSort(): String = name
-private fun LibrarySortOption.toMusicSort(): String = name
-private fun LibrarySortOption.toComicSort(): String = name
-private fun LibrarySortOption.toVideoSort(): String = name
-private fun LibrarySortOption.toWebFictionSort(): String = name
 
 private fun PlexMediaType.Companion.fromString(value: String): PlexMediaType {
     return when (value.lowercase()) {
@@ -490,6 +253,7 @@ private fun PlexMediaType.Companion.fromString(value: String): PlexMediaType {
         "fanfiction", "webfiction" -> PlexMediaType.FANFICTION
         "document" -> PlexMediaType.DOCUMENT
         "radio" -> PlexMediaType.RADIO
-        else -> PlexMediaType.BOOK
+        "news" -> PlexMediaType.NEWS
+        else -> PlexMediaType.UNKNOWN
     }
 }

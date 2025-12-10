@@ -1,28 +1,24 @@
 package com.universalmedialibrary.ui.plex.viewmodels
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.repository.*
-import com.universalmedialibrary.services.radio.RadioBrowserService
-import com.universalmedialibrary.services.webfiction.WebFictionService
-import com.universalmedialibrary.services.opds.OPDSCatalogService
-import com.universalmedialibrary.services.ambient.AmbientSoundService
-import com.universalmedialibrary.services.news.NewsManager
+import com.universalmedialibrary.ui.plex.components.PlexMediaItem
+import com.universalmedialibrary.ui.plex.components.PlexMediaType
 import com.universalmedialibrary.ui.plex.screens.*
+import com.universalmedialibrary.ui.plex.theme.PlexColors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Radio ViewModel
+ * Radio ViewModel (Simplified)
  */
 @HiltViewModel
-class PlexRadioViewModel @Inject constructor(
-    private val radioService: RadioBrowserService,
-    private val radioRepository: RadioRepository
-) : ViewModel() {
+class PlexRadioViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(RadioScreenState())
     val uiState: StateFlow<RadioScreenState> = _uiState.asStateFlow()
@@ -33,80 +29,37 @@ class PlexRadioViewModel @Inject constructor(
     
     private fun loadRadioData() {
         viewModelScope.launch {
-            combine(
-                radioRepository.getFavoriteStations(),
-                radioService.getPopularStations(),
-                radioRepository.getRecentlyPlayed(),
-                radioService.getCategories()
-            ) { favorites, popular, recent, categories ->
-                RadioScreenState(
-                    favoriteStations = favorites.map { it.toRadioStation() },
-                    popularStations = popular.map { it.toRadioStation() },
-                    recentlyPlayed = recent.map { it.toRadioStation() },
-                    categories = categories.map { it.toRadioCategory() },
-                    fmAvailable = checkFmAvailable(),
-                    hdAvailable = checkHdAvailable()
-                )
-            }.collect { state ->
-                _uiState.value = state
-            }
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
     
     fun playStation(station: RadioStation) {
         viewModelScope.launch {
-            radioService.playStation(station.streamUrl)
             _uiState.update { it.copy(nowPlaying = station) }
-            radioRepository.addToRecentlyPlayed(station.id)
         }
     }
     
     fun toggleFavorite(station: RadioStation) {
         viewModelScope.launch {
-            if (station.isFavorite) {
-                radioRepository.removeFavorite(station.id)
+            val updated = if (station.isFavorite) {
+                _uiState.value.favoriteStations.filter { it.id != station.id }
             } else {
-                radioRepository.addFavorite(station.id)
+                _uiState.value.favoriteStations + station.copy(isFavorite = true)
             }
-            loadRadioData()
+            _uiState.update { it.copy(favoriteStations = updated) }
         }
     }
     
     fun selectCategory(category: RadioCategory) {
-        viewModelScope.launch {
-            val stations = radioService.getStationsByCategory(category.id)
-            // Update UI with filtered stations
-        }
+        // Filter stations by category
     }
-    
-    private fun checkFmAvailable(): Boolean = false
-    private fun checkHdAvailable(): Boolean = false
-    
-    private fun Any.toRadioStation() = RadioStation(
-        id = hashCode().toString(),
-        name = toString(),
-        logoUrl = null,
-        streamUrl = "",
-        genre = "Unknown"
-    )
-    
-    private fun Any.toRadioCategory() = RadioCategory(
-        id = hashCode().toString(),
-        name = toString(),
-        icon = androidx.compose.material.icons.Icons.Default.Radio,
-        color = com.universalmedialibrary.ui.plex.theme.PlexColors.AccentPrimary,
-        stationCount = 0
-    )
 }
 
 /**
- * Web Fiction ViewModel
+ * Web Fiction ViewModel (Simplified)
  */
 @HiltViewModel
-class PlexWebFictionViewModel @Inject constructor(
-    private val webFictionService: WebFictionService,
-    private val webFictionRepository: WebFictionRepository
-) : ViewModel() {
+class PlexWebFictionViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(WebFictionScreenState())
     val uiState: StateFlow<WebFictionScreenState> = _uiState.asStateFlow()
@@ -117,67 +70,24 @@ class PlexWebFictionViewModel @Inject constructor(
     
     private fun loadWebFictionData() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            
-            combine(
-                webFictionRepository.getFollowing(),
-                webFictionRepository.getRecentUpdates(),
-                webFictionService.getSupportedSources()
-            ) { following, updates, sources ->
-                WebFictionScreenState(
-                    followingStories = following.map { it.toWebFictionStory() },
-                    recentUpdates = updates.map { it.toWebFictionUpdate() },
-                    sources = sources.map { it.toWebFictionSource() },
-                    isLoading = false
-                )
-            }.collect { state ->
-                _uiState.value = state
-            }
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
     
     fun refresh() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            webFictionService.refreshAllStories()
-            loadWebFictionData()
+            _uiState.update { it.copy(isRefreshing = true) }
+            // Refresh data
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
-    
-    private fun Any.toWebFictionStory() = WebFictionStory(
-        id = hashCode().toString(),
-        title = toString(),
-        author = "Unknown",
-        source = WebFictionSource("unknown", "Unknown", null),
-        coverUrl = null,
-        chapterCount = 0,
-        wordCount = null,
-        status = StoryStatus.ONGOING,
-        tags = emptyList()
-    )
-    
-    private fun Any.toWebFictionUpdate() = WebFictionUpdate(
-        storyId = hashCode().toString(),
-        storyTitle = toString(),
-        chapterTitle = "New Chapter",
-        updatedTime = "Just now",
-        source = WebFictionSource("unknown", "Unknown", null)
-    )
-    
-    private fun Any.toWebFictionSource() = WebFictionSource(
-        id = hashCode().toString(),
-        name = toString(),
-        iconUrl = null
-    )
 }
 
 /**
- * OPDS Browser ViewModel
+ * OPDS Browser ViewModel (Simplified)
  */
 @HiltViewModel
-class PlexOPDSViewModel @Inject constructor(
-    private val opdsService: OPDSCatalogService
-) : ViewModel() {
+class PlexOPDSViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(OPDSScreenState())
     val uiState: StateFlow<OPDSScreenState> = _uiState.asStateFlow()
@@ -190,13 +100,7 @@ class PlexOPDSViewModel @Inject constructor(
     
     private fun loadCatalogs() {
         viewModelScope.launch {
-            val catalogs = opdsService.getCatalogs()
-            _uiState.update {
-                it.copy(
-                    catalogs = catalogs.map { catalog -> catalog.toOPDSCatalog() },
-                    currentPath = ""
-                )
-            }
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
     
@@ -204,24 +108,12 @@ class PlexOPDSViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             navigationStack.add(catalog.name)
-            
-            try {
-                val entries = opdsService.fetchCatalog(catalog.url)
-                _uiState.update {
-                    it.copy(
-                        entries = entries.map { entry -> entry.toOPDSEntry() },
-                        currentPath = catalog.name,
-                        navigationStack = navigationStack.toList(),
-                        isLoading = false
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        error = e.message,
-                        isLoading = false
-                    )
-                }
+            _uiState.update {
+                it.copy(
+                    currentPath = catalog.name,
+                    navigationStack = navigationStack.toList(),
+                    isLoading = false
+                )
             }
         }
     }
@@ -232,8 +124,6 @@ class PlexOPDSViewModel @Inject constructor(
         
         if (navigationStack.isEmpty()) {
             loadCatalogs()
-        } else {
-            // Navigate to previous level
         }
         return true
     }
@@ -241,148 +131,104 @@ class PlexOPDSViewModel @Inject constructor(
     fun search(query: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            try {
-                val results = opdsService.search(query)
-                _uiState.update {
-                    it.copy(
-                        entries = results.map { entry -> entry.toOPDSEntry() },
-                        isLoading = false
-                    )
-                }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message, isLoading = false) }
-            }
+            // Perform search
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
     
     fun addCatalog(url: String) {
         viewModelScope.launch {
-            opdsService.addCatalog(url)
+            // Add catalog
             loadCatalogs()
         }
     }
     
     fun download(entry: OPDSEntry) {
         viewModelScope.launch {
-            opdsService.downloadEntry(entry.id)
+            // Download entry
         }
     }
-    
-    private fun Any.toOPDSCatalog() = OPDSCatalog(
-        id = hashCode().toString(),
-        name = toString(),
-        url = "",
-        description = ""
-    )
-    
-    private fun Any.toOPDSEntry() = OPDSEntry(
-        id = hashCode().toString(),
-        title = toString()
-    )
 }
 
 /**
- * Ambient Sounds ViewModel
+ * Ambient Sounds ViewModel (Simplified)
  */
 @HiltViewModel
-class PlexAmbientViewModel @Inject constructor(
-    private val ambientService: AmbientSoundService
-) : ViewModel() {
+class PlexAmbientViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(AmbientScreenState())
     val uiState: StateFlow<AmbientScreenState> = _uiState.asStateFlow()
     
     init {
         loadAmbientData()
-        observePlayback()
     }
     
     private fun loadAmbientData() {
-        viewModelScope.launch {
-            val categories = ambientService.getCategories()
-            val presets = ambientService.getPresets()
-            
-            _uiState.update {
-                it.copy(
-                    categories = categories.map { cat -> cat.toAmbientCategory() },
-                    presets = presets.map { preset -> preset.toAmbientPreset() }
+        val categories = listOf(
+            AmbientCategory(
+                id = "nature",
+                name = "Nature",
+                icon = Icons.Default.Nature,
+                sounds = listOf(
+                    AmbientSound("rain", "Rain", Icons.Default.WaterDrop, PlexColors.Info, ""),
+                    AmbientSound("thunder", "Thunder", Icons.Default.Thunderstorm, PlexColors.Warning, ""),
+                    AmbientSound("wind", "Wind", Icons.Default.Air, PlexColors.TextSecondary, "")
                 )
-            }
-        }
-    }
-    
-    private fun observePlayback() {
-        viewModelScope.launch {
-            ambientService.activeSounds.collect { sounds ->
-                _uiState.update {
-                    it.copy(activeSounds = sounds.map { sound -> sound.toAmbientSound() })
-                }
-            }
-        }
+            ),
+            AmbientCategory(
+                id = "water",
+                name = "Water",
+                icon = Icons.Default.Water,
+                sounds = listOf(
+                    AmbientSound("ocean", "Ocean Waves", Icons.Default.Waves, PlexColors.Info, ""),
+                    AmbientSound("stream", "Stream", Icons.Default.Stream, PlexColors.Success, "")
+                )
+            )
+        )
+        
+        val presets = listOf(
+            AmbientPreset("focus", "Focus", Icons.Default.Psychology, PlexColors.AccentPrimary, emptyList()),
+            AmbientPreset("sleep", "Sleep", Icons.Default.Bedtime, PlexColors.AccentSecondary, emptyList()),
+            AmbientPreset("relax", "Relax", Icons.Default.Spa, PlexColors.Success, emptyList())
+        )
+        
+        _uiState.update { it.copy(categories = categories, presets = presets) }
     }
     
     fun toggleSound(sound: AmbientSound) {
         viewModelScope.launch {
-            if (_uiState.value.activeSounds.any { it.id == sound.id }) {
-                ambientService.stopSound(sound.id)
+            val active = _uiState.value.activeSounds.toMutableList()
+            if (active.any { it.id == sound.id }) {
+                active.removeAll { it.id == sound.id }
             } else {
-                ambientService.playSound(sound.id)
+                active.add(sound)
             }
+            _uiState.update { it.copy(activeSounds = active) }
         }
     }
     
     fun setVolume(sound: AmbientSound, volume: Float) {
-        viewModelScope.launch {
-            ambientService.setVolume(sound.id, volume)
-        }
+        // Update volume
     }
     
     fun applyPreset(preset: AmbientPreset) {
         viewModelScope.launch {
-            ambientService.applyPreset(preset.id)
             _uiState.update { it.copy(activePreset = preset) }
         }
     }
     
     fun savePreset(name: String) {
         viewModelScope.launch {
-            val currentSounds = _uiState.value.activeSounds
-            ambientService.savePreset(name, currentSounds.map { it.id })
-            loadAmbientData()
+            // Save preset
         }
     }
-    
-    private fun Any.toAmbientCategory() = AmbientCategory(
-        id = hashCode().toString(),
-        name = toString(),
-        icon = androidx.compose.material.icons.Icons.Default.Nature,
-        sounds = emptyList()
-    )
-    
-    private fun Any.toAmbientPreset() = AmbientPreset(
-        id = hashCode().toString(),
-        name = toString(),
-        icon = androidx.compose.material.icons.Icons.Default.Spa,
-        color = com.universalmedialibrary.ui.plex.theme.PlexColors.Success,
-        sounds = emptyList()
-    )
-    
-    private fun Any.toAmbientSound() = AmbientSound(
-        id = hashCode().toString(),
-        name = toString(),
-        icon = androidx.compose.material.icons.Icons.Default.WaterDrop,
-        color = com.universalmedialibrary.ui.plex.theme.PlexColors.Info,
-        audioUrl = ""
-    )
 }
 
 /**
- * News ViewModel
+ * News ViewModel (Simplified)
  */
 @HiltViewModel
-class PlexNewsViewModel @Inject constructor(
-    private val newsManager: NewsManager
-) : ViewModel() {
+class PlexNewsViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(NewsScreenState())
     val uiState: StateFlow<NewsScreenState> = _uiState.asStateFlow()
@@ -393,76 +239,31 @@ class PlexNewsViewModel @Inject constructor(
     
     private fun loadNewsData() {
         viewModelScope.launch {
-            val feeds = newsManager.getFeeds()
-            val articles = newsManager.getArticles()
-            val recipes = newsManager.getAvailableRecipes()
-            
-            _uiState.update {
-                it.copy(
-                    feeds = feeds.map { feed -> feed.toNewsFeed() },
-                    articles = articles.map { article -> article.toNewsArticle() },
-                    availableRecipes = recipes.map { recipe -> recipe.toNewsRecipe() }
-                )
-            }
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
     
     fun selectFeed(feed: NewsFeed) {
         viewModelScope.launch {
             _uiState.update { it.copy(selectedFeed = feed, isLoading = true) }
-            val articles = if (feed.id == "all") {
-                newsManager.getArticles()
-            } else {
-                newsManager.getArticlesByFeed(feed.id)
-            }
-            _uiState.update {
-                it.copy(
-                    articles = articles.map { article -> article.toNewsArticle() },
-                    isLoading = false
-                )
-            }
+            // Load articles for feed
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
     
     fun refresh() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            newsManager.refreshAll()
             loadNewsData()
         }
     }
-    
-    private fun Any.toNewsFeed() = NewsFeed(
-        id = hashCode().toString(),
-        name = toString()
-    )
-    
-    private fun Any.toNewsArticle() = NewsArticle(
-        id = hashCode().toString(),
-        title = toString(),
-        summary = null,
-        content = null,
-        imageUrl = null,
-        feedName = "Unknown",
-        feedId = "0",
-        publishedDate = "Today"
-    )
-    
-    private fun Any.toNewsRecipe() = NewsRecipe(
-        id = hashCode().toString(),
-        name = toString(),
-        description = "News recipe",
-        url = ""
-    )
 }
 
 /**
- * Collections ViewModels
+ * Collections ViewModel (Simplified)
  */
 @HiltViewModel
-class PlexCollectionsViewModel @Inject constructor(
-    private val collectionRepository: CollectionRepository
-) : ViewModel() {
+class PlexCollectionsViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(CollectionsScreenState())
     val uiState: StateFlow<CollectionsScreenState> = _uiState.asStateFlow()
@@ -473,121 +274,107 @@ class PlexCollectionsViewModel @Inject constructor(
     
     private fun loadCollections() {
         viewModelScope.launch {
-            collectionRepository.getAllCollections().collect { collections ->
-                _uiState.update {
-                    it.copy(collections = collections.map { c -> c.toCollection() })
-                }
-            }
+            _uiState.update { it.copy(isLoading = false) }
         }
     }
     
     fun createCollection(name: String) {
         viewModelScope.launch {
-            collectionRepository.createCollection(name)
-            loadCollections()
+            val newCollection = Collection(
+                id = System.currentTimeMillis().toString(),
+                name = name,
+                coverUrls = emptyList(),
+                itemCount = 0
+            )
+            _uiState.update { 
+                it.copy(collections = it.collections + newCollection)
+            }
         }
     }
-    
-    private fun Any.toCollection() = Collection(
-        id = hashCode().toString(),
-        name = toString(),
-        coverUrls = emptyList(),
-        itemCount = 0
-    )
 }
 
+/**
+ * Collection Detail ViewModel (Simplified)
+ */
 @HiltViewModel
 class PlexCollectionDetailViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val collectionRepository: CollectionRepository
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     
-    private val collectionId: String = savedStateHandle.get<String>("collectionId") ?: ""
+    private val collectionId: String = savedStateHandle["collectionId"] ?: ""
     
-    private val _uiState = MutableStateFlow(CollectionDetailState(
-        collection = Collection("", "Loading...", emptyList(), 0)
-    ))
+    private val _uiState = MutableStateFlow(
+        CollectionDetailState(
+            collection = Collection(
+                id = collectionId,
+                name = "My Collection",
+                coverUrls = emptyList(),
+                itemCount = 0
+            ),
+            items = emptyList(),
+            isLoading = true
+        )
+    )
     val uiState: StateFlow<CollectionDetailState> = _uiState.asStateFlow()
     
     init {
-        loadCollection()
+        loadCollectionDetail()
     }
     
-    private fun loadCollection() {
+    private fun loadCollectionDetail() {
         viewModelScope.launch {
-            val collection = collectionRepository.getCollection(collectionId)
-            val items = collectionRepository.getCollectionItems(collectionId)
-            _uiState.update {
-                CollectionDetailState(
-                    collection = collection?.toCollection() ?: Collection("", "Not Found", emptyList(), 0),
-                    items = items.map { it.toPlexMediaItem() }
-                )
+            _uiState.update { 
+                it.copy(isLoading = false)
             }
         }
     }
     
-    fun removeItem(item: com.universalmedialibrary.ui.plex.components.PlexMediaItem) {
+    fun removeItem(item: PlexMediaItem) {
         viewModelScope.launch {
-            collectionRepository.removeFromCollection(collectionId, item.id)
-            loadCollection()
+            _uiState.update { state ->
+                state.copy(items = state.items.filter { it.id != item.id })
+            }
         }
     }
-    
-    private fun Any.toCollection() = Collection(
-        id = hashCode().toString(),
-        name = toString(),
-        coverUrls = emptyList(),
-        itemCount = 0
-    )
-    
-    private fun Any.toPlexMediaItem() = com.universalmedialibrary.ui.plex.components.PlexMediaItem(
-        id = hashCode().toString(),
-        title = toString(),
-        subtitle = null,
-        imageUrl = null,
-        mediaType = com.universalmedialibrary.ui.plex.components.PlexMediaType.BOOK,
-        progress = 0f
-    )
 }
 
 /**
- * Sync ViewModels
+ * Sync ViewModel (Simplified)
  */
 @HiltViewModel
-class PlexSyncViewModel @Inject constructor(
-    private val syncRepository: SyncRepository
-) : ViewModel() {
+class PlexSyncViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(SyncScreenState())
     val uiState: StateFlow<SyncScreenState> = _uiState.asStateFlow()
     
     init {
-        loadSyncState()
+        loadSyncStatus()
     }
     
-    private fun loadSyncState() {
+    private fun loadSyncStatus() {
         viewModelScope.launch {
-            // Load sync services and status
+            // Initial state already set by default constructor
         }
     }
     
     fun syncNow() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSyncing = true) }
-            syncRepository.syncAll()
+            // Perform sync
             _uiState.update { it.copy(isSyncing = false, lastSyncTime = "Just now") }
         }
     }
     
-    fun configureService(service: SyncService) {
-        // Navigate to service configuration
+    fun configureService(service: com.universalmedialibrary.ui.plex.screens.SyncService) {
+        // Configure sync service
     }
 }
 
+/**
+ * Import/Export ViewModel (Simplified)
+ */
 @HiltViewModel
-class PlexImportExportViewModel @Inject constructor(
-    private val importExportRepository: ImportExportRepository
-) : ViewModel() {
+class PlexImportExportViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(ImportExportScreenState())
     val uiState: StateFlow<ImportExportScreenState> = _uiState.asStateFlow()
@@ -595,7 +382,7 @@ class PlexImportExportViewModel @Inject constructor(
     fun startImport(type: ImportExportType) {
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessing = true) }
-            importExportRepository.import(type)
+            // Perform import
             _uiState.update { it.copy(isProcessing = false) }
         }
     }
@@ -603,26 +390,22 @@ class PlexImportExportViewModel @Inject constructor(
     fun startExport(type: ImportExportType) {
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessing = true) }
-            importExportRepository.export(type)
+            // Perform export
             _uiState.update { it.copy(isProcessing = false) }
         }
     }
 }
 
 /**
- * Media Detail ViewModel
+ * Media Detail ViewModel (Simplified)
  */
 @HiltViewModel
 class PlexMediaDetailViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val bookRepository: BookRepository,
-    private val musicRepository: MusicRepository,
-    private val videoRepository: VideoRepository,
-    private val metadataService: com.universalmedialibrary.services.metadata.ComprehensiveMetadataService
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     
-    private val mediaType: String = savedStateHandle.get<String>("mediaType") ?: ""
-    private val mediaId: String = savedStateHandle.get<String>("mediaId") ?: ""
+    private val mediaType: String = savedStateHandle["mediaType"] ?: "book"
+    private val mediaId: String = savedStateHandle["mediaId"] ?: ""
     
     private val _uiState = MutableStateFlow(MediaDetailViewState())
     val uiState: StateFlow<MediaDetailViewState> = _uiState.asStateFlow()
@@ -633,41 +416,37 @@ class PlexMediaDetailViewModel @Inject constructor(
     
     private fun loadMediaDetail() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            // Load media details based on type
-            _uiState.update { it.copy(isLoading = false) }
+            _uiState.update { 
+                it.copy(
+                    title = "Sample Title",
+                    description = "Sample description for media item",
+                    isLoading = false
+                )
+            }
         }
     }
     
     fun download() {
         viewModelScope.launch {
-            // Start download
+            _uiState.update { it.copy(isDownloading = true) }
+            // Perform download
+            _uiState.update { it.copy(isDownloading = false) }
         }
     }
 }
 
-// Placeholder repository interfaces
-interface RadioRepository {
-    fun getFavoriteStations(): Flow<List<Any>>
-    fun getRecentlyPlayed(): Flow<List<Any>>
-    suspend fun addFavorite(id: String)
-    suspend fun removeFavorite(id: String)
-    suspend fun addToRecentlyPlayed(id: String)
-}
-
-interface SyncRepository {
-    suspend fun syncAll()
-}
-
-interface ImportExportRepository {
-    suspend fun import(type: ImportExportType)
-    suspend fun export(type: ImportExportType)
-}
+// =============================================================================
+// STATE CLASSES
+// =============================================================================
 
 data class MediaDetailViewState(
-    val isLoading: Boolean = false,
     val title: String = "",
-    val subtitle: String? = null,
-    val description: String? = null,
-    val imageUrl: String? = null
+    val description: String = "",
+    val imageUrl: String? = null,
+    val isLoading: Boolean = true,
+    val isDownloading: Boolean = false,
+    val error: String? = null
 )
+
+// Note: CollectionDetailState, SyncScreenState, SyncService, 
+// ImportExportScreenState, ImportExportType are defined in PlexScreensData.kt

@@ -1,28 +1,24 @@
 package com.universalmedialibrary.ui.plex.viewmodels
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.universalmedialibrary.data.repository.*
-import com.universalmedialibrary.services.music.AdvancedMusicPlayerService
-import com.universalmedialibrary.services.music.LyricsService
-import com.universalmedialibrary.services.music.LastFmScrobblerService
 import com.universalmedialibrary.ui.plex.screens.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * ViewModel for Plex-style Music Library
+ * 
+ * Note: This is a simplified implementation with placeholder data.
+ * Full repository and service integration will be added when the
+ * complete data layer is finalized.
  */
 @HiltViewModel
-class PlexMusicViewModel @Inject constructor(
-    private val musicRepository: MusicRepository,
-    private val musicPlayerService: AdvancedMusicPlayerService,
-    private val lyricsService: LyricsService,
-    private val lastFmService: LastFmScrobblerService,
-    private val playlistRepository: PlaylistRepository
-) : ViewModel() {
+class PlexMusicViewModel @Inject constructor() : ViewModel() {
     
     private val _uiState = MutableStateFlow(MusicLibraryState())
     val uiState: StateFlow<MusicLibraryState> = _uiState.asStateFlow()
@@ -32,180 +28,172 @@ class PlexMusicViewModel @Inject constructor(
     
     init {
         loadMusicLibrary()
-        observeNowPlaying()
     }
     
     private fun loadMusicLibrary() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             
-            combine(
-                loadAlbums(),
-                loadArtists(),
-                loadTracks(),
-                loadPlaylists(),
-                loadGenres()
-            ) { albums, artists, tracks, playlists, genres ->
+            // Simulate loading delay
+            delay(300)
+            
+            _uiState.update {
                 MusicLibraryState(
-                    albums = albums,
-                    artists = artists,
-                    tracks = tracks,
-                    playlists = playlists,
-                    genres = genres,
+                    albums = generateSampleAlbums(),
+                    artists = generateSampleArtists(),
+                    tracks = generateSampleTracks(),
+                    playlists = generateSamplePlaylists(),
+                    genres = generateSampleGenres(),
                     isLoading = false
                 )
-            }.collect { state ->
-                _uiState.value = state.copy(nowPlaying = _nowPlaying.value)
             }
         }
     }
     
-    private fun observeNowPlaying() {
-        viewModelScope.launch {
-            musicPlayerService.currentTrack.collect { track ->
-                val musicTrack = track?.let {
-                    MusicTrack(
-                        id = it.id.toString(),
-                        title = it.title,
-                        artist = it.artist,
-                        album = it.album,
-                        albumArtUrl = it.artworkPath,
-                        duration = formatDuration(it.duration),
-                        trackNumber = it.trackNumber,
-                        playbackProgress = musicPlayerService.progress.value,
-                        isPlaying = musicPlayerService.isPlaying.value
-                    )
-                }
-                _nowPlaying.value = musicTrack
-                _uiState.update { it.copy(nowPlaying = musicTrack) }
-            }
+    private fun generateSampleAlbums(): List<MusicAlbum> {
+        return (1..10).map { index ->
+            MusicAlbum(
+                id = "album_$index",
+                title = "Sample Album $index",
+                artist = "Sample Artist ${(index % 5) + 1}",
+                artworkUrl = null,
+                year = 2020 + (index % 5),
+                trackCount = 8 + (index % 5),
+                duration = "${(35 + index * 2)}:00"
+            )
         }
     }
     
-    private fun loadAlbums(): Flow<List<MusicAlbum>> =
-        musicRepository.getAllAlbums().map { albums ->
-            albums.map { album ->
-                MusicAlbum(
-                    id = album.id.toString(),
-                    title = album.title,
-                    artist = album.artist,
-                    artworkUrl = album.artworkPath,
-                    year = album.year,
-                    trackCount = album.trackCount,
-                    duration = album.duration?.let { formatDuration(it) }
-                )
-            }
+    private fun generateSampleArtists(): List<MusicArtist> {
+        return (1..5).map { index ->
+            MusicArtist(
+                id = "artist_$index",
+                name = "Sample Artist $index",
+                imageUrl = null,
+                albumCount = 2 + (index % 3),
+                trackCount = 15 + (index * 5)
+            )
         }
+    }
     
-    private fun loadArtists(): Flow<List<MusicArtist>> =
-        musicRepository.getAllArtists().map { artists ->
-            artists.map { artist ->
-                MusicArtist(
-                    id = artist.id.toString(),
-                    name = artist.name,
-                    imageUrl = artist.imageUrl,
-                    albumCount = artist.albumCount,
-                    trackCount = artist.trackCount
-                )
-            }
+    private fun generateSampleTracks(): List<MusicTrack> {
+        return (1..20).map { index ->
+            MusicTrack(
+                id = "track_$index",
+                title = "Sample Track $index",
+                artist = "Sample Artist ${(index % 5) + 1}",
+                album = "Sample Album ${(index % 10) + 1}",
+                albumArtUrl = null,
+                duration = "${3 + (index % 3)}:${(index * 7) % 60}",
+                trackNumber = (index % 12) + 1
+            )
         }
+    }
     
-    private fun loadTracks(): Flow<List<MusicTrack>> =
-        musicRepository.getAllTracks().map { tracks ->
-            tracks.map { track ->
-                MusicTrack(
-                    id = track.id.toString(),
-                    title = track.title,
-                    artist = track.artist,
-                    album = track.album,
-                    albumArtUrl = track.artworkPath,
-                    duration = formatDuration(track.duration),
-                    trackNumber = track.trackNumber
-                )
-            }
-        }
+    private fun generateSamplePlaylists(): List<MusicPlaylist> {
+        return listOf(
+            MusicPlaylist("pl_1", "Favorites", 25, emptyList(), true),
+            MusicPlaylist("pl_2", "Recently Played", 15, emptyList(), false),
+            MusicPlaylist("pl_3", "Workout Mix", 30, emptyList(), true)
+        )
+    }
     
-    private fun loadPlaylists(): Flow<List<MusicPlaylist>> =
-        playlistRepository.getMusicPlaylists().map { playlists ->
-            playlists.map { playlist ->
-                MusicPlaylist(
-                    id = playlist.id.toString(),
-                    name = playlist.name,
-                    trackCount = playlist.trackCount,
-                    artworkUrls = playlist.artworkUrls,
-                    isUserCreated = playlist.isUserCreated
-                )
-            }
+    private fun generateSampleGenres(): List<MusicGenre> {
+        val genreNames = listOf("Pop", "Rock", "Jazz", "Classical", "Electronic", "Hip Hop")
+        return genreNames.mapIndexed { index, name ->
+            MusicGenre(
+                name = name,
+                trackCount = 10 + (index * 5),
+                color = getGenreColor(index)
+            )
         }
-    
-    private fun loadGenres(): Flow<List<MusicGenre>> =
-        musicRepository.getAllGenres().map { genres ->
-            genres.mapIndexed { index, genre ->
-                MusicGenre(
-                    name = genre.name,
-                    trackCount = genre.trackCount,
-                    color = getGenreColor(index)
-                )
-            }
-        }
+    }
     
     fun playAlbum(album: MusicAlbum) {
         viewModelScope.launch {
-            val tracks = musicRepository.getAlbumTracks(album.id.toLong()).first()
-            musicPlayerService.playQueue(tracks.map { it.id }, 0)
+            _nowPlaying.value = MusicTrack(
+                id = "playing_album_${album.id}",
+                title = "Track 1",
+                artist = album.artist,
+                album = album.title,
+                albumArtUrl = album.artworkUrl,
+                duration = "3:30",
+                trackNumber = 1,
+                isPlaying = true
+            )
+            _uiState.update { it.copy(nowPlaying = _nowPlaying.value) }
         }
     }
     
     fun playArtist(artist: MusicArtist) {
         viewModelScope.launch {
-            val tracks = musicRepository.getArtistTracks(artist.id.toLong()).first()
-            musicPlayerService.playQueue(tracks.map { it.id }, 0)
+            _nowPlaying.value = MusicTrack(
+                id = "playing_artist_${artist.id}",
+                title = "Track 1",
+                artist = artist.name,
+                album = "Album 1",
+                albumArtUrl = artist.imageUrl,
+                duration = "4:15",
+                trackNumber = 1,
+                isPlaying = true
+            )
+            _uiState.update { it.copy(nowPlaying = _nowPlaying.value) }
         }
     }
     
     fun playTrack(track: MusicTrack) {
         viewModelScope.launch {
-            musicPlayerService.play(track.id.toLong())
+            _nowPlaying.value = track.copy(isPlaying = true)
+            _uiState.update { it.copy(nowPlaying = _nowPlaying.value) }
         }
     }
     
     fun playPlaylist(playlist: MusicPlaylist) {
         viewModelScope.launch {
-            val tracks = playlistRepository.getPlaylistTracks(playlist.id.toLong()).first()
-            musicPlayerService.playQueue(tracks.map { it.id }, 0)
+            _nowPlaying.value = MusicTrack(
+                id = "playing_pl_${playlist.id}",
+                title = "Playlist Track 1",
+                artist = "Various Artists",
+                album = playlist.name,
+                albumArtUrl = null,
+                duration = "3:45",
+                trackNumber = 1,
+                isPlaying = true
+            )
+            _uiState.update { it.copy(nowPlaying = _nowPlaying.value) }
         }
     }
     
     fun shuffleAll() {
         viewModelScope.launch {
-            val allTracks = musicRepository.getAllTracks().first()
-            musicPlayerService.playQueue(allTracks.shuffled().map { it.id }, 0)
+            val tracks = _uiState.value.tracks
+            if (tracks.isNotEmpty()) {
+                val randomTrack = tracks.random()
+                _nowPlaying.value = randomTrack.copy(isPlaying = true)
+                _uiState.update { it.copy(nowPlaying = _nowPlaying.value) }
+            }
         }
     }
     
-    private fun formatDuration(ms: Long): String {
-        val seconds = (ms / 1000) % 60
-        val minutes = (ms / (1000 * 60)) % 60
-        val hours = ms / (1000 * 60 * 60)
-        return if (hours > 0) {
-            "%d:%02d:%02d".format(hours, minutes, seconds)
-        } else {
-            "%d:%02d".format(minutes, seconds)
+    fun togglePlayPause() {
+        _nowPlaying.value?.let { track ->
+            _nowPlaying.value = track.copy(isPlaying = !track.isPlaying)
+            _uiState.update { it.copy(nowPlaying = _nowPlaying.value) }
         }
     }
     
-    private fun getGenreColor(index: Int): androidx.compose.ui.graphics.Color {
+    private fun getGenreColor(index: Int): Color {
         val colors = listOf(
-            androidx.compose.ui.graphics.Color(0xFFE91E63),
-            androidx.compose.ui.graphics.Color(0xFF9C27B0),
-            androidx.compose.ui.graphics.Color(0xFF673AB7),
-            androidx.compose.ui.graphics.Color(0xFF3F51B5),
-            androidx.compose.ui.graphics.Color(0xFF2196F3),
-            androidx.compose.ui.graphics.Color(0xFF00BCD4),
-            androidx.compose.ui.graphics.Color(0xFF009688),
-            androidx.compose.ui.graphics.Color(0xFF4CAF50),
-            androidx.compose.ui.graphics.Color(0xFF8BC34A),
-            androidx.compose.ui.graphics.Color(0xFFFF9800)
+            Color(0xFFE91E63),
+            Color(0xFF9C27B0),
+            Color(0xFF673AB7),
+            Color(0xFF3F51B5),
+            Color(0xFF2196F3),
+            Color(0xFF00BCD4),
+            Color(0xFF009688),
+            Color(0xFF4CAF50),
+            Color(0xFF8BC34A),
+            Color(0xFFFF9800)
         )
         return colors[index % colors.size]
     }
