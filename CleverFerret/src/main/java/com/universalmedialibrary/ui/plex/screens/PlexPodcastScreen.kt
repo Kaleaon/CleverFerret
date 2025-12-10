@@ -578,7 +578,7 @@ private fun PodcastEpisodeCard(
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = PlexColors.TextSecondary
                         ),
-                        border = BorderStroke(1.dp, PlexColors.BorderPrimary)
+                        border = BorderStroke(1.dp, PlexColors.Border)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Download,

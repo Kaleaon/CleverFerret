@@ -341,6 +341,11 @@ object PlexSizes {
     val AvatarMedium = 48.dp
     val AvatarLarge = 64.dp
     
+    // Thumbnails
+    val ThumbnailSmall = 48.dp
+    val ThumbnailMedium = 64.dp
+    val ThumbnailLarge = 80.dp
+    
     // Progress
     val ProgressHeight = 3.dp
     val ProgressHeightThick = 6.dp

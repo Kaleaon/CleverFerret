@@ -816,7 +816,7 @@ private fun SubtitlesSheet(
             }
         }
         
-        HorizontalDivider(color = PlexColors.BorderPrimary)
+        HorizontalDivider(color = PlexColors.Border)
         
         tracks.forEach { track ->
             Row(

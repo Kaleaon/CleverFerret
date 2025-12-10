@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -325,7 +326,7 @@ private fun HeroCarousel(
 // =============================================================================
 
 @Composable
-private fun QuickStatsRow(stats: LibraryStats) {
+private fun QuickStatsRow(stats: HomeLibraryStats) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -420,8 +421,8 @@ private fun StatCard(
 
 @Composable
 private fun CollectionsSection(
-    collections: List<PlexCollection>,
-    onCollectionClick: (PlexCollection) -> Unit
+    collections: List<HomeCollection>,
+    onCollectionClick: (HomeCollection) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -451,7 +452,7 @@ private fun CollectionsSection(
 
 @Composable
 private fun CollectionCard(
-    collection: PlexCollection,
+    collection: HomeCollection,
     onClick: () -> Unit
 ) {
     Surface(
@@ -675,11 +676,11 @@ data class PlexHomeState(
     val recentPodcasts: List<PlexMediaItem> = emptyList(),
     val recentVideos: List<PlexMediaItem> = emptyList(),
     val recentFanfiction: List<PlexMediaItem> = emptyList(),
-    val collections: List<PlexCollection> = emptyList(),
-    val libraryStats: LibraryStats = LibraryStats()
+    val collections: List<HomeCollection> = emptyList(),
+    val libraryStats: HomeLibraryStats = HomeLibraryStats()
 )
 
-data class LibraryStats(
+data class HomeLibraryStats(
     val totalBooks: Int = 0,
     val totalAudiobooks: Int = 0,
     val totalComics: Int = 0,
@@ -689,7 +690,7 @@ data class LibraryStats(
     val totalFanfiction: Int = 0
 )
 
-data class PlexCollection(
+data class HomeCollection(
     val id: String,
     val name: String,
     val itemCount: Int,

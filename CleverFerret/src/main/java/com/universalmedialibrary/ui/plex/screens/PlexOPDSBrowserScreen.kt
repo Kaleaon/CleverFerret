@@ -417,7 +417,7 @@ private fun OPDSEntriesView(
             
             item {
                 HorizontalDivider(
-                    color = PlexColors.BorderPrimary,
+                    color = PlexColors.Border,
                     modifier = Modifier.padding(vertical = PlexSpacing.MD)
                 )
             }

@@ -994,9 +994,9 @@ private fun ChapterItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchInBookSheet(
-    searchResults: List<SearchResult>,
+    searchResults: List<ReaderSearchResult>,
     onSearch: (String) -> Unit,
-    onResultClick: (SearchResult) -> Unit,
+    onResultClick: (ReaderSearchResult) -> Unit,
     onDismiss: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -1021,7 +1021,7 @@ private fun SearchInBookSheet(
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PlexColors.AccentPrimary,
-                    unfocusedBorderColor = PlexColors.BorderPrimary
+                    unfocusedBorderColor = PlexColors.Border
                 )
             )
             
@@ -1050,7 +1050,7 @@ private fun SearchInBookSheet(
 
 @Composable
 private fun SearchResultItem(
-    result: SearchResult,
+    result: ReaderSearchResult,
     onClick: () -> Unit
 ) {
     Row(
@@ -1285,7 +1285,7 @@ data class BookReaderState(
     val bookmarks: List<BookmarkInfo> = emptyList(),
     val highlights: List<HighlightInfo> = emptyList(),
     val annotations: List<AnnotationInfo> = emptyList(),
-    val searchResults: List<SearchResult> = emptyList(),
+    val searchResults: List<ReaderSearchResult> = emptyList(),
     val settings: ReaderSettings = ReaderSettings(),
     val isCurrentPageBookmarked: Boolean = false,
     val isTTSPlaying: Boolean = false
@@ -1327,7 +1327,7 @@ data class AnnotationInfo(
     val highlightId: String? = null
 )
 
-data class SearchResult(
+private data class ReaderSearchResult(
     val pageNumber: Int,
     val excerpt: String,
     val startOffset: Int

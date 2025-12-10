@@ -213,7 +213,7 @@ private fun SearchTopBar(
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PlexColors.AccentPrimary,
-                    unfocusedBorderColor = PlexColors.BorderPrimary,
+                    unfocusedBorderColor = PlexColors.Border,
                     focusedTextColor = PlexColors.TextPrimary,
                     unfocusedTextColor = PlexColors.TextPrimary,
                     cursorColor = PlexColors.AccentPrimary
@@ -407,7 +407,7 @@ private fun SearchResultsList(
                 
                 item {
                     HorizontalDivider(
-                        color = PlexColors.BorderPrimary,
+                        color = PlexColors.Border,
                         modifier = Modifier.padding(vertical = PlexSpacing.SM)
                     )
                 }

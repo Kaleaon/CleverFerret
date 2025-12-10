@@ -188,11 +188,7 @@ fun PlexPosterCard(
             }
             
             // Hover overlay
-            AnimatedVisibility(
-                visible = isHovered,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
+            if (isHovered) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -234,13 +230,10 @@ fun PlexPosterCard(
             }
             
             // Play button on hover
-            AnimatedVisibility(
-                visible = isHovered,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut(),
-                modifier = Modifier.align(Alignment.Center)
-            ) {
-                PlayButton(onClick = onClick)
+            if (isHovered) {
+                Box(modifier = Modifier.align(Alignment.Center)) {
+                    PlayButton(onClick = onClick)
+                }
             }
         }
         
@@ -352,13 +345,10 @@ fun PlexSquareCard(
             }
             
             // Hover play button
-            AnimatedVisibility(
-                visible = isHovered,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut(),
-                modifier = Modifier.align(Alignment.Center)
-            ) {
-                PlayButton(onClick = onClick)
+            if (isHovered) {
+                Box(modifier = Modifier.align(Alignment.Center)) {
+                    PlayButton(onClick = onClick)
+                }
             }
             
             // Duration badge (bottom right)

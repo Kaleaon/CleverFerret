@@ -261,7 +261,7 @@ private fun ConnectedServerCard(
             // Expanded details
             AnimatedVisibility(visible = expanded) {
                 Column(modifier = Modifier.padding(top = PlexSpacing.MD)) {
-                    HorizontalDivider(color = PlexColors.BorderPrimary)
+                    HorizontalDivider(color = PlexColors.Border)
                     
                     Spacer(Modifier.height(PlexSpacing.MD))
                     
@@ -607,7 +607,7 @@ private fun AddServerDialog(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = PlexColors.AccentPrimary,
-                                    unfocusedBorderColor = PlexColors.BorderPrimary
+                                    unfocusedBorderColor = PlexColors.Border
                                 )
                             )
                         }
@@ -620,7 +620,7 @@ private fun AddServerDialog(
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = PlexColors.AccentPrimary,
-                                unfocusedBorderColor = PlexColors.BorderPrimary
+                                unfocusedBorderColor = PlexColors.Border
                             )
                         )
                         
@@ -645,7 +645,7 @@ private fun AddServerDialog(
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = PlexColors.AccentPrimary,
-                                unfocusedBorderColor = PlexColors.BorderPrimary
+                                unfocusedBorderColor = PlexColors.Border
                             )
                         )
                     }
@@ -660,7 +660,7 @@ private fun AddServerDialog(
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = PlexColors.AccentPrimary,
-                                unfocusedBorderColor = PlexColors.BorderPrimary
+                                unfocusedBorderColor = PlexColors.Border
                             )
                         )
                         
@@ -685,7 +685,7 @@ private fun AddServerDialog(
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = PlexColors.AccentPrimary,
-                                unfocusedBorderColor = PlexColors.BorderPrimary
+                                unfocusedBorderColor = PlexColors.Border
                             )
                         )
                     }
