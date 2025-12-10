@@ -85,7 +85,7 @@ object PermissionsHandler {
     }
 
     /**
-     * Check if storage permissions are granted
+     * Check if storage permissions are granted for media files only
      */
     fun hasStoragePermissions(context: Context): Boolean {
         return when {
@@ -102,6 +102,42 @@ object PermissionsHandler {
             else -> {
                 // Android 10 and below
                 hasPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+    }
+    
+    /**
+     * Check if full storage access is granted (needed for documents/ebooks on Android 11+)
+     * On Android 13+, READ_MEDIA_* permissions don't cover documents like epub, pdf, etc.
+     * MANAGE_EXTERNAL_STORAGE is required for full file access including ebooks.
+     */
+    fun hasFullStorageAccess(context: Context): Boolean {
+        return when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                // Android 11+ needs MANAGE_EXTERNAL_STORAGE for document access
+                Environment.isExternalStorageManager()
+            }
+            else -> {
+                // Android 10 and below
+                hasPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+    }
+    
+    /**
+     * Request full storage access permission (for documents/ebooks)
+     * This opens system settings to grant MANAGE_EXTERNAL_STORAGE on Android 11+
+     */
+    fun requestFullStorageAccess(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                intent.data = "package:${context.packageName}".toUri()
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                // Fallback to general settings
+                val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                context.startActivity(intent)
             }
         }
     }

@@ -19,6 +19,55 @@ import com.universalmedialibrary.services.visualizer.VisualizerState
 import kotlin.math.*
 
 /**
+ * Vibrant color palettes for visualizer effects
+ */
+private object VisualizerColors {
+    // Neon Cyber palette - electric and punchy
+    val neonCyan = Color(0xFF00FFFF)
+    val neonMagenta = Color(0xFFFF00FF)
+    val neonPink = Color(0xFFFF1493)
+    val neonBlue = Color(0xFF00BFFF)
+    val neonGreen = Color(0xFF39FF14)
+    val neonOrange = Color(0xFFFF6B00)
+    val neonYellow = Color(0xFFFFFF00)
+    val neonPurple = Color(0xFFBF00FF)
+    
+    // Aurora palette - rich gradients
+    val auroraGreen = Color(0xFF00FF87)
+    val auroraTeal = Color(0xFF00D4AA)
+    val auroraBlue = Color(0xFF00A8E8)
+    val auroraPurple = Color(0xFF8B5CF6)
+    val auroraViolet = Color(0xFFA855F7)
+    
+    // Fire palette - warm and intense
+    val fireRed = Color(0xFFFF4500)
+    val fireOrange = Color(0xFFFF8C00)
+    val fireYellow = Color(0xFFFFD700)
+    val fireGold = Color(0xFFFFA500)
+    
+    // Deep space palette - cosmic
+    val spacePurple = Color(0xFF6B5B95)
+    val spaceBlue = Color(0xFF4169E1)
+    val starWhite = Color(0xFFF0F8FF)
+    
+    // Dynamic color based on audio intensity
+    fun getIntensityColor(intensity: Float): Color {
+        return when {
+            intensity > 0.8f -> neonMagenta
+            intensity > 0.6f -> neonPink
+            intensity > 0.4f -> neonCyan
+            intensity > 0.2f -> auroraBlue
+            else -> auroraTeal
+        }
+    }
+    
+    fun getRainbowColor(position: Float): Color {
+        val hue = (position * 360f) % 360f
+        return Color.hsv(hue, 0.9f, 1f)
+    }
+}
+
+/**
  * ProjectM-style Audio Visualizer UI Component
  *
  * Renders beautiful, reactive visualizations based on audio data
@@ -32,10 +81,11 @@ fun ProjectMVisualizer(
     modifier: Modifier = Modifier,
     style: VisualizerStyle = VisualizerStyle.SPECTRUM_BARS
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val secondaryColor = MaterialTheme.colorScheme.secondary
-    val tertiaryColor = MaterialTheme.colorScheme.tertiary
-    val backgroundColor = MaterialTheme.colorScheme.background
+    // Use vibrant neon colors instead of dull Material theme colors
+    val primaryColor = VisualizerColors.neonCyan
+    val secondaryColor = VisualizerColors.neonMagenta
+    val tertiaryColor = VisualizerColors.neonGreen
+    val backgroundColor = Color(0xFF0A0A0F) // Deep dark background for contrast
     
     val infiniteTransition = rememberInfiniteTransition(label = "visualizer")
     val rotation by infiniteTransition.animateFloat(
@@ -48,6 +98,28 @@ fun ProjectMVisualizer(
         label = "rotation"
     )
     
+    // Color cycling animation for dynamic effects
+    val colorPhase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(5000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "colorPhase"
+    )
+    
+    // Dynamic colors based on audio
+    val dynamicPrimary = remember(visualizerState.frequencyBands.bass, colorPhase) {
+        VisualizerColors.getRainbowColor(colorPhase + visualizerState.frequencyBands.bass * 0.3f)
+    }
+    val dynamicSecondary = remember(visualizerState.frequencyBands.mid, colorPhase) {
+        VisualizerColors.getRainbowColor(colorPhase + 0.33f + visualizerState.frequencyBands.mid * 0.3f)
+    }
+    val dynamicTertiary = remember(visualizerState.frequencyBands.treble, colorPhase) {
+        VisualizerColors.getRainbowColor(colorPhase + 0.66f + visualizerState.frequencyBands.treble * 0.3f)
+    }
+    
     // Force recomposition on every state change for smooth 60 FPS
     // Using timestamp as key ensures updates at audio capture rate
     key(visualizerState.timestamp) {
@@ -57,28 +129,28 @@ fun ProjectMVisualizer(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundColor.copy(alpha = 0.95f)),
+            .background(backgroundColor),
         contentAlignment = Alignment.Center
     ) {
         when (style) {
-            VisualizerStyle.SPECTRUM_BARS -> SpectrumBarsVisualizer(visualizerState, primaryColor, secondaryColor)
-            VisualizerStyle.WAVEFORM -> WaveformVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
-            VisualizerStyle.CIRCULAR -> CircularVisualizer(visualizerState, rotation, primaryColor)
-            VisualizerStyle.PARTICLES -> ParticleVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
-            VisualizerStyle.FREQUENCY_RINGS -> FrequencyRingsVisualizer(visualizerState, rotation, primaryColor, secondaryColor, tertiaryColor)
-            VisualizerStyle.OSCILLOSCOPE -> OscilloscopeVisualizer(visualizerState, primaryColor, secondaryColor)
-            VisualizerStyle.SPECTROGRAPH -> SpectrographVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
-            VisualizerStyle.LISSAJOUS -> LissajousVisualizer(visualizerState, primaryColor, secondaryColor)
-            VisualizerStyle.RADIAL_WAVEFORM -> RadialWaveformVisualizer(visualizerState, rotation, primaryColor)
-            VisualizerStyle.BEAT_REACTIVE -> BeatReactiveVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
-            VisualizerStyle.KALEIDOSCOPE -> KaleidoscopeVisualizer(visualizerState, rotation, primaryColor, secondaryColor)
-            VisualizerStyle.FRACTAL -> FractalVisualizer(visualizerState, rotation, primaryColor, tertiaryColor)
-            VisualizerStyle.MATRIX_RAIN -> MatrixRainVisualizer(visualizerState, primaryColor)
-            VisualizerStyle.DUAL_CHANNEL -> DualChannelVisualizer(visualizerState, primaryColor, secondaryColor)
-            VisualizerStyle.CUBE_3D -> Cube3DVisualizer(visualizerState, rotation, primaryColor, secondaryColor, tertiaryColor)
-            VisualizerStyle.TUNNEL -> TunnelVisualizer(visualizerState, rotation, primaryColor, secondaryColor)
-            VisualizerStyle.STARFIELD -> StarfieldVisualizer(visualizerState, rotation, primaryColor)
-            VisualizerStyle.FLUID -> FluidVisualizer(visualizerState, primaryColor, secondaryColor, tertiaryColor)
+            VisualizerStyle.SPECTRUM_BARS -> SpectrumBarsVisualizer(visualizerState, dynamicPrimary, dynamicSecondary)
+            VisualizerStyle.WAVEFORM -> WaveformVisualizer(visualizerState, dynamicPrimary, dynamicSecondary, dynamicTertiary)
+            VisualizerStyle.CIRCULAR -> CircularVisualizer(visualizerState, rotation, dynamicPrimary)
+            VisualizerStyle.PARTICLES -> ParticleVisualizer(visualizerState, dynamicPrimary, dynamicSecondary, dynamicTertiary)
+            VisualizerStyle.FREQUENCY_RINGS -> FrequencyRingsVisualizer(visualizerState, rotation, VisualizerColors.neonCyan, VisualizerColors.neonMagenta, VisualizerColors.neonGreen)
+            VisualizerStyle.OSCILLOSCOPE -> OscilloscopeVisualizer(visualizerState, VisualizerColors.neonCyan, VisualizerColors.neonPink)
+            VisualizerStyle.SPECTROGRAPH -> SpectrographVisualizer(visualizerState, VisualizerColors.neonBlue, VisualizerColors.neonMagenta, VisualizerColors.fireOrange)
+            VisualizerStyle.LISSAJOUS -> LissajousVisualizer(visualizerState, dynamicPrimary, dynamicSecondary)
+            VisualizerStyle.RADIAL_WAVEFORM -> RadialWaveformVisualizer(visualizerState, rotation, dynamicPrimary)
+            VisualizerStyle.BEAT_REACTIVE -> BeatReactiveVisualizer(visualizerState, VisualizerColors.neonMagenta, VisualizerColors.neonCyan, VisualizerColors.neonGreen)
+            VisualizerStyle.KALEIDOSCOPE -> KaleidoscopeVisualizer(visualizerState, rotation, dynamicPrimary, dynamicSecondary)
+            VisualizerStyle.FRACTAL -> FractalVisualizer(visualizerState, rotation, VisualizerColors.auroraPurple, VisualizerColors.auroraGreen)
+            VisualizerStyle.MATRIX_RAIN -> MatrixRainVisualizer(visualizerState, VisualizerColors.neonGreen)
+            VisualizerStyle.DUAL_CHANNEL -> DualChannelVisualizer(visualizerState, VisualizerColors.neonCyan, VisualizerColors.neonMagenta)
+            VisualizerStyle.CUBE_3D -> Cube3DVisualizer(visualizerState, rotation, dynamicPrimary, dynamicSecondary, dynamicTertiary)
+            VisualizerStyle.TUNNEL -> TunnelVisualizer(visualizerState, rotation, VisualizerColors.neonPurple, VisualizerColors.neonBlue)
+            VisualizerStyle.STARFIELD -> StarfieldVisualizer(visualizerState, rotation, VisualizerColors.starWhite)
+            VisualizerStyle.FLUID -> FluidVisualizer(visualizerState, VisualizerColors.auroraTeal, VisualizerColors.auroraPurple, VisualizerColors.auroraBlue)
         }
     }
 }
@@ -225,7 +297,7 @@ private fun FluidVisualizer(
 }
 
 /**
- * Spectrum bars visualization (classic frequency bars)
+ * Spectrum bars visualization (classic frequency bars with neon glow effect)
  */
 @Composable
 private fun SpectrumBarsVisualizer(
@@ -234,25 +306,76 @@ private fun SpectrumBarsVisualizer(
     secondaryColor: Color
 ) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
+    val bass = state.frequencyBands.bass
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val barWidth = size.width / spectrum.size
         val maxHeight = size.height
+        val gap = 2f
 
         spectrum.forEachIndexed { index, magnitude ->
-            val barHeight = magnitude * maxHeight
+            val barHeight = magnitude * maxHeight * 0.9f
             val x = index * barWidth
             val progress = index.toFloat() / spectrum.size
+            
+            // Calculate rainbow color based on position and intensity
+            val hue = (progress * 270f + bass * 90f) % 360f
+            val barColor = Color.hsv(hue, 0.9f, 0.95f + magnitude * 0.05f)
+            val glowColor = Color.hsv(hue, 0.7f, 1f)
+
+            // Draw glow effect (wider, semi-transparent bar behind)
+            if (magnitude > 0.1f) {
+                drawRect(
+                    color = glowColor.copy(alpha = 0.3f * magnitude),
+                    topLeft = Offset(x - gap, maxHeight - barHeight - gap * 2),
+                    size = androidx.compose.ui.geometry.Size(barWidth + gap * 2, barHeight + gap * 4)
+                )
+            }
+
+            // Draw main bar with gradient
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        barColor,
+                        barColor.copy(alpha = 0.8f),
+                        androidx.compose.ui.graphics.lerp(barColor, primaryColor, 0.3f).copy(alpha = 0.6f)
+                    ),
+                    startY = maxHeight - barHeight,
+                    endY = maxHeight
+                ),
+                topLeft = Offset(x + gap, maxHeight - barHeight),
+                size = androidx.compose.ui.geometry.Size(barWidth - gap * 2, barHeight)
+            )
+            
+            // Draw top cap (bright white highlight for peaks)
+            if (magnitude > 0.2f) {
+                drawRect(
+                    color = Color.White.copy(alpha = 0.8f * magnitude),
+                    topLeft = Offset(x + gap, maxHeight - barHeight),
+                    size = androidx.compose.ui.geometry.Size(barWidth - gap * 2, 3f)
+                )
+            }
+        }
+        
+        // Draw reflection effect at bottom
+        spectrum.forEachIndexed { index, magnitude ->
+            val barHeight = magnitude * maxHeight * 0.15f // Shorter reflection
+            val x = index * barWidth
+            val progress = index.toFloat() / spectrum.size
+            val hue = (progress * 270f + bass * 90f) % 360f
+            val barColor = Color.hsv(hue, 0.9f, 0.95f)
 
             drawRect(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        androidx.compose.ui.graphics.lerp(primaryColor, secondaryColor, progress),
-                        primaryColor.copy(alpha = 0.6f)
-                    )
+                        barColor.copy(alpha = 0.3f),
+                        barColor.copy(alpha = 0f)
+                    ),
+                    startY = maxHeight,
+                    endY = maxHeight + barHeight
                 ),
-                topLeft = Offset(x, maxHeight - barHeight),
-                size = androidx.compose.ui.geometry.Size(barWidth * 0.9f, barHeight)
+                topLeft = Offset(x + gap, maxHeight),
+                size = androidx.compose.ui.geometry.Size(barWidth - gap * 2, barHeight)
             )
         }
     }
@@ -298,7 +421,7 @@ private fun WaveformVisualizer(
 }
 
 /**
- * Circular visualization (radial spectrum)
+ * Circular visualization (radial spectrum with rainbow effect)
  */
 @Composable
 private fun CircularVisualizer(
@@ -307,38 +430,91 @@ private fun CircularVisualizer(
     primaryColor: Color
 ) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
+    val bass = state.frequencyBands.bass
+    val mid = state.frequencyBands.mid
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2
         val centerY = size.height / 2
-        val baseRadius = min(size.width, size.height) * 0.2f
+        val baseRadius = min(size.width, size.height) * 0.15f
+        val pulseRadius = baseRadius * (1f + bass * 0.3f) // Pulse with bass
+        
+        // Draw center glow
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    VisualizerColors.neonCyan.copy(alpha = 0.4f * bass),
+                    VisualizerColors.neonMagenta.copy(alpha = 0.2f * bass),
+                    Color.Transparent
+                ),
+                center = Offset(centerX, centerY),
+                radius = baseRadius * 2f
+            ),
+            radius = baseRadius * 2f,
+            center = Offset(centerX, centerY)
+        )
+        
+        // Draw inner circle
+        drawCircle(
+            color = VisualizerColors.neonCyan.copy(alpha = 0.3f),
+            radius = pulseRadius * 0.5f,
+            center = Offset(centerX, centerY),
+            style = Stroke(width = 2f)
+        )
 
+        // Draw spectrum bars radiating outward
         spectrum.forEachIndexed { index, magnitude ->
             val angle = (index.toFloat() / spectrum.size * 360f + rotation) * PI.toFloat() / 180f
-            val length = magnitude * min(size.width, size.height) * 0.3f
-            val startRadius = baseRadius
-            val endRadius = baseRadius + length
+            val length = magnitude * min(size.width, size.height) * 0.35f
+            val startRadius = pulseRadius
+            val endRadius = pulseRadius + length
 
             val startX = centerX + cos(angle) * startRadius
             val startY = centerY + sin(angle) * startRadius
             val endX = centerX + cos(angle) * endRadius
             val endY = centerY + sin(angle) * endRadius
 
-            val alpha = 0.6f + (magnitude * 0.4f)
+            // Rainbow color based on position
+            val hue = (index.toFloat() / spectrum.size * 360f + rotation * 0.5f) % 360f
+            val barColor = Color.hsv(hue, 0.9f, 0.95f)
+            val glowColor = Color.hsv(hue, 0.7f, 1f)
 
+            // Draw glow
+            if (magnitude > 0.15f) {
+                drawLine(
+                    color = glowColor.copy(alpha = 0.4f * magnitude),
+                    start = Offset(startX, startY),
+                    end = Offset(endX, endY),
+                    strokeWidth = 8f,
+                    cap = StrokeCap.Round
+                )
+            }
+
+            // Draw main line
             drawLine(
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        primaryColor.copy(alpha = alpha * 0.6f),
-                        primaryColor.copy(alpha = alpha)
-                    )
+                        barColor.copy(alpha = 0.7f),
+                        barColor,
+                        Color.White.copy(alpha = 0.8f * magnitude)
+                    ),
+                    start = Offset(startX, startY),
+                    end = Offset(endX, endY)
                 ),
                 start = Offset(startX, startY),
                 end = Offset(endX, endY),
-                strokeWidth = 4f,
+                strokeWidth = 3f + magnitude * 2f,
                 cap = StrokeCap.Round
             )
         }
+        
+        // Draw outer ring that pulses with mid frequencies
+        drawCircle(
+            color = VisualizerColors.neonMagenta.copy(alpha = 0.5f * mid),
+            radius = baseRadius + min(size.width, size.height) * 0.35f * mid,
+            center = Offset(centerX, centerY),
+            style = Stroke(width = 2f + mid * 3f)
+        )
     }
 }
 

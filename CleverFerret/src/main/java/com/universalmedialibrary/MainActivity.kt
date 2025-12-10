@@ -822,16 +822,21 @@ fun AppNavigation(
                     // Determine file type and navigate to appropriate player/reader
                     val encodedPath = URLEncoder.encode(file.absolutePath, StandardCharsets.UTF_8.toString())
                     when (file.extension.lowercase()) {
-                        "epub", "pdf", "mobi", "azw", "azw3" -> {
+                        // eBooks and documents
+                        "epub", "pdf", "mobi", "azw", "azw3", "djvu", "fb2", 
+                        "txt", "rtf", "html", "htm", "xhtml", "doc", "docx", "odt", "md" -> {
                             navController.navigate("reader_path/$encodedPath")
                         }
-                        "mp3", "m4a", "flac", "wav", "ogg" -> {
+                        // Audio files
+                        "mp3", "m4a", "m4b", "flac", "wav", "ogg", "opus", "aac", "wma" -> {
                             navController.navigate("audio_player/$encodedPath")
                         }
-                        "mp4", "mkv", "avi", "mov", "webm" -> {
+                        // Video files
+                        "mp4", "mkv", "avi", "mov", "webm", "wmv", "flv", "m4v" -> {
                             navController.navigate("video_player_path/$encodedPath")
                         }
-                        "cbz", "cbr" -> {
+                        // Comic book archives
+                        "cbz", "cbr", "cbt", "cb7" -> {
                             navController.navigate("reader_path/$encodedPath")
                         }
                     }
