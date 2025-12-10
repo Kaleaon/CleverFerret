@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -57,7 +59,7 @@ fun LayeredSoundscapeScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -380,7 +382,7 @@ private fun LayerSlider(
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = if (volume > 0f) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                        imageVector = if (volume > 0f) Icons.AutoMirrored.Filled.VolumeUp else Icons.Default.VolumeOff,
                         contentDescription = if (volume > 0f) "Mute" else "Unmute",
                         modifier = Modifier.size(20.dp)
                     )

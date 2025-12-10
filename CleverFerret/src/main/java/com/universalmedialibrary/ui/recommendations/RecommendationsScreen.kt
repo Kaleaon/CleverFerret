@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,7 +42,7 @@ fun RecommendationsScreen(
                 title = { Text("Recommendations") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -488,7 +490,7 @@ private fun formatSourceSubtitle(source: String, count: Int): String {
 private fun getSourceIcon(source: String) = when {
     source.contains("Similar") -> Icons.Default.Favorite
     source.contains("Journey") -> Icons.Default.AutoStories
-    source.contains("Popular") -> Icons.Default.TrendingUp
+    source.contains("Popular") -> Icons.AutoMirrored.Filled.TrendingUp
     source.contains("AI") -> Icons.Default.AutoAwesome
     source.contains("TasteDive") || source.contains("Discovery") -> Icons.Default.Public
     else -> Icons.Default.Recommend

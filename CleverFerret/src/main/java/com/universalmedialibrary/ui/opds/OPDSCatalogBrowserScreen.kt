@@ -7,6 +7,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -65,7 +67,7 @@ fun OPDSCatalogBrowserScreen(
                             onBack()
                         }
                     }) {
-                        Icon(Icons.Default.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {
@@ -293,7 +295,7 @@ private fun PublicationListView(
             ) {
                 if (prevLink != null) {
                     OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Previous")
                     }
@@ -305,7 +307,7 @@ private fun PublicationListView(
                     Button(onClick = { onNavigationClick(nextLink.href) }) {
                         Text("Next")
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.Default.ArrowForward, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
                     }
                 } else {
                     Spacer(modifier = Modifier.width(1.dp))
@@ -336,7 +338,7 @@ private fun PublicationListView(
             ) {
                 if (prevLink != null) {
                     OutlinedButton(onClick = { onNavigationClick(prevLink.href) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Previous")
                     }
@@ -348,7 +350,7 @@ private fun PublicationListView(
                     Button(onClick = { onNavigationClick(nextLink.href) }) {
                         Text("Next")
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.Default.ArrowForward, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
                     }
                 } else {
                     Spacer(modifier = Modifier.width(1.dp))

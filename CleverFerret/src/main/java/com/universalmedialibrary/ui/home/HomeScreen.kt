@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -356,9 +358,9 @@ private fun MediaItemContent(item: MediaItemUiModel) {
                         Icon(
                             imageVector = when (item.type) {
                                 "music" -> Icons.Default.MusicNote
-                                "book" -> Icons.Default.MenuBook
+                                "book" -> Icons.AutoMirrored.Filled.MenuBook
                                 "video" -> Icons.Default.Movie
-                                else -> Icons.Default.Article
+                                else -> Icons.AutoMirrored.Filled.Article
                             },
                             contentDescription = null,
                             modifier = Modifier.size(32.dp),
@@ -370,7 +372,7 @@ private fun MediaItemContent(item: MediaItemUiModel) {
             
             if (item.progress > 0) {
                 LinearProgressIndicator(
-                    progress = item.progress,
+                    progress = { item.progress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(4.dp)

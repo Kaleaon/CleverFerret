@@ -95,7 +95,7 @@ fun APISettingsScreen(
             )
 
             // === Metadata Providers ===
-            Divider()
+            HorizontalDivider()
             Text("Metadata Providers", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
 
             // TMDB
@@ -211,7 +211,7 @@ fun APISettingsScreen(
             )
 
             // === Podcasts ===
-            Divider()
+            HorizontalDivider()
             Text("Podcasts", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
 
             // Podcast Index
@@ -238,7 +238,7 @@ fun APISettingsScreen(
             )
 
             // === Artwork & Lyrics ===
-            Divider()
+            HorizontalDivider()
             Text("Artwork & Lyrics", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
 
             // Artwork APIs Section
@@ -254,7 +254,7 @@ fun APISettingsScreen(
             )
 
             // === AI Generation ===
-            Divider()
+            HorizontalDivider()
             Text("Generation & Features", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
 
             // Image Generator Selection Section
@@ -282,7 +282,7 @@ fun APISettingsScreen(
 
             // === Development & Debugging (Debug builds only) ===
             if (com.universalmedialibrary.BuildConfig.DEBUG) {
-                Divider()
+                HorizontalDivider()
                 Text("Development & Debugging", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
                 
                 // GitHub API Token for Bug Reports

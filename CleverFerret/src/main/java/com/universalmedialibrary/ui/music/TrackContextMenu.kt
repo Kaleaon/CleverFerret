@@ -55,7 +55,7 @@ fun TrackContextMenu(
             leadingIcon = { Icon(Icons.Default.Add, null) }
         )
         
-        Divider()
+        HorizontalDivider()
         
         DropdownMenuItem(
             text = { Text("Manage Tags") },
@@ -66,7 +66,7 @@ fun TrackContextMenu(
             leadingIcon = { Icon(Icons.Default.Label, null) }
         )
         
-        Divider()
+        HorizontalDivider()
         
         DropdownMenuItem(
             text = { Text("Go to Album") },
@@ -85,7 +85,7 @@ fun TrackContextMenu(
             leadingIcon = { Icon(Icons.Default.Person, null) }
         )
         
-        Divider()
+        HorizontalDivider()
         
         DropdownMenuItem(
             text = { Text("Share") },

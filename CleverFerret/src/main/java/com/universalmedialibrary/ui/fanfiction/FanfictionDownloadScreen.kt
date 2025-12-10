@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Link
@@ -126,7 +125,7 @@ fun FanfictionDownloadScreen(
             
             // Example URLs
             if (downloadState is DownloadState.Idle) {
-                Divider()
+                HorizontalDivider()
                 
                 Text(
                     "Example URLs",
@@ -238,7 +237,7 @@ private fun DownloadProgressCard(
             
             if (total > 0) {
                 LinearProgressIndicator(
-                    progress = current.toFloat() / total,
+                    progress = { current.toFloat() / total },
                     modifier = Modifier.fillMaxWidth()
                 )
                 

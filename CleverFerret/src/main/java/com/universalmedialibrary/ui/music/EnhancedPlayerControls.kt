@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -204,7 +205,7 @@ fun VolumeControlSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(
-                if (volume < 0.01f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                if (volume < 0.01f) Icons.Default.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                 contentDescription = "Volume",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -443,7 +444,7 @@ fun CompactSecondaryControls(
     ) {
         // Volume
         SecondaryControlButton(
-            icon = if (volume < 0.01f) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+            icon = if (volume < 0.01f) Icons.Default.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
             label = "${kotlin.math.round(volume * 100).toInt().coerceIn(0, 100)}%",
             onClick = onVolumeClick
         )
