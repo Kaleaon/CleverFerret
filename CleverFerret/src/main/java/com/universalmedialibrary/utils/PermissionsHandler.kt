@@ -127,16 +127,23 @@ object PermissionsHandler {
     /**
      * Request full storage access permission (for documents/ebooks)
      * This opens system settings to grant MANAGE_EXTERNAL_STORAGE on Android 11+
+     * 
+     * Note: On Android versions below 11, this function does nothing as 
+     * MANAGE_EXTERNAL_STORAGE permission doesn't exist.
      */
     fun requestFullStorageAccess(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.data = "package:${context.packageName}".toUri()
+                intent.data = android.net.Uri.parse("package:${context.packageName}")
+                // Add FLAG_ACTIVITY_NEW_TASK if not called from an Activity context
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             } catch (e: Exception) {
-                // Fallback to general settings
+                // Fallback to general settings if app-specific intent is not available
+                android.util.Log.w("PermissionsHandler", "App-specific settings not available, falling back", e)
                 val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             }
         }

@@ -21,10 +21,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,6 +50,9 @@ class OPDSDownloadService @Inject constructor(
     
     private val _activeDownloads = MutableStateFlow<Map<Long, DownloadProgress>>(emptyMap())
     val activeDownloads: StateFlow<Map<Long, DownloadProgress>> = _activeDownloads.asStateFlow()
+    
+    // Track active HTTP calls for proper cancellation
+    private val activeHttpCalls = ConcurrentHashMap<Long, Call>()
     
     data class DownloadProgress(
         val downloadId: Long,
@@ -101,6 +106,7 @@ class OPDSDownloadService @Inject constructor(
      */
     private fun startDownload(downloadId: Long, title: String, url: String, extension: String) {
         scope.launch {
+            var outputFile: File? = null
             try {
                 // Update status to downloading
                 catalogDao.updateDownloadProgress(downloadId, DownloadStatus.DOWNLOADING, 0, 0)
@@ -115,7 +121,7 @@ class OPDSDownloadService @Inject constructor(
                 // Create safe filename
                 val safeTitle = fileNameSanitizer.sanitizeFileName(title)
                 val fileName = "${safeTitle}_${System.currentTimeMillis()}.$extension"
-                val outputFile = File(downloadDir, fileName)
+                outputFile = File(downloadDir, fileName)
                 
                 // Download the file
                 val request = Request.Builder()
@@ -123,52 +129,75 @@ class OPDSDownloadService @Inject constructor(
                     .header("User-Agent", "CleverFerret/1.0 (OPDS Client)")
                     .build()
                 
-                httpClient.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        throw Exception("HTTP ${response.code}: ${response.message}")
-                    }
-                    
-                    val body = response.body ?: throw Exception("Empty response body")
-                    val contentLength = body.contentLength()
-                    
-                    // Update file size
-                    if (contentLength > 0) {
-                        val download = catalogDao.getDownloadById(downloadId)
-                        if (download != null) {
-                            catalogDao.updateDownload(download.copy(fileSize = contentLength))
+                val call = httpClient.newCall(request)
+                activeHttpCalls[downloadId] = call
+                
+                try {
+                    call.execute().use { response ->
+                        if (!response.isSuccessful) {
+                            throw Exception("HTTP ${response.code}: ${response.message}")
                         }
-                    }
-                    
-                    // Write to file with progress tracking
-                    FileOutputStream(outputFile).use { output ->
-                        val buffer = ByteArray(8192)
-                        var bytesRead: Int
-                        var totalBytesRead = 0L
-                        val inputStream = body.byteStream()
                         
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, 0, bytesRead)
-                            totalBytesRead += bytesRead
-                            
-                            // Calculate progress
-                            val progress = if (contentLength > 0) {
-                                (totalBytesRead.toFloat() / contentLength.toFloat() * 100).toInt()
-                            } else {
-                                -1 // Indeterminate
+                        val body = response.body ?: throw Exception("Empty response body")
+                        val contentLength = body.contentLength()
+                        
+                        // Update file size
+                        if (contentLength > 0) {
+                            val download = catalogDao.getDownloadById(downloadId)
+                            if (download != null) {
+                                catalogDao.updateDownload(download.copy(fileSize = contentLength))
                             }
+                        }
+                        
+                        // Write to file with progress tracking
+                        FileOutputStream(outputFile).use { output ->
+                            val buffer = ByteArray(8192)
+                            var bytesRead: Int
+                            var totalBytesRead = 0L
+                            val inputStream = body.byteStream()
                             
-                            // Update progress every ~100KB
-                            if (totalBytesRead % (100 * 1024) < 8192) {
-                                catalogDao.updateDownloadProgress(
-                                    downloadId, 
-                                    DownloadStatus.DOWNLOADING, 
-                                    progress.coerceIn(0, 99), 
-                                    totalBytesRead
-                                )
-                                updateActiveDownload(downloadId, title, progress / 100f, DownloadStatus.DOWNLOADING)
+                            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                                // Check if cancelled
+                                val currentStatus = catalogDao.getDownloadById(downloadId)
+                                if (currentStatus?.status == DownloadStatus.CANCELLED) {
+                                    Log.i(TAG, "Download cancelled during transfer: $title")
+                                    return@use
+                                }
+                                
+                                output.write(buffer, 0, bytesRead)
+                                totalBytesRead += bytesRead
+                                
+                                // Calculate progress (clamp to >= 0 for indeterminate)
+                                val progress = if (contentLength > 0) {
+                                    (totalBytesRead.toFloat() / contentLength.toFloat() * 100).toInt()
+                                } else {
+                                    0 // Show 0% for indeterminate instead of -1
+                                }
+                                
+                                // Update progress every ~100KB
+                                if (totalBytesRead % (100 * 1024) < 8192) {
+                                    catalogDao.updateDownloadProgress(
+                                        downloadId, 
+                                        DownloadStatus.DOWNLOADING, 
+                                        progress.coerceIn(0, 99), 
+                                        totalBytesRead
+                                    )
+                                    updateActiveDownload(downloadId, title, (progress.coerceIn(0, 100) / 100f), DownloadStatus.DOWNLOADING)
+                                }
                             }
                         }
                     }
+                } finally {
+                    activeHttpCalls.remove(downloadId)
+                }
+                
+                // Check if download was cancelled before marking complete
+                val finalStatus = catalogDao.getDownloadById(downloadId)
+                if (finalStatus?.status == DownloadStatus.CANCELLED) {
+                    Log.i(TAG, "Download cancelled before completion: $title")
+                    // Clean up partial file
+                    outputFile.delete()
+                    return@launch
                 }
                 
                 // Mark download complete
@@ -188,6 +217,8 @@ class OPDSDownloadService @Inject constructor(
                 
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed for $title", e)
+                // Clean up partial file on failure
+                outputFile?.delete()
                 catalogDao.markDownloadFailed(downloadId, e.message ?: "Unknown error")
                 updateActiveDownload(downloadId, title, 0f, DownloadStatus.FAILED)
                 
@@ -252,30 +283,37 @@ class OPDSDownloadService @Inject constructor(
         val formatPriority = listOf("epub", "pdf", "mobi", "azw", "fb2", "cbz")
         
         for (format in formatPriority) {
-            val link = links.find { it.href.lowercase().contains(".$format") }
+            val link = links.find { 
+                val urlPath = it.href.substringBefore("?").lowercase()
+                urlPath.endsWith(".$format")
+            }
             if (link != null) return link
         }
         
         // Return any acquisition link if no preferred format found
         return links.firstOrNull { link ->
             link.rel.any { it.contains("acquisition") } ||
-            link.href.matches(Regex(".*\\.(epub|pdf|mobi|azw|fb2|cbz|cbr)$", RegexOption.IGNORE_CASE))
+            link.href.substringBefore("?").matches(Regex(".*\\.(epub|pdf|mobi|azw|fb2|cbz|cbr)$", RegexOption.IGNORE_CASE))
         } ?: links.firstOrNull()
     }
     
     /**
      * Determine file type from URL
+     * Extracts extension from the URL path, ignoring query parameters
      */
     private fun determineFileType(url: String): Pair<String, String> {
-        val lowercaseUrl = url.lowercase()
-        return when {
-            lowercaseUrl.contains(".epub") -> "epub" to "application/epub+zip"
-            lowercaseUrl.contains(".pdf") -> "pdf" to "application/pdf"
-            lowercaseUrl.contains(".mobi") -> "mobi" to "application/x-mobipocket-ebook"
-            lowercaseUrl.contains(".azw") -> "azw" to "application/vnd.amazon.ebook"
-            lowercaseUrl.contains(".fb2") -> "fb2" to "application/x-fictionbook+xml"
-            lowercaseUrl.contains(".cbz") -> "cbz" to "application/x-cbz"
-            lowercaseUrl.contains(".cbr") -> "cbr" to "application/x-cbr"
+        // Extract path without query parameters and get the extension
+        val urlPath = url.substringBefore("?").substringBefore("#")
+        val extension = urlPath.substringAfterLast(".").lowercase()
+        
+        return when (extension) {
+            "epub" -> "epub" to "application/epub+zip"
+            "pdf" -> "pdf" to "application/pdf"
+            "mobi" -> "mobi" to "application/x-mobipocket-ebook"
+            "azw", "azw3" -> "azw" to "application/vnd.amazon.ebook"
+            "fb2" -> "fb2" to "application/x-fictionbook+xml"
+            "cbz" -> "cbz" to "application/x-cbz"
+            "cbr" -> "cbr" to "application/x-cbr"
             else -> "epub" to "application/epub+zip" // Default to EPUB
         }
     }
@@ -322,6 +360,10 @@ class OPDSDownloadService @Inject constructor(
      * Cancel a download
      */
     suspend fun cancelDownload(downloadId: Long) {
+        // Cancel the HTTP call if it's in progress
+        activeHttpCalls[downloadId]?.cancel()
+        activeHttpCalls.remove(downloadId)
+        
         catalogDao.markDownloadCancelled(downloadId)
         removeActiveDownload(downloadId)
     }

@@ -50,17 +50,6 @@ private object VisualizerColors {
     val spaceBlue = Color(0xFF4169E1)
     val starWhite = Color(0xFFF0F8FF)
     
-    // Dynamic color based on audio intensity
-    fun getIntensityColor(intensity: Float): Color {
-        return when {
-            intensity > 0.8f -> neonMagenta
-            intensity > 0.6f -> neonPink
-            intensity > 0.4f -> neonCyan
-            intensity > 0.2f -> auroraBlue
-            else -> auroraTeal
-        }
-    }
-    
     fun getRainbowColor(position: Float): Color {
         val hue = (position * 360f) % 360f
         return Color.hsv(hue, 0.9f, 1f)
@@ -119,12 +108,6 @@ fun ProjectMVisualizer(
     val dynamicTertiary = remember(visualizerState.frequencyBands.treble, colorPhase) {
         VisualizerColors.getRainbowColor(colorPhase + 0.66f + visualizerState.frequencyBands.treble * 0.3f)
     }
-    
-    // Force recomposition on every state change for smooth 60 FPS
-    // Using timestamp as key ensures updates at audio capture rate
-    key(visualizerState.timestamp) {
-        // This block will recompose whenever audio data updates
-    }
 
     Box(
         modifier = modifier
@@ -135,7 +118,7 @@ fun ProjectMVisualizer(
         when (style) {
             VisualizerStyle.SPECTRUM_BARS -> SpectrumBarsVisualizer(visualizerState, dynamicPrimary, dynamicSecondary)
             VisualizerStyle.WAVEFORM -> WaveformVisualizer(visualizerState, dynamicPrimary, dynamicSecondary, dynamicTertiary)
-            VisualizerStyle.CIRCULAR -> CircularVisualizer(visualizerState, rotation, dynamicPrimary)
+            VisualizerStyle.CIRCULAR -> CircularVisualizer(visualizerState, rotation)
             VisualizerStyle.PARTICLES -> ParticleVisualizer(visualizerState, dynamicPrimary, dynamicSecondary, dynamicTertiary)
             VisualizerStyle.FREQUENCY_RINGS -> FrequencyRingsVisualizer(visualizerState, rotation, VisualizerColors.neonCyan, VisualizerColors.neonMagenta, VisualizerColors.neonGreen)
             VisualizerStyle.OSCILLOSCOPE -> OscilloscopeVisualizer(visualizerState, VisualizerColors.neonCyan, VisualizerColors.neonPink)
@@ -426,8 +409,7 @@ private fun WaveformVisualizer(
 @Composable
 private fun CircularVisualizer(
     state: VisualizerState,
-    rotation: Float,
-    primaryColor: Color
+    rotation: Float
 ) {
     val spectrum = state.frequencyBands.spectrum.ifEmpty { List(64) { 0f } }
     val bass = state.frequencyBands.bass
