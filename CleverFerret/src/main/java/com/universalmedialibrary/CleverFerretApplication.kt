@@ -6,6 +6,7 @@ import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.universalmedialibrary.data.migration.AppUpgradeManager
 import com.universalmedialibrary.data.migration.BackupRestorationManager
 import com.universalmedialibrary.data.migration.UpgradeStatus
+import com.universalmedialibrary.debug.DebugReportingService
 import com.universalmedialibrary.services.ambient.ThemedCollections
 import com.universalmedialibrary.utils.CrashActivity
 import dagger.hilt.android.HiltAndroidApp
@@ -41,6 +42,9 @@ class CleverFerretApplication : Application() {
     
     @Inject
     lateinit var backupRestorationManager: BackupRestorationManager
+    
+    @Inject
+    lateinit var debugReportingService: DebugReportingService
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -52,12 +56,32 @@ class CleverFerretApplication : Application() {
         // Initialize themed sound collections
         ThemedCollections.initialize()
         Log.d(TAG, "Ambient themed collections initialized")
+        
         // Initialize crash handler
         initializeCrashHandler()
+        
+        // Initialize debug reporting (for debug builds)
+        initializeDebugReporting()
 
         // CRITICAL: Check for app upgrades and protect user data
         applicationScope.launch {
             handleAppUpgrade()
+        }
+    }
+    
+    /**
+     * Initialize debug reporting service for crash/error tracking
+     * Only fully active in debug builds
+     */
+    private fun initializeDebugReporting() {
+        if (BuildConfig.DEBUG_REPORTING_ENABLED) {
+            debugReportingService.initialize()
+            Log.d(TAG, "Debug reporting service initialized")
+            
+            // Log app startup
+            debugReportingService.logInfo(TAG, "App started - ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+            debugReportingService.logInfo(TAG, "Build time: ${BuildConfig.BUILD_TIME}")
+            debugReportingService.logInfo(TAG, "Git commit: ${BuildConfig.GIT_COMMIT}")
         }
     }
     

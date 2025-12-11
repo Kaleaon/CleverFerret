@@ -2,4 +2,10 @@
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Cache directory for widget artwork -->
     <cache-path name="widget_artwork" path="." />
+    
+    <!-- Debug reports directory for sharing bug reports and crash logs -->
+    <files-path name="debug_reports" path="debug_reports/" />
+    
+    <!-- Exported media for sharing -->
+    <external-path name="external_files" path="." />
 </paths>
