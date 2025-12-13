@@ -48,6 +48,8 @@ class SettingsRepository @Inject constructor(
         val IMPORT_SORTER_CONFLICT = stringPreferencesKey("import_sorter_conflict_strategy")
         val IMPORT_SORTER_PROFILE = stringPreferencesKey("import_sorter_profile")
         val IMPORT_SORTER_USE_ONLINE_METADATA = booleanPreferencesKey("import_sorter_use_online_metadata")
+        val IMPORT_SORTER_PREVENT_DUPLICATES = booleanPreferencesKey("import_sorter_prevent_duplicates")
+        val IMPORT_SORTER_DUPLICATE_STRATEGY = stringPreferencesKey("import_sorter_duplicate_strategy")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -157,6 +159,14 @@ class SettingsRepository @Inject constructor(
 
     val importSorterUseOnlineMetadataFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.IMPORT_SORTER_USE_ONLINE_METADATA] ?: false
+    }
+
+    val importSorterPreventDuplicatesFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_PREVENT_DUPLICATES] ?: true
+    }
+
+    val importSorterDuplicateStrategyFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_DUPLICATE_STRATEGY] ?: "SKIP"
     }
 
     suspend fun setTheme(palette: ThemePalette) {
@@ -288,6 +298,18 @@ class SettingsRepository @Inject constructor(
     suspend fun setImportSorterUseOnlineMetadata(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.IMPORT_SORTER_USE_ONLINE_METADATA] = enabled
+        }
+    }
+
+    suspend fun setImportSorterPreventDuplicates(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_PREVENT_DUPLICATES] = enabled
+        }
+    }
+
+    suspend fun setImportSorterDuplicateStrategy(strategy: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_DUPLICATE_STRATEGY] = strategy
         }
     }
 }

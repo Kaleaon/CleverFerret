@@ -47,6 +47,12 @@ class ImportSorterViewModel @Inject constructor(
             .combine(settingsRepository.importSorterUseOnlineMetadataFlow) { state, useOnline ->
                 state.copy(useOnlineMetadata = useOnline)
             }
+            .combine(settingsRepository.importSorterPreventDuplicatesFlow) { state, prevent ->
+                state.copy(preventDuplicates = prevent)
+            }
+            .combine(settingsRepository.importSorterDuplicateStrategyFlow) { state, strategy ->
+                state.copy(duplicateStrategy = strategy)
+            }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ImportSorterPrefsState())
 
     fun setInputUri(uri: String?) = viewModelScope.launch { settingsRepository.setImportSorterInputUri(uri) }
@@ -58,6 +64,8 @@ class ImportSorterViewModel @Inject constructor(
     fun setConflictStrategy(strategy: String) = viewModelScope.launch { settingsRepository.setImportSorterConflictStrategy(strategy) }
     fun setProfile(profile: String) = viewModelScope.launch { settingsRepository.setImportSorterProfile(profile) }
     fun setUseOnlineMetadata(enabled: Boolean) = viewModelScope.launch { settingsRepository.setImportSorterUseOnlineMetadata(enabled) }
+    fun setPreventDuplicates(enabled: Boolean) = viewModelScope.launch { settingsRepository.setImportSorterPreventDuplicates(enabled) }
+    fun setDuplicateStrategy(strategy: String) = viewModelScope.launch { settingsRepository.setImportSorterDuplicateStrategy(strategy) }
 }
 
 data class ImportSorterPrefsState(
@@ -69,6 +77,8 @@ data class ImportSorterPrefsState(
     val runInBackground: Boolean = true,
     val conflictStrategy: String = "RENAME",
     val profile: String = "DEFAULT",
-    val useOnlineMetadata: Boolean = false
+    val useOnlineMetadata: Boolean = false,
+    val preventDuplicates: Boolean = true,
+    val duplicateStrategy: String = "SKIP"
 )
 

@@ -81,10 +81,17 @@ fun ImportSorterScreen(
     val reviewQuestionable = prefs.reviewQuestionable
     val runInBackground = prefs.runInBackground
     val useOnlineMetadata = prefs.useOnlineMetadata
+    val preventDuplicates = prefs.preventDuplicates
     var conflictStrategy by remember(prefs.conflictStrategy) {
         mutableStateOf(
             runCatching { ImportConflictStrategy.valueOf(prefs.conflictStrategy) }
                 .getOrDefault(ImportConflictStrategy.RENAME)
+        )
+    }
+    var duplicateStrategy by remember(prefs.duplicateStrategy) {
+        mutableStateOf(
+            runCatching { ImportConflictStrategy.valueOf(prefs.duplicateStrategy) }
+                .getOrDefault(ImportConflictStrategy.SKIP)
         )
     }
     var sortProfile by remember(prefs.profile) {
@@ -170,7 +177,9 @@ fun ImportSorterScreen(
                                     moveFiles = moveFiles,
                                     removeEmptyFolders = removeEmptyFolders,
                                     conflictStrategy = conflictStrategy,
-                                    profile = sortProfile
+                                    profile = sortProfile,
+                                    preventDuplicates = preventDuplicates,
+                                    duplicateStrategy = duplicateStrategy
                                 )
                                 if (runInBackground) {
                                     val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
@@ -435,6 +444,26 @@ fun ImportSorterScreen(
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Prevent duplicates (SHA-256)")
+                        Switch(checked = preventDuplicates, onCheckedChange = { viewModel.setPreventDuplicates(it) })
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("On duplicate (same hash): $duplicateStrategy")
+                        Button(onClick = {
+                            duplicateStrategy = when (duplicateStrategy) {
+                                ImportConflictStrategy.SKIP -> ImportConflictStrategy.QUARANTINE
+                                ImportConflictStrategy.QUARANTINE -> ImportConflictStrategy.RENAME
+                                ImportConflictStrategy.RENAME -> ImportConflictStrategy.SKIP
+                                ImportConflictStrategy.REPLACE -> ImportConflictStrategy.SKIP
+                            }
+                            viewModel.setDuplicateStrategy(duplicateStrategy.name)
+                        }) {
+                            Text("Change duplicate strategy")
+                        }
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("On conflict (same name in destination): $conflictStrategy")
                         // Simple toggle cycle to avoid adding a full dropdown dependency here
                         Button(onClick = {
@@ -467,7 +496,9 @@ fun ImportSorterScreen(
                                             moveFiles = moveFiles,
                                             removeEmptyFolders = removeEmptyFolders,
                                             conflictStrategy = conflictStrategy,
-                                            profile = sortProfile
+                                            profile = sortProfile,
+                                            preventDuplicates = preventDuplicates,
+                                            duplicateStrategy = duplicateStrategy
                                         ),
                                         progressCallback = { msg -> progress = msg }
                                     )
@@ -483,7 +514,9 @@ fun ImportSorterScreen(
                                             moveFiles = moveFiles,
                                             removeEmptyFolders = removeEmptyFolders,
                                             conflictStrategy = conflictStrategy,
-                                            profile = sortProfile
+                                            profile = sortProfile,
+                                            preventDuplicates = preventDuplicates,
+                                            duplicateStrategy = duplicateStrategy
                                         ),
                                         progressCallback = { msg -> progress = msg }
                                     )
