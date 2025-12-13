@@ -8,7 +8,7 @@ import android.net.Uri
 import android.util.Log
 import android.util.LruCache
 import com.universalmedialibrary.data.local.entity.MediaItem
-import com.universalmedialibrary.data.local.entity.MediaItem
+import com.universalmedialibrary.data.local.entity.PlexMediaItem
 import com.universalmedialibrary.services.cache.CacheManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +34,7 @@ import javax.inject.Singleton
  * - Memory cache for loaded artwork (LRU cache)
  * - Disk cache for network-loaded and extracted artwork (configurable location)
  * - Automatic bitmap downscaling for widgets/notifications
- * - Support for both MediaItem and MediaItem
+ * - Support for both MediaItem and PlexMediaItem
  * - Async loading with coroutines
  * - MediaMetadataRetriever for audio/video embedded artwork
  * - EPUB cover extraction from OPF manifest
@@ -273,7 +273,7 @@ class ArtworkLoader @Inject constructor(
      * @return Bitmap or null if not available
      */
     suspend fun loadPlexArtwork(
-        plexItem: MediaItem,
+        plexItem: PlexMediaItem,
         plexServerUrl: String,
         plexToken: String,
         maxWidth: Int = 0,

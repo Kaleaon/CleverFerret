@@ -89,7 +89,7 @@ import com.universalmedialibrary.data.Tag
 
         // Plex Integration
         PlexServer::class,
-        MediaItem::class,
+        PlexMediaItem::class,
         PlexProgress::class,
         PlexRating::class,
         PlexCollection::class,

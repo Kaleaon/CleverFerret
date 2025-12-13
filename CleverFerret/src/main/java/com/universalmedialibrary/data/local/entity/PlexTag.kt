@@ -41,7 +41,7 @@ data class PlexTag(
     tableName = "plex_media_tags",
     foreignKeys = [
         ForeignKey(
-            entity = MediaItem::class,
+            entity = PlexMediaItem::class,
             parentColumns = ["id"],
             childColumns = ["plexMediaItemId"],
             onDelete = ForeignKey.CASCADE

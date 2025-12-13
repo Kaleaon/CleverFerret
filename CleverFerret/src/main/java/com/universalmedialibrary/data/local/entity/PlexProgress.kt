@@ -12,7 +12,7 @@ import androidx.room.Index
     tableName = "plex_progress",
     foreignKeys = [
         ForeignKey(
-            entity = MediaItem::class,
+            entity = PlexMediaItem::class,
             parentColumns = ["id"],
             childColumns = ["plexMediaItemId"],
             onDelete = ForeignKey.CASCADE

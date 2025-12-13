@@ -54,7 +54,7 @@ data class PlexCollection(
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = MediaItem::class,
+            entity = PlexMediaItem::class,
             parentColumns = ["id"],
             childColumns = ["plexMediaItemId"],
             onDelete = ForeignKey.CASCADE

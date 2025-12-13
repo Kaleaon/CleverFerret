@@ -12,7 +12,7 @@ import androidx.room.Index
     tableName = "plex_ratings",
     foreignKeys = [
         ForeignKey(
-            entity = MediaItem::class,
+            entity = PlexMediaItem::class,
             parentColumns = ["id"],
             childColumns = ["plexMediaItemId"],
             onDelete = ForeignKey.CASCADE
