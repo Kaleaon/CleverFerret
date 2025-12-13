@@ -21,17 +21,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import com.universalmedialibrary.services.StorageAccessService
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,15 +44,21 @@ fun ImportHistoryScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
     val appContext = context.applicationContext
     val storageService = remember(appContext) {
-        EntryPointAccessors.fromApplication(appContext, ImportSorterEntryPoint::class.java).storageService()
+        EntryPointAccessors.fromApplication(appContext, ImportHistoryEntryPoint::class.java).storageService()
     }
 
     var status by remember { mutableStateOf<String?>(null) }
     var progress by remember { mutableStateOf<String?>(null) }
-    val logs = remember(status) { storageService.listImportLogs(context) }
+    var reloadToken by remember { mutableStateOf(0) }
+    var isUndoing by remember { mutableStateOf(false) }
+    var undoingImportId by remember { mutableStateOf<String?>(null) }
+
+    val logs by produceState(initialValue = emptyList(), key1 = reloadToken) {
+        value = withContext(Dispatchers.IO) { storageService.listImportLogs(context) }
+    }
 
     Scaffold(
         topBar = {
@@ -58,7 +66,7 @@ fun ImportHistoryScreen(
                 title = { Text("Import History") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -77,7 +85,7 @@ fun ImportHistoryScreen(
             if (logs.isEmpty()) {
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(Icons.Default.History, contentDescription = null)
+                        Icon(Icons.Default.History, contentDescription = "Import history")
                         Text("No import logs found yet.")
                     }
                 }
@@ -99,23 +107,38 @@ fun ImportHistoryScreen(
                                 Text(if (log.moveFiles) "Mode: Move" else "Mode: Copy")
 
                                 Button(
-                                    enabled = true,
+                                    enabled = !isUndoing,
                                     onClick = {
                                         status = null
                                         progress = "Undoing ${log.importId}…"
-                                        lifecycleOwner.lifecycleScope.launch {
-                                            val result = storageService.undoImport(
-                                                context = context,
-                                                fileName = log.fileName,
-                                                progressCallback = { msg -> progress = msg }
-                                            )
-                                            progress = null
-                                            status = "Undo complete. Restored: ${result.restoredFiles} (failures: ${result.restoredFailures}). DB removed: ${result.deletedDbItems} (failures: ${result.deletedDbFailures})."
+                                        if (isUndoing) return@Button
+                                        isUndoing = true
+                                        undoingImportId = log.importId
+                                        coroutineScope.launch {
+                                            try {
+                                                val result = storageService.undoImport(
+                                                    context = context,
+                                                    fileName = log.fileName,
+                                                    progressCallback = { msg -> progress = msg }
+                                                )
+                                                status =
+                                                    "Undo complete. Restored: ${result.restoredFiles} (failures: ${result.restoredFailures}). DB removed: ${result.deletedDbItems} (failures: ${result.deletedDbFailures})."
+                                            } catch (e: Exception) {
+                                                status = "Undo failed: ${e.message ?: e.javaClass.simpleName}"
+                                            } finally {
+                                                progress = null
+                                                isUndoing = false
+                                                undoingImportId = null
+                                                reloadToken++
+                                            }
                                         }
                                     }
                                 ) {
-                                    Icon(Icons.Default.Undo, contentDescription = null)
-                                    Text("  Undo")
+                                    Icon(
+                                        Icons.Default.Undo,
+                                        contentDescription = if (undoingImportId == log.importId) "Undoing import" else "Undo import"
+                                    )
+                                    Text(if (undoingImportId == log.importId) "  Undoing…" else "  Undo")
                                 }
                             }
                         }
@@ -124,5 +147,11 @@ fun ImportHistoryScreen(
             }
         }
     }
+}
+
+@dagger.hilt.EntryPoint
+@dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+interface ImportHistoryEntryPoint {
+    fun storageService(): StorageAccessService
 }
 

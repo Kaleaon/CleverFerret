@@ -46,6 +46,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.Serializable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.CancellationException
 
 /**
  * Service for handling Storage Access Framework (SAF) operations
@@ -575,6 +576,7 @@ class StorageAccessService @Inject constructor(
             )
             summary
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             ErrorLogger.logError("StorageAccessService", "Error executing import plan", e)
             runCatching {
                 writeImportLog(
@@ -669,14 +671,16 @@ class StorageAccessService @Inject constructor(
                 ImportOperationStatus.MOVED, ImportOperationStatus.QUARANTINED -> {
                     val parentUri = op.sourceParentUri
                     if (parentUri.isNullOrBlank()) {
-                        // Can't restore location; delete the destination file as best-effort.
-                        runCatching { destDoc.delete() }.onSuccess { restoredFiles++ }.onFailure { restoredFailures++ }
+                        // Can't restore location; do NOT delete (avoid data loss). Report failure and leave file where it is.
+                        restoredFailures++
                         continue
                     }
-                    val parent = DocumentFile.fromTreeUri(context, Uri.parse(parentUri))
-                        ?: DocumentFile.fromSingleUri(context, Uri.parse(parentUri))
+                    // NOTE: sourceParentUri is typically a document URI for the directory, not a tree URI.
+                    val parent = DocumentFile.fromSingleUri(context, Uri.parse(parentUri))
+                        ?: DocumentFile.fromTreeUri(context, Uri.parse(parentUri))
                     if (parent == null || !parent.isDirectory) {
-                        runCatching { destDoc.delete() }.onSuccess { restoredFiles++ }.onFailure { restoredFailures++ }
+                        // Can't restore location; do NOT delete (avoid data loss). Report failure and leave file where it is.
+                        restoredFailures++
                         continue
                     }
                     val name = op.sourceDisplayName.ifBlank { destDoc.name ?: "file" }

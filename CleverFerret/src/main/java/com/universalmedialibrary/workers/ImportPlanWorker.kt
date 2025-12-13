@@ -9,6 +9,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.universalmedialibrary.utils.ErrorLogger
 import com.universalmedialibrary.services.ImportPlan
 import com.universalmedialibrary.services.ImportSortOptions
 import com.universalmedialibrary.services.StorageAccessService
@@ -73,8 +74,12 @@ class ImportPlanWorker(
             },
             checkpointCallback = { idx ->
                 // Store next index to process (resume-friendly)
-                runCatching { stateFile.parentFile?.mkdirs() }
-                runCatching { stateFile.writeText((idx + 1).toString()) }
+                runCatching {
+                    stateFile.parentFile?.mkdirs()
+                    stateFile.writeText((idx + 1).toString())
+                }.onFailure { e ->
+                    ErrorLogger.logWarning("ImportPlanWorker", "Checkpoint save failed at index $idx", e)
+                }
                 setProgressAsync(workDataOf("index" to idx, "total" to plan.items.size))
             }
         )
@@ -82,7 +87,11 @@ class ImportPlanWorker(
         // Cleanup state file after success
         if (result.errors == 0) runCatching { stateFile.delete() }
 
-        if (result.errors > 0) Result.retry() else Result.success()
+        when {
+            result.errors == 0 -> Result.success()
+            runAttemptCount < 3 -> Result.retry()
+            else -> Result.failure(workDataOf("errors" to result.errors))
+        }
     }
 
     private fun createForegroundInfo(contentText: String): ForegroundInfo {
