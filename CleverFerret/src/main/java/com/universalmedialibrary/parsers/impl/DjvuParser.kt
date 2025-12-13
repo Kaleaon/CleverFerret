@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
+import java.util.Locale
 
 /**
  * Parser for DJVU files
@@ -150,7 +151,7 @@ class DjvuParser : DocumentParser {
         
         fileSize?.let { 
             customProperties["fileSize"] = "$it bytes"
-            customProperties["fileSizeMB"] = String.format("%.2f MB", it / (1024.0 * 1024.0))
+            customProperties["fileSizeMB"] = String.format(Locale.US, "%.2f MB", it / (1024.0 * 1024.0))
         }
         
         djvuInfo?.let {

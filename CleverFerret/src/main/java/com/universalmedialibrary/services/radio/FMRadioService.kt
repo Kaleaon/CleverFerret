@@ -203,20 +203,14 @@ class FMRadioService @Inject constructor(
 
     /**
      * Start recording FM audio using MediaRecorder.
-     * Tries to use hardware source (RADIO_TUNER = 1998).
      */
     fun startRecording(outputFile: File): Boolean {
         if (recorder != null) return false
         
         try {
             recorder = MediaRecorder().apply {
-                // Try to use RADIO_TUNER source (1998)
-                try {
-                    setAudioSource(1998) 
-                } catch (e: Exception) {
-                    Log.w(TAG, "RADIO_TUNER source not available, falling back to MIC", e)
-                    setAudioSource(MediaRecorder.AudioSource.MIC)
-                }
+                // Use a supported constant (custom radio tuner sources are not part of the public API).
+                setAudioSource(MediaRecorder.AudioSource.DEFAULT)
                 
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)

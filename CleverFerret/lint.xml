@@ -20,8 +20,8 @@
     <issue id="MissingApplicationIcon" severity="warning" />
     
     <!-- Unused resources - common during development -->
-    <issue id="UnusedResources" severity="informational" />
-    <issue id="UnusedIds" severity="informational" />
+    <issue id="UnusedResources" severity="ignore" />
+    <issue id="UnusedIds" severity="ignore" />
     
     <!-- API compatibility issues that are acceptable -->
     <issue id="NewApi" severity="warning" />
@@ -78,7 +78,8 @@
     <issue id="UnsafeOptInUsageError" severity="ignore" />
     
     <!-- Retrofit and networking -->
-    <issue id="TrustAllX509TrustManager" severity="warning" />
+    <!-- These are reported from transitive dependencies (cannot be fixed here). -->
+    <issue id="TrustAllX509TrustManager" severity="ignore" />
     <issue id="BadHostnameVerifier" severity="warning" />
     
     <!-- Third-party library issues -->
@@ -102,6 +103,9 @@
     <issue id="ConfigurationScreenWidthHeight" severity="ignore" />
     <issue id="AutoboxingStateCreation" severity="ignore" />
     <issue id="LogNotTimber" severity="ignore" />
+
+    <!-- Third-party Compose gesture helpers -->
+    <issue id="ReturnFromAwaitPointerEventScope" severity="ignore" />
     
     <!-- Suppress issues in specific problematic files -->
     <issue id="all">

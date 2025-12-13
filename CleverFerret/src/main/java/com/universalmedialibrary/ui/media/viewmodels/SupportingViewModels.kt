@@ -120,7 +120,7 @@ class OPDSViewModel @Inject constructor() : ViewModel() {
     
     fun navigateBack(): Boolean {
         if (navigationStack.isEmpty()) return false
-        navigationStack.removeLast()
+        navigationStack.removeAt(navigationStack.lastIndex)
         
         if (navigationStack.isEmpty()) {
             loadCatalogs()

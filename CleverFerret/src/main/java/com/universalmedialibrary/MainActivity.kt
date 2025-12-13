@@ -490,6 +490,12 @@ fun AppNavigation(
         composable("settings/organizer") {
             StorageOrganizerScreen(onBack = { navController.navigateUp() })
         }
+        composable("settings/import_sorter") {
+            com.universalmedialibrary.ui.settings.ImportSorterScreen(onBack = { navController.navigateUp() })
+        }
+        composable("settings/import_history") {
+            com.universalmedialibrary.ui.settings.ImportHistoryScreen(onBack = { navController.navigateUp() })
+        }
         composable("settings/playlists") {
             PlaylistSettingsScreen(onBack = { navController.navigateUp() })
         }

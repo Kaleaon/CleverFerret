@@ -1,5 +1,6 @@
 package com.universalmedialibrary.services.radio
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -14,6 +15,7 @@ import java.util.ArrayList
  * This allows the app to compile against standard SDKs while utilizing
  * the RadioManager System API on devices that support it.
  */
+@SuppressLint("PrivateApi")
 class SystemRadioWrapper(private val context: Context) {
 
     private val TAG = "SystemRadioWrapper"

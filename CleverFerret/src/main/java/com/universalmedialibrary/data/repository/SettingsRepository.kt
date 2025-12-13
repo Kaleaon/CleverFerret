@@ -39,6 +39,17 @@ class SettingsRepository @Inject constructor(
         val MINI_PLAYER_BACKGROUND = stringPreferencesKey("mini_player_background")
         val BOTTOM_BAR_CONFIG = stringPreferencesKey("bottom_bar_config")
         val SHOW_DEBUG_BUG_BUTTON = booleanPreferencesKey("show_debug_bug_button")
+        val IMPORT_SORTER_INPUT_URI = stringPreferencesKey("import_sorter_input_uri")
+        val IMPORT_SORTER_OUTPUT_URI = stringPreferencesKey("import_sorter_output_uri")
+        val IMPORT_SORTER_MOVE_FILES = booleanPreferencesKey("import_sorter_move_files")
+        val IMPORT_SORTER_REMOVE_EMPTY = booleanPreferencesKey("import_sorter_remove_empty_folders")
+        val IMPORT_SORTER_REVIEW = booleanPreferencesKey("import_sorter_review_questionable")
+        val IMPORT_SORTER_BACKGROUND = booleanPreferencesKey("import_sorter_run_in_background")
+        val IMPORT_SORTER_CONFLICT = stringPreferencesKey("import_sorter_conflict_strategy")
+        val IMPORT_SORTER_PROFILE = stringPreferencesKey("import_sorter_profile")
+        val IMPORT_SORTER_USE_ONLINE_METADATA = booleanPreferencesKey("import_sorter_use_online_metadata")
+        val IMPORT_SORTER_PREVENT_DUPLICATES = booleanPreferencesKey("import_sorter_prevent_duplicates")
+        val IMPORT_SORTER_DUPLICATE_STRATEGY = stringPreferencesKey("import_sorter_duplicate_strategy")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -114,6 +125,50 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.SHOW_DEBUG_BUG_BUTTON] ?: true // Default to shown in debug builds
     }
 
+    val importSorterInputUriFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_INPUT_URI]
+    }
+
+    val importSorterOutputUriFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_OUTPUT_URI]
+    }
+
+    val importSorterMoveFilesFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_MOVE_FILES] ?: false
+    }
+
+    val importSorterRemoveEmptyFoldersFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_REMOVE_EMPTY] ?: true
+    }
+
+    val importSorterReviewQuestionableFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_REVIEW] ?: true
+    }
+
+    val importSorterRunInBackgroundFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_BACKGROUND] ?: true
+    }
+
+    val importSorterConflictStrategyFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_CONFLICT] ?: "RENAME"
+    }
+
+    val importSorterProfileFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_PROFILE] ?: "DEFAULT"
+    }
+
+    val importSorterUseOnlineMetadataFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_USE_ONLINE_METADATA] ?: false
+    }
+
+    val importSorterPreventDuplicatesFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_PREVENT_DUPLICATES] ?: true
+    }
+
+    val importSorterDuplicateStrategyFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.IMPORT_SORTER_DUPLICATE_STRATEGY] ?: "SKIP"
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -187,6 +242,74 @@ class SettingsRepository @Inject constructor(
     suspend fun setShowDebugBugButton(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_DEBUG_BUG_BUTTON] = enabled
+        }
+    }
+
+    suspend fun setImportSorterInputUri(uri: String?) {
+        context.dataStore.edit { preferences ->
+            if (uri.isNullOrBlank()) preferences.remove(PreferencesKeys.IMPORT_SORTER_INPUT_URI)
+            else preferences[PreferencesKeys.IMPORT_SORTER_INPUT_URI] = uri
+        }
+    }
+
+    suspend fun setImportSorterOutputUri(uri: String?) {
+        context.dataStore.edit { preferences ->
+            if (uri.isNullOrBlank()) preferences.remove(PreferencesKeys.IMPORT_SORTER_OUTPUT_URI)
+            else preferences[PreferencesKeys.IMPORT_SORTER_OUTPUT_URI] = uri
+        }
+    }
+
+    suspend fun setImportSorterMoveFiles(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_MOVE_FILES] = enabled
+        }
+    }
+
+    suspend fun setImportSorterRemoveEmptyFolders(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_REMOVE_EMPTY] = enabled
+        }
+    }
+
+    suspend fun setImportSorterReviewQuestionable(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_REVIEW] = enabled
+        }
+    }
+
+    suspend fun setImportSorterRunInBackground(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_BACKGROUND] = enabled
+        }
+    }
+
+    suspend fun setImportSorterConflictStrategy(strategy: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_CONFLICT] = strategy
+        }
+    }
+
+    suspend fun setImportSorterProfile(profile: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_PROFILE] = profile
+        }
+    }
+
+    suspend fun setImportSorterUseOnlineMetadata(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_USE_ONLINE_METADATA] = enabled
+        }
+    }
+
+    suspend fun setImportSorterPreventDuplicates(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_PREVENT_DUPLICATES] = enabled
+        }
+    }
+
+    suspend fun setImportSorterDuplicateStrategy(strategy: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.IMPORT_SORTER_DUPLICATE_STRATEGY] = strategy
         }
     }
 }
