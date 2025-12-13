@@ -256,6 +256,46 @@ fun SettingsScreen(
                     }
                 }
 
+                // Library & Storage Section
+                item {
+                    MetallicText(
+                        text = "Library & Storage",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/import_sorter") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Import Sorter (Input → Output)",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Scan an input folder and sort everything into an output folder with subfolders + metadata.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.FolderCopy,
+                                contentDescription = "Import Sorter"
+                            )
+                        }
+                    }
+                }
+
                   // Navigation Section
                   item {
                       MetallicText(
