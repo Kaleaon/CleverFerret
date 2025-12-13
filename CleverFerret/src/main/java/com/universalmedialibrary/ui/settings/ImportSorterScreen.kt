@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FolderOpen
@@ -18,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -34,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.universalmedialibrary.services.ImportSortOptions
+import com.universalmedialibrary.services.ImportPlan
+import com.universalmedialibrary.services.ImportPlanItem
 import com.universalmedialibrary.services.StorageAccessService
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
@@ -54,8 +59,12 @@ fun ImportSorterScreen(
     var outputUri by remember { mutableStateOf<Uri?>(null) }
     var moveFiles by remember { mutableStateOf(false) }
     var removeEmptyFolders by remember { mutableStateOf(true) }
+    var reviewQuestionable by remember { mutableStateOf(true) }
     var progress by remember { mutableStateOf("") }
     var summary by remember { mutableStateOf<String?>(null) }
+    var plan by remember { mutableStateOf<ImportPlan?>(null) }
+    var editableItems by remember { mutableStateOf<List<ImportPlanItem>>(emptyList()) }
+    var inReview by remember { mutableStateOf(false) }
 
     val inputPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
@@ -82,6 +91,118 @@ fun ImportSorterScreen(
             )
         }
     ) { paddingValues ->
+        if (inReview && plan != null) {
+            // Review UI for questionable items (and edits apply to all items)
+            val p = plan!!
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text("Review Import (${editableItems.count { it.isQuestionable }} flagged)") },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                inReview = false
+                                plan = null
+                                editableItems = emptyList()
+                            }) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                            }
+                        }
+                    )
+                }
+            ) { inner ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(inner)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("Only items with low confidence are flagged. Edit title/author/series to prevent mis-grouping (e.g., one-off Tintin/Asterix issues).")
+
+                    Button(
+                        onClick = {
+                            progress = "Starting…"
+                            summary = null
+                            lifecycleOwner.lifecycleScope.launch {
+                                val execPlan = p.copy(items = editableItems)
+                                val result = storageService.executeImportPlan(
+                                    context = context,
+                                    plan = execPlan,
+                                    options = ImportSortOptions(
+                                        moveFiles = moveFiles,
+                                        removeEmptyFolders = removeEmptyFolders
+                                    ),
+                                    progressCallback = { msg -> progress = msg }
+                                )
+                                summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}, Empty folders removed: ${result.deletedFolders}"
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        Text("  Approve & Import")
+                    }
+
+                    if (progress.isNotBlank()) Text(progress)
+                    summary?.let { Text(it) }
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        itemsIndexed(editableItems) { index, item ->
+                            if (!item.isQuestionable) return@itemsIndexed
+                            Card(modifier = Modifier.fillMaxWidth()) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(item.sourceDisplayName)
+                                    if (item.reasons.isNotEmpty()) {
+                                        Text("Flags: ${item.reasons.joinToString("; ")}")
+                                    }
+                                    OutlinedTextField(
+                                        value = item.title,
+                                        onValueChange = { new ->
+                                            editableItems = editableItems.toMutableList().also { list ->
+                                                list[index] = list[index].copy(title = new)
+                                            }
+                                        },
+                                        label = { Text("Title") },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    OutlinedTextField(
+                                        value = item.authorOrArtist ?: "",
+                                        onValueChange = { new ->
+                                            editableItems = editableItems.toMutableList().also { list ->
+                                                list[index] = list[index].copy(authorOrArtist = new.ifBlank { null })
+                                            }
+                                        },
+                                        label = { Text("Author / Creator") },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    OutlinedTextField(
+                                        value = item.series ?: "",
+                                        onValueChange = { new ->
+                                            editableItems = editableItems.toMutableList().also { list ->
+                                                val updated = list[index].copy(series = new.ifBlank { null })
+                                                // If user clears series for comics, keep comics at root to avoid collection folder.
+                                                list[index] = if (updated.mediaType == "COMIC" && updated.series.isNullOrBlank()) {
+                                                    updated.copy(destSegments = listOf("Comics"))
+                                                } else updated
+                                            }
+                                        },
+                                        label = { Text("Series (optional)") },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return@Scaffold
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -122,6 +243,14 @@ fun ImportSorterScreen(
                         )
                     }
 
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Review questionable items before import")
+                        Switch(
+                            checked = reviewQuestionable,
+                            onCheckedChange = { reviewQuestionable = it }
+                        )
+                    }
+
                     Button(
                         enabled = inputUri != null && outputUri != null,
                         onClick = {
@@ -130,17 +259,33 @@ fun ImportSorterScreen(
                             progress = "Starting…"
                             summary = null
                             lifecycleOwner.lifecycleScope.launch {
-                                val result = storageService.importFromInputToOutput(
-                                    context = context,
-                                    inputTreeUri = inUri,
-                                    outputTreeUri = outUri,
-                                    options = ImportSortOptions(
-                                        moveFiles = moveFiles,
-                                        removeEmptyFolders = removeEmptyFolders
-                                    ),
-                                    progressCallback = { msg -> progress = msg }
-                                )
-                                summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}, Empty folders removed: ${result.deletedFolders}"
+                                if (reviewQuestionable) {
+                                    val built = storageService.buildImportPlan(
+                                        context = context,
+                                        inputTreeUri = inUri,
+                                        outputTreeUri = outUri,
+                                        options = ImportSortOptions(
+                                            moveFiles = moveFiles,
+                                            removeEmptyFolders = removeEmptyFolders
+                                        ),
+                                        progressCallback = { msg -> progress = msg }
+                                    )
+                                    plan = built
+                                    editableItems = built.items
+                                    inReview = true
+                                } else {
+                                    val result = storageService.importFromInputToOutput(
+                                        context = context,
+                                        inputTreeUri = inUri,
+                                        outputTreeUri = outUri,
+                                        options = ImportSortOptions(
+                                            moveFiles = moveFiles,
+                                            removeEmptyFolders = removeEmptyFolders
+                                        ),
+                                        progressCallback = { msg -> progress = msg }
+                                    )
+                                    summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}, Empty folders removed: ${result.deletedFolders}"
+                                }
                             }
                         }
                     ) {

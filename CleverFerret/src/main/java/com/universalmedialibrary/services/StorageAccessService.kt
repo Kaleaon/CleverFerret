@@ -177,6 +177,203 @@ class StorageAccessService @Inject constructor(
         }
     }
 
+    /**
+     * Build an import plan that can be manually reviewed/edited before execution.
+     * This does not write any files.
+     */
+    suspend fun buildImportPlan(
+        context: Context,
+        inputTreeUri: Uri,
+        outputTreeUri: Uri,
+        options: ImportSortOptions = ImportSortOptions(),
+        progressCallback: (String) -> Unit = {}
+    ): ImportPlan = withContext(Dispatchers.IO) {
+        try {
+            val inputRoot = DocumentFile.fromTreeUri(context, inputTreeUri)
+                ?: return@withContext ImportPlan(
+                    inputTreeUri = inputTreeUri.toString(),
+                    outputTreeUri = outputTreeUri.toString(),
+                    items = emptyList()
+                )
+            progressCallback("Scanning input…")
+            val rawItems = mutableListOf<ImportPlanItem>()
+            buildPlanRecursively(context, inputRoot, rawItems, progressCallback)
+
+            // Post-pass: detect "singletons" for comics series to avoid accidental collection grouping.
+            val comicSeriesCounts = rawItems
+                .filter { it.mediaType == "COMIC" }
+                .mapNotNull { it.series?.takeIf { s -> s.isNotBlank() } }
+                .groupingBy { it }
+                .eachCount()
+
+            val adjusted = rawItems.map { item ->
+                if (item.mediaType == "COMIC" && !item.series.isNullOrBlank()) {
+                    val count = comicSeriesCounts[item.series] ?: 0
+                    if (count <= 1) {
+                        item.copy(
+                            destSegments = listOf("Comics"),
+                            reasons = (item.reasons + "Comic series appears only once (avoid accidental collection folder)"),
+                            confidence = minOf(item.confidence, 0.55f)
+                        )
+                    } else item
+                } else item
+            }
+
+            ImportPlan(
+                inputTreeUri = inputTreeUri.toString(),
+                outputTreeUri = outputTreeUri.toString(),
+                items = adjusted
+            )
+        } catch (e: Exception) {
+            ErrorLogger.logError("StorageAccessService", "Error building import plan", e)
+            ImportPlan(
+                inputTreeUri = inputTreeUri.toString(),
+                outputTreeUri = outputTreeUri.toString(),
+                items = emptyList()
+            )
+        }
+    }
+
+    /**
+     * Execute a previously-built (and optionally edited) import plan.
+     */
+    suspend fun executeImportPlan(
+        context: Context,
+        plan: ImportPlan,
+        options: ImportSortOptions = ImportSortOptions(),
+        progressCallback: (String) -> Unit = {}
+    ): ImportSortSummary = withContext(Dispatchers.IO) {
+        var summary = ImportSortSummary()
+        try {
+            val outputRoot = DocumentFile.fromTreeUri(context, Uri.parse(plan.outputTreeUri))
+                ?: return@withContext summary.copy(errors = summary.errors + 1)
+
+            for ((index, item) in plan.items.withIndex()) {
+                progressCallback("Importing (${index + 1}/${plan.items.size}): ${item.sourceDisplayName}")
+                val srcDoc = DocumentFile.fromSingleUri(context, Uri.parse(item.sourceUri))
+                if (srcDoc == null || !srcDoc.isFile) {
+                    summary = summary.copy(errors = summary.errors + 1)
+                    continue
+                }
+
+                val destDir = getOrCreateNestedDirs(context, outputRoot, item.destSegments)
+                val copied = copyDocumentFile(context, srcDoc, destDir, item.outputFileName)
+                if (copied == null || !copied.isFile) {
+                    summary = summary.copy(errors = summary.errors + 1)
+                    continue
+                }
+
+                if (options.moveFiles) {
+                    runCatching { srcDoc.delete() }
+                }
+
+                summary = summary.copy(imported = summary.imported + 1)
+
+                // Insert into DB (avoid duplicates by destination URI)
+                val destUriStr = copied.uri.toString()
+                val existing = mediaItemDao.getItemByPath(destUriStr)
+                if (existing != null) {
+                    summary = summary.copy(skipped = summary.skipped + 1)
+                    continue
+                }
+
+                val library = getOrCreateLibraryForType(
+                    rootName = outputRoot.name ?: "Output",
+                    rootPath = plan.outputTreeUri,
+                    type = item.mediaType
+                )
+
+                val mediaItem = MediaItem(
+                    libraryId = library.libraryId,
+                    filePath = destUriStr,
+                    fileName = copied.name ?: item.outputFileName,
+                    fileExtension = (copied.name ?: item.outputFileName).substringAfterLast('.', "").lowercase(),
+                    fileSize = copied.length(),
+                    fileHash = null,
+                    dateAdded = System.currentTimeMillis(),
+                    lastScanned = System.currentTimeMillis(),
+                    lastModified = copied.lastModified(),
+                    mediaType = item.mediaType,
+                    mimeType = copied.type,
+                    isAvailable = true,
+                    hasMetadata = true,
+                    hasThumbnail = false,
+                    thumbnailPath = null
+                )
+                val itemId = mediaItemDao.insertMediaItem(mediaItem)
+
+                val common = MetadataCommon(
+                    itemId = itemId,
+                    title = item.title,
+                    sortTitle = null,
+                    originalTitle = null,
+                    year = null,
+                    releaseDate = null,
+                    rating = null,
+                    userRating = null,
+                    communityRating = null,
+                    summary = null,
+                    plot = null,
+                    tagline = null,
+                    coverImagePath = null,
+                    backdropImagePath = null,
+                    language = null,
+                    country = null,
+                    lastUpdated = System.currentTimeMillis(),
+                    metadataSource = item.metadataSource,
+                    externalId = null
+                )
+                metadataDao.insertCommonMetadata(common)
+
+                if (!item.authorOrArtist.isNullOrBlank() && item.mediaType in setOf("BOOK", "COMIC")) {
+                    val person = People(personId = 0, name = item.authorOrArtist, sortName = item.authorOrArtist)
+                    val personId = metadataDao.findPersonByName(item.authorOrArtist) ?: metadataDao.insertPerson(person)
+                    metadataDao.insertItemPersonRole(ItemPersonRole(itemId = itemId, personId = personId, role = "AUTHOR"))
+                }
+
+                if (item.mediaType == "BOOK") {
+                    val ext = item.outputFileName.substringAfterLast('.', "").uppercase()
+                    val seriesId = if (!item.series.isNullOrBlank()) {
+                        metadataDao.findSeriesByName(item.series)
+                            ?: metadataDao.insertSeries(Series(seriesId = 0, name = item.series, mediaType = "BOOK"))
+                    } else null
+                    metadataDao.insertMetadataBook(
+                        MetadataBook(
+                            itemId = itemId,
+                            series = seriesId?.toString(),
+                            format = ext
+                        )
+                    )
+                }
+
+                if (item.mediaType == "MUSIC") {
+                    metadataDao.insertMetadataMusicTrack(
+                        MetadataMusicTrack(
+                            itemId = itemId,
+                            album = item.album,
+                            artist = item.authorOrArtist,
+                            trackNumber = item.trackNumber,
+                            duration = item.durationMs
+                        )
+                    )
+                }
+            }
+
+            if (options.moveFiles && options.removeEmptyFolders) {
+                val inputRoot = DocumentFile.fromTreeUri(context, Uri.parse(plan.inputTreeUri))
+                if (inputRoot != null) {
+                    progressCallback("Removing empty folders…")
+                    val deleted = deleteEmptyDirectories(inputRoot, isRoot = true, progressCallback = progressCallback)
+                    summary = summary.copy(deletedFolders = summary.deletedFolders + deleted)
+                }
+            }
+            summary
+        } catch (e: Exception) {
+            ErrorLogger.logError("StorageAccessService", "Error executing import plan", e)
+            summary.copy(errors = summary.errors + 1)
+        }
+    }
+
     private fun getOrCreateChildDir(context: Context, parent: DocumentFile, name: String): DocumentFile {
         parent.listFiles().firstOrNull { it.isDirectory && it.name == name }?.let { return it }
         return parent.createDirectory(name) ?: parent
@@ -994,6 +1191,105 @@ class StorageAccessService @Inject constructor(
             ErrorLogger.logError("StorageAccessService", "Error releasing URI permission", e)
         }
     }
+
+    private fun buildPlanRecursively(
+        context: Context,
+        input: DocumentFile,
+        out: MutableList<ImportPlanItem>,
+        progressCallback: (String) -> Unit
+    ) {
+        if (!input.isDirectory) return
+        input.listFiles().forEach { child ->
+            if (child.isDirectory) {
+                buildPlanRecursively(context, child, out, progressCallback)
+                return@forEach
+            }
+            if (!child.isFile) return@forEach
+            val srcName = child.name ?: return@forEach
+            val mediaType = determineMediaTypeName(srcName)
+
+            val (derived, metadataSource, confidenceBase) = when (mediaType) {
+                "MUSIC" -> Triple(deriveMetadataForAudio(context, child.uri, srcName), "AUDIO_TAGS", 0.9f)
+                "BOOK" -> {
+                    val byExt = if (srcName.lowercase().endsWith(".epub")) "EPUB_OPF" else if (srcName.lowercase().endsWith(".pdf")) "PDF_INFO" else "FILENAME"
+                    val d = deriveMetadataForBook(context, child.uri, srcName)
+                    val conf = when (byExt) {
+                        "EPUB_OPF" -> if (d.authorOrArtist != null || d.title.isNotBlank()) 0.85f else 0.55f
+                        "PDF_INFO" -> if (d.authorOrArtist != null) 0.75f else 0.55f
+                        else -> 0.55f
+                    }
+                    Triple(d, byExt, conf)
+                }
+                "COMIC" -> {
+                    val cbz = srcName.lowercase().endsWith(".cbz")
+                    val d = if (cbz) deriveMetadataForCbz(context, child.uri, srcName) else deriveMetadataFromName(srcName)
+                    Triple(d, if (cbz) "COMICINFO" else "FILENAME", if (cbz) 0.8f else 0.55f)
+                }
+                else -> Triple(deriveMetadataFromName(srcName), "FILENAME", 0.55f)
+            }
+
+            val reasons = mutableListOf<String>()
+            var confidence = confidenceBase
+
+            if (derived.title.replace(" ", "").length >= 18 && !derived.title.contains(" ")) {
+                reasons += "Title has no spaces (may need manual spacing)"
+                confidence = minOf(confidence, 0.5f)
+            }
+            if ((mediaType == "BOOK" || mediaType == "COMIC") && derived.authorOrArtist.isNullOrBlank()) {
+                reasons += "Missing author/creator"
+                confidence = minOf(confidence, 0.55f)
+            }
+            if (metadataSource == "FILENAME") {
+                reasons += "Derived from filename"
+                confidence = minOf(confidence, 0.55f)
+            }
+
+            val ext = srcName.substringAfterLast('.', "").lowercase()
+            val safeTitle = fileNameSanitizer.sanitizeFileNamePermissive(derived.title).ifBlank { "Unknown" }
+            val safeAuthor = derived.authorOrArtist?.let { fileNameSanitizer.sanitizeFileNamePermissive(it).ifBlank { "Unknown" } }
+            val safeAlbum = derived.album?.let { fileNameSanitizer.sanitizeFileNamePermissive(it).ifBlank { "Unknown" } }
+            val safeSeries = derived.series?.let { fileNameSanitizer.sanitizeFileNamePermissive(it).ifBlank { "Unknown" } }
+
+            val (destSegments, outputFileName) = when (mediaType) {
+                "BOOK" -> {
+                    val segments = buildList {
+                        add("Books")
+                        add(safeAuthor ?: "Unknown Author")
+                        safeSeries?.let { add(it) }
+                    }
+                    val name = "${safeTitle}.${ext.ifBlank { "bin" }}"
+                    segments to name
+                }
+                "MUSIC" -> {
+                    val segments = listOf("Music", safeAuthor ?: "Unknown Artist", safeAlbum ?: "Unknown Album")
+                    val prefix = derived.trackNumber?.let { tn -> tn.coerceAtLeast(0).toString().padStart(2, '0') + " - " } ?: ""
+                    val name = "${prefix}${safeTitle}.${ext.ifBlank { "bin" }}"
+                    segments to name
+                }
+                "MOVIE" -> listOf("Movies", safeTitle) to srcName
+                "COMIC" -> listOf("Comics", safeSeries ?: "Unknown Series") to srcName
+                "DOCUMENT" -> listOf("Documents", ext.ifBlank { "unknown" }.uppercase()) to srcName
+                else -> listOf("Other") to srcName
+            }
+
+            out += ImportPlanItem(
+                sourceUri = child.uri.toString(),
+                sourceDisplayName = srcName,
+                mediaType = mediaType,
+                title = derived.title,
+                authorOrArtist = derived.authorOrArtist,
+                album = derived.album,
+                series = derived.series,
+                trackNumber = derived.trackNumber,
+                durationMs = derived.durationMs,
+                metadataSource = metadataSource,
+                confidence = confidence,
+                reasons = reasons,
+                destSegments = destSegments,
+                outputFileName = outputFileName
+            )
+        }
+    }
 }
 
 data class ImportSortOptions(
@@ -1008,3 +1304,29 @@ data class ImportSortSummary(
     val errors: Int = 0,
     val deletedFolders: Int = 0
 )
+
+data class ImportPlan(
+    val inputTreeUri: String,
+    val outputTreeUri: String,
+    val items: List<ImportPlanItem>
+)
+
+data class ImportPlanItem(
+    val sourceUri: String,
+    val sourceDisplayName: String,
+    val mediaType: String,
+    val title: String,
+    val authorOrArtist: String? = null,
+    val album: String? = null,
+    val series: String? = null,
+    val trackNumber: Int? = null,
+    val durationMs: Long? = null,
+    val metadataSource: String? = null,
+    val confidence: Float = 0.5f,
+    val reasons: List<String> = emptyList(),
+    val destSegments: List<String>,
+    val outputFileName: String
+) {
+    val isQuestionable: Boolean
+        get() = confidence < 0.7f || reasons.isNotEmpty()
+}
