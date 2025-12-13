@@ -53,6 +53,7 @@ fun ImportSorterScreen(
     var inputUri by remember { mutableStateOf<Uri?>(null) }
     var outputUri by remember { mutableStateOf<Uri?>(null) }
     var moveFiles by remember { mutableStateOf(false) }
+    var removeEmptyFolders by remember { mutableStateOf(true) }
     var progress by remember { mutableStateOf("") }
     var summary by remember { mutableStateOf<String?>(null) }
 
@@ -113,6 +114,14 @@ fun ImportSorterScreen(
                         Switch(checked = moveFiles, onCheckedChange = { moveFiles = it })
                     }
 
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Remove empty folders (after move)")
+                        Switch(
+                            checked = removeEmptyFolders,
+                            onCheckedChange = { removeEmptyFolders = it }
+                        )
+                    }
+
                     Button(
                         enabled = inputUri != null && outputUri != null,
                         onClick = {
@@ -125,10 +134,13 @@ fun ImportSorterScreen(
                                     context = context,
                                     inputTreeUri = inUri,
                                     outputTreeUri = outUri,
-                                    options = ImportSortOptions(moveFiles = moveFiles),
+                                    options = ImportSortOptions(
+                                        moveFiles = moveFiles,
+                                        removeEmptyFolders = removeEmptyFolders
+                                    ),
                                     progressCallback = { msg -> progress = msg }
                                 )
-                                summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}"
+                                summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}, Empty folders removed: ${result.deletedFolders}"
                             }
                         }
                     ) {
