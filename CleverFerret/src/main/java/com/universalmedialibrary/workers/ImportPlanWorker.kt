@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -46,7 +47,30 @@ class ImportPlanWorker(
         val optionsJson = inputData.getString(KEY_OPTIONS_JSON) ?: return@withContext Result.failure()
         val stateFileName = inputData.getString(KEY_STATE_FILE) ?: "import_state_${id}.txt"
 
-        val planFile = File(File(applicationContext.filesDir, "import_plans"), planFileName)
+        val plansDir = File(applicationContext.filesDir, "import_plans")
+
+        fun isSafeFileName(name: String): Boolean {
+            val safe = Regex("^[A-Za-z0-9._-]+$")
+            return safe.matches(name) && !name.contains("..")
+        }
+
+        if (!isSafeFileName(planFileName) || !isSafeFileName(stateFileName)) {
+            ErrorLogger.logWarning("ImportPlanWorker", "Invalid plan/state file name", null)
+            return@withContext Result.failure()
+        }
+
+        fun File.isUnder(dir: File): Boolean =
+            runCatching {
+                canonicalFile.path.startsWith(dir.canonicalFile.path + File.separator)
+            }.getOrDefault(false)
+
+        val planFile = File(plansDir, planFileName)
+        val stateFile = File(plansDir, stateFileName)
+
+        if (!planFile.isUnder(plansDir) || !stateFile.isUnder(plansDir)) {
+            ErrorLogger.logWarning("ImportPlanWorker", "Invalid plan/state file path", null)
+            return@withContext Result.failure()
+        }
         if (!planFile.exists()) return@withContext Result.failure()
 
         val plan = runCatching { json.decodeFromString<ImportPlan>(planFile.readText()) }.getOrNull()
@@ -54,7 +78,6 @@ class ImportPlanWorker(
         val options = runCatching { json.decodeFromString<ImportSortOptions>(optionsJson) }.getOrNull()
             ?: return@withContext Result.failure()
 
-        val stateFile = File(File(applicationContext.filesDir, "import_plans"), stateFileName)
         val startIndex = runCatching { stateFile.readText().trim().toInt() }.getOrNull()?.coerceAtLeast(0) ?: 0
 
         setForeground(createForegroundInfo("Starting import…"))
@@ -64,13 +87,21 @@ class ImportPlanWorker(
             ImportWorkerEntryPoint::class.java
         ).storageService()
 
+        var lastForegroundUpdateMs = 0L
+        var lastForegroundMsg: String? = null
+
         val result = storageService.executeImportPlanAdvanced(
             context = applicationContext,
             plan = plan,
             options = options,
             startIndex = startIndex,
             progressCallback = { msg ->
-                setForegroundAsync(createForegroundInfo(msg))
+                val now = SystemClock.elapsedRealtime()
+                if (msg != lastForegroundMsg && (now - lastForegroundUpdateMs) >= 400) {
+                    lastForegroundMsg = msg
+                    lastForegroundUpdateMs = now
+                    setForegroundAsync(createForegroundInfo(msg))
+                }
             },
             checkpointCallback = { idx ->
                 // Store next index to process (resume-friendly)
@@ -106,7 +137,6 @@ class ImportPlanWorker(
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel = NotificationChannel(
             CHANNEL_ID,

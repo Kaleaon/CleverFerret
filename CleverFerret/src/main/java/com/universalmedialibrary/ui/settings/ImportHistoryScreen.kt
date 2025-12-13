@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.universalmedialibrary.services.StorageAccessService
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,7 @@ fun ImportHistoryScreen(
     var reloadToken by remember { mutableStateOf(0) }
     var isUndoing by remember { mutableStateOf(false) }
     var undoingImportId by remember { mutableStateOf<String?>(null) }
+    val df = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
 
     val logs by produceState(initialValue = emptyList(), key1 = reloadToken) {
         value = withContext(Dispatchers.IO) { storageService.listImportLogs(context) }
@@ -100,7 +102,6 @@ fun ImportHistoryScreen(
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                val df = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
                                 Text("Import ${log.importId}")
                                 Text("Started: ${df.format(Date(log.startedAt))}")
                                 Text("Ops: ${log.operationCount}, Failed: ${log.failedCount}")
@@ -114,12 +115,15 @@ fun ImportHistoryScreen(
                                         if (isUndoing) return@Button
                                         isUndoing = true
                                         undoingImportId = log.importId
+                                        val mainExecutor = ContextCompat.getMainExecutor(appContext)
                                         coroutineScope.launch {
                                             try {
                                                 val result = storageService.undoImport(
                                                     context = context,
                                                     fileName = log.fileName,
-                                                    progressCallback = { msg -> progress = msg }
+                                                    progressCallback = { msg ->
+                                                        mainExecutor.execute { progress = msg }
+                                                    }
                                                 )
                                                 status =
                                                     "Undo complete. Restored: ${result.restoredFiles} (failures: ${result.restoredFailures}). DB removed: ${result.deletedDbItems} (failures: ${result.deletedDbFailures})."

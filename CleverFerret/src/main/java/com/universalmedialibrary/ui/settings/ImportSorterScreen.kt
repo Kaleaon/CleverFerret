@@ -130,7 +130,7 @@ fun ImportSorterScreen(
                     Button(
                         onClick = {
                             viewModel.approveAndExecute(
-                                context = context,
+                                context = appContext,
                                 moveFiles = moveFiles,
                                 removeEmptyFolders = removeEmptyFolders,
                                 runInBackground = runInBackground,
@@ -150,9 +150,10 @@ fun ImportSorterScreen(
                     runtime.summary?.let { Text(it) }
 
                     Button(
+                        enabled = runtime.backgroundStatus != null,
                         onClick = {
                             // Cancel background import (WorkManager tag)
-                            androidx.work.WorkManager.getInstance(context).cancelAllWorkByTag("import_sorter")
+                            androidx.work.WorkManager.getInstance(appContext).cancelAllWorkByTag("import_sorter")
                         }
                     ) {
                         Text("Cancel background import")
@@ -228,7 +229,9 @@ fun ImportSorterScreen(
                                     OutlinedTextField(
                                         value = item.destSegments.joinToString("/"),
                                         onValueChange = { new ->
-                                            val segs = new.split("/").map { it.trim() }.filter { it.isNotBlank() }
+                                            val segs = new.split("/")
+                                                .map { it.trim() }
+                                                .filter { it.isNotBlank() && it != "." && it != ".." }
                                             viewModel.updateEditableItem(
                                                 index,
                                                 item.copy(destSegments = if (segs.isEmpty()) listOf("Other") else segs)
@@ -379,7 +382,7 @@ fun ImportSorterScreen(
                             val inUri = inputUri ?: return@Button
                             val outUri = outputUri ?: return@Button
                             viewModel.scanOrBuildPlan(
-                                context = context,
+                                context = appContext,
                                 inputTreeUri = inUri,
                                 outputTreeUri = outUri,
                                 options = ImportSortOptions(

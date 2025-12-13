@@ -20,14 +20,17 @@ import com.universalmedialibrary.services.metadata.sources.EnhancedMetadata
 import com.universalmedialibrary.utils.ErrorLogger
 import com.universalmedialibrary.workers.ImportPlanWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -83,8 +86,7 @@ class ImportSorterViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ImportSorterPrefsState())
 
     private val _runtimeState = MutableStateFlow(ImportSorterRuntimeState())
-    val runtimeState: StateFlow<ImportSorterRuntimeState> =
-        _runtimeState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ImportSorterRuntimeState())
+    val runtimeState: StateFlow<ImportSorterRuntimeState> = _runtimeState.asStateFlow()
 
     private val onlineFetchJobsBySourceUri = mutableMapOf<String, Job>()
 
@@ -191,9 +193,11 @@ class ImportSorterViewModel @Inject constructor(
                 )
                 if (runInBackground) {
                     val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
-                    val dir = File(context.filesDir, "import_plans").apply { mkdirs() }
                     val planName = "plan_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.json"
-                    File(dir, planName).writeText(json.encodeToString(execPlan))
+                    withContext(Dispatchers.IO) {
+                        val dir = File(context.filesDir, "import_plans").apply { mkdirs() }
+                        File(dir, planName).writeText(json.encodeToString(execPlan))
+                    }
 
                     val request = OneTimeWorkRequestBuilder<ImportPlanWorker>()
                         .addTag("import_sorter")

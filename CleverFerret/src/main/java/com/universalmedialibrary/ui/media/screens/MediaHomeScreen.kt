@@ -48,6 +48,9 @@ fun MediaHomeScreen(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberLazyListState()
+    val showFloatingTopBar by remember {
+        derivedStateOf { scrollState.firstVisibleItemIndex > 0 }
+    }
     val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
     val coroutineScope = rememberCoroutineScope()
     
@@ -259,7 +262,7 @@ fun MediaHomeScreen(
         
         // Floating Top Bar (fades in on scroll)
         AnimatedVisibility(
-            visible = scrollState.firstVisibleItemIndex > 0,
+            visible = showFloatingTopBar,
             enter = fadeIn() + slideInVertically(),
             exit = fadeOut() + slideOutVertically(),
             modifier = Modifier.align(Alignment.TopCenter)

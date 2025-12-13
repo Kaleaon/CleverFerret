@@ -509,7 +509,7 @@ class StorageAccessService @Inject constructor(
                 }
 
                 if (item.mediaType == "BOOK") {
-                    val ext = item.outputFileName.substringAfterLast('.', "").uppercase()
+                    val ext = item.outputFileName.substringAfterLast('.', "").uppercase(Locale.ROOT)
                     val seriesId = if (!item.series.isNullOrBlank()) {
                         metadataDao.findSeriesByName(item.series)
                             ?: metadataDao.insertSeries(Series(seriesId = 0, name = item.series, mediaType = "BOOK"))
@@ -1407,7 +1407,7 @@ class StorageAccessService @Inject constructor(
                 }
                 "MOVIE" -> listOf("Movies", safeTitle) to srcName
                 "COMIC" -> listOf("Comics", safeSeries ?: "Unknown Series") to srcName
-                "DOCUMENT" -> listOf("Documents", ext.ifBlank { "unknown" }.uppercase()) to srcName
+                "DOCUMENT" -> listOf("Documents", ext.ifBlank { "unknown" }.uppercase(Locale.ROOT)) to srcName
                 else -> listOf("Other") to srcName
             }
 
@@ -1546,14 +1546,14 @@ class StorageAccessService @Inject constructor(
                         MetadataBook(
                             itemId = itemId,
                             series = seriesId.toString(),
-                            format = ext.uppercase()
+                            format = ext.uppercase(Locale.ROOT)
                         )
                     )
                 } else if (mediaType == "BOOK") {
                     metadataDao.insertMetadataBook(
                         MetadataBook(
                             itemId = itemId,
-                            format = ext.uppercase()
+                            format = ext.uppercase(Locale.ROOT)
                         )
                     )
                 }
@@ -1730,7 +1730,7 @@ class StorageAccessService @Inject constructor(
                     }
                     segments to srcName
                 }
-                "DOCUMENT" -> listOf("Documents", ext.ifBlank { "unknown" }.uppercase()) to srcName
+                "DOCUMENT" -> listOf("Documents", ext.ifBlank { "unknown" }.uppercase(Locale.ROOT)) to srcName
                 else -> listOf("Other") to srcName
             }
 
