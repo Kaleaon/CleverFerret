@@ -21,15 +21,31 @@ import com.universalmedialibrary.data.local.entity.ItemPersonRole
 import com.universalmedialibrary.data.local.entity.MetadataBook
 import com.universalmedialibrary.data.local.entity.Series
 import com.universalmedialibrary.utils.ComicInfoParser
+import com.universalmedialibrary.utils.ComicArchiveUtils
 import com.universalmedialibrary.utils.FileNameSanitizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
 import java.io.ByteArrayOutputStream
+import java.security.MessageDigest
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.zip.ZipInputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.universalmedialibrary.utils.ErrorLogger
+import com.universalmedialibrary.services.importer.ImportLogInfo
+import com.universalmedialibrary.services.importer.ImportOperationLog
+import com.universalmedialibrary.services.importer.ImportOperationStatus
+import com.universalmedialibrary.services.importer.ImportTransactionLog
+import com.universalmedialibrary.services.importer.UndoSummary
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.Serializable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 
 /**
  * Service for handling Storage Access Framework (SAF) operations
@@ -42,6 +58,10 @@ class StorageAccessService @Inject constructor(
     private val metadataDao: MetadataDao,
     private val fileNameSanitizer: FileNameSanitizer
 ) {
+    private val importLogJson = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
 
     companion object {
         const val REQUEST_CODE_OPEN_DIRECTORY = 1001
@@ -197,7 +217,7 @@ class StorageAccessService @Inject constructor(
                 )
             progressCallback("Scanning input…")
             val rawItems = mutableListOf<ImportPlanItem>()
-            buildPlanRecursively(context, inputRoot, rawItems, progressCallback)
+            buildPlanRecursively(context, inputRoot, rawItems, progressCallback, options)
 
             // Post-pass: detect "singletons" for comics series to avoid accidental collection grouping.
             val comicSeriesCounts = rawItems
@@ -209,7 +229,7 @@ class StorageAccessService @Inject constructor(
             val adjusted = rawItems.map { item ->
                 if (item.mediaType == "COMIC" && !item.series.isNullOrBlank()) {
                     val count = comicSeriesCounts[item.series] ?: 0
-                    if (count <= 1) {
+                    if (count <= 1 && options.profile != ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER) {
                         item.copy(
                             destSegments = listOf("Comics"),
                             reasons = (item.reasons + "Comic series appears only once (avoid accidental collection folder)"),
@@ -243,23 +263,122 @@ class StorageAccessService @Inject constructor(
         options: ImportSortOptions = ImportSortOptions(),
         progressCallback: (String) -> Unit = {}
     ): ImportSortSummary = withContext(Dispatchers.IO) {
+        executeImportPlanAdvanced(
+            context = context,
+            plan = plan,
+            options = options,
+            startIndex = 0,
+            progressCallback = progressCallback,
+            checkpointCallback = null
+        )
+    }
+
+    suspend fun executeImportPlanAdvanced(
+        context: Context,
+        plan: ImportPlan,
+        options: ImportSortOptions = ImportSortOptions(),
+        startIndex: Int = 0,
+        progressCallback: (String) -> Unit = {},
+        checkpointCallback: ((Int) -> Unit)? = null
+    ): ImportSortSummary = withContext(Dispatchers.IO) {
         var summary = ImportSortSummary()
+        val startedAt = System.currentTimeMillis()
+        val importId = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(java.util.Date(startedAt))
+        val operations = mutableListOf<ImportOperationLog>()
+        val errors = mutableListOf<String>()
         try {
             val outputRoot = DocumentFile.fromTreeUri(context, Uri.parse(plan.outputTreeUri))
                 ?: return@withContext summary.copy(errors = summary.errors + 1)
 
-            for ((index, item) in plan.items.withIndex()) {
+            for (index in startIndex until plan.items.size) {
+                if (!currentCoroutineContext().isActive) throw kotlinx.coroutines.CancellationException("Import cancelled")
+                checkpointCallback?.invoke(index)
+
+                val item = plan.items[index]
                 progressCallback("Importing (${index + 1}/${plan.items.size}): ${item.sourceDisplayName}")
                 val srcDoc = DocumentFile.fromSingleUri(context, Uri.parse(item.sourceUri))
                 if (srcDoc == null || !srcDoc.isFile) {
                     summary = summary.copy(errors = summary.errors + 1)
+                    operations += ImportOperationLog(
+                        index = index,
+                        sourceUri = item.sourceUri,
+                        sourceDisplayName = item.sourceDisplayName,
+                        mediaType = item.mediaType,
+                        status = ImportOperationStatus.FAILED,
+                        message = "Source not accessible"
+                    )
                     continue
                 }
+                val srcParentUri = runCatching { srcDoc.parentFile?.uri?.toString() }.getOrNull()
 
-                val destDir = getOrCreateNestedDirs(context, outputRoot, item.destSegments)
-                val copied = copyDocumentFile(context, srcDoc, destDir, item.outputFileName)
-                if (copied == null || !copied.isFile) {
+                val baseDestDir = getOrCreateNestedDirs(context, outputRoot, item.destSegments)
+                val effectiveStrategy = item.conflictStrategy ?: options.conflictStrategy
+                val destDir = if (effectiveStrategy == ImportConflictStrategy.QUARANTINE) {
+                    getOrCreateNestedDirs(context, outputRoot, listOf("Quarantine"))
+                } else baseDestDir
+
+                val copyResult = copyDocumentFileWithStrategy(
+                    context = context,
+                    src = srcDoc,
+                    dstDir = destDir,
+                    desiredName = item.outputFileName,
+                    strategy = effectiveStrategy
+                )
+
+                val copied = when (copyResult) {
+                    is CopyResult.Copied -> copyResult.file
+                    is CopyResult.Skipped -> {
+                        summary = summary.copy(skipped = summary.skipped + 1)
+                        operations += ImportOperationLog(
+                            index = index,
+                            sourceUri = item.sourceUri,
+                            sourceDisplayName = item.sourceDisplayName,
+                            sourceParentUri = srcParentUri,
+                            destinationUri = null,
+                            destinationDisplayName = null,
+                            mediaType = item.mediaType,
+                            status = ImportOperationStatus.SKIPPED,
+                            message = copyResult.reason
+                        )
+                        continue
+                    }
+                    is CopyResult.Failed -> {
+                        summary = summary.copy(errors = summary.errors + 1)
+                        if (effectiveStrategy != ImportConflictStrategy.QUARANTINE) {
+                            val qDir = getOrCreateNestedDirs(context, outputRoot, listOf("Quarantine"))
+                            val qResult = copyDocumentFileWithStrategy(context, srcDoc, qDir, item.sourceDisplayName, ImportConflictStrategy.RENAME)
+                            if (qResult is CopyResult.Copied && options.moveFiles) runCatching { srcDoc.delete() }
+                        }
+                        errors += "Failed to copy ${item.sourceDisplayName}: ${copyResult.reason}"
+                        operations += ImportOperationLog(
+                            index = index,
+                            sourceUri = item.sourceUri,
+                            sourceDisplayName = item.sourceDisplayName,
+                            sourceParentUri = srcParentUri,
+                            destinationUri = null,
+                            destinationDisplayName = null,
+                            mediaType = item.mediaType,
+                            status = ImportOperationStatus.FAILED,
+                            message = copyResult.reason
+                        )
+                        continue
+                    }
+                }
+
+                if (!copied.isFile) {
                     summary = summary.copy(errors = summary.errors + 1)
+                    errors += "Copied result not a file: ${item.sourceDisplayName}"
+                    operations += ImportOperationLog(
+                        index = index,
+                        sourceUri = item.sourceUri,
+                        sourceDisplayName = item.sourceDisplayName,
+                        sourceParentUri = srcParentUri,
+                        destinationUri = null,
+                        destinationDisplayName = null,
+                        mediaType = item.mediaType,
+                        status = ImportOperationStatus.FAILED,
+                        message = "Destination not a file"
+                    )
                     continue
                 }
 
@@ -269,11 +388,21 @@ class StorageAccessService @Inject constructor(
 
                 summary = summary.copy(imported = summary.imported + 1)
 
-                // Insert into DB (avoid duplicates by destination URI)
                 val destUriStr = copied.uri.toString()
                 val existing = mediaItemDao.getItemByPath(destUriStr)
                 if (existing != null) {
                     summary = summary.copy(skipped = summary.skipped + 1)
+                    operations += ImportOperationLog(
+                        index = index,
+                        sourceUri = item.sourceUri,
+                        sourceDisplayName = item.sourceDisplayName,
+                        sourceParentUri = srcParentUri,
+                        destinationUri = destUriStr,
+                        destinationDisplayName = copied.name,
+                        mediaType = item.mediaType,
+                        status = if (options.moveFiles) ImportOperationStatus.MOVED else ImportOperationStatus.COPIED,
+                        message = "DB item already exists for destination URI"
+                    )
                     continue
                 }
 
@@ -283,13 +412,60 @@ class StorageAccessService @Inject constructor(
                     type = item.mediaType
                 )
 
+                val computedHash = if (options.preventDuplicates || options.storeContentHash) {
+                    computeSha256(context, copied.uri)?.let { "sha256:$it" }
+                } else null
+
+                if (options.preventDuplicates && !computedHash.isNullOrBlank()) {
+                    val dup = mediaItemDao.findDuplicateByHash(library.libraryId, computedHash)
+                    if (dup != null) {
+                        when (options.duplicateStrategy) {
+                            ImportConflictStrategy.SKIP -> {
+                                summary = summary.copy(skipped = summary.skipped + 1)
+                                runCatching { copied.delete() }
+                                operations += ImportOperationLog(
+                                    index = index,
+                                    sourceUri = item.sourceUri,
+                                    sourceDisplayName = item.sourceDisplayName,
+                                    sourceParentUri = srcParentUri,
+                                    destinationUri = destUriStr,
+                                    destinationDisplayName = copied.name,
+                                    mediaType = item.mediaType,
+                                    status = ImportOperationStatus.SKIPPED,
+                                    message = "Duplicate detected by hash"
+                                )
+                                continue
+                            }
+                            ImportConflictStrategy.QUARANTINE -> {
+                                val qDir = getOrCreateNestedDirs(context, outputRoot, listOf("Quarantine"))
+                                val movedToQ = runCatching { moveDocumentFile(context, copied, qDir) }.getOrNull() == true
+                                if (!movedToQ) runCatching { copied.delete() }
+                                summary = summary.copy(skipped = summary.skipped + 1)
+                                operations += ImportOperationLog(
+                                    index = index,
+                                    sourceUri = item.sourceUri,
+                                    sourceDisplayName = item.sourceDisplayName,
+                                    sourceParentUri = srcParentUri,
+                                    destinationUri = destUriStr,
+                                    destinationDisplayName = copied.name,
+                                    mediaType = item.mediaType,
+                                    status = ImportOperationStatus.QUARANTINED,
+                                    message = "Duplicate detected by hash"
+                                )
+                                continue
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
                     filePath = destUriStr,
                     fileName = copied.name ?: item.outputFileName,
                     fileExtension = (copied.name ?: item.outputFileName).substringAfterLast('.', "").lowercase(),
                     fileSize = copied.length(),
-                    fileHash = null,
+                    fileHash = if (options.storeContentHash) computedHash else null,
                     dateAdded = System.currentTimeMillis(),
                     lastScanned = System.currentTimeMillis(),
                     lastModified = copied.lastModified(),
@@ -357,6 +533,19 @@ class StorageAccessService @Inject constructor(
                         )
                     )
                 }
+
+                operations += ImportOperationLog(
+                    index = index,
+                    sourceUri = item.sourceUri,
+                    sourceDisplayName = item.sourceDisplayName,
+                    sourceParentUri = srcParentUri,
+                    destinationUri = destUriStr,
+                    destinationDisplayName = copied.name,
+                    mediaType = item.mediaType,
+                    insertedItemId = itemId,
+                    status = if (options.moveFiles) ImportOperationStatus.MOVED else ImportOperationStatus.COPIED,
+                    message = null
+                )
             }
 
             if (options.moveFiles && options.removeEmptyFolders) {
@@ -367,10 +556,156 @@ class StorageAccessService @Inject constructor(
                     summary = summary.copy(deletedFolders = summary.deletedFolders + deleted)
                 }
             }
+
+            writeImportLog(
+                context = context,
+                log = ImportTransactionLog(
+                    importId = importId,
+                    startedAt = startedAt,
+                    finishedAt = System.currentTimeMillis(),
+                    inputTreeUri = plan.inputTreeUri,
+                    outputTreeUri = plan.outputTreeUri,
+                    moveFiles = options.moveFiles,
+                    conflictStrategy = options.conflictStrategy.name,
+                    preventDuplicates = options.preventDuplicates,
+                    duplicateStrategy = options.duplicateStrategy.name,
+                    operations = operations,
+                    errors = errors
+                )
+            )
             summary
         } catch (e: Exception) {
             ErrorLogger.logError("StorageAccessService", "Error executing import plan", e)
+            runCatching {
+                writeImportLog(
+                    context = context,
+                    log = ImportTransactionLog(
+                        importId = importId,
+                        startedAt = startedAt,
+                        finishedAt = System.currentTimeMillis(),
+                        inputTreeUri = plan.inputTreeUri,
+                        outputTreeUri = plan.outputTreeUri,
+                        moveFiles = options.moveFiles,
+                        conflictStrategy = options.conflictStrategy.name,
+                        preventDuplicates = options.preventDuplicates,
+                        duplicateStrategy = options.duplicateStrategy.name,
+                        operations = operations,
+                        errors = errors + (e.message ?: "Unknown error")
+                    )
+                )
+            }
             summary.copy(errors = summary.errors + 1)
+        }
+    }
+
+    fun listImportLogs(context: Context): List<ImportLogInfo> {
+        return try {
+            val dir = File(context.filesDir, "import_logs")
+            if (!dir.exists()) return emptyList()
+            dir.listFiles { f -> f.isFile && f.name.endsWith(".json") }?.sortedByDescending { it.lastModified() }?.mapNotNull { file ->
+                runCatching {
+                    val parsed = importLogJson.decodeFromString<ImportTransactionLog>(file.readText())
+                    ImportLogInfo(
+                        fileName = file.name,
+                        importId = parsed.importId,
+                        startedAt = parsed.startedAt,
+                        finishedAt = parsed.finishedAt,
+                        moveFiles = parsed.moveFiles,
+                        operationCount = parsed.operations.size,
+                        failedCount = parsed.operations.count { it.status == ImportOperationStatus.FAILED }
+                    )
+                }.getOrNull()
+            } ?: emptyList()
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    fun readImportLog(context: Context, fileName: String): ImportTransactionLog? {
+        return runCatching {
+            val file = File(File(context.filesDir, "import_logs"), fileName)
+            if (!file.exists()) return null
+            importLogJson.decodeFromString<ImportTransactionLog>(file.readText())
+        }.getOrNull()
+    }
+
+    suspend fun undoImport(
+        context: Context,
+        fileName: String,
+        progressCallback: (String) -> Unit = {}
+    ): UndoSummary = withContext(Dispatchers.IO) {
+        val log = readImportLog(context, fileName) ?: return@withContext UndoSummary(restoredFailures = 1)
+        var restoredFiles = 0
+        var restoredFailures = 0
+        var deletedDbItems = 0
+        var deletedDbFailures = 0
+
+        // Reverse order for safer undo.
+        for (op in log.operations.asReversed()) {
+            val destUri = op.destinationUri ?: continue
+            val destDoc = DocumentFile.fromSingleUri(context, Uri.parse(destUri)) ?: continue
+
+            // Remove DB item
+            val itemId = op.insertedItemId
+            if (itemId != null) {
+                val mi = mediaItemDao.getMediaItemById(itemId)
+                if (mi != null) {
+                    runCatching {
+                        mediaItemDao.deleteMediaItem(mi)
+                        deletedDbItems++
+                    }.onFailure { deletedDbFailures++ }
+                }
+            } else {
+                val byPath = mediaItemDao.getItemByPath(destUri)
+                if (byPath != null) {
+                    runCatching {
+                        mediaItemDao.deleteMediaItem(byPath)
+                        deletedDbItems++
+                    }.onFailure { deletedDbFailures++ }
+                }
+            }
+
+            when (op.status) {
+                ImportOperationStatus.MOVED, ImportOperationStatus.QUARANTINED -> {
+                    val parentUri = op.sourceParentUri
+                    if (parentUri.isNullOrBlank()) {
+                        // Can't restore location; delete the destination file as best-effort.
+                        runCatching { destDoc.delete() }.onSuccess { restoredFiles++ }.onFailure { restoredFailures++ }
+                        continue
+                    }
+                    val parent = DocumentFile.fromTreeUri(context, Uri.parse(parentUri))
+                        ?: DocumentFile.fromSingleUri(context, Uri.parse(parentUri))
+                    if (parent == null || !parent.isDirectory) {
+                        runCatching { destDoc.delete() }.onSuccess { restoredFiles++ }.onFailure { restoredFailures++ }
+                        continue
+                    }
+                    val name = op.sourceDisplayName.ifBlank { destDoc.name ?: "file" }
+                    progressCallback("Restoring: $name")
+                    val moved = runCatching { moveDocumentFile(context, destDoc, parent) }.getOrNull() == true
+                    if (moved) restoredFiles++ else restoredFailures++
+                }
+                ImportOperationStatus.COPIED -> {
+                    // Undo copy by deleting destination file.
+                    runCatching { destDoc.delete() }.onSuccess { restoredFiles++ }.onFailure { restoredFailures++ }
+                }
+                else -> Unit
+            }
+        }
+
+        UndoSummary(
+            restoredFiles = restoredFiles,
+            restoredFailures = restoredFailures,
+            deletedDbItems = deletedDbItems,
+            deletedDbFailures = deletedDbFailures
+        )
+    }
+
+    private fun writeImportLog(context: Context, log: ImportTransactionLog) {
+        runCatching {
+            val dir = File(context.filesDir, "import_logs")
+            if (!dir.exists()) dir.mkdirs()
+            val file = File(dir, "import_${log.importId}.json")
+            file.writeText(importLogJson.encodeToString(log))
         }
     }
 
@@ -424,6 +759,50 @@ class StorageAccessService @Inject constructor(
         } catch (e: Exception) {
             ErrorLogger.logWarning("StorageAccessService", "Error copying document file", e)
             null
+        }
+    }
+
+    private sealed class CopyResult {
+        data class Copied(val file: DocumentFile) : CopyResult()
+        data class Skipped(val reason: String) : CopyResult()
+        data class Failed(val reason: String) : CopyResult()
+    }
+
+    private fun copyDocumentFileWithStrategy(
+        context: Context,
+        src: DocumentFile,
+        dstDir: DocumentFile,
+        desiredName: String,
+        strategy: ImportConflictStrategy
+    ): CopyResult {
+        return try {
+            val mime = src.type ?: "application/octet-stream"
+            val existing = dstDir.findFile(desiredName)
+
+            when (strategy) {
+                ImportConflictStrategy.SKIP -> {
+                    if (existing != null) return CopyResult.Skipped("Destination exists")
+                    val target = dstDir.createFile(mime, desiredName) ?: return CopyResult.Failed("Create failed")
+                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                }
+                ImportConflictStrategy.REPLACE -> {
+                    existing?.delete()
+                    val target = dstDir.createFile(mime, desiredName) ?: return CopyResult.Failed("Create failed")
+                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                }
+                ImportConflictStrategy.RENAME -> {
+                    val target = createUniqueFile(dstDir, mime, desiredName)
+                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                }
+                ImportConflictStrategy.QUARANTINE -> {
+                    // Caller routes to quarantine directory; we just ensure no clobber.
+                    val target = createUniqueFile(dstDir, mime, desiredName)
+                    if (copyStream(context, src.uri, target.uri)) CopyResult.Copied(target) else CopyResult.Failed("Copy failed")
+                }
+            }
+        } catch (e: Exception) {
+            ErrorLogger.logWarning("StorageAccessService", "Error copying document file (strategy=$strategy)", e)
+            CopyResult.Failed(e.message ?: "Copy failed")
         }
     }
 
@@ -898,8 +1277,18 @@ class StorageAccessService @Inject constructor(
             .takeIf { it.isNotBlank() }
     }
 
-    private fun deriveMetadataForCbz(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
-        // Only CBZ reliably supports ZipInputStream here; other comic formats fall back to filename.
+    private fun deriveMetadataForComicArchive(context: Context, uri: Uri, fallbackName: String): DerivedMetadata {
+        // Prefer shared utility which supports CBZ and CBR.
+        val info = runCatching { ComicArchiveUtils.extractComicInfo(context, uri, fallbackName) }.getOrNull()
+        if (info != null) {
+            val title = info.title?.takeIf { it.isNotBlank() } ?: fallbackName.substringBeforeLast('.')
+            return DerivedMetadata(
+                title = title,
+                authorOrArtist = info.writer,
+                series = info.series
+            )
+        }
+        // Fallback: CBZ stream scan (kept for resilience)
         return try {
             context.contentResolver.openInputStream(uri).use { input ->
                 if (input == null) return@use null
@@ -907,12 +1296,12 @@ class StorageAccessService @Inject constructor(
                     var entry = zis.nextEntry
                     while (entry != null) {
                         if (!entry.isDirectory && entry.name.endsWith("ComicInfo.xml", ignoreCase = true)) {
-                            val info = ComicInfoParser.parse(zis)
-                            val title = info.title?.takeIf { it.isNotBlank() } ?: fallbackName.substringBeforeLast('.')
+                            val parsed = ComicInfoParser.parse(zis)
+                            val title = parsed.title?.takeIf { it.isNotBlank() } ?: fallbackName.substringBeforeLast('.')
                             return DerivedMetadata(
                                 title = title,
-                                authorOrArtist = info.writer,
-                                series = info.series,
+                                authorOrArtist = parsed.writer,
+                                series = parsed.series,
                             )
                         }
                         entry = zis.nextEntry
@@ -981,7 +1370,11 @@ class StorageAccessService @Inject constructor(
             val derived = when (mediaType) {
                 "MUSIC" -> deriveMetadataForAudio(context, child.uri, srcName)
                 "BOOK" -> deriveMetadataForBook(context, child.uri, srcName)
-                "COMIC" -> if (srcName.lowercase().endsWith(".cbz")) deriveMetadataForCbz(context, child.uri, srcName) else deriveMetadataFromName(srcName)
+                "COMIC" -> {
+                    val lower = srcName.lowercase()
+                    if (lower.endsWith(".cbz") || lower.endsWith(".cbr")) deriveMetadataForComicArchive(context, child.uri, srcName)
+                    else deriveMetadataFromName(srcName)
+                }
                 else -> deriveMetadataFromName(srcName)
             }
 
@@ -1017,10 +1410,32 @@ class StorageAccessService @Inject constructor(
             val destDir = getOrCreateNestedDirs(context, outputRoot, folderSegments)
             progressCallback("Importing: $srcName")
 
-            val copied = copyDocumentFile(context, child, destDir, outputFileName)
-            if (copied == null) {
-                currentSummary = currentSummary.copy(errors = currentSummary.errors + 1)
-                return@forEach
+            val effectiveStrategy = options.conflictStrategy
+            val effectiveDir = if (effectiveStrategy == ImportConflictStrategy.QUARANTINE) {
+                getOrCreateNestedDirs(context, outputRoot, listOf("Quarantine"))
+            } else destDir
+
+            val copyResult = copyDocumentFileWithStrategy(
+                context = context,
+                src = child,
+                dstDir = effectiveDir,
+                desiredName = outputFileName,
+                strategy = effectiveStrategy
+            )
+            val copied = when (copyResult) {
+                is CopyResult.Copied -> copyResult.file
+                is CopyResult.Skipped -> {
+                    currentSummary = currentSummary.copy(skipped = currentSummary.skipped + 1)
+                    return@forEach
+                }
+                is CopyResult.Failed -> {
+                    currentSummary = currentSummary.copy(errors = currentSummary.errors + 1)
+                    // Fallback: quarantine the original name to avoid losing track
+                    val qDir = getOrCreateNestedDirs(context, outputRoot, listOf("Quarantine"))
+                    val qResult = copyDocumentFileWithStrategy(context, child, qDir, srcName, ImportConflictStrategy.RENAME)
+                    if (qResult is CopyResult.Copied && options.moveFiles) runCatching { child.delete() }
+                    return@forEach
+                }
             }
 
             if (options.moveFiles) {
@@ -1041,13 +1456,43 @@ class StorageAccessService @Inject constructor(
                     type = mediaType
                 )
 
+                val computedHash = if (options.preventDuplicates || options.storeContentHash) {
+                    computeSha256(context, copied.uri)?.let { "sha256:$it" }
+                } else null
+
+                if (options.preventDuplicates && !computedHash.isNullOrBlank()) {
+                    val dup = mediaItemDao.findDuplicateByHash(library.libraryId, computedHash)
+                    if (dup != null) {
+                        when (options.duplicateStrategy) {
+                            ImportConflictStrategy.SKIP -> {
+                                currentSummary = currentSummary.copy(skipped = currentSummary.skipped + 1)
+                                runCatching { copied.delete() }
+                                return@forEach
+                            }
+                            ImportConflictStrategy.QUARANTINE -> {
+                                val qDir = getOrCreateNestedDirs(context, outputRoot, listOf("Quarantine"))
+                                val movedToQ = runCatching { moveDocumentFile(context, copied, qDir) }.getOrNull() == true
+                                if (!movedToQ) runCatching { copied.delete() }
+                                currentSummary = currentSummary.copy(skipped = currentSummary.skipped + 1)
+                                return@forEach
+                            }
+                            ImportConflictStrategy.REPLACE -> {
+                                // Keep both (DB replace is not safe here). Proceed.
+                            }
+                            ImportConflictStrategy.RENAME -> {
+                                // Keep both.
+                            }
+                        }
+                    }
+                }
+
                 val mediaItem = MediaItem(
                     libraryId = library.libraryId,
                     filePath = destUriStr,
                     fileName = copied.name ?: outputFileName,
                     fileExtension = (copied.name ?: outputFileName).substringAfterLast('.', "").lowercase(),
                     fileSize = copied.length(),
-                    fileHash = null,
+                    fileHash = if (options.storeContentHash) computedHash else null,
                     dateAdded = System.currentTimeMillis(),
                     lastScanned = System.currentTimeMillis(),
                     lastModified = copied.lastModified(),
@@ -1196,12 +1641,13 @@ class StorageAccessService @Inject constructor(
         context: Context,
         input: DocumentFile,
         out: MutableList<ImportPlanItem>,
-        progressCallback: (String) -> Unit
+        progressCallback: (String) -> Unit,
+        options: ImportSortOptions
     ) {
         if (!input.isDirectory) return
         input.listFiles().forEach { child ->
             if (child.isDirectory) {
-                buildPlanRecursively(context, child, out, progressCallback)
+                buildPlanRecursively(context, child, out, progressCallback, options)
                 return@forEach
             }
             if (!child.isFile) return@forEach
@@ -1221,9 +1667,10 @@ class StorageAccessService @Inject constructor(
                     Triple(d, byExt, conf)
                 }
                 "COMIC" -> {
-                    val cbz = srcName.lowercase().endsWith(".cbz")
-                    val d = if (cbz) deriveMetadataForCbz(context, child.uri, srcName) else deriveMetadataFromName(srcName)
-                    Triple(d, if (cbz) "COMICINFO" else "FILENAME", if (cbz) 0.8f else 0.55f)
+                    val lower = srcName.lowercase()
+                    val hasComicInfo = lower.endsWith(".cbz") || lower.endsWith(".cbr")
+                    val d = if (hasComicInfo) deriveMetadataForComicArchive(context, child.uri, srcName) else deriveMetadataFromName(srcName)
+                    Triple(d, if (hasComicInfo) "COMICINFO" else "FILENAME", if (hasComicInfo) 0.8f else 0.55f)
                 }
                 else -> Triple(deriveMetadataFromName(srcName), "FILENAME", 0.55f)
             }
@@ -1252,10 +1699,14 @@ class StorageAccessService @Inject constructor(
 
             val (destSegments, outputFileName) = when (mediaType) {
                 "BOOK" -> {
-                    val segments = buildList {
-                        add("Books")
-                        add(safeAuthor ?: "Unknown Author")
-                        safeSeries?.let { add(it) }
+                    val segments = when (options.profile) {
+                        ImportSortProfile.BOOKS_FLAT -> listOf("Books")
+                        ImportSortProfile.BOOKS_AUTHOR_TITLE -> listOf("Books", safeAuthor ?: "Unknown Author")
+                        else -> buildList {
+                            add("Books")
+                            add(safeAuthor ?: "Unknown Author")
+                            safeSeries?.let { add(it) }
+                        }
                     }
                     val name = "${safeTitle}.${ext.ifBlank { "bin" }}"
                     segments to name
@@ -1267,7 +1718,14 @@ class StorageAccessService @Inject constructor(
                     segments to name
                 }
                 "MOVIE" -> listOf("Movies", safeTitle) to srcName
-                "COMIC" -> listOf("Comics", safeSeries ?: "Unknown Series") to srcName
+                "COMIC" -> {
+                    val segments = when (options.profile) {
+                        ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER -> listOf("Comics", safeSeries ?: "Unknown Series")
+                        ImportSortProfile.COMICS_SINGLETONS_TO_ROOT -> listOf("Comics", safeSeries ?: "Unknown Series") // singleton adjustment happens post-pass
+                        else -> listOf("Comics", safeSeries ?: "Unknown Series")
+                    }
+                    segments to srcName
+                }
                 "DOCUMENT" -> listOf("Documents", ext.ifBlank { "unknown" }.uppercase()) to srcName
                 else -> listOf("Other") to srcName
             }
@@ -1286,18 +1744,49 @@ class StorageAccessService @Inject constructor(
                 confidence = confidence,
                 reasons = reasons,
                 destSegments = destSegments,
-                outputFileName = outputFileName
+                outputFileName = outputFileName,
+                fileSize = child.length()
             )
+        }
+    }
+
+    private fun computeSha256(context: Context, uri: Uri): String? {
+        return try {
+            val digest = MessageDigest.getInstance("SHA-256")
+            context.contentResolver.openInputStream(uri).use { input ->
+                if (input == null) return null
+                val buf = ByteArray(1024 * 64)
+                while (true) {
+                    val n = input.read(buf)
+                    if (n <= 0) break
+                    digest.update(buf, 0, n)
+                }
+            }
+            digest.digest().joinToString("") { "%02x".format(it) }
+        } catch (_: Exception) {
+            null
         }
     }
 }
 
+@Serializable
 data class ImportSortOptions(
     val moveFiles: Boolean = false
     ,
     val removeEmptyFolders: Boolean = true
+    ,
+    val conflictStrategy: ImportConflictStrategy = ImportConflictStrategy.RENAME
+    ,
+    val preventDuplicates: Boolean = true
+    ,
+    val duplicateStrategy: ImportConflictStrategy = ImportConflictStrategy.SKIP
+    ,
+    val storeContentHash: Boolean = true
+    ,
+    val profile: ImportSortProfile = ImportSortProfile.DEFAULT
 )
 
+@Serializable
 data class ImportSortSummary(
     val imported: Int = 0,
     val skipped: Int = 0,
@@ -1305,12 +1794,14 @@ data class ImportSortSummary(
     val deletedFolders: Int = 0
 )
 
+@Serializable
 data class ImportPlan(
     val inputTreeUri: String,
     val outputTreeUri: String,
     val items: List<ImportPlanItem>
 )
 
+@Serializable
 data class ImportPlanItem(
     val sourceUri: String,
     val sourceDisplayName: String,
@@ -1325,8 +1816,27 @@ data class ImportPlanItem(
     val confidence: Float = 0.5f,
     val reasons: List<String> = emptyList(),
     val destSegments: List<String>,
-    val outputFileName: String
+    val outputFileName: String,
+    val conflictStrategy: ImportConflictStrategy? = null,
+    val fileSize: Long? = null
 ) {
     val isQuestionable: Boolean
         get() = confidence < 0.7f || reasons.isNotEmpty()
+}
+
+@Serializable
+enum class ImportConflictStrategy {
+    SKIP,
+    RENAME,
+    REPLACE,
+    QUARANTINE
+}
+
+@Serializable
+enum class ImportSortProfile {
+    DEFAULT,
+    COMICS_SINGLETONS_TO_ROOT,
+    COMICS_ALWAYS_SERIES_FOLDER,
+    BOOKS_FLAT,
+    BOOKS_AUTHOR_TITLE
 }

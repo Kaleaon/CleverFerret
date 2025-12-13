@@ -36,17 +36,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.universalmedialibrary.services.ImportSortOptions
 import com.universalmedialibrary.services.ImportPlan
 import com.universalmedialibrary.services.ImportPlanItem
+import com.universalmedialibrary.services.ImportConflictStrategy
+import com.universalmedialibrary.services.ImportSortProfile
 import com.universalmedialibrary.services.StorageAccessService
+import com.universalmedialibrary.workers.ImportPlanWorker
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import com.universalmedialibrary.services.metadata.MetadataService
+import com.universalmedialibrary.services.metadata.sources.EnhancedMetadata
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImportSorterScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: ImportSorterViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -55,26 +73,46 @@ fun ImportSorterScreen(
         EntryPointAccessors.fromApplication(appContext, ImportSorterEntryPoint::class.java).storageService()
     }
 
-    var inputUri by remember { mutableStateOf<Uri?>(null) }
-    var outputUri by remember { mutableStateOf<Uri?>(null) }
-    var moveFiles by remember { mutableStateOf(false) }
-    var removeEmptyFolders by remember { mutableStateOf(true) }
-    var reviewQuestionable by remember { mutableStateOf(true) }
+    val prefs by viewModel.uiState.collectAsStateWithLifecycle()
+    val inputUri: Uri? = prefs.inputUri?.let { runCatching { Uri.parse(it) }.getOrNull() }
+    val outputUri: Uri? = prefs.outputUri?.let { runCatching { Uri.parse(it) }.getOrNull() }
+    val moveFiles = prefs.moveFiles
+    val removeEmptyFolders = prefs.removeEmptyFolders
+    val reviewQuestionable = prefs.reviewQuestionable
+    val runInBackground = prefs.runInBackground
+    val useOnlineMetadata = prefs.useOnlineMetadata
+    var conflictStrategy by remember(prefs.conflictStrategy) {
+        mutableStateOf(
+            runCatching { ImportConflictStrategy.valueOf(prefs.conflictStrategy) }
+                .getOrDefault(ImportConflictStrategy.RENAME)
+        )
+    }
+    var sortProfile by remember(prefs.profile) {
+        mutableStateOf(
+            runCatching { ImportSortProfile.valueOf(prefs.profile) }
+                .getOrDefault(ImportSortProfile.DEFAULT)
+        )
+    }
     var progress by remember { mutableStateOf("") }
     var summary by remember { mutableStateOf<String?>(null) }
     var plan by remember { mutableStateOf<ImportPlan?>(null) }
     var editableItems by remember { mutableStateOf<List<ImportPlanItem>>(emptyList()) }
     var inReview by remember { mutableStateOf(false) }
+    var backgroundStatus by remember { mutableStateOf<String?>(null) }
+
+    val metadataService = remember(appContext) {
+        EntryPointAccessors.fromApplication(appContext, ImportMetadataEntryPoint::class.java).metadataService()
+    }
 
     val inputPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
-            inputUri = uri
+            viewModel.setInputUri(uri.toString())
             storageService.persistUriPermission(context, uri)
         }
     }
     val outputPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
-            outputUri = uri
+            viewModel.setOutputUri(uri.toString())
             storageService.persistUriPermission(context, uri)
         }
     }
@@ -118,6 +156,9 @@ fun ImportSorterScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text("Only items with low confidence are flagged. Edit title/author/series to prevent mis-grouping (e.g., one-off Tintin/Asterix issues).")
+                    if (useOnlineMetadata) {
+                        Text("Online metadata is enabled. Use the per-item button to fetch suggested Title/Author/Series.")
+                    }
 
                     Button(
                         onClick = {
@@ -125,16 +166,45 @@ fun ImportSorterScreen(
                             summary = null
                             lifecycleOwner.lifecycleScope.launch {
                                 val execPlan = p.copy(items = editableItems)
-                                val result = storageService.executeImportPlan(
-                                    context = context,
-                                    plan = execPlan,
-                                    options = ImportSortOptions(
-                                        moveFiles = moveFiles,
-                                        removeEmptyFolders = removeEmptyFolders
-                                    ),
-                                    progressCallback = { msg -> progress = msg }
+                                val options = ImportSortOptions(
+                                    moveFiles = moveFiles,
+                                    removeEmptyFolders = removeEmptyFolders,
+                                    conflictStrategy = conflictStrategy,
+                                    profile = sortProfile
                                 )
-                                summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}, Empty folders removed: ${result.deletedFolders}"
+                                if (runInBackground) {
+                                    val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
+                                    val dir = File(context.filesDir, "import_plans").apply { mkdirs() }
+                                    val planName = "plan_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.json"
+                                    File(dir, planName).writeText(json.encodeToString(execPlan))
+
+                                    val request = OneTimeWorkRequestBuilder<ImportPlanWorker>()
+                                        .addTag("import_sorter")
+                                        .setInputData(
+                                            workDataOf(
+                                                ImportPlanWorker.KEY_PLAN_FILE to planName,
+                                                ImportPlanWorker.KEY_OPTIONS_JSON to json.encodeToString(options),
+                                                ImportPlanWorker.KEY_STATE_FILE to "state_${planName}.txt"
+                                            )
+                                        )
+                                        .build()
+
+                                    WorkManager.getInstance(context).enqueueUniqueWork(
+                                        "import_sorter",
+                                        ExistingWorkPolicy.REPLACE,
+                                        request
+                                    )
+                                    progress = ""
+                                    backgroundStatus = "Import queued in background (WorkManager). You can leave the app."
+                                } else {
+                                    val result = storageService.executeImportPlan(
+                                        context = context,
+                                        plan = execPlan,
+                                        options = options,
+                                        progressCallback = { msg -> progress = msg }
+                                    )
+                                    summary = "Imported: ${result.imported}, Skipped: ${result.skipped}, Errors: ${result.errors}, Empty folders removed: ${result.deletedFolders}"
+                                }
                             }
                         }
                     ) {
@@ -143,7 +213,17 @@ fun ImportSorterScreen(
                     }
 
                     if (progress.isNotBlank()) Text(progress)
+                    backgroundStatus?.let { Text(it) }
                     summary?.let { Text(it) }
+
+                    Button(
+                        onClick = {
+                            WorkManager.getInstance(context).cancelAllWorkByTag("import_sorter")
+                            backgroundStatus = "Background import cancelled."
+                        }
+                    ) {
+                        Text("Cancel background import")
+                    }
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -194,6 +274,83 @@ fun ImportSorterScreen(
                                         label = { Text("Series (optional)") },
                                         modifier = Modifier.fillMaxWidth()
                                     )
+                                    OutlinedTextField(
+                                        value = item.mediaType,
+                                        onValueChange = { },
+                                        readOnly = true,
+                                        label = { Text("Media type") },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Button(onClick = {
+                                        val nextType = when (item.mediaType) {
+                                            "BOOK" -> "COMIC"
+                                            "COMIC" -> "MUSIC"
+                                            "MUSIC" -> "MOVIE"
+                                            "MOVIE" -> "DOCUMENT"
+                                            "DOCUMENT" -> "OTHER"
+                                            else -> "BOOK"
+                                        }
+                                        editableItems = editableItems.toMutableList().also { list ->
+                                            list[index] = list[index].copy(mediaType = nextType)
+                                        }
+                                    }) {
+                                        Text("Change media type")
+                                    }
+
+                                    OutlinedTextField(
+                                        value = item.destSegments.joinToString("/"),
+                                        onValueChange = { new ->
+                                            val segs = new.split("/").map { it.trim() }.filter { it.isNotBlank() }
+                                            editableItems = editableItems.toMutableList().also { list ->
+                                                list[index] = list[index].copy(destSegments = if (segs.isEmpty()) listOf("Other") else segs)
+                                            }
+                                        },
+                                        label = { Text("Destination folder (override)") },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+
+                                    if (useOnlineMetadata && item.mediaType == "BOOK") {
+                                        Button(onClick = {
+                                            progress = "Searching online metadata for ${item.title}…"
+                                            lifecycleOwner.lifecycleScope.launch {
+                                                val results = metadataService.searchAll(
+                                                    query = null,
+                                                    isbn = null,
+                                                    title = item.title,
+                                                    author = item.authorOrArtist,
+                                                    maxResults = 3
+                                                ).getOrNull().orEmpty()
+                                                val details: EnhancedMetadata? = if (results.isNotEmpty()) {
+                                                    metadataService.getDetailsFromMultipleSources(results.take(1)).getOrNull()
+                                                } else null
+                                                if (details != null) {
+                                                    val newTitle = details.title ?: item.title
+                                                    val newAuthor = details.authors.firstOrNull() ?: item.authorOrArtist
+                                                    val newSeries = details.series?.name ?: item.series
+                                                    editableItems = editableItems.toMutableList().also { list ->
+                                                        list[index] = list[index].copy(
+                                                            title = newTitle,
+                                                            authorOrArtist = newAuthor,
+                                                            series = newSeries,
+                                                            reasons = (list[index].reasons + "Online metadata applied")
+                                                        )
+                                                    }
+                                                    progress = "Online metadata applied."
+                                                } else {
+                                                    progress = "No online metadata found."
+                                                }
+                                            }
+                                        }) {
+                                            Text("Fetch online metadata")
+                                        }
+                                    }
+                                    OutlinedTextField(
+                                        value = item.conflictStrategy?.name ?: "",
+                                        onValueChange = { },
+                                        readOnly = true,
+                                        label = { Text("Conflict Strategy (use main setting below)") },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
                                 }
                             }
                         }
@@ -232,14 +389,14 @@ fun ImportSorterScreen(
 
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("Move files instead of copy")
-                        Switch(checked = moveFiles, onCheckedChange = { moveFiles = it })
+                        Switch(checked = moveFiles, onCheckedChange = { viewModel.setMoveFiles(it) })
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text("Remove empty folders (after move)")
                         Switch(
                             checked = removeEmptyFolders,
-                            onCheckedChange = { removeEmptyFolders = it }
+                            onCheckedChange = { viewModel.setRemoveEmptyFolders(it) }
                         )
                     }
 
@@ -247,8 +404,50 @@ fun ImportSorterScreen(
                         Text("Review questionable items before import")
                         Switch(
                             checked = reviewQuestionable,
-                            onCheckedChange = { reviewQuestionable = it }
+                            onCheckedChange = { viewModel.setReviewQuestionable(it) }
                         )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Run import in background (WorkManager)")
+                        Switch(checked = runInBackground, onCheckedChange = { viewModel.setRunInBackground(it) })
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Sorting profile: $sortProfile")
+                        Button(onClick = {
+                            sortProfile = when (sortProfile) {
+                                ImportSortProfile.DEFAULT -> ImportSortProfile.COMICS_SINGLETONS_TO_ROOT
+                                ImportSortProfile.COMICS_SINGLETONS_TO_ROOT -> ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER
+                                ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER -> ImportSortProfile.BOOKS_AUTHOR_TITLE
+                                ImportSortProfile.BOOKS_AUTHOR_TITLE -> ImportSortProfile.BOOKS_FLAT
+                                ImportSortProfile.BOOKS_FLAT -> ImportSortProfile.DEFAULT
+                            }
+                            viewModel.setProfile(sortProfile.name)
+                        }) {
+                            Text("Change profile")
+                        }
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("Use online metadata during review")
+                        Switch(checked = useOnlineMetadata, onCheckedChange = { viewModel.setUseOnlineMetadata(it) })
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("On conflict (same name in destination): $conflictStrategy")
+                        // Simple toggle cycle to avoid adding a full dropdown dependency here
+                        Button(onClick = {
+                            conflictStrategy = when (conflictStrategy) {
+                                ImportConflictStrategy.RENAME -> ImportConflictStrategy.SKIP
+                                ImportConflictStrategy.SKIP -> ImportConflictStrategy.REPLACE
+                                ImportConflictStrategy.REPLACE -> ImportConflictStrategy.QUARANTINE
+                                ImportConflictStrategy.QUARANTINE -> ImportConflictStrategy.RENAME
+                            }
+                            viewModel.setConflictStrategy(conflictStrategy.name)
+                        }) {
+                            Text("Change conflict strategy")
+                        }
                     }
 
                     Button(
@@ -266,7 +465,9 @@ fun ImportSorterScreen(
                                         outputTreeUri = outUri,
                                         options = ImportSortOptions(
                                             moveFiles = moveFiles,
-                                            removeEmptyFolders = removeEmptyFolders
+                                            removeEmptyFolders = removeEmptyFolders,
+                                            conflictStrategy = conflictStrategy,
+                                            profile = sortProfile
                                         ),
                                         progressCallback = { msg -> progress = msg }
                                     )
@@ -280,7 +481,9 @@ fun ImportSorterScreen(
                                         outputTreeUri = outUri,
                                         options = ImportSortOptions(
                                             moveFiles = moveFiles,
-                                            removeEmptyFolders = removeEmptyFolders
+                                            removeEmptyFolders = removeEmptyFolders,
+                                            conflictStrategy = conflictStrategy,
+                                            profile = sortProfile
                                         ),
                                         progressCallback = { msg -> progress = msg }
                                     )
@@ -299,6 +502,12 @@ fun ImportSorterScreen(
             }
         }
     }
+}
+
+@dagger.hilt.EntryPoint
+@dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+interface ImportMetadataEntryPoint {
+    fun metadataService(): MetadataService
 }
 
 @dagger.hilt.EntryPoint

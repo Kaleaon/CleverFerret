@@ -296,6 +296,37 @@ fun SettingsScreen(
                     }
                 }
 
+                item {
+                    MetallicCard(
+                        onClick = { navController.navigate("settings/import_history") }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Import History / Undo",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Review past imports and undo the last move/copy if needed.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = "Import History"
+                            )
+                        }
+                    }
+                }
+
                   // Navigation Section
                   item {
                       MetallicText(
