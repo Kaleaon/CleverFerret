@@ -30,7 +30,7 @@ import androidx.room.Index
         Index(value = ["localMediaItemId"])
     ]
 )
-data class PlexMediaItem(
+data class MediaItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 

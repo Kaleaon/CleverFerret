@@ -3,7 +3,7 @@ package com.universalmedialibrary.ui.theme
 import androidx.compose.runtime.Composable
 
 /**
- * Legacy PlexTheme - now redirects to CleverFerretTheme
+ * Legacy MediaTheme - now redirects to CleverFerretTheme
  * Kept for backward compatibility with existing code
  *
  * @deprecated Use CleverFerretTheme instead for more theme options
@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
     )
 )
 @Composable
-fun PlexTheme(
+fun MediaTheme(
     darkTheme: Boolean = true,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit

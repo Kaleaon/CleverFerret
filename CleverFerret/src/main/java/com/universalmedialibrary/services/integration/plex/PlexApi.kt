@@ -103,10 +103,10 @@ data class PlexLibraryItemsResponse(
     val librarySectionUUID: String,
     val mediaTagPrefix: String,
     val mediaTagVersion: Long,
-    val media: List<PlexMediaItem>
+    val media: List<MediaItem>
 )
 
-data class PlexMediaItem(
+data class MediaItem(
     val ratingKey: String,
     val key: String,
     val guid: String,
@@ -255,7 +255,7 @@ data class PlexItemDetailsResponse(
     val librarySectionUUID: String,
     val mediaTagPrefix: String,
     val mediaTagVersion: Long,
-    val metadata: List<PlexMediaItem>
+    val metadata: List<MediaItem>
 )
 
 data class PlexUpdateResponse(

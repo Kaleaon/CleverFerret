@@ -21,7 +21,7 @@ import javax.inject.Singleton
 class PlexSyncService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val plexServerDao: PlexServerDao,
-    private val plexMediaItemDao: PlexMediaItemDao,
+    private val plexMediaItemDao: MediaItemDao,
     private val plexSyncDao: PlexSyncDao,
     private val mediaItemDao: MediaItemDao,
     private val libraryDao: LibraryDao,
@@ -151,7 +151,7 @@ class PlexSyncService @Inject constructor(
             val itemsBody = items.body()
             if (items.isSuccessful && itemsBody?.mediaContainer?.metadata != null) {
                 val plexItems = itemsBody.mediaContainer.metadata.map { metadata ->
-                    PlexMediaItem(
+                    MediaItem(
                         serverId = server.serverId,
                         plexRatingKey = metadata.ratingKey,
                         title = metadata.title,

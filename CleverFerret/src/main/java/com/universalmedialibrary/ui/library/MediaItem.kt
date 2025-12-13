@@ -38,7 +38,7 @@ enum class MediaType {
 
 /**
  * A component that displays a single media item with its poster, title, and other details.
- * Converted from React MediaItem component with Plex-inspired design.
+ * Converted from React MediaItem component with media-centric design.
  */
 @Composable
 fun MediaItem(

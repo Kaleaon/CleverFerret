@@ -81,7 +81,7 @@ fun CleverFerretTheme.getConfig(): ThemeConfig {
     return when (this) {
         CleverFerretTheme.NAVY_GOLD -> ThemeConfig(
             displayName = "Navy & Gold",
-            description = "Classic Plex-inspired elegance",
+            description = "Classic media-centric elegance",
             category = ThemeCategory.CLASSIC
         )
         CleverFerretTheme.EMERALD_SILVER -> ThemeConfig(

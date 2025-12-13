@@ -61,7 +61,7 @@ interface PlexSyncDao {
         WHERE pci.collectionId = :collectionId
         ORDER BY pci.sortOrder
     """)
-    suspend fun getCollectionItems(collectionId: Long): List<PlexMediaItem>
+    suspend fun getCollectionItems(collectionId: Long): List<MediaItem>
 
     // Tag methods
     @Query("SELECT * FROM plex_tags WHERE serverId = :serverId")

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.universalmedialibrary.debug.*
-import com.universalmedialibrary.ui.plex.theme.PlexColors
+import com.universalmedialibrary.ui.media.theme.MediaColors
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -66,7 +66,7 @@ fun DebugMenuScreen(
                         Icon(
                             imageVector = Icons.Default.BugReport,
                             contentDescription = null,
-                            tint = PlexColors.AccentPrimary
+                            tint = MediaColors.AccentPrimary
                         )
                         Text(
                             "Debug Menu",
@@ -75,14 +75,14 @@ fun DebugMenuScreen(
                         // Debug badge
                         Surface(
                             shape = RoundedCornerShape(4.dp),
-                            color = PlexColors.AccentPrimary.copy(alpha = 0.2f)
+                            color = MediaColors.AccentPrimary.copy(alpha = 0.2f)
                         ) {
                             Text(
                                 "DEBUG",
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = PlexColors.AccentPrimary
+                                color = MediaColors.AccentPrimary
                             )
                         }
                     }
@@ -100,17 +100,17 @@ fun DebugMenuScreen(
                         Icon(
                             Icons.Default.Send,
                             contentDescription = "Submit Bug Report",
-                            tint = PlexColors.AccentPrimary
+                            tint = MediaColors.AccentPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PlexColors.BackgroundSurface,
-                    titleContentColor = PlexColors.TextPrimary
+                    containerColor = MediaColors.BackgroundSurface,
+                    titleContentColor = MediaColors.TextPrimary
                 )
             )
         },
-        containerColor = PlexColors.Background
+        containerColor = MediaColors.Background
     ) { padding ->
         Column(
             modifier = Modifier
@@ -127,8 +127,8 @@ fun DebugMenuScreen(
             // Tab row
             ScrollableTabRow(
                 selectedTabIndex = selectedTab,
-                containerColor = PlexColors.BackgroundSurface,
-                contentColor = PlexColors.TextPrimary,
+                containerColor = MediaColors.BackgroundSurface,
+                contentColor = MediaColors.TextPrimary,
                 edgePadding = 16.dp
             ) {
                 DebugTab.entries.forEachIndexed { index, tab ->
@@ -148,22 +148,22 @@ fun DebugMenuScreen(
                                 Text(tab.title)
                                 if (tab == DebugTab.CRASHES && state.crashReports.isNotEmpty()) {
                                     Badge(
-                                        containerColor = PlexColors.Error
+                                        containerColor = MediaColors.Error
                                     ) {
                                         Text("${state.crashReports.size}")
                                     }
                                 }
                                 if (tab == DebugTab.ERRORS && state.errorLogs.count { it.level == LogLevel.ERROR } > 0) {
                                     Badge(
-                                        containerColor = PlexColors.Warning
+                                        containerColor = MediaColors.Warning
                                     ) {
                                         Text("${state.errorLogs.count { it.level == LogLevel.ERROR }}")
                                     }
                                 }
                             }
                         },
-                        selectedContentColor = PlexColors.AccentPrimary,
-                        unselectedContentColor = PlexColors.TextSecondary
+                        selectedContentColor = MediaColors.AccentPrimary,
+                        unselectedContentColor = MediaColors.TextSecondary
                     )
                 }
             }
@@ -238,7 +238,7 @@ private fun PerformanceSummaryCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
+        colors = CardDefaults.cardColors(containerColor = MediaColors.BackgroundSurface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -252,22 +252,22 @@ private fun PerformanceSummaryCard(
                 label = "Memory",
                 value = "${metrics.memoryUsedMB}/${metrics.memoryMaxMB} MB",
                 color = when {
-                    metrics.memoryPercentUsed > 80 -> PlexColors.Error
-                    metrics.memoryPercentUsed > 60 -> PlexColors.Warning
-                    else -> PlexColors.Success
+                    metrics.memoryPercentUsed > 80 -> MediaColors.Error
+                    metrics.memoryPercentUsed > 60 -> MediaColors.Warning
+                    else -> MediaColors.Success
                 }
             )
             MetricItem(
                 icon = Icons.Default.Warning,
                 label = "Crashes",
                 value = "$crashCount",
-                color = if (crashCount > 0) PlexColors.Error else PlexColors.Success
+                color = if (crashCount > 0) MediaColors.Error else MediaColors.Success
             )
             MetricItem(
                 icon = Icons.Default.Error,
                 label = "Errors",
                 value = "$errorCount",
-                color = if (errorCount > 0) PlexColors.Warning else PlexColors.Success
+                color = if (errorCount > 0) MediaColors.Warning else MediaColors.Success
             )
         }
     }
@@ -298,7 +298,7 @@ private fun MetricItem(
         Text(
             text = label,
             fontSize = 12.sp,
-            color = PlexColors.TextSecondary
+            color = MediaColors.TextSecondary
         )
     }
 }
@@ -333,7 +333,7 @@ private fun CrashReportsTab(
             EmptyState(
                 icon = Icons.Default.CheckCircle,
                 message = "No crashes recorded",
-                color = PlexColors.Success
+                color = MediaColors.Success
             )
         } else {
             LazyColumn(
@@ -362,7 +362,7 @@ private fun CrashReportCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = PlexColors.Error.copy(alpha = 0.1f)
+            containerColor = MediaColors.Error.copy(alpha = 0.1f)
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -373,7 +373,7 @@ private fun CrashReportCard(
             Icon(
                 Icons.Default.Error,
                 contentDescription = null,
-                tint = PlexColors.Error,
+                tint = MediaColors.Error,
                 modifier = Modifier.size(32.dp)
             )
             Spacer(Modifier.width(12.dp))
@@ -381,25 +381,25 @@ private fun CrashReportCard(
                 Text(
                     text = crash.exceptionClass.substringAfterLast('.'),
                     fontWeight = FontWeight.Bold,
-                    color = PlexColors.TextPrimary
+                    color = MediaColors.TextPrimary
                 )
                 Text(
                     text = crash.message,
                     fontSize = 12.sp,
-                    color = PlexColors.TextSecondary,
+                    color = MediaColors.TextSecondary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = formatTimestamp(crash.timestamp),
                     fontSize = 10.sp,
-                    color = PlexColors.TextSecondary
+                    color = MediaColors.TextSecondary
                 )
             }
             Icon(
                 Icons.Default.ChevronRight,
                 contentDescription = "View details",
-                tint = PlexColors.TextSecondary
+                tint = MediaColors.TextSecondary
             )
         }
     }
@@ -431,7 +431,7 @@ private fun ErrorLogsTab(
             EmptyState(
                 icon = Icons.Default.CheckCircle,
                 message = "No errors logged",
-                color = PlexColors.Success
+                color = MediaColors.Success
             )
         } else {
             LazyColumn(
@@ -456,9 +456,9 @@ private fun ErrorLogItem(
     onClick: () -> Unit
 ) {
     val color = when (error.level) {
-        LogLevel.ERROR -> PlexColors.Error
-        LogLevel.WARNING -> PlexColors.Warning
-        LogLevel.INFO -> PlexColors.AccentPrimary
+        LogLevel.ERROR -> MediaColors.Error
+        LogLevel.WARNING -> MediaColors.Warning
+        LogLevel.INFO -> MediaColors.AccentPrimary
     }
     
     Surface(
@@ -494,13 +494,13 @@ private fun ErrorLogItem(
                     Text(
                         text = formatTimestamp(error.timestamp),
                         fontSize = 10.sp,
-                        color = PlexColors.TextSecondary
+                        color = MediaColors.TextSecondary
                     )
                 }
                 Text(
                     text = error.message,
                     fontSize = 12.sp,
-                    color = PlexColors.TextPrimary,
+                    color = MediaColors.TextPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -518,14 +518,14 @@ private fun PerformanceTab(metrics: PerformanceMetrics) {
     ) {
         item {
             Card(
-                colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
+                colors = CardDefaults.cardColors(containerColor = MediaColors.BackgroundSurface),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         "Memory Usage",
                         fontWeight = FontWeight.Bold,
-                        color = PlexColors.TextPrimary
+                        color = MediaColors.TextPrimary
                     )
                     Spacer(Modifier.height(12.dp))
                     
@@ -536,11 +536,11 @@ private fun PerformanceTab(metrics: PerformanceMetrics) {
                             .height(8.dp)
                             .clip(RoundedCornerShape(4.dp)),
                         color = when {
-                            metrics.memoryPercentUsed > 80 -> PlexColors.Error
-                            metrics.memoryPercentUsed > 60 -> PlexColors.Warning
-                            else -> PlexColors.Success
+                            metrics.memoryPercentUsed > 80 -> MediaColors.Error
+                            metrics.memoryPercentUsed > 60 -> MediaColors.Warning
+                            else -> MediaColors.Success
                         },
-                        trackColor = PlexColors.BackgroundElevated
+                        trackColor = MediaColors.BackgroundElevated
                     )
                     
                     Spacer(Modifier.height(8.dp))
@@ -551,12 +551,12 @@ private fun PerformanceTab(metrics: PerformanceMetrics) {
                         Text(
                             "${metrics.memoryUsedMB} MB used",
                             fontSize = 12.sp,
-                            color = PlexColors.TextSecondary
+                            color = MediaColors.TextSecondary
                         )
                         Text(
                             "${metrics.memoryMaxMB} MB max",
                             fontSize = 12.sp,
-                            color = PlexColors.TextSecondary
+                            color = MediaColors.TextSecondary
                         )
                     }
                 }
@@ -567,7 +567,7 @@ private fun PerformanceTab(metrics: PerformanceMetrics) {
             Text(
                 "Last updated: ${formatTimestamp(metrics.lastUpdated)}",
                 fontSize = 12.sp,
-                color = PlexColors.TextSecondary
+                color = MediaColors.TextSecondary
             )
         }
     }
@@ -587,14 +587,14 @@ private fun FlagsTab(
             Text(
                 "Feature Flags",
                 fontWeight = FontWeight.Bold,
-                color = PlexColors.TextPrimary,
+                color = MediaColors.TextPrimary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
         
         items(flags.entries.toList()) { (key, value) ->
             Card(
-                colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
+                colors = CardDefaults.cardColors(containerColor = MediaColors.BackgroundSurface),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Row(
@@ -609,21 +609,21 @@ private fun FlagsTab(
                             text = key.replace("_", " ").lowercase()
                                 .replaceFirstChar { it.uppercase() },
                             fontWeight = FontWeight.Medium,
-                            color = PlexColors.TextPrimary
+                            color = MediaColors.TextPrimary
                         )
                         Text(
                             text = key,
                             fontSize = 10.sp,
                             fontFamily = FontFamily.Monospace,
-                            color = PlexColors.TextSecondary
+                            color = MediaColors.TextSecondary
                         )
                     }
                     Switch(
                         checked = value,
                         onCheckedChange = { onToggleFlag(key, it) },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = PlexColors.AccentPrimary,
-                            checkedTrackColor = PlexColors.AccentPrimary.copy(alpha = 0.5f)
+                            checkedThumbColor = MediaColors.AccentPrimary,
+                            checkedTrackColor = MediaColors.AccentPrimary.copy(alpha = 0.5f)
                         )
                     )
                 }
@@ -645,7 +645,7 @@ private fun NotificationsTab(
             Text(
                 "Test Notifications",
                 fontWeight = FontWeight.Bold,
-                color = PlexColors.TextPrimary,
+                color = MediaColors.TextPrimary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
@@ -664,7 +664,7 @@ private fun NotificationsTab(
                 onClick = { onTriggerNotification(type) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = PlexColors.TextPrimary
+                    contentColor = MediaColors.TextPrimary
                 )
             ) {
                 Icon(Icons.Default.Notifications, contentDescription = null)
@@ -689,14 +689,14 @@ private fun ToolsTab(
             Text(
                 "Developer Tools",
                 fontWeight = FontWeight.Bold,
-                color = PlexColors.TextPrimary,
+                color = MediaColors.TextPrimary,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
         
         item {
             Card(
-                colors = CardDefaults.cardColors(containerColor = PlexColors.BackgroundSurface),
+                colors = CardDefaults.cardColors(containerColor = MediaColors.BackgroundSurface),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -709,7 +709,7 @@ private fun ToolsTab(
                     
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 12.dp),
-                        color = PlexColors.BackgroundElevated
+                        color = MediaColors.BackgroundElevated
                     )
                     
                     ToolButton(
@@ -733,7 +733,7 @@ private fun ToolButton(
     onClick: () -> Unit,
     destructive: Boolean = false
 ) {
-    val color = if (destructive) PlexColors.Error else PlexColors.TextPrimary
+    val color = if (destructive) MediaColors.Error else MediaColors.TextPrimary
     
     Row(
         modifier = Modifier
@@ -758,13 +758,13 @@ private fun ToolButton(
             Text(
                 text = description,
                 fontSize = 12.sp,
-                color = PlexColors.TextSecondary
+                color = MediaColors.TextSecondary
             )
         }
         Icon(
             Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = PlexColors.TextSecondary
+            tint = MediaColors.TextSecondary
         )
     }
 }
@@ -818,7 +818,7 @@ private fun BugReportDialog(
                 Icon(
                     Icons.Default.BugReport,
                     contentDescription = null,
-                    tint = PlexColors.AccentPrimary
+                    tint = MediaColors.AccentPrimary
                 )
                 Spacer(Modifier.width(8.dp))
                 Text("Submit Bug Report")
@@ -856,7 +856,7 @@ private fun BugReportDialog(
                 onClick = { onSubmit(title, description, steps) },
                 enabled = title.isNotBlank() && description.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = PlexColors.AccentPrimary
+                    containerColor = MediaColors.AccentPrimary
                 )
             ) {
                 Text("Submit")
@@ -867,7 +867,7 @@ private fun BugReportDialog(
                 Text("Cancel")
             }
         },
-        containerColor = PlexColors.BackgroundSurface
+        containerColor = MediaColors.BackgroundSurface
     )
 }
 
@@ -892,34 +892,34 @@ private fun CrashDetailsDialog(
                 Text(
                     "Message:",
                     fontWeight = FontWeight.Bold,
-                    color = PlexColors.TextSecondary,
+                    color = MediaColors.TextSecondary,
                     fontSize = 12.sp
                 )
-                Text(crash.message, color = PlexColors.TextPrimary)
+                Text(crash.message, color = MediaColors.TextPrimary)
                 
                 Text(
                     "Thread:",
                     fontWeight = FontWeight.Bold,
-                    color = PlexColors.TextSecondary,
+                    color = MediaColors.TextSecondary,
                     fontSize = 12.sp
                 )
-                Text(crash.threadName, color = PlexColors.TextPrimary)
+                Text(crash.threadName, color = MediaColors.TextPrimary)
                 
                 Text(
                     "Stack Trace:",
                     fontWeight = FontWeight.Bold,
-                    color = PlexColors.TextSecondary,
+                    color = MediaColors.TextSecondary,
                     fontSize = 12.sp
                 )
                 Surface(
-                    color = PlexColors.Background,
+                    color = MediaColors.Background,
                     shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
                         text = crash.stackTrace,
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
-                        color = PlexColors.TextPrimary,
+                        color = MediaColors.TextPrimary,
                         modifier = Modifier.padding(8.dp)
                     )
                 }
@@ -927,12 +927,12 @@ private fun CrashDetailsDialog(
                 Text(
                     "Device: ${crash.deviceInfo.manufacturer} ${crash.deviceInfo.model}",
                     fontSize = 10.sp,
-                    color = PlexColors.TextSecondary
+                    color = MediaColors.TextSecondary
                 )
                 Text(
                     "Android: ${crash.deviceInfo.androidVersion} (API ${crash.deviceInfo.sdkVersion})",
                     fontSize = 10.sp,
-                    color = PlexColors.TextSecondary
+                    color = MediaColors.TextSecondary
                 )
             }
         },
@@ -941,7 +941,7 @@ private fun CrashDetailsDialog(
                 Text("Close")
             }
         },
-        containerColor = PlexColors.BackgroundSurface
+        containerColor = MediaColors.BackgroundSurface
     )
 }
 
@@ -955,9 +955,9 @@ private fun ErrorDetailsDialog(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val color = when (error.level) {
-                    LogLevel.ERROR -> PlexColors.Error
-                    LogLevel.WARNING -> PlexColors.Warning
-                    LogLevel.INFO -> PlexColors.AccentPrimary
+                    LogLevel.ERROR -> MediaColors.Error
+                    LogLevel.WARNING -> MediaColors.Warning
+                    LogLevel.INFO -> MediaColors.AccentPrimary
                 }
                 Box(
                     modifier = Modifier
@@ -977,33 +977,33 @@ private fun ErrorDetailsDialog(
                 Text(
                     "Time: ${formatTimestamp(error.timestamp)}",
                     fontSize = 12.sp,
-                    color = PlexColors.TextSecondary
+                    color = MediaColors.TextSecondary
                 )
                 
                 Text(
                     "Message:",
                     fontWeight = FontWeight.Bold,
-                    color = PlexColors.TextSecondary,
+                    color = MediaColors.TextSecondary,
                     fontSize = 12.sp
                 )
-                Text(error.message, color = PlexColors.TextPrimary)
+                Text(error.message, color = MediaColors.TextPrimary)
                 
                 error.stackTrace?.let { trace ->
                     Text(
                         "Stack Trace:",
                         fontWeight = FontWeight.Bold,
-                        color = PlexColors.TextSecondary,
+                        color = MediaColors.TextSecondary,
                         fontSize = 12.sp
                     )
                     Surface(
-                        color = PlexColors.Background,
+                        color = MediaColors.Background,
                         shape = RoundedCornerShape(4.dp)
                     ) {
                         Text(
                             text = trace,
                             fontFamily = FontFamily.Monospace,
                             fontSize = 10.sp,
-                            color = PlexColors.TextPrimary,
+                            color = MediaColors.TextPrimary,
                             modifier = Modifier.padding(8.dp)
                         )
                     }
@@ -1015,7 +1015,7 @@ private fun ErrorDetailsDialog(
                 Text("Close")
             }
         },
-        containerColor = PlexColors.BackgroundSurface
+        containerColor = MediaColors.BackgroundSurface
     )
 }
 

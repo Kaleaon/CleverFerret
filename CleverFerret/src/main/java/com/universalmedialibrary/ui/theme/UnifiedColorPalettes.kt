@@ -55,7 +55,7 @@ object PaperInkUnified {
     val darkScheme = lightScheme
 }
 
-// Theme 1: Navy & Gold (Classic Plex-inspired)
+// Theme 1: Navy & Gold (Classic media-centric)
 object NavyGoldUnified {
     private val Gold = Color(0xFFD4AF37)
     private val GoldLight = Color(0xFFE0C25E)
