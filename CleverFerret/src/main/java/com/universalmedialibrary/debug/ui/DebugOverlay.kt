@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.debug.DebugReportingService
 import com.universalmedialibrary.debug.PerformanceMetrics
-import com.universalmedialibrary.ui.plex.theme.PlexColors
+import com.universalmedialibrary.ui.media.theme.MediaColors
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -96,7 +96,7 @@ private fun CollapsedDebugFab(
         badge = {
             if (hasIssues) {
                 Badge(
-                    containerColor = PlexColors.Error
+                    containerColor = MediaColors.Error
                 ) {
                     Text("${crashCount + errorCount}")
                 }
@@ -106,7 +106,7 @@ private fun CollapsedDebugFab(
         FloatingActionButton(
             onClick = onExpand,
             containerColor = if (hasIssues) 
-                PlexColors.Error.copy(alpha = 0.9f) 
+                MediaColors.Error.copy(alpha = 0.9f) 
             else 
                 Color(0xFF4CAF50).copy(alpha = 0.9f),
             contentColor = Color.White,
@@ -184,8 +184,8 @@ private fun ExpandedDebugOverlay(
                 label = "Memory",
                 value = "${metrics.memoryUsedMB}/${metrics.memoryMaxMB} MB",
                 color = when {
-                    metrics.memoryPercentUsed > 80 -> PlexColors.Error
-                    metrics.memoryPercentUsed > 60 -> PlexColors.Warning
+                    metrics.memoryPercentUsed > 80 -> MediaColors.Error
+                    metrics.memoryPercentUsed > 60 -> MediaColors.Warning
                     else -> Color(0xFF4CAF50)
                 }
             )
@@ -198,8 +198,8 @@ private fun ExpandedDebugOverlay(
                     .height(4.dp)
                     .clip(RoundedCornerShape(2.dp)),
                 color = when {
-                    metrics.memoryPercentUsed > 80 -> PlexColors.Error
-                    metrics.memoryPercentUsed > 60 -> PlexColors.Warning
+                    metrics.memoryPercentUsed > 80 -> MediaColors.Error
+                    metrics.memoryPercentUsed > 60 -> MediaColors.Warning
                     else -> Color(0xFF4CAF50)
                 },
                 trackColor = Color.White.copy(alpha = 0.2f)
@@ -212,7 +212,7 @@ private fun ExpandedDebugOverlay(
                 icon = Icons.Default.Warning,
                 label = "Crashes",
                 value = "$crashCount",
-                color = if (crashCount > 0) PlexColors.Error else Color.White.copy(alpha = 0.7f)
+                color = if (crashCount > 0) MediaColors.Error else Color.White.copy(alpha = 0.7f)
             )
             
             // Error count
@@ -220,7 +220,7 @@ private fun ExpandedDebugOverlay(
                 icon = Icons.Default.Error,
                 label = "Errors",
                 value = "$errorCount",
-                color = if (errorCount > 0) PlexColors.Warning else Color.White.copy(alpha = 0.7f)
+                color = if (errorCount > 0) MediaColors.Warning else Color.White.copy(alpha = 0.7f)
             )
             
             Spacer(modifier = Modifier.height(8.dp))

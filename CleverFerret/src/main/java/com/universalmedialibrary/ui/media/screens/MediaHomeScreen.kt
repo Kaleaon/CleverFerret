@@ -1,0 +1,709 @@
+package com.universalmedialibrary.ui.media.screens
+
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.pager.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.universalmedialibrary.ui.media.components.*
+import com.universalmedialibrary.ui.media.theme.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+/**
+ * Clean Media-Centric Home/Dashboard Screen
+ * 
+ * A beautiful, feature-rich home screen inspired by premium media apps:
+ * - Hero carousel for featured content
+ * - Continue reading/watching/listening section
+ * - Recently added content rows
+ * - Curated collections
+ * - Quick access to all media types
+ * - Personalized recommendations
+ */
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MediaHomeScreen(
+    state: MediaHomeState,
+    onItemClick: (MediaItem) -> Unit,
+    onPlayClick: (MediaItem) -> Unit,
+    onSeeAllClick: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberLazyListState()
+    val heroCarouselPagerState = rememberPagerState(pageCount = { state.featuredItems.size })
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Auto-scroll hero carousel
+    LaunchedEffect(state.featuredItems) {
+        if (state.featuredItems.isNotEmpty()) {
+            while (true) {
+                delay(6000)
+                val nextPage = (heroCarouselPagerState.currentPage + 1) % state.featuredItems.size
+                heroCarouselPagerState.animateScrollToPage(nextPage)
+            }
+        }
+    }
+    
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MediaColors.Background)
+    ) {
+        LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Hero Carousel
+            if (state.featuredItems.isNotEmpty()) {
+                item {
+                    HeroCarousel(
+                        items = state.featuredItems,
+                        pagerState = heroCarouselPagerState,
+                        onItemClick = onItemClick,
+                        onPlayClick = onPlayClick
+                    )
+                }
+            }
+            
+            // Quick Stats Row
+            item {
+                QuickStatsRow(stats = state.libraryStats)
+            }
+            
+            // Continue Section (Reading, Watching, Listening)
+            if (state.continueItems.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "Continue Where You Left Off",
+                        items = state.continueItems,
+                        onSeeAllClick = { onSeeAllClick("continue") }
+                    ) { item ->
+                        MediaWideCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            width = MediaSizes.CardXLarge
+                        )
+                    }
+                }
+            }
+            
+            // Recently Added Books
+            if (state.recentBooks.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "Recently Added Books",
+                        items = state.recentBooks,
+                        onSeeAllClick = { onSeeAllClick("books") }
+                    ) { item ->
+                        MediaPosterCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            width = MediaSizes.CardMedium
+                        )
+                    }
+                }
+            }
+            
+            // Recently Added Music
+            if (state.recentMusic.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "Recently Added Music",
+                        items = state.recentMusic,
+                        onSeeAllClick = { onSeeAllClick("music") }
+                    ) { item ->
+                        MediaSquareCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            size = MediaSizes.CardMedium
+                        )
+                    }
+                }
+            }
+            
+            // Podcasts
+            if (state.recentPodcasts.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "New Podcast Episodes",
+                        items = state.recentPodcasts,
+                        onSeeAllClick = { onSeeAllClick("podcasts") }
+                    ) { item ->
+                        MediaSquareCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            size = MediaSizes.CardMedium
+                        )
+                    }
+                }
+            }
+            
+            // Movies & TV (from Plex/Jellyfin/Emby)
+            if (state.recentVideos.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "Recently Added Movies & TV",
+                        items = state.recentVideos,
+                        onSeeAllClick = { onSeeAllClick("videos") }
+                    ) { item ->
+                        MediaPosterCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            width = MediaSizes.CardMedium
+                        )
+                    }
+                }
+            }
+            
+            // Audiobooks
+            if (state.recentAudiobooks.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "Recent Audiobooks",
+                        items = state.recentAudiobooks,
+                        onSeeAllClick = { onSeeAllClick("audiobooks") }
+                    ) { item ->
+                        MediaPosterCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            width = MediaSizes.CardMedium
+                        )
+                    }
+                }
+            }
+            
+            // Comics
+            if (state.recentComics.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "Recently Added Comics",
+                        items = state.recentComics,
+                        onSeeAllClick = { onSeeAllClick("comics") }
+                    ) { item ->
+                        MediaPosterCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            width = MediaSizes.CardMedium
+                        )
+                    }
+                }
+            }
+            
+            // Web Fiction
+            if (state.recentFanfiction.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    MediaCarouselRow(
+                        title = "Web Fiction Updates",
+                        items = state.recentFanfiction,
+                        onSeeAllClick = { onSeeAllClick("webfiction") }
+                    ) { item ->
+                        MediaPosterCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            width = MediaSizes.CardMedium
+                        )
+                    }
+                }
+            }
+            
+            // Collections
+            if (state.collections.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                    CollectionsSection(
+                        collections = state.collections,
+                        onCollectionClick = { onSeeAllClick("collection_${it.id}") }
+                    )
+                }
+            }
+            
+            // Quick Access Grid
+            item {
+                Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
+                QuickAccessGrid(
+                    onCategoryClick = onSeeAllClick
+                )
+            }
+            
+            // Bottom padding
+            item {
+                Spacer(modifier = Modifier.height(MediaSpacing.Huge))
+            }
+        }
+        
+        // Floating Top Bar (fades in on scroll)
+        AnimatedVisibility(
+            visible = scrollState.firstVisibleItemIndex > 0,
+            enter = fadeIn() + slideInVertically(),
+            exit = fadeOut() + slideOutVertically(),
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            PlexTopBar(
+                onSearchClick = onSearchClick,
+                onNotificationClick = onNotificationClick
+            )
+        }
+    }
+}
+
+// =============================================================================
+// HERO CAROUSEL
+// =============================================================================
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HeroCarousel(
+    items: List<MediaItem>,
+    pagerState: PagerState,
+    onItemClick: (MediaItem) -> Unit,
+    onPlayClick: (MediaItem) -> Unit
+) {
+    Box {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
+            MediaHeroCard(
+                item = items[page],
+                onClick = { onItemClick(items[page]) },
+                onPlayClick = { onPlayClick(items[page]) }
+            )
+        }
+        
+        // Page indicators
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = MediaSpacing.LG),
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)
+        ) {
+            items.forEachIndexed { index, _ ->
+                Box(
+                    modifier = Modifier
+                        .size(if (pagerState.currentPage == index) 24.dp else 8.dp, 4.dp)
+                        .clip(RoundedCornerShape(MediaCorners.Full))
+                        .background(
+                            if (pagerState.currentPage == index) 
+                                MediaColors.AccentPrimary 
+                            else 
+                                MediaColors.TextTertiary.copy(alpha = 0.5f)
+                        )
+                        .animateContentSize()
+                )
+            }
+        }
+    }
+}
+
+// =============================================================================
+// QUICK STATS ROW
+// =============================================================================
+
+@Composable
+private fun QuickStatsRow(stats: HomeLibraryStats) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal, vertical = MediaSpacing.MD),
+        horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
+    ) {
+        StatCard(
+            icon = Icons.Default.MenuBook,
+            value = stats.totalBooks.toString(),
+            label = "Books",
+            color = MediaColors.MediaTypes.Book,
+            modifier = Modifier.weight(1f)
+        )
+        StatCard(
+            icon = Icons.Default.MusicNote,
+            value = stats.totalMusic.toString(),
+            label = "Tracks",
+            color = MediaColors.MediaTypes.Music,
+            modifier = Modifier.weight(1f)
+        )
+        StatCard(
+            icon = Icons.Default.Headphones,
+            value = stats.totalAudiobooks.toString(),
+            label = "Audiobooks",
+            color = MediaColors.MediaTypes.Audiobook,
+            modifier = Modifier.weight(1f)
+        )
+        StatCard(
+            icon = Icons.Default.Movie,
+            value = stats.totalVideos.toString(),
+            label = "Videos",
+            color = MediaColors.MediaTypes.Movie,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun StatCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    value: String,
+    label: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(MediaCorners.Card),
+        color = MediaColors.BackgroundElevated
+    ) {
+        Row(
+            modifier = Modifier.padding(MediaSpacing.MD),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = color.copy(alpha = 0.15f),
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(MediaSpacing.SM)
+                        .fillMaxSize(),
+                    tint = color
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(MediaSpacing.SM))
+            
+            Column {
+                Text(
+                    text = value,
+                    style = MediaTypography.TitleMedium,
+                    color = MediaColors.TextPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = label,
+                    style = MediaTypography.LabelSmall,
+                    color = MediaColors.TextTertiary
+                )
+            }
+        }
+    }
+}
+
+// =============================================================================
+// COLLECTIONS SECTION
+// =============================================================================
+
+@Composable
+private fun CollectionsSection(
+    collections: List<HomeCollection>,
+    onCollectionClick: (HomeCollection) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal)
+    ) {
+        Text(
+            text = "Your Collections",
+            style = MediaTypography.TitleMedium,
+            color = MediaColors.TextPrimary
+        )
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+        
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD)
+        ) {
+            items(collections) { collection ->
+                CollectionCard(
+                    collection = collection,
+                    onClick = { onCollectionClick(collection) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CollectionCard(
+    collection: HomeCollection,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .width(200.dp)
+            .height(120.dp),
+        shape = RoundedCornerShape(MediaCorners.Card),
+        onClick = onClick
+    ) {
+        Box {
+            // Background gradient
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                collection.color.copy(alpha = 0.6f),
+                                collection.color.copy(alpha = 0.2f)
+                            )
+                        )
+                    )
+            )
+            
+            // Content
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(MediaSpacing.MD),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(
+                    imageVector = collection.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(MediaSizes.IconLG),
+                    tint = MediaColors.TextPrimary
+                )
+                
+                Column {
+                    Text(
+                        text = collection.name,
+                        style = MediaTypography.TitleSmall,
+                        color = MediaColors.TextPrimary,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = "${collection.itemCount} items",
+                        style = MediaTypography.LabelSmall,
+                        color = MediaColors.TextSecondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// QUICK ACCESS GRID
+// =============================================================================
+
+@Composable
+private fun QuickAccessGrid(
+    onCategoryClick: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MediaSpacing.ScreenHorizontal)
+    ) {
+        Text(
+            text = "Explore Your Library",
+            style = MediaTypography.TitleMedium,
+            color = MediaColors.TextPrimary
+        )
+        
+        Spacer(modifier = Modifier.height(MediaSpacing.MD))
+        
+        val categories = listOf(
+            QuickAccessItem("books", "Books", Icons.Default.MenuBook, MediaColors.MediaTypes.Book),
+            QuickAccessItem("audiobooks", "Audiobooks", Icons.Default.Headphones, MediaColors.MediaTypes.Audiobook),
+            QuickAccessItem("comics", "Comics", Icons.Default.AutoStories, MediaColors.MediaTypes.Comic),
+            QuickAccessItem("music", "Music", Icons.Default.MusicNote, MediaColors.MediaTypes.Music),
+            QuickAccessItem("podcasts", "Podcasts", Icons.Default.Podcasts, MediaColors.MediaTypes.Podcast),
+            QuickAccessItem("radio", "Radio", Icons.Default.Radio, MediaColors.MediaTypes.Radio),
+            QuickAccessItem("videos", "Videos", Icons.Default.Movie, MediaColors.MediaTypes.Movie),
+            QuickAccessItem("webfiction", "Web Fiction", Icons.Default.Language, MediaColors.MediaTypes.Fanfiction),
+            QuickAccessItem("documents", "Documents", Icons.Default.Description, MediaColors.MediaTypes.Document),
+            QuickAccessItem("opds", "OPDS", Icons.Default.CloudDownload, MediaColors.AccentSecondary),
+            QuickAccessItem("ambient", "Ambient", Icons.Default.Spa, MediaColors.AccentTertiary),
+            QuickAccessItem("collections", "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
+        )
+        
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 100.dp),
+            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
+            verticalArrangement = Arrangement.spacedBy(MediaSpacing.MD),
+            modifier = Modifier.height(280.dp),
+            userScrollEnabled = false
+        ) {
+            items(
+                items = categories,
+                key = { it.id }
+            ) { item: QuickAccessItem ->
+                QuickAccessCard(
+                    item = item,
+                    onClick = { onCategoryClick(item.id) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickAccessCard(
+    item: QuickAccessItem,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f),
+        shape = RoundedCornerShape(MediaCorners.Card),
+        color = MediaColors.BackgroundElevated,
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(MediaSpacing.SM),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = item.color.copy(alpha = 0.15f),
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(MediaSpacing.SM)
+                        .fillMaxSize(),
+                    tint = item.color
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(MediaSpacing.SM))
+            
+            Text(
+                text = item.label,
+                style = MediaTypography.LabelMedium,
+                color = MediaColors.TextPrimary
+            )
+        }
+    }
+}
+
+// =============================================================================
+// TOP BAR
+// =============================================================================
+
+@Composable
+private fun PlexTopBar(
+    onSearchClick: () -> Unit,
+    onNotificationClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MediaColors.Background.copy(alpha = 0.95f),
+        tonalElevation = MediaElevation.SM
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = MediaSpacing.ScreenHorizontal, vertical = MediaSpacing.SM),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "CleverFerret",
+                style = MediaTypography.TitleMedium,
+                color = MediaColors.AccentPrimary,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Row(horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM)) {
+                IconButton(onClick = onSearchClick) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = MediaColors.TextSecondary
+                    )
+                }
+                
+                IconButton(onClick = onNotificationClick) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notifications",
+                        tint = MediaColors.TextSecondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// DATA MODELS
+// =============================================================================
+
+/**
+ * State holder for the home screen
+ */
+data class MediaHomeState(
+    val isLoading: Boolean = false,
+    val featuredItems: List<MediaItem> = emptyList(),
+    val continueItems: List<MediaItem> = emptyList(),
+    val recentBooks: List<MediaItem> = emptyList(),
+    val recentAudiobooks: List<MediaItem> = emptyList(),
+    val recentComics: List<MediaItem> = emptyList(),
+    val recentMusic: List<MediaItem> = emptyList(),
+    val recentPodcasts: List<MediaItem> = emptyList(),
+    val recentVideos: List<MediaItem> = emptyList(),
+    val recentFanfiction: List<MediaItem> = emptyList(),
+    val collections: List<HomeCollection> = emptyList(),
+    val libraryStats: HomeLibraryStats = HomeLibraryStats()
+)
+
+data class HomeLibraryStats(
+    val totalBooks: Int = 0,
+    val totalAudiobooks: Int = 0,
+    val totalComics: Int = 0,
+    val totalMusic: Int = 0,
+    val totalPodcasts: Int = 0,
+    val totalVideos: Int = 0,
+    val totalFanfiction: Int = 0
+)
+
+data class HomeCollection(
+    val id: String,
+    val name: String,
+    val itemCount: Int,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val color: Color
+)
+
+private data class QuickAccessItem(
+    val id: String,
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val color: Color
+)

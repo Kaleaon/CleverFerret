@@ -28,7 +28,7 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 
 /**
- * Enhanced Video player screen using ExoPlayer with Plex-inspired UI
+ * Enhanced Video player screen using ExoPlayer with media-centric UI
  */
 @OptIn(ExperimentalMaterial3Api::class, UnstableApi::class)
 @Composable
