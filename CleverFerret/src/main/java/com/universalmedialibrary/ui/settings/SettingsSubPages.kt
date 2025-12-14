@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.work.*
+import com.universalmedialibrary.data.repository.CacheLocation
 import com.universalmedialibrary.data.repository.SettingsRepository
 import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
@@ -649,9 +650,25 @@ fun CacheSettingsScreen(
     val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
     var cacheSizeText by remember { mutableStateOf("…") }
+    var availableSpaceText by remember { mutableStateOf("…") }
+
+    // Slider is local to avoid spamming DataStore writes while dragging.
+    var sliderMb by remember { mutableStateOf(state.maxCacheSizeMb.coerceIn(512, 10_240)) }
+    LaunchedEffect(state.maxCacheSizeMb) {
+        sliderMb = state.maxCacheSizeMb.coerceIn(512, 10_240)
+    }
 
     LaunchedEffect(state.cacheLocation) {
-        cacheSizeText = withContext(Dispatchers.IO) { calculateCacheSize(context).toHumanReadable() }
+        val (sizeBytes, availableMb) = withContext(Dispatchers.IO) {
+            val dir = getCacheDirectoryForLocation(context, state.cacheLocation)
+            val size = directorySize(dir)
+            val available = runCatching {
+                android.os.StatFs(dir.path).availableBytes / (1024L * 1024L)
+            }.getOrDefault(0L)
+            size to available
+        }
+        cacheSizeText = sizeBytes.toHumanReadable()
+        availableSpaceText = "${availableMb} MB"
     }
 
     Scaffold(
@@ -675,29 +692,84 @@ fun CacheSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
+                text = "Cache location",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            val externalAvailable = remember(context) { context.externalCacheDir != null }
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                SegmentedButton(
+                    selected = state.cacheLocation == CacheLocation.INTERNAL,
+                    onClick = { viewModel.setCacheLocation(CacheLocation.INTERNAL) },
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                ) { Text("Local") }
+
+                SegmentedButton(
+                    selected = state.cacheLocation == CacheLocation.EXTERNAL,
+                    onClick = {
+                        if (externalAvailable) viewModel.setCacheLocation(CacheLocation.EXTERNAL)
+                        else Toast.makeText(context, "No external/SD cache directory available.", Toast.LENGTH_SHORT).show()
+                    },
+                    enabled = externalAvailable,
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                ) { Text("SD card") }
+            }
+
+            Text(
                 text = "Current cache size: $cacheSizeText",
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            OutlinedTextField(
-                value = state.maxCacheSizeMb.toString(),
+            Text(
+                text = "Available space: $availableSpaceText",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text(
+                text = "Max cache size",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            val sliderMinMb = 512
+            val sliderMaxMb = 10_240
+            val stepMb = 256
+            val valuesCount = ((sliderMaxMb - sliderMinMb) / stepMb) + 1
+            val steps = (valuesCount - 2).coerceAtLeast(0)
+
+            Text(
+                text = String.format(
+                    Locale.getDefault(),
+                    "%.2f GB",
+                    sliderMb.toDouble() / 1024.0
+                ),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Slider(
+                value = sliderMb.toFloat(),
                 onValueChange = { raw ->
-                    raw.toIntOrNull()?.let { mb ->
-                        if (mb in 1..10000) viewModel.setMaxCacheSizeMb(mb)
-                    }
+                    val snapped = ((raw - sliderMinMb) / stepMb).toInt().coerceAtLeast(0) * stepMb + sliderMinMb
+                    sliderMb = snapped.coerceIn(sliderMinMb, sliderMaxMb)
                 },
-                label = { Text("Max cache size (MB)") },
-                supportingText = { Text("Range: 1-10000 MB") },
-                leadingIcon = { Icon(Icons.Default.Storage, contentDescription = null) },
-                modifier = Modifier.fillMaxWidth()
+                onValueChangeFinished = { viewModel.setMaxCacheSizeMb(sliderMb) },
+                valueRange = sliderMinMb.toFloat()..sliderMaxMb.toFloat(),
+                steps = steps
+            )
+            Text(
+                text = "Range: 0.5 GB to 10 GB",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Button(
                 onClick = {
                     scope.launch {
                         val newSize = withContext(Dispatchers.IO) {
-                            clearCache(context)
-                            calculateCacheSize(context).toHumanReadable()
+                            clearCache(context, state.cacheLocation)
+                            calculateCacheSize(context, state.cacheLocation).toHumanReadable()
                         }
                         cacheSizeText = newSize
                     }
@@ -714,7 +786,7 @@ fun CacheSettingsScreen(
 
 data class CacheSettingsState(
     val maxCacheSizeMb: Int = 500,
-    val cacheLocation: String = "INTERNAL"
+    val cacheLocation: CacheLocation = CacheLocation.INTERNAL
 )
 
 @HiltViewModel
@@ -730,13 +802,17 @@ class CacheSettingsViewModel @Inject constructor(
                 settingsRepository.maxCacheSizeMBFlow,
                 settingsRepository.cacheLocationFlow
             ) { maxMb, location ->
-                CacheSettingsState(maxCacheSizeMb = maxMb, cacheLocation = location.name)
+                CacheSettingsState(maxCacheSizeMb = maxMb, cacheLocation = location)
             }.collect { _state.value = it }
         }
     }
 
     fun setMaxCacheSizeMb(mb: Int) {
         viewModelScope.launch { settingsRepository.setMaxCacheSizeMB(mb) }
+    }
+
+    fun setCacheLocation(location: CacheLocation) {
+        viewModelScope.launch { settingsRepository.setCacheLocation(location) }
     }
 }
 
@@ -1120,10 +1196,20 @@ class FeedbackViewModel @Inject constructor(
     }
 }
 
-private suspend fun calculateCacheSize(context: android.content.Context): Long {
-    val internal = context.cacheDir
-    val external = context.externalCacheDir
-    return directorySize(internal) + (external?.let { directorySize(it) } ?: 0L)
+private fun getCacheDirectoryForLocation(
+    context: android.content.Context,
+    location: CacheLocation
+): File {
+    // Mirror CacheManager's directory convention ("artwork" subdir) so the UI matches actual caching behavior.
+    val base = when (location) {
+        CacheLocation.INTERNAL -> context.cacheDir
+        CacheLocation.EXTERNAL -> context.externalCacheDir ?: context.cacheDir
+    }
+    return File(base, "artwork").apply { if (!exists()) mkdirs() }
+}
+
+private suspend fun calculateCacheSize(context: android.content.Context, location: CacheLocation): Long {
+    return directorySize(getCacheDirectoryForLocation(context, location))
 }
 
 private fun directorySize(dir: File): Long {
@@ -1166,9 +1252,8 @@ private fun directorySize(dir: File): Long {
     return total
 }
 
-private suspend fun clearCache(context: android.content.Context) {
-    runCatching { context.cacheDir.deleteRecursively() }
-    runCatching { context.externalCacheDir?.deleteRecursively() }
+private suspend fun clearCache(context: android.content.Context, location: CacheLocation) {
+    runCatching { getCacheDirectoryForLocation(context, location).deleteRecursively() }
 }
 
 private fun Long.toHumanReadable(): String {
