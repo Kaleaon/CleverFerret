@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.ui.media.theme.*
 
 /**
@@ -93,8 +95,26 @@ object MediaNavDestinations {
         label = "Home",
         icon = Icons.Outlined.Home,
         selectedIcon = Icons.Filled.Home,
-        route = "home",
+        route = MediaRoutes.HOME,
         section = NavSection.HOME
+    )
+
+    val search = MediaNavDestination(
+        id = "search",
+        label = "Search",
+        icon = Icons.Outlined.Search,
+        selectedIcon = Icons.Filled.Search,
+        route = MediaRoutes.SEARCH,
+        section = NavSection.HOME
+    )
+
+    val discover = MediaNavDestination(
+        id = "discover",
+        label = "Discover",
+        icon = Icons.Outlined.Explore,
+        selectedIcon = Icons.Filled.Explore,
+        route = MediaRoutes.DISCOVER,
+        section = NavSection.DISCOVER
     )
     
     // Library Section
@@ -103,7 +123,7 @@ object MediaNavDestinations {
         label = "Books",
         icon = Icons.Outlined.MenuBook,
         selectedIcon = Icons.Filled.MenuBook,
-        route = "library_details/1",
+        route = MediaRoutes.BOOKS,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Book
     )
@@ -113,7 +133,7 @@ object MediaNavDestinations {
         label = "Audiobooks",
         icon = Icons.Outlined.Headphones,
         selectedIcon = Icons.Filled.Headphones,
-        route = "library_details/2",
+        route = MediaRoutes.AUDIOBOOKS,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Audiobook
     )
@@ -123,7 +143,7 @@ object MediaNavDestinations {
         label = "Comics",
         icon = Icons.Outlined.AutoStories,
         selectedIcon = Icons.Filled.AutoStories,
-        route = "library_details/3",
+        route = MediaRoutes.COMICS,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Comic
     )
@@ -133,7 +153,7 @@ object MediaNavDestinations {
         label = "Movies",
         icon = Icons.Outlined.Movie,
         selectedIcon = Icons.Filled.Movie,
-        route = "library_details/4",
+        route = MediaRoutes.MOVIES,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Movie
     )
@@ -143,7 +163,7 @@ object MediaNavDestinations {
         label = "TV Shows",
         icon = Icons.Outlined.Tv,
         selectedIcon = Icons.Filled.Tv,
-        route = "library_details/5",
+        route = MediaRoutes.TV_SHOWS,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.TvShow
     )
@@ -153,7 +173,7 @@ object MediaNavDestinations {
         label = "Music",
         icon = Icons.Outlined.MusicNote,
         selectedIcon = Icons.Filled.MusicNote,
-        route = "music",
+        route = MediaRoutes.MUSIC,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Music
     )
@@ -163,7 +183,7 @@ object MediaNavDestinations {
         label = "Podcasts",
         icon = Icons.Outlined.Podcasts,
         selectedIcon = Icons.Filled.Podcasts,
-        route = "podcasts",
+        route = MediaRoutes.PODCASTS,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Podcast
     )
@@ -173,7 +193,7 @@ object MediaNavDestinations {
         label = "Radio",
         icon = Icons.Outlined.Radio,
         selectedIcon = Icons.Filled.Radio,
-        route = "radio",
+        route = MediaRoutes.RADIO,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Radio
     )
@@ -183,7 +203,7 @@ object MediaNavDestinations {
         label = "Documents",
         icon = Icons.Outlined.Description,
         selectedIcon = Icons.Filled.Description,
-        route = "library_details/7",
+        route = MediaRoutes.DOCUMENTS,
         section = NavSection.LIBRARY,
         mediaTypeColor = MediaColors.MediaTypes.Document
     )
@@ -194,7 +214,7 @@ object MediaNavDestinations {
         label = "Web Fiction",
         icon = Icons.Outlined.Language,
         selectedIcon = Icons.Filled.Language,
-        route = "webfiction_manager",
+        route = MediaRoutes.WEB_FICTION,
         section = NavSection.DISCOVER,
         mediaTypeColor = MediaColors.MediaTypes.Fanfiction
     )
@@ -204,7 +224,7 @@ object MediaNavDestinations {
         label = "OPDS Catalogs",
         icon = Icons.Outlined.CloudDownload,
         selectedIcon = Icons.Filled.CloudDownload,
-        route = "opds_catalog",
+        route = MediaRoutes.OPDS_BROWSER,
         section = NavSection.DISCOVER
     )
     
@@ -213,8 +233,9 @@ object MediaNavDestinations {
         label = "Free Audiobooks",
         icon = Icons.Outlined.HeadsetMic,
         selectedIcon = Icons.Filled.HeadsetMic,
-        route = "free_audiobooks",
-        section = NavSection.DISCOVER
+        route = MediaRoutes.DISCOVER,
+        section = NavSection.DISCOVER,
+        enabled = false
     )
     
     val hivefy = MediaNavDestination(
@@ -222,9 +243,10 @@ object MediaNavDestinations {
         label = "Hivefy Music",
         icon = Icons.Outlined.GraphicEq,
         selectedIcon = Icons.Filled.GraphicEq,
-        route = "hivefy_music",
+        route = MediaRoutes.DISCOVER,
         section = NavSection.DISCOVER,
-        mediaTypeColor = MediaColors.MediaTypes.Music
+        mediaTypeColor = MediaColors.MediaTypes.Music,
+        enabled = false
     )
     
     val ambient = MediaNavDestination(
@@ -232,7 +254,16 @@ object MediaNavDestinations {
         label = "Ambient Sounds",
         icon = Icons.Outlined.Spa,
         selectedIcon = Icons.Filled.Spa,
-        route = "ambient",
+        route = MediaRoutes.AMBIENT_SOUNDS,
+        section = NavSection.DISCOVER
+    )
+
+    val visualizer = MediaNavDestination(
+        id = "visualizer",
+        label = "Visualizer",
+        icon = Icons.Outlined.Equalizer,
+        selectedIcon = Icons.Filled.Equalizer,
+        route = MediaRoutes.VISUALIZER,
         section = NavSection.DISCOVER
     )
     
@@ -242,8 +273,9 @@ object MediaNavDestinations {
         label = "Downloads",
         icon = Icons.Outlined.Download,
         selectedIcon = Icons.Filled.Download,
-        route = "fanfiction_download",
-        section = NavSection.DOWNLOADS
+        route = MediaRoutes.DISCOVER,
+        section = NavSection.DOWNLOADS,
+        enabled = false
     )
     
     val storage = MediaNavDestination(
@@ -251,7 +283,25 @@ object MediaNavDestinations {
         label = "Storage",
         icon = Icons.Outlined.Storage,
         selectedIcon = Icons.Filled.Storage,
-        route = "storage_browser",
+        route = MediaRoutes.FILE_BROWSER,
+        section = NavSection.DOWNLOADS
+    )
+
+    val sync = MediaNavDestination(
+        id = "sync",
+        label = "Sync",
+        icon = Icons.Outlined.Sync,
+        selectedIcon = Icons.Filled.Sync,
+        route = MediaRoutes.SYNC,
+        section = NavSection.DOWNLOADS
+    )
+
+    val importExport = MediaNavDestination(
+        id = "import_export",
+        label = "Import/Export",
+        icon = Icons.Outlined.ImportExport,
+        selectedIcon = Icons.Filled.ImportExport,
+        route = MediaRoutes.IMPORT_EXPORT,
         section = NavSection.DOWNLOADS
     )
     
@@ -261,7 +311,7 @@ object MediaNavDestinations {
         label = "Collections",
         icon = Icons.Outlined.Collections,
         selectedIcon = Icons.Filled.Collections,
-        route = "collections",
+        route = MediaRoutes.COLLECTIONS,
         section = NavSection.SETTINGS
     )
     
@@ -270,8 +320,9 @@ object MediaNavDestinations {
         label = "Statistics",
         icon = Icons.Outlined.BarChart,
         selectedIcon = Icons.Filled.BarChart,
-        route = "reading_statistics",
-        section = NavSection.SETTINGS
+        route = MediaRoutes.DISCOVER,
+        section = NavSection.SETTINGS,
+        enabled = false
     )
     
     val settings = MediaNavDestination(
@@ -279,7 +330,7 @@ object MediaNavDestinations {
         label = "Settings",
         icon = Icons.Outlined.Settings,
         selectedIcon = Icons.Filled.Settings,
-        route = "settings",
+        route = MediaRoutes.SETTINGS,
         section = NavSection.SETTINGS
     )
     
@@ -288,16 +339,38 @@ object MediaNavDestinations {
      */
     val allDestinations = listOf(
         home,
+        search,
         books, audiobooks, comics, movies, tvShows, music, podcasts, radio, documents,
-        webFiction, opds, freeAudiobooks, hivefy, ambient,
-        downloads, storage,
+        discover, webFiction, opds, freeAudiobooks, hivefy, ambient, visualizer,
+        downloads, storage, sync, importExport,
         collections, statistics, settings
     )
     
     /**
      * Primary destinations shown on bottom bar (mobile)
      */
-    val primaryDestinations = listOf(home, books, music, podcasts, settings)
+    // On phones the bar is horizontally scrollable, so we can expose all major segments.
+    val primaryDestinations = listOf(
+        home,
+        discover,
+        search,
+        books,
+        music,
+        podcasts,
+        radio,
+        audiobooks,
+        comics,
+        movies,
+        tvShows,
+        webFiction,
+        opds,
+        ambient,
+        visualizer,
+        collections,
+        sync,
+        importExport,
+        settings
+    )
     
     /**
      * Get destinations grouped by section
@@ -395,7 +468,7 @@ fun MediaSidebar(
                     items(destinations) { destination ->
                         SidebarNavItem(
                             destination = destination,
-                            isSelected = currentRoute.startsWith(destination.route.split("/").first()),
+                            isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
                             isExpanded = isExpanded,
                             onClick = { onNavigate(destination.route) }
                         )
@@ -538,6 +611,7 @@ private fun SidebarNavItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
+    val isEnabled = destination.enabled
     
     val backgroundColor by animateColorAsState(
         targetValue = when {
@@ -551,6 +625,7 @@ private fun SidebarNavItem(
     
     val iconColor by animateColorAsState(
         targetValue = when {
+            !isEnabled -> MediaColors.TextTertiary
             isSelected -> MediaColors.AccentPrimary
             else -> destination.mediaTypeColor ?: MediaColors.TextSecondary
         },
@@ -558,7 +633,11 @@ private fun SidebarNavItem(
     )
     
     val textColor by animateColorAsState(
-        targetValue = if (isSelected) MediaColors.TextPrimary else MediaColors.TextSecondary,
+        targetValue = when {
+            !isEnabled -> MediaColors.TextTertiary
+            isSelected -> MediaColors.TextPrimary
+            else -> MediaColors.TextSecondary
+        },
         label = "nav_item_text"
     )
     
@@ -576,7 +655,7 @@ private fun SidebarNavItem(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick,
-                enabled = destination.enabled
+                enabled = isEnabled
             ),
         shape = RoundedCornerShape(MediaCorners.SM),
         color = backgroundColor
@@ -584,6 +663,7 @@ private fun SidebarNavItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .alpha(if (isEnabled) 1f else 0.55f)
                 .padding(contentPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center
@@ -629,6 +709,15 @@ private fun SidebarNavItem(
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     
+                    if (!isEnabled) {
+                        Spacer(modifier = Modifier.width(MediaSpacing.SM))
+                        Text(
+                            text = "Soon",
+                            style = MediaTypography.LabelSmall,
+                            color = MediaColors.TextTertiary
+                        )
+                    }
+
                     // Badge
                     destination.badge?.let { badge ->
                         Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -716,6 +805,7 @@ fun MediaBottomNavigation(
     currentRoute: String,
     onNavigate: (String) -> Unit,
     destinations: List<MediaNavDestination> = MediaNavDestinations.primaryDestinations,
+    bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -724,19 +814,62 @@ fun MediaBottomNavigation(
         tonalElevation = MediaElevation.MD,
         shadowElevation = MediaElevation.LG
     ) {
-        Row(
+        val scrollState = rememberScrollState()
+        val effectiveDestinations = remember(destinations, bottomBarPreferences) {
+            applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
+        }
+        val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
+        val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(MediaSizes.BottomBarHeight)
-                .padding(horizontal = MediaSpacing.SM),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            destinations.forEach { destination ->
-                BottomNavItem(
-                    destination = destination,
-                    isSelected = currentRoute.startsWith(destination.route.split("/").first()),
-                    onClick = { onNavigate(destination.route) }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(MediaSizes.BottomBarHeight)
+                    .horizontalScroll(scrollState)
+                    .padding(horizontal = MediaSpacing.SM),
+                horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                effectiveDestinations.forEach { destination ->
+                    BottomNavItem(
+                        destination = destination,
+                        enabled = destination.enabled,
+                        isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
+                        onClick = { if (destination.enabled) onNavigate(destination.route) }
+                    )
+                }
+            }
+
+            // Subtle edge fades to hint that the bar scrolls.
+            if (showLeftFade) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(18.dp)
+                        .align(Alignment.CenterStart)
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(MediaColors.BackgroundElevated, Color.Transparent)
+                            )
+                        )
+                )
+            }
+            if (showRightFade) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(18.dp)
+                        .align(Alignment.CenterEnd)
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(Color.Transparent, MediaColors.BackgroundElevated)
+                            )
+                        )
                 )
             }
         }
@@ -746,22 +879,32 @@ fun MediaBottomNavigation(
 @Composable
 private fun BottomNavItem(
     destination: MediaNavDestination,
+    enabled: Boolean,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     val iconColor by animateColorAsState(
-        targetValue = if (isSelected) MediaColors.AccentPrimary else MediaColors.TextSecondary,
+        targetValue = when {
+            !enabled -> MediaColors.TextTertiary
+            isSelected -> MediaColors.AccentPrimary
+            else -> MediaColors.TextSecondary
+        },
         label = "bottom_nav_icon"
     )
     
     val textColor by animateColorAsState(
-        targetValue = if (isSelected) MediaColors.AccentPrimary else MediaColors.TextTertiary,
+        targetValue = when {
+            !enabled -> MediaColors.TextTertiary
+            isSelected -> MediaColors.AccentPrimary
+            else -> MediaColors.TextTertiary
+        },
         label = "bottom_nav_text"
     )
     
     Column(
         modifier = Modifier
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
+            .alpha(if (enabled) 1f else 0.55f)
             .padding(MediaSpacing.SM),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -807,6 +950,7 @@ fun MediaNavigationScaffold(
     onNavigate: (String) -> Unit,
     userAvatarUrl: String? = null,
     userName: String = "User",
+    bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -824,7 +968,8 @@ fun MediaNavigationScaffold(
             bottomBar = {
                 MediaBottomNavigation(
                     currentRoute = currentRoute,
-                    onNavigate = onNavigate
+                    onNavigate = onNavigate,
+                    bottomBarPreferences = bottomBarPreferences
                 )
             },
             content = content
@@ -851,4 +996,54 @@ fun MediaNavigationScaffold(
             }
         }
     }
+}
+
+private fun applyBottomBarPreferencesToMediaDestinations(
+    destinations: List<MediaNavDestination>,
+    bottomBarPreferences: BottomBarPreferences
+): List<MediaNavDestination> {
+    if (bottomBarPreferences == BottomBarPreferences.Default) return destinations
+
+    // The existing bottom bar editor stores preference IDs as legacy route strings.
+    // Map the most important legacy IDs to the media-centric routes.
+    fun mapLegacyPreferenceIdToMediaRoute(id: String): String? = when (id) {
+        "home" -> MediaRoutes.HOME
+        "enhanced_search" -> MediaRoutes.SEARCH
+        "library_details/1" -> MediaRoutes.BOOKS
+        "library_details/2" -> MediaRoutes.AUDIOBOOKS
+        "library_details/3" -> MediaRoutes.COMICS
+        "library_details/4" -> MediaRoutes.MOVIES
+        "library_details/5" -> MediaRoutes.TV_SHOWS
+        "library_details/7" -> MediaRoutes.DOCUMENTS
+        "music" -> MediaRoutes.MUSIC
+        "podcasts" -> MediaRoutes.PODCASTS
+        "radio" -> MediaRoutes.RADIO
+        "visualizer" -> MediaRoutes.VISUALIZER
+        "ambient" -> MediaRoutes.AMBIENT_SOUNDS
+        "webfiction_manager" -> MediaRoutes.WEB_FICTION
+        "opds_catalog" -> MediaRoutes.OPDS_BROWSER
+        "storage_browser" -> MediaRoutes.FILE_BROWSER
+        "collections" -> MediaRoutes.COLLECTIONS
+        "settings" -> MediaRoutes.SETTINGS
+        else -> null
+    }
+
+    val hiddenRoutes = bottomBarPreferences.hidden.mapNotNull(::mapLegacyPreferenceIdToMediaRoute).toSet()
+    val orderedRoutes = bottomBarPreferences.order.mapNotNull(::mapLegacyPreferenceIdToMediaRoute)
+
+    val byRoute = destinations.associateBy { it.route }
+    val selected = LinkedHashSet<MediaNavDestination>()
+
+    // Apply ordering
+    orderedRoutes.forEach { route ->
+        val dest = byRoute[route]
+        if (dest != null && dest.route !in hiddenRoutes) selected.add(dest)
+    }
+
+    // Append remaining (preserve the "everything is reachable" behavior)
+    destinations.forEach { dest ->
+        if (dest.route !in hiddenRoutes) selected.add(dest)
+    }
+
+    return selected.toList()
 }

@@ -8,12 +8,18 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.universalmedialibrary.PermissionDialog
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.ui.media.components.MediaMiniPlayer
 import com.universalmedialibrary.ui.media.navigation.*
 import com.universalmedialibrary.ui.media.theme.MediaTheme
+import com.universalmedialibrary.ui.main.MainViewModel
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,6 +56,25 @@ class MediaMainActivity : ComponentActivity() {
 fun MediaMainScreen(
     playbackStateManager: PlaybackStateManager
 ) {
+    val mainViewModel: MainViewModel = hiltViewModel()
+    val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
+
+    // Permissions: request everything the app needs on startup.
+    val permissionState = rememberPermissionsHandler()
+    var permissionRequestedOnce by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!permissionState.hasAllPermissions && !permissionRequestedOnce) {
+            permissionRequestedOnce = true
+            permissionState.requestPermissions()
+        }
+    }
+
+    // Gate the UI until the required runtime permissions are granted.
+    if (!permissionState.hasAllPermissions) {
+        PermissionDialog(permissionState = permissionState)
+        return
+    }
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -102,6 +127,7 @@ fun MediaMainScreen(
         MediaNavigationScaffold(
             currentRoute = currentRoute ?: MediaRoutes.HOME,
             onNavigate = { route -> navController.navigate(route) },
+            bottomBarPreferences = bottomBarPreferences,
             modifier = Modifier.padding(paddingValues)
         ) { innerPadding ->
             MediaAppNavHost(
