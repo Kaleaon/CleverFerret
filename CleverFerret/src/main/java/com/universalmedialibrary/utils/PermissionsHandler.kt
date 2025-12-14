@@ -195,8 +195,9 @@ fun rememberPermissionsHandler(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 val nowGranted = PermissionsHandler.hasAllPermissions(context)
+                val wasGranted = permissionsGranted
                 permissionsGranted = nowGranted
-                if (nowGranted) {
+                if (nowGranted && !wasGranted) {
                     // Clear any stale rationale once we're good.
                     showRationale = false
                     deniedPermissions = emptyList()

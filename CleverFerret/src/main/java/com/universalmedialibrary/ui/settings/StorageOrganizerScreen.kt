@@ -33,6 +33,7 @@ fun StorageOrganizerScreen(
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
     var progress by remember { mutableStateOf("") }
     var movedCount by remember { mutableStateOf<Int?>(null) }
+    var isLaunchingSettings by remember { mutableStateOf(false) }
     var hasAllFilesAccess by remember {
         mutableStateOf(PermissionsHandler.hasFullStorageAccess(context))
     }
@@ -42,6 +43,7 @@ fun StorageOrganizerScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasAllFilesAccess = PermissionsHandler.hasFullStorageAccess(context)
+                isLaunchingSettings = false
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -108,8 +110,12 @@ fun StorageOrganizerScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
-                            onClick = { PermissionsHandler.requestFullStorageAccess(context) },
-                            modifier = Modifier.fillMaxWidth()
+                            onClick = {
+                                isLaunchingSettings = true
+                                PermissionsHandler.requestFullStorageAccess(context)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isLaunchingSettings
                         ) {
                             Text(
                                 text = if (hasAllFilesAccess) {

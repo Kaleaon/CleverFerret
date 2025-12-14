@@ -694,9 +694,12 @@ fun CacheSettingsScreen(
 
             Button(
                 onClick = {
-                    scope.launch(Dispatchers.IO) {
-                        clearCache(context)
-                        cacheSizeText = calculateCacheSize(context).toHumanReadable()
+                    scope.launch {
+                        val newSize = withContext(Dispatchers.IO) {
+                            clearCache(context)
+                            calculateCacheSize(context).toHumanReadable()
+                        }
+                        cacheSizeText = newSize
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
