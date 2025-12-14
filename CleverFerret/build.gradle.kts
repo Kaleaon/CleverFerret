@@ -5,6 +5,9 @@
  * Architecture: Kotlin + Jetpack Compose + Material 3 + Hilt + Room
  */
 
+import java.io.File
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -27,6 +30,55 @@ configurations.all {
 android {
     namespace = "com.universalmedialibrary"
     compileSdk = 36  // Android 15 (API 36) - Required by androidx.core:core:1.17.0 and other latest dependencies
+
+    // =========================================================================
+    // Signing (required for update-compatible installs)
+    //
+    // IMPORTANT:
+    // - Android updates require the *same* package name (applicationId) AND the *same* signing key.
+    // - If different machines generate different debug keystores, installs will fail with
+    //   "conflicting package" / INSTALL_FAILED_UPDATE_INCOMPATIBLE.
+    //
+    // CI-friendly release signing uses the secrets described in scripts/setup-automated-builds.sh:
+    // - KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+    // =========================================================================
+    val keystoreBase64Raw: String? =
+        System.getenv("KEYSTORE_BASE64") ?: (project.findProperty("KEYSTORE_BASE64") as String?)
+    val keystorePassword: String? =
+        System.getenv("KEYSTORE_PASSWORD") ?: (project.findProperty("KEYSTORE_PASSWORD") as String?)
+    val keyAlias: String? =
+        System.getenv("KEY_ALIAS") ?: (project.findProperty("KEY_ALIAS") as String?)
+    val keyPassword: String? =
+        System.getenv("KEY_PASSWORD") ?: (project.findProperty("KEY_PASSWORD") as String?)
+
+    val releaseKeystoreFile: File? = if (
+        !keystoreBase64Raw.isNullOrBlank() &&
+        !keystorePassword.isNullOrBlank() &&
+        !keyAlias.isNullOrBlank() &&
+        !keyPassword.isNullOrBlank()
+    ) {
+        val keystoreFile = File(rootProject.buildDir, "keystores/cleverferret-release.jks")
+        keystoreFile.parentFile?.mkdirs()
+        val cleanB64 = keystoreBase64Raw.replace("\\s".toRegex(), "")
+        keystoreFile.writeBytes(Base64.getDecoder().decode(cleanB64))
+        keystoreFile
+    } else {
+        null
+    }
+
+    signingConfigs {
+        // debug config is provided by AGP automatically
+        if (releaseKeystoreFile != null) {
+            create("release") {
+                storeFile = releaseKeystoreFile
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            }
+        } else {
+            println("⚠️  Release signing not configured. Set KEYSTORE_* env vars for update-compatible releases.")
+        }
+    }
 
     defaultConfig {
         applicationId = "com.universalmedialibrary"
@@ -77,6 +129,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // Use stable release key if configured; otherwise fall back to debug signing for local builds.
+            // NOTE: debug signing will not be update-compatible across different machines.
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             
             // Release-specific BuildConfig fields
             buildConfigField("boolean", "DEBUG_REPORTING_ENABLED", "false")

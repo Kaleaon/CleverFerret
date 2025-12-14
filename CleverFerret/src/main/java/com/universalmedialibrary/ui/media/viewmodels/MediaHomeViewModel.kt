@@ -217,13 +217,22 @@ class MediaHomeViewModel @Inject constructor(
     
     private suspend fun loadRecentVideos(): List<MediaItem> {
         return try {
-            videoRepository.getAllVideos().first().take(20).map { video ->
+            // Pull from all relevant video types, not only MEDIA_TYPE_VIDEO.
+            val videos = (videoRepository.getMovies().first() + videoRepository.getTvShows().first() + videoRepository.getAllVideos().first())
+                .distinctBy { it.itemId }
+                .sortedByDescending { it.dateAdded }
+                .take(20)
+
+            videos.map { video ->
                 MediaItem(
                     id = video.id.toString(),
                     title = video.title,
                     subtitle = video.author,
                     imageUrl = video.thumbnailPath,
-                    mediaType = MediaType.MOVIE,
+                    mediaType = when (video.mediaType) {
+                        VideoRepository.MEDIA_TYPE_TV_SHOW -> MediaType.TV_SHOW
+                        else -> MediaType.MOVIE
+                    },
                     progress = 0f,
                     year = null,
                     duration = formatDuration(video.duration),
@@ -314,6 +323,7 @@ class MediaHomeViewModel @Inject constructor(
             val comicCount = comicRepository.getComicCount()
             val podcastCount = podcastRepository.getSubscribedPodcasts().first().size
             val fanfictionCount = webFictionRepository.getWebFictionCount()
+            val videoCount = videoRepository.getVideoCount()
             
             HomeLibraryStats(
                 totalBooks = bookCount,
@@ -321,7 +331,8 @@ class MediaHomeViewModel @Inject constructor(
                 totalMusic = musicCount,
                 totalPodcasts = podcastCount,
                 totalComics = comicCount,
-                totalFanfiction = fanfictionCount
+                totalFanfiction = fanfictionCount,
+                totalVideos = videoCount
             )
         } catch (e: Exception) {
             HomeLibraryStats()
