@@ -3,11 +3,18 @@ package com.universalmedialibrary.ui.media.viewmodels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.entity.FanfictionStoryEntity
+import com.universalmedialibrary.data.local.entity.MediaItem as DbMediaItem
+import com.universalmedialibrary.data.repository.AudiobookRepository
+import com.universalmedialibrary.data.repository.BookRepository
+import com.universalmedialibrary.data.repository.ComicRepository
+import com.universalmedialibrary.data.repository.MediaRepository
+import com.universalmedialibrary.data.repository.VideoRepository
+import com.universalmedialibrary.data.repository.WebFictionRepository
 import com.universalmedialibrary.ui.media.components.MediaItem
 import com.universalmedialibrary.ui.media.components.MediaType
 import com.universalmedialibrary.ui.media.screens.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,12 +29,17 @@ import javax.inject.Inject
  * - View mode persistence
  * - Search within library
  * 
- * Note: This is a simplified implementation. Full repository integration
- * will be added when the complete data layer is finalized.
+ * Loads real library data (no sample placeholders).
  */
 @HiltViewModel
 class MediaLibraryViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val bookRepository: BookRepository,
+    private val audiobookRepository: AudiobookRepository,
+    private val comicRepository: ComicRepository,
+    private val videoRepository: VideoRepository,
+    private val webFictionRepository: WebFictionRepository,
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
     
     // Get media type from navigation argument
@@ -48,21 +60,44 @@ class MediaLibraryViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     
     init {
-        loadLibraryItems()
-        observeFilterChanges()
+        observeAndLoad()
     }
     
-    private fun observeFilterChanges() {
+    private fun observeAndLoad() {
         viewModelScope.launch {
             combine(
+                _mediaType,
                 _currentFilter,
                 _currentSort,
                 _searchQuery
-            ) { filter, sort, query ->
-                Triple(filter, sort, query)
-            }.collect { (filter, sort, query) ->
-                loadLibraryItems(filter, sort, query)
+            ) { mediaType, filter, sort, query ->
+                Params(mediaType, filter, sort, query)
             }
+                .distinctUntilChanged()
+                .collectLatest { params ->
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = true,
+                            mediaType = params.mediaType,
+                            libraryTitle = getLibraryTitle(params.mediaType),
+                            currentFilter = params.filter,
+                            sortOption = params.sort,
+                            availableFilters = getFilterGroupsForMediaType(params.mediaType)
+                        )
+                    }
+
+                    var first = true
+                    itemsFlowFor(params).collect { items ->
+                        _uiState.update { state ->
+                            state.copy(
+                                items = items,
+                                totalItems = items.size,
+                                isLoading = if (first) false else state.isLoading
+                            )
+                        }
+                        first = false
+                    }
+                }
         }
     }
     
@@ -86,54 +121,97 @@ class MediaLibraryViewModel @Inject constructor(
     }
     
     fun refresh() {
-        loadLibraryItems(_currentFilter.value, _currentSort.value, _searchQuery.value)
+        // Data flows update automatically; force re-emit by nudging search query.
+        _searchQuery.value = _searchQuery.value
     }
     
-    private fun loadLibraryItems(
-        filter: LibraryFilter = LibraryFilter.ALL,
-        sort: LibrarySortOption = LibrarySortOption.RECENTLY_ADDED,
-        query: String = ""
-    ) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            
-            // Simulate loading delay
-            delay(300)
-            
-            val items = generateSampleItems(_mediaType.value, filter, query)
-            
-            _uiState.update { state ->
-                state.copy(
-                    items = items,
-                    totalItems = items.size,
-                    isLoading = false,
-                    availableFilters = getFilterGroupsForMediaType(_mediaType.value)
-                )
-            }
+    private fun itemsFlowFor(params: Params): Flow<List<MediaItem>> {
+        return when (params.mediaType) {
+            MediaType.BOOK -> bookRepository.getAllBooks()
+                .map { list -> mapDbItems(list, params) }
+            MediaType.AUDIOBOOK -> audiobookRepository.getAllAudiobooks()
+                .map { list -> mapDbItems(list, params) }
+            MediaType.COMIC -> comicRepository.getAllComics()
+                .map { list -> mapDbItems(list, params) }
+            MediaType.MOVIE -> videoRepository.getMovies()
+                .map { list -> mapDbItems(list, params) }
+            MediaType.TV_SHOW -> videoRepository.getTvShows()
+                .map { list -> mapDbItems(list, params) }
+            MediaType.DOCUMENT -> mediaRepository.getMediaItemsByType("DOCUMENT")
+                .map { list -> mapDbItems(list, params) }
+            MediaType.FANFICTION -> webFictionRepository.getAllWebFiction()
+                .map { list -> mapFanfictionItems(list, params) }
+            else -> flowOf(emptyList())
         }
     }
-    
-    private fun generateSampleItems(
-        mediaType: MediaType,
-        filter: LibraryFilter,
-        query: String
+
+    private fun mapDbItems(
+        items: List<DbMediaItem>,
+        params: Params
     ): List<MediaItem> {
-        // Generate sample items based on media type
-        return (1..20).map { index ->
+        val filtered = items
+            .let { list ->
+                when (params.filter) {
+                    LibraryFilter.FAVORITES -> list.filter { it.isFavorite }
+                    else -> list
+                }
+            }
+            .let { list ->
+                if (params.query.isBlank()) list else list.filter {
+                    it.title.contains(params.query, ignoreCase = true) ||
+                        it.fileName.contains(params.query, ignoreCase = true)
+                }
+            }
+
+        val sorted = when (params.sort) {
+            LibrarySortOption.TITLE -> filtered.sortedBy { it.title.lowercase() }
+            LibrarySortOption.RECENTLY_ADDED -> filtered.sortedByDescending { it.dateAdded }
+            else -> filtered
+        }
+
+        return sorted.map { db ->
             MediaItem(
-                id = "${mediaType.name.lowercase()}_$index",
-                title = "Sample ${getMediaTypeName(mediaType)} $index",
-                subtitle = "Sample subtitle",
-                imageUrl = null,
-                mediaType = mediaType,
-                progress = if (index % 3 == 0) 0.5f else 0f,
-                rating = if (index % 2 == 0) (3.0f + (index % 3)) else null,
-                year = 2020 + (index % 5),
-                duration = getDurationString(mediaType, index),
-                badges = emptyList()
+                id = db.itemId.toString(),
+                title = db.title,
+                subtitle = db.creator,
+                imageUrl = db.thumbnailPath,
+                mediaType = params.mediaType,
+                progress = 0f,
+                rating = db.rating
             )
-        }.filter { item ->
-            query.isEmpty() || item.title.contains(query, ignoreCase = true)
+        }
+    }
+
+    private fun mapFanfictionItems(
+        items: List<FanfictionStoryEntity>,
+        params: Params
+    ): List<MediaItem> {
+        val filtered = items
+            .let { list ->
+                if (params.query.isBlank()) list else list.filter {
+                    it.title.contains(params.query, ignoreCase = true) ||
+                        it.author.contains(params.query, ignoreCase = true)
+                }
+            }
+
+        val sorted = when (params.sort) {
+            LibrarySortOption.TITLE -> filtered.sortedBy { it.title.lowercase() }
+            else -> filtered
+        }
+
+        return sorted.map { story ->
+            val progress = if (story.chapterCount > 0) {
+                (story.lastChapterDownloaded.toFloat() / story.chapterCount.toFloat()).coerceIn(0f, 1f)
+            } else 0f
+
+            MediaItem(
+                id = story.id,
+                title = story.title,
+                subtitle = story.author,
+                imageUrl = story.coverPath,
+                mediaType = MediaType.FANFICTION,
+                progress = progress
+            )
         }
     }
     
@@ -239,6 +317,13 @@ class MediaLibraryViewModel @Inject constructor(
             )
         }
     }
+
+    private data class Params(
+        val mediaType: MediaType,
+        val filter: LibraryFilter,
+        val sort: LibrarySortOption,
+        val query: String
+    )
 }
 
 private fun MediaType.Companion.fromString(value: String): MediaType {

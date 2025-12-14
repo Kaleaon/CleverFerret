@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.universalmedialibrary.data.settings.BottomBarPreferences
+import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.media.theme.*
 
 /**
@@ -368,8 +369,7 @@ object MediaNavDestinations {
         visualizer,
         collections,
         sync,
-        importExport,
-        settings
+        importExport
     )
     
     /**
@@ -468,7 +468,7 @@ fun MediaSidebar(
                     items(destinations) { destination ->
                         SidebarNavItem(
                             destination = destination,
-                            isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
+                            isSelected = isDestinationSelected(currentRoute = currentRoute, destinationRoute = destination.route),
                             isExpanded = isExpanded,
                             onClick = { onNavigate(destination.route) }
                         )
@@ -627,7 +627,7 @@ private fun SidebarNavItem(
         targetValue = when {
             !isEnabled -> MediaColors.TextTertiary
             isSelected -> MediaColors.AccentPrimary
-            else -> destination.mediaTypeColor ?: MediaColors.TextSecondary
+            else -> MediaColors.TextSecondary
         },
         label = "nav_item_icon"
     )
@@ -806,6 +806,7 @@ fun MediaBottomNavigation(
     onNavigate: (String) -> Unit,
     destinations: List<MediaNavDestination> = MediaNavDestinations.primaryDestinations,
     bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
+    gearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -821,6 +822,13 @@ fun MediaBottomNavigation(
         val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
         val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
 
+        val gearSize = 48.dp
+        val gearPadding = MediaSpacing.SM
+        val scrollContentPadding = when (gearPosition) {
+            BottomGearPosition.LEFT -> PaddingValues(start = gearSize + gearPadding, end = 0.dp)
+            BottomGearPosition.RIGHT -> PaddingValues(start = 0.dp, end = gearSize + gearPadding)
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -831,6 +839,7 @@ fun MediaBottomNavigation(
                     .fillMaxWidth()
                     .height(MediaSizes.BottomBarHeight)
                     .horizontalScroll(scrollState)
+                    .padding(scrollContentPadding)
                     .padding(horizontal = MediaSpacing.SM),
                 horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
                 verticalAlignment = Alignment.CenterVertically
@@ -839,8 +848,35 @@ fun MediaBottomNavigation(
                     BottomNavItem(
                         destination = destination,
                         enabled = destination.enabled,
-                        isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
+                        isSelected = isDestinationSelected(currentRoute = currentRoute, destinationRoute = destination.route),
                         onClick = { if (destination.enabled) onNavigate(destination.route) }
+                    )
+                }
+            }
+
+            // Persistent settings gear overlay (not part of scroll row)
+            Surface(
+                modifier = Modifier
+                    .size(gearSize)
+                    .align(
+                        if (gearPosition == BottomGearPosition.LEFT) {
+                            Alignment.CenterStart
+                        } else {
+                            Alignment.CenterEnd
+                        }
+                    )
+                    .padding(gearPadding),
+                shape = RoundedCornerShape(MediaCorners.SM),
+                color = MediaColors.BackgroundSurface,
+                tonalElevation = MediaElevation.SM,
+                shadowElevation = 0.dp,
+                onClick = { onNavigate(MediaRoutes.SETTINGS) }
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = "Settings",
+                        tint = MediaColors.TextSecondary
                     )
                 }
             }
@@ -951,6 +987,7 @@ fun MediaNavigationScaffold(
     userAvatarUrl: String? = null,
     userName: String = "User",
     bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
+    gearPosition: BottomGearPosition = BottomGearPosition.RIGHT,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -969,7 +1006,8 @@ fun MediaNavigationScaffold(
                 MediaBottomNavigation(
                     currentRoute = currentRoute,
                     onNavigate = onNavigate,
-                    bottomBarPreferences = bottomBarPreferences
+                    bottomBarPreferences = bottomBarPreferences,
+                    gearPosition = gearPosition
                 )
             },
             content = content
@@ -996,6 +1034,11 @@ fun MediaNavigationScaffold(
             }
         }
     }
+}
+
+private fun isDestinationSelected(currentRoute: String, destinationRoute: String): Boolean {
+    // Exact match, plus nested sub-routes (e.g. settings/* should select settings)
+    return currentRoute == destinationRoute || currentRoute.startsWith("$destinationRoute/")
 }
 
 private fun applyBottomBarPreferencesToMediaDestinations(

@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.PermissionDialog
 import com.universalmedialibrary.data.settings.BottomBarPreferences
+import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.media.components.MediaMiniPlayer
 import com.universalmedialibrary.ui.media.navigation.*
 import com.universalmedialibrary.ui.media.theme.MediaTheme
@@ -58,6 +59,7 @@ fun MediaMainScreen(
 ) {
     val mainViewModel: MainViewModel = hiltViewModel()
     val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
+    val gearPosition by mainViewModel.bottomGearPosition.collectAsState(BottomGearPosition.RIGHT)
 
     // Permissions: request everything the app needs on startup.
     val permissionState = rememberPermissionsHandler()
@@ -78,6 +80,15 @@ fun MediaMainScreen(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val currentRouteForNavigation = remember(navBackStackEntry, currentRoute) {
+        when (currentRoute) {
+            MediaRoutes.LIBRARY -> {
+                val mediaType = navBackStackEntry?.arguments?.getString("mediaType")
+                if (mediaType.isNullOrBlank()) MediaRoutes.LIBRARY else MediaRoutes.libraryRoute(mediaType)
+            }
+            else -> currentRoute
+        } ?: MediaRoutes.HOME
+    }
     
     // Check if we should show navigation (hide during player screens)
     val showNavigation = remember(currentRoute) {
@@ -125,9 +136,10 @@ fun MediaMainScreen(
         }
     ) { paddingValues ->
         MediaNavigationScaffold(
-            currentRoute = currentRoute ?: MediaRoutes.HOME,
+            currentRoute = currentRouteForNavigation,
             onNavigate = { route -> navController.navigate(route) },
             bottomBarPreferences = bottomBarPreferences,
+            gearPosition = gearPosition,
             modifier = Modifier.padding(paddingValues)
         ) { innerPadding ->
             MediaAppNavHost(

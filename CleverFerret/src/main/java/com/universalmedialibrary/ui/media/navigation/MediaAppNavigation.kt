@@ -161,7 +161,7 @@ fun MediaAppNavHost(
                     }
                 },
                 onSeeAllClick = { section ->
-                    navController.navigate(MediaRoutes.libraryRoute(section))
+                    navController.navigate(section)
                 },
                 onSearchClick = { navController.navigate(MediaRoutes.SEARCH) },
                 onNotificationClick = { /* TODO: Show notifications */ }

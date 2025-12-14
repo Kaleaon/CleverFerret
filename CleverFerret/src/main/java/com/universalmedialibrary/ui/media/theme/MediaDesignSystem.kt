@@ -64,17 +64,19 @@ object MediaColors {
     
     // Media Type Colors (for categorization)
     object MediaTypes {
-        val Book = Color(0xFF4CAF50)              // Green for books
-        val Audiobook = Color(0xFF00BCD4)         // Cyan for audiobooks
-        val Comic = Color(0xFFFFEB3B)             // Yellow for comics
-        val Music = Color(0xFF9C27B0)             // Purple for music
-        val Podcast = Color(0xFFFF5722)           // Deep orange for podcasts
-        val Movie = Color(0xFF2196F3)             // Blue for movies
-        val TvShow = Color(0xFFFF9800)            // Orange for TV shows
-        val Radio = Color(0xFF00BCD4)             // Cyan for radio
-        val Document = Color(0xFF607D8B)          // Blue-gray for documents
-        val Fanfiction = Color(0xFFE91E63)        // Pink for fanfiction
-        val News = Color(0xFFFFC107)              // Amber for news
+        // User request: remove per-segment bright rainbow colors.
+        // Keep a single coherent accent across the app chrome.
+        val Book = AccentPrimary
+        val Audiobook = AccentPrimary
+        val Comic = AccentPrimary
+        val Music = AccentPrimary
+        val Podcast = AccentPrimary
+        val Movie = AccentPrimary
+        val TvShow = AccentPrimary
+        val Radio = AccentPrimary
+        val Document = AccentPrimary
+        val Fanfiction = AccentPrimary
+        val News = AccentPrimary
     }
     
     // Status Colors
