@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -610,6 +611,7 @@ private fun SidebarNavItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
+    val isEnabled = destination.enabled
     
     val backgroundColor by animateColorAsState(
         targetValue = when {
@@ -623,6 +625,7 @@ private fun SidebarNavItem(
     
     val iconColor by animateColorAsState(
         targetValue = when {
+            !isEnabled -> MediaColors.TextTertiary
             isSelected -> MediaColors.AccentPrimary
             else -> destination.mediaTypeColor ?: MediaColors.TextSecondary
         },
@@ -630,7 +633,11 @@ private fun SidebarNavItem(
     )
     
     val textColor by animateColorAsState(
-        targetValue = if (isSelected) MediaColors.TextPrimary else MediaColors.TextSecondary,
+        targetValue = when {
+            !isEnabled -> MediaColors.TextTertiary
+            isSelected -> MediaColors.TextPrimary
+            else -> MediaColors.TextSecondary
+        },
         label = "nav_item_text"
     )
     
@@ -648,7 +655,7 @@ private fun SidebarNavItem(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick,
-                enabled = destination.enabled
+                enabled = isEnabled
             ),
         shape = RoundedCornerShape(MediaCorners.SM),
         color = backgroundColor
@@ -656,6 +663,7 @@ private fun SidebarNavItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .alpha(if (isEnabled) 1f else 0.55f)
                 .padding(contentPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center
@@ -701,6 +709,15 @@ private fun SidebarNavItem(
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     
+                    if (!isEnabled) {
+                        Spacer(modifier = Modifier.width(MediaSpacing.SM))
+                        Text(
+                            text = "Soon",
+                            style = MediaTypography.LabelSmall,
+                            color = MediaColors.TextTertiary
+                        )
+                    }
+
                     // Badge
                     destination.badge?.let { badge ->
                         Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -801,20 +818,58 @@ fun MediaBottomNavigation(
         val effectiveDestinations = remember(destinations, bottomBarPreferences) {
             applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
         }
-        Row(
+        val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
+        val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(MediaSizes.BottomBarHeight)
-                .horizontalScroll(scrollState)
-                .padding(horizontal = MediaSpacing.SM),
-            horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            effectiveDestinations.forEach { destination ->
-                BottomNavItem(
-                    destination = destination,
-                    isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
-                    onClick = { if (destination.enabled) onNavigate(destination.route) }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(MediaSizes.BottomBarHeight)
+                    .horizontalScroll(scrollState)
+                    .padding(horizontal = MediaSpacing.SM),
+                horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                effectiveDestinations.forEach { destination ->
+                    BottomNavItem(
+                        destination = destination,
+                        enabled = destination.enabled,
+                        isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
+                        onClick = { if (destination.enabled) onNavigate(destination.route) }
+                    )
+                }
+            }
+
+            // Subtle edge fades to hint that the bar scrolls.
+            if (showLeftFade) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(18.dp)
+                        .align(Alignment.CenterStart)
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(MediaColors.BackgroundElevated, Color.Transparent)
+                            )
+                        )
+                )
+            }
+            if (showRightFade) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(18.dp)
+                        .align(Alignment.CenterEnd)
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(Color.Transparent, MediaColors.BackgroundElevated)
+                            )
+                        )
                 )
             }
         }
@@ -824,22 +879,32 @@ fun MediaBottomNavigation(
 @Composable
 private fun BottomNavItem(
     destination: MediaNavDestination,
+    enabled: Boolean,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     val iconColor by animateColorAsState(
-        targetValue = if (isSelected) MediaColors.AccentPrimary else MediaColors.TextSecondary,
+        targetValue = when {
+            !enabled -> MediaColors.TextTertiary
+            isSelected -> MediaColors.AccentPrimary
+            else -> MediaColors.TextSecondary
+        },
         label = "bottom_nav_icon"
     )
     
     val textColor by animateColorAsState(
-        targetValue = if (isSelected) MediaColors.AccentPrimary else MediaColors.TextTertiary,
+        targetValue = when {
+            !enabled -> MediaColors.TextTertiary
+            isSelected -> MediaColors.AccentPrimary
+            else -> MediaColors.TextTertiary
+        },
         label = "bottom_nav_text"
     )
     
     Column(
         modifier = Modifier
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
+            .alpha(if (enabled) 1f else 0.55f)
             .padding(MediaSpacing.SM),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

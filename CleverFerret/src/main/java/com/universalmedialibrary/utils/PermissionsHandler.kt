@@ -14,11 +14,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 
 /**
  * Permissions handler for CleverFerret
@@ -181,9 +185,28 @@ fun rememberPermissionsHandler(
     onPermissionsDenied: (List<String>) -> Unit = {}
 ): PermissionState {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     var permissionsGranted by remember { mutableStateOf(PermissionsHandler.hasAllPermissions(context)) }
     var showRationale by remember { mutableStateOf(false) }
     var deniedPermissions by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    // If the user changes permissions from system settings, refresh on resume.
+    DisposableEffect(lifecycleOwner, context) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val nowGranted = PermissionsHandler.hasAllPermissions(context)
+                permissionsGranted = nowGranted
+                if (nowGranted) {
+                    // Clear any stale rationale once we're good.
+                    showRationale = false
+                    deniedPermissions = emptyList()
+                    onAllPermissionsGranted()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     // Standard permissions launcher
     val permissionsLauncher = rememberLauncherForActivityResult(

@@ -2,7 +2,6 @@ package com.universalmedialibrary.ui.settings
 
 import android.net.Uri
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -98,36 +97,25 @@ fun StorageOrganizerScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = if (hasAllFilesAccess) "Granted" else "Not granted",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Text(
-                                    text = "Opens system settings to grant access",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                        Text(
+                            text = "Status: ${if (hasAllFilesAccess) "Granted" else "Not granted"}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (hasAllFilesAccess) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
                             }
-                            Switch(
-                                checked = hasAllFilesAccess,
-                                onCheckedChange = { checked ->
-                                    if (checked) {
-                                        PermissionsHandler.requestFullStorageAccess(context)
-                                    } else {
-                                        // Android only allows revoking from system settings.
-                                        Toast.makeText(
-                                            context,
-                                            "To revoke, disable it in system settings.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        PermissionsHandler.requestFullStorageAccess(context)
-                                    }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = { PermissionsHandler.requestFullStorageAccess(context) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = if (hasAllFilesAccess) {
+                                    "Manage in system settings"
+                                } else {
+                                    "Grant all files access"
                                 }
                             )
                         }

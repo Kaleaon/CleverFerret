@@ -995,12 +995,14 @@ fun FeedbackSettingsScreen(
             Button(
                 enabled = activity != null && !uiState.isBusy && description.isNotBlank() && githubToken.isNotBlank(),
                 onClick = {
+                    val token = githubToken
+                    githubToken = ""
                     viewModel.createAndSubmitToGitHub(
                         activity = activity!!,
                         description = description,
                         includeScreenshot = includeScreenshot,
                         includeLogs = includeLogs,
-                        githubToken = githubToken
+                        githubToken = token
                     )
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -1123,8 +1125,42 @@ private suspend fun calculateCacheSize(context: android.content.Context): Long {
 
 private fun directorySize(dir: File): Long {
     if (!dir.exists()) return 0L
-    if (dir.isFile) return dir.length()
-    return dir.listFiles()?.sumOf { directorySize(it) } ?: 0L
+
+    // Iterative traversal to avoid recursion/stack overflow on deep trees.
+    val maxDepth = 64
+    val maxEntries = 200_000
+
+    var total = 0L
+    var entries = 0
+
+    val stack = ArrayDeque<Pair<File, Int>>()
+    val visitedDirs = HashSet<String>(256)
+    stack.addLast(dir to 0)
+
+    while (stack.isNotEmpty() && entries < maxEntries) {
+        val (current, depth) = stack.removeLast()
+        entries++
+
+        if (!current.exists()) continue
+
+        if (current.isFile) {
+            total += runCatching { current.length() }.getOrDefault(0L)
+            continue
+        }
+
+        if (depth >= maxDepth) continue
+
+        // Best-effort cycle guard (symlinks/unusual FS layouts).
+        val key = runCatching { current.canonicalPath }.getOrElse { current.absolutePath }
+        if (!visitedDirs.add(key)) continue
+
+        val children = runCatching { current.listFiles() }.getOrNull() ?: continue
+        children.forEach { child ->
+            stack.addLast(child to (depth + 1))
+        }
+    }
+
+    return total
 }
 
 private suspend fun clearCache(context: android.content.Context) {
