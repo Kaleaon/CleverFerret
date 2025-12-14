@@ -562,7 +562,7 @@ fun MediaLinearProgress(
 // =============================================================================
 
 @Composable
-fun MediaBadge(
+fun MediaBadgePill(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = MediaColors.AccentPrimary

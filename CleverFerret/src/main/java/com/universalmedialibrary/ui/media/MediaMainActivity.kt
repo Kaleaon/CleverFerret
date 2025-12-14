@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.universalmedialibrary.PermissionDialog
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.ui.media.components.MediaMiniPlayer
 import com.universalmedialibrary.ui.media.navigation.*
 import com.universalmedialibrary.ui.media.theme.MediaTheme
+import com.universalmedialibrary.ui.main.MainViewModel
 import com.universalmedialibrary.utils.rememberPermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -52,6 +55,9 @@ class MediaMainActivity : ComponentActivity() {
 fun MediaMainScreen(
     playbackStateManager: PlaybackStateManager
 ) {
+    val mainViewModel: MainViewModel = hiltViewModel()
+    val bottomBarPreferences by mainViewModel.bottomBarPreferences.collectAsState(BottomBarPreferences.Default)
+
     // Permissions: request everything the app needs on startup.
     val permissionState = rememberPermissionsHandler()
     var permissionRequestedOnce by remember { mutableStateOf(false) }
@@ -119,6 +125,7 @@ fun MediaMainScreen(
         MediaNavigationScaffold(
             currentRoute = currentRoute ?: MediaRoutes.HOME,
             onNavigate = { route -> navController.navigate(route) },
+            bottomBarPreferences = bottomBarPreferences,
             modifier = Modifier.padding(paddingValues)
         ) { innerPadding ->
             MediaAppNavHost(

@@ -50,6 +50,22 @@ class SettingsRepository @Inject constructor(
         val IMPORT_SORTER_USE_ONLINE_METADATA = booleanPreferencesKey("import_sorter_use_online_metadata")
         val IMPORT_SORTER_PREVENT_DUPLICATES = booleanPreferencesKey("import_sorter_prevent_duplicates")
         val IMPORT_SORTER_DUPLICATE_STRATEGY = stringPreferencesKey("import_sorter_duplicate_strategy")
+
+        // Library auto-scan (WorkManager-driven)
+        val AUTO_SCAN_ENABLED = booleanPreferencesKey("auto_scan_enabled")
+        val AUTO_SCAN_INTERVAL_HOURS = stringPreferencesKey("auto_scan_interval_hours")
+        val AUTO_SCAN_WIFI_ONLY = booleanPreferencesKey("auto_scan_wifi_only")
+
+        // Metadata
+        val AUTO_FETCH_METADATA = booleanPreferencesKey("auto_fetch_metadata")
+        val PREFER_EMBEDDED_METADATA = booleanPreferencesKey("prefer_embedded_metadata")
+
+        // Privacy
+        val PRIVACY_SAVE_HISTORY = booleanPreferencesKey("privacy_save_history")
+        val PRIVACY_SEND_ANALYTICS = booleanPreferencesKey("privacy_send_analytics")
+
+        // Casting
+        val CASTING_ENABLED = booleanPreferencesKey("casting_enabled")
     }
 
     val themeFlow: Flow<ThemePalette> = context.dataStore.data.map { preferences ->
@@ -169,6 +185,42 @@ class SettingsRepository @Inject constructor(
         preferences[PreferencesKeys.IMPORT_SORTER_DUPLICATE_STRATEGY] ?: "SKIP"
     }
 
+    // ===== Auto-scan =====
+    val autoScanEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.AUTO_SCAN_ENABLED] ?: false
+    }
+
+    val autoScanIntervalHoursFlow: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.AUTO_SCAN_INTERVAL_HOURS]?.toIntOrNull()?.coerceAtLeast(1) ?: 24
+    }
+
+    val autoScanWifiOnlyFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.AUTO_SCAN_WIFI_ONLY] ?: true
+    }
+
+    // ===== Metadata =====
+    val autoFetchMetadataFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.AUTO_FETCH_METADATA] ?: true
+    }
+
+    val preferEmbeddedMetadataFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PREFER_EMBEDDED_METADATA] ?: true
+    }
+
+    // ===== Privacy =====
+    val privacySaveHistoryFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PRIVACY_SAVE_HISTORY] ?: true
+    }
+
+    val privacySendAnalyticsFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PRIVACY_SEND_ANALYTICS] ?: false
+    }
+
+    // ===== Casting =====
+    val castingEnabledFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.CASTING_ENABLED] ?: true
+    }
+
     suspend fun setTheme(palette: ThemePalette) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME] = palette.name
@@ -256,6 +308,58 @@ class SettingsRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             if (uri.isNullOrBlank()) preferences.remove(PreferencesKeys.IMPORT_SORTER_OUTPUT_URI)
             else preferences[PreferencesKeys.IMPORT_SORTER_OUTPUT_URI] = uri
+        }
+    }
+
+    // ===== Auto-scan setters =====
+    suspend fun setAutoScanEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_SCAN_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setAutoScanIntervalHours(hours: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_SCAN_INTERVAL_HOURS] = hours.coerceAtLeast(1).toString()
+        }
+    }
+
+    suspend fun setAutoScanWifiOnly(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_SCAN_WIFI_ONLY] = enabled
+        }
+    }
+
+    // ===== Metadata setters =====
+    suspend fun setAutoFetchMetadata(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTO_FETCH_METADATA] = enabled
+        }
+    }
+
+    suspend fun setPreferEmbeddedMetadata(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PREFER_EMBEDDED_METADATA] = enabled
+        }
+    }
+
+    // ===== Privacy setters =====
+    suspend fun setPrivacySaveHistory(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PRIVACY_SAVE_HISTORY] = enabled
+        }
+    }
+
+    suspend fun setPrivacySendAnalytics(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PRIVACY_SEND_ANALYTICS] = enabled
+        }
+    }
+
+    // ===== Casting setters =====
+    suspend fun setCastingEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.CASTING_ENABLED] = enabled
         }
     }
 

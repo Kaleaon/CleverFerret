@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.universalmedialibrary.data.settings.BottomBarPreferences
 import com.universalmedialibrary.ui.media.theme.*
 
 /**
@@ -787,6 +788,7 @@ fun MediaBottomNavigation(
     currentRoute: String,
     onNavigate: (String) -> Unit,
     destinations: List<MediaNavDestination> = MediaNavDestinations.primaryDestinations,
+    bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -796,6 +798,9 @@ fun MediaBottomNavigation(
         shadowElevation = MediaElevation.LG
     ) {
         val scrollState = rememberScrollState()
+        val effectiveDestinations = remember(destinations, bottomBarPreferences) {
+            applyBottomBarPreferencesToMediaDestinations(destinations, bottomBarPreferences)
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -805,7 +810,7 @@ fun MediaBottomNavigation(
             horizontalArrangement = Arrangement.spacedBy(MediaSpacing.SM),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            destinations.forEach { destination ->
+            effectiveDestinations.forEach { destination ->
                 BottomNavItem(
                     destination = destination,
                     isSelected = currentRoute.startsWith(destination.route.split("/").first()),
@@ -880,6 +885,7 @@ fun MediaNavigationScaffold(
     onNavigate: (String) -> Unit,
     userAvatarUrl: String? = null,
     userName: String = "User",
+    bottomBarPreferences: BottomBarPreferences = BottomBarPreferences.Default,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -897,7 +903,8 @@ fun MediaNavigationScaffold(
             bottomBar = {
                 MediaBottomNavigation(
                     currentRoute = currentRoute,
-                    onNavigate = onNavigate
+                    onNavigate = onNavigate,
+                    bottomBarPreferences = bottomBarPreferences
                 )
             },
             content = content
@@ -924,4 +931,54 @@ fun MediaNavigationScaffold(
             }
         }
     }
+}
+
+private fun applyBottomBarPreferencesToMediaDestinations(
+    destinations: List<MediaNavDestination>,
+    bottomBarPreferences: BottomBarPreferences
+): List<MediaNavDestination> {
+    if (bottomBarPreferences == BottomBarPreferences.Default) return destinations
+
+    // The existing bottom bar editor stores preference IDs as legacy route strings.
+    // Map the most important legacy IDs to the media-centric routes.
+    fun mapLegacyPreferenceIdToMediaRoute(id: String): String? = when (id) {
+        "home" -> MediaRoutes.HOME
+        "enhanced_search" -> MediaRoutes.SEARCH
+        "library_details/1" -> MediaRoutes.BOOKS
+        "library_details/2" -> MediaRoutes.AUDIOBOOKS
+        "library_details/3" -> MediaRoutes.COMICS
+        "library_details/4" -> MediaRoutes.MOVIES
+        "library_details/5" -> MediaRoutes.TV_SHOWS
+        "library_details/7" -> MediaRoutes.DOCUMENTS
+        "music" -> MediaRoutes.MUSIC
+        "podcasts" -> MediaRoutes.PODCASTS
+        "radio" -> MediaRoutes.RADIO
+        "visualizer" -> MediaRoutes.VISUALIZER
+        "ambient" -> MediaRoutes.AMBIENT_SOUNDS
+        "webfiction_manager" -> MediaRoutes.WEB_FICTION
+        "opds_catalog" -> MediaRoutes.OPDS_BROWSER
+        "storage_browser" -> MediaRoutes.FILE_BROWSER
+        "collections" -> MediaRoutes.COLLECTIONS
+        "settings" -> MediaRoutes.SETTINGS
+        else -> null
+    }
+
+    val hiddenRoutes = bottomBarPreferences.hidden.mapNotNull(::mapLegacyPreferenceIdToMediaRoute).toSet()
+    val orderedRoutes = bottomBarPreferences.order.mapNotNull(::mapLegacyPreferenceIdToMediaRoute)
+
+    val byRoute = destinations.associateBy { it.route }
+    val selected = LinkedHashSet<MediaNavDestination>()
+
+    // Apply ordering
+    orderedRoutes.forEach { route ->
+        val dest = byRoute[route]
+        if (dest != null && dest.route !in hiddenRoutes) selected.add(dest)
+    }
+
+    // Append remaining (preserve the "everything is reachable" behavior)
+    destinations.forEach { dest ->
+        if (dest.route !in hiddenRoutes) selected.add(dest)
+    }
+
+    return selected.toList()
 }

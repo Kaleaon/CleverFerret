@@ -16,9 +16,13 @@ import com.universalmedialibrary.BuildConfig
 import com.universalmedialibrary.ui.media.components.MediaType
 import com.universalmedialibrary.ui.media.player.*
 import com.universalmedialibrary.ui.media.screens.*
-import com.universalmedialibrary.ui.media.settings.MediaSettingsScreen
 import com.universalmedialibrary.ui.media.viewmodels.*
 import com.universalmedialibrary.debug.ui.DebugMenuScreen
+import com.universalmedialibrary.ui.components.NavigationItems
+import com.universalmedialibrary.ui.main.MainViewModel
+import com.universalmedialibrary.ui.theme.CleverFerretTheme
+import com.universalmedialibrary.ui.theme.ThemePalette
+import com.universalmedialibrary.ui.theme.toCleverFerretTheme
 
 /**
  * Main Navigation Routes for Clean media-centric CleverFerret
@@ -83,7 +87,8 @@ object MediaRoutes {
     const val SETTINGS_STORAGE = "settings/storage"
     const val SETTINGS_SECURITY = "settings/security"
     const val SETTINGS_ABOUT = "settings/about"
-    const val SETTINGS_MEDIA_SERVERS = "settings/media-servers"
+    // Legacy route compatibility (underscore is the primary route in the legacy settings UI)
+    const val SETTINGS_MEDIA_SERVERS = "settings/media_servers"
     const val FILE_BROWSER = "file-browser"
     
     // Onboarding
@@ -191,11 +196,10 @@ fun MediaAppNavHost(
         }
         
         composable(MediaRoutes.SETTINGS) {
-            MediaSettingsScreen(
-                onNavigateToSubScreen = { route ->
-                    navController.navigate(route)
-                },
-                onBackClick = { navController.popBackStack() }
+            com.universalmedialibrary.ui.settings.SettingsScreen(
+                onBack = { navController.popBackStack() },
+                navController = navController,
+                availableBottomItems = NavigationItems.items
             )
         }
         
@@ -206,37 +210,228 @@ fun MediaAppNavHost(
             )
         }
 
-        // Media servers
+        // =========================
+        // Settings routes (fully operational - no placeholders)
+        // =========================
+
+        // Media-centric settings sub-pages (routes used by MediaSettingsScreen)
+        composable(MediaRoutes.SETTINGS_APPEARANCE) {
+            com.universalmedialibrary.ui.settings.AppearanceSettingsScreen(
+                onBack = { navController.popBackStack() },
+                navController = navController
+            )
+        }
+        composable("settings/social") {
+            com.universalmedialibrary.ui.settings.SocialIntegrationsSettingsScreen(
+                onBack = { navController.popBackStack() },
+                navController = navController
+            )
+        }
+        composable("settings/metadata") {
+            com.universalmedialibrary.ui.settings.MetadataSettingsScreen(
+                onBack = { navController.popBackStack() },
+                navController = navController
+            )
+        }
+        composable("settings/auto-scan") {
+            com.universalmedialibrary.ui.settings.AutoScanSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings/display") {
+            com.universalmedialibrary.ui.settings.DisplaySettingsScreen(
+                onBack = { navController.popBackStack() },
+                navController = navController
+            )
+        }
+        composable("settings/text-size") {
+            // Reuse the existing reader settings page to adjust font sizes and layout.
+            com.universalmedialibrary.ui.settings.ReaderSettingsScreen(
+                navController = navController,
+                settingsType = "visual"
+            )
+        }
+        composable("settings/downloads") {
+            com.universalmedialibrary.ui.settings.DownloadsSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings/cache") {
+            com.universalmedialibrary.ui.settings.CacheSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings/privacy") {
+            com.universalmedialibrary.ui.settings.PrivacySettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings/casting") {
+            com.universalmedialibrary.ui.settings.CastingSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings/feedback") {
+            com.universalmedialibrary.ui.settings.FeedbackSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Theme gallery (used by SettingsScreen)
+        composable("theme_showcase") {
+            val mainViewModel: MainViewModel = hiltViewModel()
+            val selectedTheme by mainViewModel.selectedTheme.collectAsState(ThemePalette.NAVY_GOLD)
+            val currentUnifiedTheme = selectedTheme.toCleverFerretTheme()
+
+            com.universalmedialibrary.ui.screens.ThemeShowcaseScreen(
+                currentTheme = currentUnifiedTheme,
+                onThemeSelected = { newTheme ->
+                    val oldPalette = when (newTheme) {
+                        CleverFerretTheme.NAVY_GOLD -> ThemePalette.NAVY_GOLD
+                        CleverFerretTheme.ROYAL_SILVER -> ThemePalette.ROYAL_SILVER
+                        CleverFerretTheme.FOREST_COPPER -> ThemePalette.FOREST_COPPER
+                        CleverFerretTheme.BURGUNDY_ROSE_GOLD -> ThemePalette.BURGUNDY_ROSE_GOLD
+                        CleverFerretTheme.CHARCOAL_CHAMPAGNE -> ThemePalette.CHARCOAL_CHAMPAGNE
+                        CleverFerretTheme.SLATE_GUNMETAL -> ThemePalette.SLATE_GUNMETAL
+                        else -> ThemePalette.NAVY_GOLD
+                    }
+                    mainViewModel.setTheme(oldPalette)
+                },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Advanced audio effects showcase (used by AudioEffectsSettingsScreen)
+        composable("advanced_effects_showcase") {
+            com.universalmedialibrary.ui.screens.AdvancedEffectsShowcaseScreen()
+        }
+
+        // Import sorter (used by SettingsScreen)
+        composable("settings/import_sorter") {
+            com.universalmedialibrary.ui.settings.ImportSorterScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Import history (used by SettingsScreen)
+        composable("settings/import_history") {
+            com.universalmedialibrary.ui.settings.ImportHistoryScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Import/export (legacy settings route)
+        composable("settings/import_export") {
+            com.universalmedialibrary.ui.settings.ImportExportScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Media servers (used by SettingsScreen)
         composable(MediaRoutes.SETTINGS_MEDIA_SERVERS) {
             com.universalmedialibrary.ui.settings.MediaServerSettingsScreen(
                 onBack = { navController.popBackStack() }
             )
         }
 
-        // Cloud storage / network shares
+        // Back-compat alias (hyphenated route referenced by older media-centric settings UI)
+        composable("settings/media-servers") {
+            com.universalmedialibrary.ui.settings.MediaServerSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Network storage / cloud shares (used by SettingsScreen)
+        composable("settings/network_storage") {
+            com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Back-compat alias for media-centric route
         composable("settings/cloud") {
             com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen(
                 onBack = { navController.popBackStack() }
             )
         }
 
-        // Playback / audio effects
+        // Audio effects (used by SettingsScreen)
+        composable("settings/audio_effects") {
+            val vm: com.universalmedialibrary.ui.settings.AudioEffectsViewModel = hiltViewModel()
+            com.universalmedialibrary.ui.settings.AudioEffectsSettingsScreen(
+                viewModel = vm,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToShowcase = { navController.navigate("advanced_effects_showcase") }
+            )
+        }
+
+        // Back-compat alias for media-centric route
         composable(MediaRoutes.SETTINGS_PLAYBACK) {
             val vm: com.universalmedialibrary.ui.settings.AudioEffectsViewModel = hiltViewModel()
             com.universalmedialibrary.ui.settings.AudioEffectsSettingsScreen(
                 viewModel = vm,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToShowcase = { navController.navigate("advanced_effects_showcase") }
+            )
+        }
+
+        // Audio profiles (used by SettingsScreen)
+        composable("settings/audio_profiles") {
+            com.universalmedialibrary.ui.settings.AudioProfilesScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        // Text-to-speech providers
+        // Last.fm (used by SettingsScreen)
+        composable("settings/lastfm") {
+            com.universalmedialibrary.ui.settings.LastFmSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Text-to-speech providers (used by SettingsScreen)
+        composable("settings/tts_provider") {
+            com.universalmedialibrary.ui.settings.TtsProviderSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Back-compat alias for media-centric route
         composable("settings/tts") {
             com.universalmedialibrary.ui.settings.TtsProviderSettingsScreen(
                 onBack = { navController.popBackStack() }
             )
         }
 
-        // Reader settings (use the "visual" section as a reasonable default entry)
+        // Parental controls (used by SettingsScreen)
+        composable("settings/parental_controls") {
+            com.universalmedialibrary.ui.settings.ParentalControlsScreen(
+                navController = navController
+            )
+        }
+
+        // Back-compat alias for media-centric route
+        composable("settings/parental") {
+            com.universalmedialibrary.ui.settings.ParentalControlsScreen(
+                navController = navController
+            )
+        }
+
+        // Storage organizer (legacy settings route)
+        composable("settings/organizer") {
+            com.universalmedialibrary.ui.settings.StorageOrganizerScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Back-compat alias for media-centric route
+        composable(MediaRoutes.SETTINGS_STORAGE) {
+            com.universalmedialibrary.ui.settings.StorageOrganizerScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Reader settings (wire to existing ReaderSettingsScreen section entry)
         composable(MediaRoutes.SETTINGS_READER) {
             com.universalmedialibrary.ui.settings.ReaderSettingsScreen(
                 navController = navController,
@@ -244,25 +439,9 @@ fun MediaAppNavHost(
             )
         }
 
-        // Storage tools
-        composable(MediaRoutes.SETTINGS_STORAGE) {
-            com.universalmedialibrary.ui.settings.StorageOrganizerScreen(
-                onBack = { navController.popBackStack() }
-            )
-        }
-
-        // Security
+        // Security (wire to operational security settings)
         composable(MediaRoutes.SETTINGS_SECURITY) {
-            val vm: com.universalmedialibrary.ui.settings.SecuritySettingsViewModel = hiltViewModel()
             com.universalmedialibrary.ui.settings.SecuritySettingsScreen(
-                navController = navController,
-                viewModel = vm
-            )
-        }
-
-        // Parental controls
-        composable("settings/parental") {
-            com.universalmedialibrary.ui.settings.ParentalControlsScreen(
                 navController = navController
             )
         }
@@ -274,18 +453,24 @@ fun MediaAppNavHost(
             )
         }
 
-        // Placeholder routes referenced by Settings screen but not implemented here yet.
-        composable("settings/social") { PlaceholderSettingsSubScreen(title = "Social Integrations", onBackClick = { navController.popBackStack() }) }
-        composable("settings/auto-scan") { PlaceholderSettingsSubScreen(title = "Auto-Scan Settings", onBackClick = { navController.popBackStack() }) }
-        composable("settings/metadata") { PlaceholderSettingsSubScreen(title = "Metadata Preferences", onBackClick = { navController.popBackStack() }) }
-        composable(MediaRoutes.SETTINGS_APPEARANCE) { PlaceholderSettingsSubScreen(title = "Appearance", onBackClick = { navController.popBackStack() }) }
-        composable("settings/display") { PlaceholderSettingsSubScreen(title = "Display Options", onBackClick = { navController.popBackStack() }) }
-        composable("settings/text-size") { PlaceholderSettingsSubScreen(title = "Text Size", onBackClick = { navController.popBackStack() }) }
-        composable("settings/casting") { PlaceholderSettingsSubScreen(title = "Casting", onBackClick = { navController.popBackStack() }) }
-        composable("settings/privacy") { PlaceholderSettingsSubScreen(title = "Privacy", onBackClick = { navController.popBackStack() }) }
-        composable("settings/cache") { PlaceholderSettingsSubScreen(title = "Cache", onBackClick = { navController.popBackStack() }) }
-        composable("settings/downloads") { PlaceholderSettingsSubScreen(title = "Download Settings", onBackClick = { navController.popBackStack() }) }
-        composable("settings/feedback") { PlaceholderSettingsSubScreen(title = "Feedback", onBackClick = { navController.popBackStack() }) }
+        // Ambient utilities (used by SettingsScreen)
+        composable("ambient/theme_manager") {
+            com.universalmedialibrary.ui.ambient.ThemeManagerScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("ambient/import") {
+            com.universalmedialibrary.ui.ambient.AudioPackImportScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Fanfiction hub (used by SettingsScreen)
+        composable("fanfiction_hub") {
+            com.universalmedialibrary.ui.webfiction.UnifiedFanfictionHubScreen(
+                navController = navController
+            )
+        }
         
         // =====================================================================
         // LIBRARY SCREENS
@@ -710,39 +895,6 @@ fun MediaAppNavHost(
                     onBack = { navController.popBackStack() }
                 )
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PlaceholderSettingsSubScreen(
-    title: String,
-    onBackClick: () -> Unit
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(title) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "This settings section is not wired up yet.",
-                style = MaterialTheme.typography.bodyLarge
-            )
         }
     }
 }

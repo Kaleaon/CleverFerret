@@ -6,8 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.universalmedialibrary.data.repository.*
 import com.universalmedialibrary.data.repository.podcast.PodcastRepository
+import com.universalmedialibrary.data.repository.WebFictionRepository
 import com.universalmedialibrary.services.ServiceAvailabilityManager
 import com.universalmedialibrary.services.ServiceType
+import com.universalmedialibrary.ui.media.components.MediaBadge
 import com.universalmedialibrary.ui.media.components.MediaItem
 import com.universalmedialibrary.ui.media.components.MediaType
 import com.universalmedialibrary.ui.media.screens.HomeLibraryStats
@@ -41,6 +43,8 @@ class MediaHomeViewModel @Inject constructor(
     private val comicRepository: ComicRepository,
     private val videoRepository: VideoRepository,
     private val collectionRepository: CollectionRepository,
+    private val podcastRepository: PodcastRepository,
+    private val webFictionRepository: WebFictionRepository,
     private val serviceAvailabilityManager: ServiceAvailabilityManager
 ) : ViewModel() {
     
@@ -87,6 +91,8 @@ class MediaHomeViewModel @Inject constructor(
                 val audiobooksDeferred = async { loadRecentAudiobooks() }
                 val comicsDeferred = async { loadRecentComics() }
                 val videosDeferred = async { loadRecentVideos() }
+                val podcastsDeferred = async { loadRecentPodcasts() }
+                val fanfictionDeferred = async { loadRecentFanfiction() }
                 val collectionsDeferred = async { loadCollections() }
                 val statsDeferred = async { loadLibraryStats() }
                 
@@ -95,6 +101,8 @@ class MediaHomeViewModel @Inject constructor(
                 val recentAudiobooks = audiobooksDeferred.await()
                 val recentComics = comicsDeferred.await()
                 val recentVideos = videosDeferred.await()
+                val recentPodcasts = podcastsDeferred.await()
+                val recentFanfiction = fanfictionDeferred.await()
                 val collections = collectionsDeferred.await()
                 val stats = statsDeferred.await()
                 
@@ -114,11 +122,11 @@ class MediaHomeViewModel @Inject constructor(
                         continueItems = continueItems,
                         recentBooks = recentBooks,
                         recentMusic = recentMusic,
-                        recentPodcasts = emptyList(), // Podcast repo integration
+                        recentPodcasts = recentPodcasts,
                         recentVideos = recentVideos,
                         recentAudiobooks = recentAudiobooks,
                         recentComics = recentComics,
-                        recentFanfiction = emptyList(), // Web fiction integration
+                        recentFanfiction = recentFanfiction,
                         libraryStats = stats,
                         collections = collections
                     )
@@ -226,6 +234,56 @@ class MediaHomeViewModel @Inject constructor(
             emptyList()
         }
     }
+
+    private suspend fun loadRecentPodcasts(): List<MediaItem> {
+        return try {
+            podcastRepository.getNewEpisodes().first().take(20).map { episode ->
+                val progress = if (episode.duration > 0) {
+                    (episode.playPosition.toFloat() / episode.duration.toFloat()).coerceIn(0f, 1f)
+                } else 0f
+                MediaItem(
+                    id = episode.id.toString(),
+                    title = episode.title,
+                    subtitle = "Podcast",
+                    imageUrl = episode.imageUrl,
+                    mediaType = MediaType.PODCAST,
+                    progress = progress,
+                    duration = if (episode.duration > 0) formatDuration(episode.duration) else null,
+                    badges = buildList {
+                        if (episode.isNew) add(MediaBadge("NEW"))
+                        if (episode.isDownloaded) add(MediaBadge("DOWNLOADED"))
+                    }
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private suspend fun loadRecentFanfiction(): List<MediaItem> {
+        return try {
+            webFictionRepository.getRecentlyAddedWebFiction(20).first().map { story ->
+                val progress = if (story.chapterCount > 0) {
+                    (story.lastChapterDownloaded.toFloat() / story.chapterCount.toFloat()).coerceIn(0f, 1f)
+                } else 0f
+                MediaItem(
+                    id = story.id,
+                    title = story.title,
+                    subtitle = story.author,
+                    imageUrl = story.coverPath,
+                    mediaType = MediaType.FANFICTION,
+                    progress = progress,
+                    badges = buildList {
+                        if (story.status.equals("COMPLETE", ignoreCase = true)) {
+                            add(MediaBadge("COMPLETED"))
+                        }
+                    }
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
     
     private suspend fun loadCollections(): List<HomeCollection> {
         return try {
@@ -254,13 +312,16 @@ class MediaHomeViewModel @Inject constructor(
             val audiobookCount = audiobookRepository.getAudiobookCount()
             val musicCount = musicRepository.tracks.value.size
             val comicCount = comicRepository.getComicCount()
+            val podcastCount = podcastRepository.getSubscribedPodcasts().first().size
+            val fanfictionCount = webFictionRepository.getWebFictionCount()
             
             HomeLibraryStats(
                 totalBooks = bookCount,
                 totalAudiobooks = audiobookCount,
                 totalMusic = musicCount,
-                totalPodcasts = 0, // Podcast repo integration
-                totalComics = comicCount
+                totalPodcasts = podcastCount,
+                totalComics = comicCount,
+                totalFanfiction = fanfictionCount
             )
         } catch (e: Exception) {
             HomeLibraryStats()
@@ -298,5 +359,16 @@ class MediaHomeViewModel @Inject constructor(
         val hours = durationMs / (1000 * 60 * 60)
         val minutes = (durationMs / (1000 * 60)) % 60
         return if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
+    }
+
+    private fun formatDuration(durationMs: Long): String {
+        val hours = durationMs / (1000 * 60 * 60)
+        val minutes = (durationMs / (1000 * 60)) % 60
+        val seconds = (durationMs / 1000) % 60
+        return when {
+            hours > 0 -> "${hours}h ${minutes}m"
+            minutes > 0 -> "${minutes}m ${seconds}s"
+            else -> "${seconds}s"
+        }
     }
 }
