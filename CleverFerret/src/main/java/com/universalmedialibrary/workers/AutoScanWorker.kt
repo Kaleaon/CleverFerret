@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
@@ -33,8 +34,8 @@ class AutoScanWorker(
         val intent = Intent(applicationContext, MediaScannerService::class.java).apply {
             action = MediaScannerService.ACTION_SCAN_ALL
         }
-        // Foreground service start is safe across API levels when paired with foreground notification.
-        applicationContext.startService(intent)
+        // Android 8.0+ requires foreground service start from background.
+        ContextCompat.startForegroundService(applicationContext, intent)
         return Result.success()
     }
 

@@ -8,6 +8,7 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -60,12 +61,18 @@ fun MediaMainScreen(
 
     // Permissions: request everything the app needs on startup.
     val permissionState = rememberPermissionsHandler()
-    var permissionRequestedOnce by remember { mutableStateOf(false) }
+    var permissionRequestedOnce by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(permissionState.hasAllPermissions) {
         if (!permissionState.hasAllPermissions && !permissionRequestedOnce) {
             permissionRequestedOnce = true
             permissionState.requestPermissions()
         }
+    }
+
+    // Gate the UI until the required runtime permissions are granted.
+    if (!permissionState.hasAllPermissions) {
+        PermissionDialog(permissionState = permissionState)
+        return
     }
 
     val navController = rememberNavController()
@@ -87,11 +94,6 @@ fun MediaMainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     
-    // Block the app until permissions are granted, since most content requires storage/media access.
-    if (!permissionState.hasAllPermissions) {
-        PermissionDialog(permissionState = permissionState)
-    }
-
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {

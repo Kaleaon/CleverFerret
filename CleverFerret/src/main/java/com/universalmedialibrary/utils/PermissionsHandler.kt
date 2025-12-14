@@ -39,27 +39,22 @@ object PermissionsHandler {
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_VIDEO,
                     Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.POST_NOTIFICATIONS,
-                    // Used by visualizer + optional voice features
-                    Manifest.permission.RECORD_AUDIO
+                    Manifest.permission.POST_NOTIFICATIONS
                 )
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                // Android 11+ (API 30+) - No READ_EXTERNAL_STORAGE needed with MANAGE_EXTERNAL_STORAGE
+                // Android 11-12L (API 30-32) - Legacy storage permission model.
+                // NOTE: We do NOT require MANAGE_EXTERNAL_STORAGE to "enter the app" because that can
+                // permanently deadlock the UI on Android 13+ and is a restricted permission.
                 arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    // Used by visualizer + optional voice features
-                    Manifest.permission.RECORD_AUDIO
+                    Manifest.permission.READ_EXTERNAL_STORAGE
                 )
             }
             else -> {
                 // Android 10 and below
                 arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    // Used by visualizer + optional voice features
-                    Manifest.permission.RECORD_AUDIO
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
             }
         }
@@ -69,13 +64,7 @@ object PermissionsHandler {
      * Check if all required permissions are granted
      */
     fun hasAllPermissions(context: Context): Boolean {
-        // Full library support (ebooks/documents/comics) requires full file access on Android 11+.
-        // Android 13+ READ_MEDIA_* does not cover documents like epub/pdf, so we still require this.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-            return false
-        }
-
-        // Check standard permissions
+        // Check required runtime permissions for the current API level.
         return getRequiredPermissions().all { permission ->
             ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
         }
@@ -100,8 +89,8 @@ object PermissionsHandler {
                 hasPermission(context, Manifest.permission.READ_MEDIA_AUDIO)
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                // Android 11-12 - Check MANAGE_EXTERNAL_STORAGE
-                Environment.isExternalStorageManager()
+                // Android 11-12L - READ_EXTERNAL_STORAGE gate for MediaStore access.
+                hasPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
             }
             else -> {
                 // Android 10 and below
@@ -118,7 +107,7 @@ object PermissionsHandler {
     fun hasFullStorageAccess(context: Context): Boolean {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                // Android 11+ needs MANAGE_EXTERNAL_STORAGE for document access
+                // Android 11+ (restricted) "All files access" for full document scanning.
                 Environment.isExternalStorageManager()
             }
             else -> {
@@ -200,39 +189,15 @@ fun rememberPermissionsHandler(
     val permissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val allGranted = permissions.values.all { it }
         val denied = permissions.filter { !it.value }.keys.toList()
-        
-        permissionsGranted = allGranted
+
         deniedPermissions = denied
-        
-        if (allGranted) {
-            // Still need to check for MANAGE_EXTERNAL_STORAGE on Android 11+
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                if (!Environment.isExternalStorageManager()) {
-                    PermissionsHandler.requestStorageManagement(context)
-                } else {
-                    onAllPermissionsGranted()
-                }
-            } else {
-                onAllPermissionsGranted()
-            }
-        } else {
+        permissionsGranted = PermissionsHandler.hasAllPermissions(context)
+
+        if (permissionsGranted) onAllPermissionsGranted()
+        else {
             onPermissionsDenied(denied)
             showRationale = true
-        }
-    }
-
-    // Storage management launcher for Android 11+
-    val storageManagementLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            permissionsGranted = Environment.isExternalStorageManager() && 
-                                 PermissionsHandler.hasAllPermissions(context)
-            if (permissionsGranted) {
-                onAllPermissionsGranted()
-            }
         }
     }
 
@@ -241,17 +206,6 @@ fun rememberPermissionsHandler(
         showRationale = showRationale,
         deniedPermissions = deniedPermissions,
         requestPermissions = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // Request MANAGE_EXTERNAL_STORAGE first on Android 11+
-                try {
-                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    intent.data = "package:${context.packageName}".toUri()
-                    storageManagementLauncher.launch(intent)
-                } catch (e: Exception) {
-                    val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                    storageManagementLauncher.launch(intent)
-                }
-            }
             // Request standard permissions
             permissionsLauncher.launch(PermissionsHandler.getRequiredPermissions())
         },

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -221,7 +222,7 @@ private fun FeatureCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(MediaCorners.Card))
+            .clip(RoundedCornerShape(MediaCorners.Card))
             .clickable(onClick = onClick),
         color = MediaColors.BackgroundElevated
     ) {
@@ -232,7 +233,7 @@ private fun FeatureCard(
             Surface(
                 modifier = Modifier.size(44.dp),
                 color = iconTint.copy(alpha = 0.15f),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(MediaCorners.SM)
+                shape = RoundedCornerShape(MediaCorners.SM)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(

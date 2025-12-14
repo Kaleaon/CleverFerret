@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.settings
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -27,14 +29,18 @@ import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.data.settings.MiniPlayerBackgroundMode
 import com.universalmedialibrary.services.MediaScannerService
 import com.universalmedialibrary.services.debug.DebugBugReportService
+import com.universalmedialibrary.utils.PermissionsHandler
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 import com.universalmedialibrary.workers.AutoScanWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -364,6 +370,7 @@ fun AutoScanSettingsScreen(
     val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
     val wm = remember(context) { WorkManager.getInstance(context) }
+    val permissions = rememberPermissionsHandler()
 
     fun rescheduleWork() {
         if (!state.enabled) {
@@ -390,6 +397,8 @@ fun AutoScanSettingsScreen(
 
     // Keep WorkManager schedule in sync with stored settings.
     LaunchedEffect(state.enabled, state.intervalHours, state.wifiOnly) {
+        // Debounce rapid successive changes (toggle + interval edits).
+        delay(500)
         rescheduleWork()
     }
 
@@ -466,10 +475,17 @@ fun AutoScanSettingsScreen(
 
             Button(
                 onClick = {
+                    // Validate storage permissions before starting scan to avoid SecurityException.
+                    if (!PermissionsHandler.hasStoragePermissions(context)) {
+                        permissions.requestPermissions()
+                        Toast.makeText(context, "Storage permissions required to scan.", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
                     val intent = Intent(context, MediaScannerService::class.java).apply {
                         action = MediaScannerService.ACTION_SCAN_ALL
                     }
-                    context.startService(intent)
+                    ContextCompat.startForegroundService(context, intent)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -1110,9 +1126,9 @@ private fun Long.toHumanReadable(): String {
     val mb = kb * 1024
     val gb = mb * 1024
     return when {
-        this >= gb -> String.format("%.2f GB", this / gb)
-        this >= mb -> String.format("%.2f MB", this / mb)
-        this >= kb -> String.format("%.2f KB", this / kb)
+        this >= gb -> String.format(Locale.getDefault(), "%.2f GB", this / gb)
+        this >= mb -> String.format(Locale.getDefault(), "%.2f MB", this / mb)
+        this >= kb -> String.format(Locale.getDefault(), "%.2f KB", this / kb)
         else -> "$this B"
     }
 }
