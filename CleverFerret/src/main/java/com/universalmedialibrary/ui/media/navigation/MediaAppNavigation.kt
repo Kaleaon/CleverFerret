@@ -2,9 +2,13 @@ package com.universalmedialibrary.ui.media.navigation
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
@@ -158,6 +162,13 @@ fun MediaAppNavHost(
                 onNotificationClick = { /* TODO: Show notifications */ }
             )
         }
+
+        composable(MediaRoutes.DISCOVER) {
+            MediaDiscoverScreen(
+                onNavigate = { route -> navController.navigate(route) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
         
         composable(MediaRoutes.SEARCH) {
             val viewModel: SearchViewModel = hiltViewModel()
@@ -194,6 +205,87 @@ fun MediaAppNavHost(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+
+        // Media servers
+        composable(MediaRoutes.SETTINGS_MEDIA_SERVERS) {
+            com.universalmedialibrary.ui.settings.MediaServerSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Cloud storage / network shares
+        composable("settings/cloud") {
+            com.universalmedialibrary.ui.settings.NetworkStorageSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Playback / audio effects
+        composable(MediaRoutes.SETTINGS_PLAYBACK) {
+            val vm: com.universalmedialibrary.ui.settings.AudioEffectsViewModel = hiltViewModel()
+            com.universalmedialibrary.ui.settings.AudioEffectsSettingsScreen(
+                viewModel = vm,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Text-to-speech providers
+        composable("settings/tts") {
+            com.universalmedialibrary.ui.settings.TtsProviderSettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Reader settings (use the "visual" section as a reasonable default entry)
+        composable(MediaRoutes.SETTINGS_READER) {
+            com.universalmedialibrary.ui.settings.ReaderSettingsScreen(
+                navController = navController,
+                settingsType = "visual"
+            )
+        }
+
+        // Storage tools
+        composable(MediaRoutes.SETTINGS_STORAGE) {
+            com.universalmedialibrary.ui.settings.StorageOrganizerScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        // Security
+        composable(MediaRoutes.SETTINGS_SECURITY) {
+            val vm: com.universalmedialibrary.ui.settings.SecuritySettingsViewModel = hiltViewModel()
+            com.universalmedialibrary.ui.settings.SecuritySettingsScreen(
+                navController = navController,
+                viewModel = vm
+            )
+        }
+
+        // Parental controls
+        composable("settings/parental") {
+            com.universalmedialibrary.ui.settings.ParentalControlsScreen(
+                navController = navController
+            )
+        }
+
+        // About
+        composable(MediaRoutes.SETTINGS_ABOUT) {
+            com.universalmedialibrary.ui.settings.AboutScreen(
+                navController = navController
+            )
+        }
+
+        // Placeholder routes referenced by Settings screen but not implemented here yet.
+        composable("settings/social") { PlaceholderSettingsSubScreen(title = "Social Integrations", onBackClick = { navController.popBackStack() }) }
+        composable("settings/auto-scan") { PlaceholderSettingsSubScreen(title = "Auto-Scan Settings", onBackClick = { navController.popBackStack() }) }
+        composable("settings/metadata") { PlaceholderSettingsSubScreen(title = "Metadata Preferences", onBackClick = { navController.popBackStack() }) }
+        composable(MediaRoutes.SETTINGS_APPEARANCE) { PlaceholderSettingsSubScreen(title = "Appearance", onBackClick = { navController.popBackStack() }) }
+        composable("settings/display") { PlaceholderSettingsSubScreen(title = "Display Options", onBackClick = { navController.popBackStack() }) }
+        composable("settings/text-size") { PlaceholderSettingsSubScreen(title = "Text Size", onBackClick = { navController.popBackStack() }) }
+        composable("settings/casting") { PlaceholderSettingsSubScreen(title = "Casting", onBackClick = { navController.popBackStack() }) }
+        composable("settings/privacy") { PlaceholderSettingsSubScreen(title = "Privacy", onBackClick = { navController.popBackStack() }) }
+        composable("settings/cache") { PlaceholderSettingsSubScreen(title = "Cache", onBackClick = { navController.popBackStack() }) }
+        composable("settings/downloads") { PlaceholderSettingsSubScreen(title = "Download Settings", onBackClick = { navController.popBackStack() }) }
+        composable("settings/feedback") { PlaceholderSettingsSubScreen(title = "Feedback", onBackClick = { navController.popBackStack() }) }
         
         // =====================================================================
         // LIBRARY SCREENS
@@ -515,6 +607,12 @@ fun MediaAppNavHost(
                 onBackClick = { navController.popBackStack() }
             )
         }
+
+        composable(MediaRoutes.VISUALIZER) {
+            com.universalmedialibrary.ui.visualizer.VisualizerScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
         
         // =====================================================================
         // COLLECTIONS & ORGANIZATION
@@ -579,6 +677,14 @@ fun MediaAppNavHost(
                 onBackClick = { navController.popBackStack() }
             )
         }
+
+        composable(MediaRoutes.FILE_BROWSER) {
+            com.universalmedialibrary.ui.filepicker.EnhancedFileBrowser(
+                onFileSelected = { file ->
+                    onShowSnackbar("Selected: ${file.name}")
+                }
+            )
+        }
         
         // =====================================================================
         // ONBOARDING
@@ -604,6 +710,39 @@ fun MediaAppNavHost(
                     onBack = { navController.popBackStack() }
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PlaceholderSettingsSubScreen(
+    title: String,
+    onBackClick: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(title) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "This settings section is not wired up yet.",
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 }

@@ -11,9 +11,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.universalmedialibrary.PermissionDialog
 import com.universalmedialibrary.ui.media.components.MediaMiniPlayer
 import com.universalmedialibrary.ui.media.navigation.*
 import com.universalmedialibrary.ui.media.theme.MediaTheme
+import com.universalmedialibrary.utils.rememberPermissionsHandler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -50,6 +52,16 @@ class MediaMainActivity : ComponentActivity() {
 fun MediaMainScreen(
     playbackStateManager: PlaybackStateManager
 ) {
+    // Permissions: request everything the app needs on startup.
+    val permissionState = rememberPermissionsHandler()
+    var permissionRequestedOnce by remember { mutableStateOf(false) }
+    LaunchedEffect(permissionState.hasAllPermissions) {
+        if (!permissionState.hasAllPermissions && !permissionRequestedOnce) {
+            permissionRequestedOnce = true
+            permissionState.requestPermissions()
+        }
+    }
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -69,6 +81,11 @@ fun MediaMainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     
+    // Block the app until permissions are granted, since most content requires storage/media access.
+    if (!permissionState.hasAllPermissions) {
+        PermissionDialog(permissionState = permissionState)
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {

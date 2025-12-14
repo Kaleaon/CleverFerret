@@ -39,21 +39,27 @@ object PermissionsHandler {
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_VIDEO,
                     Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.POST_NOTIFICATIONS
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    // Used by visualizer + optional voice features
+                    Manifest.permission.RECORD_AUDIO
                 )
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
                 // Android 11+ (API 30+) - No READ_EXTERNAL_STORAGE needed with MANAGE_EXTERNAL_STORAGE
                 arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    // Used by visualizer + optional voice features
+                    Manifest.permission.RECORD_AUDIO
                 )
             }
             else -> {
                 // Android 10 and below
                 arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    // Used by visualizer + optional voice features
+                    Manifest.permission.RECORD_AUDIO
                 )
             }
         }
@@ -63,12 +69,10 @@ object PermissionsHandler {
      * Check if all required permissions are granted
      */
     fun hasAllPermissions(context: Context): Boolean {
-        // Check for MANAGE_EXTERNAL_STORAGE only on Android 11-12 (API 30-32)
-        // Android 13+ uses granular READ_MEDIA_* permissions instead
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            if (!Environment.isExternalStorageManager()) {
-                return false
-            }
+        // Full library support (ebooks/documents/comics) requires full file access on Android 11+.
+        // Android 13+ READ_MEDIA_* does not cover documents like epub/pdf, so we still require this.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+            return false
         }
 
         // Check standard permissions
