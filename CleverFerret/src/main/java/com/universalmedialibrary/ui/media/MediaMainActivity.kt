@@ -62,7 +62,7 @@ fun MediaMainScreen(
     // Permissions: request everything the app needs on startup.
     val permissionState = rememberPermissionsHandler()
     var permissionRequestedOnce by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(permissionState.hasAllPermissions) {
+    LaunchedEffect(Unit) {
         if (!permissionState.hasAllPermissions && !permissionRequestedOnce) {
             permissionRequestedOnce = true
             permissionState.requestPermissions()

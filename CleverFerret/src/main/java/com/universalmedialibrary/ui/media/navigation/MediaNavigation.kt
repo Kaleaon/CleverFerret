@@ -467,7 +467,7 @@ fun MediaSidebar(
                     items(destinations) { destination ->
                         SidebarNavItem(
                             destination = destination,
-                            isSelected = currentRoute.startsWith(destination.route.split("/").firstOrNull() ?: ""),
+                            isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
                             isExpanded = isExpanded,
                             onClick = { onNavigate(destination.route) }
                         )
@@ -813,7 +813,7 @@ fun MediaBottomNavigation(
             effectiveDestinations.forEach { destination ->
                 BottomNavItem(
                     destination = destination,
-                    isSelected = currentRoute.startsWith(destination.route.split("/").firstOrNull() ?: ""),
+                    isSelected = currentRoute.split("/").firstOrNull() == destination.route.split("/").firstOrNull(),
                     onClick = { if (destination.enabled) onNavigate(destination.route) }
                 )
             }

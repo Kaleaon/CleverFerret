@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
@@ -448,7 +449,9 @@ fun AutoScanSettingsScreen(
             OutlinedTextField(
                 value = state.intervalHours.toString(),
                 onValueChange = { raw ->
-                    raw.toIntOrNull()?.let { viewModel.setIntervalHours(it) }
+                    raw.toIntOrNull()?.let { hours ->
+                        if (hours >= 1) viewModel.setIntervalHours(hours)
+                    }
                 },
                 label = { Text("Interval (hours)") },
                 supportingText = { Text("Minimum 1 hour") },
@@ -679,9 +682,12 @@ fun CacheSettingsScreen(
             OutlinedTextField(
                 value = state.maxCacheSizeMb.toString(),
                 onValueChange = { raw ->
-                    raw.toIntOrNull()?.let { viewModel.setMaxCacheSizeMb(it) }
+                    raw.toIntOrNull()?.let { mb ->
+                        if (mb in 1..10000) viewModel.setMaxCacheSizeMb(mb)
+                    }
                 },
                 label = { Text("Max cache size (MB)") },
+                supportingText = { Text("Range: 1-10000 MB") },
                 leadingIcon = { Icon(Icons.Default.Storage, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -844,7 +850,11 @@ fun CastingSettingsScreen(
                     // Open system Cast settings if present; otherwise open Bluetooth settings as a fallback.
                     val intent = Intent(android.provider.Settings.ACTION_CAST_SETTINGS)
                     runCatching { context.startActivity(intent) }.onFailure {
-                        context.startActivity(Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS))
+                        Toast.makeText(
+                            context,
+                            "Cast settings not available on this device",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -978,6 +988,7 @@ fun FeedbackSettingsScreen(
                 value = githubToken,
                 onValueChange = { githubToken = it },
                 label = { Text("GitHub token (optional, to auto-create issue)") },
+                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
             )
 
