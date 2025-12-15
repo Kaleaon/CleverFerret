@@ -174,7 +174,7 @@ private fun RadioTopBar(
                 Icon(
                     imageVector = Icons.Default.Radio,
                     contentDescription = null,
-                    tint = MediaColors.MediaTypes.Podcast,
+                    tint = MediaColors.MediaTypes.Radio,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(MediaSpacing.SM))
@@ -915,7 +915,7 @@ data class RadioStation(
     val logoUrl: String?,
     val streamUrl: String,
     val genre: String,
-    val genreColor: Color = MediaColors.MediaTypes.Podcast,
+    val genreColor: Color = MediaColors.MediaTypes.Radio,
     val country: String? = null,
     val bitrate: Int? = null,
     val isFavorite: Boolean = false,

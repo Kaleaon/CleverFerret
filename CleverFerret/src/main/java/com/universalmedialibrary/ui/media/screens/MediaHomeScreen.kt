@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.universalmedialibrary.ui.media.components.*
+import com.universalmedialibrary.ui.media.navigation.MediaRoutes
 import com.universalmedialibrary.ui.media.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -98,7 +99,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "Continue Where You Left Off",
                         items = state.continueItems,
-                        onSeeAllClick = { onSeeAllClick("continue") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.SEARCH) }
                     ) { item ->
                         MediaWideCard(
                             item = item,
@@ -116,7 +117,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "Recently Added Books",
                         items = state.recentBooks,
-                        onSeeAllClick = { onSeeAllClick("books") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.BOOKS) }
                     ) { item ->
                         MediaPosterCard(
                             item = item,
@@ -134,7 +135,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "Recently Added Music",
                         items = state.recentMusic,
-                        onSeeAllClick = { onSeeAllClick("music") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.MUSIC) }
                     ) { item ->
                         MediaSquareCard(
                             item = item,
@@ -152,7 +153,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "New Podcast Episodes",
                         items = state.recentPodcasts,
-                        onSeeAllClick = { onSeeAllClick("podcasts") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.PODCASTS) }
                     ) { item ->
                         MediaSquareCard(
                             item = item,
@@ -170,7 +171,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "Recently Added Movies & TV",
                         items = state.recentVideos,
-                        onSeeAllClick = { onSeeAllClick("videos") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.MOVIES) }
                     ) { item ->
                         MediaPosterCard(
                             item = item,
@@ -188,7 +189,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "Recent Audiobooks",
                         items = state.recentAudiobooks,
-                        onSeeAllClick = { onSeeAllClick("audiobooks") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.AUDIOBOOKS) }
                     ) { item ->
                         MediaPosterCard(
                             item = item,
@@ -206,7 +207,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "Recently Added Comics",
                         items = state.recentComics,
-                        onSeeAllClick = { onSeeAllClick("comics") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.COMICS) }
                     ) { item ->
                         MediaPosterCard(
                             item = item,
@@ -224,7 +225,7 @@ fun MediaHomeScreen(
                     MediaCarouselRow(
                         title = "Web Fiction Updates",
                         items = state.recentFanfiction,
-                        onSeeAllClick = { onSeeAllClick("webfiction") }
+                        onSeeAllClick = { onSeeAllClick(MediaRoutes.WEB_FICTION) }
                     ) { item ->
                         MediaPosterCard(
                             item = item,
@@ -241,7 +242,7 @@ fun MediaHomeScreen(
                     Spacer(modifier = Modifier.height(MediaSpacing.SectionGap))
                     CollectionsSection(
                         collections = state.collections,
-                        onCollectionClick = { onSeeAllClick("collection_${it.id}") }
+                        onCollectionClick = { onSeeAllClick(MediaRoutes.collectionDetailRoute(it.id)) }
                     )
                 }
             }
@@ -534,18 +535,19 @@ private fun QuickAccessGrid(
         Spacer(modifier = Modifier.height(MediaSpacing.MD))
         
         val categories = listOf(
-            QuickAccessItem("books", "Books", Icons.Default.MenuBook, MediaColors.MediaTypes.Book),
-            QuickAccessItem("audiobooks", "Audiobooks", Icons.Default.Headphones, MediaColors.MediaTypes.Audiobook),
-            QuickAccessItem("comics", "Comics", Icons.Default.AutoStories, MediaColors.MediaTypes.Comic),
-            QuickAccessItem("music", "Music", Icons.Default.MusicNote, MediaColors.MediaTypes.Music),
-            QuickAccessItem("podcasts", "Podcasts", Icons.Default.Podcasts, MediaColors.MediaTypes.Podcast),
-            QuickAccessItem("radio", "Radio", Icons.Default.Radio, MediaColors.MediaTypes.Radio),
-            QuickAccessItem("videos", "Videos", Icons.Default.Movie, MediaColors.MediaTypes.Movie),
-            QuickAccessItem("webfiction", "Web Fiction", Icons.Default.Language, MediaColors.MediaTypes.Fanfiction),
-            QuickAccessItem("documents", "Documents", Icons.Default.Description, MediaColors.MediaTypes.Document),
-            QuickAccessItem("opds", "OPDS", Icons.Default.CloudDownload, MediaColors.AccentSecondary),
-            QuickAccessItem("ambient", "Ambient", Icons.Default.Spa, MediaColors.AccentTertiary),
-            QuickAccessItem("collections", "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
+            QuickAccessItem(MediaRoutes.BOOKS, "Books", Icons.Default.MenuBook, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.AUDIOBOOKS, "Audiobooks", Icons.Default.Headphones, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.COMICS, "Comics", Icons.Default.AutoStories, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.MUSIC, "Music", Icons.Default.MusicNote, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.PODCASTS, "Podcasts", Icons.Default.Podcasts, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.RADIO, "Radio", Icons.Default.Radio, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.MOVIES, "Movies", Icons.Default.Movie, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.TV_SHOWS, "TV Shows", Icons.Default.Tv, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.WEB_FICTION, "Web Fiction", Icons.Default.Language, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.DOCUMENTS, "Documents", Icons.Default.Description, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.OPDS_BROWSER, "OPDS", Icons.Default.CloudDownload, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.AMBIENT_SOUNDS, "Ambient", Icons.Default.Spa, MediaColors.AccentPrimary),
+            QuickAccessItem(MediaRoutes.COLLECTIONS, "Collections", Icons.Default.Collections, MediaColors.AccentPrimary)
         )
         
         LazyVerticalGrid(

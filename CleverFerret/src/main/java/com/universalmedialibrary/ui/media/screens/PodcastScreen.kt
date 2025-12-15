@@ -1031,6 +1031,7 @@ data class PodcastEpisode(
     val showArtworkUrl: String?,
     val title: String,
     val description: String?,
+    val audioUrl: String? = null,
     val publishedDate: String,
     val duration: String,
     val progress: Float = 0f,
