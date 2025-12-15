@@ -8,11 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
 import com.universalmedialibrary.BuildConfig
+import com.universalmedialibrary.R
 import com.universalmedialibrary.ui.media.components.MediaType
 import com.universalmedialibrary.ui.media.player.*
 import com.universalmedialibrary.ui.media.screens.*
@@ -170,7 +172,7 @@ fun MediaAppNavHost(
 
         composable(MediaRoutes.DISCOVER) {
             MediaDiscoverScreen(
-                onNavigate = { route -> navController.navigate(route) },
+                onNavigate = navController::navigate,
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -179,7 +181,7 @@ fun MediaAppNavHost(
         // The UI navigates to "discover/podcasts" but we can reuse the main Discover screen for now.
         composable(MediaRoutes.PODCAST_DISCOVER) {
             MediaDiscoverScreen(
-                onNavigate = { route -> navController.navigate(route) },
+                onNavigate = navController::navigate,
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -773,25 +775,28 @@ fun MediaAppNavHost(
             )
         }
 
-        // Web fiction source browser (safe destination so navigation doesn't crash).
-        // This can be upgraded to a real source directory UI later.
-        composable(
-            route = MediaRoutes.WEB_FICTION_BROWSE,
-            arguments = listOf(navArgument("source") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val source = backStackEntry.arguments?.getString("source") ?: ""
+        // Malformed/legacy route tolerance: if invoked without a source param, don't crash.
+        composable("discover/webfiction") {
+            val title = stringResource(R.string.webfiction_browse_title_generic)
+            val snackbarMessage = stringResource(
+                R.string.webfiction_browse_not_implemented,
+                stringResource(R.string.webfiction_browse_source_unknown)
+            )
 
-            LaunchedEffect(source) {
-                onShowSnackbar("Browse source '$source' is not implemented yet.")
+            LaunchedEffect(snackbarMessage) {
+                onShowSnackbar(snackbarMessage)
             }
 
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text(text = if (source.isBlank()) "Browse Source" else "Browse: $source") },
+                        title = { Text(text = title) },
                         navigationIcon = {
                             IconButton(onClick = { navController.popBackStack() }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                                Icon(
+                                    Icons.Default.ArrowBack,
+                                    contentDescription = stringResource(R.string.navigation_back)
+                                )
                             }
                         }
                     )
@@ -806,20 +811,92 @@ fun MediaAppNavHost(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = "Source browsing is coming soon.",
+                        text = stringResource(R.string.webfiction_browse_coming_soon),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "For now, you can still add stories by URL from the Web Fiction screen.",
+                        text = stringResource(R.string.webfiction_browse_add_by_url_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Button(onClick = { navController.popBackStack() }) {
-                            Text("Back")
+                            Text(stringResource(R.string.navigation_back))
                         }
                         OutlinedButton(onClick = { navController.navigate(MediaRoutes.WEB_FICTION) }) {
-                            Text("Go to Web Fiction")
+                            Text(stringResource(R.string.webfiction_browse_go_to_web_fiction))
+                        }
+                    }
+                }
+            }
+        }
+
+        // Web fiction source browser (safe destination so navigation doesn't crash).
+        // This can be upgraded to a real source directory UI later.
+        composable(
+            route = MediaRoutes.WEB_FICTION_BROWSE,
+            arguments = listOf(
+                navArgument("source") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source").orEmpty()
+            val displaySource = source.ifBlank { stringResource(R.string.webfiction_browse_source_unknown) }
+            val snackbarMessage = stringResource(R.string.webfiction_browse_not_implemented, displaySource)
+
+            LaunchedEffect(snackbarMessage) {
+                onShowSnackbar(snackbarMessage)
+            }
+
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = if (source.isBlank()) {
+                                    stringResource(R.string.webfiction_browse_title_generic)
+                                } else {
+                                    stringResource(R.string.webfiction_browse_title, displaySource)
+                                }
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    Icons.Default.ArrowBack,
+                                    contentDescription = stringResource(R.string.navigation_back)
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { padding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = stringResource(R.string.webfiction_browse_coming_soon),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.webfiction_browse_add_by_url_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(onClick = { navController.popBackStack() }) {
+                            Text(stringResource(R.string.navigation_back))
+                        }
+                        OutlinedButton(onClick = { navController.navigate(MediaRoutes.WEB_FICTION) }) {
+                            Text(stringResource(R.string.webfiction_browse_go_to_web_fiction))
                         }
                     }
                 }
