@@ -3,6 +3,7 @@ package com.universalmedialibrary.ui.settings
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -266,143 +267,158 @@ fun ImportSorterScreen(
             return@Scaffold
         }
 
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Text("Pick an Input folder and an Output folder. Everything in Input will be scanned and sorted into Output with subfolders + basic metadata.")
+            item {
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text("Pick an Input folder and an Output folder. Everything in Input will be scanned and sorted into Output with subfolders + basic metadata.")
 
-                    Button(onClick = { inputPicker.launch(null) }) {
-                        Icon(Icons.Default.FolderOpen, contentDescription = "Select input folder")
-                        Text("  Choose Input Folder")
-                    }
-                    inputUri?.let { Text("Input: $it") }
-
-                    Button(onClick = { outputPicker.launch(null) }) {
-                        Icon(Icons.Default.FolderCopy, contentDescription = "Select output folder")
-                        Text("  Choose Output Folder")
-                    }
-                    outputUri?.let { Text("Output: $it") }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Move files instead of copy")
-                        Switch(checked = moveFiles, onCheckedChange = { viewModel.setMoveFiles(it) })
-                    }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Remove empty folders (after move)")
-                        Switch(
-                            checked = removeEmptyFolders,
-                            onCheckedChange = { viewModel.setRemoveEmptyFolders(it) }
+                        Button(onClick = { inputPicker.launch(null) }) {
+                            Icon(Icons.Default.FolderOpen, contentDescription = "Select input folder")
+                            Text("  Choose Input Folder")
+                        }
+                        OutlinedTextField(
+                            value = inputUri?.toString().orEmpty(),
+                            onValueChange = { },
+                            readOnly = true,
+                            singleLine = true,
+                            label = { Text("Input folder") },
+                            modifier = Modifier.fillMaxWidth()
                         )
-                    }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Review questionable items before import")
-                        Switch(
-                            checked = reviewQuestionable,
-                            onCheckedChange = { viewModel.setReviewQuestionable(it) }
+                        Button(onClick = { outputPicker.launch(null) }) {
+                            Icon(Icons.Default.FolderCopy, contentDescription = "Select output folder")
+                            Text("  Choose Output Folder")
+                        }
+                        OutlinedTextField(
+                            value = outputUri?.toString().orEmpty(),
+                            onValueChange = { },
+                            readOnly = true,
+                            singleLine = true,
+                            label = { Text("Output folder") },
+                            modifier = Modifier.fillMaxWidth()
                         )
-                    }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Run import in background (WorkManager)")
-                        Switch(checked = runInBackground, onCheckedChange = { viewModel.setRunInBackground(it) })
-                    }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Sorting profile: $sortProfile")
-                        Button(onClick = {
-                            val next = when (sortProfile) {
-                                ImportSortProfile.DEFAULT -> ImportSortProfile.COMICS_SINGLETONS_TO_ROOT
-                                ImportSortProfile.COMICS_SINGLETONS_TO_ROOT -> ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER
-                                ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER -> ImportSortProfile.BOOKS_AUTHOR_TITLE
-                                ImportSortProfile.BOOKS_AUTHOR_TITLE -> ImportSortProfile.BOOKS_FLAT
-                                ImportSortProfile.BOOKS_FLAT -> ImportSortProfile.DEFAULT
-                            }
-                            viewModel.setProfile(next.name)
-                        }) {
-                            Text("Change profile")
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Move files instead of copy")
+                            Switch(checked = moveFiles, onCheckedChange = { viewModel.setMoveFiles(it) })
                         }
-                    }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Use online metadata during review")
-                        Switch(checked = useOnlineMetadata, onCheckedChange = { viewModel.setUseOnlineMetadata(it) })
-                    }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Prevent duplicates (SHA-256)")
-                        Switch(checked = preventDuplicates, onCheckedChange = { viewModel.setPreventDuplicates(it) })
-                    }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("On duplicate (same hash): $duplicateStrategy")
-                        Button(onClick = {
-                            val next = when (duplicateStrategy) {
-                                ImportConflictStrategy.SKIP -> ImportConflictStrategy.QUARANTINE
-                                ImportConflictStrategy.QUARANTINE -> ImportConflictStrategy.RENAME
-                                ImportConflictStrategy.RENAME -> ImportConflictStrategy.SKIP
-                                ImportConflictStrategy.REPLACE -> ImportConflictStrategy.SKIP
-                            }
-                            viewModel.setDuplicateStrategy(next.name)
-                        }) {
-                            Text("Change duplicate strategy")
-                        }
-                    }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("On conflict (same name in destination): $conflictStrategy")
-                        // Simple toggle cycle to avoid adding a full dropdown dependency here
-                        Button(onClick = {
-                            val next = when (conflictStrategy) {
-                                ImportConflictStrategy.RENAME -> ImportConflictStrategy.SKIP
-                                ImportConflictStrategy.SKIP -> ImportConflictStrategy.REPLACE
-                                ImportConflictStrategy.REPLACE -> ImportConflictStrategy.QUARANTINE
-                                ImportConflictStrategy.QUARANTINE -> ImportConflictStrategy.RENAME
-                            }
-                            viewModel.setConflictStrategy(next.name)
-                        }) {
-                            Text("Change conflict strategy")
-                        }
-                    }
-
-                    Button(
-                        enabled = inputUri != null && outputUri != null,
-                        onClick = {
-                            val inUri = inputUri ?: return@Button
-                            val outUri = outputUri ?: return@Button
-                            viewModel.scanOrBuildPlan(
-                                context = appContext,
-                                inputTreeUri = inUri,
-                                outputTreeUri = outUri,
-                                options = ImportSortOptions(
-                                    moveFiles = moveFiles,
-                                    removeEmptyFolders = removeEmptyFolders,
-                                    conflictStrategy = conflictStrategy,
-                                    profile = sortProfile,
-                                    preventDuplicates = preventDuplicates,
-                                    duplicateStrategy = duplicateStrategy
-                                ),
-                                reviewQuestionable = reviewQuestionable
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Remove empty folders (after move)")
+                            Switch(
+                                checked = removeEmptyFolders,
+                                onCheckedChange = { viewModel.setRemoveEmptyFolders(it) }
                             )
                         }
-                    ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = "Scan and sort")
-                        Text("  Scan & Sort Now")
-                    }
 
-                    if (runtime.progress.isNotBlank()) Text(runtime.progress)
-                    runtime.summary?.let { Text(it) }
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Review questionable items before import")
+                            Switch(
+                                checked = reviewQuestionable,
+                                onCheckedChange = { viewModel.setReviewQuestionable(it) }
+                            )
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Run import in background (WorkManager)")
+                            Switch(checked = runInBackground, onCheckedChange = { viewModel.setRunInBackground(it) })
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Sorting profile: $sortProfile")
+                            Button(onClick = {
+                                val next = when (sortProfile) {
+                                    ImportSortProfile.DEFAULT -> ImportSortProfile.COMICS_SINGLETONS_TO_ROOT
+                                    ImportSortProfile.COMICS_SINGLETONS_TO_ROOT -> ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER
+                                    ImportSortProfile.COMICS_ALWAYS_SERIES_FOLDER -> ImportSortProfile.BOOKS_AUTHOR_TITLE
+                                    ImportSortProfile.BOOKS_AUTHOR_TITLE -> ImportSortProfile.BOOKS_FLAT
+                                    ImportSortProfile.BOOKS_FLAT -> ImportSortProfile.DEFAULT
+                                }
+                                viewModel.setProfile(next.name)
+                            }) {
+                                Text("Change profile")
+                            }
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Use online metadata during review")
+                            Switch(checked = useOnlineMetadata, onCheckedChange = { viewModel.setUseOnlineMetadata(it) })
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Prevent duplicates (SHA-256)")
+                            Switch(checked = preventDuplicates, onCheckedChange = { viewModel.setPreventDuplicates(it) })
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("On duplicate (same hash): $duplicateStrategy")
+                            Button(onClick = {
+                                val next = when (duplicateStrategy) {
+                                    ImportConflictStrategy.SKIP -> ImportConflictStrategy.QUARANTINE
+                                    ImportConflictStrategy.QUARANTINE -> ImportConflictStrategy.RENAME
+                                    ImportConflictStrategy.RENAME -> ImportConflictStrategy.SKIP
+                                    ImportConflictStrategy.REPLACE -> ImportConflictStrategy.SKIP
+                                }
+                                viewModel.setDuplicateStrategy(next.name)
+                            }) {
+                                Text("Change duplicate strategy")
+                            }
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("On conflict (same name in destination): $conflictStrategy")
+                            // Simple toggle cycle to avoid adding a full dropdown dependency here
+                            Button(onClick = {
+                                val next = when (conflictStrategy) {
+                                    ImportConflictStrategy.RENAME -> ImportConflictStrategy.SKIP
+                                    ImportConflictStrategy.SKIP -> ImportConflictStrategy.REPLACE
+                                    ImportConflictStrategy.REPLACE -> ImportConflictStrategy.QUARANTINE
+                                    ImportConflictStrategy.QUARANTINE -> ImportConflictStrategy.RENAME
+                                }
+                                viewModel.setConflictStrategy(next.name)
+                            }) {
+                                Text("Change conflict strategy")
+                            }
+                        }
+
+                        Button(
+                            enabled = inputUri != null && outputUri != null,
+                            onClick = {
+                                val inUri = inputUri ?: return@Button
+                                val outUri = outputUri ?: return@Button
+                                viewModel.scanOrBuildPlan(
+                                    context = appContext,
+                                    inputTreeUri = inUri,
+                                    outputTreeUri = outUri,
+                                    options = ImportSortOptions(
+                                        moveFiles = moveFiles,
+                                        removeEmptyFolders = removeEmptyFolders,
+                                        conflictStrategy = conflictStrategy,
+                                        profile = sortProfile,
+                                        preventDuplicates = preventDuplicates,
+                                        duplicateStrategy = duplicateStrategy
+                                    ),
+                                    reviewQuestionable = reviewQuestionable
+                                )
+                            }
+                        ) {
+                            Icon(Icons.Default.PlayArrow, contentDescription = "Scan and sort")
+                            Text("  Scan & Sort Now")
+                        }
+
+                        if (runtime.progress.isNotBlank()) Text(runtime.progress)
+                        runtime.summary?.let { Text(it) }
+                    }
                 }
             }
         }

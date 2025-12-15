@@ -822,11 +822,13 @@ fun MediaBottomNavigation(
         val showLeftFade by remember { derivedStateOf { scrollState.value > 0 } }
         val showRightFade by remember { derivedStateOf { scrollState.value < scrollState.maxValue } }
 
-        val gearSize = 48.dp
-        val gearPadding = MediaSpacing.SM
+        // Keep the gear a full-height square "end-cap" so it aligns with the bar and feels tappable.
+        val gearOuterPadding = MediaSpacing.XS
+        val gearSlotSize = MediaSizes.BottomBarHeight
+        val gearSize = gearSlotSize - (gearOuterPadding * 2)
         val scrollContentPadding = when (gearPosition) {
-            BottomGearPosition.LEFT -> PaddingValues(start = gearSize + gearPadding, end = 0.dp)
-            BottomGearPosition.RIGHT -> PaddingValues(start = 0.dp, end = gearSize + gearPadding)
+            BottomGearPosition.LEFT -> PaddingValues(start = gearSlotSize, end = 0.dp)
+            BottomGearPosition.RIGHT -> PaddingValues(start = 0.dp, end = gearSlotSize)
         }
 
         Box(
@@ -850,33 +852,6 @@ fun MediaBottomNavigation(
                         enabled = destination.enabled,
                         isSelected = isDestinationSelected(currentRoute = currentRoute, destinationRoute = destination.route),
                         onClick = { if (destination.enabled) onNavigate(destination.route) }
-                    )
-                }
-            }
-
-            // Persistent settings gear overlay (not part of scroll row)
-            Surface(
-                modifier = Modifier
-                    .size(gearSize)
-                    .align(
-                        if (gearPosition == BottomGearPosition.LEFT) {
-                            Alignment.CenterStart
-                        } else {
-                            Alignment.CenterEnd
-                        }
-                    )
-                    .padding(gearPadding),
-                shape = RoundedCornerShape(MediaCorners.SM),
-                color = MediaColors.BackgroundSurface,
-                tonalElevation = MediaElevation.SM,
-                shadowElevation = 0.dp,
-                onClick = { onNavigate(MediaRoutes.SETTINGS) }
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Outlined.Settings,
-                        contentDescription = "Settings",
-                        tint = MediaColors.TextSecondary
                     )
                 }
             }
@@ -907,6 +882,34 @@ fun MediaBottomNavigation(
                             )
                         )
                 )
+            }
+
+            // Persistent settings gear overlay (not part of scroll row).
+            // Draw this AFTER fades so it stays crisp and never looks "dimmed".
+            Surface(
+                modifier = Modifier
+                    .size(gearSize)
+                    .align(
+                        if (gearPosition == BottomGearPosition.LEFT) {
+                            Alignment.CenterStart
+                        } else {
+                            Alignment.CenterEnd
+                        }
+                    )
+                    .padding(gearOuterPadding),
+                shape = RoundedCornerShape(MediaCorners.XS),
+                color = MediaColors.BackgroundSurface,
+                tonalElevation = MediaElevation.SM,
+                shadowElevation = 0.dp,
+                onClick = { onNavigate(MediaRoutes.SETTINGS) }
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Outlined.Settings,
+                        contentDescription = "Settings",
+                        tint = MediaColors.TextSecondary
+                    )
+                }
             }
         }
     }
