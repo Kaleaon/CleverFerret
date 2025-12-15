@@ -175,6 +175,15 @@ fun MediaAppNavHost(
             )
         }
         
+        // Alias route: podcast screen "Discover" action
+        // The UI navigates to "discover/podcasts" but we can reuse the main Discover screen for now.
+        composable(MediaRoutes.PODCAST_DISCOVER) {
+            MediaDiscoverScreen(
+                onNavigate = { route -> navController.navigate(route) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
         composable(MediaRoutes.SEARCH) {
             val viewModel: SearchViewModel = hiltViewModel()
             val state by viewModel.uiState.collectAsState()
@@ -762,6 +771,59 @@ fun MediaAppNavHost(
                     }
                 }
             )
+        }
+
+        // Web fiction source browser (safe destination so navigation doesn't crash).
+        // This can be upgraded to a real source directory UI later.
+        composable(
+            route = MediaRoutes.WEB_FICTION_BROWSE,
+            arguments = listOf(navArgument("source") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val source = backStackEntry.arguments?.getString("source") ?: ""
+
+            LaunchedEffect(source) {
+                onShowSnackbar("Browse source '$source' is not implemented yet.")
+            }
+
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text(text = if (source.isBlank()) "Browse Source" else "Browse: $source") },
+                        navigationIcon = {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
+                        }
+                    )
+                }
+            ) { padding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Source browsing is coming soon.",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "For now, you can still add stories by URL from the Web Fiction screen.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(onClick = { navController.popBackStack() }) {
+                            Text("Back")
+                        }
+                        OutlinedButton(onClick = { navController.navigate(MediaRoutes.WEB_FICTION) }) {
+                            Text("Go to Web Fiction")
+                        }
+                    }
+                }
+            }
         }
         
         composable(MediaRoutes.AMBIENT_SOUNDS) {
