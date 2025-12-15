@@ -5,6 +5,9 @@ import androidx.compose.material.icons.filled.*
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.universalmedialibrary.data.local.dao.RadioStationDao
+import com.universalmedialibrary.data.local.entity.RadioStation as DbRadioStation
+import com.universalmedialibrary.services.radio.RadioBrowserService
 import com.universalmedialibrary.ui.media.components.MediaItem
 import com.universalmedialibrary.ui.media.components.MediaType
 import com.universalmedialibrary.ui.media.screens.*
@@ -13,45 +16,190 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 /**
- * Radio ViewModel (Simplified)
+ * Radio ViewModel
+ *
+ * Backed by real sources:
+ * - Internet radio catalog via `RadioBrowserService`
+ * - Favorites / history via `RadioStationDao`
  */
 @HiltViewModel
-class RadioViewModel @Inject constructor() : ViewModel() {
-    
-    private val _uiState = MutableStateFlow(RadioScreenState())
-    val uiState: StateFlow<RadioScreenState> = _uiState.asStateFlow()
-    
+class RadioViewModel @Inject constructor(
+    private val radioBrowserService: RadioBrowserService,
+    private val radioStationDao: RadioStationDao
+) : ViewModel() {
+
+    private val networkPopular = MutableStateFlow<List<DbRadioStation>>(emptyList())
+    private val nowPlaying = MutableStateFlow<RadioStation?>(null)
+    private val selectedGenre = MutableStateFlow<String?>(null)
+
+    private data class RadioSnapshot(
+        val favoritesDb: List<DbRadioStation>,
+        val recentDb: List<DbRadioStation>,
+        val mostPlayedDb: List<DbRadioStation>,
+        val genreCounts: List<RadioStationDao.GenreCount>,
+        val networkDb: List<DbRadioStation>
+    )
+
+    val uiState: StateFlow<RadioScreenState> =
+        combine(
+            combine(
+                radioStationDao.getFavoriteStations(),
+                radioStationDao.getRecentlyPlayed(limit = 10),
+                radioStationDao.getMostPlayed(limit = 20),
+                radioStationDao.getGenreCounts(),
+                networkPopular
+            ) { favoritesDb, recentDb, mostPlayedDb, genreCounts, networkDb ->
+                RadioSnapshot(
+                    favoritesDb = favoritesDb,
+                    recentDb = recentDb,
+                    mostPlayedDb = mostPlayedDb,
+                    genreCounts = genreCounts,
+                    networkDb = networkDb
+                )
+            },
+            nowPlaying,
+            selectedGenre
+        ) { snapshot, nowPlayingUi, selected ->
+            val favoritesByStreamUrl = snapshot.favoritesDb
+                .mapNotNull { it.streamUrl }
+                .toSet()
+
+            val categories = snapshot.genreCounts
+                .filter { it.genre.isNotBlank() }
+                .take(20)
+                .map { gc ->
+                    RadioCategory(
+                        id = gc.genre,
+                        name = gc.genre,
+                        icon = Icons.Default.Category,
+                        color = MediaColors.AccentPrimary,
+                        stationCount = gc.count
+                    )
+                }
+
+            val popularSource = if (snapshot.mostPlayedDb.isNotEmpty()) snapshot.mostPlayedDb else snapshot.networkDb
+            val popularUi = popularSource
+                .mapNotNull { it.toUiStation(favoritesByStreamUrl) }
+                .let { list ->
+                    val filterGenre = selected?.trim()?.takeIf { it.isNotBlank() }
+                    if (filterGenre == null) list else list.filter { it.genre.equals(filterGenre, ignoreCase = true) }
+                }
+
+            val favoritesUi = snapshot.favoritesDb.mapNotNull { it.toUiStation(favoritesByStreamUrl) }
+            val recentUi = snapshot.recentDb.mapNotNull { it.toUiStation(favoritesByStreamUrl) }
+
+            RadioScreenState(
+                favoriteStations = favoritesUi,
+                popularStations = popularUi,
+                recentlyPlayed = recentUi,
+                categories = categories,
+                fmStations = emptyList(),
+                hdStations = emptyList(),
+                oldTimeShows = emptyList(),
+                nowPlaying = nowPlayingUi,
+                fmAvailable = false,
+                hdAvailable = false,
+                isLoading = false
+            )
+        }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = RadioScreenState(isLoading = true)
+            )
+
     init {
-        loadRadioData()
+        refreshPopularStations()
     }
-    
-    private fun loadRadioData() {
+
+    fun refreshPopularStations() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = false) }
+            runCatching {
+                radioBrowserService.fetchTopStations(limit = 50)
+            }.onSuccess { stations ->
+                networkPopular.value = stations
+            }
         }
     }
-    
+
     fun playStation(station: RadioStation) {
         viewModelScope.launch {
-            _uiState.update { it.copy(nowPlaying = station) }
+            val db = ensureStationInDb(station)
+            if (db != null) {
+                radioStationDao.recordPlay(db.id, System.currentTimeMillis())
+            }
+            nowPlaying.value = station
         }
     }
-    
+
     fun toggleFavorite(station: RadioStation) {
         viewModelScope.launch {
-            val updated = if (station.isFavorite) {
-                _uiState.value.favoriteStations.filter { it.id != station.id }
+            val streamUrl = station.streamUrl.takeIf { it.isNotBlank() } ?: return@launch
+            val existing = radioStationDao.getStationByStreamUrl(streamUrl)
+            if (existing != null) {
+                radioStationDao.updateFavoriteStatus(existing.id, !existing.isFavorite)
             } else {
-                _uiState.value.favoriteStations + station.copy(isFavorite = true)
+                radioStationDao.insertStation(
+                    DbRadioStation(
+                        name = station.name,
+                        description = null,
+                        streamUrl = streamUrl,
+                        websiteUrl = null,
+                        logoUrl = station.logoUrl,
+                        genre = station.genre,
+                        country = station.country,
+                        bitrate = station.bitrate,
+                        isFavorite = true
+                    )
+                )
             }
-            _uiState.update { it.copy(favoriteStations = updated) }
         }
     }
-    
+
     fun selectCategory(category: RadioCategory) {
-        // Filter stations by category
+        selectedGenre.value = category.name
+    }
+
+    private suspend fun ensureStationInDb(station: RadioStation): DbRadioStation? {
+        val streamUrl = station.streamUrl.takeIf { it.isNotBlank() } ?: return null
+        val existing = radioStationDao.getStationByStreamUrl(streamUrl)
+        if (existing != null) return existing
+
+        val id = radioStationDao.insertStation(
+            DbRadioStation(
+                name = station.name,
+                description = null,
+                streamUrl = streamUrl,
+                websiteUrl = null,
+                logoUrl = station.logoUrl,
+                genre = station.genre,
+                country = station.country,
+                bitrate = station.bitrate,
+                isFavorite = station.isFavorite
+            )
+        )
+        return radioStationDao.getStationByIdDirect(id)
+    }
+
+    private fun DbRadioStation.toUiStation(favoritesByStreamUrl: Set<String>): RadioStation? {
+        val url = streamUrl?.takeIf { it.isNotBlank() } ?: return null
+        val genreName = genre?.takeIf { it.isNotBlank() } ?: "Radio"
+        val favorite = isFavorite || favoritesByStreamUrl.contains(url)
+        return RadioStation(
+            id = id.toString(),
+            name = name,
+            logoUrl = logoUrl,
+            streamUrl = url,
+            genre = genreName,
+            genreColor = MediaColors.AccentPrimary,
+            country = country,
+            bitrate = bitrate,
+            isFavorite = favorite,
+            currentTrack = null
+        )
     }
 }
 

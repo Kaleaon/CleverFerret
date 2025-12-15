@@ -371,3 +371,6 @@ dependencies {
 
 // Apply publishing configuration for GitHub Packages
 apply(from = "publish.gradle")
+
+// Version helper tasks for CI (printVersionCode, incrementVersionCode, etc.)
+apply(from = "version.gradle")
