@@ -45,13 +45,12 @@ fun ParentalControlsScreen(
     navController: NavController,
     viewModel: ParentalControlsViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val scrollState = rememberScrollState()
+    val uiState by viewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
+    Scaffold(
+        topBar = {
+            TopAppBar(
                     title = {
                         Text(
                             "Parental Controls",
@@ -262,16 +261,15 @@ fun ParentalControlsScreen(
         }
 
         // Success Message
-        uiState.successMessage?.let { message ->
-            LaunchedEffect(message) {
-                kotlinx.coroutines.delay(2000)
-                viewModel.clearSuccess()
-            }
-            Snackbar(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(message)
-            }
+    uiState.successMessage?.let { message ->
+        LaunchedEffect(message) {
+            kotlinx.coroutines.delay(2000)
+            viewModel.clearSuccess()
+        }
+        Snackbar(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(message)
         }
     }
 }

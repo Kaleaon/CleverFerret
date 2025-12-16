@@ -43,10 +43,9 @@ fun SettingsScreen(
     var showThemePicker by remember { mutableStateOf(false) }
     var showMiniPlayerBackgroundDialog by remember { mutableStateOf(false) }
 
-    CleverFerretTheme(palette = uiState.selectedTheme, darkTheme = uiState.darkMode) {
-        Scaffold(
-            topBar = {
-                MetallicTopAppBar(
+    Scaffold(
+        topBar = {
+            MetallicTopAppBar(
                     title = {
                         Text(
                             "Settings",
@@ -912,17 +911,16 @@ fun SettingsScreen(
             )
         }
 
-          if (showMiniPlayerBackgroundDialog) {
-              MiniPlayerBackgroundDialog(
-                  currentMode = uiState.miniPlayerBackgroundMode,
-                  onSelect = { mode ->
-                      viewModel.setMiniPlayerBackgroundMode(mode)
-                      showMiniPlayerBackgroundDialog = false
-                  },
-                  onDismiss = { showMiniPlayerBackgroundDialog = false }
-              )
-          }
-    }
+        if (showMiniPlayerBackgroundDialog) {
+            MiniPlayerBackgroundDialog(
+                currentMode = uiState.miniPlayerBackgroundMode,
+                onSelect = { mode ->
+                    viewModel.setMiniPlayerBackgroundMode(mode)
+                    showMiniPlayerBackgroundDialog = false
+                },
+                onDismiss = { showMiniPlayerBackgroundDialog = false }
+            )
+        }
 }
 
 @Composable

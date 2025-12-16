@@ -27,8 +27,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.universalmedialibrary.services.metadata.MetadataApiService
 import com.universalmedialibrary.services.metadata.UnifiedMetadataSearchResult
-import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,23 +36,22 @@ fun EnhancedMetadataEditorScreen(
     navController: NavController,
     metadataApiService: MetadataApiService = hiltViewModel<EnhancedMetadataViewModel>().metadataApiService
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        var title by remember { mutableStateOf("") }
-        var author by remember { mutableStateOf("") }
-        var description by remember { mutableStateOf("") }
-        var year by remember { mutableStateOf("") }
-        var genre by remember { mutableStateOf("") }
-        var rating by remember { mutableFloatStateOf(0f) }
-        var coverUrl by remember { mutableStateOf("") }
-        var isbn by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf("") }
+    var author by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var year by remember { mutableStateOf("") }
+    var genre by remember { mutableStateOf("") }
+    var rating by remember { mutableFloatStateOf(0f) }
+    var coverUrl by remember { mutableStateOf("") }
+    var isbn by remember { mutableStateOf("") }
 
-        var searchQuery by remember { mutableStateOf("") }
-        var searchResults by remember { mutableStateOf<List<UnifiedMetadataSearchResult>>(emptyList()) }
-        var isSearching by remember { mutableStateOf(false) }
-        var showSearchDialog by remember { mutableStateOf(false) }
-        var mediaType by remember { mutableStateOf("BOOK") }
+    var searchQuery by remember { mutableStateOf("") }
+    var searchResults by remember { mutableStateOf<List<UnifiedMetadataSearchResult>>(emptyList()) }
+    var isSearching by remember { mutableStateOf(false) }
+    var showSearchDialog by remember { mutableStateOf(false) }
+    var mediaType by remember { mutableStateOf("BOOK") }
 
-        val coroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
         // Load existing metadata on start
         LaunchedEffect(mediaId) {
@@ -451,5 +448,4 @@ fun EnhancedMetadataEditorScreen(
                 }
             )
         }
-    }
 }

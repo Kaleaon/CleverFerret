@@ -45,17 +45,16 @@ fun WebFictionManagerScreen(
     navController: NavController,
     viewModel: WebFictionViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
-        var showAddDialog by remember { mutableStateOf(false) }
-        var showRedditDialog by remember { mutableStateOf(false) }
-        var showSiteInfoDialog by remember { mutableStateOf(false) }
-        var selectedSite by remember { mutableStateOf<WebFictionSite?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
+    val adultSitesEnabled by viewModel.adultSitesEnabled.collectAsState()
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showRedditDialog by remember { mutableStateOf(false) }
+    var showSiteInfoDialog by remember { mutableStateOf(false) }
+    var selectedSite by remember { mutableStateOf<WebFictionSite?>(null) }
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
+    Scaffold(
+        topBar = {
+            TopAppBar(
                     title = {
                         Text(
                             "Web Fiction Manager",
@@ -319,14 +318,13 @@ fun WebFictionManagerScreen(
             )
         }
 
-        uiState.pendingPinChallenge?.let { challenge ->
-            PinAccessDialog(
-                challenge = challenge,
-                onDismiss = { viewModel.dismissPinChallenge() },
-                onAccessGranted = { viewModel.onPinUnlockGranted() },
-                verifyPin = viewModel::verifyPin
-            )
-        }
+    uiState.pendingPinChallenge?.let { challenge ->
+        PinAccessDialog(
+            challenge = challenge,
+            onDismiss = { viewModel.dismissPinChallenge() },
+            onAccessGranted = { viewModel.onPinUnlockGranted() },
+            verifyPin = viewModel::verifyPin
+        )
     }
 }
 

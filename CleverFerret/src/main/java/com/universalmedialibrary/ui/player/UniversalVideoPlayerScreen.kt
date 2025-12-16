@@ -44,12 +44,11 @@ fun UniversalVideoPlayerScreen(
         }
     }
 
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color.Black
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Black
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
                 // Main video player area
                 when (playerState.playerType) {
                     VideoPlayerType.EXOPLAYER -> {
@@ -137,7 +136,6 @@ fun UniversalVideoPlayerScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

@@ -26,8 +26,6 @@ import com.universalmedialibrary.services.podcast.Podcast
 import com.universalmedialibrary.services.podcast.PodcastEpisode
 import com.universalmedialibrary.services.podcast.PodcastSearchResult
 import com.universalmedialibrary.ui.components.PinAccessDialog
-import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.ui.theme.MetallicFAB
 import com.universalmedialibrary.ui.theme.MetallicTopAppBar
 import kotlinx.coroutines.launch
@@ -40,80 +38,79 @@ fun PodcastManagerScreen(
     navController: NavController,
     viewModel: PodcastViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.FOREST_COPPER) {
-        val uiState by viewModel.uiState.collectAsState()
-        val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
-        var showSearchDialog by remember { mutableStateOf(false) }
-        var showAddFeedDialog by remember { mutableStateOf(false) }
-        var selectedTab by remember { mutableIntStateOf(0) }
+    val uiState by viewModel.uiState.collectAsState()
+    val pendingPinChallenge by viewModel.pendingPinChallenge.collectAsState()
+    var showSearchDialog by remember { mutableStateOf(false) }
+    var showAddFeedDialog by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableIntStateOf(0) }
 
-        Scaffold(
-            topBar = {
-                MetallicTopAppBar(
-                    title = {
-                        Text(
-                            "Podcast Manager",
-                            fontWeight = FontWeight.Medium
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { showSearchDialog = true }) {
-                            Icon(Icons.Default.Search, contentDescription = "Search Podcasts")
-                        }
-                        IconButton(onClick = { viewModel.refreshAllPodcasts() }) {
-                            Icon(Icons.Default.Refresh, contentDescription = "Refresh All")
-                        }
-                        IconButton(onClick = { /* Import OPML */ }) {
-                            Icon(Icons.Default.FileUpload, contentDescription = "Import OPML")
-                        }
+    Scaffold(
+        topBar = {
+            MetallicTopAppBar(
+                title = {
+                    Text(
+                        "Podcast Manager",
+                        fontWeight = FontWeight.Medium
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                    IconButton(onClick = { showSearchDialog = true }) {
+                        Icon(Icons.Default.Search, contentDescription = "Search Podcasts")
+                    }
+                    IconButton(onClick = { viewModel.refreshAllPodcasts() }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh All")
+                    }
+                    IconButton(onClick = { /* Import OPML */ }) {
+                        Icon(Icons.Default.FileUpload, contentDescription = "Import OPML")
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            MetallicFAB(
+                onClick = { showAddFeedDialog = true },
+                icon = {
+                    Icon(Icons.Default.Add, contentDescription = "Add Podcast")
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            // Tab row
+            PrimaryTabRow(selectedTabIndex = selectedTab) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    text = { Text("Subscriptions") }
                 )
-            },
-            floatingActionButton = {
-                MetallicFAB(
-                    onClick = { showAddFeedDialog = true },
-                    icon = {
-                        Icon(Icons.Default.Add, contentDescription = "Add Podcast")
-                    }
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    text = { Text("Episodes") }
+                )
+                Tab(
+                    selected = selectedTab == 2,
+                    onClick = { selectedTab = 2 },
+                    text = { Text("Downloads") }
                 )
             }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Tab row
-                PrimaryTabRow(selectedTabIndex = selectedTab) {
-                    Tab(
-                        selected = selectedTab == 0,
-                        onClick = { selectedTab = 0 },
-                        text = { Text("Subscriptions") }
-                    )
-                    Tab(
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
-                        text = { Text("Episodes") }
-                    )
-                    Tab(
-                        selected = selectedTab == 2,
-                        onClick = { selectedTab = 2 },
-                        text = { Text("Downloads") }
-                    )
-                }
 
-                // Status bar
-                if (uiState.isLoading) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+            // Status bar
+            if (uiState.isLoading) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
                 // Error message
                 uiState.error?.let { error ->
@@ -182,42 +179,40 @@ fun PodcastManagerScreen(
                 }
             }
         }
+    // Search dialog
+    if (showSearchDialog) {
+        PodcastSearchDialog(
+            searchResults = uiState.searchResults,
+            isSearching = uiState.isSearching,
+            onDismiss = { showSearchDialog = false },
+            onSearch = { query ->
+                viewModel.searchPodcasts(query)
+            },
+            onSubscribe = { podcast ->
+                viewModel.subscribeFromSearchResult(podcast)
+                showSearchDialog = false
+            }
+        )
+    }
 
-        // Search dialog
-        if (showSearchDialog) {
-            PodcastSearchDialog(
-                searchResults = uiState.searchResults,
-                isSearching = uiState.isSearching,
-                onDismiss = { showSearchDialog = false },
-                onSearch = { query ->
-                    viewModel.searchPodcasts(query)
-                },
-                onSubscribe = { podcast ->
-                    viewModel.subscribeFromSearchResult(podcast)
-                    showSearchDialog = false
-                }
-            )
-        }
+    // Add feed dialog
+    if (showAddFeedDialog) {
+        AddPodcastFeedDialog(
+            onDismiss = { showAddFeedDialog = false },
+            onAdd = { feedUrl ->
+                viewModel.addPodcastByFeedUrl(feedUrl)
+                showAddFeedDialog = false
+            }
+        )
+    }
 
-        // Add feed dialog
-        if (showAddFeedDialog) {
-            AddPodcastFeedDialog(
-                onDismiss = { showAddFeedDialog = false },
-                onAdd = { feedUrl ->
-                    viewModel.addPodcastByFeedUrl(feedUrl)
-                    showAddFeedDialog = false
-                }
-            )
-        }
-
-        pendingPinChallenge?.let { challenge ->
-            PinAccessDialog(
-                challenge = challenge,
-                onDismiss = { viewModel.dismissPinChallenge() },
-                onAccessGranted = { viewModel.onPinUnlockGranted() },
-                verifyPin = viewModel::verifyPin
-            )
-        }
+    pendingPinChallenge?.let { challenge ->
+        PinAccessDialog(
+            challenge = challenge,
+            onDismiss = { viewModel.dismissPinChallenge() },
+            onAccessGranted = { viewModel.onPinUnlockGranted() },
+            verifyPin = viewModel::verifyPin
+        )
     }
 }
 

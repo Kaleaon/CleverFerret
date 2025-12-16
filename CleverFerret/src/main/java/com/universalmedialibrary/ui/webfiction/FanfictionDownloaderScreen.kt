@@ -23,8 +23,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.universalmedialibrary.ui.theme.CleverFerretTheme
-import com.universalmedialibrary.ui.theme.ThemePalette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,13 +30,12 @@ fun FanfictionDownloaderScreen(
     navController: NavController,
     viewModel: FanfictionDownloaderViewModel = hiltViewModel()
 ) {
-    CleverFerretTheme(palette = ThemePalette.NAVY_GOLD) {
-        val uiState by viewModel.uiState.collectAsState()
-        val keyboardController = LocalSoftwareKeyboardController.current
+    val uiState by viewModel.uiState.collectAsState()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-        Scaffold(
-            topBar = {
-                TopAppBar(
+    Scaffold(
+        topBar = {
+            TopAppBar(
                     title = {
                         Text(
                             "Fanfiction Downloader",
@@ -466,7 +463,6 @@ fun FanfictionDownloaderScreen(
                 }
             }
         }
-    }
 }
 
 @Composable

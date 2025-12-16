@@ -19,6 +19,7 @@ import com.universalmedialibrary.data.settings.BottomGearPosition
 import com.universalmedialibrary.ui.media.components.MediaMiniPlayer
 import com.universalmedialibrary.ui.media.navigation.*
 import com.universalmedialibrary.ui.main.MainViewModel
+import com.universalmedialibrary.ui.media.theme.MediaColors
 import com.universalmedialibrary.ui.theme.CleverFerretTheme
 import com.universalmedialibrary.ui.theme.ThemePalette
 import com.universalmedialibrary.utils.rememberPermissionsHandler
@@ -63,6 +64,9 @@ private fun MediaAppRoot(
         palette = palette,
         darkTheme = darkMode
     ) {
+        // Bridge media-centric design tokens to the app-wide theme palette.
+        MediaColors.SyncWithMaterialTheme()
+
         MediaMainScreen(
             playbackStateManager = playbackStateManager,
             mainViewModel = mainViewModel

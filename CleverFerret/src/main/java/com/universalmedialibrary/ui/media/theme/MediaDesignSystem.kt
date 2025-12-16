@@ -30,22 +30,12 @@ import com.universalmedialibrary.R
  * Dark backgrounds with warm gold/orange accents for a premium feel
  */
 object MediaColors {
-    // Primary Background Layers (darkest to lightest)
-    val Background = Color(0xFF1F1F1F)           // Main background
-    val BackgroundElevated = Color(0xFF282828)   // Cards, dialogs
-    val BackgroundSurface = Color(0xFF323232)    // Elevated surfaces
-    val BackgroundHover = Color(0xFF3D3D3D)      // Interactive hover states
-    val BackgroundPressed = Color(0xFF484848)    // Pressed states
-    
-    // Accent Colors - Plex Gold/Orange Theme
-    val AccentPrimary = Color(0xFFE5A00D)        // Primary gold accent
-    val AccentSecondary = Color(0xFFF5B82E)      // Secondary lighter gold
-    val AccentTertiary = Color(0xFFCC8A00)       // Darker gold
-    val AccentGlow = Color(0xFFFFD54F)           // Highlight/glow effects
-    
-    // Alternative Accent Themes
+    /**
+     * Alternative accent colors (static). These are used by optional accent-only themes
+     * and should not be treated as the primary theme system.
+     */
     object Themes {
-        val MediaGold = AccentPrimary
+        val MediaGold = Color(0xFFE5A00D)
         val FerretOrange = Color(0xFFFF6D00)
         val NetflixRed = Color(0xFFE50914)
         val SpotifyGreen = Color(0xFF1DB954)
@@ -54,82 +44,157 @@ object MediaColors {
         val HBOPurple = Color(0xFF8800CC)
         val AppleWhite = Color(0xFFF5F5F7)
     }
-    
-    // Text Colors
-    val TextPrimary = Color(0xFFFFFFFF)          // Primary text
-    val TextSecondary = Color(0xFFB3B3B3)        // Secondary/subtitle text
-    val TextTertiary = Color(0xFF808080)         // Muted text
-    val TextDisabled = Color(0xFF5A5A5A)         // Disabled text
-    val TextOnAccent = Color(0xFF000000)         // Text on accent backgrounds
+
+    // -------------------------------------------------------------------------
+    // Theme-synced tokens (non-composable to keep call-sites simple)
+    //
+    // These are updated from the current MaterialTheme via [SyncWithMaterialTheme].
+    // This avoids sprinkling MaterialTheme everywhere while still allowing the app-wide
+    // UnifiedCleverFerretTheme palette to drive the media UI.
+    // -------------------------------------------------------------------------
+
+    var Background by mutableStateOf(Color(0xFF1F1F1F))
+        private set
+    var BackgroundElevated by mutableStateOf(Color(0xFF282828))
+        private set
+    var BackgroundSurface by mutableStateOf(Color(0xFF323232))
+        private set
+    var BackgroundHover by mutableStateOf(Color(0xFF3D3D3D))
+        private set
+    var BackgroundPressed by mutableStateOf(Color(0xFF484848))
+        private set
+
+    var AccentPrimary by mutableStateOf(Themes.MediaGold)
+        private set
+    var AccentSecondary by mutableStateOf(Color(0xFFF5B82E))
+        private set
+    var AccentTertiary by mutableStateOf(Color(0xFFCC8A00))
+        private set
+    var AccentGlow by mutableStateOf(Color(0xFFFFD54F))
+        private set
+
+    var TextPrimary by mutableStateOf(Color(0xFFFFFFFF))
+        private set
+    var TextSecondary by mutableStateOf(Color(0xFFB3B3B3))
+        private set
+    var TextTertiary by mutableStateOf(Color(0xFF808080))
+        private set
+    var TextDisabled by mutableStateOf(Color(0xFF5A5A5A))
+        private set
+    var TextOnAccent by mutableStateOf(Color(0xFF000000))
+        private set
     
     // Media Type Colors (for categorization)
     object MediaTypes {
         // User request: remove per-segment bright rainbow colors.
         // Keep a single coherent accent across the app chrome.
-        val Book = AccentPrimary
-        val Audiobook = AccentPrimary
-        val Comic = AccentPrimary
-        val Music = AccentPrimary
-        val Podcast = AccentPrimary
-        val Movie = AccentPrimary
-        val TvShow = AccentPrimary
-        val Radio = AccentPrimary
-        val Document = AccentPrimary
-        val Fanfiction = AccentPrimary
-        val News = AccentPrimary
+        val Book: Color get() = AccentPrimary
+        val Audiobook: Color get() = AccentPrimary
+        val Comic: Color get() = AccentPrimary
+        val Music: Color get() = AccentPrimary
+        val Podcast: Color get() = AccentPrimary
+        val Movie: Color get() = AccentPrimary
+        val TvShow: Color get() = AccentPrimary
+        val Radio: Color get() = AccentPrimary
+        val Document: Color get() = AccentPrimary
+        val Fanfiction: Color get() = AccentPrimary
+        val News: Color get() = AccentPrimary
     }
     
     // Status Colors
-    val Success = Color(0xFF4CAF50)
-    val Warning = Color(0xFFFFC107)
-    val Error = Color(0xFFF44336)
-    val Info = Color(0xFF2196F3)
+    val Success: Color = Color(0xFF4CAF50)
+    val Warning: Color = Color(0xFFFFC107)
+    val Info: Color = Color(0xFF2196F3)
+    var Error by mutableStateOf(Color(0xFFF44336))
+        private set
     
     // Progress Colors
-    val ProgressBackground = Color(0xFF3D3D3D)
-    val ProgressForeground = AccentPrimary
-    val ProgressUnwatched = Color(0xFF666666)
+    var ProgressBackground by mutableStateOf(Color(0xFF3D3D3D))
+        private set
+    val ProgressForeground: Color get() = AccentPrimary
+    var ProgressUnwatched by mutableStateOf(Color(0xFF666666))
+        private set
     
     // Border & Divider Colors
-    val Border = Color(0xFF404040)
-    val BorderFocused = AccentPrimary
-    val Divider = Color(0xFF333333)
+    var Border by mutableStateOf(Color(0xFF404040))
+        private set
+    val BorderFocused: Color get() = AccentPrimary
+    var Divider by mutableStateOf(Color(0xFF333333))
+        private set
     
     // Gradient Backgrounds
     object Gradients {
-        val backgroundFade = Brush.verticalGradient(
-            colors = listOf(
-                Color.Transparent,
-                Background.copy(alpha = 0.7f),
-                Background
+        val backgroundFade: Brush
+            get() = Brush.verticalGradient(
+                colors = listOf(
+                    Color.Transparent,
+                    Background.copy(alpha = 0.7f),
+                    Background
+                )
             )
-        )
-        
-        val cardHover = Brush.verticalGradient(
-            colors = listOf(
-                Color.Transparent,
-                AccentPrimary.copy(alpha = 0.1f)
+
+        val cardHover: Brush
+            get() = Brush.verticalGradient(
+                colors = listOf(
+                    Color.Transparent,
+                    AccentPrimary.copy(alpha = 0.1f)
+                )
             )
-        )
-        
-        val heroOverlay = Brush.verticalGradient(
-            colors = listOf(
-                Color.Transparent,
-                Background.copy(alpha = 0.3f),
-                Background.copy(alpha = 0.8f),
-                Background
-            ),
-            startY = 0f,
-            endY = Float.POSITIVE_INFINITY
-        )
-        
-        val shimmer = Brush.horizontalGradient(
-            colors = listOf(
-                BackgroundElevated,
-                BackgroundSurface,
-                BackgroundElevated
+
+        val heroOverlay: Brush
+            get() = Brush.verticalGradient(
+                colors = listOf(
+                    Color.Transparent,
+                    Background.copy(alpha = 0.3f),
+                    Background.copy(alpha = 0.8f),
+                    Background
+                ),
+                startY = 0f,
+                endY = Float.POSITIVE_INFINITY
             )
-        )
+
+        val shimmer: Brush
+            get() = Brush.horizontalGradient(
+                colors = listOf(
+                    BackgroundElevated,
+                    BackgroundSurface,
+                    BackgroundElevated
+                )
+            )
+    }
+
+    private fun updateFromColorScheme(scheme: ColorScheme) {
+        Background = scheme.background
+        BackgroundElevated = scheme.surface
+        BackgroundSurface = scheme.surfaceVariant
+        BackgroundHover = scheme.surfaceVariant.copy(alpha = 0.9f)
+        BackgroundPressed = scheme.surfaceVariant.copy(alpha = 0.8f)
+
+        AccentPrimary = scheme.primary
+        AccentSecondary = scheme.secondary
+        AccentTertiary = scheme.primaryContainer
+        AccentGlow = scheme.primary.copy(alpha = 0.35f)
+
+        TextPrimary = scheme.onBackground
+        TextSecondary = scheme.onSurfaceVariant
+        TextTertiary = scheme.onSurfaceVariant.copy(alpha = 0.75f)
+        TextDisabled = scheme.onSurfaceVariant.copy(alpha = 0.45f)
+        TextOnAccent = scheme.onPrimary
+
+        Error = scheme.error
+
+        Border = scheme.outline
+        Divider = scheme.outlineVariant
+        ProgressBackground = scheme.surfaceVariant
+        ProgressUnwatched = scheme.onSurfaceVariant.copy(alpha = 0.55f)
+    }
+
+    @Composable
+    fun SyncWithMaterialTheme() {
+        val scheme = MaterialTheme.colorScheme
+        SideEffect {
+            updateFromColorScheme(scheme)
+        }
     }
 }
 
@@ -249,8 +314,7 @@ object MediaTypography {
         fontSize = Sizes.Caption,
         fontWeight = Weights.Regular,
         lineHeight = 16.sp,
-        letterSpacing = 0.sp,
-        color = MediaColors.TextSecondary
+        letterSpacing = 0.sp
     )
     
     val Badge = TextStyle(
@@ -445,42 +509,42 @@ object MediaAnimations {
 /**
  * Material 3 color scheme based on Plex design
  */
-val MediaDarkColorScheme = darkColorScheme(
-    primary = MediaColors.AccentPrimary,
-    onPrimary = MediaColors.TextOnAccent,
-    primaryContainer = MediaColors.AccentTertiary,
-    onPrimaryContainer = MediaColors.TextPrimary,
-    
-    secondary = MediaColors.AccentSecondary,
-    onSecondary = MediaColors.TextOnAccent,
-    secondaryContainer = MediaColors.BackgroundSurface,
-    onSecondaryContainer = MediaColors.TextPrimary,
-    
-    tertiary = MediaColors.MediaTypes.Book,
-    onTertiary = MediaColors.TextOnAccent,
-    tertiaryContainer = MediaColors.BackgroundSurface,
-    onTertiaryContainer = MediaColors.TextPrimary,
-    
-    background = MediaColors.Background,
-    onBackground = MediaColors.TextPrimary,
-    
-    surface = MediaColors.BackgroundElevated,
-    onSurface = MediaColors.TextPrimary,
-    surfaceVariant = MediaColors.BackgroundSurface,
-    onSurfaceVariant = MediaColors.TextSecondary,
-    
-    surfaceTint = MediaColors.AccentPrimary,
-    inverseSurface = MediaColors.TextPrimary,
-    inverseOnSurface = MediaColors.Background,
-    inversePrimary = MediaColors.AccentTertiary,
-    
-    error = MediaColors.Error,
-    onError = MediaColors.TextPrimary,
-    errorContainer = MediaColors.Error.copy(alpha = 0.2f),
-    onErrorContainer = MediaColors.Error,
-    
-    outline = MediaColors.Border,
-    outlineVariant = MediaColors.Divider,
+private val DefaultMediaDarkColorScheme = darkColorScheme(
+    primary = Color(0xFFE5A00D),
+    onPrimary = Color(0xFF000000),
+    primaryContainer = Color(0xFFCC8A00),
+    onPrimaryContainer = Color(0xFFFFFFFF),
+
+    secondary = Color(0xFFF5B82E),
+    onSecondary = Color(0xFF000000),
+    secondaryContainer = Color(0xFF323232),
+    onSecondaryContainer = Color(0xFFFFFFFF),
+
+    tertiary = Color(0xFFE5A00D),
+    onTertiary = Color(0xFF000000),
+    tertiaryContainer = Color(0xFF323232),
+    onTertiaryContainer = Color(0xFFFFFFFF),
+
+    background = Color(0xFF1F1F1F),
+    onBackground = Color(0xFFFFFFFF),
+
+    surface = Color(0xFF282828),
+    onSurface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFF323232),
+    onSurfaceVariant = Color(0xFFB3B3B3),
+
+    surfaceTint = Color(0xFFE5A00D),
+    inverseSurface = Color(0xFFFFFFFF),
+    inverseOnSurface = Color(0xFF1F1F1F),
+    inversePrimary = Color(0xFFCC8A00),
+
+    error = Color(0xFFF44336),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFF44336).copy(alpha = 0.2f),
+    onErrorContainer = Color(0xFFF44336),
+
+    outline = Color(0xFF404040),
+    outlineVariant = Color(0xFF333333),
     scrim = Color.Black.copy(alpha = 0.6f)
 )
 
@@ -528,10 +592,10 @@ data class MediaAccentColors(
 
 val LocalMediaAccent = staticCompositionLocalOf {
     MediaAccentColors(
-        primary = MediaColors.AccentPrimary,
-        secondary = MediaColors.AccentSecondary,
-        tertiary = MediaColors.AccentTertiary,
-        glow = MediaColors.AccentGlow
+        primary = MediaColors.Themes.MediaGold,
+        secondary = Color(0xFFF5B82E),
+        tertiary = Color(0xFFCC8A00),
+        glow = Color(0xFFFFD54F)
     )
 }
 
@@ -583,10 +647,11 @@ fun getAccentColors(theme: MediaAccentTheme, customColor: Color? = null): MediaA
             glow = Color(0xFFCC66FF)
         )
         MediaAccentTheme.CUSTOM -> MediaAccentColors(
-            primary = customColor ?: MediaColors.AccentPrimary,
-            secondary = (customColor ?: MediaColors.AccentPrimary).copy(alpha = 0.8f),
-            tertiary = (customColor ?: MediaColors.AccentPrimary).copy(alpha = 0.6f),
-            glow = (customColor ?: MediaColors.AccentPrimary).copy(alpha = 0.4f)
+            // Keep this helper non-composable; fall back to a static accent.
+            primary = customColor ?: MediaColors.Themes.MediaGold,
+            secondary = (customColor ?: MediaColors.Themes.MediaGold).copy(alpha = 0.8f),
+            tertiary = (customColor ?: MediaColors.Themes.MediaGold).copy(alpha = 0.6f),
+            glow = (customColor ?: MediaColors.Themes.MediaGold).copy(alpha = 0.4f)
         )
     }
 }
@@ -608,7 +673,7 @@ fun MediaAccentTheme(
     }
     
     val colorScheme = remember(accentColors) {
-        MediaDarkColorScheme.copy(
+        DefaultMediaDarkColorScheme.copy(
             primary = accentColors.primary,
             onPrimary = if (accentColors.primary.luminance() > 0.5f) 
                 Color.Black else Color.White,

@@ -28,13 +28,10 @@ fun MediaServerSettingsScreen(
     viewModel: MediaServerSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val selectedTheme by viewModel.selectedTheme.collectAsState()
-    val darkMode by viewModel.darkMode.collectAsState()
     var showAddServerDialog by remember { mutableStateOf(false) }
     var selectedServerType by remember { mutableStateOf(ServerType.JELLYFIN) }
 
-    CleverFerretTheme(palette = selectedTheme, darkTheme = darkMode) {
-        Scaffold(
+    Scaffold(
         topBar = {
             MetallicTopAppBar(
                 title = {
@@ -177,8 +174,7 @@ fun MediaServerSettingsScreen(
                 viewModel.addServer(selectedServerType, name, url, username, password, apiKey)
                 showAddServerDialog = false
             }
-            )
-        }
+        )
     }
 }
 
@@ -237,10 +233,10 @@ private fun ServerCard(
                     text = "Delete",
                     onClick = onDelete,
                     modifier = Modifier.weight(1f)
-                )
-            }
+            )
         }
     }
+}
 }
 
 @Composable
